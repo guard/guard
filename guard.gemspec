@@ -17,13 +17,13 @@ Gem::Specification.new do |s|
   s.add_development_dependency  'bundler', '~> 1.0.1'
   s.add_development_dependency  'rspec',   '~> 2.0.0.beta.22'
   
-  s.add_dependency 'thor',      '~> 0.14.2'
-  s.add_dependency 'sys-uname', '~> 0.8.4'
+  s.add_dependency 'thor',       '~> 0.14.2'
+  s.add_dependency 'sys-uname',  '~> 0.8.4'
   # Mac OS X
-  s.add_dependency 'growl',     '~> 1.0.3'
+  s.add_dependency 'growl',      '~> 1.0.3'
   # Linux
-  s.add_dependency 'rb-inotify'
-  s.add_dependency 'libnotify', '~> 0.1.3'
+  s.add_dependency 'rb-inotify', '~> 0.8.1'
+  s.add_dependency 'libnotify',  '~> 0.1.3'
   
   s.files        = Dir.glob('{bin,images,lib,ext}/**/*') + %w[LICENSE README.rdoc]
   s.extensions   = ['ext/extconf.rb']
