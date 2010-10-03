@@ -1,0 +1,6 @@
+#!/usr/bin/env ruby
+
+require 'guard'
+require 'guard/cli'
+
+Guard::CLI.start
