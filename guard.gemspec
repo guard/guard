@@ -12,6 +12,7 @@ Gem::Specification.new do |s|
   s.summary     = 'Guard keep an eye on your files event'
   s.description = 'Guard is a command line tool to easly manage script launch when your files change'
   
+  s.required_rubygems_version = '>= 1.3.6'
   s.rubyforge_project = 'guard'
   
   s.add_development_dependency  'bundler', '~> 1.0.1'
