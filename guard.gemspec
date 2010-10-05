@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
   s.rubyforge_project = 'guard'
   
   s.add_development_dependency  'bundler', '~> 1.0.2'
-  s.add_development_dependency  'rspec',   '~> 2.0.0.beta.22'
+  s.add_development_dependency  'rspec',   '~> 2.0.0.rc'
   
   s.add_dependency 'thor',       '~> 0.14.2'
   s.add_dependency 'sys-uname',  '~> 0.8.4'
