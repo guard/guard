@@ -10,14 +10,18 @@ module Guard
       exit 1
     end
     
+    def self.guardfile_included?(guard_name)
+      File.read('Guardfile').include?("guard '#{guard_name}'")
+    end
+    
     def guard(name, options = {}, &definition)
       @watchers = []
-      definition.call
-      Guard.add_guard(name, @watchers, options)
+      definition.call if definition
+      ::Guard.add_guard(name, @watchers, options)
     end
     
     def watch(pattern, &action)
-      @watchers << Guard::Watcher.new(pattern, action)
+      @watchers << ::Guard::Watcher.new(pattern, action)
     end
     
   end

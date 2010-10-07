@@ -15,10 +15,11 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = '>= 1.3.6'
   s.rubyforge_project = 'guard'
   
-  s.add_development_dependency  'bundler', '~> 1.0.2'
-  s.add_development_dependency  'rspec',   '~> 2.0.0.rc'
+  s.add_development_dependency  'rspec',       '~> 2.0.0.rc'
+  s.add_development_dependency  'guard-rspec', '~> 0.1.0.beta.2'
   
-  s.add_dependency 'thor',       '~> 0.14.2'
+  s.add_dependency 'bundler',    '~> 1.0.2'
+  s.add_dependency 'thor',       '~> 0.14.3'
   s.add_dependency 'sys-uname',  '~> 0.8.4'
   # Mac OS X
   s.add_dependency 'growl',      '~> 1.0.3'

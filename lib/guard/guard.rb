@@ -6,6 +6,22 @@ module Guard
       @watchers, @options = watchers, options
     end
     
+    # Guardfile template needed inside guard gem
+    def self.init(name)
+      if ::Guard::Dsl.guardfile_included?(name)
+        ::Guard::UI.info "Guardfile already include #{name} guard"
+      else
+        content = File.read('Guardfile')
+        guard   = File.read("#{::Guard.locate_guard(name)}/lib/guard/#{name}/templates/Guardfile")
+        File.open('Guardfile', 'wb') do |f|
+          f.puts content
+          f.puts ""
+          f.puts guard
+        end
+        ::Guard::UI.info "#{name} guard added to Guardfile, feel free to edit it"
+      end
+    end
+    
     # ================
     # = Guard method =
     # ================

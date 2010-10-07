@@ -5,7 +5,7 @@ module Guard
       def info(message, options = {})
         unless ENV["GUARD_ENV"] == "test"
           reset_line if options[:reset]
-          clear      if options.key?(:clear) ? options[:clear] : ::Guard.options[:clear]
+          clear      if options.key?(:clear) ? options[:clear] : (::Guard.options && ::Guard.options[:clear])
           puts reset_color(message) if message != ''
         end
       end
