@@ -12,11 +12,10 @@ module Guard
           if matches = file.match(watcher.pattern)
             if watcher.action
               begin 
-                case watcher.action.arity
-                when -1
-                  result = watcher.action.call
-                when 1
+                if watcher.action.arity == 1
                   result = watcher.action.call(matches)
+                else
+                  result = watcher.action.call
                 end
               rescue
                 UI.info "Problem with watch action"
