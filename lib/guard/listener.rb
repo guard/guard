@@ -50,6 +50,8 @@ module Guard
     
     def recent_file?(file)
       File.mtime(file) >= last_event
+    rescue
+      false
     end
     
     def update_last_event
