@@ -13,7 +13,7 @@ Guard is a command line tool to easly handle events on files modifications.
 
 == Install
 
-Only Mac OS X (10.5+) & Linux are supported. Tested on Ruby 1.8.7 & 1.9.2dev.
+Only Mac OS X (10.5+) & Linux are supported. Tested on Ruby 1.8.7 & 1.9.2.
 
 Install the gem:
 
@@ -75,12 +75,12 @@ You are good to go!
 
 Create a new guard is very easy, just create a new gem with this basic structure:
 
-    - lib/
-      - guard/
-        - guard-name/
-          - templates/
-            - Guardfile (needed for guard init <guard-name>)
-        - guard-name.rb
+    lib/
+      guard/
+        guard-name/
+          templates/
+            Guardfile (needed for guard init <guard-name>)
+        guard-name.rb
 
 lib/guard/guard-name.rb inherit from guard/guard and should overwrite at least one of the five guard methods. Example:
 
@@ -152,4 +152,4 @@ you make.
 
 == Authors
 
-{Thibaud Guillaume-Gentil}[http://github.com/thibaudgg].
+{Thibaud Guillaume-Gentil}[http://github.com/thibaudgg]
