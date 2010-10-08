@@ -126,7 +126,7 @@ Looks at available guards code for more concrete example.
 
 == Guardfile DSL
 
-Guardfile DSL consists of just 2 simple methods: guard & watch. Example:
+Guardfile DSL consists of just two simple methods: guard & watch. Example:
 
     guard 'rspec', :version => 2 do
       watch('^spec/(.*)_spec.rb')
