@@ -1,3 +1,155 @@
 = Guard
 
-Documentation is coming.
+Guard is a command line tool to easly handle events on files modifications.
+
+== Features
+
+- FSEvent support on Mac OS X (without RubyCocoa!)
+- Inotify support on Linux (beta)
+- Super fast change detection
+- Automatic files modifications detection (even new files are detected)
+- Growl notification (please install {growlnotify}[http://growl.info/documentation/growlnotify.php])
+- Libnotify notification
+
+== Install
+
+Only Mac OS X (10.5+) & Linux are supported. Tested on Ruby 1.8.7 & 1.9.2dev.
+
+Install the gem:
+
+    gem install guard
+
+Add it to your Gemfile (inside test group):
+
+    gem 'guard'
+
+Generate an empty Guardfile with:
+
+    guard init
+
+Add guard(s) you need (see available guards below)
+
+== Usage
+
+Just launch Guard inside your ruby/rails project with:
+
+    guard
+
+Options list is available with:
+
+    guard help
+
+Signal handlers are used to interact with Guard:
+
+- Ctrl-C - Quit Guard (call stop guard(s) method before)
+- Ctrl-\ - Call run_all guard(s) method
+- Ctrl-Z - Call reload guard(s) method
+
+== Available Guards
+
+- {guard-rspec}[http://github.com/guard/guard-rspec]
+
+guard ideas:
+
+- guard-spork
+- guard-livereload
+- guard-cucumber
+- guard-test
+- guard-sass
+- guard-bundler
+- others ideas?
+
+=== Add a guard to your Guardfile
+
+Add it to your Gemfile (inside test group):
+
+    gem '<guard-name>'
+
+Add guard definition to your Guardfile with:
+
+    guard init <guard-name>
+
+You are good to go!
+
+== Create a guard
+
+Create a new guard is very easy, just create a new gem with this basic structure:
+
+    - lib/
+      - guard/
+        - guard-name/
+          - templates/
+            - Guardfile (needed for guard init <guard-name>)
+        - guard-name.rb
+
+lib/guard/guard-name.rb inherit from guard/guard and should overwrite at least one of the five guard methods. Example:
+
+    require 'guard'
+    require 'guard/guard'
+    
+    module Guard
+      class GuardName < Guard
+        
+        # ================
+        # = Guard method =
+        # ================
+        
+        # Call once when guard starts
+        def start
+          true
+        end
+        
+        # Call with Ctrl-C signal (when Guard quit)
+        def stop
+          true
+        end
+        
+        # Call with Ctrl-Z signal
+        def reload
+          true
+        end
+        
+        # Call with Ctrl-/ signal
+        def run_all
+          true
+        end
+        
+        # Call on file(s) modifications
+        def run_on_change(paths)
+          true
+        end
+        
+      end
+    end
+
+Looks at available guards code for more concrete example.
+
+== Guardfile DSL
+
+Guardfile DSL consists of just 2 simple methods: guard & watch. Example:
+
+    guard 'rspec', :version => 2 do
+      watch('^spec/(.*)_spec.rb')
+      watch('^lib/(.*)\.rb')        { |m| "spec/lib/#{m[1]}_spec.rb" }
+      watch('^spec/spec_helper.rb') { "spec" }
+      watch('^spec/spec_helper.rb') { `say hello` }
+    end
+    
+- "guard" method allow to add a guard with an optional options hash
+- "watch" method allow to define which files are supervised per this guard. A optional block can be added to overwrite path sending to run_on_change guard method or launch simple command.
+
+== TODO
+
+- Add more specs, help are welcome because I'm not sure about how to test stuff like this :-)
+
+== Development
+
+- Source hosted at {GitHub}[http://github.com/guard/guard]
+- Report issues/Questions/Feature requests on {GitHub Issues}[http://github.com/guard/guard/issues]
+
+Pull requests are very welcome! Make sure your patches are well tested. Please create a topic branch for every separate change
+you make.
+
+== Authors
+
+{Thibaud Guillaume-Gentil}[http://github.com/thibaudgg].
