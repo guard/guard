@@ -9,14 +9,14 @@ Gem::Specification.new do |s|
   s.authors     = ['Thibaud Guillaume-Gentil']
   s.email       = ['thibaud@thibaud.me']
   s.homepage    = 'http://rubygems.org/gems/guard'
-  s.summary     = 'Guard keep an eye on your files event'
-  s.description = 'Guard is a command line tool to easly manage script launch when your files change'
+  s.summary     = 'Guard keep an eye on your files modifications.'
+  s.description = 'Guard is a command line tool to easly handle events on files modifications.'
   
   s.required_rubygems_version = '>= 1.3.6'
   s.rubyforge_project = 'guard'
   
   s.add_development_dependency  'rspec',       '~> 2.0.0.rc'
-  s.add_development_dependency  'guard-rspec', '~> 0.1.0.beta.2'
+  s.add_development_dependency  'guard-rspec', '~> 0.1.0'
   
   s.add_dependency 'bundler',    '~> 1.0.2'
   s.add_dependency 'thor',       '~> 0.14.3'

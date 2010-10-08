@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    guard (0.1.0.beta.1)
+    guard (0.1.0)
       bundler (~> 1.0.2)
       growl (~> 1.0.3)
       libnotify (~> 0.1.3)
@@ -16,8 +16,8 @@ GEM
     ffi (0.6.3)
       rake (>= 0.8.7)
     growl (1.0.3)
-    guard-rspec (0.1.0.beta.2)
-      guard (~> 0.1.0.beta.1)
+    guard-rspec (0.1.0)
+      guard (~> 0.1.0.beta.2)
       rspec (~> 2.0.0.rc)
     libnotify (0.1.4)
       ffi (>= 0.6.2)
@@ -44,7 +44,7 @@ DEPENDENCIES
   bundler (~> 1.0.2)
   growl (~> 1.0.3)
   guard!
-  guard-rspec (~> 0.1.0.beta.2)
+  guard-rspec (~> 0.1.0)
   libnotify (~> 0.1.3)
   rb-inotify (~> 0.8.1)
   rspec (~> 2.0.0.rc)

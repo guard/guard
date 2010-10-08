@@ -19,7 +19,7 @@ module Guard
       
       Dsl.evaluate_guardfile
       if guards.empty?
-        UI.error "No guards found in Guardfile, too bad."
+        UI.error "No guards found in Guardfile, please add it at least one."
       else
         Interactor.init_signal_traps
         
