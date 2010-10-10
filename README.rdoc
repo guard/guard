@@ -48,11 +48,11 @@ Signal handlers are used to interact with Guard:
 == Available Guards
 
 - {guard-rspec}[http://github.com/guard/guard-rspec]
+- {guard-livereload}[http://github.com/guard/guard-livereload]
 
 guard ideas:
 
 - guard-spork
-- guard-livereload
 - guard-cucumber
 - guard-test
 - guard-sass
