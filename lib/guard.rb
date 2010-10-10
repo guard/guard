@@ -47,17 +47,19 @@ module Guard
       require "guard/#{name.downcase}"
       guard_class = ObjectSpace.each_object(Class).detect { |c| c.to_s.downcase.match "^guard::#{name.downcase}" }
     rescue LoadError
-      UI.error "#{name} guard gem not found, try to add it to your Gemfile."
+      UI.error "Could not find gem 'guard-#{name}' in the current Gemfile."
     end
     
     def locate_guard(name)
       spec = Bundler.load.specs.find{|s| s.name == "guard-#{name}" }
-      UI.error "Could not find gem '#{name}' in the current Gemfile." unless spec
       spec.full_gem_path
+    rescue
+      UI.error "Could not find gem 'guard-#{name}' in the current Gemfile."
     end
     
     def run
       listener.stop
+      UI.clear if options[:clear]
       yield
       listener.start
     end

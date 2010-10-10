@@ -13,7 +13,7 @@ module Guard
       Signal.trap('INT') do
         ::Guard.listener.stop
         if ::Guard.guards.all?(&:stop)
-          UI.info "Bye bye...", :reset => true, :clear => false
+          UI.info "Bye bye...", :reset => true
           abort("\n")
         else
           ::Guard.listener.start

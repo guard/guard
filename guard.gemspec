@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.email       = ['thibaud@thibaud.me']
   s.homepage    = 'http://rubygems.org/gems/guard'
   s.summary     = 'Guard keep an eye on your files modifications.'
-  s.description = 'Guard is a command line tool to easly handle events on files modifications.'
+  s.description = 'Guard is a command line tool to easily handle events on files modifications.'
   
   s.required_rubygems_version = '>= 1.3.6'
   s.rubyforge_project = 'guard'

@@ -6,7 +6,8 @@ module Guard
     default_task :start
     
     desc "start", "Starts guard"
-    method_option :clear, :type => :boolean, :default => false, :aliases => '-c', :banner => "Auto clear shell after each change"
+    method_option :clear, :type => :boolean, :default => false, :aliases => '-c', :banner => "Auto clear shell before each change/run_all/reload"
+    method_option :debug, :type => :boolean, :default => false, :aliases => '-d', :banner => "Print debug messages"
     def start
       ::Guard.start(options)
     end

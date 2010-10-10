@@ -5,7 +5,6 @@ module Guard
       def info(message, options = {})
         unless ENV["GUARD_ENV"] == "test"
           reset_line if options[:reset]
-          clear      if options.key?(:clear) ? options[:clear] : (::Guard.options && ::Guard.options[:clear])
           puts reset_color(message) if message != ''
         end
       end
@@ -14,15 +13,21 @@ module Guard
         puts "ERROR: #{message}"
       end
       
+      def debug(message)
+        unless ENV["GUARD_ENV"] == "test"
+          puts "DEBUG: #{message}" if ::Guard.options && ::Guard.options[:debug]
+        end
+      end
+      
       def reset_line
         print "\r\e "
       end
       
-    private
-      
       def clear
         system("clear;")
       end
+      
+    private
       
       def reset_color(text)
         color(text, "\e[0m")
