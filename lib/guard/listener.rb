@@ -1,51 +1,39 @@
-require 'sys/uname'
+require 'rbconfig'
 
 module Guard
+  
+  autoload :Darwin,  'guard/listeners/darwin'
+  autoload :Linux,   'guard/listeners/linux'
+  autoload :Polling, 'guard/listeners/polling'
+  
   class Listener
-    attr_reader :last_event, :callback, :pipe
+    attr_reader :last_event
+    
+    def self.init
+      if mac? && Darwin.usable?
+        Darwin.new
+      elsif linux? && Linux.usable?
+        Linux.new
+      else
+        UI.info "Using polling (Please help us to support your system better than that.)"
+        Polling.new
+      end
+    end
     
     def initialize
       update_last_event
     end
     
-    def on_change(&block)
-      @callback = block
-    end
-    
-    def start
-      @pipe = case Sys::Uname.sysname
-      when 'Darwin'
-        IO.popen("#{bin_path}/fsevent_watch .")
-      when 'Linux'
-        IO.popen("#{bin_path}/inotify_watch .")
-      end
-      watch_change
-    end
-    
-    def stop
-      Process.kill("HUP", pipe.pid) if pipe
-    end
-    
   private
     
-    def watch_change
-      while !pipe.eof?
-        if line = pipe.readline
-          modified_dirs = line.split(" ")
-          files = modified_files(modified_dirs)
-          update_last_event
-          callback.call(files)
-        end
-      end
-    end
-    
-    def modified_files(dirs)
-      files = potentially_modified_files(dirs).select { |file| recent_file?(file) }
+    def modified_files(dirs, options = {})
+      files = potentially_modified_files(dirs, options).select { |path| File.file?(path) && recent_file?(path) }
       files.map! { |file| file.gsub("#{Dir.pwd}/", '') }
     end
     
-    def potentially_modified_files(dirs)
-      Dir.glob(dirs.map { |dir| "#{dir}*" })
+    def potentially_modified_files(dirs, options = {})
+      match = options[:all] ? "**/*" : "*"
+      Dir.glob(dirs.map { |dir| "#{dir}#{match}" })
     end
     
     def recent_file?(file)
@@ -58,8 +46,12 @@ module Guard
       @last_event = Time.now
     end
     
-    def bin_path
-      File.expand_path(File.join(File.dirname(__FILE__), '..', '..', 'bin'))
+    def self.mac?
+      Config::CONFIG['target_os'] =~ /darwin/i
+    end
+    
+    def self.linux?
+      Config::CONFIG['target_os'] =~ /linux/i
     end
     
   end

@@ -14,7 +14,7 @@ module Guard
     
     def start(options = {})
       @options  = options
-      @listener = Listener.new
+      @listener = Listener.init
       @guards   = []
       
       Dsl.evaluate_guardfile
@@ -59,7 +59,7 @@ module Guard
     
     def run
       listener.stop
-      UI.clear if options[:clear]
+      UI. clear if options[:clear]
       yield
       listener.start
     end

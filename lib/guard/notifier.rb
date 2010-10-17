@@ -1,10 +1,10 @@
-require 'sys/uname'
+require 'rbconfig'
 require 'pathname'
 
-case Sys::Uname.sysname
-when 'Darwin'
+case Config::CONFIG['target_os']
+when /darwin/i
   require 'growl'
-when 'Linux'
+when /linux/i
   require 'libnotify'
 end
 
@@ -15,10 +15,10 @@ module Guard
       unless ENV["GUARD_ENV"] == "test"
         image = options[:image] || :success
         title = options[:title] || "Guard"
-        case Sys::Uname.sysname
-        when 'Darwin'
+        case Config::CONFIG['target_os']
+        when /darwin/i
           Growl.notify message, :title => title, :icon => image_path(image), :name => "Guard"
-        when 'Linux'
+        when /linux/i
           Libnotify.show :body => message, :summary => title, :icon_path => image_path(image)
         end
       end

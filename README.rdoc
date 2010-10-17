@@ -4,16 +4,16 @@ Guard is a command line tool to easly handle events on files modifications.
 
 == Features
 
-- FSEvent support on Mac OS X (without RubyCocoa!)
-- Inotify support on Linux (beta)
-- Super fast change detection
+- FSEvent support on Mac OS X 10.5+ (without RubyCocoa!, please install {rb-fsevent, >= 0.3.2}[https://rubygems.org/gems/rb-fsevent])
+- Inotify support on Linux (beta, please install {rb-inotify, >= 0.5.1}[https://rubygems.org/gems/rb-inotify])
+- Polling for others (help us to support more systems)
+- Super fast change detection (when polling not used)
 - Automatic files modifications detection (even new files are detected)
 - Growl notification (please install {growlnotify}[http://growl.info/documentation/growlnotify.php])
 - Libnotify notification
+- Tested on Ruby 1.8.7 & 1.9.2.
 
 == Install
-
-Only Mac OS X (10.5+) & Linux are supported. Tested on Ruby 1.8.7 & 1.9.2.
 
 Install the gem:
 
@@ -35,9 +35,13 @@ Just launch Guard inside your ruby/rails project with:
 
     guard
 
+Shell can be cleared after each change with:
+
+    guard -c
+
 Options list is available with:
 
-    guard help
+    guard help [TASK]
 
 Signal handlers are used to interact with Guard:
 
@@ -65,7 +69,7 @@ Add it to your Gemfile (inside test group):
 
     gem '<guard-name>'
 
-Add guard definition to your Guardfile with:
+Add guard definition to your Guardfile by running this command:
 
     guard init <guard-name>
 
