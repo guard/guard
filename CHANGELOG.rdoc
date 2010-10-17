@@ -1,0 +1,6 @@
+== 0.2.0.beta.1 (Oct 17, 2010)
+
+Features:
+
+- Improved listeners support (rb-fsevent & rb-inotify)
+- Added polling listening fallback
