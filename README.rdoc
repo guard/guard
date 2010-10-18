@@ -11,7 +11,7 @@ Guard is a command line tool to easly handle events on files modifications.
 - Automatic files modifications detection (even new files are detected)
 - Growl notification (please install {growlnotify}[http://growl.info/documentation/growlnotify.php])
 - Libnotify notification
-- Tested on Ruby 1.8.7 & 1.9.2.
+- Tested on Ruby 1.8.6, 1.8.7 & 1.9.2
 
 == Install
 

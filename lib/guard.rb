@@ -33,7 +33,7 @@ module Guard
         end
         
         UI.info "Guard is now watching at '#{Dir.pwd}'"
-        guards.each(&:start)
+        guards.each { |g| g.start }
         listener.start
       end
     end
@@ -45,7 +45,11 @@ module Guard
     
     def get_guard_class(name)
       require "guard/#{name.downcase}"
-      guard_class = ObjectSpace.each_object(Class).detect { |c| c.to_s.downcase.match "^guard::#{name.downcase}" }
+      klasses = []
+      ObjectSpace.each_object(Class) do |klass|
+        klasses << klass if klass.to_s.downcase.match "^guard::#{name.downcase}"
+      end
+      klasses.first
     rescue LoadError
       UI.error "Could not find gem 'guard-#{name}' in the current Gemfile."
     end

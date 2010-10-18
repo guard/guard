@@ -1,3 +1,9 @@
+== Master
+
+Bugs fixes:
+
+- Fixes for 1.8.6 compatibility (issue #2)
+
 == 0.2.0.beta.1 (Oct 17, 2010)
 
 Features:
