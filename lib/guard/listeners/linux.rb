@@ -1,13 +1,13 @@
 module Guard
   class Linux < Listener
     attr_reader :inotify, :files, :latency, :callback
-    
+
     def initialize
       @inotify = INotify::Notifier.new
       @files   = []
       @latency = 0.5
     end
-    
+
     def on_change(&callback)
       @callback = callback
       inotify.watch(Dir.pwd, :recursive, :attrib, :modify, :create) do |event|
@@ -15,18 +15,19 @@ module Guard
           @files << event.absolute_name
         end
       end
+    rescue Interrupt
     end
-    
+
     def start
       @stop = false
       watch_change
     end
-    
+
     def stop
       @stop = true
       inotify.stop
     end
-    
+
     def self.usable?
       require 'rb-inotify'
       if !defined?(INotify::VERSION) || Gem::Version.new(INotify::VERSION) < Gem::Version.new('0.5.1')
@@ -39,9 +40,9 @@ module Guard
       UI.info "Please install rb-inotify gem for Linux inotify support"
       false
     end
-    
+
   private
-    
+
     def watch_change
       while !@stop
         inotify.process
@@ -53,6 +54,6 @@ module Guard
         sleep latency
       end
     end
-    
+
   end
 end
