@@ -4,13 +4,13 @@ Guard is a command line tool to easly handle events on files modifications.
 
 == Features
 
-- FSEvent support on Mac OS X 10.5+ (without RubyCocoa!, please install {rb-fsevent, >= 0.3.2}[https://rubygems.org/gems/rb-fsevent])
-- Inotify support on Linux (beta, please install {rb-inotify, >= 0.5.1}[https://rubygems.org/gems/rb-inotify])
+- {FSEvent}[http://en.wikipedia.org/wiki/FSEvents] support on Mac OS X 10.5+ (without RubyCocoa!, please install {rb-fsevent gem, >= 0.3.2}[https://rubygems.org/gems/rb-fsevent])
+- {Inotify}[http://en.wikipedia.org/wiki/Inotify] support on Linux (beta, please install {rb-inotify gem, >= 0.5.1}[https://rubygems.org/gems/rb-inotify])
 - Polling for others (help us to support more systems)
 - Super fast change detection (when polling not used)
 - Automatic files modifications detection (even new files are detected)
-- Growl notification (please install {growlnotify}[http://growl.info/documentation/growlnotify.php])
-- Libnotify notification
+- Growl notification (please install {growlnotify}[http://growl.info/documentation/growlnotify.php] & {growl gem}[https://rubygems.org/gems/growl])
+- Libnotify notification (please install {libnotify gem}[https://rubygems.org/gems/libnotify])
 - Tested on Ruby 1.8.6, 1.8.7 & 1.9.2
 
 == Install
@@ -28,6 +28,27 @@ Generate an empty Guardfile with:
     guard init
 
 Add guard(s) you need (see available guards below)
+
+=== On Mac OS X
+
+Install rb-fsevent for {FSEvent}[http://en.wikipedia.org/wiki/FSEvents] support
+
+    gem install rb-fsevent
+
+Install growl for Growl notification support
+
+    gem install growl
+
+=== On Linux
+
+Install rb-inotify for {inotify}[http://en.wikipedia.org/wiki/Inotify] support
+
+    gem install rb-inotify
+
+Install libnotify for libonity notification support
+
+    gem install libnotify
+
 
 == Usage
 
