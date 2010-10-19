@@ -74,13 +74,14 @@ Signal handlers are used to interact with Guard:
 
 - {guard-rspec}[http://github.com/guard/guard-rspec]
 - {guard-livereload}[http://github.com/guard/guard-livereload]
+- {guard-test}[http://github.com/guard/guard-test]
+- {guard-sass}[http://github.com/guard/guard-sass]
+- {guard-shell}[http://github.com/guard/guard-shell]
 
 guard ideas:
 
 - guard-spork
 - guard-cucumber
-- guard-test
-- guard-sass
 - guard-bundler
 - others ideas?
 
