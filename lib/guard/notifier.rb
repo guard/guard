@@ -1,13 +1,6 @@
 require 'rbconfig'
 require 'pathname'
 
-case Config::CONFIG['target_os']
-when /darwin/i
-  require 'growl'
-when /linux/i
-  require 'libnotify'
-end
-
 module Guard
   module Notifier
     
@@ -17,9 +10,13 @@ module Guard
         title = options[:title] || "Guard"
         case Config::CONFIG['target_os']
         when /darwin/i
-          Growl.notify message, :title => title, :icon => image_path(image), :name => "Guard"
+          if growl_installed?
+            Growl.notify message, :title => title, :icon => image_path(image), :name => "Guard"
+          end
         when /linux/i
-          Libnotify.show :body => message, :summary => title, :icon_path => image_path(image)
+          if libnotify_installed?
+            Libnotify.show :body => message, :summary => title, :icon_path => image_path(image)
+          end
         end
       end
     end
@@ -38,6 +35,26 @@ module Guard
       else
         # path given
         image
+      end
+    end
+    
+    def self.growl_installed?
+      @installed ||= begin
+        require 'growl'
+        true
+      rescue LoadError
+        UI.info "Please install growl gem for Mac OS X notification support"
+        false
+      end
+    end
+    
+    def self.libnotify_installed?
+      @installed ||= begin
+        require 'libnotify'
+        true
+      rescue LoadError
+        UI.info "Please install libnotify gem for Linux notification support"
+        false
       end
     end
     

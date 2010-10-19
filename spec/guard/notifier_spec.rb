@@ -7,6 +7,7 @@ describe Guard::Notifier do
     before(:each) { ENV["GUARD_ENV"] = 'special_test' }
     
     if mac?
+      require 'growl'
       it "should use Growl on Mac OS X" do
         Growl.should_receive(:notify).with("great",
           :title => "Guard",
