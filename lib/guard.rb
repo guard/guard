@@ -55,15 +55,14 @@ module Guard
     end
     
     def locate_guard(name)
-      spec = Bundler.load.specs.find{|s| s.name == "guard-#{name}" }
-      spec.full_gem_path
+      `gem open guard-#{name} --latest --command echo`
     rescue
-      UI.error "Could not find gem 'guard-#{name}' in the current Gemfile."
+      UI.error "Could not find 'guard-#{name}' gem path."
     end
     
     def run
       listener.stop
-      UI. clear if options[:clear]
+      UI.clear if options[:clear]
       yield
       listener.start
     end

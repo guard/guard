@@ -10,4 +10,12 @@ describe Guard do
     
   end
   
+  describe "locate_guard" do
+    
+    it "should return guard-rspec pat" do
+      Guard.locate_guard('rspec').should match(/^.*\/guard-rspec-.*$/)
+    end
+    
+  end
+  
 end
