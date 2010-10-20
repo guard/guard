@@ -12,7 +12,7 @@ describe Guard do
   
   describe "locate_guard" do
     
-    it "should return guard-rspec pat" do
+    it "should return guard-rspec gem path" do
       Guard.locate_guard('rspec').should match(/^.*\/guard-rspec-.*$/)
     end
     

@@ -63,7 +63,10 @@ module Guard
     def run
       listener.stop
       UI.clear if options[:clear]
-      yield
+      begin
+        yield
+      rescue Interrupt
+      end
       listener.start
     end
     
