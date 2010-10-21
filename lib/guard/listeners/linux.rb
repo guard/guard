@@ -45,7 +45,7 @@ module Guard
 
     def watch_change
       while !@stop
-        if IO.select([inotify.to_io], [], [], latency)
+        if Config::CONFIG['build'] =~ /java/ || IO.select([inotify.to_io], [], [], latency)
           inotify.process
 
           unless files.empty?
