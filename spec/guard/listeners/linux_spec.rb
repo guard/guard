@@ -12,7 +12,7 @@ describe Guard::Linux do
   
   if linux?
     it "should be usable on linux" do
-      subject.should_not be_usable
+      subject.should be_usable
     end
     
     describe "watch" do

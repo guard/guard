@@ -45,8 +45,8 @@ module Guard
 
     def watch_change
       while !@stop
-        if IO.select([notifier.to_io], [], [], latency)
-          notifier.process
+        if IO.select([inotify.to_io], [], [], latency)
+          inotify.process
 
           unless files.empty?
             files.map! { |file| file.gsub("#{Dir.pwd}/", '') }
