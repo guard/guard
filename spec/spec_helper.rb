@@ -13,5 +13,9 @@ RSpec.configure do |config|
     ENV["GUARD_ENV"] = 'test'
     @fixture_path = Pathname.new(File.expand_path('../fixtures/', __FILE__))
   end
+
+  config.after(:each) do
+    ENV["GUARD_ENV"] = nil
+  end
   
 end
