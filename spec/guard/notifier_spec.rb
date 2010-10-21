@@ -19,14 +19,14 @@ describe Guard::Notifier do
     end
     
     if linux?
+      require 'libnotify'
       it "should use Libnotify on Linux" do
-        Sys::Uname.stub(:sysname).and_return('Linux')
         Libnotify.should_receive(:show).with(
           :body      => "great",
           :summary   => 'Guard',
-          :icon_path => 'image/path'
+          :icon_path => Pathname.new(File.dirname(__FILE__)).join('../../images/success.png').to_s
         )
-        subject.notify 'great', 'Guard', 'image/path'
+        subject.notify 'great', :title => 'Guard'
       end
     end
     
