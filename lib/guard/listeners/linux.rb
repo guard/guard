@@ -45,13 +45,16 @@ module Guard
 
     def watch_change
       while !@stop
-        inotify.process
-        unless files.empty?
-          files.map! { |file| file.gsub("#{Dir.pwd}/", '') }
-          callback.call(files)
-          files.clear
+        if IO.select([notifier.to_io], [], [], latency)
+          notifier.process
+
+          unless files.empty?
+            files.map! { |file| file.gsub("#{Dir.pwd}/", '') }
+            callback.call(files)
+            files.clear
+          end
+          sleep latency
         end
-        sleep latency
       end
     end
 
