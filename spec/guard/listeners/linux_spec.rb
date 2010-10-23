@@ -14,6 +14,25 @@ describe Guard::Linux do
     it "should be usable on linux" do
       subject.should be_usable
     end
+
+    describe "start" do
+      before(:each) do
+        @listener = Guard::Linux.new
+      end
+      
+      it "call watch_change" do
+        @listener.should_receive(:watch_change)
+        start
+      end
+
+      it "don't call watch_change if re start after stop" do
+        start
+        stop
+        @listener.should_not_receive(:watch_change)
+        start
+      end
+
+    end
     
     describe "watch" do
       before(:each) do
@@ -53,6 +72,15 @@ describe Guard::Linux do
         File.open(file2, 'w') {|f| f.write('') }
         stop
         @results.should == ['spec/fixtures/folder1/file1.txt', 'spec/fixtures/folder1/folder2/file2.txt']
+      end
+
+      it "should not process change if stopped" do
+        file = @fixture_path.join("folder1/file1.txt")
+        File.exists?(file).should be_true
+        start
+        @listener.inotify.should_not_receive(:process)
+        stop
+        File.open(file, 'w') {|f| f.write('') }
       end
     end
   end
