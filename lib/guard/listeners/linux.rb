@@ -3,6 +3,8 @@ module Guard
     attr_reader :inotify, :files, :latency, :callback
 
     def initialize
+      super
+
       @inotify = INotify::Notifier.new
       @files   = []
       @latency = 0.5
@@ -20,12 +22,12 @@ module Guard
 
     def start
       @stop = false
-      watch_change
+      watch_change unless @watch_change
     end
 
     def stop
       @stop = true
-      inotify.stop
+      sleep latency
     end
 
     def self.usable?
@@ -44,18 +46,24 @@ module Guard
   private
 
     def watch_change
+      @watch_change = true
       while !@stop
         if Config::CONFIG['build'] =~ /java/ || IO.select([inotify.to_io], [], [], latency)
+          break if @stop
+
           inotify.process
+          update_last_event
 
           unless files.empty?
             files.map! { |file| file.gsub("#{Dir.pwd}/", '') }
-            callback.call(files)
+            callback.call(files.dup)
             files.clear
           end
+
           sleep latency unless @stop
         end
       end
+      @watch_change = false
     end
 
   end
