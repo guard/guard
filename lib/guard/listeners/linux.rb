@@ -10,7 +10,7 @@ module Guard
 
     def on_change(&callback)
       @callback = callback
-      inotify.watch(Dir.pwd, :recursive, :attrib, :modify, :create) do |event|
+      inotify.watch(Dir.pwd, :recursive, :modify, :create, :delete, :move) do |event|
         unless event.name == "" # Event on root directory
           @files << event.absolute_name
         end
