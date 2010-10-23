@@ -68,6 +68,7 @@ private
   def stop
     sleep 1
     @listener.stop
+    sleep 1
   end
   
 end
