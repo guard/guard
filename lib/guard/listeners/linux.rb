@@ -53,7 +53,7 @@ module Guard
             callback.call(files)
             files.clear
           end
-          sleep latency
+          sleep latency unless @stop
         end
       end
     end
