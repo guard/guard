@@ -13,7 +13,9 @@ describe Guard do
   describe "locate_guard" do
     
     it "should return guard-rspec gem path" do
-      Guard.locate_guard('rspec').should match(/^.*\/guard-rspec-.*$/)
+      guard_path = Guard.locate_guard('rspec')
+      guard_path.should match(/^.*\/guard-rspec-.*$/)
+      guard_path.should == guard_path.chomp
     end
     
   end
