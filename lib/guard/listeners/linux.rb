@@ -56,7 +56,7 @@ module Guard
 
           unless files.empty?
             files.map! { |file| file.gsub("#{Dir.pwd}/", '') }
-            callback.call(files.dup)
+            callback.call(files)
             files.clear
           end
 
