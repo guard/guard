@@ -77,12 +77,12 @@ Signal handlers are used to interact with Guard:
 - {guard-livereload}[http://github.com/guard/guard-livereload]
 - {guard-sass}[http://github.com/guard/guard-sass]
 - {guard-shell}[http://github.com/guard/guard-shell]
+- {guard-bundler}[http://github.com/guard/guard-bunder]
 
 guard ideas:
 
 - guard-spork
 - guard-cucumber
-- guard-bundler
 - others ideas?
 
 === Add a guard to your Guardfile
