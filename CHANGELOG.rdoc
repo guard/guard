@@ -1,4 +1,10 @@
-== 0.2.0.0 (Oct 21, 2010)
+== 0.2.1 (Oct 24, 2010)
+
+Bugs fixes:
+
+- Fixes for Linux support
+
+== 0.2.0 (Oct 21, 2010)
 
 Bugs fixes:
 
