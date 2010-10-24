@@ -25,8 +25,8 @@ module Guard
     
     def self.usable?
       require 'rb-fsevent'
-      if !defined?(FSEvent::VERSION) || Gem::Version.new(FSEvent::VERSION) < Gem::Version.new('0.3.2')
-        UI.info "Please update rb-fsevent (>= 0.3.2)"
+      if !defined?(FSEvent::VERSION) || Gem::Version.new(FSEvent::VERSION) < Gem::Version.new('0.3.3')
+        UI.info "Please update rb-fsevent (>= 0.3.3)"
         false
       else
         true
