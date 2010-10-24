@@ -77,7 +77,7 @@ Signal handlers are used to interact with Guard:
 - {guard-livereload}[http://github.com/guard/guard-livereload]
 - {guard-sass}[http://github.com/guard/guard-sass]
 - {guard-shell}[http://github.com/guard/guard-shell]
-- {guard-bundler}[http://github.com/guard/guard-bunder]
+- {guard-bundler}[http://github.com/guard/guard-bundler]
 
 guard ideas:
 
