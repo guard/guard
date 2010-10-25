@@ -51,6 +51,7 @@ module Guard
         if Config::CONFIG['build'] =~ /java/ || IO.select([inotify.to_io], [], [], latency)
           break if @stop
 
+          sleep latency
           inotify.process
           update_last_event
 
@@ -59,8 +60,6 @@ module Guard
             callback.call(files)
             files.clear
           end
-
-          sleep latency unless @stop
         end
       end
       @watch_change = false
