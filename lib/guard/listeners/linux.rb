@@ -10,6 +10,16 @@ module Guard
       @latency = 0.5
     end
 
+    def start
+      @stop = false
+      watch_change unless watch_change?
+    end
+
+    def stop
+      @stop = true
+      sleep latency
+    end
+
     def on_change(&callback)
       @callback = callback
       inotify.watch(Dir.pwd, :recursive, :modify, :create, :delete, :move) do |event|
@@ -18,16 +28,6 @@ module Guard
         end
       end
     rescue Interrupt
-    end
-
-    def start
-      @stop = false
-      watch_change unless @watch_change
-    end
-
-    def stop
-      @stop = true
-      sleep latency
     end
 
     def self.usable?
@@ -41,6 +41,10 @@ module Guard
     rescue LoadError
       UI.info "Please install rb-inotify gem for Linux inotify support"
       false
+    end
+
+    def watch_change?
+      !!@watch_change
     end
 
   private
