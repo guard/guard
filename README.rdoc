@@ -125,7 +125,9 @@ lib/guard/guard-name.rb inherit from guard/guard and should overwrite at least o
           true
         end
         
-        # Call with Ctrl-C signal (when Guard quit)
+        # Call with Ctrl-C signal (when Guard quit).
+        # This method must return a true value 
+        # if everything went well or guard will not stop.
         def stop
           true
         end
