@@ -4,7 +4,7 @@ Guard is a command line tool to easly handle events on files modifications.
 
 == Features
 
-- {FSEvent}[http://en.wikipedia.org/wiki/FSEvents] support on Mac OS X 10.5+ (without RubyCocoa!, {rb-fsevent gem, >= 0.3.4}[https://rubygems.org/gems/rb-fsevent] required)
+- {FSEvent}[http://en.wikipedia.org/wiki/FSEvents] support on Mac OS X 10.5+ (without RubyCocoa!, {rb-fsevent gem, >= 0.3.5}[https://rubygems.org/gems/rb-fsevent] required)
 - {Inotify}[http://en.wikipedia.org/wiki/Inotify] support on Linux ({rb-inotify gem, >= 0.5.1}[https://rubygems.org/gems/rb-inotify] required)
 - Polling for others (help us to support more systems)
 - Super fast change detection (when polling not used)
@@ -87,6 +87,7 @@ Signal handlers are used to interact with Guard:
 - {guard-compass}[http://github.com/guard/guard-compass]
 - {guard-shell}[http://github.com/guard/guard-shell]
 - {guard-bundler}[http://github.com/guard/guard-bundler]
+- {guard-passenger}[http://github.com/guard/guard-passenger]
 
 guard ideas:
 

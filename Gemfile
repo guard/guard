@@ -5,7 +5,7 @@ gemspec
 require 'rbconfig'
 
 if Config::CONFIG['target_os'] =~ /darwin/i
-  gem 'rb-fsevent', '>= 0.3.4'
+  gem 'rb-fsevent', '>= 0.3.5'
   gem 'growl',      '~> 1.0.3'
 end
 if Config::CONFIG['target_os'] =~ /linux/i
