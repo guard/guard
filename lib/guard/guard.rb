@@ -30,7 +30,6 @@ module Guard
       true
     end
     
-    # Retrieve a true value if the instance successfuly stopped
     def stop
       true
     end
