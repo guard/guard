@@ -89,6 +89,7 @@ Signal handlers are used to interact with Guard:
 - {guard-bundler}[http://github.com/guard/guard-bundler] by {Yann Lugrin}[http://github.com/yannlugrin]
 - {guard-passenger}[http://github.com/guard/guard-passenger] by {Fabio Kuhn}[http://github.com/mordaroso]
 - {guard-coffeescript}[http://github.com/guard/guard-coffeescript] by {Michael Kessler}[http://github.com/netzpirat]
+- {guard-nanoc}[http://github.com/guard/guard-nanoc] by {Yann Lugrin}[http://github.com/yannlugrin]
 
 guard ideas:
 
