@@ -14,7 +14,7 @@ module Guard
     def self.default
       if(@@default_instance.nil?)
         @@default_instance = ReportCenter.new
-        @@default_instance.add_ui(UI::Console.new)
+        @@default_instance.add_ui(UI::Console.new, :subscribe_to => :all)
         @@default_instance.add_ui(UI::Notifier.new)
       end
       @@default_instance
