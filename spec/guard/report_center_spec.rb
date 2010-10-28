@@ -1,8 +1,8 @@
 require 'spec_helper'
-require 'guard/report/report_center'
+require 'guard/report_center'
 
-describe Guard::Report::ReportCenter do
-  subject { Guard::Report::ReportCenter.new }
+describe Guard::ReportCenter do
+  subject { Guard::ReportCenter.new }
   
   describe "ReportCenter ui registration" do
     it "accepts a new ui" do
@@ -27,7 +27,7 @@ describe Guard::Report::ReportCenter do
     it "raise an exception when invalid options key is used" do
       ui = mock("UI")
       ui.stub!(:report)
-      lambda { subject.add_ui(ui, :invalid => "Trying") }.should raise_error(Exception, "Illegal argument: options only accepts #{Guard::Report::ReportCenter::VALID_UI_OPTIONS.inspect}, received :invalid")
+      lambda { subject.add_ui(ui, :invalid => "Trying") }.should raise_error(Exception, "Illegal argument: options only accepts #{Guard::ReportCenter::VALID_UI_OPTIONS.inspect}, received :invalid")
     end
   end
   
@@ -85,7 +85,7 @@ describe Guard::Report::ReportCenter do
     end
     
     it "raise an exception when invalid options key is used" do
-      lambda { subject.report(:success, "Summary", :invalid => "Trying") }.should raise_error(Exception, "Invalid report: options only accepts #{Guard::Report::ReportCenter::VALID_REPORT_OPTIONS.inspect}, received :invalid")
+      lambda { subject.report(:success, "Summary", :invalid => "Trying") }.should raise_error(Exception, "Invalid report: options only accepts #{Guard::ReportCenter::VALID_REPORT_OPTIONS.inspect}, received :invalid")
     end
     
     it "can contains both a summary and a detailed message" do
@@ -113,7 +113,7 @@ describe Guard::Report::ReportCenter do
     
     it "receive all but debug message by default" do
       subject.add_ui(@ui)
-      Guard::Report::TYPES.select { |t| t != :debug }.each do |t|
+      Guard::ReportCenter::TYPES.select { |t| t != :debug }.each do |t|
         @ui.should_receive(:report).with(t, "summary", {})
         subject.report(t, "summary")
       end
@@ -123,7 +123,7 @@ describe Guard::Report::ReportCenter do
     
     it "receive only success message" do
       subject.add_ui(@ui, :subscribe_to => :success)
-      Guard::Report::TYPES.select { |t| t != :success }.each do |t|
+      Guard::ReportCenter::TYPES.select { |t| t != :success }.each do |t|
         @ui.should_not_receive(:report).with(t, "summary", {})
         subject.report(t, "summary")
       end
@@ -133,7 +133,7 @@ describe Guard::Report::ReportCenter do
     
     it "receive success and failure message" do
       subject.add_ui(@ui, :subscribe_to => [:success, :failure])
-      Guard::Report::TYPES.select { |t| ! [:success, :failure].include? t }.each do |t|
+      Guard::ReportCenter::TYPES.select { |t| ! [:success, :failure].include? t }.each do |t|
         @ui.should_not_receive(:report).with(t, "summary", {})
         subject.report(t, "summary")
       end

@@ -53,6 +53,10 @@ describe Guard do
     it "Should init listeners" do
       ::Guard.listener.should be_kind_of Guard::Listener
     end
+    
+    it "creates ReportCenter" do
+      ::Guard.report_center.should_not be_nil
+    end
   end
   
   describe "supervised_task" do

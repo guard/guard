@@ -2,21 +2,24 @@ require 'bundler'
 
 module Guard
   
-  autoload :UI,         'guard/ui'
-  autoload :Dsl,        'guard/dsl'
-  autoload :Interactor, 'guard/interactor'
-  autoload :Listener,   'guard/listener'
-  autoload :Watcher,    'guard/watcher'
-  autoload :Notifier,   'guard/notifier'
+  autoload :UI,           'guard/ui'
+  autoload :Dsl,          'guard/dsl'
+  autoload :Interactor,   'guard/interactor'
+  autoload :Listener,     'guard/listener'
+  autoload :Watcher,      'guard/watcher'
+  autoload :Notifier,     'guard/notifier'
+  autoload :ReportCenter, 'guard/report_center'
   
   class << self
     attr_accessor :options, :guards, :listener
+    attr_reader :report_center
     
     # initialize this singleton
     def init(options = {})
       @options  = options
       @listener = Listener.init
       @guards   = []
+      @report_center = ReportCenter.new
       return self
     end
     
