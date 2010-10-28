@@ -25,7 +25,7 @@ module Guard
       
       Dsl.evaluate_guardfile
       if guards.empty?
-        UI.error "No guards found in Guardfile, please add it at least one."
+        UI.error "No guards found in Guardfile, please add at least one."
       else
         Interactor.init_signal_traps
         
@@ -63,14 +63,12 @@ module Guard
     # Let a guard execute his task but
     # fire it if his work lead to system failure
     def supervised_task(guard, task_to_supervise, *args)
-      begin
-        guard.send(task_to_supervise, *args)
-      rescue Exception
-        UI.error("#{guard.class.name} guard failed to achieve its <#{task_to_supervise.to_s}> command: #{$!}")
-        ::Guard.guards.delete guard
-        UI.info("Guard #{guard.class.name} has just been fired")
-        return $!
-      end
+      guard.send(task_to_supervise, *args)
+    rescue Exception
+      UI.error("#{guard.class.name} guard failed to achieve its <#{task_to_supervise.to_s}> command: #{$!}")
+      ::Guard.guards.delete guard
+      UI.info("Guard #{guard.class.name} has just been fired")
+      return $!
     end
     
     def locate_guard(name)
