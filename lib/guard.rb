@@ -41,7 +41,7 @@ module Guard
           end
         end
         
-        UI.info "Guard is now watching at '#{Dir.pwd}'"
+        ::Guard.info "Guard is now watching at '#{Dir.pwd}'"
         guards.each { |g| supervised_task(g, :start) }
         listener.start
       end
@@ -71,7 +71,7 @@ module Guard
       rescue Exception
         UI.error("#{guard.class.name} guard failed to achieve its <#{task_to_supervise.to_s}> command: #{$!}")
         ::Guard.guards.delete guard
-        UI.info("Guard #{guard.class.name} has just been fired")
+        ::Guard.info("Guard #{guard.class.name} has just been fired")
         return $!
       end
     end

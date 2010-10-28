@@ -1,3 +1,5 @@
+require 'guard'
+
 module Guard
   class Guard
     attr_accessor :watchers, :options
@@ -9,7 +11,7 @@ module Guard
     # Guardfile template needed inside guard gem
     def self.init(name)
       if ::Guard::Dsl.guardfile_included?(name)
-        ::Guard::UI.info "Guardfile already include #{name} guard"
+        ::Guard.info "Guardfile already include #{name} guard"
       else
         content = File.read('Guardfile')
         guard   = File.read("#{::Guard.locate_guard(name)}/lib/guard/#{name}/templates/Guardfile")
@@ -18,7 +20,15 @@ module Guard
           f.puts ""
           f.puts guard
         end
-        ::Guard::UI.info "#{name} guard added to Guardfile, feel free to edit it"
+        ::Guard.info "#{name} guard added to Guardfile, feel free to edit it"
+      end
+    end
+    
+    def method_missing(method_name, *args)
+      if ReportCenter::TYPES.include? method_name
+        ::Guard.send(method_name, *args)
+      else
+        super
       end
     end
     

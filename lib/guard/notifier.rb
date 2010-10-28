@@ -46,7 +46,7 @@ module Guard
         require 'growl'
         true
       rescue LoadError
-        UI.info "Please install growl gem for Mac OS X notification support and add it to your Gemfile"
+        ::Guard.info "Please install growl gem for Mac OS X notification support and add it to your Gemfile"
         false
       end
     end
@@ -56,7 +56,7 @@ module Guard
         require 'libnotify'
         true
       rescue LoadError
-        UI.info "Please install libnotify gem for Linux notification support and add it to your Gemfile"
+        ::Guard.info "Please install libnotify gem for Linux notification support and add it to your Gemfile"
         false
       end
     end

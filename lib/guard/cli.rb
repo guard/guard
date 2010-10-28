@@ -1,5 +1,6 @@
 require 'thor'
 require 'guard/version'
+require 'guard'
 
 module Guard
   class CLI < Thor
@@ -14,7 +15,7 @@ module Guard
     
     desc "version", "Prints the guard's version information"
     def version
-      ::Guard::UI.info "Guard version #{Guard::VERSION}"
+      ::Guard.info "Guard version #{Guard::VERSION}"
     end
     map %w(-v --version) => :version
     

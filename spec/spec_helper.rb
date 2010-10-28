@@ -5,6 +5,7 @@ require 'rspec'
 Dir["#{File.expand_path('..', __FILE__)}/support/**/*.rb"].each { |f| require f }
 
 puts "Please do not update/create files while tests are running."
+::Guard.init
 
 RSpec.configure do |config|
   config.color_enabled = true

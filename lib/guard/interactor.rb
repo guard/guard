@@ -13,7 +13,7 @@ module Guard
       Signal.trap('INT') do
         ::Guard.listener.stop
         ::Guard.guards.each { |g| ::Guard.supervised_task g, :stop }
-        UI.info "Bye bye...", :reset => true
+        ::Guard.info "Bye bye...", :reset => true
         abort("\n")
       end
       

@@ -18,7 +18,7 @@ module Guard
                   result = watcher.action.call
                 end
               rescue
-                UI.info "Problem with watch action"
+                ::Guard.info "Problem with watch action"
               end
               paths << result if result.is_a?(String) && result != ''
             else
