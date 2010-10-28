@@ -11,12 +11,12 @@ module Guard
       
       def error(message)
         deprecated('failure')
-        ::Guard.report(:failure, message, options)
+        ::Guard.report(:failure, message)
       end
       
       def debug(message)
         deprecated("debug")
-        ::Guard.report(:debug, message, options)
+        ::Guard.report(:debug, message)
       end
       
       def deprecated(replacement_name=nil)
