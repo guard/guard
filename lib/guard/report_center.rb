@@ -2,6 +2,7 @@ module Guard
   require 'guard/ui/console'
   require 'guard/ui/notifier'
   
+  
   class ReportCenter
     attr_reader :ui, :categories
     
