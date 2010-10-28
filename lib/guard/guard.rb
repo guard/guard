@@ -33,7 +33,6 @@ module Guard
     end
     
     # Call once when guard quit
-    # Retrieve a true value if the instance successfuly stopped
     def stop
       true
     end

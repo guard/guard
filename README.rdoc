@@ -136,15 +136,16 @@ lib/guard/guard-name.rb inherit from guard/guard and should overwrite at least o
         # = Guard method =
         # ================
         
+        # If one of those methods raise an exception, the Guard instance
+        # will be removed from the active guard.
+        
         # Call once when guard starts
         # Please override initialize method to init stuff
         def start
           true
         end
         
-        # Call with Ctrl-C signal (when Guard quit).
-        # This method must return a true value 
-        # if everything went well or guard will not stop.
+        # Call with Ctrl-C signal (when Guard quit)
         def stop
           true
         end
