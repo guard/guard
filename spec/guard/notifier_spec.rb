@@ -1,7 +1,16 @@
 require 'spec_helper'
 
 describe Guard::Notifier do
-  subject { Guard::Notifier }
+  class Guard::UI::Console
+    def report(type, summary, options = {})
+      return
+    end
+  end
+  
+  subject { 
+    ::Guard.init
+    Guard::Notifier 
+  }
   
   describe "notify" do
     before(:each) { ENV["GUARD_ENV"] = 'special_test' }

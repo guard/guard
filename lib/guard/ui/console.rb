@@ -8,10 +8,14 @@ module Guard
         if(options.include? :detail)
           message = "#{message}\n\n#{detail}"
         end
-        send(type, message, options)
+        send(type, message)
       end
       
     protected
+      def success(message)
+        puts "SUCCESS: #{message}"
+      end
+    
       def info(message)
         puts "INFO: #{message}"
       end

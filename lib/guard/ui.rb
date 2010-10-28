@@ -5,33 +5,35 @@ module Guard
     # please use the Guard::ReportCenter instead
     class << self
       def info(message, options = {})
-        deprecated
-        unless ENV["GUARD_ENV"] == "test"
-          reset_line if options[:reset]
-          puts reset_color(message) if message != ''
-        end
+        deprecated('info')
+        ::Guard.report(:info, message, options)
       end
       
       def error(message)
-        deprecated
-        puts "ERROR: #{message}"
+        deprecated('failure')
+        ::Guard.report(:failure, message, options)
       end
       
       def debug(message)
-        unless ENV["GUARD_ENV"] == "test"
-          puts "DEBUG: #{message}" if ::Guard.options && ::Guard.options[:debug]
+        deprecated("debug")
+        ::Guard.report(:debug, message, options)
+      end
+      
+      def deprecated(replacement_name=nil)
+        if replacement_name.nil?
+          puts "DEPRECATED: this method will be removed."
+        else
+          puts "DEPRECATED: please use ::Guard.#{replacement_name} instead of UI module in Guard plug-ins."
         end
       end
       
-      def deprecated
-        puts "DEPRECATED: please use Guard::ReportCenter instead of UI module in Guard plug-ins."
-      end
-      
       def reset_line
+        deprecated
         print "\r\e "
       end
       
       def clear
+        deprecated
         system("clear;")
       end
       

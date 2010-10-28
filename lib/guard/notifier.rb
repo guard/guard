@@ -2,23 +2,25 @@ require 'rbconfig'
 require 'pathname'
 
 module Guard
-  module Notifier
+  module Notifier    
     
     def self.notify(message, options = {})
-      unless ENV["GUARD_ENV"] == "test"
-        image = options[:image] || :success
-        title = options[:title] || "Guard"
-        case Config::CONFIG['target_os']
-        when /darwin/i
-          if growl_installed?
-            Growl.notify message, :title => title, :icon => image_path(image), :name => "Guard"
-          end
-        when /linux/i
-          if libnotify_installed?
-            Libnotify.show :body => message, :summary => title, :icon_path => image_path(image)
-          end
+      puts "DEPRECATED: you should use ::Guard.success, ::Guard.error or ::Guard.info instead of Notifier.notify."
+      if options.include?(:image) && options[:image].kind_of?(Symbol)
+        case(options[:image])
+        when :failed
+          type = :failure
+        when :error
+          type = :failure
+        when :pending
+          type = :info
+        else
+          type = options[:image]
         end
+      else
+        type = :success
       end
+      ::Guard.report(type, message)
     end
     
   private
