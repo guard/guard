@@ -10,16 +10,19 @@ module Guard
   autoload :Notifier,     'guard/notifier'
   autoload :ReportCenter, 'guard/report_center'
   
+  @options  = {}
+  @listener = Listener.init
+  @guards   = []
+  @report_center = ReportCenter.default
+  
+  
   class << self
     attr_accessor :options, :guards, :listener
     attr_reader :report_center
     
     # initialize this singleton
     def init(options = {})
-      @options  = options
-      @listener = Listener.init
-      @guards   = []
-      @report_center = ReportCenter.default
+      @options.merge! options
       return self
     end
     
@@ -81,7 +84,7 @@ module Guard
     end
     
     def report(type, summary, options = {})
-      report_center.report(type, summary, options)
+      @report_center.report(type, summary, options)
     end
     
     def run

@@ -1,6 +1,6 @@
 require 'rbconfig'
 require 'pathname'
-require 'guard/guard'
+require 'guard'
 
 module Guard
   module Notifier    
