@@ -1,10 +1,24 @@
 module Guard  
+  require 'guard/ui/console'
+  require 'guard/ui/notifier'
+  
   class ReportCenter
     attr_reader :ui, :categories
+    
+    @@default_instance = nil
     
     TYPES = [:debug, :success, :failure, :info]
     VALID_REPORT_OPTIONS = [:detail]
     VALID_UI_OPTIONS = [:subscribe_to]
+    
+    def self.default
+      if(@@default_instance.nil?)
+        @@default_instance = ReportCenter.new
+        @@default_instance.add_ui(UI::Console.new)
+        @@default_instance.add_ui(UI::Notifier.new)
+      end
+      @@default_instance
+    end
   
     def initialize
       @ui = []

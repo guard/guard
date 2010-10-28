@@ -98,4 +98,40 @@ describe Guard do
     end
   end
   
+  describe "report status" do
+    subject { ::Guard.init }
+    
+    it "accepts report message" do
+      subject.report_center.should_receive(:report).with(:success, "Summary", {})
+      subject.report :success, "Summary"
+    end
+    
+    it "accepts success message" do
+      subject.report_center.should_receive(:report).with(:success, "Summary", {})
+      subject.success "Summary"
+      
+      subject.report_center.should_receive(:report).with(:success, "Summary", {:detail => "Detail", :reset => true})
+      subject.success "Summary", {:detail => "Detail", :reset => true}
+    end
+    
+    it "accepts debug message" do
+      subject.report_center.should_receive(:report).with(:debug, "Summary", {})
+      subject.debug "Summary"
+    end
+    
+    it "accepts info message" do
+      subject.report_center.should_receive(:report).with(:info, "Summary", {})
+      subject.info "Summary"
+    end
+    
+    it "accepts failure message" do
+      subject.report_center.should_receive(:report).with(:failure, "Summary", {})
+      subject.failure "Summary"
+    end
+    
+    it "does not accept invalid message type" do
+      lambda { subject.invalid "Summary" }.should raise_error
+    end
+  end
+  
 end

@@ -19,7 +19,7 @@ module Guard
       @options  = options
       @listener = Listener.init
       @guards   = []
-      @report_center = ReportCenter.new
+      @report_center = ReportCenter.default
       return self
     end
     
@@ -82,6 +82,10 @@ module Guard
       UI.error "Could not find 'guard-#{name}' gem path."
     end
     
+    def report(type, summary, options = {})
+      report_center.report(type, summary, options)
+    end
+    
     def run
       listener.stop
       UI.clear if options[:clear]
@@ -92,5 +96,13 @@ module Guard
       listener.start
     end
     
+    # Send the message to report if the method_name is one of the valid message type.
+    def method_missing(method_name, *args)
+      if(ReportCenter::TYPES.include? method_name.to_sym)
+        report(method_name, *args)
+      else
+        super
+      end
+    end
   end
 end
