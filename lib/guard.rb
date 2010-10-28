@@ -10,8 +10,6 @@ module Guard
   autoload :Notifier,     'guard/notifier'
   autoload :ReportCenter, 'guard/report_center'
   
-  @options  = {}
-  @listener = Listener.init
   @guards   = []
   @report_center = ReportCenter.default
   
@@ -22,7 +20,8 @@ module Guard
     
     # initialize this singleton
     def init(options = {})
-      @options.merge! options
+      @listener = Listener.init
+      @options = options
       return self
     end
     

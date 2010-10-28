@@ -26,13 +26,13 @@ module Guard
     def self.usable?
       require 'rb-fsevent'
       if !defined?(FSEvent::VERSION) || Gem::Version.new(FSEvent::VERSION) < Gem::Version.new('0.3.5')
-        ::Guard.info "Please update rb-fsevent (>= 0.3.5)"
+        puts "Please update rb-fsevent (>= 0.3.5)"
         false
       else
         true
       end
     rescue LoadError
-      ::Guard.info "Please install rb-fsevent gem for Mac OSX FSEvents support"
+      puts "Please install rb-fsevent gem for Mac OSX FSEvents support"
       false
     end
     

@@ -15,7 +15,7 @@ module Guard
       elsif linux? && Linux.usable?
         Linux.new
       else
-        ::Guard.info "Using polling (Please help us to support your system better than that.)"
+        puts "Using polling (Please help us to support your system better than that.)"
         Polling.new
       end
     end
