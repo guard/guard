@@ -38,20 +38,20 @@ describe Guard do
     subject { ::Guard.init }
     
     it "Should retrieve itself for chaining" do
-      subject.should be_kind_of Module
+      subject.should be_kind_of(Module)
     end
     
     it "Should init guards array" do
-      ::Guard.guards.should be_kind_of Array
+      ::Guard.guards.should be_kind_of(Array)
     end
     
     it "Should init options" do
       opts = {:my_opts => true}
-      ::Guard.init(opts).options.should be_include :my_opts
+      ::Guard.init(opts).options.should be_include(:my_opts)
     end
     
     it "Should init listeners" do
-      ::Guard.listener.should be_kind_of Guard::Listener
+      ::Guard.listener.should be_kind_of(Guard::Listener)
     end
     
     it "creates ReportCenter" do
@@ -60,7 +60,7 @@ describe Guard do
   end
   
   describe "supervised_task" do
-    subject {::Guard.init}
+    subject { ::Guard.init }
     
     before :each do
       @g = mock(Guard::Guard)
@@ -72,28 +72,28 @@ describe Guard do
     end
     
     it "should let it go when nothing special occurs" do
-      subject.guards.should be_include @g
+      subject.guards.should be_include(@g)
       subject.supervised_task(@g, :regular).should be_true
-      subject.guards.should be_include @g
+      subject.guards.should be_include(@g)
     end
     
     it "should let it work with some tools" do
-      subject.guards.should be_include @g
+      subject.guards.should be_include(@g)
       subject.supervised_task(@g, :regular).should be_true
-      subject.guards.should be_include @g
+      subject.guards.should be_include(@g)
     end
     
     it "should fire the guard on spy act discovery" do
-      subject.guards.should be_include @g
-      ::Guard.supervised_task(@g, :spy).should be_kind_of Exception
-      subject.guards.should_not be_include @g
+      subject.guards.should be_include(@g)
+      ::Guard.supervised_task(@g, :spy).should be_kind_of(Exception)
+      subject.guards.should_not be_include(@g)
       ::Guard.supervised_task(@g, :spy).message.should == 'I break your system'
     end
     
     it "should fire the guard on pirate act discovery" do
-      subject.guards.should be_include @g
-      ::Guard.supervised_task(@g, :regular_arg, "given_path").should be_kind_of String
-      subject.guards.should be_include @g
+      subject.guards.should be_include(@g)
+      ::Guard.supervised_task(@g, :regular_arg, "given_path").should be_kind_of(String)
+      subject.guards.should be_include(@g)
       ::Guard.supervised_task(@g, :regular_arg, "given_path").should == "given_path"
     end
   end

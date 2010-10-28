@@ -36,18 +36,23 @@ module Guard
     # = Guard method =
     # ================
     
+    # Call once when guard starts
+    # Please override initialize method to init stuff
     def start
       true
     end
     
+    # Call once when guard quit
     def stop
       true
     end
     
+    # Should be mainly used for "reload" (really!) actions like reloading passenger/spork/bundler/...
     def reload
       true
     end
     
+    # Should be principally used for long action like running all specs/tests/...
     def run_all
       true
     end
