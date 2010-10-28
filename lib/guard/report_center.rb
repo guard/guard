@@ -8,7 +8,7 @@ module Guard
     @@default_instance = nil
     
     TYPES = [:debug, :success, :failure, :info]
-    VALID_REPORT_OPTIONS = [:detail]
+    VALID_REPORT_OPTIONS = [:detail, :reset]
     VALID_UI_OPTIONS = [:subscribe_to]
     
     def self.default

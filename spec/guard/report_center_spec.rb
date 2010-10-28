@@ -104,6 +104,11 @@ describe Guard::ReportCenter do
         @ui.should_receive(:report).with(:success, "Summary", :detail => "Detailled report.")
         subject.report(:success, "Summary", :detail => "Detailled report.")
       end
+      
+      it "can contains a reset command to clear the screen" do
+        @ui.should_receive(:report).with(:success, "Summary", :reset => true)
+        subject.report(:success, "Summary", :reset => true)
+      end
     end
   
     describe "UI receiving message" do
