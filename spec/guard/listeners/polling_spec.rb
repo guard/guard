@@ -50,7 +50,7 @@ private
   end
   
   def stop
-    sleep 3
+    sleep 1
     @listener.stop
   end
   
