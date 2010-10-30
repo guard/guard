@@ -1,0 +1,4 @@
+guard 'test' do
+  watch('a') { 'b' }
+  watch('c')
+end

@@ -3,11 +3,18 @@ module Guard
     
     def self.evaluate_guardfile
       guardfile = "#{Dir.pwd}/Guardfile"
-      dsl = new
-      dsl.instance_eval(File.read(guardfile.to_s), guardfile.to_s, 1)
-    rescue
-      UI.error "Guardfile not found or invalid"
-      exit 1
+      if File.exists? guardfile
+        begin
+          dsl = new
+          dsl.instance_eval(File.read(guardfile.to_s), guardfile.to_s, 1)
+        rescue
+          UI.error "Invalid Guardfile, original error is:\n#{$!}"
+          exit 1
+        end
+      else
+        UI.error "No Guardfile in current folder, please create one."
+        exit 1
+      end
     end
     
     def self.guardfile_included?(guard_name)
