@@ -2,54 +2,61 @@ require 'spec_helper'
 require 'guard/dsl'
 
 describe Guard::Dsl do
-  subject {Guard::Dsl}
+  subject { Guard::Dsl }
   
-  it "load a guard from the DSL" do
-    fixture :simple
-    
+  before(:each) do
     ::Guard.stub!(:add_guard)
-    ::Guard.should_receive(:add_guard).with('test', [], {})
-    subject.evaluate_guardfile
   end
   
   it "write an error message when no Guardfile is found" do
-    fixture :no_guardfile
+    Dir.stub!(:pwd).and_return("no_guardfile_here")
     
-    Guard::UI.stub!(:error)
     Guard::UI.should_receive(:error).with("No Guardfile in current folder, please create one.")
     lambda { subject.evaluate_guardfile }.should raise_error
   end
   
   it "write an error message when Guardfile is not valid" do
-    fixture :invalid_guardfile
-
-    Guard::UI.stub!(:error)
+    mock_guardfile_content("This Guardfile is invalid!")
+    
     Guard::UI.should_receive(:error).with(/Invalid Guardfile, original error is:\n/)
     lambda { subject.evaluate_guardfile }.should raise_error
   end
   
-  it "receive watchers when specified" do
-    fixture :watchers
+  it "load a guard from the DSL" do
+    mock_guardfile_content("guard 'test'")
     
-    ::Guard.stub!(:add_guard)
-    ::Guard.should_receive(:add_guard).with('test', anything(), {}) do |name, watchers, options|
-      watchers.size.should eql 2
+    ::Guard.should_receive(:add_guard).with('test', [], {})
+    subject.evaluate_guardfile
+  end
+  
+  it "receive watchers when specified" do
+    mock_guardfile_content("
+      guard 'test' do
+        watch('a') { 'b' }
+        watch('c')
+      end")
+      
+    ::Guard.should_receive(:add_guard).with('test', anything, {}) do |name, watchers, options|
+      watchers.size.should == 2
+      watchers[0].pattern.should     == 'a'
+      watchers[0].action.call.should == proc { 'b' }.call
+      watchers[1].pattern.should     == 'c'
+      watchers[1].action.should      be_nil
     end
     subject.evaluate_guardfile
   end
   
   it "receive options when specified" do
-    fixture :options
+    mock_guardfile_content("guard 'test', :opt_a => 1, :opt_b => 'fancy'")
     
-    ::Guard.stub!(:add_guard)
-    ::Guard.should_receive(:add_guard).with('test', anything(), hash_including(:opt_a, :opt_b))
+    ::Guard.should_receive(:add_guard).with('test', anything, { :opt_a => 1, :opt_b => 'fancy' })
     subject.evaluate_guardfile
   end
   
 private
-  def fixture name
-    ## Hack to make guard look into the correct fixture folder
-    Dir.stub!(:pwd).and_return("#{@fixture_path}/dsl/#{name}")
-    Dir.pwd.should == "#{@fixture_path}/dsl/#{name}"
+  
+  def mock_guardfile_content(content)
+    File.stub!(:read).with(File.expand_path('../../../Guardfile', __FILE__)) { content }
   end
+  
 end
