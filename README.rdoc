@@ -79,22 +79,22 @@ Signal handlers are used to interact with Guard:
 
 == Available Guards
 
-- {guard-rspec}[http://github.com/guard/guard-rspec] by {Thibaud Guillaume-Gentil}[http://github.com/thibaudgg]
-- {guard-test}[http://github.com/guard/guard-test] by {Rémy Coutable}[http://github.com/rymai]
-- {guard-minitest}[http://github.com/guard/guard-minitest] by {Yann Lugrin}[http://github.com/yannlugrin]
-- {guard-livereload}[http://github.com/guard/guard-livereload] by {Thibaud Guillaume-Gentil}[http://github.com/thibaudgg]
-- {guard-sass}[http://github.com/guard/guard-sass] by {Joshua Hawxwell}[http://github.com/hawx]
-- {guard-compass}[http://github.com/guard/guard-compass] by {Olivier Amblet}[http://github.com/oliamb]
-- {guard-shell}[http://github.com/guard/guard-shell] by {Joshua Hawxwell}[http://github.com/hawx]
 - {guard-bundler}[http://github.com/guard/guard-bundler] by {Yann Lugrin}[http://github.com/yannlugrin]
-- {guard-passenger}[http://github.com/guard/guard-passenger] by {Fabio Kuhn}[http://github.com/mordaroso]
 - {guard-coffeescript}[http://github.com/guard/guard-coffeescript] by {Michael Kessler}[http://github.com/netzpirat]
+- {guard-compass}[http://github.com/guard/guard-compass] by {Olivier Amblet}[http://github.com/oliamb]
+- {guard-cucumber}[http://github.com/guard/guard-cucumber] by {Michael Kessler}[http://github.com/netzpirat]
+- {guard-livereload}[http://github.com/guard/guard-livereload] by {Thibaud Guillaume-Gentil}[http://github.com/thibaudgg]
+- {guard-minitest}[http://github.com/guard/guard-minitest] by {Yann Lugrin}[http://github.com/yannlugrin]
 - {guard-nanoc}[http://github.com/guard/guard-nanoc] by {Yann Lugrin}[http://github.com/yannlugrin]
+- {guard-passenger}[http://github.com/guard/guard-passenger] by {Fabio Kuhn}[http://github.com/mordaroso]
+- {guard-rspec}[http://github.com/guard/guard-rspec] by {Thibaud Guillaume-Gentil}[http://github.com/thibaudgg]
+- {guard-sass}[http://github.com/guard/guard-sass] by {Joshua Hawxwell}[http://github.com/hawx]
+- {guard-shell}[http://github.com/guard/guard-shell] by {Joshua Hawxwell}[http://github.com/hawx]
+- {guard-test}[http://github.com/guard/guard-test] by {Rémy Coutable}[http://github.com/rymai]
 
 guard ideas:
 
 - guard-spork
-- guard-cucumber
 - others ideas?
 
 === Add a guard to your Guardfile
