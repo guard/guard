@@ -21,7 +21,7 @@ module Guard
     end
     
     def start(options = {})
-      init options
+      init(options)
       
       Dsl.evaluate_guardfile
       if guards.empty?
