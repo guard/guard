@@ -17,7 +17,7 @@ module Guard
       @options  = options
       @listener = Listener.init
       @guards   = []
-      return self
+      self
     end
     
     def start(options = {})
@@ -41,7 +41,7 @@ module Guard
         end
         
         UI.info "Guard is now watching at '#{Dir.pwd}'"
-        guards.each { |g| supervised_task(g, :start) }
+        guards.each { |guard| supervised_task(guard, :start) }
         listener.start
       end
     end
@@ -68,9 +68,9 @@ module Guard
       guard.send(task_to_supervise, *args)
     rescue Exception
       UI.error("#{guard.class.name} guard failed to achieve its <#{task_to_supervise.to_s}> command: #{$!}")
-      ::Guard.guards.delete guard
+      ::Guard.guards.delete(guard)
       UI.info("Guard #{guard.class.name} has just been fired")
-      return $!
+      $!
     end
     
     def locate_guard(name)
