@@ -30,5 +30,9 @@ module Guard
       end
     end
     
+    def self.match_files?(guards, files)
+      guards.any? { |guard| !match_files(guard, files).empty? }
+    end
+    
   end
 end

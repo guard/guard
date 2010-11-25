@@ -30,10 +30,12 @@ module Guard
         Interactor.init_signal_traps
         
         listener.on_change do |files|
-          run do
-            guards.each do |guard|
-              paths = Watcher.match_files(guard, files)
-              supervised_task(guard, :run_on_change, paths) unless paths.empty?
+          if Watcher.match_files?(guards, files)
+            run do
+              guards.each do |guard|
+                paths = Watcher.match_files(guard, files)
+                supervised_task(guard, :run_on_change, paths) unless paths.empty?
+              end
             end
           end
         end
