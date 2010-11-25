@@ -1,19 +1,5 @@
 require 'spec_helper'
 
-# mute UI
-module Guard::UI
-  class << self
-    def info(message, options = {})
-    end
-    
-    def error(message)
-    end
-    
-    def debug(message)
-    end
-  end
-end
-
 describe Guard do
   
   describe "Class Methods" do
