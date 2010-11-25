@@ -176,10 +176,11 @@ Looks at available guards code for more concrete example.
 Guardfile DSL consists of just two simple methods: guard & watch. Example:
 
     guard 'rspec', :version => 2 do
-      watch('^spec/(.*)_spec.rb')
-      watch('^lib/(.*)\.rb')        { |m| "spec/lib/#{m[1]}_spec.rb" }
-      watch('^spec/spec_helper.rb') { "spec" }
-      watch('^spec/spec_helper.rb') { `say hello` }
+      watch('^spec/(.*)_spec\.rb')
+      watch('^lib/(.*)\.rb')         { |m| "spec/lib/#{m[1]}_spec.rb" }
+      watch('^spec/spec_helper\.rb') { "spec" }
+      watch('^spec/models/.*\.rb')   { ["spec/models", "spec/acceptance"] }
+      watch('^spec/spec_helper\.rb') { `say hello` }
     end
     
 - "guard" method allow to add a guard with an optional options hash

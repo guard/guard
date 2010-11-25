@@ -1,3 +1,11 @@
+== Nov 26, 2010 [by rymai]
+
+Features:
+- It's now possible to return an enumerable in the 'watch' optional blocks in the Guardfile.
+
+Specs:
+- Guard::Watcher
+
 == 0.2.2 (Oct 25, 2010)
 
 Bugs fixes:
