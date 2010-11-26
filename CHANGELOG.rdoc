@@ -6,6 +6,9 @@ Features:
 Specs:
 - Guard::Watcher
 
+Bugs fixes:
+- Avoid launching run_on_change guards method when no files matched. --clear guard argument is now usable.
+
 == 0.2.2 (Oct 25, 2010)
 
 Bugs fixes:
