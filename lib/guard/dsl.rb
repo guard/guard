@@ -3,7 +3,7 @@ module Guard
     
     def self.evaluate_guardfile
       guardfile = "#{Dir.pwd}/Guardfile"
-      if File.exists? guardfile
+      if File.exists?(guardfile)
         begin
           dsl = new
           dsl.instance_eval(File.read(guardfile.to_s), guardfile.to_s, 1)

@@ -83,6 +83,8 @@ Signal handlers are used to interact with Guard:
 - {guard-coffeescript}[http://github.com/guard/guard-coffeescript] by {Michael Kessler}[http://github.com/netzpirat]
 - {guard-compass}[http://github.com/guard/guard-compass] by {Olivier Amblet}[http://github.com/oliamb]
 - {guard-cucumber}[http://github.com/guard/guard-cucumber] by {Michael Kessler}[http://github.com/netzpirat]
+- {guard-ego}[http://github.com/guard/guard-ego] by {Fabio Kuhn}[http://github.com/mordaroso]
+- {guard-jammit}[http://github.com/guard/guard-jammit] by {Pelle Braendgaard}[http://github.com/pelle]
 - {guard-livereload}[http://github.com/guard/guard-livereload] by {Thibaud Guillaume-Gentil}[http://github.com/thibaudgg]
 - {guard-minitest}[http://github.com/guard/guard-minitest] by {Yann Lugrin}[http://github.com/yannlugrin]
 - {guard-nanoc}[http://github.com/guard/guard-nanoc] by {Yann Lugrin}[http://github.com/yannlugrin]
@@ -90,12 +92,8 @@ Signal handlers are used to interact with Guard:
 - {guard-rspec}[http://github.com/guard/guard-rspec] by {Thibaud Guillaume-Gentil}[http://github.com/thibaudgg]
 - {guard-sass}[http://github.com/guard/guard-sass] by {Joshua Hawxwell}[http://github.com/hawx]
 - {guard-shell}[http://github.com/guard/guard-shell] by {Joshua Hawxwell}[http://github.com/hawx]
+- {guard-spork}[http://github.com/guard/guard-spork] by {Thibaud Guillaume-Gentil}[http://github.com/thibaudgg]
 - {guard-test}[http://github.com/guard/guard-test] by {Rémy Coutable}[http://github.com/rymai]
-
-guard ideas:
-
-- guard-spork
-- others ideas?
 
 === Add a guard to your Guardfile
 
@@ -178,10 +176,11 @@ Looks at available guards code for more concrete example.
 Guardfile DSL consists of just two simple methods: guard & watch. Example:
 
     guard 'rspec', :version => 2 do
-      watch('^spec/(.*)_spec.rb')
-      watch('^lib/(.*)\.rb')        { |m| "spec/lib/#{m[1]}_spec.rb" }
-      watch('^spec/spec_helper.rb') { "spec" }
-      watch('^spec/spec_helper.rb') { `say hello` }
+      watch(%|^spec/(.*)_spec\.rb|)
+      watch(%|^lib/(.*)\.rb|)         { |m| "spec/lib/#{m[1]}_spec.rb" }
+      watch(%|^spec/spec_helper\.rb|) { "spec" }
+      watch(%|^spec/models/.*\.rb|)   { ["spec/models", "spec/acceptance"] }
+      watch(%|^spec/spec_helper\.rb|) { `say hello` }
     end
     
 - "guard" method allow to add a guard with an optional options hash

@@ -9,12 +9,16 @@ module Guard
         end
       end
       
-      def error(message)
-        puts "ERROR: #{message}"
+      def error(message, options = {})
+        unless ENV["GUARD_ENV"] == "test"
+          reset_line if options[:reset]
+          puts "ERROR: #{message}"
+        end
       end
       
-      def debug(message)
+      def debug(message, options = {})
         unless ENV["GUARD_ENV"] == "test"
+          reset_line if options[:reset]
           puts "DEBUG: #{message}" if ::Guard.options && ::Guard.options[:debug]
         end
       end

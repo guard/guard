@@ -17,7 +17,7 @@ module Guard
       @options  = options
       @listener = Listener.select_and_init
       @guards   = []
-      return self
+      self
     end
     
     def start(options = {})
@@ -40,10 +40,12 @@ module Guard
       loop do
         if !running? && !listener.changed_files.empty?
           changed_files = listener.get_and_clear_changed_files
-          run do
-            guards.each do |guard|
-              paths = Watcher.match_files(guard, changed_files)
-              supervised_task(guard, :run_on_change, paths) unless paths.empty?
+          if Watcher.match_files?(guards, files)
+            run do
+              guards.each do |guard|
+                paths = Watcher.match_files(guard, changed_files)
+                supervised_task(guard, :run_on_change, paths) unless paths.empty?
+              end
             end
           end
         end

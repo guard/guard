@@ -5,7 +5,7 @@ module Guard
       # Run all (Ctrl-\)
       Signal.trap('QUIT') do
         ::Guard.run do
-          ::Guard.guards.each { |g| ::Guard.supervised_task g, :run_all }
+          ::Guard.guards.each { |guard| ::Guard.supervised_task(guard, :run_all) }
         end
       end
       
@@ -13,14 +13,14 @@ module Guard
       Signal.trap('INT') do
         UI.info "Bye bye...", :reset => true
         ::Guard.listener.stop
-        ::Guard.guards.each { |g| ::Guard.supervised_task g, :stop }
+        ::Guard.guards.each { |guard| ::Guard.supervised_task(guard, :stop) }
         abort("\n")
       end
       
       # Reload (Ctrl-Z)
       Signal.trap('TSTP') do
         ::Guard.run do
-          ::Guard.guards.each { |g| ::Guard.supervised_task g, :reload }
+          ::Guard.guards.each { |guard| ::Guard.supervised_task(guard, :reload) }
         end
       end
     end

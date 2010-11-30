@@ -1,3 +1,15 @@
+== Nov 26, 2010 [by rymai]
+
+Features:
+- It's now possible to return an enumerable in the 'watch' optional blocks in the Guardfile.
+- Listener now continue to watch changed files even when guards plugin are running.
+
+Specs:
+- Guard::Watcher
+
+Bugs fixes:
+- Avoid launching run_on_change guards method when no files matched. --clear guard argument is now usable.
+
 == 0.2.2 (Oct 25, 2010)
 
 Bugs fixes:
