@@ -15,11 +15,11 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = '>= 1.3.6'
   s.rubyforge_project = 'guard'
   
-  s.add_development_dependency 'bundler',     '~> 1.0.3'
-  s.add_development_dependency 'rspec',       '~> 2.0.1'
-  s.add_development_dependency 'guard-rspec', '~> 0.1.4'
+  s.add_development_dependency 'bundler',     '~> 1.0.7'
+  s.add_development_dependency 'rspec',       '~> 2.2.0'
+  s.add_development_dependency 'guard-rspec', '~> 0.1.8'
   
-  s.add_dependency 'thor',     '~> 0.14.3'
+  s.add_dependency 'thor',     '~> 0.14.6'
   s.add_dependency 'open_gem', '~> 1.4.2'
   
   s.files        = Dir.glob('{bin,images,lib}/**/*') + %w[LICENSE README.rdoc]
