@@ -11,9 +11,9 @@ module Guard
       
       # Stop (Ctrl-C)
       Signal.trap('INT') do
+        UI.info "Bye bye...", :reset => true
         ::Guard.listener.stop
         ::Guard.guards.each { |g| ::Guard.supervised_task g, :stop }
-        UI.info "Bye bye...", :reset => true
         abort("\n")
       end
       

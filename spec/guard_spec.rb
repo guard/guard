@@ -35,7 +35,7 @@ describe Guard do
   end
   
   describe "init" do
-    subject { ::Guard.init }
+    subject { ::Guard.setup }
     
     it "Should retrieve itself for chaining" do
       subject.should be_kind_of(Module)
@@ -47,7 +47,7 @@ describe Guard do
     
     it "Should init options" do
       opts = {:my_opts => true}
-      ::Guard.init(opts).options.should be_include(:my_opts)
+      ::Guard.setup(opts).options.should be_include(:my_opts)
     end
     
     it "Should init listeners" do
@@ -56,7 +56,7 @@ describe Guard do
   end
   
   describe "supervised_task" do
-    subject { ::Guard.init }
+    subject { ::Guard.setup }
     
     before :each do
       @g = mock(Guard::Guard)

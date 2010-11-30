@@ -15,39 +15,9 @@ describe Guard::Linux do
     it "should be usable on linux" do
       subject.should be_usable
     end
-
-    describe "start" do
-      before(:each) do
-        @listener = Guard::Linux.new
-      end
-      
-      it "should call watch_change if first start" do
-        @listener.should_receive(:watch_change)
-        start
-      end
-
-      it "should not call watch_change if start after stop" do
-        @listener.stub!(:stop)
-        start
-        stop
-        @listener.should be_watch_change
-        @listener.should_not_receive(:watch_change)
-        start
-        @listener.unstub!(:stop)
-        stop
-        @listener.should_not be_watch_change
-      end
-
-    end
     
     describe "watch" do
-      before(:each) do
-        @results = []
-        @listener = Guard::Linux.new
-        @listener.on_change do |files|
-          @results += files
-        end
-      end
+      subject { Guard::Linux.new }
       
       it "should catch new file" do
         file = @fixture_path.join("newfile.rb")
@@ -56,7 +26,7 @@ describe Guard::Linux do
         FileUtils.touch file
         stop
         File.delete file
-        @results.should == ['spec/fixtures/newfile.rb']
+        subject.changed_files.should == ['spec/fixtures/newfile.rb']
       end
       
       it "should catch file update" do
@@ -65,7 +35,7 @@ describe Guard::Linux do
         start
         File.open(file, 'w') {|f| f.write('') }
         stop
-        @results.should == ['spec/fixtures/folder1/file1.txt']
+        subject.changed_files.should == ['spec/fixtures/folder1/file1.txt']
       end
       
       it "should catch files update" do
@@ -77,7 +47,7 @@ describe Guard::Linux do
         File.open(file1, 'w') {|f| f.write('') }
         File.open(file2, 'w') {|f| f.write('') }
         stop
-        @results.should == ['spec/fixtures/folder1/file1.txt', 'spec/fixtures/folder1/folder2/file2.txt']
+        subject.changed_files.should == ['spec/fixtures/folder1/file1.txt', 'spec/fixtures/folder1/folder2/file2.txt']
       end
       
       it "should catch deleted file" do
@@ -87,7 +57,7 @@ describe Guard::Linux do
         File.delete file
         stop
         FileUtils.touch file
-        @results.should == ['spec/fixtures/folder1/file1.txt']
+        subject.changed_files.should == ['spec/fixtures/folder1/file1.txt']
       end
       
       it "should catch moved file" do
@@ -99,17 +69,17 @@ describe Guard::Linux do
         FileUtils.mv file1, file2
         stop
         FileUtils.mv file2, file1
-        @results.should == ['spec/fixtures/folder1/file1.txt', 'spec/fixtures/folder1/movedfile1.txt']
+        subject.changed_files.should == ['spec/fixtures/folder1/file1.txt', 'spec/fixtures/folder1/movedfile1.txt']
       end
-
-      it "should not process change if stopped" do
-        file = @fixture_path.join("folder1/file1.txt")
-        File.exists?(file).should be_true
-        start
-        @listener.inotify.should_not_receive(:process)
-        stop
-        File.open(file, 'w') {|f| f.write('') }
-      end
+      
+      # it "should not process change if stopped" do
+      #   file = @fixture_path.join("folder1/file1.txt")
+      #   File.exists?(file).should be_true
+      #   start
+      #   subject.changed_files.inotify.should_not_receive(:process)
+      #   stop
+      #   File.open(file, 'w') {|f| f.write('') }
+      # end
     end
   end
   
@@ -117,13 +87,13 @@ private
   
   def start
     sleep 1
-    Thread.new { @listener.start }
+    Thread.new { subject.start }
     sleep 1
   end
   
   def stop
     sleep 1
-    @listener.stop
+    subject.stop
     sleep 1
   end
   

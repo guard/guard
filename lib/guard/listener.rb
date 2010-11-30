@@ -7,9 +7,9 @@ module Guard
   autoload :Polling, 'guard/listeners/polling'
   
   class Listener
-    attr_reader :last_event
+    attr_accessor :last_event, :changed_files
     
-    def self.init
+    def self.select_and_init
       if mac? && Darwin.usable?
         Darwin.new
       elsif linux? && Linux.usable?
@@ -21,22 +21,29 @@ module Guard
     end
     
     def initialize
+      @changed_files = []
       update_last_event
+    end
+    
+    def get_and_clear_changed_files
+      files = changed_files.dup
+      changed_files.clear
+      files.uniq
     end
     
   private
     
-    def modified_files(dirs, options = {})
-      files = potentially_modified_files(dirs, options).select { |path| File.file?(path) && recent_file?(path) }
+    def find_changed_files(dirs, options = {})
+      files = potentially_changed_files(dirs, options).select { |path| File.file?(path) && changed_file?(path) }
       files.map! { |file| file.gsub("#{Dir.pwd}/", '') }
     end
     
-    def potentially_modified_files(dirs, options = {})
+    def potentially_changed_files(dirs, options = {})
       match = options[:all] ? "**/*" : "*"
       Dir.glob(dirs.map { |dir| "#{dir}#{match}" })
     end
     
-    def recent_file?(file)
+    def changed_file?(file)
       File.mtime(file) >= last_event
     rescue
       false

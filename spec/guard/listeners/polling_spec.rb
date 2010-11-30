@@ -2,14 +2,7 @@ require 'spec_helper'
 require 'guard/listeners/polling'
 
 describe Guard::Polling do
-  
-  before(:each) do
-    @results = []
-    @listener = Guard::Polling.new
-    @listener.on_change do |files|
-      @results += files
-    end
-  end
+  subject { Guard::Polling.new }
   
   it "should catch new file" do
     file = @fixture_path.join("newfile.rb")
@@ -18,7 +11,7 @@ describe Guard::Polling do
     FileUtils.touch file
     stop
     File.delete file
-    @results.should == ['spec/fixtures/newfile.rb']
+    subject.changed_files.should == ['spec/fixtures/newfile.rb']
   end
   
   it "should catch file update" do
@@ -27,7 +20,7 @@ describe Guard::Polling do
     start
     FileUtils.touch file
     stop
-    @results.should == ['spec/fixtures/folder1/file1.txt']
+    subject.changed_files.should == ['spec/fixtures/folder1/file1.txt']
   end
   
   it "should catch files update" do
@@ -39,19 +32,19 @@ describe Guard::Polling do
     FileUtils.touch file1
     FileUtils.touch file2
     stop
-    @results.sort.should == ['spec/fixtures/folder1/file1.txt', 'spec/fixtures/folder1/folder2/file2.txt']
+    subject.changed_files.sort.should == ['spec/fixtures/folder1/file1.txt', 'spec/fixtures/folder1/folder2/file2.txt']
   end
   
 private
   
   def start
-    Thread.new { @listener.start }
+    Thread.new { subject.start }
     sleep 1
   end
   
   def stop
     sleep 1
-    @listener.stop
+    subject.stop
   end
   
 end
