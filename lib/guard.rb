@@ -40,7 +40,7 @@ module Guard
       loop do
         if !running? && !listener.changed_files.empty?
           changed_files = listener.get_and_clear_changed_files
-          if Watcher.match_files?(guards, files)
+          if Watcher.match_files?(guards, changed_files)
             run do
               guards.each do |guard|
                 paths = Watcher.match_files(guard, changed_files)
