@@ -46,7 +46,7 @@ module Guard
       if @pattern.is_a?(Regexp)
         file.match(@pattern)
       else
-        file == @pattern
+        file == @pattern ? [file] : nil
       end
     end
     

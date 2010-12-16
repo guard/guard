@@ -41,10 +41,20 @@ describe Guard::Watcher do
     before(:all) { @guard = Guard::Guard.new }
     
     describe "a watcher's with no action" do
-      before(:all) { @guard.watchers = [Guard::Watcher.new(/.*_spec\.rb/)] }
+      context "regex pattern" do
+        before(:all) { @guard.watchers = [Guard::Watcher.new(/.*_spec\.rb/)] }
+        
+        it "should return paths as they came" do
+          Guard::Watcher.match_files(@guard, ['guard_rocks_spec.rb']).should == ['guard_rocks_spec.rb']
+        end
+      end
       
-      it "should return paths as they came" do
-        Guard::Watcher.match_files(@guard, ['guard_rocks_spec.rb']).should == ['guard_rocks_spec.rb']
+      context "string pattern" do
+        before(:all) { @guard.watchers = [Guard::Watcher.new('guard_rocks_spec.rb')] }
+        
+        it "should return paths as they came" do
+          Guard::Watcher.match_files(@guard, ['guard_rocks_spec.rb']).should == ['guard_rocks_spec.rb']
+        end
       end
     end
     
@@ -56,7 +66,7 @@ describe Guard::Watcher do
           Guard::Watcher.new('hash.rb',        lambda { Hash[:foo, 'bar'] }),
           Guard::Watcher.new('array.rb',       lambda { ['foo', 'bar'] }),
           Guard::Watcher.new('blank.rb',       lambda { '' }),
-          Guard::Watcher.new('uptime.rb',      lambda { `uptime > /dev/null` })
+          Guard::Watcher.new(/^uptime\.rb/,    lambda { `uptime > /dev/null` })
         ]
       end
       
@@ -85,7 +95,7 @@ describe Guard::Watcher do
         @guard.watchers = [
           Guard::Watcher.new(%r{lib/(.*)\.rb},   lambda { |m| "spec/#{m[1]}_spec.rb" }),
           Guard::Watcher.new(/addition(.*)\.rb/, lambda { |m| 1 + 1 }),
-          Guard::Watcher.new('hash.rb',         lambda { Hash[:foo, 'bar'] }),
+          Guard::Watcher.new('hash.rb',          lambda { Hash[:foo, 'bar'] }),
           Guard::Watcher.new(/array(.*)\.rb/,    lambda { |m| ['foo', 'bar'] }),
           Guard::Watcher.new(/blank(.*)\.rb/,    lambda { |m| '' }),
           Guard::Watcher.new(/uptime(.*)\.rb/,   lambda { |m| `uptime > /dev/null` })
