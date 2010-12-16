@@ -51,12 +51,12 @@ describe Guard::Watcher do
     describe "a watcher's action with an arity equal to 0" do
       before(:all) do
         @guard.watchers = [
-          Guard::Watcher.new(/spec_helper\.rb/, lambda { 'spec' }),
-          Guard::Watcher.new(/addition\.rb/,    lambda { 1 + 1 }),
-          Guard::Watcher.new(/hash\.rb/,        lambda { Hash[:foo, 'bar'] }),
-          Guard::Watcher.new(/array\.rb/,       lambda { ['foo', 'bar'] }),
-          Guard::Watcher.new(/blank\.rb/,       lambda { '' }),
-          Guard::Watcher.new(/uptime\.rb/,      lambda { `uptime > /dev/null` })
+          Guard::Watcher.new('spec_helper.rb', lambda { 'spec' }),
+          Guard::Watcher.new('addition.rb',    lambda { 1 + 1 }),
+          Guard::Watcher.new('hash.rb',        lambda { Hash[:foo, 'bar'] }),
+          Guard::Watcher.new('array.rb',       lambda { ['foo', 'bar'] }),
+          Guard::Watcher.new('blank.rb',       lambda { '' }),
+          Guard::Watcher.new('uptime.rb',      lambda { `uptime > /dev/null` })
         ]
       end
       
@@ -85,7 +85,7 @@ describe Guard::Watcher do
         @guard.watchers = [
           Guard::Watcher.new(%r{lib/(.*)\.rb},   lambda { |m| "spec/#{m[1]}_spec.rb" }),
           Guard::Watcher.new(/addition(.*)\.rb/, lambda { |m| 1 + 1 }),
-          Guard::Watcher.new(/hash\.rb/,         lambda { Hash[:foo, 'bar'] }),
+          Guard::Watcher.new('hash.rb',         lambda { Hash[:foo, 'bar'] }),
           Guard::Watcher.new(/array(.*)\.rb/,    lambda { |m| ['foo', 'bar'] }),
           Guard::Watcher.new(/blank(.*)\.rb/,    lambda { |m| '' }),
           Guard::Watcher.new(/uptime(.*)\.rb/,   lambda { |m| `uptime > /dev/null` })
@@ -125,7 +125,7 @@ describe Guard::Watcher do
   describe ".match_files?" do
     before(:all) do
       @guard1 = Guard::Guard.new([Guard::Watcher.new(/.*_spec\.rb/)])
-      @guard2 = Guard::Guard.new([Guard::Watcher.new(/spec_helper\.rb/, 'spec')])
+      @guard2 = Guard::Guard.new([Guard::Watcher.new('spec_helper.rb', 'spec')])
       @guards = [@guard1, @guard2]
     end
     

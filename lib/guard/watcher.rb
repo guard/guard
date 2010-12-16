@@ -9,7 +9,8 @@ module Guard
       # deprecation warning
       if @pattern.is_a?(String) && @pattern =~ /(^(\^))|(>?(\\\.)|(\.\*))|(\(.*\))|(\[.*\])|(\$$)/
         unless @@warning_printed
-          UI.info "DEPRECATED!\nYou have strings in your Guardfile's watch patterns that seem to represent regexps.\nGuard matchs String with == and Regexp with Regexp#match.\nYou should either use plain String (without Regexp special characters) or real Regexp.\n"
+          UI.info "*"*20 + "\nDEPRECATION WARNING!\n" + "*"*20
+          UI.info "You have strings in your Guardfile's watch patterns that seem to represent regexps.\nGuard matchs String with == and Regexp with Regexp#match.\nYou should either use plain String (without Regexp special characters) or real Regexp.\n"
           @@warning_printed = true
         end
         UI.info "\"#{@pattern}\" has been converted to #{Regexp.new(@pattern).inspect}\n"
