@@ -1,3 +1,9 @@
+== Dec 16, 2010 [by rymai]
+
+Features:
+- 'watch' patterns are now more strict: Strings are matched with '==', Regexp are matched with Regexp#match.
+- A deprecation warning is displayed if your Guardfile contains String that look like Regexp (bad!).
+
 == Nov 26, 2010 [by rymai]
 
 Features:

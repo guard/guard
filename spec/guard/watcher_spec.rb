@@ -8,19 +8,32 @@ describe Guard::Watcher do
       expect { Guard::Watcher.new }.to raise_error(ArgumentError)
     end
     
-    it "should be set" do
-      Guard::Watcher.new(%|spec_helper\.rb|).pattern.should == %|spec_helper\.rb|
+    it "can be a string" do
+      Guard::Watcher.new('spec_helper.rb').pattern.should == 'spec_helper.rb'
+    end
+    
+    it "can be a regexp" do
+      Guard::Watcher.new(/spec_helper\.rb/).pattern.should == /spec_helper\.rb/
+    end
+    
+    describe "string looking like a regex" do
+      before(:each) { Guard::UI.should_receive(:info).any_number_of_times }
+      
+      specify { Guard::Watcher.new('^spec_helper.rb').pattern.should == /^spec_helper.rb/ }
+      specify { Guard::Watcher.new('spec_helper.rb$').pattern.should == /spec_helper.rb$/ }
+      specify { Guard::Watcher.new('spec_helper\.rb').pattern.should == /spec_helper\.rb/ }
+      specify { Guard::Watcher.new('.*_spec.rb').pattern.should == /.*_spec.rb/ }
     end
   end
   
   describe "action" do
     it "should set action to nil by default" do
-      Guard::Watcher.new(%|spec_helper\.rb|).action.should be_nil
+      Guard::Watcher.new(/spec_helper\.rb/).action.should be_nil
     end
     
     it "should set action with a block" do
       action = lambda { |m| "spec/#{m[1]}_spec.rb" }
-      Guard::Watcher.new(%|^lib/(.*).rb|, action).action.should == action
+      Guard::Watcher.new(%r{^lib/(.*).rb}, action).action.should == action
     end
   end
   
@@ -28,7 +41,7 @@ describe Guard::Watcher do
     before(:all) { @guard = Guard::Guard.new }
     
     describe "a watcher's with no action" do
-      before(:all) { @guard.watchers = [Guard::Watcher.new(%|.*_spec\.rb|)] }
+      before(:all) { @guard.watchers = [Guard::Watcher.new(/.*_spec\.rb/)] }
       
       it "should return paths as they came" do
         Guard::Watcher.match_files(@guard, ['guard_rocks_spec.rb']).should == ['guard_rocks_spec.rb']
@@ -38,12 +51,12 @@ describe Guard::Watcher do
     describe "a watcher's action with an arity equal to 0" do
       before(:all) do
         @guard.watchers = [
-          Guard::Watcher.new(%|spec_helper\.rb|, lambda { 'spec' }),
-          Guard::Watcher.new(%|addition\.rb|,    lambda { 1 + 1 }),
-          Guard::Watcher.new(%|hash\.rb|,        lambda { Hash[:foo, 'bar'] }),
-          Guard::Watcher.new(%|array\.rb|,       lambda { ['foo', 'bar'] }),
-          Guard::Watcher.new(%|blank\.rb|,       lambda { '' }),
-          Guard::Watcher.new(%|uptime\.rb|,      lambda { `uptime > /dev/null` })
+          Guard::Watcher.new(/spec_helper\.rb/, lambda { 'spec' }),
+          Guard::Watcher.new(/addition\.rb/,    lambda { 1 + 1 }),
+          Guard::Watcher.new(/hash\.rb/,        lambda { Hash[:foo, 'bar'] }),
+          Guard::Watcher.new(/array\.rb/,       lambda { ['foo', 'bar'] }),
+          Guard::Watcher.new(/blank\.rb/,       lambda { '' }),
+          Guard::Watcher.new(/uptime\.rb/,      lambda { `uptime > /dev/null` })
         ]
       end
       
@@ -70,12 +83,12 @@ describe Guard::Watcher do
     describe "a watcher's action with an arity equal to 1" do
       before(:all) do
         @guard.watchers = [
-          Guard::Watcher.new(%|lib/(.*)\.rb|,     lambda { |m| "spec/#{m[1]}_spec.rb" }),
-          Guard::Watcher.new(%|addition(.*)\.rb|, lambda { |m| 1 + 1 }),
-          Guard::Watcher.new(%|hash\.rb|,         lambda { Hash[:foo, 'bar'] }),
-          Guard::Watcher.new(%|array(.*)\.rb|,    lambda { |m| ['foo', 'bar'] }),
-          Guard::Watcher.new(%|blank(.*)\.rb|,    lambda { |m| '' }),
-          Guard::Watcher.new(%|uptime(.*)\.rb|,   lambda { |m| `uptime > /dev/null` })
+          Guard::Watcher.new(%r{lib/(.*)\.rb},   lambda { |m| "spec/#{m[1]}_spec.rb" }),
+          Guard::Watcher.new(/addition(.*)\.rb/, lambda { |m| 1 + 1 }),
+          Guard::Watcher.new(/hash\.rb/,         lambda { Hash[:foo, 'bar'] }),
+          Guard::Watcher.new(/array(.*)\.rb/,    lambda { |m| ['foo', 'bar'] }),
+          Guard::Watcher.new(/blank(.*)\.rb/,    lambda { |m| '' }),
+          Guard::Watcher.new(/uptime(.*)\.rb/,   lambda { |m| `uptime > /dev/null` })
         ]
       end
       
@@ -111,8 +124,8 @@ describe Guard::Watcher do
   
   describe ".match_files?" do
     before(:all) do
-      @guard1 = Guard::Guard.new([Guard::Watcher.new(%|.*_spec\.rb|)])
-      @guard2 = Guard::Guard.new([Guard::Watcher.new(%|spec_helper\.rb|, 'spec')])
+      @guard1 = Guard::Guard.new([Guard::Watcher.new(/.*_spec\.rb/)])
+      @guard2 = Guard::Guard.new([Guard::Watcher.new(/spec_helper\.rb/, 'spec')])
       @guards = [@guard1, @guard2]
     end
     
@@ -126,10 +139,28 @@ describe Guard::Watcher do
   end
   
   describe "#match_file?" do
-    subject { Guard::Watcher.new(%|.*_spec\.rb|) }
+    describe "string pattern" do
+      describe "normal string" do
+        subject { Guard::Watcher.new('guard_rocks_spec.rb') }
+        
+        specify { subject.match_file?('lib/my_wonderful_lib.rb').should be_false }
+        specify { subject.match_file?('guard_rocks_spec.rb').should be_true }
+      end
+      
+      describe "string representing a regexp converted (while deprecation is active)" do
+        subject { Guard::Watcher.new('^guard_rocks_spec\.rb$') }
+        
+        specify { subject.match_file?('lib/my_wonderful_lib.rb').should be_false }
+        specify { subject.match_file?('guard_rocks_spec.rb').should be_true }
+      end
+    end
     
-    specify { subject.match_file?('lib/my_wonderful_lib.rb').should be_false }
-    specify { subject.match_file?('guard_rocks_spec.rb').should be_true }
+    describe "regexp pattern" do
+      subject { Guard::Watcher.new(/.*_spec\.rb/) }
+      
+      specify { subject.match_file?('lib/my_wonderful_lib.rb').should be_false }
+      specify { subject.match_file?('guard_rocks_spec.rb').should be_true }
+    end
   end
   
 end

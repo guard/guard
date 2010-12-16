@@ -1,6 +1,6 @@
 = Guard
 
-Guard is a command line tool to easly handle events on files modifications.
+Guard is a command line tool that easily handle events on files modifications.
 
 == Features
 
@@ -27,33 +27,33 @@ Generate an empty Guardfile with:
 
     guard init
 
-Add guard(s) you need (see available guards below)
+Add the guards you need (see available guards below)
 
 === On Mac OS X
 
-Install rb-fsevent for {FSEvent}[http://en.wikipedia.org/wiki/FSEvents] support
+Install rb-fsevent for {FSEvent}[http://en.wikipedia.org/wiki/FSEvents] support:
 
     gem install rb-fsevent
 
-Install growl for Growl notification support
+Install growl for Growl notification support:
 
     gem install growl
 
-And add it to you Gemfile
+And add it to you Gemfile:
 
     gem 'growl'
 
 === On Linux
 
-Install rb-inotify for {inotify}[http://en.wikipedia.org/wiki/Inotify] support
+Install rb-inotify for {inotify}[http://en.wikipedia.org/wiki/Inotify] support:
 
     gem install rb-inotify
 
-Install libnotify for libonity notification support
+Install libnotify for libonity notification support:
 
     gem install libnotify
 
-And add it to you Gemfile
+And add it to you Gemfile:
 
     gem 'libnotify'
 
@@ -63,6 +63,12 @@ Just launch Guard inside your ruby/rails project with:
 
     guard
 
+or if you use Bundler, to run the guard executable specific to your bundle:
+
+    bundle exec guard
+
+== Command line options
+
 Shell can be cleared after each change with:
 
     guard -c
@@ -71,11 +77,13 @@ Options list is available with:
 
     guard help [TASK]
 
+== Signal handlers
+
 Signal handlers are used to interact with Guard:
 
-- Ctrl-C - Quit Guard (call stop guard(s) method before)
-- Ctrl-\ - Call run_all guard(s) method
-- Ctrl-Z - Call reload guard(s) method
+- Ctrl-C - Quit Guard (call each guard's run_all method, in the same order they are declared in the Guarfile)
+- Ctrl-\ - Call each guard's run_all method, in the same order they are declared in the Guarfile
+- Ctrl-Z - Call each guard's reload method, in the same order they are declared in the Guarfile
 
 == Available Guards
 
@@ -108,6 +116,24 @@ Add guard definition to your Guardfile by running this command:
     guard init <guard-name>
 
 You are good to go!
+
+== Guardfile DSL
+
+Guardfile DSL consists of just two simple methods: guard & watch. Example:
+
+    guard 'rspec', :version => 2 do
+      # Regexp watch patterns are matched with Regexp#match
+      watch(%r{^spec/(.*)_spec\.rb})
+      watch(%r{^lib/(.*)\.rb})         { |m| "spec/lib/#{m[1]}_spec.rb" }
+      watch(%r{^spec/models/.*\.rb})   { ["spec/models", "spec/acceptance"] }
+      watch(%r{^spec/.*\.rb})          { `say hello` }
+      
+      # String watch patterns are matched with simple '=='
+      watch('spec/spec_helper.rb') { "spec" }
+    end
+    
+- "guard" method allow to add a guard with an optional options hash
+- "watch" method allow to define which files are supervised per this guard. A optional block can be added to overwrite path sending to run_on_change guard method or launch simple command.
 
 == Create a guard
 
@@ -172,21 +198,6 @@ lib/guard/guard-name.rb inherit from guard/guard and should overwrite at least o
     end
 
 Looks at available guards code for more concrete example.
-
-== Guardfile DSL
-
-Guardfile DSL consists of just two simple methods: guard & watch. Example:
-
-    guard 'rspec', :version => 2 do
-      watch(%|^spec/(.*)_spec\.rb|)
-      watch(%|^lib/(.*)\.rb|)         { |m| "spec/lib/#{m[1]}_spec.rb" }
-      watch(%|^spec/spec_helper\.rb|) { "spec" }
-      watch(%|^spec/models/.*\.rb|)   { ["spec/models", "spec/acceptance"] }
-      watch(%|^spec/spec_helper\.rb|) { `say hello` }
-    end
-    
-- "guard" method allow to add a guard with an optional options hash
-- "watch" method allow to define which files are supervised per this guard. A optional block can be added to overwrite path sending to run_on_change guard method or launch simple command.
 
 == TODO
 

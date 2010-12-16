@@ -4,6 +4,17 @@ module Guard
     
     def initialize(pattern, action = nil)
       @pattern, @action = pattern, action
+      @@warning_printed ||= false
+      
+      # deprecation warning
+      if @pattern.is_a?(String) && @pattern =~ /(^(\^))|(>?(\\\.)|(\.\*))|(\(.*\))|(\[.*\])|(\$$)/
+        unless @@warning_printed
+          UI.info "DEPRECATED!\nYou have strings in your Guardfile's watch patterns that seem to represent regexps.\nGuard matchs String with == and Regexp with Regexp#match.\nYou should either use plain String (without Regexp special characters) or real Regexp.\n"
+          @@warning_printed = true
+        end
+        UI.info "\"#{@pattern}\" has been converted to #{Regexp.new(@pattern).inspect}\n"
+        @pattern = Regexp.new(@pattern)
+      end
     end
     
     def self.match_files(guard, files)
@@ -31,7 +42,11 @@ module Guard
     end
     
     def match_file?(file)
-      file.match(@pattern)
+      if @pattern.is_a?(Regexp)
+        file.match(@pattern)
+      else
+        file == @pattern
+      end
     end
     
     def call_action(matches)

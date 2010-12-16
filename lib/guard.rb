@@ -53,8 +53,8 @@ module Guard
       end
     end
     
-    # Let a guard execute his task but
-    # fire it if his work lead to system failure
+    # Let a guard execute its task but
+    # fire it if his work leads to a system failure
     def supervised_task(guard, task_to_supervise, *args)
       guard.send(task_to_supervise, *args)
     rescue Exception
