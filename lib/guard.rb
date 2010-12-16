@@ -87,7 +87,7 @@ module Guard
       require "guard/#{name.downcase}"
       klasses = []
       ObjectSpace.each_object(Class) do |klass|
-        klasses << klass if klass.to_s.downcase.match "^guard::#{name.downcase}"
+        klasses << klass if klass.to_s.downcase.match(/^guard::#{name.downcase}/)
       end
       klasses.first
     rescue LoadError
