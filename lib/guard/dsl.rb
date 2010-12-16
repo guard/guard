@@ -5,8 +5,7 @@ module Guard
       guardfile = "#{Dir.pwd}/Guardfile"
       if File.exists?(guardfile)
         begin
-          dsl = new
-          dsl.instance_eval(File.read(guardfile.to_s), guardfile.to_s, 1)
+          new.instance_eval(File.read(guardfile.to_s), guardfile.to_s, 1)
         rescue
           UI.error "Invalid Guardfile, original error is:\n#{$!}"
           exit 1
