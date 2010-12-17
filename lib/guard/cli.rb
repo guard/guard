@@ -5,21 +5,22 @@ module Guard
   class CLI < Thor
     default_task :start
     
-    desc "start", "Starts guard"
     method_option :clear, :type => :boolean, :default => false, :aliases => '-c', :banner => "Auto clear shell before each change/run_all/reload"
     method_option :debug, :type => :boolean, :default => false, :aliases => '-d', :banner => "Print debug messages"
     method_option :group, :type => :array,   :default => [],    :aliases => '-g', :banner => "Run only the passed groups"
+    
+    desc "start", "Starts Guard"
     def start
       ::Guard.start(options)
     end
     
-    desc "version", "Prints the guard's version information"
+    desc "version", "Prints Guard's version information"
     def version
       ::Guard::UI.info "Guard version #{Guard::VERSION}"
     end
     map %w(-v --version) => :version
     
-    desc "init [GUARD]", "Generates a Guardfile into the current working directory, or add it given guard"
+    desc "init [GUARD]", "Generates a Guardfile into the current working directory, or insert the given GUARD"
     def init(guard_name = nil)
       if !File.exist?("Guardfile")
         puts "Writing new Guardfile to #{Dir.pwd}/Guardfile"

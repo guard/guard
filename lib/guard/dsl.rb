@@ -5,7 +5,7 @@ module Guard
       attr_accessor :options
 
       def evaluate_guardfile(options = {})
-        self.options = options
+        @@options = options
 
         guardfile = "#{Dir.pwd}/Guardfile"
         if File.exists?(guardfile)
@@ -26,20 +26,19 @@ module Guard
       end
     end
 
-    def group(name, &definition)
-      options = self.class.options
-      definition.call if definition && (options[:group].empty? || options[:group].include?(name))
+    def group(name, &guard_definition)
+      guard_definition.call if guard_definition && (@@options[:group].empty? || @@options[:group].include?(name))
     end
 
-    def guard(name, options = {}, &definition)
+    def guard(name, options = {}, &watch_definition)
       @watchers = []
-      definition.call if definition
+      watch_definition.call if watch_definition
       ::Guard.add_guard(name, @watchers, options)
     end
-    
+
     def watch(pattern, &action)
       @watchers << ::Guard::Watcher.new(pattern, action)
     end
-    
+
   end
 end

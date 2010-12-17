@@ -8,67 +8,82 @@ describe Guard::Dsl do
     ::Guard.stub!(:add_guard)
   end
   
-  it "write an error message when no Guardfile is found" do
+  it "should write an error message when no Guardfile is found" do
     Dir.stub!(:pwd).and_return("no_guardfile_here")
     
     Guard::UI.should_receive(:error).with("No Guardfile in current folder, please create one.")
     lambda { subject.evaluate_guardfile }.should raise_error
   end
   
-  it "write an error message when Guardfile is not valid" do
+  it "should write an error message when Guardfile is not valid" do
     mock_guardfile_content("This Guardfile is invalid!")
     
     Guard::UI.should_receive(:error).with(/Invalid Guardfile, original error is:\n/)
     lambda { subject.evaluate_guardfile }.should raise_error
   end
   
-  it "load a guard from the DSL" do
-    mock_guardfile_content("guard 'test'")
-    
-    ::Guard.should_receive(:add_guard).with('test', [], {})
-    subject.evaluate_guardfile
-  end
-
-  it "evaluates only the specified groups" do
-    mock_guardfile_content("
-      group 'x' do
-        guard 'test' do
-          watch('c')
+  describe "#group" do
+    before do
+      mock_guardfile_content("
+        group 'x' do
+          guard 'test' do
+            watch('c')
+          end
         end
-      end
-      group 'y' do
-        guard 'another' do
-          watch('c')
-        end
-      end")
-
-    ::Guard.should_receive(:add_guard).with('test', anything, {})
-    ::Guard.should_not_receive(:add_guard).with('another', anything, {})
-    subject.evaluate_guardfile(:group => ['x'])
-  end
-
-  it "receive watchers when specified" do
-    mock_guardfile_content("
-      guard 'test' do
-        watch('a') { 'b' }
-        watch('c')
-      end")
-      
-    ::Guard.should_receive(:add_guard).with('test', anything, {}) do |name, watchers, options|
-      watchers.size.should == 2
-      watchers[0].pattern.should     == 'a'
-      watchers[0].action.call.should == proc { 'b' }.call
-      watchers[1].pattern.should     == 'c'
-      watchers[1].action.should      be_nil
+        
+        group 'y' do
+          guard 'another' do
+            watch('c')
+          end
+        end")
     end
-    subject.evaluate_guardfile
+    
+    it "should evaluates only the specified group" do
+      ::Guard.should_receive(:add_guard).with('test', anything, {})
+      ::Guard.should_not_receive(:add_guard).with('another', anything, {})
+      subject.evaluate_guardfile(:group => ['x'])
+    end
+    
+    it "should evaluates only the specified groups" do
+      ::Guard.should_receive(:add_guard).with('test', anything, {})
+      ::Guard.should_receive(:add_guard).with('another', anything, {})
+      subject.evaluate_guardfile(:group => ['x', 'y'])
+    end
   end
   
-  it "receive options when specified" do
-    mock_guardfile_content("guard 'test', :opt_a => 1, :opt_b => 'fancy'")
+  describe "#guard" do
+    it "should load a guard from the DSL" do
+      mock_guardfile_content("guard 'test'")
+      
+      ::Guard.should_receive(:add_guard).with('test', [], {})
+      subject.evaluate_guardfile
+    end
     
-    ::Guard.should_receive(:add_guard).with('test', anything, { :opt_a => 1, :opt_b => 'fancy' })
-    subject.evaluate_guardfile
+    it "should receive options when specified" do
+      mock_guardfile_content("guard 'test', :opt_a => 1, :opt_b => 'fancy'")
+      
+      ::Guard.should_receive(:add_guard).with('test', anything, { :opt_a => 1, :opt_b => 'fancy' })
+      subject.evaluate_guardfile
+    end
+  end
+  
+  describe "#watch" do
+    it "should receive watchers when specified" do
+      mock_guardfile_content("
+        guard 'test' do
+          watch('a') { 'b' }
+          watch('c')
+        end")
+      
+      ::Guard.should_receive(:add_guard).with('test', anything, {}) do |name, watchers, options|
+        watchers.size.should == 2
+        watchers[0].pattern.should     == 'a'
+        watchers[0].action.call.should == proc { 'b' }.call
+        watchers[1].pattern.should     == 'c'
+        watchers[1].action.should      be_nil
+      end
+      subject.evaluate_guardfile
+    end
   end
   
 private
