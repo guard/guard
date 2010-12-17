@@ -2,8 +2,6 @@ module Guard
   class Dsl
 
     class << self
-      attr_accessor :options
-
       def evaluate_guardfile(options = {})
         @@options = options
         
