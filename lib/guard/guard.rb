@@ -8,7 +8,7 @@ module Guard
     
     # Guardfile template needed inside guard gem
     def self.init(name)
-      if ::Guard::Dsl.guardfile_included?(name)
+      if ::Guard::Dsl.guardfile_include?(name)
         ::Guard::UI.info "Guardfile already include #{name} guard"
       else
         content = File.read('Guardfile')

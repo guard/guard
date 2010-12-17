@@ -22,6 +22,20 @@ describe Guard::Dsl do
     lambda { subject.evaluate_guardfile }.should raise_error
   end
   
+  describe ".guardfile_include?" do
+    it "should detect a guard specified as a string" do
+      mock_guardfile_content("guard 'test'")
+      
+      subject.guardfile_include?('test').should be_true
+    end
+    
+    it "should detect a guard specified as a symbol" do
+      mock_guardfile_content("guard :test")
+      
+      subject.guardfile_include?('test').should be_true
+    end
+  end
+  
   describe "#group" do
     before do
       mock_guardfile_content("
@@ -52,10 +66,17 @@ describe Guard::Dsl do
   end
   
   describe "#guard" do
-    it "should load a guard from the DSL" do
+    it "should load a guard specified as a string from the DSL" do
       mock_guardfile_content("guard 'test'")
       
       ::Guard.should_receive(:add_guard).with('test', [], {})
+      subject.evaluate_guardfile
+    end
+    
+    it "should load a guard specified as a symbol from the DSL" do
+      mock_guardfile_content("guard :test")
+      
+      ::Guard.should_receive(:add_guard).with(:test, [], {})
       subject.evaluate_guardfile
     end
     
