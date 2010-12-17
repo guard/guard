@@ -59,11 +59,11 @@ And add it to you Gemfile:
 
 == Usage
 
-Just launch Guard inside your ruby/rails project with:
+Just launch Guard inside your Ruby / Rails project with:
 
     guard
 
-or if you use Bundler, to run the guard executable specific to your bundle:
+or if you use Bundler, to run the Guard executable specific to your bundle:
 
     bundle exec guard
 
@@ -71,7 +71,13 @@ or if you use Bundler, to run the guard executable specific to your bundle:
 
 Shell can be cleared after each change with:
 
-    guard -c
+    guard --clear
+    guard -c # shortcut
+
+The guards to start can be specified by group (see Guardfile DSL below) specifying the `--group` (or `-g`) option:
+
+    guard --group group_name another_group_name
+    guard -g group_name another_group_name # shortcut
 
 Options list is available with:
 
@@ -119,44 +125,41 @@ You are good to go!
 
 == Guardfile DSL
 
-The Guardfile DSL consists of just two simple main methods: `guard` & `watch`.
+The Guardfile DSL consists of just three simple main methods: `group`, `guard` & `watch`.
 
-- The `guard` method allows you to add a guard with an optional options hash
-- The `watch` method allows you to define which files are supervised per this guard. A optional block can be added to overwrite path sending to run_on_change guard method or launch simple command.
+- The `group` method allows you to group several guards. Groups to run can be specified with the Guard DSL option `--group` (or `-g`). This comes in handy especially when you have a huge Guardfile and want to focus your development.
+- The `guard` method allows you to add a guard with an optional options hash.
+- The `watch` method allows you to define which files are supervised per this guard. A optional block can be added to overwrite path sent to run_on_change guard method or launch simple command.
 
-Example:
-
-    guard 'rspec', :version => 2 do
-      # Regexp watch patterns are matched with Regexp#match
-      watch(%r{^spec/(.*)_spec\.rb})
-      watch(%r{^lib/(.*)\.rb})         { |m| "spec/lib/#{m[1]}_spec.rb" }
-      watch(%r{^spec/models/.*\.rb})   { ["spec/models", "spec/acceptance"] }
-      watch(%r{^spec/.*\.rb})          { `say hello` }
-
-      # String watch patterns are matched with simple '=='
-      watch('spec/spec_helper.rb') { "spec" }
-    end
-
-Additionally there is a simple helper method that lets you group your guards: `group`
-This comes in handy especially when you have a hughe Guardfile and want to focus your development.
 
 Example:
 
     group 'backend' do
       guard 'bundler' do
-        watch('^Gemfile')
+        watch('Gemfile')
+      end
+      
+      guard 'rspec' do
+        # Regexp watch patterns are matched with Regexp#match
+        watch(%r{^spec/(.+)_spec\.rb})
+        watch(%r{^lib/(.+)\.rb})         { |m| "spec/lib/#{m[1]}_spec.rb" }
+        watch(%r{^spec/models/.+\.rb})   { ["spec/models", "spec/acceptance"] }
+        watch(%r{^spec/.+\.rb})          { `say hello` }
+
+        # String watch patterns are matched with simple '=='
+        watch('spec/spec_helper.rb') { "spec" }
       end
     end
 
     group 'frontend' do
       guard 'coffeescript', :output => 'public/javascripts/compiled' do
-        watch('^app/coffeescripts/(.*)\.coffee')
+        watch(%r{app/coffeescripts/.+\.coffee})
+      end
+      
+      guard 'livereload' do
+        watch(%r{app/.+\.(erb|haml)})
       end
     end
-
-Now you can just activate the Bundler guard by calling
-
-    guard -g backend
 
 == Create a guard
 

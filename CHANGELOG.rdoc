@@ -1,3 +1,9 @@
+== Dec 17, 2010 [by netzpirat]
+
+Features:
+- New DSL method: `group` allows you to group several guards.
+- New CLI option: `--group group_name` to specify certain groups of guards to start.
+
 == Dec 16, 2010 [by rymai]
 
 Features:
