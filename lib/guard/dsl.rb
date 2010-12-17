@@ -6,11 +6,10 @@ module Guard
 
       def evaluate_guardfile(options = {})
         @@options = options
-        @@guardfile = "#{Dir.pwd}/Guardfile"
         
-        if File.exists?(@@guardfile)
+        if File.exists?(guardfile_path)
           begin
-            new.instance_eval(File.read(@@guardfile.to_s), @@guardfile.to_s, 1)
+            new.instance_eval(File.read(guardfile_path), guardfile_path, 1)
           rescue
             UI.error "Invalid Guardfile, original error is:\n#{$!}"
             exit 1
@@ -22,7 +21,11 @@ module Guard
       end
 
       def guardfile_include?(guard_name)
-        File.read(@@guardfile).match(/^guard\s*\(?\s*['":]#{guard_name}['"]?/)
+        File.read(guardfile_path).match(/^guard\s*\(?\s*['":]#{guard_name}['"]?/)
+      end
+      
+      def guardfile_path
+        File.join(Dir.pwd, 'Guardfile')
       end
     end
 
