@@ -24,7 +24,7 @@ module Guard
       setup(options)
       
       Interactor.init_signal_traps
-      Dsl.evaluate_guardfile
+      Dsl.evaluate_guardfile(options)
       if guards.empty?
         UI.error "No guards found in Guardfile, please add at least one."
       else

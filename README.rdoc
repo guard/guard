@@ -119,7 +119,12 @@ You are good to go!
 
 == Guardfile DSL
 
-Guardfile DSL consists of just two simple methods: guard & watch. Example:
+The Guardfile DSL consists of just two simple main methods: `guard` & `watch`.
+
+- The `guard` method allows you to add a guard with an optional options hash
+- The `watch` method allows you to define which files are supervised per this guard. A optional block can be added to overwrite path sending to run_on_change guard method or launch simple command.
+
+Example:
 
     guard 'rspec', :version => 2 do
       # Regexp watch patterns are matched with Regexp#match
@@ -127,13 +132,31 @@ Guardfile DSL consists of just two simple methods: guard & watch. Example:
       watch(%r{^lib/(.*)\.rb})         { |m| "spec/lib/#{m[1]}_spec.rb" }
       watch(%r{^spec/models/.*\.rb})   { ["spec/models", "spec/acceptance"] }
       watch(%r{^spec/.*\.rb})          { `say hello` }
-      
+
       # String watch patterns are matched with simple '=='
       watch('spec/spec_helper.rb') { "spec" }
     end
-    
-- "guard" method allow to add a guard with an optional options hash
-- "watch" method allow to define which files are supervised per this guard. A optional block can be added to overwrite path sending to run_on_change guard method or launch simple command.
+
+Additionally there is a simple helper method that lets you group your guards: `group`
+This comes in handy especially when you have a hughe Guardfile and want to focus your development.
+
+Example:
+
+    group 'backend' do
+      guard 'bundler' do
+        watch('^Gemfile')
+      end
+    end
+
+    group 'frontend' do
+      guard 'coffeescript', :output => 'public/javascripts/compiled' do
+        watch('^app/coffeescripts/(.*)\.coffee')
+      end
+    end
+
+Now you can just activate the Bundler guard by calling
+
+    guard -g backend
 
 == Create a guard
 

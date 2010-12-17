@@ -8,6 +8,7 @@ module Guard
     desc "start", "Starts guard"
     method_option :clear, :type => :boolean, :default => false, :aliases => '-c', :banner => "Auto clear shell before each change/run_all/reload"
     method_option :debug, :type => :boolean, :default => false, :aliases => '-d', :banner => "Print debug messages"
+    method_option :group, :type => :array,   :default => [],    :aliases => '-g', :banner => "Run only the passed groups"
     def start
       ::Guard.start(options)
     end

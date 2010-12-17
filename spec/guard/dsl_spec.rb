@@ -28,7 +28,25 @@ describe Guard::Dsl do
     ::Guard.should_receive(:add_guard).with('test', [], {})
     subject.evaluate_guardfile
   end
-  
+
+  it "evaluates only the specified groups" do
+    mock_guardfile_content("
+      group 'x' do
+        guard 'test' do
+          watch('c')
+        end
+      end
+      group 'y' do
+        guard 'another' do
+          watch('c')
+        end
+      end")
+
+    ::Guard.should_receive(:add_guard).with('test', anything, {})
+    ::Guard.should_not_receive(:add_guard).with('another', anything, {})
+    subject.evaluate_guardfile(:group => ['x'])
+  end
+
   it "receive watchers when specified" do
     mock_guardfile_content("
       guard 'test' do
