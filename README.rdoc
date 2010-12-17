@@ -125,12 +125,14 @@ You are good to go!
 
 == Guardfile DSL
 
-The Guardfile DSL consists of just three simple main methods: `group`, `guard` & `watch`.
+The Guardfile DSL consists of just three simple main methods: `guard`, `watch` & `group`.
 
-- The `group` method allows you to group several guards. Groups to run can be specified with the Guard DSL option `--group` (or `-g`). This comes in handy especially when you have a huge Guardfile and want to focus your development.
+Required:
 - The `guard` method allows you to add a guard with an optional options hash.
 - The `watch` method allows you to define which files are supervised per this guard. A optional block can be added to overwrite path sent to run_on_change guard method or launch simple command.
 
+Optional:
+- The `group` method allows you to group several guards. Groups to run can be specified with the Guard DSL option `--group` (or `-g`). This comes in handy especially when you have a huge Guardfile and want to focus your development.
 
 Example:
 
