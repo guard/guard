@@ -99,6 +99,7 @@ Signal handlers are used to interact with Guard:
 - {guard-cucumber}[https://github.com/guard/guard-cucumber] by {Michael Kessler}[https://github.com/netzpirat]
 - {guard-ego}[https://github.com/guard/guard-ego] by {Fabio Kuhn}[https://github.com/mordaroso]
 - {guard-jammit}[https://github.com/guard/guard-jammit] by {Pelle Braendgaard}[https://github.com/pelle]
+- {guard-less}[https://github.com/guard/guard-less] by {Brendan Erwin}[https://github.com/brendanjerwin]
 - {guard-livereload}[https://github.com/guard/guard-livereload] by {Thibaud Guillaume-Gentil}[https://github.com/thibaudgg]
 - {guard-minitest}[https://github.com/guard/guard-minitest] by {Yann Lugrin}[https://github.com/yannlugrin]
 - {guard-nanoc}[https://github.com/guard/guard-nanoc] by {Yann Lugrin}[https://github.com/yannlugrin]
