@@ -1,3 +1,8 @@
+== Jan 19, 2011 [by thibaudgg]
+
+Features:
+- The whole directory are now watched after that run_on_change was launched on all guards to detect new files modifications.
+
 == Dec 17, 2010 [by netzpirat]
 
 Features:
@@ -14,7 +19,6 @@ Features:
 
 Features:
 - It's now possible to return an enumerable in the 'watch' optional blocks in the Guardfile.
-- Listener now continue to watch changed files even when guards plugin are running.
 
 Specs:
 - Guard::Watcher
