@@ -1,3 +1,7 @@
+
+Bugs fixes:
+  - Return unique filenames from Linux listener (Marian Schubert)
+
 == 0.3.0 (Jan 19, 2011)
 
 == Jan 19, 2011 [by thibaudgg]
