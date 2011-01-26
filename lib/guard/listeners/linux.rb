@@ -60,6 +60,7 @@ module Guard
           update_last_event
 
           unless files.empty?
+            files.uniq!
             files.map! { |file| file.gsub("#{Dir.pwd}/", '') }
             callback.call(files)
             files.clear
