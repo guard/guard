@@ -82,11 +82,7 @@ module Guard
 
     def get_guard_class(name)
       require "guard/#{name.downcase}"
-      klasses = []
-      ObjectSpace.each_object(Class) do |klass|
-        klasses << klass if klass.to_s.downcase.match(/^guard::#{name.downcase}/)
-      end
-      klasses.first
+      self.const_get(self.constants.find{|klass_name| klass_name.to_s.downcase == name.downcase })
     rescue LoadError
       UI.error "Could not find gem 'guard-#{name}', please add it in your Gemfile."
     end

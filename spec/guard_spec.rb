@@ -28,6 +28,14 @@ describe Guard do
       it "should return Guard::RSpec" do
         Guard.get_guard_class('rspec').should == Guard::RSpec
       end
+      
+      context 'loaded some nested classes' do
+        it "should return Guard::RSpec" do
+          require 'guard/rspec'
+          Guard::RSpec.class_eval('class NotGuardClass; end')
+          Guard.get_guard_class('rspec').should == Guard::RSpec
+        end
+      end
     end
     
     describe ".locate_guard" do
