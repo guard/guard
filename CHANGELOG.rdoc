@@ -1,6 +1,7 @@
 
 Bugs fixes:
   - Return unique filenames from Linux listener (Marian Schubert)
+  - Guard.get_guard_class return wrong class when loaded nested class. (koshigoe)
 
 == 0.3.0 (Jan 19, 2011)
 
