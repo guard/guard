@@ -88,7 +88,7 @@ module Guard
     end
 
     def locate_guard(name)
-      `gem open guard-#{name} --latest --command echo`.chomp
+      `gem which guard/#{name}`.chomp
     rescue
       UI.error "Could not find 'guard-#{name}' gem path."
     end

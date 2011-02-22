@@ -20,7 +20,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'guard-rspec', '~> 0.1.9'
 
   s.add_dependency 'thor',     '~> 0.14.6'
-  s.add_dependency 'open_gem', '~> 1.4.2'
 
   s.files        = Dir.glob('{bin,images,lib}/**/*') + %w[LICENSE README.rdoc]
   s.executable   = 'guard'
