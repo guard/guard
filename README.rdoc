@@ -87,7 +87,7 @@ Options list is available with:
 Signal handlers are used to interact with Guard:
 
 - <tt>Ctrl-C</tt> - Calls each guard's <tt>stop</tt> method, in the same order they are declared in the Guarfile, and then quits Guard itself.
-- <tt>Ctrl-\</tt>  - Calls each guard's <tt>run_all</tt> method, in the same order they are declared in the Guarfile.
+- <tt>Ctrl-\\</tt>  - Calls each guard's <tt>run_all</tt> method, in the same order they are declared in the Guarfile.
 - <tt>Ctrl-Z</tt> - Calls each guard's <tt>reload</tt> method, in the same order they are declared in the Guarfile.
 
 == Available Guards
