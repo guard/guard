@@ -4,40 +4,39 @@ Guard is a command line tool that easily handle events on files modifications.
 
 == Features
 
-- {FSEvent}[http://en.wikipedia.org/wiki/FSEvents] support on Mac OS X 10.5+ (without RubyCocoa!, {rb-fsevent gem, >= 0.3.5}[https://rubygems.org/gems/rb-fsevent] required)
-- {Inotify}[http://en.wikipedia.org/wiki/Inotify] support on Linux ({rb-inotify gem, >= 0.5.1}[https://rubygems.org/gems/rb-inotify] required)
-- Polling for others (help us to support more systems)
-- Super fast change detection (when polling not used)
-- Automatic files modifications detection (even new files are detected)
-- Growl notification ({growlnotify}[http://growl.info/documentation/growlnotify.php] & {growl gem}[https://rubygems.org/gems/growl] required)
-- Libnotify notification ({libnotify gem}[https://rubygems.org/gems/libnotify] required)
+- {FSEvent}[http://en.wikipedia.org/wiki/FSEvents] support on Mac OS X 10.5+ (without RubyCocoa!, {rb-fsevent gem, >= 0.3.5}[https://rubygems.org/gems/rb-fsevent] required).
+- {Inotify}[http://en.wikipedia.org/wiki/Inotify] support on Linux ({rb-inotify gem, >= 0.5.1}[https://rubygems.org/gems/rb-inotify] required).
+- Polling on the other operating systems (help us to support more OS).
+- Automatic & Super fast (when polling is not used) files modifications detection (even new files are detected).
+- Growl notifications ({growlnotify}[http://growl.info/documentation/growlnotify.php] & {growl gem}[https://rubygems.org/gems/growl] required)
+- Libnotify notifications ({libnotify gem}[https://rubygems.org/gems/libnotify] required)
 - Tested on Ruby 1.8.6, 1.8.7 & 1.9.2
 
 == Install
 
 Install the gem:
 
-    gem install guard
+    $ gem install guard
 
-Add it to your Gemfile (inside test group):
+Add it to your Gemfile (inside the <tt>test</tt> group):
 
     gem 'guard'
 
 Generate an empty Guardfile with:
 
-    guard init
+    $ guard init
 
-Add the guards you need (see available guards below)
+Add the guards you need to your Guardfile (see the existing guards below).
 
 === On Mac OS X
 
-Install rb-fsevent for {FSEvent}[http://en.wikipedia.org/wiki/FSEvents] support:
+Install the rb-fsevent gem for {FSEvent}[http://en.wikipedia.org/wiki/FSEvents] support:
 
-    gem install rb-fsevent
+    $ gem install rb-fsevent
 
-Install growl for Growl notification support:
+Install the Growl gem if you want notification support:
 
-    gem install growl
+    $ gem install growl
 
 And add it to you Gemfile:
 
@@ -45,13 +44,13 @@ And add it to you Gemfile:
 
 === On Linux
 
-Install rb-inotify for {inotify}[http://en.wikipedia.org/wiki/Inotify] support:
+Install the rb-inotify gem for {inotify}[http://en.wikipedia.org/wiki/Inotify] support:
 
-    gem install rb-inotify
+    $ gem install rb-inotify
 
-Install libnotify for libonity notification support:
+Install the Libnotify gem if you want notification support:
 
-    gem install libnotify
+    $ gem install libnotify
 
 And add it to you Gemfile:
 
@@ -61,27 +60,27 @@ And add it to you Gemfile:
 
 Just launch Guard inside your Ruby / Rails project with:
 
-    guard
+    $ guard [start]
 
 or if you use Bundler, to run the Guard executable specific to your bundle:
 
-    bundle exec guard
+    $ bundle exec guard
 
 == Command line options
 
 Shell can be cleared after each change with:
 
-    guard --clear
-    guard -c # shortcut
+    $ guard --clear
+    $ guard -c # shortcut
 
-The guards to start can be specified by group (see Guardfile DSL below) specifying the `--group` (or `-g`) option:
+The guards to start can be specified by group (see the Guardfile DSL below) specifying the <tt>--group</tt> (or <tt>-g</tt>) option:
 
-    guard --group group_name another_group_name
-    guard -g group_name another_group_name # shortcut
+    $ guard --group group_name another_group_name
+    $ guard -g group_name another_group_name # shortcut
 
 Options list is available with:
 
-    guard help [TASK]
+    $ guard help [TASK]
 
 == Signal handlers
 
@@ -116,26 +115,26 @@ Signal handlers are used to interact with Guard:
 
 === Add a guard to your Guardfile
 
-Add it to your Gemfile (inside test group):
+Add it to your Gemfile (inside the <tt>test</tt> group):
 
     gem '<guard-name>'
 
-Add guard definition to your Guardfile by running this command:
+Insert default guard's definition to your Guardfile by running this command:
 
-    guard init <guard-name>
+    $ guard init <guard-name>
 
 You are good to go!
 
 == Guardfile DSL
 
-The Guardfile DSL consists of just three simple main methods: `guard`, `watch` & `group`.
+The Guardfile DSL consists of just three simple methods: <tt>guard</tt>, <tt>watch</tt> & <tt>group</tt>.
 
 Required:
-- The `guard` method allows you to add a guard with an optional options hash.
-- The `watch` method allows you to define which files are supervised per this guard. A optional block can be added to overwrite path sent to run_on_change guard method or launch simple command.
+- The <tt>guard</tt> method allows you to add a guard with an optional hash of options.
+- The <tt>watch</tt> method allows you to define which files are supervised by this guard. An optional block can be added to overwrite the paths sent to the <tt>run_on_change</tt> guard method or to launch any arbitrary command.
 
 Optional:
-- The `group` method allows you to group several guards. Groups to run can be specified with the Guard DSL option `--group` (or `-g`). This comes in handy especially when you have a huge Guardfile and want to focus your development.
+- The <tt>group</tt> method allows you to group several guards together. Groups to be run can be specified with the Guard DSL option <tt>--group</tt> (or <tt>-g</tt>). This comes in handy especially when you have a huge Guardfile and want to focus your development on a certain part.
 
 Example:
 
@@ -144,9 +143,9 @@ Example:
         watch('Gemfile')
       end
 
-      guard 'rspec' do
+      guard 'rspec', :cli => '--color --format doc' do
         # Regexp watch patterns are matched with Regexp#match
-        watch(%r{^spec/(.+)_spec\.rb})
+        watch(%r{^spec/.+_spec\.rb})
         watch(%r{^lib/(.+)\.rb})         { |m| "spec/lib/#{m[1]}_spec.rb" }
         watch(%r{^spec/models/.+\.rb})   { ["spec/models", "spec/acceptance"] }
         watch(%r{^spec/.+\.rb})          { `say hello` }
@@ -158,17 +157,17 @@ Example:
 
     group 'frontend' do
       guard 'coffeescript', :output => 'public/javascripts/compiled' do
-        watch(%r{app/coffeescripts/.+\.coffee})
+        watch(%r{^app/coffeescripts/.+\.coffee})
       end
 
       guard 'livereload' do
-        watch(%r{app/.+\.(erb|haml)})
+        watch(%r{^app/.+\.(erb|haml)})
       end
     end
 
-== Create a guard
+== Create a new guard
 
-Create a new guard is very easy, just create a new gem with this basic structure:
+Creating a new guard is very easy, just create a new gem (<tt>bundle gem</tt> if you use Bundler) with this basic structure:
 
     lib/
       guard/
@@ -177,7 +176,7 @@ Create a new guard is very easy, just create a new gem with this basic structure
             Guardfile (needed for guard init <guard-name>)
         guard-name.rb
 
-lib/guard/guard-name.rb inherit from guard/guard and should overwrite at least one of the five guard methods. Example:
+<tt>Guard::GuardName</tt> (in <tt>lib/guard/guard-name.rb</tt>) must inherit from <tt>Guard::Guard</tt> and should overwrite at least one of the five basic <tt>Guard::Guard</tt> instance methods. Example:
 
     require 'guard'
     require 'guard/guard'
@@ -185,7 +184,7 @@ lib/guard/guard-name.rb inherit from guard/guard and should overwrite at least o
     module Guard
       class GuardName < Guard
 
-        def initialize(watchers = [], options = {})
+        def initialize(watchers=[], options={})
           super
           # init stuff here, thx!
         end
@@ -194,33 +193,33 @@ lib/guard/guard-name.rb inherit from guard/guard and should overwrite at least o
         # = Guard method =
         # ================
 
-        # If one of those methods raise an exception, the Guard instance
-        # will be removed from the active guard.
+        # If one of those methods raise an exception, the Guard::GuardName instance
+        # will be removed from the active guards.
 
-        # Call once when guard starts
+        # Called once when Guard starts
         # Please override initialize method to init stuff
         def start
           true
         end
 
-        # Call with Ctrl-C signal (when Guard quit)
+        # Called on Ctrl-C signal (when Guard quits)
         def stop
           true
         end
 
-        # Call with Ctrl-Z signal
+        # Called on Ctrl-Z signal
         # This method should be mainly used for "reload" (really!) actions like reloading passenger/spork/bundler/...
         def reload
           true
         end
 
-        # Call with Ctrl-/ signal
+        # Called on Ctrl-/ signal
         # This method should be principally used for long action like running all specs/tests/...
         def run_all
           true
         end
 
-        # Call on file(s) modifications
+        # Called on file(s) modifications
         def run_on_change(paths)
           true
         end
@@ -228,12 +227,12 @@ lib/guard/guard-name.rb inherit from guard/guard and should overwrite at least o
       end
     end
 
-Looks at available guards code for more concrete example.
+Please take a look at the existing guards' source code (see the list above) for more concrete example.
 
 == Development
 
-- Source hosted at {GitHub}[https://github.com/guard/guard]
-- Report issues/Questions/Feature requests on {GitHub Issues}[https://github.com/guard/guard/issues]
+- Source hosted at {GitHub}[https://github.com/guard/guard].
+- Report Issues/Questions/Feature requests on {GitHub Issues}[https://github.com/guard/guard/issues].
 
 Pull requests are very welcome! Make sure your patches are well tested. Please create a topic branch for every separate change
 you make.
