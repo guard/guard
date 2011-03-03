@@ -86,9 +86,9 @@ Options list is available with:
 
 Signal handlers are used to interact with Guard:
 
-- Ctrl-C - Quit Guard (call each guard's run_all method, in the same order they are declared in the Guarfile)
-- Ctrl-\ - Call each guard's run_all method, in the same order they are declared in the Guarfile
-- Ctrl-Z - Call each guard's reload method, in the same order they are declared in the Guarfile
+- Ctrl-C - Call each guard's <tt>stop</tt> method, in the same order they are declared in the Guarfile, and then quits Guard itself.
+- Ctrl-\  - Call each guard's <tt>run_all</tt> method, in the same order they are declared in the Guarfile.
+- Ctrl-Z - Call each guard's <tt>reload</tt> method, in the same order they are declared in the Guarfile.
 
 == Available Guards
 
