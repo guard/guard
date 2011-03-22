@@ -112,6 +112,7 @@ Signal handlers are used to interact with Guard:
 - {guard-spork}[https://github.com/guard/guard-spork] by {Thibaud Guillaume-Gentil}[https://github.com/thibaudgg]
 - {guard-stendhal}[https://github.com/guard/guard-stendhal] by {Josep Mª Bach}[https://github.com/txus]
 - {guard-test}[https://github.com/guard/guard-test] by {Rémy Coutable}[https://github.com/rymai]
+- {guard-webrick}[https://github.com/guard/guard-webrick] by {Fletcher Nichol}[https://github.com/fnichol]
 
 === Add a guard to your Guardfile
 
