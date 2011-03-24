@@ -24,7 +24,7 @@ module Guard
       end
 
       def reset_line
-        print "\r\e "
+        print "\r\e[0m"
       end
 
       def clear
