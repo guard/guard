@@ -104,6 +104,7 @@ Signal handlers are used to interact with Guard:
 - {guard-minitest}[https://github.com/guard/guard-minitest] by {Yann Lugrin}[https://github.com/yannlugrin]
 - {guard-nanoc}[https://github.com/guard/guard-nanoc] by {Yann Lugrin}[https://github.com/yannlugrin]
 - {guard-passenger}[https://github.com/guard/guard-passenger] by {Fabio Kuhn}[https://github.com/mordaroso]
+- {guard-prove}[https://github.com/guard/guard-prove] by {Marian Schubert}[https://github.com/maio]
 - {guard-pusher}[https://github.com/guard/guard-pusher] by {Klaus Hartl}[https://github.com/carhartl]
 - {guard-rspec}[https://github.com/guard/guard-rspec] by {Thibaud Guillaume-Gentil}[https://github.com/thibaudgg]
 - {guard-sass}[https://github.com/guard/guard-sass] by {Joshua Hawxwell}[https://github.com/hawx]
@@ -112,6 +113,7 @@ Signal handlers are used to interact with Guard:
 - {guard-spork}[https://github.com/guard/guard-spork] by {Thibaud Guillaume-Gentil}[https://github.com/thibaudgg]
 - {guard-stendhal}[https://github.com/guard/guard-stendhal] by {Josep Mª Bach}[https://github.com/txus]
 - {guard-test}[https://github.com/guard/guard-test] by {Rémy Coutable}[https://github.com/rymai]
+- {guard-webrick}[https://github.com/guard/guard-webrick] by {Fletcher Nichol}[https://github.com/fnichol]
 
 === Add a guard to your Guardfile
 
