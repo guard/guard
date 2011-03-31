@@ -189,9 +189,9 @@ Creating a new guard is very easy, just create a new gem (<tt>bundle gem</tt> if
           # init stuff here, thx!
         end
 
-        # ================
-        # = Guard method =
-        # ================
+        # =================
+        # = Guard methods =
+        # =================
 
         # If one of those methods raise an exception, the Guard::GuardName instance
         # will be removed from the active guards.
