@@ -105,6 +105,7 @@ Signal handlers are used to interact with Guard:
 - {guard-nanoc}[https://github.com/guard/guard-nanoc] by {Yann Lugrin}[https://github.com/yannlugrin]
 - {guard-passenger}[https://github.com/guard/guard-passenger] by {Fabio Kuhn}[https://github.com/mordaroso]
 - {guard-phantomjs}[https://github.com/guard/guard-phantomjs] by {Klaus Hartl}[https://github.com/carhartl]
+- {guard-pow}[https://github.com/guard/guard-pow] by {Thibaud Guillaume-Gentil}[https://github.com/thibaudgg]
 - {guard-prove}[https://github.com/guard/guard-prove] by {Marian Schubert}[https://github.com/maio]
 - {guard-pusher}[https://github.com/guard/guard-pusher] by {Klaus Hartl}[https://github.com/carhartl]
 - {guard-rspec}[https://github.com/guard/guard-rspec] by {Thibaud Guillaume-Gentil}[https://github.com/thibaudgg]
