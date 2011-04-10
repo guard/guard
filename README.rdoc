@@ -92,30 +92,7 @@ Signal handlers are used to interact with Guard:
 
 == Available Guards
 
-- {guard-bundler}[https://github.com/guard/guard-bundler] by {Yann Lugrin}[https://github.com/yannlugrin]
-- {guard-coffeescript}[https://github.com/guard/guard-coffeescript] by {Michael Kessler}[https://github.com/netzpirat]
-- {guard-compass}[https://github.com/guard/guard-compass] by {Olivier Amblet}[https://github.com/oliamb]
-- {guard-cucumber}[https://github.com/guard/guard-cucumber] by {Michael Kessler}[https://github.com/netzpirat]
-- {guard-ego}[https://github.com/guard/guard-ego] by {Fabio Kuhn}[https://github.com/mordaroso]
-- {guard-jammit}[https://github.com/guard/guard-jammit] by {Pelle Braendgaard}[https://github.com/pelle]
-- {guard-krl}[https://github.com/guard/guard-krl] by {Michael Farmer}[https://github.com/mikefarmer]
-- {guard-less}[https://github.com/guard/guard-less] by {Brendan Erwin}[https://github.com/brendanjerwin]
-- {guard-livereload}[https://github.com/guard/guard-livereload] by {Thibaud Guillaume-Gentil}[https://github.com/thibaudgg]
-- {guard-minitest}[https://github.com/guard/guard-minitest] by {Yann Lugrin}[https://github.com/yannlugrin]
-- {guard-nanoc}[https://github.com/guard/guard-nanoc] by {Yann Lugrin}[https://github.com/yannlugrin]
-- {guard-passenger}[https://github.com/guard/guard-passenger] by {Fabio Kuhn}[https://github.com/mordaroso]
-- {guard-phantomjs}[https://github.com/guard/guard-phantomjs] by {Klaus Hartl}[https://github.com/carhartl]
-- {guard-pow}[https://github.com/guard/guard-pow] by {Thibaud Guillaume-Gentil}[https://github.com/thibaudgg]
-- {guard-prove}[https://github.com/guard/guard-prove] by {Marian Schubert}[https://github.com/maio]
-- {guard-pusher}[https://github.com/guard/guard-pusher] by {Klaus Hartl}[https://github.com/carhartl]
-- {guard-rspec}[https://github.com/guard/guard-rspec] by {Thibaud Guillaume-Gentil}[https://github.com/thibaudgg]
-- {guard-sass}[https://github.com/guard/guard-sass] by {Joshua Hawxwell}[https://github.com/hawx]
-- {guard-shell}[https://github.com/guard/guard-shell] by {Joshua Hawxwell}[https://github.com/hawx]
-- {guard-soca}[https://github.com/guard/guard-soca] by {Luke Amdor}[https://github.com/rubbish]
-- {guard-spork}[https://github.com/guard/guard-spork] by {Thibaud Guillaume-Gentil}[https://github.com/thibaudgg]
-- {guard-stendhal}[https://github.com/guard/guard-stendhal] by {Josep Mª Bach}[https://github.com/txus]
-- {guard-test}[https://github.com/guard/guard-test] by {Rémy Coutable}[https://github.com/rymai]
-- {guard-webrick}[https://github.com/guard/guard-webrick] by {Fletcher Nichol}[https://github.com/fnichol]
+{Available Guards list}[https://github.com/guard/guard/wiki/List-of-available-Guards] (on the wiki now)
 
 === Add a guard to your Guardfile
 
