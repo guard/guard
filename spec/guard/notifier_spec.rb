@@ -2,10 +2,10 @@ require 'spec_helper'
 
 describe Guard::Notifier do
   subject { Guard::Notifier }
-  
+
   describe "notify" do
     before(:each) { ENV["GUARD_ENV"] = 'special_test' }
-    
+
     if mac?
       require 'growl'
       it "should use Growl on Mac OS X" do
@@ -17,7 +17,7 @@ describe Guard::Notifier do
         subject.notify 'great', :title => 'Guard'
       end
     end
-    
+
     if linux?
       require 'libnotify'
       it "should use Libnotify on Linux" do
@@ -29,8 +29,28 @@ describe Guard::Notifier do
         subject.notify 'great', :title => 'Guard'
       end
     end
-    
+
+    context "turned off" do
+      before(:each) { subject.turn_off }
+
+      if mac?
+        require 'growl'
+        it "should do nothing" do
+          Growl.should_not_receive(:notify)
+          subject.notify 'great', :title => 'Guard'
+        end
+      end
+
+      if linux?
+        require 'libnotify'
+        it "should do nothing" do
+          Libnotify.should_not_receive(:show)
+          subject.notify 'great', :title => 'Guard'
+        end
+      end
+    end
+
     after(:each) { ENV["GUARD_ENV"] = 'test' }
   end
-  
+
 end

@@ -17,6 +17,9 @@ module Guard
       @options  = options
       @listener = Listener.select_and_init
       @guards   = []
+
+      Notifier.turn_off unless options[:notify]
+
       self
     end
 

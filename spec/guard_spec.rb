@@ -22,6 +22,11 @@ describe Guard do
       it "should init listener" do
         ::Guard.listener.should be_kind_of(Guard::Listener)
       end
+
+      it "should turn off notifier if notify option is false" do
+        ::Guard::Notifier.should_receive(:turn_off)
+        ::Guard.setup(:notify => false)
+      end
     end
 
     describe ".get_guard_class" do

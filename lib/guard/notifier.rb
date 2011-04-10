@@ -3,9 +3,13 @@ require 'pathname'
 
 module Guard
   module Notifier
-    
+
+    def self.turn_off
+      @disable = true
+    end
+
     def self.notify(message, options = {})
-      unless ENV["GUARD_ENV"] == "test"
+      unless @disable || ENV["GUARD_ENV"] == "test"
         image = options[:image] || :success
         title = options[:title] || "Guard"
         case Config::CONFIG['target_os']
@@ -20,9 +24,9 @@ module Guard
         end
       end
     end
-    
+
   private
-    
+
     def self.image_path(image)
       images_path = Pathname.new(File.dirname(__FILE__)).join('../../images')
       case image
@@ -37,7 +41,7 @@ module Guard
         image
       end
     end
-    
+
     def self.growl_installed?
       @installed ||= begin
         require 'growl'
@@ -47,7 +51,7 @@ module Guard
         false
       end
     end
-    
+
     def self.libnotify_installed?
       @installed ||= begin
         require 'libnotify'
@@ -57,6 +61,6 @@ module Guard
         false
       end
     end
-    
+
   end
 end
