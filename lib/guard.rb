@@ -6,6 +6,7 @@ module Guard
   autoload :Listener,   'guard/listener'
   autoload :Watcher,    'guard/watcher'
   autoload :Notifier,   'guard/notifier'
+  autoload :Hook,       'guard/hook'
 
   class << self
     attr_accessor :options, :guards, :listener
@@ -57,7 +58,9 @@ module Guard
     # Let a guard execute its task but
     # fire it if his work leads to a system failure
     def supervised_task(guard, task_to_supervise, *args)
+      guard.hook "#{task_to_supervise.to_s}_begin"
       guard.send(task_to_supervise, *args)
+      guard.hook "#{task_to_supervise.to_s}_end"
     rescue Exception
       UI.error("#{guard.class.name} guard failed to achieve its <#{task_to_supervise.to_s}> command: #{$!}")
       ::Guard.guards.delete guard
