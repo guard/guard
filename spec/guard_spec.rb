@@ -54,7 +54,7 @@ describe Guard do
     describe ".supervised_task" do
       subject { ::Guard.setup }
       before(:each) do
-        @g = mock(Guard::Guard)
+        @g = mock(Guard::Guard).as_null_object
         subject.guards.push(@g)
       end
 
@@ -92,6 +92,8 @@ describe Guard do
           failing_result.message.should == 'I break your system'
         end
       end
+
+      it "calls the default hooks"
     end
   end
 
