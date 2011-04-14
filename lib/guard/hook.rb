@@ -36,7 +36,7 @@ module Guard
       end
 
       def has_callback?(listener, guard_class, event)
-        listeners(guard_class, event).include? listener
+        callbacks[[guard_class, event]].include? listener
       end
 
       def notify(guard_class, event)
@@ -47,14 +47,6 @@ module Guard
 
       def reset!
         @callbacks = nil
-      end
-
-      private
-
-      def listeners(guard_class, event)
-        callbacks[[guard_class, event]].inject([]) do |all, arr|
-          all << arr
-        end
       end
     end
   end
