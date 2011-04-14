@@ -1,3 +1,5 @@
+== 0.3.1 (Avril 14, 2011)
+
 Features:
   - Added a command line option (-n false) to disable notifications (growl/libnotify)
 
