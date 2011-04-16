@@ -1,5 +1,7 @@
 module Guard
   class Guard
+    include Hook
+
     attr_accessor :watchers, :options
 
     def initialize(watchers = [], options = {})
