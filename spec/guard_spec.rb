@@ -76,6 +76,12 @@ describe Guard do
           ::Guard.supervised_task(@g, :regular).should be_true
           ::Guard.supervised_task(@g, :regular_with_arg, "given_path").should == "i'm a success"
         end
+
+        it "calls the default hooks" do
+          @g.should_receive(:hook).with("regular_begin")
+          @g.should_receive(:hook).with("regular_end")
+          ::Guard.supervised_task(@g, :regular)
+        end
       end
 
       describe "tasks that raise an exception" do
@@ -91,10 +97,15 @@ describe Guard do
           failing_result.should be_kind_of(Exception)
           failing_result.message.should == 'I break your system'
         end
-      end
 
-      it "calls the default hooks"
+        it "calls the default begin hook but not the default end hook" do
+          @g.should_receive(:hook).with("failing_begin")
+          @g.should_not_receive(:hook).with("failing_end")
+          ::Guard.supervised_task(@g, :failing)
+        end
+      end
     end
+
   end
 
 end

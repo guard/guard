@@ -5,17 +5,16 @@ module Guard
     end
 
     module InstanceMethods
-
       # When passed a sybmol, #hook will generate a hook name
       # from the symbol and calling method name. When passed
       # a string, #hook will turn the string into a symbol
       # directly.
       def hook(event)
-        if event.class == Symbol
+        hook_name = if event.is_a? Symbol
           calling_method = caller[0][/`([^']*)'/, 1]
-          hook_name = "#{calling_method}_#{event}".to_sym
+          "#{calling_method}_#{event}".to_sym
         else
-          hook_name = event.to_sym
+          event.to_sym
         end
 
         UI.info "\nHook :#{hook_name} executed for #{self.class}"
@@ -28,15 +27,15 @@ module Guard
         @callbacks ||= Hash.new { |hash, key| hash[key] = [] }
       end
 
-      def add(listener, guard_class, events)
-        _events = events.class == Array ? events : [events]
+      def add_callback(listener, guard_class, events)
+        _events = events.is_a?(Array) ? events : [events]
         _events.each do |event|
           callbacks[[guard_class, event]] << listener
         end
       end
 
       def has_callback?(listener, guard_class, event)
-        callbacks[[guard_class, event]].include? listener
+        callbacks[[guard_class, event]].include?(listener)
       end
 
       def notify(guard_class, event)
@@ -45,7 +44,7 @@ module Guard
         end
       end
 
-      def reset!
+      def reset_callbacks!
         @callbacks = nil
       end
     end

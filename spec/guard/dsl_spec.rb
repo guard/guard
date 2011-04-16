@@ -52,56 +52,75 @@ describe Guard::Dsl do
         end")
     end
 
-    it "should evaluates only the specified group" do
-      ::Guard.should_receive(:add_guard).with('test', anything, {})
-      ::Guard.should_not_receive(:add_guard).with('another', anything, {})
+    it "evaluates only the specified group" do
+      ::Guard.should_receive(:add_guard).with('test', anything, anything, {})
+      ::Guard.should_not_receive(:add_guard).with('another', anything, anything, {})
       subject.evaluate_guardfile(:group => ['x'])
     end
 
-    it "should evaluates only the specified groups" do
-      ::Guard.should_receive(:add_guard).with('test', anything, {})
-      ::Guard.should_receive(:add_guard).with('another', anything, {})
+    it "evaluates only the specified groups" do
+      ::Guard.should_receive(:add_guard).with('test', anything, anything, {})
+      ::Guard.should_receive(:add_guard).with('another', anything, anything, {})
       subject.evaluate_guardfile(:group => ['x', 'y'])
     end
   end
 
   describe "#guard" do
-    it "should load a guard specified as a string from the DSL" do
+    it "loads a guard specified by a string" do
       mock_guardfile_content("guard 'test'")
-
-      ::Guard.should_receive(:add_guard).with('test', [], {})
+      ::Guard.should_receive(:add_guard).with('test', [], [], {})
       subject.evaluate_guardfile
     end
 
-    it "should load a guard specified as a symbol from the DSL" do
+    it "loads a guard specified as a symbol from the DSL" do
       mock_guardfile_content("guard :test")
-
-      ::Guard.should_receive(:add_guard).with(:test, [], {})
+      ::Guard.should_receive(:add_guard).with(:test, [], [], {})
       subject.evaluate_guardfile
     end
 
-    it "should receive options when specified" do
+    it "accepts options" do
       mock_guardfile_content("guard 'test', :opt_a => 1, :opt_b => 'fancy'")
-
-      ::Guard.should_receive(:add_guard).with('test', anything, { :opt_a => 1, :opt_b => 'fancy' })
+      ::Guard.should_receive(:add_guard).with('test', anything, anything, { :opt_a => 1, :opt_b => 'fancy' })
       subject.evaluate_guardfile
     end
   end
 
   describe "#watch" do
-    it "should receive watchers when specified" do
+    it "creates watchers for the guard" do
       mock_guardfile_content("
         guard 'test' do
           watch('a') { 'b' }
           watch('c')
         end")
 
-      ::Guard.should_receive(:add_guard).with('test', anything, {}) do |name, watchers, options|
-        watchers.size.should == 2
-        watchers[0].pattern.should     == 'a'
-        watchers[0].action.call.should == proc { 'b' }.call
-        watchers[1].pattern.should     == 'c'
-        watchers[1].action.should      be_nil
+      ::Guard.should_receive(:add_guard).with('test', anything, anything, {}) do |name, watchers, callbacks, options|
+        watchers.should have(2).items
+        watchers[0][:pattern].should     == 'a'
+        watchers[0][:action].call.should == proc { 'b' }.call
+        watchers[1][:pattern].should     == 'c'
+        watchers[1][:action].should      be_nil
+      end
+      subject.evaluate_guardfile
+    end
+  end
+
+  describe "#callback" do
+    it "creates callbacks for the guard" do
+      class MyCustomCallback
+      end
+
+      mock_guardfile_content("
+        guard 'test' do
+          callback(:start_end) { 'Guard::Test started!' }
+          callback(MyCustomCallback, [:start_begin, :run_all_begin])
+        end")
+
+      ::Guard.should_receive(:add_guard).with('test', anything, anything, {}) do |name, watchers, callbacks, options|
+        callbacks.should have(2).items
+        callbacks[0][:events].should        == :start_end
+        callbacks[0][:listener].call.should == proc { 'Guard::Test started!' }.call
+        callbacks[1][:events].should        == [:start_begin, :run_all_begin]
+        callbacks[1][:listener].should      == MyCustomCallback
       end
       subject.evaluate_guardfile
     end
