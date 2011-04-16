@@ -58,12 +58,12 @@ module Guard
     # Let a guard execute its task but
     # fire it if his work leads to a system failure
     def supervised_task(guard, task_to_supervise, *args)
-      guard.hook "#{task_to_supervise.to_s}_begin"
+      guard.hook "#{task_to_supervise}_begin"
       result = guard.send(task_to_supervise, *args)
-      guard.hook "#{task_to_supervise.to_s}_end"
+      guard.hook "#{task_to_supervise}_end"
       result
     rescue Exception
-      UI.error("#{guard.class.name} guard failed to achieve its <#{task_to_supervise.to_s}> command: #{$!}")
+      UI.error("#{guard.class.name} guard failed to achieve its <#{task_to_supervise}> command: #{$!}")
       ::Guard.guards.delete guard
       UI.info("Guard #{guard.class.name} has just been fired")
       return $!
@@ -79,9 +79,11 @@ module Guard
       listener.start
     end
 
-    def add_guard(name, watchers = [], options = {})
+    def add_guard(name, watchers = [], callbacks = [], options = {})
       guard_class = get_guard_class(name)
+      watchers = watchers.map { |watcher| ::Guard::Watcher.new(watcher[:pattern], watcher[:action]) }
       @guards << guard_class.new(watchers, options)
+      callbacks.each { |callback| ::Guard::Hook.add_callback(callback[:listener], guard_class, callback[:events]) }
     end
 
     def get_guard_class(name)
