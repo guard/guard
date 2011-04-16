@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'guard/dsl'
 
 describe Guard::Dsl do
   subject { Guard::Dsl }
@@ -8,14 +7,14 @@ describe Guard::Dsl do
     ::Guard.stub!(:add_guard)
   end
 
-  it "should write an error message when no Guardfile is found" do
+  it "displays an error message when no Guardfile is found" do
     Dir.stub!(:pwd).and_return("no_guardfile_here")
 
     Guard::UI.should_receive(:error).with("No Guardfile in current folder, please create one.")
     lambda { subject.evaluate_guardfile }.should raise_error
   end
 
-  it "should write an error message when Guardfile is not valid" do
+  it "displays an error message when Guardfile is not valid" do
     mock_guardfile_content("This Guardfile is invalid!")
 
     Guard::UI.should_receive(:error).with(/Invalid Guardfile, original error is:\n/)
@@ -23,15 +22,23 @@ describe Guard::Dsl do
   end
 
   describe ".guardfile_include?" do
-    it "should detect a guard specified as a string" do
+    it "detects a guard specified by a string with simple quotes" do
       mock_guardfile_content("guard 'test'")
-
       subject.guardfile_include?('test').should be_true
     end
 
-    it "should detect a guard specified as a symbol" do
-      mock_guardfile_content("guard :test")
+    it "detects a guard specified by a string with double quotes" do
+      mock_guardfile_content('guard "test"')
+      subject.guardfile_include?('test').should be_true
+    end
 
+    it "detects a guard specified by a symbol" do
+      mock_guardfile_content("guard :test")
+      subject.guardfile_include?('test').should be_true
+    end
+
+    it "detects a guard wrapped in parentheses" do
+      mock_guardfile_content("guard(:test)")
       subject.guardfile_include?('test').should be_true
     end
   end

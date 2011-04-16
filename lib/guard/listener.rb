@@ -46,7 +46,6 @@ module Guard
       false
     end
 
-
     def self.mac?
       Config::CONFIG['target_os'] =~ /darwin/i
     end

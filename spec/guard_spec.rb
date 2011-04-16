@@ -44,7 +44,7 @@ describe Guard do
     end
 
     describe ".locate_guard" do
-      it "should return guard-rspec gem path" do
+      it "returns guard-rspec gem path" do
         guard_path = Guard.locate_guard('rspec')
         guard_path.should match(/^.*\/guard-rspec-.*$/)
         guard_path.should == guard_path.chomp
@@ -54,7 +54,7 @@ describe Guard do
     describe ".supervised_task" do
       subject { ::Guard.setup }
       before(:each) do
-        @g = mock(Guard::Guard)
+        @g = mock(Guard::Guard).as_null_object
         subject.guards.push(@g)
       end
 
@@ -64,15 +64,15 @@ describe Guard do
           @g.stub!(:regular_with_arg).with("given_path") { "i'm a success" }
         end
 
-        it "should not fire the guard with a supervised method without argument" do
+        it "doesn't fire the guard with a supervised method without argument" do
           lambda { subject.supervised_task(@g, :regular) }.should_not change(subject.guards, :size)
         end
 
-        it "should not fire the guard with a supervised method with argument" do
+        it "doesn't fire the guard with a supervised method with argument" do
           lambda { subject.supervised_task(@g, :regular_with_arg, "given_path") }.should_not change(subject.guards, :size)
         end
 
-        it "should return the result of the supervised method" do
+        it "returns the result of the supervised method" do
           ::Guard.supervised_task(@g, :regular).should be_true
           ::Guard.supervised_task(@g, :regular_with_arg, "given_path").should == "i'm a success"
         end
@@ -81,16 +81,22 @@ describe Guard do
       describe "tasks that raise an exception" do
         before(:each) { @g.stub!(:failing) { raise "I break your system" } }
 
-        it "should fire the guard" do
+        it "fires the guard" do
           lambda { subject.supervised_task(@g, :failing) }.should change(subject.guards, :size).by(-1)
           subject.guards.should_not include(@g)
         end
 
-        it "should return the exception object" do
+        it "returns the exception object" do
           failing_result = ::Guard.supervised_task(@g, :failing)
           failing_result.should be_kind_of(Exception)
           failing_result.message.should == 'I break your system'
         end
+      end
+    end
+
+    describe ".locate_guard" do
+      it "returns the path of the guard gem" do
+        Guard.locate_guard('rspec').should == Gem.source_index.find_name("guard-rspec").last.full_gem_path
       end
     end
   end

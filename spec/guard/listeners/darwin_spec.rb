@@ -5,17 +5,17 @@ describe Guard::Darwin do
   subject { Guard::Darwin }
 
   if linux?
-    it "should not be usable on linux" do
+    it "isn't usable on linux" do
       subject.should_not be_usable
     end
   end
 
   if mac?
-    it "should be usable on 10.6" do
+    it "is usable on 10.6" do
       subject.should be_usable
     end
 
-    describe "watch" do
+    describe "#on_change" do
       before(:each) do
         @results = []
         @listener = Guard::Darwin.new
@@ -24,7 +24,7 @@ describe Guard::Darwin do
         end
       end
 
-      it "should catch new file" do
+      it "catches new file" do
         file = @fixture_path.join("newfile.rb")
         File.exists?(file).should be_false
         start
@@ -34,7 +34,7 @@ describe Guard::Darwin do
         @results.should == ['spec/fixtures/newfile.rb']
       end
 
-      it "should catch file update" do
+      it "catches file update" do
         file = @fixture_path.join("folder1/file1.txt")
         File.exists?(file).should be_true
         start
@@ -43,7 +43,7 @@ describe Guard::Darwin do
         @results.should == ['spec/fixtures/folder1/file1.txt']
       end
 
-      it "should catch files update" do
+      it "catches files update" do
         file1 = @fixture_path.join("folder1/file1.txt")
         file2 = @fixture_path.join("folder1/folder2/file2.txt")
         File.exists?(file1).should be_true
@@ -60,13 +60,13 @@ describe Guard::Darwin do
 private
 
   def start
-    sleep 1
+    sleep 0.6
     Thread.new { @listener.start }
-    sleep 1
+    sleep 0.6
   end
 
   def stop
-    sleep 1
+    sleep 0.6
     @listener.stop
   end
 

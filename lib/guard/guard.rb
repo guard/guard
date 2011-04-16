@@ -1,5 +1,6 @@
 module Guard
   class Guard
+
     attr_accessor :watchers, :options
 
     def initialize(watchers = [], options = {})

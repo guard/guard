@@ -33,9 +33,7 @@ module Guard
         UI.error "No guards found in Guardfile, please add at least one."
       else
         listener.on_change do |files|
-          if Watcher.match_files?(guards, files)
-            run { run_on_change_for_all_guards(files) }
-          end
+          run { run_on_change_for_all_guards(files) } if Watcher.match_files?(guards, files)
         end
 
         UI.info "Guard is now watching at '#{Dir.pwd}'"
@@ -49,11 +47,12 @@ module Guard
         paths = Watcher.match_files(guard, files)
         supervised_task(guard, :run_on_change, paths) unless paths.empty?
       end
+
       # Reparse the whole directory to catch new files modified during the guards run
       new_modified_files = listener.modified_files([Dir.pwd + '/'], :all => true)
       listener.update_last_event
       unless new_modified_files.empty?
-        run { run_on_change_for_all_guards(new_modified_files) }
+        run { run_on_change_for_all_guards(new_modified_files) } if Watcher.match_files?(guards, files)
       end
     end
 
