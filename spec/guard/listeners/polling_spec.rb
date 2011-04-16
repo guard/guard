@@ -11,35 +11,37 @@ describe Guard::Polling do
     end
   end
 
-  it "should catch new file" do
-    file = @fixture_path.join("newfile.rb")
-    File.exists?(file).should be_false
-    start
-    FileUtils.touch file
-    stop
-    File.delete file
-    @results.should == ['spec/fixtures/newfile.rb']
-  end
+  describe "#on_change" do
+    it "catches new file" do
+      file = @fixture_path.join("newfile.rb")
+      File.exists?(file).should be_false
+      start
+      FileUtils.touch file
+      stop
+      File.delete file
+      @results.should == ['spec/fixtures/newfile.rb']
+    end
 
-  it "should catch file update" do
-    file = @fixture_path.join("folder1/file1.txt")
-    File.exists?(file).should be_true
-    start
-    FileUtils.touch file
-    stop
-    @results.should == ['spec/fixtures/folder1/file1.txt']
-  end
+    it "catches file update" do
+      file = @fixture_path.join("folder1/file1.txt")
+      File.exists?(file).should be_true
+      start
+      FileUtils.touch file
+      stop
+      @results.should == ['spec/fixtures/folder1/file1.txt']
+    end
 
-  it "should catch files update" do
-    file1 = @fixture_path.join("folder1/file1.txt")
-    file2 = @fixture_path.join("folder1/folder2/file2.txt")
-    File.exists?(file1).should be_true
-    File.exists?(file2).should be_true
-    start
-    FileUtils.touch file1
-    FileUtils.touch file2
-    stop
-    @results.sort.should == ['spec/fixtures/folder1/file1.txt', 'spec/fixtures/folder1/folder2/file2.txt']
+    it "catches files update" do
+      file1 = @fixture_path.join("folder1/file1.txt")
+      file2 = @fixture_path.join("folder1/folder2/file2.txt")
+      File.exists?(file1).should be_true
+      File.exists?(file2).should be_true
+      start
+      FileUtils.touch file1
+      FileUtils.touch file2
+      stop
+      @results.sort.should == ['spec/fixtures/folder1/file1.txt', 'spec/fixtures/folder1/folder2/file2.txt']
+    end
   end
 
 private

@@ -6,17 +6,17 @@ describe Guard::Linux do
   subject { Guard::Linux }
 
   if mac?
-    it "should not be usable on 10.6" do
+    it "isn't usable on 10.6" do
       subject.should_not be_usable
     end
   end
 
   if linux?
-    it "should be usable on linux" do
+    it "is usable on linux" do
       subject.should be_usable
     end
 
-    describe "start" do
+    describe "#start" do
       before(:each) do
         @listener = Guard::Linux.new
       end
@@ -40,7 +40,7 @@ describe Guard::Linux do
 
     end
 
-    describe "watch" do
+    describe "#on_change" do
       before(:each) do
         @results = []
         @listener = Guard::Linux.new
