@@ -1,13 +1,18 @@
+== 0.3.2 (Avril 17, 2011)
+
+Bugs fixes:
+- Fixed "guard init" command (@brainopia)
+
 == 0.3.1 (Avril 14, 2011)
 
 Features:
-  - Added a command line option (-n false) to disable notifications (growl/libnotify)
+- Added a command line option (-n false) to disable notifications (growl/libnotify)
 
 Bugs fixes:
-  - Return unique filenames from Linux listener (Marian Schubert)
-  - Guard.get_guard_class return wrong class when loaded nested class. (koshigoe)
-  - Fixed open-gem/gem_open dependency problem by using `gem which` to locate guards gem path
-  - Fixed an invalid ANSI escape code in UI.reset_line (gix)
+- Return unique filenames from Linux listener (Marian Schubert)
+- Guard.get_guard_class return wrong class when loaded nested class. (@koshigoe)
+- Fixed open-gem/gem_open dependency problem by using `gem which` to locate guards gem path
+- Fixed an invalid ANSI escape code in UI.reset_line (@gix)
 
 == 0.3.0 (Jan 19, 2011)
 
