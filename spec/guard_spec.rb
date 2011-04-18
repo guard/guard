@@ -92,10 +92,14 @@ describe Guard do
           ::Guard.supervised_task(@g, :regular_with_arg, "given_path").should == "i'm a success"
         end
 
-        it "calls the default hooks" do
-          @g.should_receive(:hook).with("regular_begin")
-          @g.should_receive(:hook).with("regular_end")
-          ::Guard.supervised_task(@g, :regular)
+        it "passes the args to the :begin hook" do
+          @g.should_receive(:hook).with("regular_with_arg_begin", "given_path")
+          ::Guard.supervised_task(@g, :regular_with_arg, "given_path")
+        end
+
+        it "passes the result of the supervised method to the :end hook" do
+          @g.should_receive(:hook).with("regular_with_arg_end", "i'm a success")
+          ::Guard.supervised_task(@g, :regular_with_arg, "given_path")
         end
       end
 

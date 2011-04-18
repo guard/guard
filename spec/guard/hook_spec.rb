@@ -3,22 +3,15 @@ require 'spec_helper'
 describe Guard::Hook do
   subject { Guard::Hook }
 
-  class Guard::Dummy < Guard::Guard
-    include Guard::Hook
-
-    def run_all
-      hook :begin
-      hook :end
-    end
-  end
+  class Guard::Dummy < Guard::Guard; end
 
   let(:guard_class) { ::Guard::Dummy }
   let(:listener) { double('listener').as_null_object }
 
+  after { subject.reset_callbacks! }
+
   context "--module methods--" do
     before { subject.add_callback(listener, guard_class, :start_begin) }
-
-    after { subject.reset_callbacks! }
 
     describe ".add_callback" do
       it "can add a single callback" do
@@ -34,8 +27,8 @@ describe Guard::Hook do
 
     describe ".notify" do
       it "sends :call to the given Guard class's callbacks" do
-        listener.should_receive(:call).with(guard_class, :start_begin)
-        subject.notify(guard_class, :start_begin)
+        listener.should_receive(:call).with(guard_class, :start_begin, "args")
+        subject.notify(guard_class, :start_begin, "args")
       end
 
       it "runs only the given callbacks" do
@@ -55,24 +48,55 @@ describe Guard::Hook do
   end
 
   describe "#hook" do
-    it "calls Guard::Hook.notify" do
-      guard = guard_class.new
-      Guard::Hook.should_receive(:notify).with(guard_class, :run_all_begin)
-      Guard::Hook.should_receive(:notify).with(guard_class, :run_all_end)
-      guard.run_all
-    end
-
-    it "if passed a string parameter, will use that for the hook name" do
+    before(:all) do
       guard_class.class_eval do
         def start
           hook "my_hook"
         end
+
+        def run_all
+          hook :begin
+          hook :end
+        end
+
+        def stop
+          hook :begin, 'args'
+          hook 'special_sauce', 'first_arg', 'second_arg'
+        end
       end
 
-      guard = guard_class.new
+      @guard = guard_class.new
+    end
+
+    it "calls Guard::Hook.notify" do
+      Guard::Hook.should_receive(:notify).with(guard_class, :run_all_begin)
+      Guard::Hook.should_receive(:notify).with(guard_class, :run_all_end)
+      @guard.run_all
+    end
+
+    it "if passed a string parameter, will use that for the hook name" do
       Guard::Hook.should_receive(:notify).with(guard_class, :my_hook)
-      guard.start
+      @guard.start
+    end
+
+    it "accepts extra args" do
+      Guard::Hook.should_receive(:notify).with(guard_class, :stop_begin, 'args')
+      Guard::Hook.should_receive(:notify).with(guard_class, :special_sauce, 'first_arg', 'second_arg')
+      @guard.stop
+    end
+
+    context "--UI message--" do
+      it "is sent when in development mode" do
+        ENV["GUARD_ENV"] = 'development'
+        Guard::UI.should_receive(:info)
+        @guard.start
+        ENV["GUARD_ENV"] = 'test'
+      end
+
+      it "is not sent when not in development mode" do
+        Guard::UI.should_not_receive(:info)
+        @guard.start
+      end
     end
   end
-
 end

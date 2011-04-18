@@ -9,7 +9,7 @@ module Guard
       # from the symbol and calling method name. When passed
       # a string, #hook will turn the string into a symbol
       # directly.
-      def hook(event)
+      def hook(event, *args)
         hook_name = if event.is_a? Symbol
           calling_method = caller[0][/`([^']*)'/, 1]
           "#{calling_method}_#{event}".to_sym
@@ -17,8 +17,11 @@ module Guard
           event.to_sym
         end
 
-        UI.info "\nHook :#{hook_name} executed for #{self.class}"
-        Hook.notify(self.class, hook_name)
+        if ENV["GUARD_ENV"] == "development"
+          UI.info "\nHook :#{hook_name} executed for #{self.class}"
+        end
+
+        Hook.notify(self.class, hook_name, *args)
       end
     end
 
@@ -38,9 +41,9 @@ module Guard
         callbacks[[guard_class, event]].include?(listener)
       end
 
-      def notify(guard_class, event)
+      def notify(guard_class, event, *args)
         callbacks[[guard_class, event]].each do |listener|
-          listener.call(guard_class, event)
+          listener.call(guard_class, event, *args)
         end
       end
 
