@@ -60,9 +60,9 @@ module Guard
     # Let a guard execute its task but
     # fire it if his work leads to a system failure
     def supervised_task(guard, task_to_supervise, *args)
-      guard.hook "#{task_to_supervise}_begin"
+      guard.hook("#{task_to_supervise}_begin", *args)
       result = guard.send(task_to_supervise, *args)
-      guard.hook "#{task_to_supervise}_end"
+      guard.hook("#{task_to_supervise}_end", result)
       result
     rescue Exception
       UI.error("#{guard.class.name} guard failed to achieve its <#{task_to_supervise}> command: #{$!}")
