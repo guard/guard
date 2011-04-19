@@ -1,3 +1,8 @@
+== 0.3.3 (Avril 18, 2011)
+
+Bugs fixes:
+- Fixed new_modified_files rerun conditions on Guard.run_on_change_for_all_guards
+
 == 0.3.2 (Avril 17, 2011)
 
 Bugs fixes:
