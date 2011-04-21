@@ -83,10 +83,15 @@ module Guard
     end
 
     def get_guard_class(name)
-      require "guard/#{name.downcase}"
+      try_to_load_gem name
       self.const_get(self.constants.find{|klass_name| klass_name.to_s.downcase == name.downcase })
+    rescue TypeError
+      UI.error "Could not find load find gem 'guard-#{name}' or find class Guard::#{name}"
+    end
+
+    def try_to_load_gem(name)
+      Kernel.require "guard/#{name.downcase}"
     rescue LoadError
-      UI.error "Could not find gem 'guard-#{name}', please add it in your Gemfile."
     end
 
     def locate_guard(name)
