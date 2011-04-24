@@ -12,3 +12,6 @@ if Config::CONFIG['target_os'] =~ /linux/i
   gem 'rb-inotify', '>= 0.5.1'
   gem 'libnotify',  '~> 0.1.3'
 end
+if Config::CONFIG['target_os'] =~ /mswin|mingw/i
+  gem 'win32console'
+end
