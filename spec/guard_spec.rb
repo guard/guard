@@ -37,8 +37,8 @@ describe Guard do
 
       context 'loaded some nested classes' do
         it "should find and return loaded class" do
-          Kernel.should_receive(:require) { |file_name|
-            file_name.should == 'guard/classname'
+          Guard.should_receive(:try_to_load_gem) { |className|
+            className.should == 'classname'
             class Guard::Classname
             end
           }

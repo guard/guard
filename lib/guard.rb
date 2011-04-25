@@ -90,7 +90,7 @@ module Guard
     end
 
     def try_to_load_gem(name)
-      Kernel.require "guard/#{name.downcase}"
+      require "guard/#{name.downcase}"
     rescue LoadError
     end
 
