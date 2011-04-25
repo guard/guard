@@ -266,4 +266,4 @@ you make.
 Author
 ------
 
-{Thibaud Guillaume-Gentil](https://github.com/thibaudgg]
+[Thibaud Guillaume-Gentil](https://github.com/thibaudgg)
