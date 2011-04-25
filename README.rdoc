@@ -215,6 +215,22 @@ Creating a new guard is very easy, just create a new gem (<tt>bundle gem</tt> if
 
 Please take a look at the existing guards' source code (see the list above) for more concrete example.
 
+Alternatively, a new guard can be added inline to a Guardfile with this basic structure:
+
+    require 'guard/guard'
+
+    module ::Guard
+      class Example < ::Guard::Guard
+        def run_all
+          true
+        end
+
+        def run_on_change(paths)
+          true
+        end
+      end
+    end
+
 == Development
 
 - Source hosted at {GitHub}[https://github.com/guard/guard].
