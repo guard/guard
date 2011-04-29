@@ -43,11 +43,7 @@ module Guard
     end
 
     def callback(*args, &listener)
-      listener, events = if args.size > 1
-        args
-      else
-        [listener, args[0]]
-      end
+      listener, events = args.size > 1 ? args : [listener, args[0]]
       @callbacks << { :events => events, :listener => listener }
     end
 
