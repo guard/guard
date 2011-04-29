@@ -1,5 +1,3 @@
-require 'bundler'
-
 module Guard
 
   autoload :UI,         'guard/ui'
