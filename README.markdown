@@ -1,6 +1,8 @@
 Guard
 =====
 
+![travis-ci](http://travis-ci.org/guard/guard.png)
+
 Guard is a command line tool that easily handle events on files modifications.
 
 Features
