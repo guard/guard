@@ -10,12 +10,12 @@ module Guard
 
     def self.notify(message, options = {})
       unless @disable || ENV["GUARD_ENV"] == "test"
-        image = options[:image] || :success
-        title = options[:title] || "Guard"
+        image = options.delete(:image) || :success
+        options[:title] ||= "Guard"
         case Config::CONFIG['target_os']
         when /darwin/i
           if growl_installed?
-            Growl.notify message, :title => title, :icon => image_path(image), :name => "Guard"
+            Growl.notify message, options.merge(:icon => image_path(image), :name => "Guard")
           end
         when /linux/i
           if libnotify_installed?
