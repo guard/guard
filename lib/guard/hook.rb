@@ -15,7 +15,7 @@ module Guard
       #   end
       # Here, when #run_all is called, #hook will notify callbacks
       # registered for the "run_all_foo" event.
-      # 
+      #
       # When +event+ is a String, #hook will directly turn the String
       # into a Symbol.
       # Example:
@@ -24,7 +24,7 @@ module Guard
       #   end
       # Here, when #run_all is called, #hook will notify callbacks
       # registered for the "foo_bar" event.
-      # 
+      #
       # +args+ parameter is passed as is to the callbacks registered
       # for the given event.
       def hook(event, *args)
