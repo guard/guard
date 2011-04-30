@@ -4,6 +4,7 @@ module Guard
 
   autoload :Darwin,  'guard/listeners/darwin'
   autoload :Linux,   'guard/listeners/linux'
+  autoload :Windows, 'guard/listeners/windows'
   autoload :Polling, 'guard/listeners/polling'
 
   class Listener
@@ -14,6 +15,8 @@ module Guard
         Darwin.new
       elsif linux? && Linux.usable?
         Linux.new
+      elsif windows? && Windows.usable?
+        Windows.new
       else
         UI.info "Using polling (Please help us to support your system better than that.)"
         Polling.new
@@ -52,6 +55,10 @@ module Guard
 
     def self.linux?
       Config::CONFIG['target_os'] =~ /linux/i
+    end
+
+    def self.windows?
+      Config::CONFIG['target_os'] =~ /mswin|mingw/i
     end
 
   end
