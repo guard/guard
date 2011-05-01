@@ -257,7 +257,7 @@ end
 Guard Hooks and Callbacks
 -------------------------
 
-Guard provides a mechanism for you to hook into the execution of indiviuadl Guards. [Checkout the Wiki page for more details. ](https://github.com/guard/guard/wiki/Hooks-and-callbacks)
+Guard provides a mechanism for you to hook into the execution of individual Guards. [Checkout the Wiki page for more details. ](https://github.com/guard/guard/wiki/Hooks-and-callbacks)
 
 Development
 -----------
