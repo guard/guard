@@ -21,7 +21,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'thor',     '~> 0.14.6'
 
-  s.files        = Dir.glob('{bin,images,lib}/**/*') + %w[LICENSE README.rdoc]
+  s.files        = Dir.glob('{bin,images,lib}/**/*') + %w[LICENSE README.markdown]
   s.executable   = 'guard'
   s.require_path = 'lib'
 end

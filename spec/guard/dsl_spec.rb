@@ -1,7 +1,10 @@
 require 'spec_helper'
+require 'guard/guard'
 
 describe Guard::Dsl do
   subject { Guard::Dsl }
+
+  class Guard::Dummy < Guard::Guard; end
 
   before(:each) do
     ::Guard.stub!(:add_guard)
@@ -114,20 +117,23 @@ describe Guard::Dsl do
   describe "#callback" do
     it "creates callbacks for the guard" do
       class MyCustomCallback
+        def self.call(guard_class, event, args)
+          # do nothing
+        end
       end
 
-      mock_guardfile_content("
-        guard 'test' do
-          callback(:start_end) { 'Guard::Test started!' }
+      mock_guardfile_content('
+        guard :dummy do
+          callback(:start_end) { |guard_class, event, args| "#{guard_class} executed \'#{event}\' hook with #{args}!" }
           callback(MyCustomCallback, [:start_begin, :run_all_begin])
-        end")
+        end')
 
-      ::Guard.should_receive(:add_guard).with('test', anything, anything, {}) do |name, watchers, callbacks, options|
+      ::Guard.should_receive(:add_guard).with(:dummy, anything, anything, {}) do |name, watchers, callbacks, options|
         callbacks.should have(2).items
-        callbacks[0][:events].should        == :start_end
-        callbacks[0][:listener].call.should == proc { 'Guard::Test started!' }.call
-        callbacks[1][:events].should        == [:start_begin, :run_all_begin]
-        callbacks[1][:listener].should      == MyCustomCallback
+        callbacks[0][:events].should   == :start_end
+        callbacks[0][:listener].call(Guard::Dummy, :start_end, 'foo').should == "Guard::Dummy executed 'start_end' hook with foo!"
+        callbacks[1][:events].should   == [:start_begin, :run_all_begin]
+        callbacks[1][:listener].should == MyCustomCallback
       end
       subject.evaluate_guardfile
     end

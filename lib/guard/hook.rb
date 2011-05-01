@@ -1,14 +1,32 @@
 module Guard
   module Hook
+
     def self.included(base)
       base.send :include, InstanceMethods
     end
 
     module InstanceMethods
-      # When passed a sybmol, #hook will generate a hook name
-      # from the symbol and calling method name. When passed
-      # a string, #hook will turn the string into a symbol
-      # directly.
+      # When +event+ is a Symbol, #hook will generate a hook name
+      # by concatenating the method name from where #hook is called
+      # with the given Symbol.
+      # Example:
+      #   def run_all
+      #     hook :foo
+      #   end
+      # Here, when #run_all is called, #hook will notify callbacks
+      # registered for the "run_all_foo" event.
+      #
+      # When +event+ is a String, #hook will directly turn the String
+      # into a Symbol.
+      # Example:
+      #   def run_all
+      #     hook "foo_bar"
+      #   end
+      # Here, when #run_all is called, #hook will notify callbacks
+      # registered for the "foo_bar" event.
+      #
+      # +args+ parameter is passed as is to the callbacks registered
+      # for the given event.
       def hook(event, *args)
         hook_name = if event.is_a? Symbol
           calling_method = caller[0][/`([^']*)'/, 1]
@@ -51,5 +69,6 @@ module Guard
         @callbacks = nil
       end
     end
+
   end
 end

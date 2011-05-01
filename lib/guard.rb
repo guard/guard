@@ -1,5 +1,3 @@
-require 'bundler'
-
 module Guard
 
   autoload :UI,         'guard/ui'
@@ -52,8 +50,8 @@ module Guard
       # Reparse the whole directory to catch new files modified during the guards run
       new_modified_files = listener.modified_files([Dir.pwd + '/'], :all => true)
       listener.update_last_event
-      unless new_modified_files.empty?
-        run { run_on_change_for_all_guards(new_modified_files) } if Watcher.match_files?(guards, files)
+      if !new_modified_files.empty? && Watcher.match_files?(guards, new_modified_files)
+        run { run_on_change_for_all_guards(new_modified_files) }
       end
     end
 
@@ -89,10 +87,15 @@ module Guard
     end
 
     def get_guard_class(name)
-      require "guard/#{name.downcase}"
+      try_to_load_gem name
       self.const_get(self.constants.find{|klass_name| klass_name.to_s.downcase == name.downcase })
+    rescue TypeError
+      UI.error "Could not find load find gem 'guard-#{name}' or find class Guard::#{name}"
+    end
+
+    def try_to_load_gem(name)
+      require "guard/#{name.downcase}"
     rescue LoadError
-      UI.error "Could not find gem 'guard-#{name}', please add it in your Gemfile."
     end
 
     def locate_guard(name)

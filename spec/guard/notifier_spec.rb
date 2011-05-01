@@ -19,9 +19,8 @@ describe Guard::Notifier do
         )
         subject.notify 'great', :title => 'Guard'
       end
-    end
 
-    if linux?
+    elsif linux?
       require 'libnotify'
       it "uses Libnotify on Linux" do
         Libnotify.should_receive(:show).with(
@@ -42,9 +41,8 @@ describe Guard::Notifier do
           Growl.should_not_receive(:notify)
           subject.notify 'great', :title => 'Guard'
         end
-      end
 
-      if linux?
+      elsif linux?
         require 'libnotify'
         it "does nothing" do
           Libnotify.should_not_receive(:show)

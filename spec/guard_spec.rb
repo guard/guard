@@ -30,15 +30,30 @@ describe Guard do
     end
 
     describe ".get_guard_class" do
-      it "should return Guard::RSpec" do
-        Guard.get_guard_class('rspec').should == Guard::RSpec
+      it "should report an error if the class is not found" do
+        ::Guard::UI.should_receive(:error)
+        Guard.get_guard_class('notAGuardClass')
       end
 
       context 'loaded some nested classes' do
-        it "should return Guard::RSpec" do
-          require 'guard/rspec'
-          Guard::RSpec.class_eval('class NotGuardClass; end')
-          Guard.get_guard_class('rspec').should == Guard::RSpec
+        it "should find and return loaded class" do
+          Guard.should_receive(:try_to_load_gem) { |className|
+            className.should == 'classname'
+            class Guard::Classname
+            end
+          }
+          Guard.get_guard_class('classname').should == Guard::Classname
+        end
+      end
+
+      context 'loaded some inline classes ' do
+        it 'should return inline class' do
+          module Guard
+            class Inline < Guard
+            end
+          end
+
+          Guard.get_guard_class('inline').should == Guard::Inline
         end
       end
     end
