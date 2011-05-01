@@ -32,11 +32,20 @@ describe Guard::Windows do
 
       it "catches new file" do
         file = @fixture_path.join("newfile.rb")
+        if File.exists?(file)
+          begin
+            File.delete file
+          rescue
+          end
+        end
         File.exists?(file).should be_false
         start
         FileUtils.touch file
         stop
-        File.delete file
+        begin
+          File.delete file
+        rescue
+        end
         @results.should == ['spec/fixtures/newfile.rb']
       end
 

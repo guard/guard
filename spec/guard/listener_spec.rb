@@ -15,7 +15,7 @@ describe Guard::Listener do
     end
 
     it "uses windows listener on Windows" do
-      Config::CONFIG['target_os'] = 'win32'
+      Config::CONFIG['target_os'] = 'mingw'
       Guard::Windows.stub(:usable?).and_return(true)
       Guard::Windows.should_receive(:new)
       subject.select_and_init

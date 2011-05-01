@@ -8,8 +8,9 @@ module Guard
     end
 
     def on_change(&callback)
-      @fchange.watch Dir.pwd, :all_events do |event|
-        files = modified_files([event.watcher.path])
+      @fchange.watch(Dir.pwd, :all_events, :recursive) do |event|
+        paths = [File.expand_path(event.watcher.path) + '/']
+        files = modified_files(paths, {:all => true})
         update_last_event
         callback.call(files)
       end
