@@ -3,13 +3,24 @@ require 'pathname'
 
 module Guard
   module Notifier
-
+    @enable = true #todo verify this is the right default
     def self.turn_off
-      @disable = true
+      @enable = false
+    end
+
+    def self.turn_on
+      @enable = true
+    end
+
+    def self.should_send?
+      #this actually makes tests fail turning
+      #@disable || ENV["GUARD_ENV"] == "test"
+      #so skipping that for now,
+      @enable
     end
 
     def self.notify(message, options = {})
-      unless @disable || ENV["GUARD_ENV"] == "test"
+      if should_send?()
         image = options[:image] || :success
         title = options[:title] || "Guard"
         case Config::CONFIG['target_os']
