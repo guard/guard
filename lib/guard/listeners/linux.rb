@@ -32,7 +32,7 @@ module Guard
 
     def self.usable?
       require 'rb-inotify'
-      unless defined?(INotify::VERSION) || Gem::Version.new(INotify::VERSION.join('.')) >= Gem::Version.new('0.5.1')
+      if !defined?(INotify::VERSION) || Gem::Version.new(INotify::VERSION.join('.')) < Gem::Version.new('0.5.1')
         UI.info "Please update rb-inotify (>= 0.5.1)"
         false
       else
