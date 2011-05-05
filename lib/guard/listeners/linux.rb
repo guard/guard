@@ -32,7 +32,7 @@ module Guard
 
     def self.usable?
       require 'rb-inotify'
-      if !defined?(INotify::VERSION) || Gem::Version.new(INotify::VERSION.join('.')) < Gem::Version.new('0.5.1')
+      unless defined?(INotify::VERSION) || Gem::Version.new(INotify::VERSION.join('.')) >= Gem::Version.new('0.5.1')
         UI.info "Please update rb-inotify (>= 0.5.1)"
         false
       else
@@ -51,7 +51,7 @@ module Guard
 
     def watch_change
       @watch_change = true
-      while !@stop
+      until @stop
         if Config::CONFIG['build'] =~ /java/ || IO.select([inotify.to_io], [], [], latency)
           break if @stop
 
