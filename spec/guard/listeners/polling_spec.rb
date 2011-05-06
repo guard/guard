@@ -11,7 +11,7 @@ describe Guard::Polling do
     end
   end
 
-  describe "#on_change" do
+  describe "#on_change", :long_running => true do
     it "catches new file" do
       file = @fixture_path.join("newfile.rb")
       File.exists?(file).should be_false
@@ -19,7 +19,7 @@ describe Guard::Polling do
       FileUtils.touch file
       stop
       File.delete file
-      @results.should == ['spec/fixtures/newfile.rb']
+      @results.should == ['fixtures/newfile.rb']
     end
 
     it "catches file update" do
@@ -28,7 +28,7 @@ describe Guard::Polling do
       start
       FileUtils.touch file
       stop
-      @results.should == ['spec/fixtures/folder1/file1.txt']
+      @results.should == ['fixtures/folder1/file1.txt']
     end
 
     it "catches files update" do
@@ -40,7 +40,7 @@ describe Guard::Polling do
       FileUtils.touch file1
       FileUtils.touch file2
       stop
-      @results.sort.should == ['spec/fixtures/folder1/file1.txt', 'spec/fixtures/folder1/folder2/file2.txt']
+      @results.sort.should == ['fixtures/folder1/file1.txt', 'fixtures/folder1/folder2/file2.txt']
     end
   end
 
