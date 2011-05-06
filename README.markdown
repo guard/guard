@@ -14,7 +14,7 @@ Features
 * Automatic & Super fast (when polling is not used) files modifications detection (even new files are detected).
 * Growl notifications ([growlnotify](http://growl.info/documentation/growlnotify.php) & [growl gem](https://rubygems.org/gems/growl) required).
 * Libnotify notifications ([libnotify gem](https://rubygems.org/gems/libnotify) required).
-* Tested on Ruby 1.8.6, 1.8.7 & 1.9.2.
+* Tested on Ruby 1.8.7, 1.9.2 && ree.
 
 Install
 -------
