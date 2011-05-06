@@ -23,7 +23,7 @@ module Guard
   private
 
     def watch_change
-      while !@stop
+      until @stop
         start = Time.now.to_f
         files = modified_files([Dir.pwd + '/'], :all => true)
         update_last_event
