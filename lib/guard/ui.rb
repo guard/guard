@@ -24,7 +24,11 @@ module Guard
       end
 
       def reset_line
-        print "\r\e[0m"
+        if color_enabled?
+          print "\r\e[0m"
+        else
+          print "\r\n"
+        end
       end
 
       def clear
@@ -38,7 +42,27 @@ module Guard
       end
 
       def color(text, color_code)
-        "#{color_code}#{text}\e[0m"
+        if color_enabled?
+          return "#{color_code}#{text}\e[0m"
+        else
+          return text
+        end
+      end
+
+      def color_enabled?
+        @color_enabled ||= if Config::CONFIG['target_os'] =~ /mswin|mingw/i
+          unless ENV['ANSICON']
+            begin
+              require 'rubygems' unless ENV['NO_RUBYGEMS']
+              require 'Win32/Console/ANSI'
+            rescue LoadError
+              info "You must 'gem install win32console' to use color on Windows"
+              false
+            end
+          end
+        else
+          true
+        end
       end
 
     end

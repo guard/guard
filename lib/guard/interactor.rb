@@ -23,19 +23,32 @@ module Guard
 
     def self.init_signal_traps
       # Run all (Ctrl-\)
-      Signal.trap('QUIT') do
-        run_all
+      if Signal.list.has_key?('QUIT')
+        Signal.trap('QUIT') do
+          run_all
+        end
+      else
+        UI.info "Your system doesn't support QUIT signal, so Ctrl-\\ (Run all) won't work"
       end
 
       # Stop (Ctrl-C)
-      Signal.trap('INT') do
-        stop
+      if Signal.list.has_key?('INT')
+        Signal.trap('INT') do
+          stop
+        end
+      else
+        UI.info "Your system doesn't support INT signal, so Ctrl-C (stop) won't work"
       end
 
       # Reload (Ctrl-Z)
-      Signal.trap('TSTP') do
-        reload
+      if Signal.list.has_key?('TSTP')
+        Signal.trap('TSTP') do
+          reload
+        end
+      else
+        UI.info "Your system doesn't support TSTP signal, so Ctrl-Z (Reload) won't work"
       end
+
     end
   end
 end
