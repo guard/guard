@@ -3,8 +3,10 @@ require 'spec_helper'
 describe Guard::Interactor do
   subject { Guard::Interactor }
   let(:guard) { mock "guard" }
+
   before :each do
     Guard.stub!(:guards).and_return([guard])
+    Guard.stub!(:options).and_return({})
     Guard.stub!(:listener).and_return(mock(:start => nil, :stop => nil))
   end
 
