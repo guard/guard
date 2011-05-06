@@ -10,8 +10,7 @@ describe Guard::Notifier do
       subject.turn_on
     end
 
-    if mac?
-      require 'growl'
+    if mac? && Guard::Notifier.growl_installed?
       it "uses Growl on Mac OS X" do
         Growl.should_receive(:notify).with("great",
           :title => "Guard",
@@ -22,8 +21,7 @@ describe Guard::Notifier do
       end
     end
 
-    if linux?
-      require 'libnotify'
+    if linux? && Guard::Notifier.libnotify_installed?
       it "uses Libnotify on Linux" do
         Libnotify.should_receive(:show).with(
           :body      => "great",
