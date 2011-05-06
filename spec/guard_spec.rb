@@ -111,7 +111,7 @@ describe Guard do
 
     describe ".locate_guard" do
       it "returns the path of the guard gem" do
-        Guard.locate_guard('rspec').should == Gem.source_index.find_name("guard-rspec").last.full_gem_path
+        Guard.locate_guard('rspec').should == Gem::Specification.find_by_name("guard-rspec").full_gem_path
       end
     end
   end

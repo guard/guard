@@ -93,7 +93,7 @@ module Guard
     end
 
     def locate_guard(name)
-      Gem.source_index.find_name("guard-#{name}").last.full_gem_path
+      Gem::Specification.find_by_name("guard-#{name}").full_gem_path
     rescue
       UI.error "Could not find 'guard-#{name}' gem path."
     end
