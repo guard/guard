@@ -7,6 +7,7 @@ describe Guard::Notifier do
     before(:each) do
       @saved_guard_env = ENV["GUARD_ENV"]
       ENV["GUARD_ENV"] = 'dont_mute_notify'
+      subject.turn_on
     end
 
     if mac?

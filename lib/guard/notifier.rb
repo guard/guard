@@ -8,6 +8,10 @@ module Guard
       @disable = true
     end
 
+    def self.turn_on
+      @disable = nil
+    end
+
     def self.notify(message, options = {})
       unless @disable || ENV["GUARD_ENV"] == "test"
         image = options[:image] || :success
