@@ -91,6 +91,8 @@ Notifications (growl/libnotify) can be disabled with:
     $ guard --notify false
     $ guard -n false # shortcut
 
+Notifications can also be disabled by setting a `GUARD_NOTIFY` environment variable to `false`
+
 The guards to start can be specified by group (see the Guardfile DSL below) specifying the <tt>--group</tt> (or <tt>-g</tt>) option:
 
     $ guard --group group_name another_group_name

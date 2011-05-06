@@ -16,7 +16,8 @@ module Guard
       @listener = Listener.select_and_init
       @guards   = []
 
-      Notifier.turn_off unless options[:notify]
+      options[:notify] = false if ENV["GUARD_NOTIFY"] == 'false'
+      options[:notify] ? Notifier.turn_on : Notifier.turn_off
 
       self
     end
