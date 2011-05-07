@@ -10,7 +10,7 @@ describe Guard::Darwin do
     end
   end
 
-  if mac?
+  if mac? && Guard::Darwin.usable?
     it "is usable on 10.6" do
       subject.should be_usable
     end

@@ -23,9 +23,21 @@ describe Guard do
         ::Guard.listener.should be_kind_of(Guard::Listener)
       end
 
+      it "should turn on by default" do
+        ::Guard::Notifier.should_receive(:turn_on)
+        ::Guard.setup(:notify => true)
+      end
+
       it "should turn off notifier if notify option is false" do
         ::Guard::Notifier.should_receive(:turn_off)
         ::Guard.setup(:notify => false)
+      end
+
+      it "should turn off notifier if env[GUARD_NOTIFY] is false" do
+        ::Guard::Notifier.should_receive(:turn_off)
+        ENV["GUARD_NOTIFY"] = 'false'
+        ::Guard.setup(:notify => true)
+        ENV["GUARD_NOTIFY"] = nil
       end
     end
 
@@ -37,8 +49,8 @@ describe Guard do
 
       context 'loaded some nested classes' do
         it "should find and return loaded class" do
-          Kernel.should_receive(:require) { |file_name|
-            file_name.should == 'guard/classname'
+          Guard.should_receive(:try_to_load_gem) { |className|
+            className.should == 'classname'
             class Guard::Classname
             end
           }
@@ -111,7 +123,13 @@ describe Guard do
 
     describe ".locate_guard" do
       it "returns the path of the guard gem" do
-        Guard.locate_guard('rspec').should == Gem.source_index.find_name("guard-rspec").last.full_gem_path
+        if Gem::Version.create(Gem::VERSION) >= Gem::Version.create('1.8.0')
+          gem_location = Gem::Specification.find_by_name("guard-rspec").full_gem_path
+        else
+          gem_location = Gem.source_index.find_name("guard-rspec").last.full_gem_path
+        end
+
+        Guard.locate_guard('rspec').should == gem_location
       end
     end
   end
