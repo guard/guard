@@ -22,7 +22,9 @@ Install
 
 Install the gem:
 
-`$ gem install guard`
+``` bash
+$ gem install guard`
+```
 
 Add it to your Gemfile (inside the `test` group):
 
@@ -32,7 +34,9 @@ gem 'guard'
 
 Generate an empty Guardfile with:
 
-`$ guard init`
+``` bash
+$ guard init`
+```
 
 Add the guards you need to your Guardfile (see the existing guards below).
 
@@ -40,11 +44,15 @@ Add the guards you need to your Guardfile (see the existing guards below).
 
 Install the rb-fsevent gem for [FSEvent](http://en.wikipedia.org/wiki/FSEvents) support:
 
-`$ gem install rb-fsevent`
+``` bash
+$ gem install rb-fsevent`
+```
 
 Install the Growl gem if you want notification support:
 
-`$ gem install growl`
+``` bash
+$ gem install growl`
+```
 
 And add it to you Gemfile:
 
@@ -56,11 +64,15 @@ gem 'growl'
 
 Install the rb-inotify gem for [inotify](http://en.wikipedia.org/wiki/Inotify) support:
 
-`$ gem install rb-inotify`
+``` bash
+$ gem install rb-inotify`
+```
 
 Install the Libnotify gem if you want notification support:
 
-`$ gem install libnotify`
+``` bash
+$ gem install libnotify`
+```
 
 And add it to you Gemfile:
 
@@ -72,42 +84,56 @@ gem 'libnotify'
 
 Install the rb-fchange gem for [Directory Change Notification](http://msdn.microsoft.com/en-us/library/aa365261\(VS.85\).aspx) support:
 
-`$ gem install rb-fchange`
+``` bash
+$ gem install rb-fchange`
+```
 
 Usage
 -----
 
 Just launch Guard inside your Ruby / Rails project with:
 
-`$ guard [start]`
+``` bash
+$ guard [start]`
+```
 
 or if you use Bundler, to run the Guard executable specific to your bundle:
 
-`$ bundle exec guard`
+``` bash
+$ bundle exec guard`
+```
 
 Command line options
 --------------------
 
 Shell can be cleared after each change with:
 
-    $ guard --clear
-    $ guard -c # shortcut
+``` bash
+$ guard --clear
+$ guard -c # shortcut
+```
 
 Notifications (growl/libnotify) can be disabled with:
 
-    $ guard --notify false
-    $ guard -n false # shortcut
+``` bash
+$ guard --notify false
+$ guard -n false # shortcut
+```
 
 Notifications can also be disabled by setting a `GUARD_NOTIFY` environment variable to `false`
 
 The guards to start can be specified by group (see the Guardfile DSL below) specifying the `--group` (or `-g`) option:
 
-    $ guard --group group_name another_group_name
-    $ guard -g group_name another_group_name # shortcut
+``` bash
+$ guard --group group_name another_group_name
+$ guard -g group_name another_group_name # shortcut
+```
 
 Options list is available with:
 
-`$ guard help [TASK]`
+``` bash
+$ guard help [TASK]`
+```
 
 Signal handlers
 ---------------
@@ -133,7 +159,9 @@ gem '<guard-name>'
 
 Insert default guard's definition to your Guardfile by running this command:
 
-`$ guard init <guard-name>`
+``` bash
+$ guard init <guard-name>
+```
 
 You are good to go!
 
