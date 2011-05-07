@@ -23,7 +23,7 @@ Install
 Install the gem:
 
 ``` bash
-$ gem install guard`
+$ gem install guard
 ```
 
 Add it to your Gemfile (inside the `test` group):
@@ -35,7 +35,7 @@ gem 'guard'
 Generate an empty Guardfile with:
 
 ``` bash
-$ guard init`
+$ guard init
 ```
 
 Add the guards you need to your Guardfile (see the existing guards below).
@@ -45,13 +45,13 @@ Add the guards you need to your Guardfile (see the existing guards below).
 Install the rb-fsevent gem for [FSEvent](http://en.wikipedia.org/wiki/FSEvents) support:
 
 ``` bash
-$ gem install rb-fsevent`
+$ gem install rb-fsevent
 ```
 
 Install the Growl gem if you want notification support:
 
 ``` bash
-$ gem install growl`
+$ gem install growl
 ```
 
 And add it to you Gemfile:
@@ -65,13 +65,13 @@ gem 'growl'
 Install the rb-inotify gem for [inotify](http://en.wikipedia.org/wiki/Inotify) support:
 
 ``` bash
-$ gem install rb-inotify`
+$ gem install rb-inotify
 ```
 
 Install the Libnotify gem if you want notification support:
 
 ``` bash
-$ gem install libnotify`
+$ gem install libnotify
 ```
 
 And add it to you Gemfile:
@@ -85,7 +85,7 @@ gem 'libnotify'
 Install the rb-fchange gem for [Directory Change Notification](http://msdn.microsoft.com/en-us/library/aa365261\(VS.85\).aspx) support:
 
 ``` bash
-$ gem install rb-fchange`
+$ gem install rb-fchange
 ```
 
 Usage
@@ -94,13 +94,13 @@ Usage
 Just launch Guard inside your Ruby / Rails project with:
 
 ``` bash
-$ guard [start]`
+$ guard [start]
 ```
 
 or if you use Bundler, to run the Guard executable specific to your bundle:
 
 ``` bash
-$ bundle exec guard`
+$ bundle exec guard
 ```
 
 Command line options
@@ -132,7 +132,7 @@ $ guard -g group_name another_group_name # shortcut
 Options list is available with:
 
 ``` bash
-$ guard help [TASK]`
+$ guard help [TASK]
 ```
 
 Signal handlers
