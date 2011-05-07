@@ -14,4 +14,5 @@ if Config::CONFIG['target_os'] =~ /linux/i
 end
 if Config::CONFIG['target_os'] =~ /mswin|mingw/i
   gem 'win32console'
+  gem 'rb-fchange', :git => 'git://github.com/stereobooster/rb-fchange.git'
 end
