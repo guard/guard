@@ -11,7 +11,7 @@ describe Guard::Linux do
     end
   end
 
-  if linux?
+  if linux? && Guard::Linux.usable?
     it "is usable on linux" do
       subject.should be_usable
     end

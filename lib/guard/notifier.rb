@@ -3,37 +3,36 @@ require 'pathname'
 
 module Guard
   module Notifier
-    @enable = true #todo verify this is the right default
+
     def self.turn_off
-      @enable = false
+      @disable = true
     end
 
     def self.turn_on
-      @enable = true
-    end
-
-    def self.should_send?
-      #this actually makes tests fail turning
-      #@disable || ENV["GUARD_ENV"] == "test"
-      #so skipping that for now,
-      @enable
+      @disable = false
+      case Config::CONFIG['target_os']
+      when /darwin/i
+        require_growl
+      when /linux/i
+        require_libnotify
+      end
     end
 
     def self.notify(message, options = {})
-      if should_send?()
+      unless @disable
         image = options[:image] || :success
         title = options[:title] || "Guard"
         case Config::CONFIG['target_os']
         when /darwin/i
-          if growl_installed?
-            Growl.notify message, :title => title, :icon => image_path(image), :name => "Guard"
-          end
+          Growl.notify message, :title => title, :icon => image_path(image), :name => "Guard"
         when /linux/i
-          if libnotify_installed?
-            Libnotify.show :body => message, :summary => title, :icon_path => image_path(image)
-          end
+          Libnotify.show :body => message, :summary => title, :icon_path => image_path(image)
         end
       end
+    end
+
+    def self.disabled?
+      @disable
     end
 
   private
@@ -53,24 +52,18 @@ module Guard
       end
     end
 
-    def self.growl_installed?
-      @installed ||= begin
-        require 'growl'
-        true
-      rescue LoadError
-        UI.info "Please install growl gem for Mac OS X notification support and add it to your Gemfile"
-        false
-      end
+    def self.require_growl
+      require 'growl'
+    rescue LoadError
+      @disable = true
+      UI.info "Please install growl gem for Mac OS X notification support and add it to your Gemfile"
     end
 
-    def self.libnotify_installed?
-      @installed ||= begin
-        require 'libnotify'
-        true
-      rescue LoadError
-        UI.info "Please install libnotify gem for Linux notification support and add it to your Gemfile"
-        false
-      end
+    def self.require_libnotify
+      require 'libnotify'
+    rescue LoadError
+      @disable = true
+      UI.info "Please install libnotify gem for Linux notification support and add it to your Gemfile"
     end
 
   end

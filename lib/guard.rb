@@ -16,7 +16,8 @@ module Guard
       @listener = Listener.select_and_init
       @guards   = []
 
-      Notifier.turn_off unless options[:notify]
+      options[:notify] = false if ENV["GUARD_NOTIFY"] == 'false'
+      options[:notify] ? Notifier.turn_on : Notifier.turn_off
 
       self
     end
@@ -93,7 +94,11 @@ module Guard
     end
 
     def locate_guard(name)
-      Gem.source_index.find_name("guard-#{name}").last.full_gem_path
+      if Gem::Version.create(Gem::VERSION) >= Gem::Version.create('1.8.0')
+        Gem::Specification.find_by_name("guard-#{name}").full_gem_path
+      else
+        Gem.source_index.find_name("guard-#{name}").last.full_gem_path
+      end
     rescue
       UI.error "Could not find 'guard-#{name}' gem path."
     end
