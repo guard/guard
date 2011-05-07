@@ -13,5 +13,6 @@ if Config::CONFIG['target_os'] =~ /linux/i
   gem 'libnotify',  '~> 0.1.3', :require => false
 end
 if Config::CONFIG['target_os'] =~ /mswin|mingw/i
-  gem 'win32console'
+  gem 'win32console', :require => false
+  gem 'rb-fchange', '>= 0.0.2', :require => false
 end
