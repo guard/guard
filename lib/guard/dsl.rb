@@ -4,8 +4,9 @@ module Guard
       def evaluate_guardfile(options = {})
         options.is_a?(Hash) or raise ArgumentError.new("evaluate_guardfile not passed a hash")
 
-        @@orig_options = options
+        @@orig_options = options.dup.freeze
         @@options = {}
+        @@groups = {}
         prep_guardfile_contents
         instance_eval_guardfile(guardfile_contents, actual_guardfile(), 1)
       end
@@ -68,11 +69,11 @@ module Guard
       end
 
       def guardfile_file
-        @@options[:guardfile]
+        @@options[:guardfile] || @@orig_options[:guardfile]
       end
 
       def actual_guardfile
-        @@options[:actual_guardfile]
+        @@options[:actual_guardfile] || @@orig_options[:actual_guardfile]
       end
 
       def guardfile_contents_usable?
@@ -89,6 +90,7 @@ module Guard
     end 
 
     def group(name, &guard_definition)
+      
       guard_definition.call if guard_definition && (@@orig_options[:group].empty? || @@orig_options[:group].include?(name))
     end
 
