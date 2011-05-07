@@ -4,7 +4,8 @@ module Guard
       def evaluate_guardfile(options = {})
         options.is_a?(Hash) or raise ArgumentError.new("evaluate_guardfile not passed a hash")
 
-        @@options = options
+        @@orig_options = options
+        @@options = {}
         prep_guardfile_contents
         instance_eval_guardfile(guardfile_contents, actual_guardfile(), 1)
       end
@@ -24,6 +25,7 @@ module Guard
 
       def read_guardfile(my_file)
         @@options[:actual_guardfile] = my_file
+        @@options[:guardfile] = @@orig_options[:guardfile]
         begin
           @@options[:guardfile_contents] = File.read(my_file)
         rescue
@@ -34,10 +36,11 @@ module Guard
 
       def prep_guardfile_contents
         #todo do we need .rc file interaction?
-        if @@options.has_key?(:guardfile_contents)
+        if @@orig_options.has_key?(:guardfile_contents)
           UI.info "Using options[:guardfile_contents] for Guardfile"
           @@options[:actual_guardfile] = 'options[:guardfile_contents]'
-        elsif @@options.has_key?(:guardfile)
+          @@options[:guardfile_contents] = @@orig_options[:guardfile_contents]
+        elsif @@orig_options.has_key?(:guardfile)
           UI.info "Using -command Guardfile"
           if File.exist?(guardfile_file())
             read_guardfile(guardfile_file)
@@ -55,13 +58,13 @@ module Guard
           end
         end
         unless guardfile_contents_usable?
-          UI.error "The command file(#{@@options[:guardfile_file]}) seems to be empty."
+          UI.error "The command file(#{@@orig_options[:guardfile_file]}) seems to be empty."
           exit 1
         end
       end
 
       def guardfile_contents
-        @@options[:guardfile_contents]
+        @@options[:guardfile_contents] || @@orig_options[:guardfile_contents]
       end
 
       def guardfile_file
@@ -86,7 +89,7 @@ module Guard
     end 
 
     def group(name, &guard_definition)
-      guard_definition.call if guard_definition && (@@options[:group].empty? || @@options[:group].include?(name))
+      guard_definition.call if guard_definition && (@@orig_options[:group].empty? || @@orig_options[:group].include?(name))
     end
 
     def guard(name, options = {}, &watch_definition)
