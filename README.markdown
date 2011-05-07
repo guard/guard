@@ -10,6 +10,7 @@ Features
 
 * [FSEvent](http://en.wikipedia.org/wiki/FSEvents) support on Mac OS X 10.5+ (without RubyCocoa!, [rb-fsevent gem, >= 0.3.5](https://rubygems.org/gems/rb-fsevent) required).
 * [Inotify](http://en.wikipedia.org/wiki/Inotify) support on Linux ([rb-inotify gem, >= 0.5.1](https://rubygems.org/gems/rb-inotify) required).
+* [Directory Change Notification](http://msdn.microsoft.com/en-us/library/aa365261\(VS.85\).aspx) suuport on Windows ([rb-fchange, >= 0.0.2](https://rubygems.org/gems/rb-fchange) required)
 * Polling on the other operating systems (help us to support more OS).
 * Automatic & Super fast (when polling is not used) files modifications detection (even new files are detected).
 * Growl notifications ([growlnotify](http://growl.info/documentation/growlnotify.php) & [growl gem](https://rubygems.org/gems/growl) required).
@@ -66,6 +67,13 @@ And add it to you Gemfile:
 ``` ruby
 gem 'libnotify'
 ```
+
+### On Windows
+
+Install the rb-fchange gem for [Directory Change Notification](http://msdn.microsoft.com/en-us/library/aa365261\(VS.85\).aspx) support:
+
+    $ gem install rb-fchange
+
 
 Usage
 -----
