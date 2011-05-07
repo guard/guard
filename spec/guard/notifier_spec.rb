@@ -38,14 +38,14 @@ describe Guard::Notifier do
   end
 
   describe ".turn_off" do
+    before(:each) { subject.turn_off }
+    
     if mac? && growl_installed?
       it "does nothing" do
         Growl.should_not_receive(:notify)
         subject.notify 'great', :title => 'Guard'
       end
-    end
-
-    if linux? && libnotify_installed?
+    elsif linux? && libnotify_installed?
       it "does nothing" do
         Libnotify.should_not_receive(:show)
         subject.notify 'great', :title => 'Guard'

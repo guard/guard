@@ -4,6 +4,12 @@ describe Guard do
 
   describe "Class Methods" do
     describe ".setup" do
+      before(:each) do
+        # set ENV["GUARD_NOTIFY"] to nil in case the user has ENV["GUARD_NOTIFY"] = 'false' set
+        @old_env_guard_notify = ENV["GUARD_NOTIFY"]
+        ENV["GUARD_NOTIFY"] = nil
+      end
+      after(:each) { ENV["GUARD_NOTIFY"] = @old_env_guard_notify }
       subject { ::Guard.setup }
 
       it "should retrieve itself for chaining" do
@@ -36,7 +42,7 @@ describe Guard do
       it "should turn off notifier if env[GUARD_NOTIFY] is false" do
         ::Guard::Notifier.should_receive(:turn_off)
         ENV["GUARD_NOTIFY"] = 'false'
-        ::Guard.setup(:notify => true)
+        ::Guard.setup({ :notify => true }.freeze)
         ENV["GUARD_NOTIFY"] = nil
       end
     end
