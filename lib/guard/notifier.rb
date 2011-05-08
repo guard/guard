@@ -5,11 +5,11 @@ module Guard
   module Notifier
 
     def self.turn_off
-      @disable = true
+      ENV["GUARD_NOTIFY"] = 'false'
     end
 
     def self.turn_on
-      @disable = false
+      ENV["GUARD_NOTIFY"] = 'true'
       case Config::CONFIG['target_os']
       when /darwin/i
         require_growl
@@ -19,7 +19,7 @@ module Guard
     end
 
     def self.notify(message, options = {})
-      unless @disable
+      unless disabled?
         image = options[:image] || :success
         title = options[:title] || "Guard"
         case Config::CONFIG['target_os']
@@ -32,7 +32,7 @@ module Guard
     end
 
     def self.disabled?
-      @disable
+      ENV["GUARD_NOTIFY"] == 'false'
     end
 
   private
@@ -55,14 +55,14 @@ module Guard
     def self.require_growl
       require 'growl'
     rescue LoadError
-      @disable = true
+      turn_off
       UI.info "Please install growl gem for Mac OS X notification support and add it to your Gemfile"
     end
 
     def self.require_libnotify
       require 'libnotify'
     rescue LoadError
-      @disable = true
+      turn_off
       UI.info "Please install libnotify gem for Linux notification support and add it to your Gemfile"
     end
 
