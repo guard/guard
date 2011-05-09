@@ -35,7 +35,7 @@ describe Guard::Listener do
     it "updates last_event with time.now" do
       time = Time.now
       subject.update_last_event
-      subject.last_event.should >= time
+      subject.last_event.to_i.should >= time.to_i
     end
 
   end
