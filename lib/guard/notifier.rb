@@ -3,13 +3,14 @@ require 'pathname'
 
 module Guard
   module Notifier
+    @enabled = false
 
     def self.turn_off
-      ENV["GUARD_NOTIFY"] = 'false'
+      @enabled = false
     end
 
     def self.turn_on
-      ENV["GUARD_NOTIFY"] = 'true'
+      @enabled = true
       case Config::CONFIG['target_os']
       when /darwin/i
         require_growl
@@ -19,7 +20,7 @@ module Guard
     end
 
     def self.notify(message, options = {})
-      unless disabled?
+      if enabled?
         image = options[:image] || :success
         title = options[:title] || "Guard"
         case Config::CONFIG['target_os']
@@ -31,8 +32,8 @@ module Guard
       end
     end
 
-    def self.disabled?
-      ENV["GUARD_NOTIFY"] == 'false'
+    def self.enabled?
+      @enabled
     end
 
   private

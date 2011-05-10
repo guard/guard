@@ -117,7 +117,7 @@ Notifications (growl/libnotify) can be disabled with:
 
 ``` bash
 $ guard --notify false
-$ guard -n false # shortcut
+$ guard -n f # shortcut
 ```
 
 Notifications can also be disabled by setting a `GUARD_NOTIFY` environment variable to `false`

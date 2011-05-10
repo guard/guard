@@ -35,6 +35,7 @@ describe Guard do
       end
 
       it "should turn off notifier if env[GUARD_NOTIFY] is false" do
+        ENV["GUARD_NOTIFY"] = 'false'
         ::Guard::Notifier.should_receive(:turn_off)
         ::Guard.setup(:notify => true)
       end

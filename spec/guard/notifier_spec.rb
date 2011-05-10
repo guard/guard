@@ -5,6 +5,7 @@ describe Guard::Notifier do
 
   describe ".notify" do
     before(:each) { subject.turn_on }
+    after(:each)  { subject.turn_off }
 
     if mac?
       if growl_installed?
@@ -17,7 +18,7 @@ describe Guard::Notifier do
           subject.notify 'great', :title => 'Guard'
         end
       else
-        it { should be_disabled }
+        it { should_not be_enabled }
       end
     end
 
@@ -32,14 +33,12 @@ describe Guard::Notifier do
           subject.notify 'great', :title => 'Guard'
         end
       else
-        it { should be_disabled }
+        it { should_not be_enabled }
       end
     end
   end
 
   describe ".turn_off" do
-    before(:each) { subject.turn_off }
-    
     if mac? && growl_installed?
       it "does nothing" do
         Growl.should_not_receive(:notify)
@@ -52,7 +51,7 @@ describe Guard::Notifier do
       end
     end
 
-    it { should be_disabled }
+    it { should_not be_enabled }
   end
 
 end
