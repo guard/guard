@@ -34,6 +34,8 @@ describe Guard::Notifier do
           Growl.should_receive(:notify).with("great", hash_including(:icon => subject.image_path(:success)))
           stub_and_execute "great", :image => :success
         end
+      else
+        it { should_not be_enabled }
       end
 
       if linux?
@@ -64,6 +66,9 @@ describe Guard::Notifier do
             stub_and_execute "great", :image => :success
           end
         end
+      else
+        it { should_not be_enabled }
+      end
       end
     end
 

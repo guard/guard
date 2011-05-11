@@ -24,6 +24,7 @@ describe Guard do
       end
 
       it "should turn on by default" do
+        ENV["GUARD_NOTIFY"] = nil
         ::Guard::Notifier.should_receive(:turn_on)
         ::Guard.setup(:notify => true)
       end
@@ -34,10 +35,9 @@ describe Guard do
       end
 
       it "should turn off notifier if env[GUARD_NOTIFY] is false" do
-        ::Guard::Notifier.should_receive(:turn_off)
         ENV["GUARD_NOTIFY"] = 'false'
+        ::Guard::Notifier.should_receive(:turn_off)
         ::Guard.setup(:notify => true)
-        ENV["GUARD_NOTIFY"] = nil
       end
     end
 

@@ -3,6 +3,7 @@ require 'pathname'
 
 module Guard
   module Notifier
+    @enabled = false
 
     @enable = false
     @library = false

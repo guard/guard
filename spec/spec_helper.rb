@@ -15,7 +15,6 @@ RSpec.configure do |config|
   config.run_all_when_everything_filtered = true
 
   config.before(:each) do
-    Guard::Notifier.turn_off
     @fixture_path = Pathname.new(File.expand_path('../fixtures/', __FILE__))
   end
 

@@ -14,10 +14,10 @@ describe Guard::Listener do
       subject.select_and_init
     end
 
-    it "uses polling listener on Windows" do
-      Config::CONFIG['target_os'] = 'win32'
-      Guard::Polling.stub(:usable?).and_return(true)
-      Guard::Polling.should_receive(:new)
+    it "uses windows listener on Windows" do
+      Config::CONFIG['target_os'] = 'mingw'
+      Guard::Windows.stub(:usable?).and_return(true)
+      Guard::Windows.should_receive(:new)
       subject.select_and_init
     end
 
@@ -35,7 +35,7 @@ describe Guard::Listener do
     it "updates last_event with time.now" do
       time = Time.now
       subject.update_last_event
-      subject.last_event.should >= time
+      subject.last_event.to_i.should >= time.to_i
     end
 
   end

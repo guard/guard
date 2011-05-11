@@ -10,6 +10,7 @@ Features
 
 * [FSEvent](http://en.wikipedia.org/wiki/FSEvents) support on Mac OS X 10.5+ (without RubyCocoa!, [rb-fsevent gem, >= 0.3.5](https://rubygems.org/gems/rb-fsevent) required).
 * [Inotify](http://en.wikipedia.org/wiki/Inotify) support on Linux ([rb-inotify gem, >= 0.5.1](https://rubygems.org/gems/rb-inotify) required).
+* [Directory Change Notification](http://msdn.microsoft.com/en-us/library/aa365261\(VS.85\).aspx) support on Windows ([rb-fchange, >= 0.0.2](https://rubygems.org/gems/rb-fchange) required).
 * Polling on the other operating systems (help us to support more OS).
 * Automatic & Super fast (when polling is not used) files modifications detection (even new files are detected).
 * Growl notifications ([growlnotify](http://growl.info/documentation/growlnotify.php) & [growl gem](https://rubygems.org/gems/growl) required).
@@ -21,9 +22,11 @@ Install
 
 Install the gem:
 
-    $ gem install guard
+``` bash
+$ gem install guard
+```
 
-Add it to your Gemfile (inside the <tt>test</tt> group):
+Add it to your Gemfile (inside the `test` group):
 
 ``` ruby
 gem 'guard'
@@ -31,7 +34,9 @@ gem 'guard'
 
 Generate an empty Guardfile with:
 
-    $ guard init
+``` bash
+$ guard init
+```
 
 Add the guards you need to your Guardfile (see the existing guards below).
 
@@ -39,11 +44,15 @@ Add the guards you need to your Guardfile (see the existing guards below).
 
 Install the rb-fsevent gem for [FSEvent](http://en.wikipedia.org/wiki/FSEvents) support:
 
-    $ gem install rb-fsevent
+``` bash
+$ gem install rb-fsevent
+```
 
 Install the Growl gem if you want notification support:
 
-    $ gem install growl
+``` bash
+$ gem install growl
+```
 
 And add it to you Gemfile:
 
@@ -55,11 +64,15 @@ gem 'growl'
 
 Install the rb-inotify gem for [inotify](http://en.wikipedia.org/wiki/Inotify) support:
 
-    $ gem install rb-inotify
+``` bash
+$ gem install rb-inotify
+```
 
 Install the Libnotify gem if you want notification support:
 
-    $ gem install libnotify
+``` bash
+$ gem install libnotify
+```
 
 And add it to you Gemfile:
 
@@ -67,49 +80,69 @@ And add it to you Gemfile:
 gem 'libnotify'
 ```
 
+### On Windows
+
+Install the rb-fchange gem for [Directory Change Notification](http://msdn.microsoft.com/en-us/library/aa365261\(VS.85\).aspx) support:
+
+``` bash
+$ gem install rb-fchange
+```
+
 Usage
 -----
 
 Just launch Guard inside your Ruby / Rails project with:
 
-    $ guard [start]
+``` bash
+$ guard [start]
+```
 
 or if you use Bundler, to run the Guard executable specific to your bundle:
 
-    $ bundle exec guard
+``` bash
+$ bundle exec guard
+```
 
 Command line options
 --------------------
 
 Shell can be cleared after each change with:
 
-    $ guard --clear
-    $ guard -c # shortcut
+``` bash
+$ guard --clear
+$ guard -c # shortcut
+```
 
 Notifications (growl/libnotify) can be disabled with:
 
-    $ guard --notify false
-    $ guard -n false # shortcut
+``` bash
+$ guard --notify false
+$ guard -n f # shortcut
+```
 
 Notifications can also be disabled by setting a `GUARD_NOTIFY` environment variable to `false`
 
-The guards to start can be specified by group (see the Guardfile DSL below) specifying the <tt>--group</tt> (or <tt>-g</tt>) option:
+The guards to start can be specified by group (see the Guardfile DSL below) specifying the `--group` (or `-g`) option:
 
-    $ guard --group group_name another_group_name
-    $ guard -g group_name another_group_name # shortcut
+``` bash
+$ guard --group group_name another_group_name
+$ guard -g group_name another_group_name # shortcut
+```
 
 Options list is available with:
 
-    $ guard help [TASK]
+``` bash
+$ guard help [TASK]
+```
 
 Signal handlers
 ---------------
 
 Signal handlers are used to interact with Guard:
 
-* <tt>Ctrl-C</tt> - Calls each guard's <tt>stop</tt> method, in the same order they are declared in the Guardfile, and then quits Guard itself.
-* <tt>Ctrl-\\</tt> - Calls each guard's <tt>run_all</tt> method, in the same order they are declared in the Guardfile.
-* <tt>Ctrl-Z</tt> - Calls each guard's <tt>reload</tt> method, in the same order they are declared in the Guardfile.
+* `Ctrl-C` - Calls each guard's `stop` method, in the same order they are declared in the Guardfile, and then quits Guard itself.
+* `Ctrl-\` - Calls each guard's `run_all` method, in the same order they are declared in the Guardfile.
+* `Ctrl-Z` - Calls each guard's `reload` method, in the same order they are declared in the Guardfile.
 
 Available Guards
 ----------------
@@ -118,7 +151,7 @@ Available Guards
 
 ### Add a guard to your Guardfile
 
-Add it to your Gemfile (inside the <tt>test</tt> group):
+Add it to your Gemfile (inside the `test` group):
 
 ``` ruby
 gem '<guard-name>'
@@ -126,21 +159,25 @@ gem '<guard-name>'
 
 Insert default guard's definition to your Guardfile by running this command:
 
-    $ guard init <guard-name>
+``` bash
+$ guard init <guard-name>
+```
 
 You are good to go!
 
 Guardfile DSL
 -------------
 
-The Guardfile DSL consists of just three simple methods: <tt>guard</tt>, <tt>watch</tt> & <tt>group</tt>.
+The Guardfile DSL consists of just three simple methods: `guard`, `watch` & `group`.
 
 Required:
-* The <tt>guard</tt> method allows you to add a guard with an optional hash of options.
-* The <tt>watch</tt> method allows you to define which files are supervised by this guard. An optional block can be added to overwrite the paths sent to the <tt>run_on_change</tt> guard method or to launch any arbitrary command.
+
+* The `guard` method allows you to add a guard with an optional hash of options.
+* The `watch` method allows you to define which files are supervised by this guard. An optional block can be added to overwrite the paths sent to the `run_on_change` guard method or to launch any arbitrary command.
 
 Optional:
-* The <tt>group</tt> method allows you to group several guards together. Groups to be run can be specified with the Guard DSL option <tt>--group</tt> (or <tt>-g</tt>). This comes in handy especially when you have a huge Guardfile and want to focus your development on a certain part.
+
+* The `group` method allows you to group several guards together. Groups to be run can be specified with the Guard DSL option `--group` (or `-g`). This comes in handy especially when you have a huge Guardfile and want to focus your development on a certain part.
 
 Example:
 
@@ -176,7 +213,7 @@ end
 Create a new guard
 ------------------
 
-Creating a new guard is very easy, just create a new gem (<tt>bundle gem</tt> if you use Bundler) with this basic structure:
+Creating a new guard is very easy, just create a new gem (`bundle gem` if you use Bundler) with this basic structure:
 
     lib/
       guard/
@@ -185,7 +222,7 @@ Creating a new guard is very easy, just create a new gem (<tt>bundle gem</tt> if
             Guardfile (needed for guard init <guard-name>)
         guard-name.rb
 
-<tt>Guard::GuardName</tt> (in <tt>lib/guard/guard-name.rb</tt>) must inherit from <tt>Guard::Guard</tt> and should overwrite at least one of the five basic <tt>Guard::Guard</tt> instance methods. Example:
+`Guard::GuardName` (in `lib/guard/guard-name.rb`) must inherit from `Guard::Guard` and should overwrite at least one of the five basic `Guard::Guard` instance methods. Example:
 
 ``` ruby
 require 'guard'
@@ -246,7 +283,7 @@ Alternatively, a new guard can be added inline to a Guardfile with this basic st
 require 'guard/guard'
 
 module ::Guard
-  class Example < ::Guard::Guard
+  class InlineGuard < ::Guard::Guard
     def run_all
       true
     end
@@ -271,3 +308,8 @@ Author
 ------
 
 [Thibaud Guillaume-Gentil](https://github.com/thibaudgg)
+
+Contributors
+------
+
+https://github.com/guard/guard/contributors
