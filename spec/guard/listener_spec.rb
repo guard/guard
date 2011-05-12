@@ -3,6 +3,8 @@ require 'spec_helper'
 describe Guard::Listener do
   subject { Guard::Listener }
 
+  after(:all) { sleep 1 }
+
   describe ".select_and_init" do
     before(:each) { @target_os = Config::CONFIG['target_os'] }
     after(:each) { Config::CONFIG['target_os'] = @target_os }
