@@ -42,9 +42,9 @@ describe Guard::Listener do
   describe "#modified_files" do
     subject { described_class.new }
 
-    let(:file1) { File.new(@fixture_path.join("folder1", "file1.txt")) }
-    let(:file2) { File.new(@fixture_path.join("folder1", "folder2", "file2.txt")) }
-    let(:file3) { File.new(@fixture_path.join("folder1", "deletedfile1.txt")) }
+    let(:file1) { @fixture_path.join("folder1", "file1.txt") }
+    let(:file2) { @fixture_path.join("folder1", "folder2", "file2.txt") }
+    let(:file3) { @fixture_path.join("folder1", "deletedfile1.txt") }
 
     before do
       subject.update_last_event
