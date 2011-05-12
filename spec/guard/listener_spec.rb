@@ -48,7 +48,7 @@ describe Guard::Listener do
 
     before do
       subject.update_last_event
-      sleep 0.56
+      sleep 0.6
     end
 
     context "without the :all option" do
