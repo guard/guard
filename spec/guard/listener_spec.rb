@@ -37,7 +37,56 @@ describe Guard::Listener do
       subject.update_last_event
       subject.last_event.to_i.should >= time.to_i
     end
+  end
 
+  describe "#modified_files" do
+    subject { described_class.new }
+
+    let(:file1) { File.new(@fixture_path.join("folder1", "file1.txt")) }
+    let(:file2) { File.new(@fixture_path.join("folder1", "folder2", "file2.txt")) }
+    let(:file3) { File.new(@fixture_path.join("folder1", "deletedfile1.txt")) }
+
+    before do
+      subject.update_last_event
+      sleep 0.6
+    end
+
+    context "without the :all option" do
+      it "finds modified files only in the directory supplied" do
+        FileUtils.touch([file1, file2, file3])
+        subject.modified_files([@fixture_path.join("folder1/")], {}).should eql ["spec/fixtures/folder1/deletedfile1.txt", "spec/fixtures/folder1/file1.txt"]
+      end
+    end
+
+    context "with the :all options" do
+      it "finds modified files within subdirectories" do
+        FileUtils.touch([file1, file2, file3])
+        subject.modified_files([@fixture_path.join("folder1/")], { :all => true }).should eql ["spec/fixtures/folder1/deletedfile1.txt", "spec/fixtures/folder1/file1.txt", "spec/fixtures/folder1/folder2/file2.txt"]
+      end
+    end
+
+    context "without updating the content" do
+      it "ignores the files for the second time" do
+        FileUtils.touch([file1, file2, file3])
+        subject.modified_files([@fixture_path.join("folder1/")], {}).should eql ["spec/fixtures/folder1/deletedfile1.txt", "spec/fixtures/folder1/file1.txt"]
+        sleep 0.6
+        FileUtils.touch([file1, file2, file3])
+        subject.modified_files([@fixture_path.join("folder1/")], {}).should eql []
+      end
+    end
+
+    context "with content that has changed" do
+      after { File.open(file1, "w") { |f| f.write('') } }
+
+      it "identifies the files for the second time" do
+        FileUtils.touch([file1, file2, file3])
+        subject.modified_files([@fixture_path.join("folder1/")], {}).should eql ["spec/fixtures/folder1/deletedfile1.txt", "spec/fixtures/folder1/file1.txt"]
+        sleep 0.6
+        FileUtils.touch([file2, file3])
+        File.open(file1, "w") { |f| f.write('changed content') }
+        subject.modified_files([@fixture_path.join("folder1/")], {}).should eql ["spec/fixtures/folder1/file1.txt"]
+      end
+    end
   end
 
 end
