@@ -24,8 +24,10 @@ module Guard
         title = options[:title] || "Guard"
         case Config::CONFIG['target_os']
         when /darwin/i
+          require_growl # need for guard-rspec formatter that is called out of guard scope
           Growl.notify message, :title => title, :icon => image_path(image), :name => "Guard"
         when /linux/i
+          require_libnotify # need for guard-rspec formatter that is called out of guard scope
           Libnotify.show :body => message, :summary => title, :icon_path => image_path(image)
         end
       end
