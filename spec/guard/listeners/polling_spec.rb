@@ -40,7 +40,7 @@ describe Guard::Polling do
       FileUtils.touch file1
       FileUtils.touch file2
       stop
-      @results.sort.should == ['spec/fixtures/folder1/file1.txt', 'spec/fixtures/folder1/folder2/file2.txt']
+      @results.should =~ ['spec/fixtures/folder1/file1.txt', 'spec/fixtures/folder1/folder2/file2.txt']
     end
   end
 
