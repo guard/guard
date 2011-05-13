@@ -76,6 +76,7 @@ private
 
   def start
     sleep 1
+    @listener.update_last_event
     Thread.new { @listener.start }
     sleep 1
   end
