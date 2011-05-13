@@ -14,7 +14,7 @@ describe Guard::Dsl do
     lambda { subject.evaluate_guardfile }.should raise_error
   end
 
-  it "displays an error message when Guardfile is not valid" do
+  it "displays an error message when the Guardfile is not valid" do
     mock_guardfile_content("This Guardfile is invalid!")
 
     Guard::UI.should_receive(:error).with(/Invalid Guardfile, original error is:\n/)
@@ -22,22 +22,22 @@ describe Guard::Dsl do
   end
 
   describe ".guardfile_include?" do
-    it "detects a guard specified by a string with simple quotes" do
+    it "detects a Guard specified by a string with simple quotes" do
       mock_guardfile_content("guard 'test'")
       subject.guardfile_include?('test').should be_true
     end
 
-    it "detects a guard specified by a string with double quotes" do
+    it "detects a Guard specified by a string with double quotes" do
       mock_guardfile_content('guard "test"')
       subject.guardfile_include?('test').should be_true
     end
 
-    it "detects a guard specified by a symbol" do
+    it "detects a Guard specified by a symbol" do
       mock_guardfile_content("guard :test")
       subject.guardfile_include?('test').should be_true
     end
 
-    it "detects a guard wrapped in parentheses" do
+    it "detects a Guard wrapped in parentheses" do
       mock_guardfile_content("guard(:test)")
       subject.guardfile_include?('test').should be_true
     end
@@ -59,13 +59,13 @@ describe Guard::Dsl do
         end")
     end
 
-    it "should evaluates only the specified group" do
+    it "evaluates only the specified group" do
       ::Guard.should_receive(:add_guard).with('test', anything, {})
       ::Guard.should_not_receive(:add_guard).with('another', anything, {})
       subject.evaluate_guardfile(:group => ['x'])
     end
 
-    it "should evaluates only the specified groups" do
+    it "evaluates only the specified groups" do
       ::Guard.should_receive(:add_guard).with('test', anything, {})
       ::Guard.should_receive(:add_guard).with('another', anything, {})
       subject.evaluate_guardfile(:group => ['x', 'y'])
@@ -73,21 +73,21 @@ describe Guard::Dsl do
   end
 
   describe "#guard" do
-    it "should load a guard specified as a string from the DSL" do
+    it "loads a Guard specified as a string from the DSL" do
       mock_guardfile_content("guard 'test'")
 
       ::Guard.should_receive(:add_guard).with('test', [], {})
       subject.evaluate_guardfile
     end
 
-    it "should load a guard specified as a symbol from the DSL" do
+    it "loads a Guard specified as a symbol from the DSL" do
       mock_guardfile_content("guard :test")
 
       ::Guard.should_receive(:add_guard).with(:test, [], {})
       subject.evaluate_guardfile
     end
 
-    it "should receive options when specified" do
+    it "receives the options when specified" do
       mock_guardfile_content("guard 'test', :opt_a => 1, :opt_b => 'fancy'")
 
       ::Guard.should_receive(:add_guard).with('test', anything, { :opt_a => 1, :opt_b => 'fancy' })
@@ -96,7 +96,7 @@ describe Guard::Dsl do
   end
 
   describe "#watch" do
-    it "should receive watchers when specified" do
+    it "should receive the watchers when specified" do
       mock_guardfile_content("
         guard 'test' do
           watch('a') { 'b' }

@@ -21,12 +21,12 @@ describe Guard::Linux do
         @listener = Guard::Linux.new
       end
 
-      it "should call watch_change if first start" do
+      it "calls watch_change on the first start" do
         @listener.should_receive(:watch_change)
         start
       end
 
-      it "should not call watch_change if start after stop" do
+      it "doesn't call watch_change on subsequent starts after a stop" do
         @listener.stub!(:stop)
         start
         stop
@@ -49,7 +49,7 @@ describe Guard::Linux do
         end
       end
 
-      it "should catch new file" do
+      it "catches a new file" do
         file = @fixture_path.join("newfile.rb")
         File.exists?(file).should be_false
         start
@@ -59,7 +59,7 @@ describe Guard::Linux do
         @results.should == ['spec/fixtures/newfile.rb']
       end
 
-      it "should catch file update" do
+      it "catches a single file update" do
         file = @fixture_path.join("folder1/file1.txt")
         File.exists?(file).should be_true
         start
@@ -68,7 +68,7 @@ describe Guard::Linux do
         @results.should == ['spec/fixtures/folder1/file1.txt']
       end
 
-      it "should catch files update" do
+      it "catches multiple file updates" do
         file1 = @fixture_path.join("folder1/file1.txt")
         file2 = @fixture_path.join("folder1/folder2/file2.txt")
         File.exists?(file1).should be_true
@@ -80,7 +80,7 @@ describe Guard::Linux do
         @results.should == ['spec/fixtures/folder1/file1.txt', 'spec/fixtures/folder1/folder2/file2.txt']
       end
 
-      it "should catch deleted file" do
+      it "catches a deleted file" do
         file = @fixture_path.join("folder1/file1.txt")
         File.exists?(file).should be_true
         start
@@ -90,7 +90,7 @@ describe Guard::Linux do
         @results.should == ['spec/fixtures/folder1/file1.txt']
       end
 
-      it "should catch moved file" do
+      it "catches a moved file" do
         file1 = @fixture_path.join("folder1/file1.txt")
         file2 = @fixture_path.join("folder1/movedfile1.txt")
         File.exists?(file1).should be_true
@@ -102,7 +102,7 @@ describe Guard::Linux do
         @results.should == ['spec/fixtures/folder1/file1.txt', 'spec/fixtures/folder1/movedfile1.txt']
       end
 
-      it "should not process change if stopped" do
+      it "doesn't process a change when it is stopped" do
         file = @fixture_path.join("folder1/file1.txt")
         File.exists?(file).should be_true
         start
