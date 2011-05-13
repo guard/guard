@@ -2,21 +2,19 @@ module Guard
   class Polling < Listener
     attr_reader :callback, :latency
 
-    def initialize
+    def initialize(*)
       super
       @latency = 1.5
     end
 
-    def on_change(&callback)
-      @callback = callback
-    end
-
     def start
       @stop = false
+      super
       watch_change
     end
 
     def stop
+      super
       @stop = true
     end
 
@@ -31,6 +29,11 @@ module Guard
         nap_time = latency - (Time.now.to_f - start)
         sleep(nap_time) if nap_time > 0
       end
+    end
+
+    # we have no real worker here
+    # FIXME: cannot watch muliple directories, but is not needed in guard (yet?)
+    def watch(directory)
     end
 
   end

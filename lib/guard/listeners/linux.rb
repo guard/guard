@@ -2,7 +2,7 @@ module Guard
   class Linux < Listener
     attr_reader :inotify, :files, :latency, :callback
 
-    def initialize
+    def initialize(*)
       super
 
       @inotify = INotify::Notifier.new
@@ -12,22 +12,14 @@ module Guard
 
     def start
       @stop = false
+      super
       watch_change unless watch_change?
     end
 
     def stop
+      super
       @stop = true
       sleep latency
-    end
-
-    def on_change(&callback)
-      @callback = callback
-      inotify.watch(directory, :recursive, :modify, :create, :delete, :move) do |event|
-        unless event.name == "" # Event on root directory
-          @files << event.absolute_name
-        end
-      end
-    rescue Interrupt
     end
 
     def self.usable?
@@ -48,6 +40,19 @@ module Guard
     end
 
   private
+
+    def worker
+      @inotify
+    end
+
+    def watch(directory)
+      worker.watch(directory, :recursive, :modify, :create, :delete, :move) do |event|
+        unless event.name == "" # Event on root directory
+          @files << event.absolute_name
+        end
+      end
+    rescue Interrupt
+    end
 
     def watch_change
       @watch_change = true

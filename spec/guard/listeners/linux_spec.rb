@@ -38,94 +38,26 @@ describe Guard::Linux do
         @listener.should_not be_watch_change
       end
 
+      it "should use Inotify as worker" do
+        @listener.__send__(:worker).should be_a(INotify::Notifier)
+      end
+
     end
 
-    describe "#on_change" do
-      before(:each) do
-        @results = []
-        @listener = Guard::Linux.new
-        @listener.on_change do |files|
-          @results += files
-        end
-      end
+    it_should_behave_like "a listener that reacts to #on_change" 
+    it_should_behave_like "a listener scoped to a specific directory" 
 
-      it "catches a new file" do
-        file = @fixture_path.join("newfile.rb")
-        File.exists?(file).should be_false
-        start
-        FileUtils.touch file
-        stop
-        File.delete file
-        @results.should == ['spec/fixtures/newfile.rb']
-      end
-
-      it "catches a single file update" do
-        file = @fixture_path.join("folder1/file1.txt")
-        File.exists?(file).should be_true
-        start
-        File.open(file, 'w') {|f| f.write('') }
-        stop
-        @results.should == ['spec/fixtures/folder1/file1.txt']
-      end
-
-      it "catches multiple file updates" do
-        file1 = @fixture_path.join("folder1/file1.txt")
-        file2 = @fixture_path.join("folder1/folder2/file2.txt")
-        File.exists?(file1).should be_true
-        File.exists?(file2).should be_true
-        start
-        File.open(file1, 'w') {|f| f.write('') }
-        File.open(file2, 'w') {|f| f.write('') }
-        stop
-        @results.should == ['spec/fixtures/folder1/file1.txt', 'spec/fixtures/folder1/folder2/file2.txt']
-      end
-
-      it "catches a deleted file" do
-        file = @fixture_path.join("folder1/file1.txt")
-        File.exists?(file).should be_true
-        start
-        File.delete file
-        stop
-        FileUtils.touch file
-        @results.should == ['spec/fixtures/folder1/file1.txt']
-      end
-
-      it "catches a moved file" do
-        file1 = @fixture_path.join("folder1/file1.txt")
-        file2 = @fixture_path.join("folder1/movedfile1.txt")
-        File.exists?(file1).should be_true
-        File.exists?(file2).should be_false
-        start
-        FileUtils.mv file1, file2
-        stop
-        FileUtils.mv file2, file1
-        @results.should == ['spec/fixtures/folder1/file1.txt', 'spec/fixtures/folder1/movedfile1.txt']
-      end
-
-      it "doesn't process a change when it is stopped" do
-        file = @fixture_path.join("folder1/file1.txt")
-        File.exists?(file).should be_true
-        start
-        @listener.inotify.should_not_receive(:process)
-        stop
-        File.open(file, 'w') {|f| f.write('') }
-      end
+    it "doesn't process a change when it is stopped" do
+      @listener = described_class.new
+      record_results
+      file = @fixture_path.join("folder1/file1.txt")
+      File.exists?(file).should be_true
+      start
+      @listener.inotify.should_not_receive(:process)
+      stop
+      File.open(file, 'w') {|f| f.write('') }
     end
-  end
 
-private
-
-  def start
-    sleep 1
-    @listener.update_last_event
-    Thread.new { @listener.start }
-    sleep 1
-  end
-
-  def stop
-    sleep 1
-    @listener.stop
-    sleep 1
   end
 
 end

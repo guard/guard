@@ -24,9 +24,20 @@ module Guard
     end
 
     def initialize(directory=Dir.pwd)
-      @directory = directory
+      @directory = directory.to_s
       @sha1_checksums_hash = {}
       update_last_event
+    end
+
+    def start
+      watch directory
+    end
+
+    def stop
+    end
+
+    def on_change(&callback)
+      @callback = callback
     end
 
     def update_last_event
@@ -36,6 +47,15 @@ module Guard
     def modified_files(dirs, options = {})
       files = potentially_modified_files(dirs, options).select { |path| File.file?(path) && file_modified?(path) && file_content_modified?(path) }
       files.map! { |file| file.gsub("#{directory}/", '') }
+    end
+
+    def worker
+      raise NotImplementedError, "should respond to #watch"
+    end
+
+    # register a directory to watch. must be implemented by the subclasses
+    def watch(directory)
+      raise NotImplementedError, "do whatever you want here, given the directory as only argument"
     end
 
   private
