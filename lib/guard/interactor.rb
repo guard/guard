@@ -9,7 +9,7 @@ module Guard
     end
 
     def stop
-      UI.info "Bye bye...\n", :reset => true
+      UI.info "Bye bye...", :reset => true
       ::Guard.listener.stop
       ::Guard.guards.each { |guard| ::Guard.supervised_task(guard, :stop) }
       abort
