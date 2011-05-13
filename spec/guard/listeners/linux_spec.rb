@@ -46,6 +46,8 @@ describe Guard::Linux do
 
     it_should_behave_like "a listener that reacts to #on_change" 
     it_should_behave_like "a listener scoped to a specific directory" 
+    
+    # Fun fact: File.touch seems not to be enough on Linux to trigger a modify event
 
     it "doesn't process a change when it is stopped" do
       @listener = described_class.new
