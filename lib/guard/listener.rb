@@ -8,7 +8,7 @@ module Guard
   autoload :Polling, 'guard/listeners/polling'
 
   class Listener
-    attr_reader :last_event, :sha1_checksums_hash
+    attr_reader :last_event, :sha1_checksums_hash, :directory
 
     def self.select_and_init
       if mac? && Darwin.usable?
@@ -23,7 +23,8 @@ module Guard
       end
     end
 
-    def initialize
+    def initialize(directory=Dir.pwd)
+      @directory = directory
       @sha1_checksums_hash = {}
       update_last_event
     end
@@ -34,7 +35,7 @@ module Guard
 
     def modified_files(dirs, options = {})
       files = potentially_modified_files(dirs, options).select { |path| File.file?(path) && file_modified?(path) && file_content_modified?(path) }
-      files.map! { |file| file.gsub("#{Dir.pwd}/", '') }
+      files.map! { |file| file.gsub("#{directory}/", '') }
     end
 
   private

@@ -25,7 +25,7 @@ module Guard
     def watch_change
       until @stop
         start = Time.now.to_f
-        files = modified_files([Dir.pwd + '/'], :all => true)
+        files = modified_files([directory + '/'], :all => true)
         update_last_event
         callback.call(files) unless files.empty?
         nap_time = latency - (Time.now.to_f - start)

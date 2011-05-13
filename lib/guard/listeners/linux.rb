@@ -22,7 +22,7 @@ module Guard
 
     def on_change(&callback)
       @callback = callback
-      inotify.watch(Dir.pwd, :recursive, :modify, :create, :delete, :move) do |event|
+      inotify.watch(directory, :recursive, :modify, :create, :delete, :move) do |event|
         unless event.name == "" # Event on root directory
           @files << event.absolute_name
         end
@@ -61,7 +61,7 @@ module Guard
 
           unless files.empty?
             files.uniq!
-            files.map! { |file| file.gsub("#{Dir.pwd}/", '') }
+            files.map! { |file| file.gsub("#{directory}/", '') }
             callback.call(files)
             files.clear
           end
