@@ -26,6 +26,7 @@ module Guard
     def initialize(directory=Dir.pwd)
       @directory = directory.to_s
       @sha1_checksums_hash = {}
+      @relativate_paths = true
       update_last_event
     end
 
@@ -64,9 +65,15 @@ module Guard
 
     # scopes all given paths to the current #directory
     def relativate_paths(paths)
+      return paths unless relativate_paths?
       paths.map do |path| 
         path.gsub(%r~^#{directory}/~, '')
       end
+    end
+
+    attr_writer :relativate_paths
+    def relativate_paths?
+      !!@relativate_paths
     end
 
 

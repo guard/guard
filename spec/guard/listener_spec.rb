@@ -38,10 +38,18 @@ describe Guard::Listener do
   end
 
   describe "#relativate_paths" do
-    subject { described_class.new }
-    it "should relavate paths to the configured directory" do
-      subject.stub!(:directory).and_return('/tmp')
-      subject.relativate_paths(%w( /tmp/a /tmp/a/b /tmp/a.b/c.d )).should =~ %w( a a/b a.b/c.d )
+    subject { described_class.new('/tmp') }
+    before :each do
+      @paths = %w( /tmp/a /tmp/a/b /tmp/a.b/c.d )
+    end
+
+    it "should relativate paths to the configured directory" do
+      subject.relativate_paths(@paths).should =~ %w( a a/b a.b/c.d )
+    end
+
+    it "can be disabled" do
+      subject.relativate_paths = false
+      subject.relativate_paths(@paths).should == @paths
     end
   end
 
