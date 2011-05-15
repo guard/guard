@@ -46,7 +46,7 @@ module Guard
 
     def modified_files(dirs, options = {})
       files = potentially_modified_files(dirs, options).select { |path| File.file?(path) && file_modified?(path) && file_content_modified?(path) }
-      files.map! { |file| file.gsub("#{directory}/", '') }
+      relativate_paths files
     end
 
     def worker
@@ -57,6 +57,18 @@ module Guard
     def watch(directory)
       raise NotImplementedError, "do whatever you want here, given the directory as only argument"
     end
+
+    def all_files
+      potentially_modified_files [directory + '/'], :all => true
+    end
+
+    # scopes all given paths to the current #directory
+    def relativate_paths(paths)
+      paths.map do |path| 
+        path.gsub(%r~^#{directory}/~, '')
+      end
+    end
+
 
   private
 

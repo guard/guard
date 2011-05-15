@@ -29,6 +29,22 @@ describe Guard::Listener do
     end
   end
 
+  describe "#all_files" do
+    subject { described_class.new(@fixture_path) }
+
+    it "should return all files" do
+      subject.all_files.should =~ Dir.glob("#{@fixture_path}/**/*")
+    end
+  end
+
+  describe "#relativate_paths" do
+    subject { described_class.new }
+    it "should relavate paths to the configured directory" do
+      subject.stub!(:directory).and_return('/tmp')
+      subject.relativate_paths(%w( /tmp/a /tmp/a/b /tmp/a.b/c.d )).should =~ %w( a a/b a.b/c.d )
+    end
+  end
+
   describe "#update_last_event" do
     subject { described_class.new }
 

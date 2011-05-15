@@ -66,8 +66,7 @@ module Guard
 
           unless files.empty?
             files.uniq!
-            files.map! { |file| file.gsub("#{directory}/", '') }
-            callback.call(files)
+            callback.call( relativate_paths(files) )
             files.clear
           end
         end
