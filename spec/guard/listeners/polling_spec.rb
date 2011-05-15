@@ -12,7 +12,7 @@ describe Guard::Polling do
   end
 
   describe "#on_change" do
-    it "catches new file" do
+    it "catches a new file" do
       file = @fixture_path.join("newfile.rb")
       File.exists?(file).should be_false
       start
@@ -22,7 +22,7 @@ describe Guard::Polling do
       @results.should == ['spec/fixtures/newfile.rb']
     end
 
-    it "catches file update" do
+    it "catches a single file update" do
       file = @fixture_path.join("folder1/file1.txt")
       File.exists?(file).should be_true
       start
@@ -31,7 +31,7 @@ describe Guard::Polling do
       @results.should == ['spec/fixtures/folder1/file1.txt']
     end
 
-    it "catches files update" do
+    it "catches multiple file updates" do
       file1 = @fixture_path.join("folder1/file1.txt")
       file2 = @fixture_path.join("folder1/folder2/file2.txt")
       File.exists?(file1).should be_true
@@ -40,13 +40,15 @@ describe Guard::Polling do
       FileUtils.touch file1
       FileUtils.touch file2
       stop
-      @results.sort.should == ['spec/fixtures/folder1/file1.txt', 'spec/fixtures/folder1/folder2/file2.txt']
+      @results.should =~ ['spec/fixtures/folder1/file1.txt', 'spec/fixtures/folder1/folder2/file2.txt']
     end
   end
 
 private
 
   def start
+    sleep 1
+    @listener.update_last_event
     Thread.new { @listener.start }
     sleep 1
   end
@@ -54,6 +56,7 @@ private
   def stop
     sleep 1
     @listener.stop
+    sleep 1
   end
 
 end

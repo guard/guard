@@ -24,7 +24,7 @@ describe Guard::Darwin do
         end
       end
 
-      it "catches new file" do
+      it "catches a new file" do
         file = @fixture_path.join("newfile.rb")
         File.exists?(file).should be_false
         start
@@ -34,7 +34,7 @@ describe Guard::Darwin do
         @results.should == ['spec/fixtures/newfile.rb']
       end
 
-      it "catches file update" do
+      it "catches a single file update" do
         file = @fixture_path.join("folder1/file1.txt")
         File.exists?(file).should be_true
         start
@@ -43,7 +43,7 @@ describe Guard::Darwin do
         @results.should == ['spec/fixtures/folder1/file1.txt']
       end
 
-      it "catches files update" do
+      it "catches multiple file updates" do
         file1 = @fixture_path.join("folder1/file1.txt")
         file2 = @fixture_path.join("folder1/folder2/file2.txt")
         File.exists?(file1).should be_true
@@ -60,14 +60,16 @@ describe Guard::Darwin do
 private
 
   def start
-    sleep 0.6
+    sleep 1
+    @listener.update_last_event
     Thread.new { @listener.start }
-    sleep 0.6
+    sleep 1
   end
 
   def stop
-    sleep 0.6
+    sleep 1
     @listener.stop
+    sleep 1
   end
 
 end

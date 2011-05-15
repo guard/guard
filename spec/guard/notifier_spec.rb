@@ -5,6 +5,7 @@ describe Guard::Notifier do
 
   describe ".notify" do
     before(:each) { subject.turn_on }
+    after(:each)  { subject.turn_off }
 
     if mac?
       if growl_installed?
@@ -17,7 +18,7 @@ describe Guard::Notifier do
           subject.notify 'great', :title => 'Guard'
         end
       else
-        it { should be_disabled }
+        it { should_not be_enabled }
       end
     end
 
@@ -32,27 +33,25 @@ describe Guard::Notifier do
           subject.notify 'great', :title => 'Guard'
         end
       else
-        it { should be_disabled }
+        it { should_not be_enabled }
       end
     end
   end
 
   describe ".turn_off" do
     if mac? && growl_installed?
-      it "does nothing" do
+      it "prevents the notifications" do
         Growl.should_not_receive(:notify)
         subject.notify 'great', :title => 'Guard'
       end
-    end
-
-    if linux? && libnotify_installed?
-      it "does nothing" do
+    elsif linux? && libnotify_installed?
+      it "prevents the notifications" do
         Libnotify.should_not_receive(:show)
         subject.notify 'great', :title => 'Guard'
       end
     end
 
-    it { should be_disabled }
+    it { should_not be_enabled }
   end
 
 end

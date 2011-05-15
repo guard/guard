@@ -30,7 +30,7 @@ describe Guard::Windows do
         end
       end
 
-      it "catches new file" do
+      it "catches a new file" do
         file = @fixture_path.join("newfile.rb")
         if File.exists?(file)
           begin
@@ -49,7 +49,7 @@ describe Guard::Windows do
         @results.should == ['spec/fixtures/newfile.rb']
       end
 
-      it "catches file update" do
+      it "catches a single file update" do
         file = @fixture_path.join("folder1/file1.txt")
         File.exists?(file).should be_true
         start
@@ -58,7 +58,7 @@ describe Guard::Windows do
         @results.should == ['spec/fixtures/folder1/file1.txt']
       end
 
-      it "catches files update" do
+      it "catches multiple file updates" do
         file1 = @fixture_path.join("folder1/file1.txt")
         file2 = @fixture_path.join("folder1/folder2/file2.txt")
         File.exists?(file1).should be_true
@@ -75,14 +75,16 @@ describe Guard::Windows do
 private
 
   def start
-    sleep 0.6
+    sleep 1
+    @listener.update_last_event
     Thread.new { @listener.start }
-    sleep 0.6
+    sleep 1
   end
 
   def stop
-    sleep 0.6
+    sleep 1
     @listener.stop
+    sleep 1
   end
 
 end

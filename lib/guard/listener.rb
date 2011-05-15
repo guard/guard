@@ -8,7 +8,7 @@ module Guard
   autoload :Polling, 'guard/listeners/polling'
 
   class Listener
-    attr_reader :last_event
+    attr_reader :last_event, :sha1_checksums_hash
 
     def self.select_and_init
       if mac? && Darwin.usable?
@@ -24,6 +24,7 @@ module Guard
     end
 
     def initialize
+      @sha1_checksums_hash = {}
       update_last_event
     end
 
@@ -32,7 +33,7 @@ module Guard
     end
 
     def modified_files(dirs, options = {})
-      files = potentially_modified_files(dirs, options).select { |path| File.file?(path) && recent_file?(path) }
+      files = potentially_modified_files(dirs, options).select { |path| File.file?(path) && file_modified?(path) && file_content_modified?(path) }
       files.map! { |file| file.gsub("#{Dir.pwd}/", '') }
     end
 
@@ -43,10 +44,22 @@ module Guard
       Dir.glob(dirs.map { |dir| "#{dir}#{match}" })
     end
 
-    def recent_file?(file)
-      File.mtime(file) >= last_event
+    def file_modified?(path)
+      # Depending on the filesystem, mtime is probably only precise to the second, so round
+      # both values down to the second for the comparison.
+      File.mtime(path).to_i >= last_event.to_i
     rescue
       false
+    end
+
+    def file_content_modified?(path)
+      sha1_checksum = Digest::SHA1.file(path).to_s
+      if sha1_checksums_hash[path] != sha1_checksum
+        @sha1_checksums_hash[path] = sha1_checksum
+        true
+      else
+        false
+      end
     end
 
     def self.mac?
@@ -63,69 +76,3 @@ module Guard
 
   end
 end
-
-# require 'rbconfig'
-#
-# module Guard
-#
-#   autoload :Darwin,  'guard/listeners/darwin'
-#   autoload :Linux,   'guard/listeners/linux'
-#   autoload :Polling, 'guard/listeners/polling'
-#
-#   class Listener
-#     attr_accessor :last_event, :changed_files
-#
-#     def self.select_and_init
-#       if mac? && Darwin.usable?
-#         Darwin.new
-#       elsif linux? && Linux.usable?
-#         Linux.new
-#       else
-#         UI.info "Using polling (Please help us to support your system better than that.)"
-#         Polling.new
-#       end
-#     end
-#
-#     def initialize
-#       @changed_files = []
-#       update_last_event
-#     end
-#
-#     def get_and_clear_changed_files
-#       files = changed_files.dup
-#       changed_files.clear
-#       files.uniq
-#     end
-#
-#   private
-#
-#     def find_changed_files(dirs, options = {})
-#       files = potentially_changed_files(dirs, options).select { |path| File.file?(path) && changed_file?(path) }
-#       files.map! { |file| file.gsub("#{Dir.pwd}/", '') }
-#     end
-#
-#     def potentially_changed_files(dirs, options = {})
-#       match = options[:all] ? "**/*" : "*"
-#       Dir.glob(dirs.map { |dir| "#{dir}#{match}" })
-#     end
-#
-#     def changed_file?(file)
-#       File.mtime(file) >= last_event
-#     rescue
-#       false
-#     end
-#
-#     def update_last_event
-#       @last_event = Time.now
-#     end
-#
-#     def self.mac?
-#       Config::CONFIG['target_os'] =~ /darwin/i
-#     end
-#
-#     def self.linux?
-#       Config::CONFIG['target_os'] =~ /linux/i
-#     end
-#
-#   end
-# end

@@ -16,8 +16,7 @@ module Guard
       @listener = Listener.select_and_init
       @guards   = []
 
-      options[:notify] = false if ENV["GUARD_NOTIFY"] == 'false'
-      options[:notify] ? Notifier.turn_on : Notifier.turn_off
+      @options[:notify] && ENV["GUARD_NOTIFY"] != 'false' ? Notifier.turn_on : Notifier.turn_off
 
       self
     end
@@ -61,7 +60,7 @@ module Guard
       guard.send(task_to_supervise, *args)
     rescue Exception
       UI.error("#{guard.class.name} guard failed to achieve its <#{task_to_supervise.to_s}> command: #{$!}")
-      ::Guard.guards.delete guard
+      guards.delete guard
       UI.info("Guard #{guard.class.name} has just been fired")
       return $!
     end
@@ -83,7 +82,7 @@ module Guard
 
     def get_guard_class(name)
       try_to_load_gem name
-      self.const_get(self.constants.find{|klass_name| klass_name.to_s.downcase == name.downcase })
+      self.const_get(self.constants.find{ |klass_name| klass_name.to_s.downcase == name.downcase })
     rescue TypeError
       UI.error "Could not find load find gem 'guard-#{name}' or find class Guard::#{name}"
     end
