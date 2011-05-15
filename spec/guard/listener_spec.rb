@@ -27,6 +27,15 @@ describe Guard::Listener do
       Guard::Linux.should_receive(:new)
       subject.select_and_init
     end
+
+    it "forwards its arguments to the constructor" do
+      subject.stub!(:mac?).and_return(true)
+      Guard::Darwin.stub!(:usable?).and_return(true)
+
+      path, opts = 'path', {:foo => 23}
+      Guard::Darwin.should_receive(:new).with(path, opts).and_return(true)
+      subject.select_and_init path, opts
+    end
   end
 
   describe "#all_files" do

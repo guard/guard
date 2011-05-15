@@ -10,23 +10,23 @@ module Guard
   class Listener
     attr_reader :last_event, :sha1_checksums_hash, :directory
 
-    def self.select_and_init
+    def self.select_and_init(*a)
       if mac? && Darwin.usable?
-        Darwin.new
+        Darwin.new(*a)
       elsif linux? && Linux.usable?
-        Linux.new
+        Linux.new(*a)
       elsif windows? && Windows.usable?
-        Windows.new
+        Windows.new(*a)
       else
         UI.info "Using polling (Please help us to support your system better than that.)"
-        Polling.new
+        Polling.new(*a)
       end
     end
 
-    def initialize(directory=Dir.pwd)
+    def initialize(directory=Dir.pwd, options={})
       @directory = directory.to_s
       @sha1_checksums_hash = {}
-      @relativate_paths = true
+      @relativate_paths = options.fetch(:relativate_paths, true)
       update_last_event
     end
 
