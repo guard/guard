@@ -36,6 +36,21 @@ describe Guard::Notifier do
         it { should_not be_enabled }
       end
     end
+    
+    if windows?
+      if rbnotifu_installed?
+        it "uses rbnotifu on Windows" do
+          RbNotifu::show(
+            :message      => "great",
+            :title   => 'Guard',
+            :type => :info
+          )
+        end
+      else
+        it { should_not be_enabled }
+      end
+    end
+
   end
 
   describe ".turn_off" do
@@ -48,6 +63,10 @@ describe Guard::Notifier do
       it "prevents the notifications" do
         Libnotify.should_not_receive(:show)
         subject.notify 'great', :title => 'Guard'
+      end
+    elsif windows? && rbnotifu_installed?
+      it "prevents the notifications" do
+        
       end
     end
 
