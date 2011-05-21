@@ -15,5 +15,5 @@ end
 if Config::CONFIG['target_os'] =~ /mswin|mingw/i
   gem 'win32console', :require => false
   gem 'rb-fchange', '>= 0.0.2', :require => false
-  gem 'rb-notifu', :require => false
+  gem 'rb-notifu', '>= 0.0.3', :require => false
 end

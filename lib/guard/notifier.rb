@@ -33,7 +33,7 @@ module Guard
           Libnotify.show :body => message, :summary => title, :icon_path => image_path(image)
         when /mswin|mingw/i
           require_rbnotifu
-          RbNotifu.show :message => message, :title => title, :type => image_level(image)
+          RbNotifu.show :message => message, :title => title, :type => image_level(image), :display => 3000
         end
       end
     end
@@ -87,10 +87,10 @@ module Guard
     end
 
     def self.require_rbnotifu
-      require 'rbnotifu'
+      require 'rb-notifu'
     rescue LoadError
       turn_off
-      UI.info "Please install rbnotifu gem for Windows notification support and add it to your Gemfile"
+      UI.info "Please install rb-notifu gem for Windows notification support and add it to your Gemfile"
     end
   end
 end

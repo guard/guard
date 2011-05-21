@@ -39,12 +39,13 @@ describe Guard::Notifier do
     
     if windows?
       if rbnotifu_installed?
-        it "uses rbnotifu on Windows" do
-          RbNotifu::show(
-            :message      => "great",
-            :title   => 'Guard',
-            :type => :info
-          )
+        it "uses rb-notifu on Windows" do
+          @result = -1
+          RbNotifu::show :message => "great", :title => 'Guard' do |status|
+            @result = status
+          end
+          sleep 1.5
+          RbNotifu::ERRORS.include?(@result).should be_false
         end
       else
         it { should_not be_enabled }
@@ -63,10 +64,6 @@ describe Guard::Notifier do
       it "prevents the notifications" do
         Libnotify.should_not_receive(:show)
         subject.notify 'great', :title => 'Guard'
-      end
-    elsif windows? && rbnotifu_installed?
-      it "prevents the notifications" do
-        
       end
     end
 
