@@ -33,7 +33,7 @@ module Guard
           Libnotify.show :body => message, :summary => title, :icon_path => image_path(image)
         when /mswin|mingw/i
           require_rbnotifu
-          RbNotifu.show :message => message, :title => title, :type => image_level(image), :display => 3000
+          Notifu.show :message => message, :title => title, :type => image_level(image), :time => 3
         end
       end
     end

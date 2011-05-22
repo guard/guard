@@ -41,11 +41,11 @@ describe Guard::Notifier do
       if rbnotifu_installed?
         it "uses rb-notifu on Windows" do
           @result = -1
-          RbNotifu::show :message => "great", :title => 'Guard' do |status|
+          Notifu::show :message => "great", :title => 'Guard' do |status|
             @result = status
           end
           sleep 1.5
-          RbNotifu::ERRORS.include?(@result).should be_false
+          Notifu::ERRORS.include?(@result).should be_false
         end
       else
         it { should_not be_enabled }
