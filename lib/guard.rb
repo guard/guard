@@ -82,7 +82,7 @@ module Guard
 
     def get_guard_class(name)
       try_to_load_gem name
-      self.const_get(self.constants.find{ |klass_name| klass_name.to_s.downcase == name.downcase })
+      self.const_get(self.constants.find{ |klass_name| klass_name.to_s.downcase == name.downcase.gsub('-', '') })
     rescue TypeError
       UI.error "Could not find load find gem 'guard-#{name}' or find class Guard::#{name}"
     end
