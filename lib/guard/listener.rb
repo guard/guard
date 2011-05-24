@@ -1,4 +1,5 @@
 require 'rbconfig'
+require 'digest/sha1'
 
 module Guard
 
@@ -53,7 +54,7 @@ module Guard
     end
 
     def file_content_modified?(path)
-      sha1_checksum = Digest::SHA1.file(path).to_s
+      sha1_checksum = ::Digest::SHA1.file(path).to_s
       if sha1_checksums_hash[path] != sha1_checksum
         @sha1_checksums_hash[path] = sha1_checksum
         true
