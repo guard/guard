@@ -57,6 +57,17 @@ describe Guard do
       end
     end
 
+    context 'with a name with dashes' do
+      it "returns the Guard class" do
+        Guard.should_receive(:try_to_load_gem) { |classname|
+          classname.should == 'dashed-class-name'
+          class Guard::DashedClassName
+          end
+        }
+        Guard.get_guard_class('dashed-class-name').should == Guard::DashedClassName
+      end
+    end
+
     context 'with an inline Guard class' do
       it 'returns the Guard class' do
         module Guard
