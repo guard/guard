@@ -8,9 +8,8 @@ describe Guard::Dsl do
   end
 
   it "displays an error message when no Guardfile is found" do
-    Dir.stub!(:pwd).and_return("no_guardfile_here")
-
-    Guard::UI.should_receive(:error).with("No Guardfile in current folder, please create one.")
+    subject.stub(:guardfile_path).and_return("no_guardfile_here")
+    Guard::UI.should_receive(:error).with("No Guardfile found, please create one.")
     lambda { subject.evaluate_guardfile }.should raise_error
   end
 
@@ -19,6 +18,33 @@ describe Guard::Dsl do
 
     Guard::UI.should_receive(:error).with(/Invalid Guardfile, original error is:\n/)
     lambda { subject.evaluate_guardfile }.should raise_error
+  end
+
+  describe ".guardfile_path" do
+    let(:local_path) { File.join(Dir.pwd, 'Guardfile') }
+    let(:user_path) { File.join(ENV["HOME"], 'Guardfile') }
+    before do
+      File.stub(:exist? => false)
+    end
+    context "when there is a local Guardfile" do
+      it "returns the path to the local Guardfile" do
+        File.stub(:exist?).with(local_path).and_return(true)
+        subject.guardfile_path.should == local_path
+      end
+    end
+    context "when there is a Guardfile in the user's home directory" do
+      it "returns the path to the user Guardfile" do
+        File.stub(:exist?).with(user_path).and_return(true)
+        subject.guardfile_path.should == user_path
+      end
+    end
+    context "when there's both a local and user Guardfile" do
+      it "returns the path to the local Guardfile" do
+        File.stub(:exist?).with(local_path).and_return(true)
+        File.stub(:exist?).with(user_path).and_return(true)
+        subject.guardfile_path.should == local_path
+      end
+    end
   end
 
   describe ".guardfile_include?" do
@@ -117,7 +143,7 @@ describe Guard::Dsl do
 private
 
   def mock_guardfile_content(content)
-    File.stub!(:read).with(File.expand_path('../../../Guardfile', __FILE__)) { content }
+    File.stub!(:read).with(subject.guardfile_path) { content }
   end
 
 end

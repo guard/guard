@@ -13,7 +13,7 @@ module Guard
             exit 1
           end
         else
-          UI.error "No Guardfile in current folder, please create one."
+          UI.error "No Guardfile found, please create one."
           exit 1
         end
       end
@@ -23,7 +23,17 @@ module Guard
       end
       
       def guardfile_path
-        File.join(Dir.pwd, 'Guardfile')
+        return local_guardfile_path if File.exist? local_guardfile_path
+        home_guardfile_path
+      end
+
+      private
+      def local_guardfile_path
+        File.join(Dir.pwd, "Guardfile")
+      end
+
+      def home_guardfile_path
+        File.join(ENV['HOME'], "Guardfile")
       end
     end
 
