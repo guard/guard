@@ -26,7 +26,8 @@ module Guard
         File.exist?(local_guardfile_path) ? local_guardfile_path : home_guardfile_path
       end
 
-      private
+    private
+
       def local_guardfile_path
         File.join(Dir.pwd, "Guardfile")
       end
