@@ -23,21 +23,25 @@ describe Guard::Dsl do
   describe ".guardfile_path" do
     let(:local_path) { File.join(Dir.pwd, 'Guardfile') }
     let(:user_path) { File.join(ENV["HOME"], 'Guardfile') }
+
     before do
       File.stub(:exist? => false)
     end
+
     context "when there is a local Guardfile" do
       it "returns the path to the local Guardfile" do
         File.stub(:exist?).with(local_path).and_return(true)
         subject.guardfile_path.should == local_path
       end
     end
+
     context "when there is a Guardfile in the user's home directory" do
       it "returns the path to the user Guardfile" do
         File.stub(:exist?).with(user_path).and_return(true)
         subject.guardfile_path.should == user_path
       end
     end
+
     context "when there's both a local and user Guardfile" do
       it "returns the path to the local Guardfile" do
         File.stub(:exist?).with(local_path).and_return(true)
@@ -45,6 +49,7 @@ describe Guard::Dsl do
         subject.guardfile_path.should == local_path
       end
     end
+
   end
 
   describe ".guardfile_include?" do

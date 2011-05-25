@@ -23,8 +23,7 @@ module Guard
       end
       
       def guardfile_path
-        return local_guardfile_path if File.exist? local_guardfile_path
-        home_guardfile_path
+        File.exist?(local_guardfile_path) ? local_guardfile_path : home_guardfile_path
       end
 
       private
@@ -33,7 +32,7 @@ module Guard
       end
 
       def home_guardfile_path
-        File.join(ENV['HOME'], "Guardfile")
+        File.expand_path(File.join("~", "Guardfile"))
       end
     end
 
