@@ -22,7 +22,7 @@ describe Guard::Dsl do
 
   describe ".guardfile_path" do
     let(:local_path) { File.join(Dir.pwd, 'Guardfile') }
-    let(:user_path) { File.join(ENV["HOME"], 'Guardfile') }
+    let(:user_path) { File.expand_path(File.join("~", 'Guardfile')) }
 
     before do
       File.stub(:exist? => false)
