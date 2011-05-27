@@ -47,7 +47,16 @@ describe Guard do
     end
 
     context 'with a nested Guard class' do
-      it "returns the Guard class" do
+      it "returns the Guard class when passed a Symbol" do
+        Guard.should_receive(:try_to_load_gem) { |classname|
+          classname.should == :classname
+          class Guard::Classname
+          end
+        }
+        Guard.get_guard_class(:classname).should == Guard::Classname
+      end
+      
+      it "returns the Guard class when passed a String" do
         Guard.should_receive(:try_to_load_gem) { |classname|
           classname.should == 'classname'
           class Guard::Classname
