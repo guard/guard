@@ -1,30 +1,81 @@
 module Guard
   class Dsl
-
     class << self
+
       def evaluate_guardfile(options = {})
-        @@options = options
-        
-        if File.exists?(guardfile_path)
-          begin
-            new.instance_eval(File.read(guardfile_path), guardfile_path, 1)
-          rescue
-            UI.error "Invalid Guardfile, original error is:\n#{$!}"
-            exit 1
-          end
-        else
-          UI.error "No Guardfile in current folder, please create one."
+        options.is_a?(Hash) or raise ArgumentError.new("evaluate_guardfile not passed a Hash!")
+
+        @@options = options.dup
+        instance_eval_guardfile(fetch_guardfile_contents)
+      end
+
+      def instance_eval_guardfile(contents)
+        begin
+          new.instance_eval(contents, @@options[:guardfile_path], 1)
+        rescue
+          UI.error "Invalid Guardfile, original error is:\n#{$!}"
           exit 1
         end
       end
 
       def guardfile_include?(guard_name)
-        File.read(guardfile_path).match(/^guard\s*\(?\s*['":]#{guard_name}['"]?/)
+        guardfile_contents.match(/^guard\s*\(?\s*['":]#{guard_name}['"]?/)
       end
-      
-      def guardfile_path
+
+      def read_guardfile(guardfile_path)
+        begin
+          @@options[:guardfile_path]     = guardfile_path
+          @@options[:guardfile_contents] = File.read(guardfile_path)
+        rescue
+          UI.error("Error reading file #{guardfile_path}")
+          exit 1
+        end
+      end
+
+      def fetch_guardfile_contents
+        # TODO: do we need .rc file interaction?
+        if @@options.has_key?(:guardfile_contents)
+          UI.info "Using inline Guardfile."
+          @@options[:guardfile_path] = 'Inline Guardfile'
+
+        elsif @@options.has_key?(:guardfile)
+          if File.exist?(@@options[:guardfile])
+            read_guardfile(@@options[:guardfile])
+            UI.info "Using Guardfile at #{@@options[:guardfile]}."
+          else
+            UI.error "No Guardfile exists at #{@@options[:guardfile]}."
+            exit 1
+          end
+
+        else
+          if File.exist?(guardfile_default_path)
+            read_guardfile(guardfile_default_path)
+          else
+            UI.error "No Guardfile in current folder, please create one with `guard init`."
+            exit 1
+          end
+        end
+
+        unless guardfile_contents_usable?
+          UI.error "The command file(#{@@options[:guardfile]}) seems to be empty."
+          exit 1
+        end
+        
+        guardfile_contents
+      end
+
+      def guardfile_contents
+        @@options[:guardfile_contents]
+      end
+
+      def guardfile_contents_usable?
+        guardfile_contents && guardfile_contents.size >= 'guard :a'.size # smallest guard-definition
+      end
+
+      def guardfile_default_path
         File.join(Dir.pwd, 'Guardfile')
       end
+
     end
 
     def group(name, &guard_definition)
