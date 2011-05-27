@@ -1,3 +1,10 @@
+### New features:
+
+- Pull request [#55](https://github.com/guard/guard/issues/55): It is now possible to pass `:guardfile` (a Guardfile path) or `:guardfile_contents` (the content of a Guardfile). Hence this allows to use Guard::Dsl.evaluate_guardfile in a programmatic manner. ([@anithri](https://github.com/anithri), improved by ([@rymai](https://github.com/rymai))
+
+
+## 0.3.4 - April 24, 2011
+
 ### Bugs fixes:
 
 - Issue [#41](https://github.com/guard/guard/issues/41): Removed useless Bundler requirement. ([@thibaudgg](https://github.com/thibaudgg))
