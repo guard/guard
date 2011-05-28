@@ -36,6 +36,22 @@ describe Guard::Notifier do
         it { should_not be_enabled }
       end
     end
+    
+    if windows?
+      if rbnotifu_installed?
+        it "uses rb-notifu on Windows" do
+          @result = -1
+          Notifu::show :message => "great", :title => 'Guard' do |status|
+            @result = status
+          end
+          sleep 1.5
+          Notifu::ERRORS.include?(@result).should be_false
+        end
+      else
+        it { should_not be_enabled }
+      end
+    end
+
   end
 
   describe ".turn_off" do
