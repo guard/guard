@@ -3,9 +3,6 @@ module Guard
     class << self
       @@options = nil
       
-      # TODO: Add documentation to explain that it is possible to pass `:guardfile` (a Guardfile path)
-      # or `:guardfile_contents` (the content of a Guardfile). Hence this allows to use Guard::Dsl.evaluate_guardfile
-      # in a programmatic manner
       def evaluate_guardfile(options = {})
         options.is_a?(Hash) or raise ArgumentError.new("evaluate_guardfile not passed a Hash!")
 
