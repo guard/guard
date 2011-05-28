@@ -3,7 +3,8 @@ require 'spec_helper'
 describe Guard::Dsl do
   subject { described_class }
   before(:each) do
-    @default_guardfile = File.join(Dir.pwd, 'Guardfile')
+    @local_guardfile_path = File.join(Dir.pwd, 'Guardfile')
+    @home_guardfile_path  = File.expand_path(File.join("~", "Guardfile"))
     ::Guard.stub!(:options).and_return(:debug => true)
   end
 
@@ -27,7 +28,7 @@ describe Guard::Dsl do
     end
 
     it "should use a default file if no other options are given" do
-      fake_guardfile(@default_guardfile, "guard :bar")
+      fake_guardfile(@local_guardfile_path, "guard :bar")
 
       Guard::UI.should_not_receive(:error)
       lambda { subject.evaluate_guardfile }.should_not raise_error
@@ -36,7 +37,7 @@ describe Guard::Dsl do
 
     it "should use a string over any other method" do
       fake_guardfile('/abc/Guardfile', "guard :foo")
-      fake_guardfile(@default_guardfile, "guard :bar")
+      fake_guardfile(@local_guardfile_path, "guard :bar")
 
       Guard::UI.should_not_receive(:error)
       lambda { subject.evaluate_guardfile(:guardfile_contents => valid_guardfile_string) }.should_not raise_error
@@ -45,12 +46,18 @@ describe Guard::Dsl do
 
     it "should use the given Guardfile over default Guardfile" do
       fake_guardfile('/abc/Guardfile', "guard :foo")
-      fake_guardfile(@default_guardfile, "guard :bar")
+      fake_guardfile(@local_guardfile_path, "guard :bar")
 
       Guard::UI.should_not_receive(:error)
       lambda { subject.evaluate_guardfile(:guardfile => '/abc/Guardfile') }.should_not raise_error
       subject.guardfile_contents.should == "guard :foo"
     end
+  end
+
+  it "displays an error message when no Guardfile is found" do
+    subject.stub(:guardfile_default_path).and_return("no_guardfile_here")
+    Guard::UI.should_receive(:error).with("No Guardfile found, please create one with `guard init`.")
+    lambda { subject.evaluate_guardfile }.should raise_error
   end
 
   describe "it should correctly read data from its valid data source" do
@@ -99,9 +106,10 @@ describe Guard::Dsl do
     end
 
     it "should raise error when resorting to use default, finds no default" do
-      File.stub!(:exist?).with(@default_guardfile) { false }
+      File.stub!(:exist?).with(@local_guardfile_path) { false }
+      File.stub!(:exist?).with(@home_guardfile_path) { false }
 
-      Guard::UI.should_receive(:error).with(/No Guardfile in current folder/)
+      Guard::UI.should_receive(:error).with("No Guardfile found, please create one with `guard init`.")
       lambda { subject.evaluate_guardfile }.should raise_error
     end
 
@@ -117,6 +125,38 @@ describe Guard::Dsl do
     Guard::UI.should_receive(:error).with(/Invalid Guardfile, original error is:/)
 
     lambda { subject.evaluate_guardfile(:guardfile_contents => invalid_guardfile_string ) }.should raise_error
+  end
+
+  describe ".guardfile_default_path" do
+    let(:local_path) { File.join(Dir.pwd, 'Guardfile') }
+    let(:user_path) { File.expand_path(File.join("~", 'Guardfile')) }
+
+    before do
+      File.stub(:exist? => false)
+    end
+
+    context "when there is a local Guardfile" do
+      it "returns the path to the local Guardfile" do
+        File.stub(:exist?).with(local_path).and_return(true)
+        subject.guardfile_default_path.should == local_path
+      end
+    end
+
+    context "when there is a Guardfile in the user's home directory" do
+      it "returns the path to the user Guardfile" do
+        File.stub(:exist?).with(user_path).and_return(true)
+        subject.guardfile_default_path.should == user_path
+      end
+    end
+
+    context "when there's both a local and user Guardfile" do
+      it "returns the path to the local Guardfile" do
+        File.stub(:exist?).with(local_path).and_return(true)
+        File.stub(:exist?).with(user_path).and_return(true)
+        subject.guardfile_default_path.should == local_path
+      end
+    end
+
   end
 
   describe ".guardfile_include?" do
@@ -228,6 +268,10 @@ private
         watch('c')
       end
     end"
+  end
+
+  def mock_guardfile_content(content)
+    File.stub!(:read).with(subject.guardfile_default_path) { content }
   end
 
   def invalid_guardfile_string

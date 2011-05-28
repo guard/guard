@@ -54,7 +54,7 @@ module Guard
           if File.exist?(guardfile_default_path)
             read_guardfile(guardfile_default_path)
           else
-            UI.error "No Guardfile in current folder, please create one with `guard init`."
+            UI.error "No Guardfile found, please create one with `guard init`."
             exit 1
           end
         end
@@ -63,7 +63,7 @@ module Guard
           UI.error "The command file(#{@@options[:guardfile]}) seems to be empty."
           exit 1
         end
-        
+
         guardfile_contents
       end
 
@@ -76,7 +76,17 @@ module Guard
       end
 
       def guardfile_default_path
-        File.join(Dir.pwd, 'Guardfile')
+        File.exist?(local_guardfile_path) ? local_guardfile_path : home_guardfile_path
+      end
+
+    private
+
+      def local_guardfile_path
+        File.join(Dir.pwd, "Guardfile")
+      end
+
+      def home_guardfile_path
+        File.expand_path(File.join("~", "Guardfile"))
       end
 
     end
