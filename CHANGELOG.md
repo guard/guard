@@ -4,16 +4,16 @@
 
 - Pull request [#69](https://github.com/guard/guard/pull/69): Fixed typo in README: Ctr-/ => Ctr-\\. ([@tinogomes](https://github.com/tinogomes))
 - Pull request [#66](https://github.com/guard/guard/pull/66): Support for dashes in guard names. ([@johnbintz](https://github.com/johnbintz))
-- Require `guard/ui` because Guard::Notifier can be required without full Guard. ([@yannlugrin](https://github.com/yannlugrin))
+- Require `guard/ui` because `Guard::Notifier` can be required without full Guard. ([@yannlugrin](https://github.com/yannlugrin))
 - Handled quick file (<1s) modification. Avoid to catch modified files without content modification (sha1 checksum). ([@thibaudgg](https://github.com/thibaudgg) and [@netzpirat](https://github.com/netzpirat))
-- Fixed Guard::Notifier (when growl/libnotify not present). ([@thibaudgg](https://github.com/thibaudgg))
+- Fixed `Guard::Notifier` (when growl/libnotify not present). ([@thibaudgg](https://github.com/thibaudgg))
 - Fixed Rubygems deprecation messages. ([@thibaudgg](https://github.com/thibaudgg))
 
 ### New features:
 
-- Pull request [#67](https://github.com/guard/guard/pull/67): Allow Guardfile in $HOME folder. ([@hashrocketeer](https://github.com/hashrocketeer))
+- Pull request [#67](https://github.com/guard/guard/pull/67): Allow Guardfile in `$HOME` folder. ([@hashrocketeer](https://github.com/hashrocketeer))
 - Pull request [#64](https://github.com/guard/guard/pull/64): Windows notifications support. ([@stereobooster](https://github.com/stereobooster))
-- Use ENV['GUARD_NOTIFY"] to disable notifications. ([@thibaudgg](https://github.com/thibaudgg))
+- Use `ENV["GUARD_NOTIFY"]` to disable notifications. ([@thibaudgg](https://github.com/thibaudgg))
 - Cleaning up all specs. ([@netzpirat](https://github.com/netzpirat))
 - Pull request [#60](https://github.com/guard/guard/pull/60): Added Windows support. ([@stereobooster](https://github.com/stereobooster))
 - Pull request [#58](https://github.com/guard/guard/pull/58): Extract code from signal handlers into methods. ([@nicksieger](https://github.com/nicksieger))
@@ -65,7 +65,7 @@
 
 ### Bugs fixes:
 
-- Avoid launching run_on_change guards method when no files matched. --clear guard argument is now usable. ([@thibaudgg](https://github.com/thibaudgg))
+- Avoid launching `run_on_change` guards method when no files matched. `--clear` guard argument is now usable. ([@thibaudgg](https://github.com/thibaudgg))
 
 ### New features:
 
@@ -77,8 +77,8 @@
 
 ### New specs:
 
-- Guard::Watcher. ([@rymai](https://github.com/rymai))
-- Pull request [#13](https://github.com/guard/guard/pull/13): Guard::Dsl. ([@oliamb](https://github.com/oliamb))
+- `Guard::Watcher`. ([@rymai](https://github.com/rymai))
+- Pull request [#13](https://github.com/guard/guard/pull/13): `Guard::Dsl`. ([@oliamb](https://github.com/oliamb))
 
 
 ## 0.2.2 - October 25, 2010
