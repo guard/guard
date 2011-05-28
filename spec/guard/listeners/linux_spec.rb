@@ -16,7 +16,7 @@ describe Guard::Linux do
       subject.should be_usable
     end
 
-    describe "#start" do
+    describe "#start", :long_running => true do
       before(:each) do
         @listener = Guard::Linux.new
       end
@@ -40,7 +40,7 @@ describe Guard::Linux do
 
     end
 
-    describe "#on_change" do
+    describe "#on_change", :long_running=> true do
       before(:each) do
         @results = []
         @listener = Guard::Linux.new
@@ -56,7 +56,7 @@ describe Guard::Linux do
         FileUtils.touch file
         stop
         File.delete file
-        @results.should == ['spec/fixtures/newfile.rb']
+        @results.should == ['fixtures/newfile.rb']
       end
 
       it "catches a single file update" do
@@ -65,7 +65,7 @@ describe Guard::Linux do
         start
         File.open(file, 'w') {|f| f.write('') }
         stop
-        @results.should == ['spec/fixtures/folder1/file1.txt']
+        @results.should == ['fixtures/folder1/file1.txt']
       end
 
       it "catches multiple file updates" do
@@ -77,7 +77,7 @@ describe Guard::Linux do
         File.open(file1, 'w') {|f| f.write('') }
         File.open(file2, 'w') {|f| f.write('') }
         stop
-        @results.should == ['spec/fixtures/folder1/file1.txt', 'spec/fixtures/folder1/folder2/file2.txt']
+        @results.should == ['fixtures/folder1/file1.txt', 'fixtures/folder1/folder2/file2.txt']
       end
 
       it "catches a deleted file" do
@@ -87,7 +87,7 @@ describe Guard::Linux do
         File.delete file
         stop
         FileUtils.touch file
-        @results.should == ['spec/fixtures/folder1/file1.txt']
+        @results.should == ['fixtures/folder1/file1.txt']
       end
 
       it "catches a moved file" do
@@ -99,7 +99,7 @@ describe Guard::Linux do
         FileUtils.mv file1, file2
         stop
         FileUtils.mv file2, file1
-        @results.should == ['spec/fixtures/folder1/file1.txt', 'spec/fixtures/folder1/movedfile1.txt']
+        @results.should == ['fixtures/folder1/file1.txt', 'fixtures/folder1/movedfile1.txt']
       end
 
       it "doesn't process a change when it is stopped" do

@@ -258,7 +258,7 @@ module Guard
       true
     end
 
-    # Called on Ctrl-/ signal
+    # Called on Ctrl-\ signal
     # This method should be principally used for long action like running all specs/tests/...
     def run_all
       true
