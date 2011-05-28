@@ -72,7 +72,7 @@ module Guard
     end
 
     def sha1_checksum(path)
-      ::Digest::SHA1.file(path).to_s
+      Digest::SHA1.file(path).to_s
     end
 
     def self.mac?
