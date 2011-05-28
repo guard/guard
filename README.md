@@ -103,7 +103,7 @@ or if you use Bundler, to run the Guard executable specific to your bundle:
 $ bundle exec guard
 ```
 
-Guard will look for a Guardfile in your current directory. If it does not find one, it will look in your home directory for one.
+Guard will look for a Guardfile in your current directory. If it does not find one, it will look in your `$HOME` directory for one.
 
 Command line options
 --------------------
@@ -212,6 +212,30 @@ group 'frontend' do
 end
 ```
 
+The Guardfile DSL can also be used in a programmatic fashion by calling directly `Guard::Dsl.evaluate_guardfile`.
+Available options are as follow:
+
+* `:guardfile`          - The path to a valid Guardfile.
+* `:guardfile_contents` - A string representing the content of a valid Guardfile
+
+Without any options given, Guard will look for a Guardfile in your current directory and if it does not find one, it will look in your `$HOME` directory for one.
+
+For instance, you could use it as follow:
+
+``` ruby
+require 'guard'
+
+Guard.setup
+
+Guard::Dsl.evaluate_guardfile(:guardfile => '/Your/Custom/Path/To/A/Valid/Guardfile')
+# or
+Guard::Dsl.evaluate_guardfile(:guardfile_contents => "
+  guard 'rspec' do
+    watch(%r{^spec/.+_spec\.rb})
+  end
+")
+```
+
 Create a new guard
 ------------------
 
@@ -304,7 +328,7 @@ Development
 * Report Issues/Questions/Feature requests on [GitHub Issues](https://github.com/guard/guard/issues).
 
 Pull requests are very welcome! Make sure your patches are well tested. Please create a topic branch for every separate change
-you make.
+you make. Please do not change the version in your pull-request.
 
 Author
 ------
