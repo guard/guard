@@ -17,7 +17,7 @@
 - Cleaning up all specs. ([@netzpirat](https://github.com/netzpirat))
 - Pull request [#60](https://github.com/guard/guard/pull/60): Added Windows support. ([@stereobooster](https://github.com/stereobooster))
 - Pull request [#58](https://github.com/guard/guard/pull/58): Extract code from signal handlers into methods. ([@nicksieger](https://github.com/nicksieger))
-- Pull request [#55](https://github.com/guard/guard/pull/55): It is now possible to pass `:guardfile` (a Guardfile path) or `:guardfile_contents` (the content of a Guardfile) to `Guard::Dsl.evaluate_guardfile`. Hence this allows the use of `Guard::Dsl.evaluate_guardfile` in a programmatic manner. ([@anithri](https://github.com/anithri), improved by ([@rymai](https://github.com/rymai))
+- Pull request [#55](https://github.com/guard/guard/pull/55): It is now possible to pass `:guardfile` (a Guardfile path) or `:guardfile_contents` (the content of a Guardfile) to `Guard::Dsl.evaluate_guardfile`. Hence this allows the use of `Guard::Dsl.evaluate_guardfile` in a programmatic manner. ([@anithri](https://github.com/anithri), improved by [@rymai](https://github.com/rymai))
 
 
 ## 0.3.4 - April 24, 2011
