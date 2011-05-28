@@ -1,7 +1,8 @@
 module Guard
   class Dsl
     class << self
-
+      @@options = nil
+      
       # TODO: Add documentation to explain that it is possible to pass `:guardfile` (a Guardfile path)
       # or `:guardfile_contents` (the content of a Guardfile). Hence this allows to use Guard::Dsl.evaluate_guardfile
       # in a programmatic manner
@@ -68,7 +69,7 @@ module Guard
       end
 
       def guardfile_contents
-        @@options[:guardfile_contents]
+        @@options ? @@options[:guardfile_contents] : ""
       end
 
       def guardfile_contents_usable?
