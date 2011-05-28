@@ -13,6 +13,7 @@
 
 - Pull request [#67](https://github.com/guard/guard/pull/67): Allow Guardfile in `$HOME` folder. ([@hashrocketeer](https://github.com/hashrocketeer))
 - Pull request [#64](https://github.com/guard/guard/pull/64): Windows notifications support. ([@stereobooster](https://github.com/stereobooster))
+- Pull request [#63](https://github.com/guard/guard/pull/63): Refactor listeners to work as a library. ([@niklas](https://github.com/niklas))
 - Use `ENV["GUARD_NOTIFY"]` to disable notifications. ([@thibaudgg](https://github.com/thibaudgg))
 - Cleaning up all specs. ([@netzpirat](https://github.com/netzpirat))
 - Pull request [#60](https://github.com/guard/guard/pull/60): Added Windows support. ([@stereobooster](https://github.com/stereobooster))
