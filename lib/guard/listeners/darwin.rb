@@ -2,25 +2,23 @@ module Guard
   class Darwin < Listener
     attr_reader :fsevent
 
-    def initialize
+    def initialize(*)
       super
       @fsevent = FSEvent.new
     end
 
-    def on_change(&callback)
-      @fsevent.watch Dir.pwd do |modified_dirs|
-        files = modified_files(modified_dirs)
-        update_last_event
-        callback.call(files)
-      end
+    def worker
+      @fsevent
     end
 
     def start
-      @fsevent.run
+      super
+      fsevent.run
     end
 
     def stop
-      @fsevent.stop
+      super
+      fsevent.stop
     end
 
     def self.usable?
@@ -34,6 +32,16 @@ module Guard
     rescue LoadError
       UI.info "Please install rb-fsevent gem for Mac OSX FSEvents support"
       false
+    end
+
+  private
+  
+    def watch(directory)
+      worker.watch directory do |modified_dirs|
+        files = modified_files(modified_dirs)
+        update_last_event
+        callback.call(files)
+      end
     end
 
   end

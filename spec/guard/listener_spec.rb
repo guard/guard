@@ -27,6 +27,39 @@ describe Guard::Listener do
       Guard::Linux.should_receive(:new)
       subject.select_and_init
     end
+
+    it "forwards its arguments to the constructor" do
+      subject.stub!(:mac?).and_return(true)
+      Guard::Darwin.stub!(:usable?).and_return(true)
+
+      path, opts = 'path', {:foo => 23}
+      Guard::Darwin.should_receive(:new).with(path, opts).and_return(true)
+      subject.select_and_init path, opts
+    end
+  end
+
+  describe "#all_files" do
+    subject { described_class.new(@fixture_path) }
+
+    it "should return all files" do
+      subject.all_files.should =~ Dir.glob("#{@fixture_path}/**/*")
+    end
+  end
+
+  describe "#relativate_paths" do
+    subject { described_class.new('/tmp') }
+    before :each do
+      @paths = %w( /tmp/a /tmp/a/b /tmp/a.b/c.d )
+    end
+
+    it "should relativate paths to the configured directory" do
+      subject.relativate_paths(@paths).should =~ %w( a a/b a.b/c.d )
+    end
+
+    it "can be disabled" do
+      subject.relativate_paths = false
+      subject.relativate_paths(@paths).should == @paths
+    end
   end
 
   describe "#update_last_event" do
@@ -90,5 +123,40 @@ describe Guard::Listener do
       end
     end
   end
+
+  describe "working directory" do
+
+    context "unspecified" do
+      subject { described_class.new }
+      it "defaults to Dir.pwd" do
+        subject.directory.should == Dir.pwd
+      end
+      it "can be not changed" do
+        subject.should_not respond_to(:directory=)
+      end
+    end
+
+    context "specified as first argument to ::new" do
+      before :each do
+        @wd = @fixture_path.join("folder1")
+      end
+      subject { described_class.new @wd }
+      it "can be inspected" do
+        subject.directory.should == @wd.to_s
+      end
+      it "can be not changed" do
+        subject.should_not respond_to(:directory=)
+      end
+
+      it "will be used to watch" do
+        subject.should_receive(:watch).with(@wd.to_s)
+        @listener = subject # indeed.
+        start
+        stop
+      end
+    end
+
+  end
+
 
 end
