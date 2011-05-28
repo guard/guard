@@ -69,7 +69,7 @@ describe Guard::Listener do
       it "ignores the files for the second time" do
         FileUtils.touch([file1, file2, file3])
         subject.modified_files([@fixture_path.join("folder1/")], {}).should =~ ["spec/fixtures/folder1/deletedfile1.txt", "spec/fixtures/folder1/file1.txt"]
-        sleep 1
+        subject.update_last_event
         FileUtils.touch([file1, file2, file3])
         subject.modified_files([@fixture_path.join("folder1/")], {}).should == []
         sleep 1
@@ -82,7 +82,7 @@ describe Guard::Listener do
       it "identifies the files for the second time" do
         FileUtils.touch([file1, file2, file3])
         subject.modified_files([@fixture_path.join("folder1/")], {}).should =~ ["spec/fixtures/folder1/deletedfile1.txt", "spec/fixtures/folder1/file1.txt"]
-        sleep 1
+        subject.update_last_event
         FileUtils.touch([file2, file3])
         File.open(file1, "w") { |f| f.write("changed content") }
         subject.modified_files([@fixture_path.join("folder1/")], {}).should =~ ["spec/fixtures/folder1/file1.txt"]

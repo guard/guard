@@ -34,7 +34,7 @@ module Guard
     end
 
     def modified_files(dirs, options = {})
-      files = potentially_modified_files(dirs, options).select { |path| File.file?(path) && file_modified?(path) && file_content_modified?(path) }
+      files = potentially_modified_files(dirs, options).select { |path| File.file?(path) && file_modified?(path) }
       files.map! { |file| file.gsub("#{Dir.pwd}/", '') }
     end
 
@@ -45,22 +45,34 @@ module Guard
       Dir.glob(dirs.map { |dir| "#{dir}#{match}" })
     end
 
+    # Depending on the filesystem, mtime is probably only precise to the second, so round
+    # both values down to the second for the comparison.
     def file_modified?(path)
-      # Depending on the filesystem, mtime is probably only precise to the second, so round
-      # both values down to the second for the comparison.
-      File.mtime(path).to_i >= last_event.to_i
+      if File.mtime(path).to_i == last_event.to_i
+        file_content_modified?(path, sha1_checksum(path))
+      elsif File.mtime(path).to_i > last_event.to_i
+        set_sha1_checksums_hash(path, sha1_checksum(path))
+        true
+      end
     rescue
       false
     end
 
-    def file_content_modified?(path)
-      sha1_checksum = ::Digest::SHA1.file(path).to_s
+    def file_content_modified?(path, sha1_checksum)
       if sha1_checksums_hash[path] != sha1_checksum
-        @sha1_checksums_hash[path] = sha1_checksum
+        set_sha1_checksums_hash(path, sha1_checksum)
         true
       else
         false
       end
+    end
+
+    def set_sha1_checksums_hash(path, sha1_checksum)
+      @sha1_checksums_hash[path] = sha1_checksum
+    end
+
+    def sha1_checksum(path)
+      ::Digest::SHA1.file(path).to_s
     end
 
     def self.mac?
