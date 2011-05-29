@@ -11,3 +11,10 @@ def libnotify_installed?
 rescue LoadError
   false
 end
+
+def rbnotifu_installed?
+  require 'rb-notifu'
+  true
+rescue LoadError
+  false
+end

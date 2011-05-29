@@ -1,3 +1,28 @@
+## 0.4.0.rc - May 28, 2011
+
+### Bugs fixes:
+
+- Pull request [#69](https://github.com/guard/guard/pull/69): Fixed typo in README: Ctr-/ => Ctr-\\. ([@tinogomes](https://github.com/tinogomes))
+- Pull request [#66](https://github.com/guard/guard/pull/66): Support for dashes in guard names. ([@johnbintz](https://github.com/johnbintz))
+- Require `guard/ui` because `Guard::Notifier` can be required without full Guard. ([@yannlugrin](https://github.com/yannlugrin))
+- Handled quick file (<1s) modification. Avoid to catch modified files without content modification (sha1 checksum). ([@thibaudgg](https://github.com/thibaudgg) and [@netzpirat](https://github.com/netzpirat))
+- Fixed `Guard::Notifier` (when growl/libnotify not present). ([@thibaudgg](https://github.com/thibaudgg))
+- Fixed Rubygems deprecation messages. ([@thibaudgg](https://github.com/thibaudgg))
+
+### New features:
+
+- Pull request [#67](https://github.com/guard/guard/pull/67): Allow Guardfile in `$HOME` folder. ([@hashrocketeer](https://github.com/hashrocketeer))
+- Pull request [#64](https://github.com/guard/guard/pull/64): Windows notifications support. ([@stereobooster](https://github.com/stereobooster))
+- Pull request [#63](https://github.com/guard/guard/pull/63): Refactor listeners to work as a library. ([@niklas](https://github.com/niklas))
+- Use `ENV["GUARD_NOTIFY"]` to disable notifications. ([@thibaudgg](https://github.com/thibaudgg))
+- Cleaning up all specs. ([@netzpirat](https://github.com/netzpirat))
+- Pull request [#60](https://github.com/guard/guard/pull/60): Added Windows support. ([@stereobooster](https://github.com/stereobooster))
+- Pull request [#58](https://github.com/guard/guard/pull/58): Extract code from signal handlers into methods. ([@nicksieger](https://github.com/nicksieger))
+- Pull request [#55](https://github.com/guard/guard/pull/55): It is now possible to pass `:guardfile` (a Guardfile path) or `:guardfile_contents` (the content of a Guardfile) to `Guard::Dsl.evaluate_guardfile`. Hence this allows the use of `Guard::Dsl.evaluate_guardfile` in a programmatic manner. ([@anithri](https://github.com/anithri), improved by [@rymai](https://github.com/rymai))
+
+
+## 0.3.4 - April 24, 2011
+
 ### Bugs fixes:
 
 - Issue [#41](https://github.com/guard/guard/issues/41): Removed useless Bundler requirement. ([@thibaudgg](https://github.com/thibaudgg))
@@ -20,7 +45,7 @@
 
 ### Bugs fixes:
 
-- Pull request [#43](https://github.com/guard/guard/issues/43): Fixed `guard init` command. ([@brainopia](https://github.com/brainopia))
+- Pull request [#43](https://github.com/guard/guard/pull/43): Fixed `guard init` command. ([@brainopia](https://github.com/brainopia))
 
 
 ## 0.3.1 - April 14, 2011
@@ -41,21 +66,20 @@
 
 ### Bugs fixes:
 
-- Avoid launching run_on_change guards method when no files matched. --clear guard argument is now usable. ([@thibaudgg](https://github.com/thibaudgg))
+- Avoid launching `run_on_change` guards method when no files matched. `--clear` guard argument is now usable. ([@thibaudgg](https://github.com/thibaudgg))
 
 ### New features:
 
 - The whole directory is now watched during `run_on_change` to detect new files modifications. ([@thibaudgg](https://github.com/thibaudgg))
-- Pull request [#26](https://github.com/guard/guard/issues/26): New DSL method: `group` allows you to group several guards. ([@netzpirat](https://github.com/netzpirat))
-- Pull request [#26](https://github.com/guard/guard/issues/26): New CLI option: `--group group_name` to specify certain groups of guards to start. ([@netzpirat](https://github.com/netzpirat))
+- Pull request [#26](https://github.com/guard/guard/pull/26): New DSL method: `group` allows you to group several guards. New CLI option: `--group group_name` to specify certain groups of guards to start. ([@netzpirat](https://github.com/netzpirat))
 - `watch` patterns are now more strict: strings are matched with `String#==`, `Regexp` are matched with `Regexp#match`. ([@rymai](https://github.com/rymai))
 - A deprecation warning is displayed if your `Guardfile` contains `String` that look like `Regexp` (bad!). ([@rymai](https://github.com/rymai))
 - It's now possible to return an `Enumerable` in the `watch` optional blocks in the `Guardfile`. ([@rymai](https://github.com/rymai))
 
 ### New specs:
 
-- Guard::Watcher. ([@rymai](https://github.com/rymai))
-- Pull request [#13](https://github.com/guard/guard/issues/13): Guard::Dsl. ([@oliamb](https://github.com/oliamb))
+- `Guard::Watcher`. ([@rymai](https://github.com/rymai))
+- Pull request [#13](https://github.com/guard/guard/pull/13): `Guard::Dsl`. ([@oliamb](https://github.com/oliamb))
 
 
 ## 0.2.2 - October 25, 2010
@@ -69,8 +93,8 @@
 
 ### Bugs fixes:
 
-- Pull request [#7](https://github.com/guard/guard/issues/7): Fixes for Linux support. ([@yannlugrin](https://github.com/yannlugrin)))
-- Pull request [#6](https://github.com/guard/guard/issues/6): Locate guard now chomp newline in result path. ([@yannlugrin](https://github.com/yannlugrin)))
+- Pull request [#7](https://github.com/guard/guard/pull/7): Fixes for Linux support. ([@yannlugrin](https://github.com/yannlugrin)))
+- Pull request [#6](https://github.com/guard/guard/pull/6): Locate guard now chomp newline in result path. ([@yannlugrin](https://github.com/yannlugrin)))
 
 
 ## 0.2.0 - October 21, 2010

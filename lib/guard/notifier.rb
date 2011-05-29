@@ -16,6 +16,8 @@ module Guard
         require_growl
       when /linux/i
         require_libnotify
+      when /mswin|mingw/i
+        require_rbnotifu
       end
     end
 
@@ -30,6 +32,9 @@ module Guard
         when /linux/i
           require_libnotify # need for guard-rspec formatter that is called out of guard scope
           Libnotify.show :body => message, :summary => title, :icon_path => image_path(image)
+        when /mswin|mingw/i
+          require_rbnotifu
+          Notifu.show :message => message, :title => title, :type => image_level(image), :time => 3
         end
       end
     end
@@ -55,6 +60,19 @@ module Guard
       end
     end
 
+    def self.image_level(image)
+      case image
+      when :failed
+        :error
+      when :pending
+        :warn
+      when :success
+        :info
+      else
+        :info
+      end
+    end
+    
     def self.require_growl
       require 'growl'
     rescue LoadError
@@ -69,5 +87,11 @@ module Guard
       UI.info "Please install libnotify gem for Linux notification support and add it to your Gemfile"
     end
 
+    def self.require_rbnotifu
+      require 'rb-notifu'
+    rescue LoadError
+      turn_off
+      UI.info "Please install rb-notifu gem for Windows notification support and add it to your Gemfile"
+    end
   end
 end

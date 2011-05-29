@@ -36,6 +36,8 @@ Generate an empty Guardfile with:
 $ guard init
 ```
 
+You may optionally place this Guardfile in your home directory to use it across multiple projects.
+
 Add the guards you need to your Guardfile (see the existing guards below).
 
 ### On Mac OS X
@@ -101,6 +103,8 @@ or if you use Bundler, to run the Guard executable specific to your bundle:
 $ bundle exec guard
 ```
 
+Guard will look for a Guardfile in your current directory. If it does not find one, it will look in your `$HOME` directory for one.
+
 Command line options
 --------------------
 
@@ -118,7 +122,7 @@ $ guard --notify false
 $ guard -n f # shortcut
 ```
 
-Notifications can also be disabled by setting a `GUARD_NOTIFY` environment variable to `false`
+Notifications can also be disabled globally by setting a `GUARD_NOTIFY` environment variable to `false`
 
 The guards to start can be specified by group (see the Guardfile DSL below) specifying the `--group` (or `-g`) option:
 
@@ -208,6 +212,31 @@ group 'frontend' do
 end
 ```
 
+The Guardfile DSL can also be used in a programmatic fashion by calling directly `Guard::Dsl.evaluate_guardfile`.
+Available options are as follow:
+
+* `:guardfile`          - The path to a valid Guardfile.
+* `:guardfile_contents` - A string representing the content of a valid Guardfile
+
+Without any options given, Guard will look for a Guardfile in your current directory and if it does not find one, it will look in your `$HOME` directory for one.
+
+For instance, you could use it as follow:
+
+``` ruby
+gem 'guard'
+require 'guard'
+
+Guard.setup
+
+Guard::Dsl.evaluate_guardfile(:guardfile => '/Your/Custom/Path/To/A/Valid/Guardfile')
+# or
+Guard::Dsl.evaluate_guardfile(:guardfile_contents => "
+  guard 'rspec' do
+    watch(%r{^spec/.+_spec\.rb})
+  end
+")
+```
+
 Create a new guard
 ------------------
 
@@ -258,7 +287,7 @@ module Guard
       true
     end
 
-    # Called on Ctrl-/ signal
+    # Called on Ctrl-\ signal
     # This method should be principally used for long action like running all specs/tests/...
     def run_all
       true
@@ -300,7 +329,7 @@ Development
 * Report Issues/Questions/Feature requests on [GitHub Issues](https://github.com/guard/guard/issues).
 
 Pull requests are very welcome! Make sure your patches are well tested. Please create a topic branch for every separate change
-you make.
+you make. Please do not change the version in your pull-request.
 
 Author
 ------

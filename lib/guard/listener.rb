@@ -9,24 +9,37 @@ module Guard
   autoload :Polling, 'guard/listeners/polling'
 
   class Listener
-    attr_reader :last_event, :sha1_checksums_hash
+    attr_reader :last_event, :sha1_checksums_hash, :directory, :callback
 
-    def self.select_and_init
+    def self.select_and_init(*a)
       if mac? && Darwin.usable?
-        Darwin.new
+        Darwin.new(*a)
       elsif linux? && Linux.usable?
-        Linux.new
+        Linux.new(*a)
       elsif windows? && Windows.usable?
-        Windows.new
+        Windows.new(*a)
       else
         UI.info "Using polling (Please help us to support your system better than that.)"
-        Polling.new
+        Polling.new(*a)
       end
     end
 
-    def initialize
+    def initialize(directory=Dir.pwd, options={})
+      @directory = directory.to_s
       @sha1_checksums_hash = {}
+      @relativate_paths = options.fetch(:relativate_paths, true)
       update_last_event
+    end
+
+    def start
+      watch directory
+    end
+
+    def stop
+    end
+
+    def on_change(&callback)
+      @callback = callback
     end
 
     def update_last_event
@@ -34,9 +47,41 @@ module Guard
     end
 
     def modified_files(dirs, options = {})
-      files = potentially_modified_files(dirs, options).select { |path| File.file?(path) && file_modified?(path) && file_content_modified?(path) }
-      files.map! { |file| file.gsub("#{Dir.pwd}/", '') }
+# <<<<<<< HEAD
+#       files = potentially_modified_files(dirs, options).select { |path| File.file?(path) && file_modified?(path) }
+#       files.map! { |file| file.gsub("#{Dir.pwd}/", '') }
+# =======
+      files = potentially_modified_files(dirs, options).select { |path| File.file?(path) && file_modified?(path) }
+      relativate_paths files
     end
+
+    def worker
+      raise NotImplementedError, "should respond to #watch"
+    end
+
+    # register a directory to watch. must be implemented by the subclasses
+    def watch(directory)
+      raise NotImplementedError, "do whatever you want here, given the directory as only argument"
+    end
+
+    def all_files
+      potentially_modified_files [directory + '/'], :all => true
+# >>>>>>> b12769d2bf385b3c69973721144cae3d5d8fbed9
+    end
+
+    # scopes all given paths to the current #directory
+    def relativate_paths(paths)
+      return paths unless relativate_paths?
+      paths.map do |path|
+        path.gsub(%r~^#{directory}/~, '')
+      end
+    end
+
+    attr_writer :relativate_paths
+    def relativate_paths?
+      !!@relativate_paths
+    end
+
 
   private
 
@@ -45,22 +90,34 @@ module Guard
       Dir.glob(dirs.map { |dir| "#{dir}#{match}" })
     end
 
+    # Depending on the filesystem, mtime is probably only precise to the second, so round
+    # both values down to the second for the comparison.
     def file_modified?(path)
-      # Depending on the filesystem, mtime is probably only precise to the second, so round
-      # both values down to the second for the comparison.
-      File.mtime(path).to_i >= last_event.to_i
+      if File.mtime(path).to_i == last_event.to_i
+        file_content_modified?(path, sha1_checksum(path))
+      elsif File.mtime(path).to_i > last_event.to_i
+        set_sha1_checksums_hash(path, sha1_checksum(path))
+        true
+      end
     rescue
       false
     end
 
-    def file_content_modified?(path)
-      sha1_checksum = ::Digest::SHA1.file(path).to_s
+    def file_content_modified?(path, sha1_checksum)
       if sha1_checksums_hash[path] != sha1_checksum
-        @sha1_checksums_hash[path] = sha1_checksum
+        set_sha1_checksums_hash(path, sha1_checksum)
         true
       else
         false
       end
+    end
+
+    def set_sha1_checksums_hash(path, sha1_checksum)
+      @sha1_checksums_hash[path] = sha1_checksum
+    end
+
+    def sha1_checksum(path)
+      Digest::SHA1.file(path).to_s
     end
 
     def self.mac?
