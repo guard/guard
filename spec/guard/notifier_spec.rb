@@ -63,6 +63,8 @@ describe Guard::Notifier do
         Growl = Object.new
       end
 
+      around { Object.send(:remove_const, :Growl) if defined?(Growl) }
+
       it "passes the notification to Growl" do
         Growl.should_receive(:notify).with("great",
           :title => "Guard",
@@ -70,6 +72,25 @@ describe Guard::Notifier do
           :name  => "Guard"
         )
         subject.notify 'great', :title => 'Guard'
+      end
+
+      it "allows additional notification options" do
+        Growl.should_receive(:notify).with("great",
+          :title => "Guard",
+          :icon  => Pathname.new(File.dirname(__FILE__)).join('../../images/success.png').to_s,
+          :name  => "Guard",
+          :priority => 1
+        )
+        subject.notify 'great', :title => 'Guard', :priority => 1
+      end
+
+      it "allows to overwrite a default notification option" do
+        Growl.should_receive(:notify).with("great",
+          :title => "Guard",
+          :icon  => Pathname.new(File.dirname(__FILE__)).join('../../images/success.png').to_s,
+          :name  => "Guard-Cucumber"
+        )
+        subject.notify 'great', :title => 'Guard', :name => "Guard-Cucumber"
       end
     end
 
@@ -80,6 +101,8 @@ describe Guard::Notifier do
         Libnotify = Object.new
       end
 
+      around { Object.send(:remove_const, :Libnotify) if defined?(Libnotify) }
+
       it "passes the notification to Libnotify" do
         Libnotify.should_receive(:show).with(
           :body      => "great",
@@ -87,6 +110,25 @@ describe Guard::Notifier do
           :icon_path => Pathname.new(File.dirname(__FILE__)).join('../../images/success.png').to_s
         )
         subject.notify 'great', :title => 'Guard'
+      end
+
+      it "allows additional notification options" do
+        Libnotify.should_receive(:show).with(
+          :body      => "great",
+          :summary   => 'Guard',
+          :icon_path => Pathname.new(File.dirname(__FILE__)).join('../../images/success.png').to_s,
+          :urgency    => :critical
+        )
+        subject.notify 'great', :title => 'Guard', :urgency => :critical
+      end
+
+      it "allows to overwrite a default notification option" do
+        Libnotify.should_receive(:show).with(
+          :body      => "great",
+          :summary   => 'Guard',
+          :icon_path => '~/.guard/success.png'
+        )
+        subject.notify 'great', :title => 'Guard', :icon_path => '~/.guard/success.png'
       end
     end
 
@@ -97,6 +139,8 @@ describe Guard::Notifier do
         Notifu = Object.new
       end
 
+      around { Object.send(:remove_const, :Notifu) if defined?(Notify) }
+
       it "passes the notification to rb-notifu" do
         Notifu.should_receive(:show).with(
           :message   => "great",
@@ -105,6 +149,27 @@ describe Guard::Notifier do
           :time      => 3
         )
         subject.notify 'great', :title => 'Guard'
+      end
+
+      it "allows additional notification options" do
+        Notifu.should_receive(:show).with(
+          :message   => "great",
+          :title     => 'Guard',
+          :type      => :info,
+          :time      => 3,
+          :nosound   => true
+        )
+        subject.notify 'great', :title => 'Guard', :nosound => true
+      end
+
+      it "allows to overwrite a default notification option" do
+        Notifu.should_receive(:show).with(
+          :message   => "great",
+          :title     => 'Guard',
+          :type      => :info,
+          :time      => 10
+        )
+        subject.notify 'great', :title => 'Guard', :time => 10
       end
     end
   end
