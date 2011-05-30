@@ -15,39 +15,69 @@ describe Guard::Notifier do
   end
 
   describe ".turn_on" do
-    before do
-      ENV["GUARD_NOTIFY"] = 'false'
-    end
-
-    it "enables the notifications" do
-      subject.turn_on
-      ENV["GUARD_NOTIFY"].should eql 'true'
-    end
-
     context "on Mac OS" do
-      before { Config::CONFIG.should_receive(:[]).with('target_os').and_return 'darwin' }
+      before do
+        Config::CONFIG.should_receive(:[]).with('target_os').and_return 'darwin'
+      end
 
-      it "tries to load Growl" do
-        subject.should_receive(:require_growl)
-        subject.turn_on
+      context "with the Growl library available" do
+        it "loads the library and enables the notifications" do
+          subject.should_receive(:require).with('growl').and_return true
+          subject.turn_on
+          subject.should be_enabled
+        end
+      end
+
+      context "without the Growl library available" do
+        it "disables the notifications" do
+          subject.should_receive(:require).with('growl').and_raise LoadError
+          subject.turn_on
+          subject.should_not be_enabled
+        end
       end
     end
 
     context "on Linux" do
-      before { Config::CONFIG.should_receive(:[]).with('target_os').and_return 'linux' }
+      before do
+        Config::CONFIG.should_receive(:[]).with('target_os').and_return 'linux'
+      end
 
-      it "tries to load Libnotify" do
-        subject.should_receive(:require_libnotify)
-        subject.turn_on
+      context "with the Libnotify library available" do
+        it "loads the library and enables the notifications" do
+          subject.should_receive(:require).with('libnotify').and_return true
+          subject.turn_on
+          subject.should be_enabled
+        end
+      end
+
+      context "without the Libnotify library available" do
+        it "disables the notifications" do
+          subject.should_receive(:require).with('libnotify').and_raise LoadError
+          subject.turn_on
+          subject.should_not be_enabled
+        end
       end
     end
 
     context "on Windows" do
-      before { Config::CONFIG.should_receive(:[]).with('target_os').and_return 'mswin' }
+      before do
+        Config::CONFIG.should_receive(:[]).with('target_os').and_return 'mswin'
+      end
 
-      it "tries to load rb-notifu" do
-        subject.should_receive(:require_rbnotifu)
-        subject.turn_on
+      context "with the rb-notifu library available" do
+        it "loads the library and enables the notifications" do
+          subject.should_receive(:require).with('rb-notifu').and_return true
+          subject.turn_on
+          subject.should be_enabled
+        end
+      end
+
+      context "without the rb-notify library available" do
+        it "disables the notifications" do
+          subject.should_receive(:require).with('rb-notifu').and_raise LoadError
+          subject.turn_on
+          subject.should_not be_enabled
+        end
       end
     end
   end
