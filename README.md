@@ -146,6 +146,8 @@ Signal handlers are used to interact with Guard:
 * `Ctrl-\` - Calls each guard's `run_all` method, in the same order they are declared in the Guardfile.
 * `Ctrl-Z` - Calls each guard's `reload` method, in the same order they are declared in the Guardfile.
 
+You can read more about [configure the signal keyboard shortcuts](https://github.com/guard/guard/wiki/Configure-keyboard-shortcuts) on the wiki.
+
 Available Guards
 ----------------
 
