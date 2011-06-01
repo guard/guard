@@ -3,7 +3,7 @@ Guard [![Build Status](http://travis-ci.org/guard/guard.png)](http://travis-ci.o
 
 Guard is a command line tool that easily handle events on files modifications.
 
-If you have any questions/issues please join us on [guard-dev Google group](http://groups.google.com/group/guard-dev) or on [irc.freenode.net/guard](irc://irc.freenode.net/guard).
+If you have any questions/issues please join us on our [Google group](http://groups.google.com/group/guard-dev) or on `#guard` (irc.freenode.net).
 
 Features
 --------
