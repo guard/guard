@@ -1,5 +1,9 @@
 ## Master
 
+### Bugs fixes:
+
+- In Ruby < 1.9, Symbol#downcase doesn't exist! ([@rymai](https://github.com/rymai))
+
 ### New features:
 
 - Pull request [#73](https://github.com/guard/guard/pull/73): Allow DSL's `group` method to accept a Symbol as group name. ([@johnbintz](https://github.com/johnbintz))

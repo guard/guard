@@ -88,6 +88,19 @@ describe Guard do
       end
     end
   end
+  
+  describe ".try_to_load_gem" do
+    class Guard::Classname
+    end
+    
+    it "reports an error if the class is not found" do
+      Guard.get_guard_class('classname').should be_true
+    end
+    
+    it "reports an error if the class is not found" do
+      Guard.get_guard_class(:classname).should be_true
+    end
+  end
 
   describe ".locate_guard" do
     it "returns the path of a Guard gem" do
