@@ -251,7 +251,7 @@ private
   end
 
   def valid_guardfile_string
-   "group 'x' do
+   "group :x do
       guard 'test' do
         watch('c')
       end
