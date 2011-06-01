@@ -3,6 +3,8 @@ Guard [![Build Status](http://travis-ci.org/guard/guard.png)](http://travis-ci.o
 
 Guard is a command line tool that easily handle events on files modifications.
 
+If you have any questions/issues please join us on our [Google group](http://groups.google.com/group/guard-dev) or on `#guard` (irc.freenode.net).
+
 Features
 --------
 
@@ -145,6 +147,8 @@ Signal handlers are used to interact with Guard:
 * `Ctrl-C` - Calls each guard's `stop` method, in the same order they are declared in the Guardfile, and then quits Guard itself.
 * `Ctrl-\` - Calls each guard's `run_all` method, in the same order they are declared in the Guardfile.
 * `Ctrl-Z` - Calls each guard's `reload` method, in the same order they are declared in the Guardfile.
+
+You can read more about [configure the signal keyboard shortcuts](https://github.com/guard/guard/wiki/Configure-keyboard-shortcuts) on the wiki.
 
 Available Guards
 ----------------
@@ -326,7 +330,7 @@ Development
 -----------
 
 * Source hosted at [GitHub](https://github.com/guard/guard).
-* Report Issues/Questions/Feature requests on [GitHub Issues](https://github.com/guard/guard/issues).
+* Report Issues/Feature requests on [GitHub Issues](https://github.com/guard/guard/issues).
 
 Pull requests are very welcome! Make sure your patches are well tested. Please create a topic branch for every separate change
 you make. Please do not change the version in your pull-request.

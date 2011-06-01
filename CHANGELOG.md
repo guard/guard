@@ -1,3 +1,9 @@
+## Master
+
+### New features:
+
+- Pull request [#51](https://github.com/guard/guard/pull/51): Allow options (like :priority) to be passed through to the Notifier ([@indirect](https://github.com/indirect) and [@netzpirat](https://github.com/netzpirat))
+
 ## 0.4.0.rc - May 28, 2011
 
 ### Bugs fixes:
