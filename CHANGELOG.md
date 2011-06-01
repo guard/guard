@@ -2,7 +2,8 @@
 
 ### New features:
 
-- Pull request [#51](https://github.com/guard/guard/pull/51): Allow options (like :priority) to be passed through to the Notifier ([@indirect](https://github.com/indirect) and [@netzpirat](https://github.com/netzpirat))
+- Pull request [#73](https://github.com/guard/guard/pull/73): Allow DSL's `group` method to accept a Symbol as group name. ([@johnbintz](https://github.com/johnbintz))
+- Pull request [#51](https://github.com/guard/guard/pull/51): Allow options (like :priority) to be passed through to the Notifier. ([@indirect](https://github.com/indirect) and [@netzpirat](https://github.com/netzpirat))
 
 ## 0.4.0.rc - May 28, 2011
 
