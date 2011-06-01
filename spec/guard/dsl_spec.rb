@@ -186,7 +186,11 @@ describe Guard::Dsl do
   end
 
   describe "#group" do
-    it "should evaluates only the specified group" do
+    it "should evaluates only the specified string group" do
+      ::Guard.should_receive(:add_guard).with('test', anything, {})
+      lambda { subject.evaluate_guardfile(:guardfile_contents => valid_guardfile_string, :group => ['w']) }.should_not raise_error
+    end
+    it "should evaluates only the specified symbol group" do
       ::Guard.should_receive(:add_guard).with('test', anything, {})
       lambda { subject.evaluate_guardfile(:guardfile_contents => valid_guardfile_string, :group => ['x']) }.should_not raise_error
     end
@@ -251,7 +255,13 @@ private
   end
 
   def valid_guardfile_string
-   "group :x do
+   "group 'w' do
+      guard 'test' do
+        watch('c')
+      end
+    end
+
+    group :x do
       guard 'test' do
         watch('c')
       end
