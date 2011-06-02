@@ -9,6 +9,10 @@
 - Pull request [#73](https://github.com/guard/guard/pull/73): Allow DSL's `group` method to accept a Symbol as group name. ([@johnbintz][])
 - Pull request [#51](https://github.com/guard/guard/pull/51): Allow options (like :priority) to be passed through to the Notifier. ([@indirect][] and [@netzpirat][])
 
+### Improvements
+
+- Pull request [#74](https://github.com/guard/guard/pull/74): Added link definitions to make the CHANGELOG more DRY! That's for sure now, we have the cleanest CHANGELOG ever! (even the link definitions are sorted alphabetically!) ([@pcreux][])
+
 ## 0.4.0.rc - May 28, 2011
 
 ### Bugs fixes:
@@ -136,6 +140,7 @@
 [@nicksieger]: https://github.com/nicksieger
 [@niklas]: https://github.com/niklas
 [@oliamb]: https://github.com/oliamb
+[@pcreux]: https://github.com/pcreux
 [@rymai]: https://github.com/rymai
 [@stereobooster]: https://github.com/stereobooster
 [@stouset]: https://github.com/stouset
