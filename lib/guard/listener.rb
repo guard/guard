@@ -47,10 +47,6 @@ module Guard
     end
 
     def modified_files(dirs, options = {})
-# <<<<<<< HEAD
-#       files = potentially_modified_files(dirs, options).select { |path| File.file?(path) && file_modified?(path) }
-#       files.map! { |file| file.gsub("#{Dir.pwd}/", '') }
-# =======
       files = potentially_modified_files(dirs, options).select { |path| File.file?(path) && file_modified?(path) }
       relativate_paths files
     end
@@ -66,7 +62,6 @@ module Guard
 
     def all_files
       potentially_modified_files [directory + '/'], :all => true
-# >>>>>>> b12769d2bf385b3c69973721144cae3d5d8fbed9
     end
 
     # scopes all given paths to the current #directory
