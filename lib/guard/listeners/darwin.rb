@@ -23,19 +23,17 @@ module Guard
 
     def self.usable?
       require 'rb-fsevent'
-      if !defined?(FSEvent::VERSION) || Gem::Version.new(FSEvent::VERSION) < Gem::Version.new('0.3.9')
-        UI.info "Please update rb-fsevent (>= 0.3.9)"
-        false
-      else
-        true
+      if !defined?(FSEvent::VERSION) || Gem::Version.new(FSEvent::VERSION) < Gem::Version.new('0.4.0')
+        UI.info "Please update rb-fsevent (>= 0.4.0)"
       end
+      true
     rescue LoadError
       UI.info "Please install rb-fsevent gem for Mac OSX FSEvents support"
       false
     end
 
   private
-  
+
     def watch(directory)
       worker.watch directory do |modified_dirs|
         files = modified_files(modified_dirs)
