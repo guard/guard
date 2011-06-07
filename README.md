@@ -90,6 +90,18 @@ Install the rb-fchange gem for [Directory Change Notification](http://msdn.micro
 $ gem install rb-fchange
 ```
 
+Install the Notifu gem if you want notification support:
+
+``` bash
+$ gem install rb-notifu
+```
+
+And add it to you Gemfile:
+
+``` ruby
+gem 'rb-notifu'
+```
+
 Usage
 -----
 
