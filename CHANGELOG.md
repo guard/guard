@@ -1,3 +1,7 @@
+### Improvements
+
+- Notifier improvement, don't use system notification library if could not be required ([@yannlugrin][])
+
 ## 0.4.0 - June 5, 2011
 
 ### Bugs fixes:
