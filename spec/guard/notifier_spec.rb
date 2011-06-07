@@ -83,8 +83,7 @@ describe Guard::Notifier do
   end
 
   describe ".notify" do
-    before { subject.turn_on }
-    after  { subject.turn_off }
+    before { subject.stub(:enabled?).and_return(true) }
 
     context "on Mac OS" do
       before do
