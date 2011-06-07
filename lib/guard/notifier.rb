@@ -46,19 +46,19 @@ module Guard
     def self.notify_mac(title, message, image, options)
       require_growl # need for guard-rspec formatter that is called out of guard scope
       default_options = { :title => title, :icon => image_path(image), :name => "Guard" }
-      Growl.notify message, default_options.merge(options)
+      Growl.notify message, default_options.merge(options) if enabled?
     end
 
     def self.notify_linux(title, message, image, options)
       require_libnotify # need for guard-rspec formatter that is called out of guard scope
       default_options = { :body => message, :summary => title, :icon_path => image_path(image) }
-      Libnotify.show default_options.merge(options)
+      Libnotify.show default_options.merge(options) if enabled?
     end
 
     def self.notify_windows(title, message, image, options)
       require_rbnotifu # need for guard-rspec formatter that is called out of guard scope
       default_options = { :message => message, :title => title, :type => image_level(image), :time => 3 }
-      Notifu.show default_options.merge(options)
+      Notifu.show default_options.merge(options) if enabled?
     end
 
     def self.image_path(image)

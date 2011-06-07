@@ -107,6 +107,12 @@ describe Guard::Notifier do
         subject.notify 'great', :title => 'Guard'
       end
 
+      it "don't passes the notification to Growl if library is not available" do
+        Growl.should_not_receive(:notify)
+        subject.should_receive(:enabled?).and_return(true, false)
+        subject.notify 'great', :title => 'Guard'
+      end
+
       it "allows additional notification options" do
         Growl.should_receive(:notify).with("great",
           :title => "Guard",
@@ -145,6 +151,12 @@ describe Guard::Notifier do
           :summary   => 'Guard',
           :icon_path => Pathname.new(File.dirname(__FILE__)).join('../../images/success.png').to_s
         )
+        subject.notify 'great', :title => 'Guard'
+      end
+
+      it "don't passes the notification to Libnotify if library is not available" do
+        Libnotify.should_not_receive(:show)
+        subject.should_receive(:enabled?).and_return(true, false)
         subject.notify 'great', :title => 'Guard'
       end
 
@@ -187,6 +199,12 @@ describe Guard::Notifier do
           :type      => :info,
           :time      => 3
         )
+        subject.notify 'great', :title => 'Guard'
+      end
+
+      it "don't passes the notification to rb-notifu if library is not available" do
+        Notifu.should_not_receive(:show)
+        subject.should_receive(:enabled?).and_return(true, false)
         subject.notify 'great', :title => 'Guard'
       end
 
