@@ -90,10 +90,13 @@ describe Guard::Notifier do
       before do
         Config::CONFIG.should_receive(:[]).with('target_os').and_return 'darwin'
         subject.stub(:require_growl)
+        Object.send(:remove_const, :Growl) if defined?(Growl)
         Growl = Object.new
       end
 
-      around { Object.send(:remove_const, :Growl) if defined?(Growl) }
+      after do
+        Object.send(:remove_const, :Growl)
+      end
 
       it "passes the notification to Growl" do
         Growl.should_receive(:notify).with("great",
@@ -128,10 +131,13 @@ describe Guard::Notifier do
       before do
         Config::CONFIG.should_receive(:[]).with('target_os').and_return 'linux'
         subject.stub(:require_libnotify)
+        Object.send(:remove_const, :Libnotify) if defined?(Libnotify)
         Libnotify = Object.new
       end
 
-      around { Object.send(:remove_const, :Libnotify) if defined?(Libnotify) }
+      after do
+        Object.send(:remove_const, :Libnotify)
+      end
 
       it "passes the notification to Libnotify" do
         Libnotify.should_receive(:show).with(
@@ -166,10 +172,13 @@ describe Guard::Notifier do
       before do
         Config::CONFIG.should_receive(:[]).with('target_os').and_return 'mswin'
         subject.stub(:require_rbnotifu)
+        Object.send(:remove_const, :Notifu) if defined?(Notifu)
         Notifu = Object.new
       end
 
-      around { Object.send(:remove_const, :Notifu) if defined?(Notify) }
+      after do
+        Object.send(:remove_const, :Notifu)
+      end
 
       it "passes the notification to rb-notifu" do
         Notifu.should_receive(:show).with(
