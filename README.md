@@ -56,9 +56,10 @@ Install the Growl gem if you want notification support:
 $ gem install growl
 ```
 
-And add it to you Gemfile:
+And add them to your Gemfile:
 
 ``` ruby
+gem 'rb-fsevent'
 gem 'growl'
 ```
 
@@ -76,9 +77,10 @@ Install the Libnotify gem if you want notification support:
 $ gem install libnotify
 ```
 
-And add it to you Gemfile:
+And add them to your Gemfile:
 
 ``` ruby
+gem 'rb-inotify'
 gem 'libnotify'
 ```
 
@@ -96,9 +98,10 @@ Install the Notifu gem if you want notification support:
 $ gem install rb-notifu
 ```
 
-And add it to you Gemfile:
+And add them to your Gemfile:
 
 ``` ruby
+gem 'rb-fchange'
 gem 'rb-notifu'
 ```
 
