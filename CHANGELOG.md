@@ -143,6 +143,7 @@
 [@johnbintz]: https://github.com/johnbintz
 [@jrsacks]: https://github.com/jrsacks
 [@koshigoe]: https://github.com/koshigoe
+[@mislav]: https://github.com/mislav
 [@netzpirat]: https://github.com/netzpirat
 [@nicksieger]: https://github.com/nicksieger
 [@niklas]: https://github.com/niklas
