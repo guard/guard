@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'guard/guard'
 
 describe Guard do
 
@@ -41,35 +42,41 @@ describe Guard do
   end
 
   describe ".get_guard_class" do
+    after do
+      [:Classname, :DashedClassName, :Inline].each do |const|
+        Guard.send(:remove_const, const) rescue nil
+      end
+    end
+
     it "reports an error if the class is not found" do
       ::Guard::UI.should_receive(:error)
       Guard.get_guard_class('notAGuardClass')
     end
 
     context 'with a nested Guard class' do
-      it "returns the Guard class when passed a Symbol" do
-        Guard.should_receive(:try_to_load_gem) { |classname|
-          classname.should == :classname
-          class Guard::Classname
-          end
-        }
-        Guard.get_guard_class(:classname).should == Guard::Classname
-      end
-      
-      it "returns the Guard class when passed a String" do
-        Guard.should_receive(:try_to_load_gem) { |classname|
-          classname.should == 'classname'
+      it "resolves the Guard class from string" do
+        Guard.should_receive(:require) { |classname|
+          classname.should == 'guard/classname'
           class Guard::Classname
           end
         }
         Guard.get_guard_class('classname').should == Guard::Classname
       end
+
+      it "resolves the Guard class from symbol" do
+        Guard.should_receive(:require) { |classname|
+          classname.should == 'guard/classname'
+          class Guard::Classname
+          end
+        }
+        Guard.get_guard_class(:classname).should == Guard::Classname
+      end
     end
 
     context 'with a name with dashes' do
       it "returns the Guard class" do
-        Guard.should_receive(:try_to_load_gem) { |classname|
-          classname.should == 'dashed-class-name'
+        Guard.should_receive(:require) { |classname|
+          classname.should == 'guard/dashed-class-name'
           class Guard::DashedClassName
           end
         }
@@ -84,21 +91,9 @@ describe Guard do
           end
         end
 
+        Guard.should_not_receive(:require)
         Guard.get_guard_class('inline').should == Guard::Inline
       end
-    end
-  end
-  
-  describe ".try_to_load_gem" do
-    class Guard::Classname
-    end
-    
-    it "reports an error if the class is not found" do
-      Guard.get_guard_class('classname').should be_true
-    end
-    
-    it "reports an error if the class is not found" do
-      Guard.get_guard_class(:classname).should be_true
     end
   end
 
