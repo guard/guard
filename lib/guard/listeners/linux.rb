@@ -24,10 +24,13 @@ module Guard
 
     def self.usable?
       require 'rb-inotify'
-      if !defined?(INotify::VERSION) || Gem::Version.new(INotify::VERSION.join('.')) < Gem::Version.new('0.8.5')
+      if !defined?(INotify::VERSION) || (defined?(Gem::Version) &&
+          Gem::Version.new(INotify::VERSION.join('.')) < Gem::Version.new('0.8.5'))
         UI.info "Please update rb-inotify (>= 0.8.5)"
+        false
+      else
+        true
       end
-      true
     rescue LoadError
       UI.info "Please install rb-inotify gem for Linux inotify support"
       false
