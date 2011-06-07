@@ -1,5 +1,8 @@
+## 0.4.1 - June 7, 2011
+
 ### Improvements
 
+- Pull request [#77](https://github.com/guard/guard/pull/77): Refactor `get_guard_class` to first try the constant and fallback to require + various tweaks ([@mislav][])
 - Notifier improvement, don't use system notification library if could not be required ([@yannlugrin][])
 
 ## 0.4.0 - June 5, 2011
