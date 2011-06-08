@@ -4,12 +4,19 @@
 
 - Clear the terminal on start when the `:clear` option is given. ([@rymai][])
 
+## 0.4.2 - June 7, 2011
+
+### Bugs fixes:
+
+- Fixed Guard::Version in ruby 1.8.7 ([@thibaudgg][])
+- Fix ([@mislav][]) link in CHANGELOG (this is a recursive CHANGELOG item :P). ([@fnichol][])
+
 ## 0.4.1 - June 7, 2011
 
 ### Improvements
 
-- Pull request [#77](https://github.com/guard/guard/pull/77): Refactor `get_guard_class` to first try the constant and fallback to require + various tweaks ([@mislav][])
-- Notifier improvement, don't use system notification library if could not be required ([@yannlugrin][])
+- Pull request [#77](https://github.com/guard/guard/pull/77): Refactor `get_guard_class` to first try the constant and fallback to require + various tweaks. ([@mislav][])
+- Notifier improvement, don't use system notification library if could not be required. ([@yannlugrin][])
 
 ## 0.4.0 - June 5, 2011
 
@@ -143,6 +150,7 @@
 
 [@anithri]: https://github.com/anithri
 [@brainopia]: https://github.com/brainopia
+[@fnichol]: https://github.com/fnichol
 [@gix]: https://github.com/gix
 [@hashrocketeer]: https://github.com/hashrocketeer
 [@indirect]: https://github.com/indirect
