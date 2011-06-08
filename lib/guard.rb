@@ -84,7 +84,7 @@ module Guard
       try_require = false
       const_name = name.to_s.downcase.gsub('-', '')
       begin
-        require "guard/#{name.downcase}" if try_require
+        require "guard/#{name.to_s.downcase}" if try_require
         self.const_get(self.constants.find {|c| c.to_s.downcase == const_name })
       rescue TypeError
         unless try_require

@@ -14,7 +14,7 @@ namespace(:spec) do
          system "cmd /c echo -----------#{version}------------ & " +
            "pik use #{version} & " +
            "bundle install & " +
-           "rake spec"
+           "bundle exec rake spec"
       end
     end
   else
@@ -26,9 +26,9 @@ namespace(:spec) do
                    rvm #{version};
                    echo "--------- version #{version} ----------\n";
                    bundle install;
-                   rake spec'
+                   bundle exec rake spec'
         BASH
       end
     end
-  end  
+  end
 end
