@@ -22,6 +22,7 @@ module Guard
     end
 
     def start(options = {})
+      UI.clear if options[:clear]
       setup(options)
 
       Interactor.init_signal_traps
@@ -34,7 +35,6 @@ module Guard
           run { run_on_change_for_all_guards(files) } if Watcher.match_files?(guards, files)
         end
 
-        UI.clear if options[:clear]
         UI.info "Guard is now watching at '#{Dir.pwd}'"
         guards.each { |guard| supervised_task(guard, :start) }
         listener.start
