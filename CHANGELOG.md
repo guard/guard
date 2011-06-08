@@ -1,3 +1,9 @@
+## Master
+
+## Improvements
+
+- Clear the terminal on start when the `:clear` option is given. ([@rymai][])
+
 ## 0.4.1 - June 7, 2011
 
 ### Improvements
