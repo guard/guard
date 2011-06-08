@@ -1,3 +1,3 @@
 module Guard
-  VERSION = "0.4.1" unless defined? Guard::VERSION
+  VERSION = "0.4.2" unless defined? Guard::VERSION
 end
