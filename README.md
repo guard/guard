@@ -3,7 +3,7 @@ Guard [![Build Status](http://travis-ci.org/guard/guard.png)](http://travis-ci.o
 
 Guard is a command line tool that easily handle events on files modifications.
 
-If you have any questions/issues please join us on our [Google group](http://groups.google.com/group/guard-dev) or on `#guard` (irc.freenode.net).
+If you have any questions please join us on our [Google group](http://groups.google.com/group/guard-dev) or on `#guard` (irc.freenode.net).
 
 Features
 --------
@@ -345,10 +345,12 @@ Development
 -----------
 
 * Source hosted at [GitHub](https://github.com/guard/guard).
-* Report Issues/Feature requests on [GitHub Issues](https://github.com/guard/guard/issues).
+* Report issues and feature requests to [GitHub Issues](https://github.com/guard/guard/issues).
 
 Pull requests are very welcome! Make sure your patches are well tested. Please create a topic branch for every separate change
 you make. Please do not change the version in your pull-request.
+
+For questions please join us on our [Google group](http://groups.google.com/group/guard-dev) or on `#guard` (irc.freenode.net).
 
 Author
 ------
