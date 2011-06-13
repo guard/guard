@@ -58,6 +58,15 @@ shared_examples_for 'a listener that reacts to #on_change' do
     results.should =~ ['spec/fixtures/folder1/file1.txt']
   end
 
+  it "catches a dotfile update" do
+    file = @fixture_path.join(".dotfile")
+    File.exists?(file).should be_true
+    start
+    File.open(file, 'w') {|f| f.write('') }
+    stop
+    results.should =~ ['spec/fixtures/.dotfile']
+  end
+
   it "catches multiple file updates" do
     file1 = @fixture_path.join("folder1/file1.txt")
     file2 = @fixture_path.join("folder1/folder2/file2.txt")
