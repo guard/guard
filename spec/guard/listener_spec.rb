@@ -42,7 +42,7 @@ describe Guard::Listener do
     subject { described_class.new(@fixture_path) }
 
     it "should return all files" do
-      subject.all_files.should =~ Dir.glob("#{@fixture_path}/**/*")
+      subject.all_files.should =~ Dir.glob("#{@fixture_path}/**/*", File::FNM_DOTMATCH).select { |file| file !~ /\.\.?$/ }
     end
   end
 

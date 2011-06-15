@@ -82,7 +82,7 @@ module Guard
 
     def potentially_modified_files(dirs, options = {})
       match = options[:all] ? "**/*" : "*"
-      Dir.glob(dirs.map { |dir| "#{dir}#{match}" })
+      Dir.glob(dirs.map { |dir| "#{dir}#{match}" }, File::FNM_DOTMATCH).select { |file| file !~ /\.\.?$/ }
     end
 
     # Depending on the filesystem, mtime is probably only precise to the second, so round
