@@ -4,28 +4,61 @@ describe Guard::Listener do
   subject { Guard::Listener }
 
   describe ".select_and_init" do
-    before(:each) { @target_os = Config::CONFIG['target_os'] }
-    after(:each) { Config::CONFIG['target_os'] = @target_os }
+    before(:each) { @target_os = RbConfig::CONFIG['target_os'] }
+    after(:each) { RbConfig::CONFIG['target_os'] = @target_os }
 
     it "uses the Darwin listener on Mac OS X" do
-      Config::CONFIG['target_os'] = 'darwin10.4.0'
+      RbConfig::CONFIG['target_os'] = 'darwin10.4.0'
       Guard::Darwin.stub(:usable?).and_return(true)
       Guard::Darwin.should_receive(:new)
       subject.select_and_init
     end
 
     it "uses the Windows listener on Windows" do
-      Config::CONFIG['target_os'] = 'mingw'
+      RbConfig::CONFIG['target_os'] = 'mingw'
       Guard::Windows.stub(:usable?).and_return(true)
       Guard::Windows.should_receive(:new)
       subject.select_and_init
     end
 
     it "uses the Linux listener on Linux" do
-      Config::CONFIG['target_os'] = 'linux'
+      RbConfig::CONFIG['target_os'] = 'linux'
       Guard::Linux.stub(:usable?).and_return(true)
       Guard::Linux.should_receive(:new)
       subject.select_and_init
+    end
+
+    it "forwards its arguments to the constructor" do
+      subject.stub!(:mac?).and_return(true)
+      Guard::Darwin.stub!(:usable?).and_return(true)
+
+      path, opts = 'path', {:foo => 23}
+      Guard::Darwin.should_receive(:new).with(path, opts).and_return(true)
+      subject.select_and_init path, opts
+    end
+  end
+
+  describe "#all_files" do
+    subject { described_class.new(@fixture_path) }
+
+    it "should return all files" do
+      subject.all_files.should =~ Dir.glob("#{@fixture_path}/**/*", File::FNM_DOTMATCH).select { |file| file !~ /\.\.?$/ }
+    end
+  end
+
+  describe "#relativate_paths" do
+    subject { described_class.new('/tmp') }
+    before :each do
+      @paths = %w( /tmp/a /tmp/a/b /tmp/a.b/c.d )
+    end
+
+    it "should relativate paths to the configured directory" do
+      subject.relativate_paths(@paths).should =~ %w( a a/b a.b/c.d )
+    end
+
+    it "can be disabled" do
+      subject.relativate_paths = false
+      subject.relativate_paths(@paths).should == @paths
     end
   end
 
@@ -69,7 +102,7 @@ describe Guard::Listener do
       it "ignores the files for the second time" do
         FileUtils.touch([file1, file2, file3])
         subject.modified_files([@fixture_path.join("folder1/")], {}).should =~ ["spec/fixtures/folder1/deletedfile1.txt", "spec/fixtures/folder1/file1.txt"]
-        sleep 1
+        subject.update_last_event
         FileUtils.touch([file1, file2, file3])
         subject.modified_files([@fixture_path.join("folder1/")], {}).should == []
         sleep 1
@@ -82,13 +115,47 @@ describe Guard::Listener do
       it "identifies the files for the second time" do
         FileUtils.touch([file1, file2, file3])
         subject.modified_files([@fixture_path.join("folder1/")], {}).should =~ ["spec/fixtures/folder1/deletedfile1.txt", "spec/fixtures/folder1/file1.txt"]
-        sleep 1
+        subject.update_last_event
         FileUtils.touch([file2, file3])
         File.open(file1, "w") { |f| f.write("changed content") }
         subject.modified_files([@fixture_path.join("folder1/")], {}).should =~ ["spec/fixtures/folder1/file1.txt"]
         sleep 1
       end
     end
+  end
+
+  describe "working directory" do
+
+    context "unspecified" do
+      subject { described_class.new }
+      it "defaults to Dir.pwd" do
+        subject.directory.should == Dir.pwd
+      end
+      it "can be not changed" do
+        subject.should_not respond_to(:directory=)
+      end
+    end
+
+    context "specified as first argument to ::new" do
+      before :each do
+        @wd = @fixture_path.join("folder1")
+      end
+      subject { described_class.new @wd }
+      it "can be inspected" do
+        subject.directory.should == @wd.to_s
+      end
+      it "can be not changed" do
+        subject.should_not respond_to(:directory=)
+      end
+
+      it "will be used to watch" do
+        subject.should_receive(:watch).with(@wd.to_s)
+        @listener = subject # indeed.
+        start
+        stop
+      end
+    end
+
   end
 
 end

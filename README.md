@@ -3,6 +3,8 @@ Guard [![Build Status](http://travis-ci.org/guard/guard.png)](http://travis-ci.o
 
 Guard is a command line tool that easily handle events on files modifications.
 
+If you have any questions please join us on our [Google group](http://groups.google.com/group/guard-dev) or on `#guard` (irc.freenode.net).
+
 Features
 --------
 
@@ -36,6 +38,8 @@ Generate an empty Guardfile with:
 $ guard init
 ```
 
+You may optionally place this Guardfile in your home directory to use it across multiple projects.
+
 Add the guards you need to your Guardfile (see the existing guards below).
 
 ### On Mac OS X
@@ -52,9 +56,10 @@ Install the Growl gem if you want notification support:
 $ gem install growl
 ```
 
-And add it to you Gemfile:
+And add them to your Gemfile:
 
 ``` ruby
+gem 'rb-fsevent'
 gem 'growl'
 ```
 
@@ -72,9 +77,10 @@ Install the Libnotify gem if you want notification support:
 $ gem install libnotify
 ```
 
-And add it to you Gemfile:
+And add them to your Gemfile:
 
 ``` ruby
+gem 'rb-inotify'
 gem 'libnotify'
 ```
 
@@ -84,6 +90,19 @@ Install the rb-fchange gem for [Directory Change Notification](http://msdn.micro
 
 ``` bash
 $ gem install rb-fchange
+```
+
+Install the Notifu gem if you want notification support:
+
+``` bash
+$ gem install rb-notifu
+```
+
+And add them to your Gemfile:
+
+``` ruby
+gem 'rb-fchange'
+gem 'rb-notifu'
 ```
 
 Usage
@@ -100,6 +119,8 @@ or if you use Bundler, to run the Guard executable specific to your bundle:
 ``` bash
 $ bundle exec guard
 ```
+
+Guard will look for a Guardfile in your current directory. If it does not find one, it will look in your `$HOME` directory for one.
 
 Command line options
 --------------------
@@ -118,7 +139,7 @@ $ guard --notify false
 $ guard -n f # shortcut
 ```
 
-Notifications can also be disabled by setting a `GUARD_NOTIFY` environment variable to `false`
+Notifications can also be disabled globally by setting a `GUARD_NOTIFY` environment variable to `false`
 
 The guards to start can be specified by group (see the Guardfile DSL below) specifying the `--group` (or `-g`) option:
 
@@ -141,6 +162,8 @@ Signal handlers are used to interact with Guard:
 * `Ctrl-C` - Calls each guard's `stop` method, in the same order they are declared in the Guardfile, and then quits Guard itself.
 * `Ctrl-\` - Calls each guard's `run_all` method, in the same order they are declared in the Guardfile.
 * `Ctrl-Z` - Calls each guard's `reload` method, in the same order they are declared in the Guardfile.
+
+You can read more about [configure the signal keyboard shortcuts](https://github.com/guard/guard/wiki/Configure-keyboard-shortcuts) on the wiki.
 
 Available Guards
 ----------------
@@ -208,6 +231,31 @@ group 'frontend' do
 end
 ```
 
+The Guardfile DSL can also be used in a programmatic fashion by calling directly `Guard::Dsl.evaluate_guardfile`.
+Available options are as follow:
+
+* `:guardfile`          - The path to a valid Guardfile.
+* `:guardfile_contents` - A string representing the content of a valid Guardfile
+
+Without any options given, Guard will look for a Guardfile in your current directory and if it does not find one, it will look in your `$HOME` directory for one.
+
+For instance, you could use it as follow:
+
+``` ruby
+gem 'guard'
+require 'guard'
+
+Guard.setup
+
+Guard::Dsl.evaluate_guardfile(:guardfile => '/Your/Custom/Path/To/A/Valid/Guardfile')
+# or
+Guard::Dsl.evaluate_guardfile(:guardfile_contents => "
+  guard 'rspec' do
+    watch(%r{^spec/.+_spec\.rb})
+  end
+")
+```
+
 Create a new guard
 ------------------
 
@@ -258,7 +306,7 @@ module Guard
       true
     end
 
-    # Called on Ctrl-/ signal
+    # Called on Ctrl-\ signal
     # This method should be principally used for long action like running all specs/tests/...
     def run_all
       true
@@ -297,10 +345,12 @@ Development
 -----------
 
 * Source hosted at [GitHub](https://github.com/guard/guard).
-* Report Issues/Questions/Feature requests on [GitHub Issues](https://github.com/guard/guard/issues).
+* Report issues and feature requests to [GitHub Issues](https://github.com/guard/guard/issues).
 
 Pull requests are very welcome! Make sure your patches are well tested. Please create a topic branch for every separate change
-you make.
+you make. Please do not change the version in your pull-request.
+
+For questions please join us on our [Google group](http://groups.google.com/group/guard-dev) or on `#guard` (irc.freenode.net).
 
 Author
 ------

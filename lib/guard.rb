@@ -22,6 +22,7 @@ module Guard
     end
 
     def start(options = {})
+      UI.clear if options[:clear]
       setup(options)
 
       Interactor.init_signal_traps
@@ -81,15 +82,21 @@ module Guard
     end
 
     def get_guard_class(name)
-      try_to_load_gem name
-      self.const_get(self.constants.find{ |klass_name| klass_name.to_s.downcase == name.downcase })
-    rescue TypeError
-      UI.error "Could not find load find gem 'guard-#{name}' or find class Guard::#{name}"
-    end
-
-    def try_to_load_gem(name)
-      require "guard/#{name.downcase}"
-    rescue LoadError
+      try_require = false
+      const_name = name.to_s.downcase.gsub('-', '')
+      begin
+        require "guard/#{name.to_s.downcase}" if try_require
+        self.const_get(self.constants.find {|c| c.to_s.downcase == const_name })
+      rescue TypeError
+        unless try_require
+          try_require = true
+          retry
+        else
+          UI.error "Could not find class Guard::#{const_name.capitalize}"
+        end
+      rescue LoadError
+        UI.error "Could not load 'guard/#{name.downcase}' or find class Guard::#{const_name.capitalize}"
+      end
     end
 
     def locate_guard(name)

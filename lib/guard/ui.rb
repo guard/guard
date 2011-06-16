@@ -50,7 +50,7 @@ module Guard
       end
 
       def color_enabled?
-        @color_enabled ||= if Config::CONFIG['target_os'] =~ /mswin|mingw/i
+        @color_enabled ||= if RbConfig::CONFIG['target_os'] =~ /mswin|mingw/i
           unless ENV['ANSICON']
             begin
               require 'rubygems' unless ENV['NO_RUBYGEMS']

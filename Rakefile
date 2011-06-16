@@ -7,14 +7,14 @@ task :default => :spec
 
 require 'rbconfig'
 namespace(:spec) do
-  if Config::CONFIG['host_os'] =~ /mswin|mingw/i
+  if RbConfig::CONFIG['host_os'] =~ /mswin|mingw/i
     desc "Run all specs on multiple ruby versions (requires pik)"
     task(:portability) do
       %w[187 192 161].each do |version|
          system "cmd /c echo -----------#{version}------------ & " +
            "pik use #{version} & " +
            "bundle install & " +
-           "rake spec"
+           "bundle exec rake spec"
       end
     end
   else
@@ -26,9 +26,9 @@ namespace(:spec) do
                    rvm #{version};
                    echo "--------- version #{version} ----------\n";
                    bundle install;
-                   rake spec'
+                   bundle exec rake spec'
         BASH
       end
     end
-  end  
+  end
 end

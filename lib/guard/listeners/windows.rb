@@ -7,20 +7,13 @@ module Guard
       @fchange = FChange::Notifier.new
     end
 
-    def on_change(&callback)
-      @fchange.watch(Dir.pwd, :all_events, :recursive) do |event|
-        paths = [File.expand_path(event.watcher.path) + '/']
-        files = modified_files(paths, {:all => true})
-        update_last_event
-        callback.call(files)
-      end
-    end
-
     def start
+      super
       @fchange.run
     end
 
     def stop
+      super
       @fchange.stop
     end
 
@@ -30,6 +23,21 @@ module Guard
     rescue LoadError
       UI.info "Please install rb-fchange gem for Windows file events support"
       false
+    end
+
+  private
+
+    def worker
+      @fchange
+    end
+
+    def watch(directory)
+      worker.watch(directory, :all_events, :recursive) do |event|
+        paths = [File.expand_path(event.watcher.path) + '/']
+        files = modified_files(paths, {:all => true})
+        update_last_event
+        callback.call(files)
+      end
     end
 
   end
