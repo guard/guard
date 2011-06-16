@@ -116,15 +116,15 @@ module Guard
     end
 
     def self.mac?
-      Config::CONFIG['target_os'] =~ /darwin/i
+      RbConfig::CONFIG['target_os'] =~ /darwin/i
     end
 
     def self.linux?
-      Config::CONFIG['target_os'] =~ /linux/i
+      RbConfig::CONFIG['target_os'] =~ /linux/i
     end
 
     def self.windows?
-      Config::CONFIG['target_os'] =~ /mswin|mingw/i
+      RbConfig::CONFIG['target_os'] =~ /mswin|mingw/i
     end
 
   end

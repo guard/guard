@@ -11,7 +11,7 @@ module Guard
 
     def self.turn_on
       ENV["GUARD_NOTIFY"] = 'true'
-      case Config::CONFIG['target_os']
+      case RbConfig::CONFIG['target_os']
       when /darwin/i
         require_growl
       when /linux/i
@@ -26,7 +26,7 @@ module Guard
         image = options.delete(:image) || :success
         title = options.delete(:title) || "Guard"
 
-        case Config::CONFIG['target_os']
+        case RbConfig::CONFIG['target_os']
         when /darwin/i
           notify_mac(title, message, image, options)
         when /linux/i
