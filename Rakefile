@@ -7,7 +7,7 @@ task :default => :spec
 
 require 'rbconfig'
 namespace(:spec) do
-  if Config::CONFIG['host_os'] =~ /mswin|mingw/i
+  if RbConfig::CONFIG['host_os'] =~ /mswin|mingw/i
     desc "Run all specs on multiple ruby versions (requires pik)"
     task(:portability) do
       %w[187 192 161].each do |version|

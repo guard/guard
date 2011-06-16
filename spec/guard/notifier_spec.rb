@@ -17,7 +17,7 @@ describe Guard::Notifier do
   describe ".turn_on" do
     context "on Mac OS" do
       before do
-        Config::CONFIG.should_receive(:[]).with('target_os').and_return 'darwin'
+        RbConfig::CONFIG.should_receive(:[]).with('target_os').and_return 'darwin'
       end
 
       context "with the Growl library available" do
@@ -39,7 +39,7 @@ describe Guard::Notifier do
 
     context "on Linux" do
       before do
-        Config::CONFIG.should_receive(:[]).with('target_os').and_return 'linux'
+        RbConfig::CONFIG.should_receive(:[]).with('target_os').and_return 'linux'
       end
 
       context "with the Libnotify library available" do
@@ -61,7 +61,7 @@ describe Guard::Notifier do
 
     context "on Windows" do
       before do
-        Config::CONFIG.should_receive(:[]).with('target_os').and_return 'mswin'
+        RbConfig::CONFIG.should_receive(:[]).with('target_os').and_return 'mswin'
       end
 
       context "with the rb-notifu library available" do
@@ -87,7 +87,7 @@ describe Guard::Notifier do
 
     context "on Mac OS" do
       before do
-        Config::CONFIG.should_receive(:[]).with('target_os').and_return 'darwin'
+        RbConfig::CONFIG.should_receive(:[]).with('target_os').and_return 'darwin'
         subject.stub(:require_growl)
         Object.send(:remove_const, :Growl) if defined?(Growl)
         Growl = Object.new
@@ -134,7 +134,7 @@ describe Guard::Notifier do
 
     context "on Linux" do
       before do
-        Config::CONFIG.should_receive(:[]).with('target_os').and_return 'linux'
+        RbConfig::CONFIG.should_receive(:[]).with('target_os').and_return 'linux'
         subject.stub(:require_libnotify)
         Object.send(:remove_const, :Libnotify) if defined?(Libnotify)
         Libnotify = Object.new
@@ -181,7 +181,7 @@ describe Guard::Notifier do
 
     context "on Windows" do
       before do
-        Config::CONFIG.should_receive(:[]).with('target_os').and_return 'mswin'
+        RbConfig::CONFIG.should_receive(:[]).with('target_os').and_return 'mswin'
         subject.stub(:require_rbnotifu)
         Object.send(:remove_const, :Notifu) if defined?(Notifu)
         Notifu = Object.new
