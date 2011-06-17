@@ -50,34 +50,15 @@ describe Guard::Linux do
 
     # Fun fact: File.touch seems not to be enough on Linux to trigger a modify event
 
-    describe "touch and save with temporal file", :long_running => true do
-      before(:each) do
-        @listener = described_class.new
-        record_results
-      end
-
-      if command_exists?('touch')
-        it 'detect touched files' do
-          file = @fixture_path.join("folder1/file1.txt")
-          File.exists?(file).should be_true
-          start
-          `touch #{file}`
-          stop
-          results.should =~ ['spec/fixtures/folder1/file1.txt']
-        end
-      end
-
-      if command_exists?('gvfs-save')
-        # GEdit / vim with :set backup option
-        it 'detect save with temporal file' do
-          file = @fixture_path.join("folder1/file1.txt")
-          File.exists?(file).should be_true
-          start
-          `echo '' | gvfs-save #{file}`
-          stop
-          results.should include('spec/fixtures/folder1/file1.txt')
-        end
-      end
+    it "catches a write_close event" do
+      @listener = described_class.new
+      record_results
+      file = @fixture_path.join("folder1/file1.txt")
+      File.exists?(file).should be_true
+      start
+      File.open(file, 'r+').close
+      stop
+      results.should =~ ['spec/fixtures/folder1/file1.txt']
     end
 
     it "doesn't process a change when it is stopped" do
