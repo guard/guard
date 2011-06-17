@@ -50,6 +50,17 @@ describe Guard::Linux do
 
     # Fun fact: File.touch seems not to be enough on Linux to trigger a modify event
 
+    it "catches a write_close event" do
+      @listener = described_class.new
+      record_results
+      file = @fixture_path.join("folder1/file1.txt")
+      File.exists?(file).should be_true
+      start
+      File.open(file, 'r+').close
+      stop
+      results.should =~ ['spec/fixtures/folder1/file1.txt']
+    end
+
     it "doesn't process a change when it is stopped" do
       @listener = described_class.new
       record_results

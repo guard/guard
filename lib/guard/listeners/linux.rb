@@ -47,7 +47,7 @@ module Guard
     end
 
     def watch(directory)
-      worker.watch(directory, :recursive, :modify, :create) do |event|
+      worker.watch(directory, :recursive, :modify, :create, :close_write) do |event|
         unless event.name == "" # Event on root directory
           @files << event.absolute_name
         end
