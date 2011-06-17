@@ -56,6 +56,7 @@ module Guard
               require 'rubygems' unless ENV['NO_RUBYGEMS']
               require 'Win32/Console/ANSI'
             rescue LoadError
+              @color_enabled = false 
               info "You must 'gem install win32console' to use color on Windows"
               false
             end

@@ -2,8 +2,9 @@ module Guard
   class Windows < Listener
     attr_reader :fchange
 
-    def initialize
+    def initialize(*)
       super
+
       @fchange = FChange::Notifier.new
     end
 
