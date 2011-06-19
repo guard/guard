@@ -2,7 +2,6 @@ pkg/*
 *.gem
 .bundle
 Gemfile.lock
-!man/*.gz
 
 ## MAC OS
 .DS_Store

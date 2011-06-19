@@ -1,0 +1,52 @@
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "GUARD" "1" "June 2011" "" ""
+.
+.SH "NAME"
+\fBguard\fR \- Guard keeps an eye on your file modifications\.
+.
+.SH "SYNOPSIS"
+guard \fIoptions\fR
+.
+.SH "DESCRIPTION"
+Guard is a command line tool that easily handle events on files modifications\.
+.
+.SH "HOMEPAGE"
+https://github\.com/guard/guard
+.
+.SH "OPTIONS"
+.
+.TP
+\fB\-c\fR, \fB\-\-clear\fR
+Clears the Shell after each change\.
+.
+.TP
+\fB\-n\fR \fIflag\fR, \fB\-\-notify\fR \fIflag\fR
+Disable notifications (Growl or Libnotify depending on your system)\. Note that notifications can also be disabled globally by setting a GUARD_NOTIFY environment variable to false\. The \fIflag\fR part can be passed to guard using true/false or t/f\.
+.
+.TP
+\fB\-g\fR \fIlist of groups\fR, \fB\-\-group\fR \fIlist of groups\fR
+Runs only the groups specified\.
+.
+.TP
+\fB\-d\fR, \fB\-\-debug\fR
+Runs Guard in debug mode\.
+.
+.SH "EXAMPLES"
+\fB[bundle exec] guard \-\-clear \-\-group backend frontend \-\-notify false \-\-debug\fR
+.
+.P
+or in a more concise way:
+.
+.P
+\fB[bundle exec] guard \-c \-g backend frontend \-n f \-d\fR
+.
+.SH "AUTHORS / CONTRIBUTORS"
+Thibaud Guillaume\-Gentil is the main author\.
+.
+.P
+A list of contributors based on all commits can be found here: https://github\.com/guard/guard/contributors
+.
+.P
+For an exhaustive list of all the contributors, please see the CHANGELOG: https://github\.com/guard/guard/blob/master/CHANGELOG\.md
