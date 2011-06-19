@@ -7,7 +7,7 @@
 - Issue [#79](https://github.com/guard/guard/issues/79) and Pull request [#82](https://github.com/guard/guard/pull/82): Improve INotify support on Linux. ([@Gazer][] & [@yannlugrin][])
 - Issue [#12](https://github.com/guard/guard/issues/12) and Pull request [#86](https://github.com/guard/guard/pull/86): Eventually exits with SystemStackError. ([@stereobooster][])
 - Pull request [#84](https://github.com/guard/guard/pull/84): Use RbConfig instead of obsolete and deprecated Config. ([@etehtsea][])
-- Pull request [#80](https://github.com/guard/guard/pull/80): Watching dotfile (hidden files under unix). (detected by [@chrisberkhout][] & fixed by [@yannlugrin][])
+- Pull request [#80](https://github.com/guard/guard/pull/80): Watching dotfile (hidden files under unix). (reported by [@chrisberkhout][], fixed by [@yannlugrin][])
 - Clear the terminal on start when the `:clear` option is given. ([@rymai][])
 
 ## 0.4.2 - June 7, 2011
@@ -15,7 +15,7 @@
 ### Bugs fixes:
 
 - Fixed Guard::Version in ruby 1.8.7 ([@thibaudgg][])
-- Fix ([@mislav][]) link in CHANGELOG (this is a recursive CHANGELOG item :P). ([@fnichol][])
+- Fix ([@mislav][]) link in CHANGELOG (Note: this is a recursive CHANGELOG item). ([@fnichol][])
 
 ## 0.4.1 - June 7, 2011
 
@@ -28,12 +28,12 @@
 
 ### Bugs fixes:
 
-- In Ruby < 1.9, Symbol#downcase doesn't exist! ([@rymai][])
+- In Ruby < 1.9, `Symbol#downcase` doesn't exist! ([@rymai][])
 
 ### New features:
 
 - Pull request [#73](https://github.com/guard/guard/pull/73): Allow DSL's `group` method to accept a Symbol as group name. ([@johnbintz][])
-- Pull request [#51](https://github.com/guard/guard/pull/51): Allow options (like :priority) to be passed through to the Notifier. ([@indirect][] and [@netzpirat][])
+- Pull request [#51](https://github.com/guard/guard/pull/51): Allow options (like `:priority`) to be passed through to the Notifier. ([@indirect][] & [@netzpirat][])
 
 ### Improvements
 
@@ -43,10 +43,10 @@
 
 ### Bugs fixes:
 
-- Pull request [#69](https://github.com/guard/guard/pull/69): Fixed typo in README: Ctr-/ => Ctr-\\. ([@tinogomes][])
+- Pull request [#69](https://github.com/guard/guard/pull/69): Fixed typo in README: `Ctr-/` => `Ctr-\`. ([@tinogomes][])
 - Pull request [#66](https://github.com/guard/guard/pull/66): Support for dashes in guard names. ([@johnbintz][])
 - Require `guard/ui` because `Guard::Notifier` can be required without full Guard. ([@yannlugrin][])
-- Handled quick file (<1s) modification. Avoid to catch modified files without content modification (sha1 checksum). ([@thibaudgg][] and [@netzpirat][])
+- Handled quick file (<1s) modification. Avoid to catch modified files without content modification (sha1 checksum). ([@thibaudgg][] & [@netzpirat][])
 - Fixed `Guard::Notifier` (when growl/libnotify not present). ([@thibaudgg][])
 - Fixed Rubygems deprecation messages. ([@thibaudgg][])
 
@@ -134,8 +134,8 @@
 
 ### Bugs fixes:
 
-- Pull request [#7](https://github.com/guard/guard/pull/7): Fixes for Linux support. ([@yannlugrin][]))
-- Pull request [#6](https://github.com/guard/guard/pull/6): Locate guard now chomp newline in result path. ([@yannlugrin][]))
+- Pull request [#7](https://github.com/guard/guard/pull/7): Fixes for Linux support. ([@yannlugrin][])
+- Pull request [#6](https://github.com/guard/guard/pull/6): Locate guard now chomp newline in result path. ([@yannlugrin][])
 
 
 ## 0.2.0 - October 21, 2010
