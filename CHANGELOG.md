@@ -2,6 +2,12 @@
 
 ## Improvements
 
+- Pull request [#88](https://github.com/guard/guard/pull/88): Write exception trace in the terminal when a supervised task fail. ([@mcmire][])
+- Color in red the "ERROR:" flag when using `UI.error`. ([@rymai][])
+- Issue [#79](https://github.com/guard/guard/issues/79) and Pull request [#82](https://github.com/guard/guard/pull/82): Improve INotify support on Linux. ([@Gazer][] & [@yannlugrin][])
+- Issue [#12](https://github.com/guard/guard/issues/12) and Pull request [#86](https://github.com/guard/guard/pull/86): Eventually exits with SystemStackError. ([@stereobooster][])
+- Pull request [#84](https://github.com/guard/guard/pull/84): Use RbConfig instead of obsolete and deprecated Config. ([@etehtsea][])
+- Pull request [#80](https://github.com/guard/guard/pull/80): Watching dotfile (hidden files under unix). (detected by [@chrisberkhout][] & fixed by [@yannlugrin][])
 - Clear the terminal on start when the `:clear` option is given. ([@rymai][])
 
 ## 0.4.2 - June 7, 2011
@@ -150,13 +156,17 @@
 
 [@anithri]: https://github.com/anithri
 [@brainopia]: https://github.com/brainopia
+[@chrisberkhout]: https://github.com/chrisberkhout
+[@etehtsea]: https://github.com/etehtsea
 [@fnichol]: https://github.com/fnichol
+[@Gazer]: https://github.com/Gazer
 [@gix]: https://github.com/gix
 [@hashrocketeer]: https://github.com/hashrocketeer
 [@indirect]: https://github.com/indirect
 [@johnbintz]: https://github.com/johnbintz
 [@jrsacks]: https://github.com/jrsacks
 [@koshigoe]: https://github.com/koshigoe
+[@mcmire]: https://github.com/mcmire
 [@mislav]: https://github.com/mislav
 [@netzpirat]: https://github.com/netzpirat
 [@nicksieger]: https://github.com/nicksieger
