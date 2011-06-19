@@ -59,11 +59,13 @@ module Guard
     # fire it if his work leads to a system failure
     def supervised_task(guard, task_to_supervise, *args)
       guard.send(task_to_supervise, *args)
-    rescue Exception
-      UI.error("#{guard.class.name} guard failed to achieve its <#{task_to_supervise.to_s}> command: #{$!}")
+    rescue Exception => err
+      UI.error("#{guard.class.name} guard failed to achieve its <#{task_to_supervise.to_s}> command: #{err}")
+      warn "#{err.class}: #{err.message}"
+      warn err.backtrace.join("\n")
       guards.delete guard
       UI.info("Guard #{guard.class.name} has just been fired")
-      return $!
+      return err
     end
 
     def run
