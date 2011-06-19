@@ -26,7 +26,7 @@ Install the gem:
 $ gem install guard
 ```
 
-Add it to your Gemfile (inside the `test` group):
+Add it to your Gemfile (inside the `development` group):
 
 ``` ruby
 gem 'guard'
@@ -117,7 +117,7 @@ $ guard [start]
 or if you use Bundler, to run the Guard executable specific to your bundle:
 
 ``` bash
-$ bundle exec guard
+$ bundle exec guard [start]
 ```
 
 Guard will look for a Guardfile in your current directory. If it does not find one, it will look in your `$HOME` directory for one.
@@ -125,14 +125,18 @@ Guard will look for a Guardfile in your current directory. If it does not find o
 Command line options
 --------------------
 
-Shell can be cleared after each change with:
+### `--clear` option
+
+Shell can be cleared after each change:
 
 ``` bash
 $ guard --clear
 $ guard -c # shortcut
 ```
 
-Notifications (growl/libnotify) can be disabled with:
+### `--notify` option
+
+Notifications (growl/libnotify) can be disabled:
 
 ``` bash
 $ guard --notify false
@@ -141,14 +145,18 @@ $ guard -n f # shortcut
 
 Notifications can also be disabled globally by setting a `GUARD_NOTIFY` environment variable to `false`
 
-Only certain guards groups can be run (see the Guardfile DSL below for creating groups) by specifying the `--group` (or `-g`) option:
+### `--group` option
+
+Only certain guards groups can be run (see the Guardfile DSL below for creating groups):
 
 ``` bash
 $ guard --group group_name another_group_name
 $ guard -g group_name another_group_name # shortcut
 ```
 
-Guard can be run in debug mode by specifying the `--debug` (or `-d`) option:
+### `--debug` option
+
+Guard can be run in debug mode:
 
 ``` bash
 $ guard --debug
@@ -175,11 +183,11 @@ You can read more about [configure the signal keyboard shortcuts](https://github
 Available Guards
 ----------------
 
-[Available Guards list](https://github.com/guard/guard/wiki/List-of-available-Guards) (on the wiki now)
+[List of available Guards](https://github.com/guard/guard/wiki/List-of-available-Guards)
 
 ### Add a guard to your Guardfile
 
-Add it to your Gemfile (inside the `test` group):
+Add it to your Gemfile (inside the `development` group):
 
 ``` ruby
 gem '<guard-name>'
@@ -191,21 +199,21 @@ Insert default guard's definition to your Guardfile by running this command:
 $ guard init <guard-name>
 ```
 
-You are good to go!
+You are good to go, or you can modify your guards' definition to suit your needs.
 
 Guardfile DSL
 -------------
 
-The Guardfile DSL consists of just three simple methods: `guard`, `watch` & `group`.
+The Guardfile DSL consists of just three simple methods: `#guard`, `#watch` & `#group`.
 
 Required:
 
-* The `guard` method allows you to add a guard with an optional hash of options.
-* The `watch` method allows you to define which files are supervised by this guard. An optional block can be added to overwrite the paths sent to the `run_on_change` guard method or to launch any arbitrary command.
+* The `#guard` method allows you to add a guard with an optional hash of options.
 
 Optional:
 
-* The `group` method allows you to group several guards together. Groups to be run can be specified with the Guard DSL option `--group` (or `-g`). This comes in handy especially when you have a huge Guardfile and want to focus your development on a certain part.
+* The `#watch` method allows you to define which files are supervised by this guard. An optional block can be added to overwrite the paths sent to the `run_on_change` guard method or to launch any arbitrary command.
+* The `#group` method allows you to group several guards together. Groups to be run can be specified with the Guard DSL option `--group` (or `-g`). This comes in handy especially when you have a huge Guardfile and want to focus your development on a certain part.
 
 Example:
 
@@ -217,10 +225,10 @@ group 'backend' do
 
   guard 'rspec', :cli => '--color --format doc' do
     # Regexp watch patterns are matched with Regexp#match
-    watch(%r{^spec/.+_spec\.rb})
-    watch(%r{^lib/(.+)\.rb})         { |m| "spec/lib/#{m[1]}_spec.rb" }
-    watch(%r{^spec/models/.+\.rb})   { ["spec/models", "spec/acceptance"] }
-    watch(%r{^spec/.+\.rb})          { `say hello` }
+    watch(%r{^spec/.+_spec\.rb$})
+    watch(%r{^lib/(.+)\.rb$})         { |m| "spec/lib/#{m[1]}_spec.rb" }
+    watch(%r{^spec/models/.+\.rb$})   { ["spec/models", "spec/acceptance"] }
+    watch(%r{^spec/.+\.rb$})          { `say hello` }
 
     # String watch patterns are matched with simple '=='
     watch('spec/spec_helper.rb') { "spec" }
@@ -229,11 +237,11 @@ end
 
 group 'frontend' do
   guard 'coffeescript', :output => 'public/javascripts/compiled' do
-    watch(%r{^app/coffeescripts/.+\.coffee})
+    watch(%r{^app/coffeescripts/.+\.coffee$})
   end
 
   guard 'livereload' do
-    watch(%r{^app/.+\.(erb|haml)})
+    watch(%r{^app/.+\.(erb|haml)$})
   end
 end
 ```
@@ -244,7 +252,7 @@ Available options are as follow:
 * `:guardfile`          - The path to a valid Guardfile.
 * `:guardfile_contents` - A string representing the content of a valid Guardfile
 
-Without any options given, Guard will look for a Guardfile in your current directory and if it does not find one, it will look in your `$HOME` directory for one.
+Remember, without any options given, Guard will look for a Guardfile in your current directory and if it does not find one, it will look for it in your `$HOME` directory.
 
 For instance, you could use it as follow:
 
@@ -254,11 +262,11 @@ require 'guard'
 
 Guard.setup
 
-Guard::Dsl.evaluate_guardfile(:guardfile => '/Your/Custom/Path/To/A/Valid/Guardfile')
+Guard::Dsl.evaluate_guardfile(:guardfile => '/your/custom/path/to/a/valid/Guardfile')
 # or
 Guard::Dsl.evaluate_guardfile(:guardfile_contents => "
   guard 'rspec' do
-    watch(%r{^spec/.+_spec\.rb})
+    watch(%r{^spec/.+_spec\.rb$})
   end
 ")
 ```
@@ -272,10 +280,12 @@ Creating a new guard is very easy, just create a new gem (`bundle gem` if you us
       guard/
         guard-name/
           templates/
-            Guardfile (needed for guard init <guard-name>)
+            Guardfile (needed for `guard init <guard-name>`)
         guard-name.rb
 
-`Guard::GuardName` (in `lib/guard/guard-name.rb`) must inherit from `Guard::Guard` and should overwrite at least one of the five basic `Guard::Guard` instance methods. Example:
+`Guard::GuardName` (in `lib/guard/guard-name.rb`) must inherit from `Guard::Guard` and should overwrite at least one of the five basic `Guard::Guard` instance methods.
+
+Here is an example scaffold for `lib/guard/guard-name.rb`:
 
 ``` ruby
 require 'guard'
@@ -328,7 +338,7 @@ module Guard
 end
 ```
 
-Please take a look at the existing guards' source code (see the list above) for more concrete example.
+Please take a look at the [existing guards' source code](https://github.com/guard/guard/wiki/List-of-available-Guards) for more concrete example and inspiration.
 
 Alternatively, a new guard can be added inline to a Guardfile with this basic structure:
 
@@ -348,14 +358,15 @@ module ::Guard
 end
 ```
 
+Here is a very cool example by [@avdi](https://github.com/avdi) : http://avdi.org/devblog/2011/06/15/a-guardfile-for-redis
+
 Development
 -----------
 
 * Source hosted at [GitHub](https://github.com/guard/guard).
 * Report issues and feature requests to [GitHub Issues](https://github.com/guard/guard/issues).
 
-Pull requests are very welcome! Make sure your patches are well tested. Please create a topic branch for every separate change
-you make. Please do not change the version in your pull-request.
+Pull requests are very welcome! Make sure your patches are well tested. Please create a topic branch for every separate change you make. Please **do not change** the version in your pull-request.
 
 For questions please join us on our [Google group](http://groups.google.com/group/guard-dev) or on `#guard` (irc.freenode.net).
 
