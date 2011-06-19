@@ -15,13 +15,13 @@ module Guard
       ::Guard.start(options)
     end
 
-    desc "version", "Prints Guard's version information"
+    desc "version", "Prints Guard's version"
     def version
       ::Guard::UI.info "Guard version #{Guard::VERSION}"
     end
     map %w(-v --version) => :version
 
-    desc "init [GUARD]", "Generates a Guardfile into the current working directory, or insert the given GUARD"
+    desc "init [GUARD]", "Generates a Guardfile into the current working directory, or insert the given GUARD in an existing Guardfile"
     def init(guard_name = nil)
       if !File.exist?("Guardfile")
         puts "Writing new Guardfile to #{Dir.pwd}/Guardfile"
