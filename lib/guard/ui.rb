@@ -43,9 +43,9 @@ module Guard
 
       def color(text, color_code)
         if color_enabled?
-          return "#{color_code}#{text}\e[0m"
+          "#{color_code}#{text}\e[0m"
         else
-          return text
+          text
         end
       end
 
