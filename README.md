@@ -174,16 +174,16 @@ Signal handlers
 
 Signal handlers are used to interact with Guard:
 
-* `Ctrl-C` - Calls each guard's `stop` method, in the same order they are declared in the Guardfile, and then quits Guard itself.
-* `Ctrl-\` - Calls each guard's `run_all` method, in the same order they are declared in the Guardfile.
-* `Ctrl-Z` - Calls each guard's `reload` method, in the same order they are declared in the Guardfile.
+* `Ctrl-C` - Calls each guard's `#stop` method, in the same order they are declared in the Guardfile, and then quits Guard itself.
+* `Ctrl-\` - Calls each guard's `#run_all` method, in the same order they are declared in the Guardfile.
+* `Ctrl-Z` - Calls each guard's `#reload` method, in the same order they are declared in the Guardfile.
 
-You can read more about [configure the signal keyboard shortcuts](https://github.com/guard/guard/wiki/Configure-keyboard-shortcuts) on the wiki.
+You can read more about [configure the signal keyboard shortcuts](https://github.com/guard/guard/wiki/Configure-keyboard-shortcuts) in the wiki.
 
 Available Guards
 ----------------
 
-[List of available Guards](https://github.com/guard/guard/wiki/List-of-available-Guards)
+A list of the available guards is present [in the wiki](https://github.com/guard/guard/wiki/List-of-available-Guards).
 
 ### Add a guard to your Guardfile
 
@@ -212,7 +212,7 @@ Required:
 
 Optional:
 
-* The `#watch` method allows you to define which files are supervised by this guard. An optional block can be added to overwrite the paths sent to the `run_on_change` guard method or to launch any arbitrary command.
+* The `#watch` method allows you to define which files are supervised by this guard. An optional block can be added to overwrite the paths sent to the guard's `#run_on_change` method or to launch any arbitrary command.
 * The `#group` method allows you to group several guards together. Groups to be run can be specified with the Guard DSL option `--group` (or `-g`). This comes in handy especially when you have a huge Guardfile and want to focus your development on a certain part.
 
 Example:
@@ -246,6 +246,8 @@ group 'frontend' do
 end
 ```
 
+### Using a Guardfile without the `guard` binary
+
 The Guardfile DSL can also be used in a programmatic fashion by calling directly `Guard::Dsl.evaluate_guardfile`.
 Available options are as follow:
 
@@ -276,12 +278,22 @@ Create a new guard
 
 Creating a new guard is very easy, just create a new gem (`bundle gem` if you use Bundler) with this basic structure:
 
-    lib/
-      guard/
-        guard-name/
-          templates/
-            Guardfile (needed for `guard init <guard-name>`)
-        guard-name.rb
+```
+.travis.yml  # bonus point!
+CHANGELOG.md # bonus point!
+Gemfile
+guard-name.gemspec
+Guardfile
+lib/
+  guard/
+    guard-name/
+      templates/
+        Guardfile # needed for `guard init <guard-name>`
+      version.rb
+    guard-name.rb
+test/ # or spec/
+README.md
+```
 
 `Guard::GuardName` (in `lib/guard/guard-name.rb`) must inherit from `Guard::Guard` and should overwrite at least one of the five basic `Guard::Guard` instance methods.
 
