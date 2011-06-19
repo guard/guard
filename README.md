@@ -141,14 +141,21 @@ $ guard -n f # shortcut
 
 Notifications can also be disabled globally by setting a `GUARD_NOTIFY` environment variable to `false`
 
-The guards to start can be specified by group (see the Guardfile DSL below) specifying the `--group` (or `-g`) option:
+Only certain guards groups can be run (see the Guardfile DSL below for creating groups) by specifying the `--group` (or `-g`) option:
 
 ``` bash
 $ guard --group group_name another_group_name
 $ guard -g group_name another_group_name # shortcut
 ```
 
-Options list is available with:
+Guard can be run in debug mode by specifying the `--debug` (or `-d`) option:
+
+``` bash
+$ guard --debug
+$ guard -d # shortcut
+```
+
+An exhaustive list of options is available with:
 
 ``` bash
 $ guard help [TASK]
