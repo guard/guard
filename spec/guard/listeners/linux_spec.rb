@@ -48,15 +48,16 @@ describe Guard::Linux do
     it_should_behave_like "a listener that reacts to #on_change"
     it_should_behave_like "a listener scoped to a specific directory"
 
-    # Fun fact: File.touch seems not to be enough on Linux to trigger a modify event
+    # Fun fact: FileUtils.touch seems not to be enough on Linux to trigger a modify event
 
-    it "catches a write_close event" do
+    it "catches modified files with glib saving routine (like Vim, Emacs or Gedit)" do
       @listener = described_class.new
       record_results
       file = @fixture_path.join("folder1/file1.txt")
       File.exists?(file).should be_true
       start
       File.open(file, 'r+').close
+      FileUtils.touch(file)
       stop
       results.should =~ ['spec/fixtures/folder1/file1.txt']
     end

@@ -63,13 +63,10 @@ module Guard
 
           sleep latency
           inotify.process
-          update_last_event
 
-          unless files.empty?
-            files.uniq!
-            callback.call( relativate_paths(files) )
-            files.clear
-          end
+          modified_files = modified_files(files.shift(files.size).map{|f| File.dirname(f) + '/' }.uniq)
+          update_last_event
+          callback.call(modified_files) unless modified_files.empty?
         end
       end
       @watch_change = false
