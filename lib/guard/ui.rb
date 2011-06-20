@@ -1,6 +1,8 @@
 module Guard
   module UI
 
+    ANSI_ESCAPE_BRIGHT = "1"
+
     ANSI_ESCAPE_BLACK = "30"
     ANSI_ESCAPE_RED = "31"
     ANSI_ESCAPE_GREEN = "32"
