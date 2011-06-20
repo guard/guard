@@ -2,6 +2,8 @@ module Guard
   module UI
     class << self
 
+      color_enabled = nil
+
       def info(message, options = {})
         unless ENV["GUARD_ENV"] == "test"
           reset_line if options[:reset]
@@ -42,20 +44,25 @@ module Guard
       end
 
       def color_enabled?
-        @color_enabled ||= if RbConfig::CONFIG['target_os'] =~ /mswin|mingw/i
-          unless ENV['ANSICON']
-            begin
-              require 'rubygems' unless ENV['NO_RUBYGEMS']
-              require 'Win32/Console/ANSI'
-            rescue LoadError
-              @color_enabled = false 
-              info "You must 'gem install win32console' to use color on Windows"
-              false
+        if @color_enabled.nil?
+          if RbConfig::CONFIG['target_os'] =~ /mswin|mingw/i
+            if ENV['ANSICON']
+              @color_enabled = true
+            else
+              begin
+                require 'rubygems' unless ENV['NO_RUBYGEMS']
+                require 'Win32/Console/ANSI'
+                @color_enabled = true
+              rescue LoadError
+                @color_enabled = false
+                info "You must 'gem install win32console' to use color on Windows"
+              end
             end
+          else
+            @color_enabled = true
           end
-        else
-          true
         end
+        @color_enabled
       end
 
     end
