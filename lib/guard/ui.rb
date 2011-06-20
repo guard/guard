@@ -2,6 +2,8 @@ module Guard
   module UI
     class << self
 
+      color_enabled = nil
+
       def info(message, options = {})
         unless ENV["GUARD_ENV"] == "test"
           reset_line if options[:reset]
@@ -12,7 +14,7 @@ module Guard
       def error(message, options = {})
         unless ENV["GUARD_ENV"] == "test"
           reset_line if options[:reset]
-          puts "ERROR: #{message}"
+          puts "#{color('ERROR:', ';31')} #{message}"
         end
       end
 
@@ -24,11 +26,7 @@ module Guard
       end
 
       def reset_line
-        if color_enabled?
-          print "\r\e[0m"
-        else
-          print "\r\n"
-        end
+        print(color_enabled? ? "\r\e[0m" : "\r\n")
       end
 
       def clear
@@ -38,32 +36,33 @@ module Guard
     private
 
       def reset_color(text)
-        color(text, "\e[0m")
+        color(text, "")
       end
 
       def color(text, color_code)
-        if color_enabled?
-          return "#{color_code}#{text}\e[0m"
-        else
-          return text
-        end
+        color_enabled? ? "\e[0#{color_code}m#{text}\e[0m" : text
       end
 
       def color_enabled?
-        @color_enabled ||= if RbConfig::CONFIG['target_os'] =~ /mswin|mingw/i
-          unless ENV['ANSICON']
-            begin
-              require 'rubygems' unless ENV['NO_RUBYGEMS']
-              require 'Win32/Console/ANSI'
-            rescue LoadError
-              @color_enabled = false 
-              info "You must 'gem install win32console' to use color on Windows"
-              false
+        if @color_enabled.nil?
+          if RbConfig::CONFIG['target_os'] =~ /mswin|mingw/i
+            if ENV['ANSICON']
+              @color_enabled = true
+            else
+              begin
+                require 'rubygems' unless ENV['NO_RUBYGEMS']
+                require 'Win32/Console/ANSI'
+                @color_enabled = true
+              rescue LoadError
+                @color_enabled = false
+                info "You must 'gem install win32console' to use color on Windows"
+              end
             end
+          else
+            @color_enabled = true
           end
-        else
-          true
         end
+        @color_enabled
       end
 
     end
