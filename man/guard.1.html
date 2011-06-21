@@ -58,9 +58,10 @@
     <a href="#DESCRIPTION">DESCRIPTION</a>
     <a href="#HOMEPAGE">HOMEPAGE</a>
     <a href="#OPTIONS">OPTIONS</a>
+    <a href="#COMMANDS">COMMANDS</a>
     <a href="#EXAMPLES">EXAMPLES</a>
     <a href="#AUTHORS-CONTRIBUTORS">AUTHORS / CONTRIBUTORS</a>
-    </div>
+  </div>
 
   <ol class='man-decor man-head man head'>
     <li class='tl'>guard(1)</li>
@@ -75,7 +76,7 @@
 
 <h2 id="SYNOPSIS">SYNOPSIS</h2>
 
-<p>guard <a href="#OPTIONS" title="OPTIONS" data-bare-link="true">options</a></p>
+<p>guard <var>command</var> <var>options</var></p>
 
 <h2 id="DESCRIPTION">DESCRIPTION</h2>
 
@@ -92,8 +93,18 @@
 <dt><code>-n</code> <var>flag</var>, <code>--notify</code> <var>flag</var></dt><dd><p>Disable notifications (Growl or Libnotify depending on your system).
 Note that notifications can also be disabled globally by setting a GUARD_NOTIFY environment variable to false.
 The <var>flag</var> part can be passed to guard using true/false or t/f.</p></dd>
-<dt><code>-g</code> <var>list of groups</var>, <code>--group</code> <var>list of groups</var></dt><dd><p>Runs only the groups specified.</p></dd>
+<dt><code>-g</code> <var>group</var> ..., <code>--group</code> <var>group</var> ...</dt><dd><p>Runs only the groups specified.</p></dd>
 <dt><code>-d</code>, <code>--debug</code></dt><dd><p>Runs Guard in debug mode.</p></dd>
+<dt class="flush"><code>-h</code></dt><dd><p>List all of Guard's available commands.</p></dd>
+</dl>
+
+
+<h2 id="COMMANDS">COMMANDS</h2>
+
+<dl>
+<dt class="flush"><code>start</code></dt><dd><p>Starts Guard. This is the default command if none is provided.</p></dd>
+<dt><code>init</code> [guard]</dt><dd><p>Add the requested guard's default Guardfile configuration to the current Guardfile.</p></dd>
+<dt><code>show</code>, <code>-T</code></dt><dd><p>List defined groups and guards for the current Guardfile.</p></dd>
 </dl>
 
 

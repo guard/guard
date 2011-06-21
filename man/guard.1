@@ -7,7 +7,7 @@
 \fBguard\fR \- Guard keeps an eye on your file modifications\.
 .
 .SH "SYNOPSIS"
-guard \fIoptions\fR
+guard \fIcommand\fR \fIoptions\fR
 .
 .SH "DESCRIPTION"
 Guard is a command line tool that easily handle events on files modifications\.
@@ -26,12 +26,30 @@ Clears the Shell after each change\.
 Disable notifications (Growl or Libnotify depending on your system)\. Note that notifications can also be disabled globally by setting a GUARD_NOTIFY environment variable to false\. The \fIflag\fR part can be passed to guard using true/false or t/f\.
 .
 .TP
-\fB\-g\fR \fIlist of groups\fR, \fB\-\-group\fR \fIlist of groups\fR
+\fB\-g\fR \fIgroup\fR \.\.\., \fB\-\-group\fR \fIgroup\fR \.\.\.
 Runs only the groups specified\.
 .
 .TP
 \fB\-d\fR, \fB\-\-debug\fR
 Runs Guard in debug mode\.
+.
+.TP
+\fB\-h\fR
+List all of Guard\'s available commands\.
+.
+.SH "COMMANDS"
+.
+.TP
+\fBstart\fR
+Starts Guard\. This is the default command if none is provided\.
+.
+.TP
+\fBinit\fR [guard]
+Add the requested guard\'s default Guardfile configuration to the current Guardfile\.
+.
+.TP
+\fBshow\fR, \fB\-T\fR
+List defined groups and guards for the current Guardfile\.
 .
 .SH "EXAMPLES"
 \fB[bundle exec] guard \-\-clear \-\-group backend frontend \-\-notify false \-\-debug\fR
