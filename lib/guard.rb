@@ -1,11 +1,12 @@
 module Guard
 
-  autoload :UI,         'guard/ui'
-  autoload :Dsl,        'guard/dsl'
-  autoload :Interactor, 'guard/interactor'
-  autoload :Listener,   'guard/listener'
-  autoload :Watcher,    'guard/watcher'
-  autoload :Notifier,   'guard/notifier'
+  autoload :UI,           'guard/ui'
+  autoload :Dsl,          'guard/dsl'
+  autoload :DslDescriber, 'guard/dsl_describer'
+  autoload :Interactor,   'guard/interactor'
+  autoload :Listener,     'guard/listener'
+  autoload :Watcher,      'guard/watcher'
+  autoload :Notifier,     'guard/notifier'
 
   class << self
     attr_accessor :options, :guards, :listener

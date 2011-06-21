@@ -3,7 +3,7 @@ guard(1) -- Guard keeps an eye on your file modifications.
 
 ## SYNOPSIS
 
-guard [options]
+guard <command> <options>
 
 ## DESCRIPTION
 
@@ -23,11 +23,25 @@ https://github.com/guard/guard
   Note that notifications can also be disabled globally by setting a GUARD_NOTIFY environment variable to false.
   The <flag> part can be passed to guard using true/false or t/f.
 
-* `-g` <list of groups>, `--group` <list of groups>:
+* `-g` <group> ..., `--group` <group> ...:
   Runs only the groups specified.
 
 * `-d`, `--debug`:
   Runs Guard in debug mode.
+
+* `-h`:
+  List all of Guard's available commands.
+
+## COMMANDS
+
+* `start`:
+  Starts Guard. This is the default command if none is provided.
+
+* `init` [guard]:
+  Add the requested guard's default Guardfile configuration to the current Guardfile.
+
+* `show`, `-T`:
+  List defined groups and guards for the current Guardfile.
 
 ## EXAMPLES
 
