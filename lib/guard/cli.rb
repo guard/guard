@@ -53,7 +53,7 @@ module Guard
             line = "  #{guard[:name]}"
 
             if !guard[:options].empty?
-              line += ": #{guard[:options].collect { |k, v| "#{k} => #{v}" }.join(", ")}"
+              line += ": #{guard[:options].collect { |k, v| "#{k} => #{v.inspect}" }.join(", ")}"
             end
             ::Guard::UI.info line
           end
