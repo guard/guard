@@ -127,6 +127,9 @@ describe Guard::Dsl do
     lambda { subject.evaluate_guardfile(:guardfile_contents => invalid_guardfile_string ) }.should raise_error
   end
 
+  it "should generate a displayable structure from the Guardfile data" do
+  end
+
   describe ".guardfile_default_path" do
     let(:local_path) { File.join(Dir.pwd, 'Guardfile') }
     let(:user_path) { File.expand_path(File.join("~", 'Guardfile')) }
