@@ -44,23 +44,23 @@ module Guard
       ::Guard::DslDescriber.guardfile_structure.each do |group|
         if !group[:guards].empty?
           if group[:group]
-            puts "Group #{group[:group]}:"
+            ::Guard::UI.info "Group #{group[:group]}:"
           else
-            puts "(Global):"
+            ::Guard::UI.info "(global):"
           end
 
           group[:guards].each do |guard|
-            print "  #{guard[:name]}"
+            line = "  #{guard[:name]}"
 
             if !guard[:options].empty?
-              print ": #{guard[:options].collect { |k, v| "#{k} => #{v}" }.join(", ")}"
+              line += ": #{guard[:options].collect { |k, v| "#{k} => #{v}" }.join(", ")}"
             end
-            puts
+            ::Guard::UI.info line
           end
         end
       end
 
-      puts
+      ::Guard::UI.info ''
     end
     map %w(-T) => :show
   end
