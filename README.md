@@ -38,7 +38,7 @@ Generate an empty Guardfile with:
 $ guard init
 ```
 
-You may optionally place this Guardfile in your home directory to use it across multiple projects.
+You may optionally place a .Guardfile in your home directory to use it across multiple projects.
 
 Add the guards you need to your Guardfile (see the existing guards below).
 
@@ -120,7 +120,7 @@ or if you use Bundler, to run the Guard executable specific to your bundle:
 $ bundle exec guard [start]
 ```
 
-Guard will look for a Guardfile in your current directory. If it does not find one, it will look in your `$HOME` directory for one.
+Guard will look for a Guardfile in your current directory. If it does not find one, it will look in your `$HOME` directory for a .Guardfile.
 
 Command line options
 --------------------
