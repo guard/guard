@@ -77,10 +77,6 @@ module Guard
         File.exist?(local_guardfile_path) ? local_guardfile_path : home_guardfile_path
       end
 
-      def guardfile_structure
-
-      end
-
     private
 
       def local_guardfile_path
