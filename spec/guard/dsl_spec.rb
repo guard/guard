@@ -4,7 +4,7 @@ describe Guard::Dsl do
   subject { described_class }
   before(:each) do
     @local_guardfile_path = File.join(Dir.pwd, 'Guardfile')
-    @home_guardfile_path  = File.expand_path(File.join("~", "Guardfile"))
+    @home_guardfile_path  = File.expand_path(File.join("~", ".Guardfile"))
     ::Guard.stub!(:options).and_return(:debug => true)
   end
 
@@ -129,7 +129,7 @@ describe Guard::Dsl do
 
   describe ".guardfile_default_path" do
     let(:local_path) { File.join(Dir.pwd, 'Guardfile') }
-    let(:user_path) { File.expand_path(File.join("~", 'Guardfile')) }
+    let(:user_path) { File.expand_path(File.join("~", '.Guardfile')) }
 
     before do
       File.stub(:exist? => false)

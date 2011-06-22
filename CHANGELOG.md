@@ -13,6 +13,7 @@
 - Pull request [#84](https://github.com/guard/guard/pull/84): Use RbConfig instead of obsolete and deprecated Config. ([@etehtsea][])
 - Pull request [#80](https://github.com/guard/guard/pull/80): Watching dotfile (hidden files under unix). (reported by [@chrisberkhout][], fixed by [@yannlugrin][])
 - Clear the terminal on start when the `:clear` option is given. ([@rymai][])
+- Rename home directory Guardfile to `.Guardfile`. ([@tpope][])
 
 ## 0.4.2 - June 7, 2011
 
@@ -183,6 +184,7 @@
 [@thibaudgg]: https://github.com/thibaudgg
 [@thierryhenrio]: https://github.com/thierryhenrio
 [@tinogomes]: https://github.com/tinogomes
+[@tpope]: https://github.com/tpope
 [@veged]: https://github.com/veged
 [@wereHamster]: https://github.com/wereHamster
 [@yannlugrin]: https://github.com/yannlugrin
