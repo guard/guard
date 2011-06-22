@@ -1,5 +1,9 @@
 ## Master
 
+## New features
+
+- Pull request [#91](https://github.com/guard/guard/pull/91): Show Guards in Guardfile with the `guard -T`. ([@johnbintz][])
+
 ## Improvements
 
 - Pull request [#88](https://github.com/guard/guard/pull/88): Write exception trace in the terminal when a supervised task fail. ([@mcmire][])
