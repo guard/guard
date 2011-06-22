@@ -84,7 +84,7 @@ module Guard
       end
 
       def home_guardfile_path
-        File.expand_path(File.join("~", "Guardfile"))
+        File.expand_path(File.join("~", ".Guardfile"))
       end
 
     end
