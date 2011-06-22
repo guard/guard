@@ -273,6 +273,23 @@ Guard::Dsl.evaluate_guardfile(:guardfile_contents => "
 ")
 ```
 
+### Listing defined guards/groups for the current project
+
+You can list the defined groups and guards for the current Guardfile from the command line using `guard show` or `guard -T`:
+
+``` bash
+# guard -T
+
+(global):
+  shell
+Group backend:
+  bundler
+  rspec: cli => "--color --format doc'
+Group frontend:
+  coffeescript: output => "public/javascripts/compiled"
+  livereload
+```
+
 Create a new guard
 ------------------
 

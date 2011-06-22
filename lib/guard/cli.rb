@@ -37,5 +37,31 @@ module Guard
       end
     end
 
+    desc "show", "Show all defined Guards and their options"
+    def show
+      ::Guard::DslDescriber.evaluate_guardfile(options)
+
+      ::Guard::DslDescriber.guardfile_structure.each do |group|
+        if !group[:guards].empty?
+          if group[:group]
+            ::Guard::UI.info "Group #{group[:group]}:"
+          else
+            ::Guard::UI.info "(global):"
+          end
+
+          group[:guards].each do |guard|
+            line = "  #{guard[:name]}"
+
+            if !guard[:options].empty?
+              line += ": #{guard[:options].collect { |k, v| "#{k} => #{v.inspect}" }.join(", ")}"
+            end
+            ::Guard::UI.info line
+          end
+        end
+      end
+
+      ::Guard::UI.info ''
+    end
+    map %w(-T) => :show
   end
 end
