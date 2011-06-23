@@ -162,6 +162,7 @@
 
 [@anithri]: https://github.com/anithri
 [@brainopia]: https://github.com/brainopia
+[@capotej]: https://github.com/capotej
 [@chrisberkhout]: https://github.com/chrisberkhout
 [@etehtsea]: https://github.com/etehtsea
 [@fnichol]: https://github.com/fnichol

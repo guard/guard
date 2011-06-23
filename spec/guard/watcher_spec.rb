@@ -147,7 +147,6 @@ describe Guard::Watcher do
         Guard::UI.should_receive(:error) { |msg|
           msg.should include("Problem with watch action!")
           msg.should include("EVIL")
-          
         }
 
         Guard::Watcher.match_files(@guard, ['evil.rb'])
