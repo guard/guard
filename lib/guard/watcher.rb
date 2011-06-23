@@ -54,7 +54,7 @@ module Guard
       begin
         @action.arity > 0 ? @action.call(matches) : @action.call
       rescue Exception => e
-        UI.error "Problem with watch action!\n#{e.message}\n\n#{e.backtrace}"
+        UI.error "Problem with watch action!\n#{e.message}\n\n#{e.backtrace.join("\n")}"
       end
     end
     
