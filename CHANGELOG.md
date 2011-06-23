@@ -6,6 +6,7 @@
 
 ## Improvements
 
+- Pull request [#94](https://github.com/guard/guard/pull/94): Show backtrace in terminal when a problem with a watch action occurs. ([@capotej][])
 - Pull request [#88](https://github.com/guard/guard/pull/88): Write exception trace in the terminal when a supervised task fail. ([@mcmire][])
 - Color in red the "ERROR:" flag when using `UI.error`. ([@rymai][])
 - Issue [#79](https://github.com/guard/guard/issues/79) and Pull request [#82](https://github.com/guard/guard/pull/82): Improve INotify support on Linux. ([@Gazer][] & [@yannlugrin][])
