@@ -143,8 +143,13 @@ describe Guard::Watcher do
     context "with an exception that is raised" do
       before(:all) { @guard.watchers = [Guard::Watcher.new('evil.rb', lambda { raise "EVIL" })] }
 
-      it "displays the error" do
-        Guard::UI.should_receive(:error).with("Problem with watch action!")
+      it "displays the error and backtrace" do
+        Guard::UI.should_receive(:error) { |msg|
+          msg.should include("Problem with watch action!")
+          msg.should include("EVIL")
+          
+        }
+
         Guard::Watcher.match_files(@guard, ['evil.rb'])
       end
     end
