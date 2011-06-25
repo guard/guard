@@ -9,6 +9,7 @@ module Guard
     method_option :notify, :type => :boolean, :default => true,  :aliases => '-n', :banner => "Notifications feature (growl/libnotify)"
     method_option :debug,  :type => :boolean, :default => false, :aliases => '-d', :banner => "Print debug messages"
     method_option :group,  :type => :array,   :default => [],    :aliases => '-g', :banner => "Run only the passed groups"
+    method_option :dry_run,  :type => :boolean, :default => false, :aliases => '-y', :banner => "Do a dry run without executing actions"
 
     desc "start", "Starts Guard"
     def start
