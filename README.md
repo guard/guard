@@ -163,6 +163,15 @@ $ guard --debug
 $ guard -d # shortcut
 ```
 
+### `--dry-run` option
+
+Do a dry run without executing actions:
+
+``` bash
+$ guard --dry-run
+$ guard -y # shortcut
+```
+
 An exhaustive list of options is available with:
 
 ``` bash

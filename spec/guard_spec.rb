@@ -39,6 +39,44 @@ describe Guard do
       ::Guard::Notifier.should_receive(:turn_off)
       ::Guard.setup(:notify => true)
     end
+
+    context do
+      before do
+        @original_system = Kernel.method(:system)
+        @original_command = Kernel.method(:"`")
+      end
+
+      after do
+        Kernel.send(:define_method, :system, @original_system.to_proc )
+        Kernel.send(:define_method, :"`", @original_command.to_proc )
+      end
+
+      it "overwrites Kernel.#system method if the dry-run option is false" do
+        ::Guard.setup(:"dry-run" => false)
+        ::Kernel.should_not_receive(:print).with("command arg1 arg2\n")
+        system("command","arg1","arg2")
+      end
+
+      it "overwrites Kernel.#system method if the dry-run option is true" do
+        ::Guard.setup(:"dry-run" => true)
+        ::Kernel.should_receive(:print).with("command arg1 arg2\n")
+        system("command","arg1","arg2")
+      end
+
+      it "overwrites Kernel.#` method if the dry-run option is false" do
+        ::Guard.setup(:"dry-run" => false)
+        ::Kernel.should_not_receive(:print).with("command\n")
+        `command`
+        %x{command}
+      end
+
+      it "overwrites Kernel.#` method if the dry-run option is false" do
+        ::Guard.setup(:"dry-run" => true)
+        ::Kernel.should_receive(:print).twice.with("command\n")
+        `command`
+        %x{command}
+      end
+    end
   end
 
   describe ".get_guard_class" do
