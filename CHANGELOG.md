@@ -6,6 +6,7 @@
 
 ## Improvements
 
+- Pull request [#95](https://github.com/guard/guard/pull/95): Do a dry run without executing actions when the `:clear` option is given. ([@uk-ar][])
 - Pull request [#94](https://github.com/guard/guard/pull/94): Show backtrace in terminal when a problem with a watch action occurs. ([@capotej][])
 - Pull request [#88](https://github.com/guard/guard/pull/88): Write exception trace in the terminal when a supervised task fail. ([@mcmire][])
 - Color in red the "ERROR:" flag when using `UI.error`. ([@rymai][])

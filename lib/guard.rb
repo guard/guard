@@ -19,10 +19,15 @@ module Guard
 
       @options[:notify] && ENV["GUARD_NOTIFY"] != 'false' ? Notifier.turn_on : Notifier.turn_off
 
-      Kernel.send(:define_method, :system ) do
-        |program, *args| print program + ' ' + args.join(' ') + "\n"
-      end if options.dry_run
+      if @options[:"dry-run"]
+        Kernel.send(:define_method, :system ) do
+          |program, *args| Kernel.print program + ' ' + args.join(' ') + "\n"
+        end
 
+        Kernel.send(:define_method, :"`" ) do
+          |command| Kernel.print command + "\n"
+        end
+      end
       self
     end
 
