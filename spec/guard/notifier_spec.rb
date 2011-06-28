@@ -194,6 +194,14 @@ describe Guard::Notifier do
         end
 
         it "allows to overwrite a default notification option" do
+          config = Class.new do
+            attr_accessor :notifications, :default_notifications, :application_name
+          end.new
+
+          apps = ["Guard", "Guard-Cucumber"]
+
+          GrowlNotify.should_receive(:config).and_yield(config)
+
           GrowlNotify.should_receive(:send_notification).with(
             :title => "Guard",
             :icon  => Pathname.new(File.dirname(__FILE__)).join('../../images/success.png').to_s,
@@ -201,6 +209,10 @@ describe Guard::Notifier do
             :description => 'great'
           )
           subject.notify 'great', :title => 'Guard', :name => "Guard-Cucumber"
+
+          config.notifications.should == apps
+          config.default_notifications.should == apps
+          config.application_name.should == apps.first
         end
       end
     end

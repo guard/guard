@@ -52,6 +52,7 @@ module Guard
       if defined?(GrowlNotify)
         default_options[:description] = message
         default_options[:application_name] = default_options.delete(:name)
+        growl_notify_config(default_options[:application_name]) if default_options[:application_name] != 'Guard'
 
         GrowlNotify.send_notification(default_options) if enabled?
       else
@@ -103,10 +104,7 @@ module Guard
       begin
         require 'growl_notify'
 
-        GrowlNotify.config do |c|
-          c.notifications = c.default_notifications = [ "Guard" ]
-          c.application_name = c.notifications.first
-        end
+        growl_notify_config
       rescue LoadError
         require 'growl'
       end
@@ -127,6 +125,13 @@ module Guard
     rescue LoadError
       turn_off
       UI.info "Please install rb-notifu gem for Windows notification support and add it to your Gemfile"
+    end
+
+    def self.growl_notify_config(additional_applications = [])
+      GrowlNotify.config do |c|
+        c.notifications = c.default_notifications = [ "Guard", additional_applications ].flatten
+        c.application_name = c.notifications.first
+      end
     end
   end
 end
