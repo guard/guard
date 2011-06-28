@@ -50,9 +50,11 @@ Install the rb-fsevent gem for [FSEvent](http://en.wikipedia.org/wiki/FSEvents) 
 $ gem install rb-fsevent
 ```
 
-Install the Growl gem if you want notification support:
+Install either the growl_notify or the Growl gem if you want notification support:
 
 ``` bash
+$ gem install growl_notify
+$ # or
 $ gem install growl
 ```
 
@@ -62,6 +64,9 @@ And add them to your Gemfile:
 gem 'rb-fsevent'
 gem 'growl'
 ```
+
+growl_notify uses AppleScript, the suggested method for interfacing with Growl,
+rather than the `growlnotify` command to display messages.
 
 ### On Linux
 
