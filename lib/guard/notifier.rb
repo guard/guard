@@ -45,8 +45,18 @@ module Guard
 
     def self.notify_mac(title, message, image, options)
       require_growl # need for guard-rspec formatter that is called out of guard scope
+
       default_options = { :title => title, :icon => image_path(image), :name => "Guard" }
-      Growl.notify message, default_options.merge(options) if enabled?
+      default_options.merge!(options)
+
+      if defined?(GrowlNotify)
+        default_options[:description] = message
+        default_options[:application_name] = default_options.delete(:name)
+
+        GrowlNotify.send_notification(default_options) if enabled?
+      else
+        Growl.notify message, default_options.merge(options) if enabled?
+      end
     end
 
     def self.notify_linux(title, message, image, options)
@@ -90,10 +100,19 @@ module Guard
     end
 
     def self.require_growl
-      require 'growl'
+      begin
+        require 'growl_notify'
+
+        GrowlNotify.config do |c|
+          c.notifications = c.default_notifications = [ "Guard" ]
+          c.application_name = c.notifications.first
+        end
+      rescue LoadError
+        require 'growl'
+      end
     rescue LoadError
       turn_off
-      UI.info "Please install growl gem for Mac OS X notification support and add it to your Gemfile"
+      UI.info "Please install growl or growl_notify gem for Mac OS X notification support and add it to your Gemfile"
     end
 
     def self.require_libnotify
