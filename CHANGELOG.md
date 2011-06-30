@@ -6,6 +6,7 @@
 
 ## Improvements
 
+- Issue [#98](https://github.com/guard/guard/issues/98): Multiple calls per watch event on linux with rb-inotify. ([@jeffutter][] & [@netzpirat][])
 - Pull request [#94](https://github.com/guard/guard/pull/94): Show backtrace in terminal when a problem with a watch action occurs. ([@capotej][])
 - Pull request [#88](https://github.com/guard/guard/pull/88): Write exception trace in the terminal when a supervised task fail. ([@mcmire][])
 - Color in red the "ERROR:" flag when using `UI.error`. ([@rymai][])
@@ -170,6 +171,7 @@
 [@gix]: https://github.com/gix
 [@hashrocketeer]: https://github.com/hashrocketeer
 [@indirect]: https://github.com/indirect
+[@jeffutter]: https://github.com/jeffutter
 [@johnbintz]: https://github.com/johnbintz
 [@jrsacks]: https://github.com/jrsacks
 [@koshigoe]: https://github.com/koshigoe
