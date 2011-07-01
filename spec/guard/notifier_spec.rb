@@ -29,6 +29,7 @@ describe Guard::Notifier do
 
         it "loads the library and enables the notifications" do
           subject.should_receive(:require).with('growl_notify').and_return true
+          GrowlNotify.should_receive(:application_name).and_return ''
           subject.turn_on
           subject.should be_enabled
         end
@@ -193,26 +194,14 @@ describe Guard::Notifier do
           subject.notify 'great', :title => 'Guard', :priority => 1
         end
 
-        it "allows to overwrite a default notification option" do
-          config = Class.new do
-            attr_accessor :notifications, :default_notifications, :application_name
-          end.new
-
-          apps = ["Guard", "Guard-Cucumber"]
-
-          GrowlNotify.should_receive(:config).and_yield(config)
-
+        it "throws out the application name since Guard should only use one Growl App Name while running" do
           GrowlNotify.should_receive(:send_notification).with(
             :title => "Guard",
             :icon  => Pathname.new(File.dirname(__FILE__)).join('../../images/success.png').to_s,
-            :application_name  => "Guard-Cucumber",
+            :application_name  => "Guard",
             :description => 'great'
           )
           subject.notify 'great', :title => 'Guard', :name => "Guard-Cucumber"
-
-          config.notifications.should == apps
-          config.default_notifications.should == apps
-          config.application_name.should == apps.first
         end
       end
     end

@@ -4,6 +4,7 @@ require 'guard/ui'
 
 module Guard
   module Notifier
+    APPLICATION_NAME = "Guard"
 
     def self.turn_off
       ENV["GUARD_NOTIFY"] = 'false'
@@ -46,13 +47,13 @@ module Guard
     def self.notify_mac(title, message, image, options)
       require_growl # need for guard-rspec formatter that is called out of guard scope
 
-      default_options = { :title => title, :icon => image_path(image), :name => "Guard" }
+      default_options = { :title => title, :icon => image_path(image), :name => APPLICATION_NAME }
       default_options.merge!(options)
 
       if defined?(GrowlNotify)
         default_options[:description] = message
-        default_options[:application_name] = default_options.delete(:name)
-        growl_notify_config(default_options[:application_name]) if default_options[:application_name] != 'Guard'
+        default_options[:application_name] = APPLICATION_NAME
+        default_options.delete(:name)
 
         GrowlNotify.send_notification(default_options) if enabled?
       else
@@ -104,7 +105,12 @@ module Guard
       begin
         require 'growl_notify'
 
-        growl_notify_config
+        if GrowlNotify.application_name != APPLICATION_NAME
+          GrowlNotify.config do |c|
+            c.notifications = c.default_notifications = [ APPLICATION_NAME ]
+            c.application_name = c.notifications.first
+          end
+        end
       rescue LoadError
         require 'growl'
       end
@@ -125,13 +131,6 @@ module Guard
     rescue LoadError
       turn_off
       UI.info "Please install rb-notifu gem for Windows notification support and add it to your Gemfile"
-    end
-
-    def self.growl_notify_config(additional_applications = [])
-      GrowlNotify.config do |c|
-        c.notifications = c.default_notifications = [ "Guard", additional_applications ].flatten
-        c.application_name = c.notifications.first
-      end
     end
   end
 end
