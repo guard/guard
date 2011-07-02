@@ -1,4 +1,4 @@
-## Master
+## 0.5.0 - July 2, 2011
 
 ## New features
 
