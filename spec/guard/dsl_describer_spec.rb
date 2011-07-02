@@ -1,7 +1,9 @@
 require 'spec_helper'
 
 describe Guard::DslDescriber do
+  before(:each) { ::Guard.stub!(:guards).and_return([mock('Guard')]) }
   subject { described_class }
+
 
   it 'should evaluate a Guardfile and create the right structure' do
     mixed_guardfile_string = <<-GUARD

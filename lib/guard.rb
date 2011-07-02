@@ -29,17 +29,15 @@ module Guard
       Interactor.init_signal_traps
       Dsl.evaluate_guardfile(options)
 
-      if guards.empty?
-        UI.error "No guards found in Guardfile, please add at least one."
-      else
-        listener.on_change do |files|
-          run { run_on_change_for_all_guards(files) } if Watcher.match_files?(guards, files)
-        end
+      listener.on_change do |files|
+        Dsl.revaluate_guardfile if Watcher.match_guardfile?(files)
 
-        UI.info "Guard is now watching at '#{Dir.pwd}'"
-        guards.each { |guard| supervised_task(guard, :start) }
-        listener.start
+        run { run_on_change_for_all_guards(files) } if Watcher.match_files?(guards, files)
       end
+
+      UI.info "Guard is now watching at '#{Dir.pwd}'"
+      guards.each { |guard| supervised_task(guard, :start) }
+      listener.start
     end
 
     def run_on_change_for_all_guards(files)
@@ -79,8 +77,12 @@ module Guard
     end
 
     def add_guard(name, watchers = [], options = {})
-      guard_class = get_guard_class(name)
-      @guards << guard_class.new(watchers, options)
+      if name.downcase == 'ego'
+        UI.deprecation("Guard::Ego is now part of Guard you can removed it from your Guardfile.")
+      else
+        guard_class = get_guard_class(name)
+        @guards << guard_class.new(watchers, options)
+      end
     end
 
     def get_guard_class(name)

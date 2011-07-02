@@ -16,6 +16,13 @@ module Guard
         end
       end
 
+      def deprecation(message, options = {})
+        unless ENV["GUARD_ENV"] == "test"
+          reset_line if options[:reset]
+          puts "#{color('DEPRECATION:', ';31')} #{message}"
+        end
+      end
+
       def debug(message, options = {})
         unless ENV["GUARD_ENV"] == "test"
           reset_line if options[:reset]
@@ -48,7 +55,7 @@ module Guard
               require 'rubygems' unless ENV['NO_RUBYGEMS']
               require 'Win32/Console/ANSI'
             rescue LoadError
-              @color_enabled = false 
+              @color_enabled = false
               info "You must 'gem install win32console' to use color on Windows"
               false
             end

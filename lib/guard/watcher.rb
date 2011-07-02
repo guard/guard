@@ -1,11 +1,11 @@
 module Guard
   class Watcher
     attr_accessor :pattern, :action
-    
+
     def initialize(pattern, action = nil)
       @pattern, @action = pattern, action
       @@warning_printed ||= false
-      
+
       # deprecation warning
       if @pattern.is_a?(String) && @pattern =~ /(^(\^))|(>?(\\\.)|(\.\*))|(\(.*\))|(\[.*\])|(\$$)/
         unless @@warning_printed
@@ -17,7 +17,7 @@ module Guard
         @pattern = Regexp.new(@pattern)
       end
     end
-    
+
     def self.match_files(guard, files)
       guard.watchers.inject([]) do |paths, watcher|
         files.each do |file|
@@ -33,7 +33,7 @@ module Guard
         paths.flatten.map { |p| p.to_s }
       end
     end
-    
+
     def self.match_files?(guards, files)
       guards.any? do |guard|
         guard.watchers.any? do |watcher|
@@ -41,7 +41,7 @@ module Guard
         end
       end
     end
-    
+
     def match_file?(file)
       if @pattern.is_a?(Regexp)
         file.match(@pattern)
@@ -49,7 +49,11 @@ module Guard
         file == @pattern ? [file] : nil
       end
     end
-    
+
+    def self.match_guardfile?(files)
+      files.any? { |file| "#{Dir.pwd}/#{file}" == Dsl.guardfile_path }
+    end
+
     def call_action(matches)
       begin
         @action.arity > 0 ? @action.call(matches) : @action.call
@@ -57,6 +61,6 @@ module Guard
         UI.error "Problem with watch action!\n#{e.message}\n\n#{e.backtrace.join("\n")}"
       end
     end
-    
+
   end
 end

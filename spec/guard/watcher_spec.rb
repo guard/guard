@@ -210,4 +210,16 @@ describe Guard::Watcher do
     end
   end
 
+  describe ".match_guardfile?" do
+    before(:all) { Guard::Dsl.stub(:guardfile_path) { Dir.pwd + '/Guardfile' } }
+
+    context "with files that match the Guardfile" do
+      specify { Guard::Watcher.match_guardfile?(['Guardfile', 'guard_rocks_spec.rb']).should be_true }
+    end
+
+    context "with no files that match the Guardfile" do
+      specify { Guard::Watcher.match_guardfile?(['guard_rocks.rb', 'guard_rocks_spec.rb']).should be_false }
+    end
+  end
+
 end

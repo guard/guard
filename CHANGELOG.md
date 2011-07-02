@@ -2,6 +2,7 @@
 
 ## New features
 
+- Guard::Ego is now part of Guard, so Guardfile is automagically re-evaluated when modified. ([@thibaudgg][])
 - Pull request [#91](https://github.com/guard/guard/pull/91): Show Guards in Guardfile with the `guard -T`. ([@johnbintz][])
 
 ## Improvements

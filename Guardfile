@@ -4,16 +4,16 @@ guard :rspec, :version => 2 do
   watch('spec/spec_helper.rb')  { "spec" }
 end
 
-require 'guard/guard'
-
-module ::Guard
-  class Breaking < ::Guard::Guard
-    def run_all
-      raise "Fool !"
-    end
-  end
-end
-
-group "exceptional" do
-  guard :breaking
-end
+# require 'guard/guard'
+#
+# module ::Guard
+#   class Breaking < ::Guard::Guard
+#     def run_all
+#       raise "Fool !"
+#     end
+#   end
+# end
+#
+# group "exceptional" do
+#   guard :breaking
+# end

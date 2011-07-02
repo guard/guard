@@ -6,13 +6,11 @@ describe Guard::Dsl do
     @local_guardfile_path = File.join(Dir.pwd, 'Guardfile')
     @home_guardfile_path  = File.expand_path(File.join("~", ".Guardfile"))
     ::Guard.stub!(:options).and_return(:debug => true)
+    ::Guard.stub!(:guards).and_return([mock('Guard')])
   end
 
   describe "it should select the correct data source for Guardfile" do
-
-    before(:each) do
-      ::Guard::Dsl.stub!(:instance_eval_guardfile)
-    end
+    before(:each) { ::Guard::Dsl.stub!(:instance_eval_guardfile) }
 
     it "should use a string for initializing" do
       Guard::UI.should_not_receive(:error)
@@ -60,10 +58,15 @@ describe Guard::Dsl do
     lambda { subject.evaluate_guardfile }.should raise_error
   end
 
+  it "displays an error message when no guard are defined in Guardfile" do
+    ::Guard::Dsl.stub!(:instance_eval_guardfile)
+    ::Guard.stub!(:guards).and_return([])
+    Guard::UI.should_receive(:error)
+    subject.evaluate_guardfile(:guardfile_contents => valid_guardfile_string)
+  end
+
   describe "it should correctly read data from its valid data source" do
-    before(:each) do
-      ::Guard::Dsl.stub!(:instance_eval_guardfile)
-    end
+    before(:each) { ::Guard::Dsl.stub!(:instance_eval_guardfile) }
 
     it "should read correctly from a string" do
       lambda { subject.evaluate_guardfile(:guardfile_contents => valid_guardfile_string) }.should_not raise_error
@@ -86,9 +89,7 @@ describe Guard::Dsl do
   end
 
   describe "It should correctly throw errors when initializing with invalid data" do
-    before(:each) do
-      ::Guard::Dsl.stub!(:instance_eval_guardfile)
-    end
+    before(:each) { ::Guard::Dsl.stub!(:instance_eval_guardfile) }
 
     it "should raise error when there's a problem reading a file" do
       File.stub!(:exist?).with('/def/Guardfile') { true }
@@ -118,7 +119,6 @@ describe Guard::Dsl do
       lambda { subject.evaluate_guardfile(:guardfile_contents => "") }.should raise_error
       lambda { subject.evaluate_guardfile(:guardfile_contents => nil) }.should raise_error
     end
-
   end
 
   it "displays an error message when Guardfile is not valid" do
@@ -127,13 +127,22 @@ describe Guard::Dsl do
     lambda { subject.evaluate_guardfile(:guardfile_contents => invalid_guardfile_string ) }.should raise_error
   end
 
+  describe ".revaluate_guardfile" do
+    before(:each) { ::Guard::Dsl.stub!(:instance_eval_guardfile) }
+
+    it "resets already definded guards before calling evaluate_guardfile" do
+      subject.evaluate_guardfile(:guardfile_contents => invalid_guardfile_string)
+      ::Guard.guards.should_not be_empty
+      ::Guard::Dsl.should_receive(:evaluate_guardfile)
+      subject.revaluate_guardfile
+      ::Guard.guards.should be_empty
+    end
+  end
+
   describe ".guardfile_default_path" do
     let(:local_path) { File.join(Dir.pwd, 'Guardfile') }
     let(:user_path) { File.expand_path(File.join("~", '.Guardfile')) }
-
-    before do
-      File.stub(:exist? => false)
-    end
+    before(:each) { File.stub(:exist? => false) }
 
     context "when there is a local Guardfile" do
       it "returns the path to the local Guardfile" do
@@ -156,7 +165,6 @@ describe Guard::Dsl do
         subject.guardfile_default_path.should == local_path
       end
     end
-
   end
 
   describe ".guardfile_include?" do
@@ -226,7 +234,6 @@ describe Guard::Dsl do
 
       subject.evaluate_guardfile(:guardfile_contents => "guard 'test', :opt_a => 1, :opt_b => 'fancy'")
     end
-
   end
 
   describe "#watch" do

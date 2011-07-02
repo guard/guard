@@ -2,12 +2,22 @@ module Guard
   class Dsl
     class << self
       @@options = nil
-      
+
       def evaluate_guardfile(options = {})
         options.is_a?(Hash) or raise ArgumentError.new("evaluate_guardfile not passed a Hash!")
 
         @@options = options.dup
         instance_eval_guardfile(fetch_guardfile_contents)
+
+        UI.error "No guards found in Guardfile, please add at least one." if ::Guard.guards.empty?
+      end
+
+      def revaluate_guardfile
+        ::Guard.guards.clear
+        Dsl.evaluate_guardfile(@@options)
+        msg = "Guardfile has been re-evaluated."
+        UI.info(msg)
+        Notifier.notify(msg)
       end
 
       def instance_eval_guardfile(contents)
@@ -67,6 +77,10 @@ module Guard
 
       def guardfile_contents
         @@options ? @@options[:guardfile_contents] : ""
+      end
+
+      def guardfile_path
+        @@options ? @@options[:guardfile_path] : ""
       end
 
       def guardfile_contents_usable?
