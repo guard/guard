@@ -49,9 +49,18 @@ describe Guard do
       after do
         Kernel.send(:define_method, :system, @original_system.to_proc )
         Kernel.send(:define_method, :"`", @original_command.to_proc )
+        class << File
+          if method_defined?(:guard_original_open)
+            alias open guard_original_open
+          end
+        end
+        File.send(:remove_method, :write) if
+          File.instance_methods(false).include?(:write)
+        File.send(:remove_method, :write_nonblock) if
+          File.instance_methods(false).include?(:write_nonblock)
       end
 
-      it "overwrites Kernel.#system method if the dry-run option is false" do
+      it "don't overwrites Kernel.#system method if the dry-run option is false" do
         ::Guard.setup(:"dry-run" => false)
         ::Kernel.should_not_receive(:print).with("command arg1 arg2\n")
         system("command","arg1","arg2")
@@ -63,18 +72,58 @@ describe Guard do
         system("command","arg1","arg2")
       end
 
-      it "overwrites Kernel.#` method if the dry-run option is false" do
+      it "don't overwrites Kernel.#` method if the dry-run option is false" do
         ::Guard.setup(:"dry-run" => false)
         ::Kernel.should_not_receive(:print).with("command\n")
         `command`
         %x{command}
       end
 
-      it "overwrites Kernel.#` method if the dry-run option is false" do
+      it "overwrites Kernel.#` method if the dry-run option is true" do
         ::Guard.setup(:"dry-run" => true)
         ::Kernel.should_receive(:print).twice.with("command\n")
         `command`
         %x{command}
+      end
+
+      context do
+        before do
+          @file = @fixture_path.join("newfile1.rb")
+          File.open(@file, 'w') { |f| f.write('original') }
+        end
+
+        after do
+          if File.exists?(@file)
+            begin
+              File.delete @file
+            rescue
+            end
+          end
+        end
+
+        it "overwrites File.write method if the dry-run option is true" do
+          ::Guard.setup(:"dry-run" => true)
+          File.open(@file, 'w') { |f| f.write('write') }
+          File.open(@file, 'r') { |f| f.read.should == 'original' }
+        end
+
+        it "don't overwrites File.write method if the dry-run option is false" do
+          ::Guard.setup(:"dry-run" => false)
+          File.open(@file, 'w') { |f| f.write('write') }
+          File.open(@file, 'r') { |f| f.read.should == 'write' }
+        end
+
+        it "overwrites File.write_nonblock method if the dry-run option is true" do
+          ::Guard.setup(:"dry-run" => true)
+          File.open(@file, 'w') { |f| f.write_nonblock('write') }
+          File.open(@file, 'r') { |f| f.read.should == 'original' }
+        end
+
+        it "don't overwrites File.write_nonblock method if the dry-run option is false" do
+          ::Guard.setup(:"dry-run" => false)
+          File.open(@file, 'w') { |f| f.write_nonblock('write') }
+          File.open(@file, 'r') { |f| f.read.should == 'write' }
+        end
       end
     end
   end

@@ -20,13 +20,34 @@ module Guard
       @options[:notify] && ENV["GUARD_NOTIFY"] != 'false' ? Notifier.turn_on : Notifier.turn_off
 
       if @options[:"dry-run"]
-        Kernel.send(:define_method, :system ) do
+        Kernel.send(:define_method, :system) do
           |program, *args| Kernel.print program + ' ' + args.join(' ') + "\n"
         end
 
-        Kernel.send(:define_method, :"`" ) do
+        Kernel.send(:define_method, :"`") do
           |command| Kernel.print command + "\n"
         end
+
+        class << File
+          unless method_defined?(:guard_original_open)
+            alias guard_original_open open
+          end
+          def open(name, *rest, &block)
+            rest.shift
+            rest.unshift "r"
+            guard_original_open(name, *rest, &block)
+          end
+        end
+
+        #because IO.write effect print method
+        File.send(:define_method, :"write") do
+          |str| return
+        end
+
+        File.send(:define_method, :"write_nonblock") do
+          |str| return
+        end
+
       end
       self
     end
