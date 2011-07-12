@@ -78,7 +78,7 @@ module Guard
 
     def add_guard(name, watchers = [], options = {})
       if name.downcase == 'ego'
-        UI.deprecation("Guard::Ego is now part of Guard you can removed it from your Guardfile.")
+        UI.deprecation("Guard::Ego is now part of Guard. You can remove it from your Guardfile.")
       else
         guard_class = get_guard_class(name)
         @guards << guard_class.new(watchers, options)
