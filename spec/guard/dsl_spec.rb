@@ -131,6 +131,7 @@ describe Guard::Dsl do
     before(:each) { ::Guard::Dsl.stub!(:instance_eval_guardfile) }
 
     it "resets already definded guards before calling evaluate_guardfile" do
+      Guard::Notifier.turn_off
       subject.evaluate_guardfile(:guardfile_contents => invalid_guardfile_string)
       ::Guard.guards.should_not be_empty
       ::Guard::Dsl.should_receive(:evaluate_guardfile)
