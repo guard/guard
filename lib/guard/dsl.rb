@@ -9,7 +9,7 @@ module Guard
         @@options = options.dup
         instance_eval_guardfile(fetch_guardfile_contents)
 
-        UI.error "No guards found in Guardfile, please add at least one." if ::Guard.guards.nil? || ::Guard.guards.empty?
+        UI.error "No guards found in Guardfile, please add at least one." if !::Guard.guards.nil? && ::Guard.guards.empty?
       end
 
       def revaluate_guardfile
