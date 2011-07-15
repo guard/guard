@@ -1,3 +1,9 @@
+## 0.5.1 - July 2, 2011
+
+### Bugs fixes:
+
+- Fixed `guard show` command. ([@bronson][] & [@thibaudgg][])
+
 ## 0.5.0 - July 2, 2011
 
 ## New features
