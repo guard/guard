@@ -43,7 +43,10 @@ module Guard
     def run_on_change_for_all_guards(files)
       guards.each do |guard|
         paths = Watcher.match_files(guard, files)
-        supervised_task(guard, :run_on_change, paths) unless paths.empty?
+        unless paths.empty?
+          UI.debug "#{guard.class.name}#run_on_change with #{paths.inspect}"
+          supervised_task(guard, :run_on_change, paths)
+        end
       end
 
       # Reparse the whole directory to catch new files modified during the guards run

@@ -26,7 +26,7 @@ module Guard
       def debug(message, options = {})
         unless ENV["GUARD_ENV"] == "test"
           reset_line if options[:reset]
-          puts "DEBUG: #{message}" if ::Guard.options && ::Guard.options[:debug]
+          puts "DEBUG (#{Time.now.strftime('%T')}): #{message}" if ::Guard.options && ::Guard.options[:debug]
         end
       end
 
