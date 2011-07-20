@@ -58,11 +58,11 @@ module Guard
     def watch_change
       @watch_change = true
       until @stop
-        if RbConfig::CONFIG['build'] =~ /java/ || IO.select([inotify.to_io], [], [], latency)
+        if RbConfig::CONFIG['build'] =~ /java/ || IO.select([worker.to_io], [], [], @latency)
           break if @stop
 
-          inotify.process
           sleep(@latency)
+          worker.process
 
           files = modified_files(@files.shift(@files.size).map { |f| File.dirname(f) }.uniq)
           @callback.call(files) unless files.empty?

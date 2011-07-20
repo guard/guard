@@ -12,12 +12,12 @@ module Guard
 
     def start
       super
-      fsevent.run
+      worker.run
     end
 
     def stop
       super
-      fsevent.stop
+      worker.stop
     end
 
     def self.usable?

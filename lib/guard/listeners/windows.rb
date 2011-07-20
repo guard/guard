@@ -9,12 +9,12 @@ module Guard
 
     def start
       super
-      @fchange.run
+      worker.run
     end
 
     def stop
       super
-      @fchange.stop
+      worker.stop
     end
 
     def self.usable?
