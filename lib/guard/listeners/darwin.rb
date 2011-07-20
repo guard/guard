@@ -1,6 +1,5 @@
 module Guard
   class Darwin < Listener
-    attr_reader :fsevent
 
     def initialize(*)
       super

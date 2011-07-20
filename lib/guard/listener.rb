@@ -9,7 +9,6 @@ module Guard
   autoload :Polling, 'guard/listeners/polling'
 
   class Listener
-    attr_reader :last_event, :sha1_checksums_hash, :directory, :callback
 
     def self.select_and_init(*a)
       if mac? && Darwin.usable?
@@ -25,14 +24,14 @@ module Guard
     end
 
     def initialize(directory=Dir.pwd, options={})
-      @directory = directory.to_s
+      @directory           = directory.to_s
       @sha1_checksums_hash = {}
-      @relativate_paths = options.fetch(:relativate_paths, true)
+      @relativize_paths    = options.fetch(:relativize_paths, true)
       update_last_event
     end
 
     def start
-      watch directory
+      watch(@directory)
     end
 
     def stop
@@ -66,16 +65,15 @@ module Guard
     end
 
     # scopes all given paths to the current #directory
-    def relativate_paths(paths)
-      return paths unless relativate_paths?
+    def relativize_paths(paths)
+      return paths unless relativize_paths?
       paths.map do |path|
-        path.gsub(%r~^#{directory}/~, '')
+        path.gsub(%r{^#{@directory}/}, '')
       end
     end
 
-    attr_writer :relativate_paths
-    def relativate_paths?
-      !!@relativate_paths
+    def relativize_paths?
+      !!@relativize_paths
     end
 
   private
@@ -88,9 +86,9 @@ module Guard
     # Depending on the filesystem, mtime is probably only precise to the second, so round
     # both values down to the second for the comparison.
     def file_modified?(path)
-      if File.mtime(path).to_i == last_event.to_i
+      if File.mtime(path).to_i == @last_event.to_i
         file_content_modified?(path, sha1_checksum(path))
-      elsif File.mtime(path).to_i > last_event.to_i
+      elsif File.mtime(path).to_i > @last_event.to_i
         set_sha1_checksums_hash(path, sha1_checksum(path))
         true
       end
@@ -99,7 +97,7 @@ module Guard
     end
 
     def file_content_modified?(path, sha1_checksum)
-      if sha1_checksums_hash[path] != sha1_checksum
+      if @sha1_checksums_hash[path] != sha1_checksum
         set_sha1_checksums_hash(path, sha1_checksum)
         true
       else

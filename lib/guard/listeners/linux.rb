@@ -1,6 +1,5 @@
 module Guard
   class Linux < Listener
-    attr_reader :inotify, :files, :latency
 
     def initialize(*)
       super
@@ -19,7 +18,7 @@ module Guard
     def stop
       super
       @stop = true
-      sleep latency
+      sleep(@latency)
     end
 
     def self.usable?
@@ -62,8 +61,8 @@ module Guard
         if RbConfig::CONFIG['build'] =~ /java/ || IO.select([inotify.to_io], [], [], latency)
           break if @stop
 
-          sleep latency
           inotify.process
+          sleep(@latency)
 
           files = modified_files(@files.shift(@files.size).map { |f| File.dirname(f) }.uniq)
           @callback.call(files) unless files.empty?

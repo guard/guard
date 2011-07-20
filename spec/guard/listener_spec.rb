@@ -46,19 +46,22 @@ describe Guard::Listener do
     end
   end
 
-  describe "#relativate_paths" do
+  describe "#relativize_paths" do
     subject { described_class.new('/tmp') }
     before :each do
       @paths = %w( /tmp/a /tmp/a/b /tmp/a.b/c.d )
     end
 
-    it "should relativate paths to the configured directory" do
-      subject.relativate_paths(@paths).should =~ %w( a a/b a.b/c.d )
+    it "should relativize paths to the configured directory" do
+      subject.relativize_paths(@paths).should =~ %w( a a/b a.b/c.d )
     end
-
-    it "can be disabled" do
-      subject.relativate_paths = false
-      subject.relativate_paths(@paths).should == @paths
+    
+    context "when set to false" do
+      subject { described_class.new('/tmp', :relativize_paths => false) }
+      
+      it "can be disabled" do
+        subject.relativize_paths(@paths).should eql @paths
+      end
     end
   end
 
@@ -68,7 +71,7 @@ describe Guard::Listener do
     it "updates the last event to the current time" do
       time = Time.now
       subject.update_last_event
-      subject.last_event.to_i.should >= time.to_i
+      subject.instance_variable_get(:@last_event).to_i.should >= time.to_i
     end
   end
 
@@ -129,7 +132,7 @@ describe Guard::Listener do
     context "unspecified" do
       subject { described_class.new }
       it "defaults to Dir.pwd" do
-        subject.directory.should == Dir.pwd
+        subject.instance_variable_get(:@directory).should eql Dir.pwd
       end
       it "can be not changed" do
         subject.should_not respond_to(:directory=)
@@ -142,7 +145,7 @@ describe Guard::Listener do
       end
       subject { described_class.new @wd }
       it "can be inspected" do
-        subject.directory.should == @wd.to_s
+        subject.instance_variable_get(:@directory).should eql @wd.to_s
       end
       it "can be not changed" do
         subject.should_not respond_to(:directory=)

@@ -1,6 +1,5 @@
 module Guard
   class Polling < Listener
-    attr_reader :latency
 
     def initialize(*)
       super
@@ -24,8 +23,8 @@ module Guard
       until @stop
         start = Time.now.to_f
         files = modified_files([Dir.pwd + '/'], :all => true)
-        nap_time = latency - (Time.now.to_f - start)
         @callback.call(files) unless files.empty?
+        nap_time = @latency - (Time.now.to_f - start)
         sleep(nap_time) if nap_time > 0
       end
     end
