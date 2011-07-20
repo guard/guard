@@ -53,7 +53,7 @@ shared_examples_for 'a listener that reacts to #on_change' do
     file = @fixture_path.join("folder1/file1.txt")
     File.exists?(file).should be_true
     start
-    File.open(file, 'w') {|f| f.write('') }
+    File.open(file, 'w') { |f| f.write('') }
     stop
     results.should =~ ['spec/fixtures/folder1/file1.txt']
   end
@@ -62,7 +62,7 @@ shared_examples_for 'a listener that reacts to #on_change' do
     file = @fixture_path.join(".dotfile")
     File.exists?(file).should be_true
     start
-    File.open(file, 'w') {|f| f.write('') }
+    File.open(file, 'w') { |f| f.write('') }
     stop
     results.should =~ ['spec/fixtures/.dotfile']
   end
@@ -73,8 +73,8 @@ shared_examples_for 'a listener that reacts to #on_change' do
     File.exists?(file1).should be_true
     File.exists?(file2).should be_true
     start
-    File.open(file1, 'w') {|f| f.write('') }
-    File.open(file2, 'w') {|f| f.write('') }
+    File.open(file1, 'w') { |f| f.write('') }
+    File.open(file2, 'w') { |f| f.write('') }
     stop
     results.should =~ ['spec/fixtures/folder1/file1.txt', 'spec/fixtures/folder1/folder2/file2.txt']
   end
@@ -108,6 +108,7 @@ shared_examples_for "a listener scoped to a specific directory" do
     @wd = @fixture_path.join("folder1")
     @listener = described_class.new @wd
   end
+
   it "should base paths within this directory" do
     record_results
     new_file = @wd.join("folder2/newfile.rb")
@@ -116,7 +117,7 @@ shared_examples_for "a listener scoped to a specific directory" do
     File.exists?(new_file).should be_false
     start
     FileUtils.touch new_file
-    File.open(modified, 'w') {|f| f.write('') }
+    File.open(modified, 'w') { |f| f.write('') }
     stop
     File.delete new_file
     results.should =~ ["folder2/newfile.rb", 'file1.txt']

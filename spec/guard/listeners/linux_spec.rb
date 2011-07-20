@@ -74,5 +74,4 @@ describe Guard::Linux do
     end
 
   end
-
 end

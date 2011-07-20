@@ -61,7 +61,7 @@ module Guard
     end
 
     def all_files
-      potentially_modified_files [directory + '/'], :all => true
+      potentially_modified_files([@directory], :all => true)
     end
 
     # scopes all given paths to the current #directory
@@ -78,9 +78,23 @@ module Guard
 
   private
 
-    def potentially_modified_files(dirs, options = {})
-      match = options[:all] ? "**/*" : "*"
-      Dir.glob(dirs.map { |dir| "#{dir}#{match}" }, File::FNM_DOTMATCH).select { |file| File.file?(file) }
+    def potentially_modified_files(dirs, options={})
+      paths = Dir.glob(dirs.map { |d| "#{d.sub(%r{/+$}, '')}/*" }, File::FNM_DOTMATCH).reject do |path|
+        %w[. .. .bundle .git log tmp vendor].include?(File.basename(path))
+      end
+
+      if options[:all]
+        paths.inject([]) do |array, path|
+          if File.file?(path)
+            array << path
+          else
+            array += Dir.glob("#{path}/**/*", File::FNM_DOTMATCH).select { |p| File.file?(p) }
+          end
+          array
+        end
+      else
+        paths.select { |path| File.file?(path) }
+      end
     end
 
     # Depending on the filesystem, mtime is probably only precise to the second, so round

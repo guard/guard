@@ -25,5 +25,4 @@ describe Guard::Windows do
     it_should_behave_like "a listener scoped to a specific directory" 
 
   end
-
 end
