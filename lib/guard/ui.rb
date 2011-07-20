@@ -5,7 +5,8 @@ module Guard
       def info(message, options = {})
         unless ENV["GUARD_ENV"] == "test"
           reset_line if options[:reset]
-          puts reset_color(message) if message != ''
+          # The line below causes a stack level too deep error on Windows
+          # puts reset_color(message) if message != ''
         end
       end
 
