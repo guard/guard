@@ -46,9 +46,10 @@ module Guard
       @last_event = Time.now
     end
 
-    def modified_files(dirs, options = {})
+    def modified_files(dirs, options={})
       files = potentially_modified_files(dirs, options).select { |path| file_modified?(path) }
-      relativate_paths files
+      update_last_event
+      relativize_paths(files)
     end
 
     def worker

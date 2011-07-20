@@ -35,9 +35,9 @@ module Guard
     def watch(directory)
       worker.watch(directory, :all_events, :recursive) do |event|
         paths = [File.expand_path(event.watcher.path) + '/']
-        files = modified_files(paths, {:all => true})
-        update_last_event
-        callback.call(files)
+        paths = [File.expand_path(event.watcher.path)]
+        files = modified_files(paths, :all => true)
+        @callback.call(files) unless files.empty?
       end
     end
 
