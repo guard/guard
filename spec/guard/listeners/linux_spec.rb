@@ -68,7 +68,7 @@ describe Guard::Linux do
       file = @fixture_path.join("folder1/file1.txt")
       File.exists?(file).should be_true
       start
-      @listener.inotify.should_not_receive(:process)
+      @listener.instance_variable_get(:@inotify).should_not_receive(:process)
       stop
       File.open(file, 'w') {|f| f.write('') }
     end
