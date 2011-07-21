@@ -1,3 +1,9 @@
+## Master
+
+### Bugs fixes:
+
+- Dir.glob now ignores files that don't need to be watched. ([@rymai][])
+
 ## 0.5.1 - July 2, 2011
 
 ### Bugs fixes:
