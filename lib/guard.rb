@@ -1,3 +1,5 @@
+require 'core_ext/hash_with_indifferent_access'
+
 module Guard
 
   autoload :UI,           'guard/ui'

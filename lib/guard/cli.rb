@@ -10,6 +10,8 @@ module Guard
     method_option :debug,  :type => :boolean, :default => false, :aliases => '-d', :banner => "Print debug messages"
     method_option :group,  :type => :array,   :default => [],    :aliases => '-g', :banner => "Run only the passed groups"
 
+    method_option :guardfile, :type => :string,  :default => './Guardfile', :aliases => '-C', :banner => "Specify a Guardfile"
+
     desc "start", "Starts Guard"
     def start
       ::Guard.start(options)
