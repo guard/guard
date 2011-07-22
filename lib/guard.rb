@@ -1,4 +1,5 @@
 require 'core_ext/hash_with_indifferent_access'
+#require 'pry'
 
 module Guard
 
@@ -16,7 +17,7 @@ module Guard
     # initialize this singleton
     def setup(options = {})
       @options  = options
-      @listener = Listener.select_and_init
+      @listener = Listener.select_and_init((options[:watchdir]) ? File.expand_path(options[:watchdir]) : Dir.pwd)
       @guards   = []
 
       @options[:notify] && ENV["GUARD_NOTIFY"] != 'false' ? Notifier.turn_on : Notifier.turn_off
