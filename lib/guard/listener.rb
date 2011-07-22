@@ -9,6 +9,8 @@ module Guard
   autoload :Polling, 'guard/listeners/polling'
 
   class Listener
+    
+    attr_reader :directory
 
     def self.select_and_init(*a)
       if mac? && Darwin.usable?

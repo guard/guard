@@ -35,7 +35,7 @@ module Guard
         run { run_on_change_for_all_guards(files) } if Watcher.match_files?(guards, files)
       end
 
-      UI.info "Guard is now watching at '#{Dir.pwd}'"
+      UI.info "Guard is now watching at '#{listener.directory}'"
       guards.each { |guard| supervised_task(guard, :start) }
       listener.start
     end
@@ -50,7 +50,7 @@ module Guard
       end
 
       # Reparse the whole directory to catch new files modified during the guards run
-      new_modified_files = listener.modified_files([Dir.pwd], :all => true)
+      new_modified_files = listener.modified_files([listener.directory], :all => true)
       if !new_modified_files.empty? && Watcher.match_files?(guards, new_modified_files)
         run { run_on_change_for_all_guards(new_modified_files) }
       end
