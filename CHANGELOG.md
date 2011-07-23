@@ -176,6 +176,7 @@
 
 [@anithri]: https://github.com/anithri
 [@brainopia]: https://github.com/brainopia
+[@bronson]: https://github.com/bronson
 [@capotej]: https://github.com/capotej
 [@chrisberkhout]: https://github.com/chrisberkhout
 [@etehtsea]: https://github.com/etehtsea
