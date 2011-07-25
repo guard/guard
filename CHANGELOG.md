@@ -4,6 +4,10 @@
 
 - Dir.glob now ignores files that don't need to be watched. ([@rymai][])
 
+## Improvements
+
+- Pull request [#90](https://github.com/guard/guard/pull/90): Refactoring of color handling in the `Guard::UI`. ([@stereobooster][])
+
 ## 0.5.1 - July 2, 2011
 
 ### Bugs fixes:
