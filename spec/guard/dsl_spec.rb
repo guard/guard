@@ -127,7 +127,7 @@ describe Guard::Dsl do
     lambda { subject.evaluate_guardfile(:guardfile_contents => invalid_guardfile_string ) }.should raise_error
   end
 
-  describe ".revaluate_guardfile" do
+  describe ".reevaluate_guardfile" do
     before(:each) { ::Guard::Dsl.stub!(:instance_eval_guardfile) }
 
     it "resets already definded guards before calling evaluate_guardfile" do
@@ -135,7 +135,7 @@ describe Guard::Dsl do
       subject.evaluate_guardfile(:guardfile_contents => invalid_guardfile_string)
       ::Guard.guards.should_not be_empty
       ::Guard::Dsl.should_receive(:evaluate_guardfile)
-      subject.revaluate_guardfile
+      subject.reevaluate_guardfile
       ::Guard.guards.should be_empty
     end
   end

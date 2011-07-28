@@ -12,7 +12,7 @@ module Guard
         UI.error "No guards found in Guardfile, please add at least one." if !::Guard.guards.nil? && ::Guard.guards.empty?
       end
 
-      def revaluate_guardfile
+      def reevaluate_guardfile
         ::Guard.guards.clear
         Dsl.evaluate_guardfile(@@options)
         msg = "Guardfile has been re-evaluated."
@@ -50,6 +50,7 @@ module Guard
           @@options[:guardfile_path] = 'Inline Guardfile'
 
         elsif @@options.has_key?(:guardfile)
+          UI.debug File.exist?(@@options[:guardfile])
           if File.exist?(@@options[:guardfile])
             read_guardfile(@@options[:guardfile])
             UI.info "Using Guardfile at #{@@options[:guardfile]}."

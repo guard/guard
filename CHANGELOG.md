@@ -6,6 +6,7 @@
 
 ## Improvements
 
+- `Guard::Dsl.revaluate_guardfile` has been renamed to `Guard::Dsl.reevaluate_guardfile`. ([@rymai][])
 - New CLI options: ([@nestegg][])
   - `watchdir`/`-w` to specify the directory in which Guard should watch for changes,
   - `guardfile`/`-G` to specify an alternate location for the Guardfile to use.

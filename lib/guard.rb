@@ -19,18 +19,18 @@ module Guard
 
       @options[:notify] && ENV["GUARD_NOTIFY"] != 'false' ? Notifier.turn_on : Notifier.turn_off
 
+      UI.clear if @options[:clear]
       self
     end
 
     def start(options = {})
-      UI.clear if options[:clear]
       setup(options)
 
       Interactor.init_signal_traps
       Dsl.evaluate_guardfile(options)
 
       listener.on_change do |files|
-        Dsl.revaluate_guardfile if Watcher.match_guardfile?(files)
+        Dsl.reevaluate_guardfile if Watcher.match_guardfile?(files)
 
         run { run_on_change_for_all_guards(files) } if Watcher.match_files?(guards, files)
       end
