@@ -23,6 +23,11 @@ describe Guard do
       ::Guard.listener.should be_kind_of(Guard::Listener)
     end
 
+    it "respect the watchdir option" do
+      ::Guard.setup(:watchdir => "/foo/bar")
+      ::Guard.listener.directory.should eql "/foo/bar"
+    end
+
     it "turns on the notifier by default" do
       ENV["GUARD_NOTIFY"] = nil
       ::Guard::Notifier.should_receive(:turn_on)
@@ -38,6 +43,17 @@ describe Guard do
       ENV["GUARD_NOTIFY"] = 'false'
       ::Guard::Notifier.should_receive(:turn_off)
       ::Guard.setup(:notify => true)
+    end
+  end
+  
+  describe ".start" do
+    it "basic check that core methods are called" do
+      opts = { :my_opts => true, :guardfile => File.join(@fixture_path, "Guardfile") }
+      ::Guard.should_receive(:setup).with(opts)
+      ::Guard::Dsl.should_receive(:evaluate_guardfile).with(opts)
+      ::Guard.listener.should_receive(:start)
+
+      ::Guard.start(opts)
     end
   end
 
