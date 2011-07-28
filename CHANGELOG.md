@@ -6,6 +6,9 @@
 
 ## Improvements
 
+- New CLI options: ([@nestegg][])
+  - `watchdir`/`-w` to specify the directory in which Guard should watch for changes,
+  - `guardfile`/`-G` to specify an alternate location for the Guardfile to use.
 - Pull request [#90](https://github.com/guard/guard/pull/90): Refactoring of color handling in the `Guard::UI`. ([@stereobooster][])
 
 ## 0.5.1 - July 2, 2011
@@ -195,6 +198,7 @@
 [@koshigoe]: https://github.com/koshigoe
 [@mcmire]: https://github.com/mcmire
 [@mislav]: https://github.com/mislav
+[@nestegg]: https://github.com/nestegg
 [@netzpirat]: https://github.com/netzpirat
 [@nicksieger]: https://github.com/nicksieger
 [@niklas]: https://github.com/niklas

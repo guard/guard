@@ -5,13 +5,12 @@ module Guard
   class CLI < Thor
     default_task :start
 
-    method_option :clear,  :type => :boolean, :default => false, :aliases => '-c', :banner => "Auto clear shell before each change/run_all/reload"
-    method_option :notify, :type => :boolean, :default => true,  :aliases => '-n', :banner => "Notifications feature (growl/libnotify)"
-    method_option :debug,  :type => :boolean, :default => false, :aliases => '-d', :banner => "Print debug messages"
-    method_option :group,  :type => :array,   :default => [],    :aliases => '-g', :banner => "Run only the passed groups"
-
-    method_option :guardfile, :type => :string,                  :aliases => '-C', :banner => "Specify a Guardfile"
-    method_option :watchdir,  :type => :string, :default => '.', :aliases => '-w', :banner => "Specify the directory to watch"
+    method_option :clear,     :type => :boolean, :default => false, :aliases => '-c', :banner => "Auto clear shell before each change/run_all/reload"
+    method_option :notify,    :type => :boolean, :default => true,  :aliases => '-n', :banner => "Notifications feature (growl/libnotify)"
+    method_option :debug,     :type => :boolean, :default => false, :aliases => '-d', :banner => "Print debug messages"
+    method_option :group,     :type => :array,   :default => [],    :aliases => '-g', :banner => "Run only the passed groups"
+    method_option :watchdir,  :type => :string,                     :aliases => '-w', :banner => "Specify the directory to watch"
+    method_option :guardfile, :type => :string,                     :aliases => '-G', :banner => "Specify a Guardfile"
 
     desc "start", "Starts Guard"
     def start
