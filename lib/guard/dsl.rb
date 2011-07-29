@@ -45,12 +45,11 @@ module Guard
 
       def fetch_guardfile_contents
         # TODO: do we need .rc file interaction?
-        if @@options.has_key?(:guardfile_contents)
+        if @@options[:guardfile_contents]
           UI.info "Using inline Guardfile."
           @@options[:guardfile_path] = 'Inline Guardfile'
 
-        elsif @@options.has_key?(:guardfile)
-          UI.debug File.exist?(@@options[:guardfile])
+        elsif @@options[:guardfile]
           if File.exist?(@@options[:guardfile])
             read_guardfile(@@options[:guardfile])
             UI.info "Using Guardfile at #{@@options[:guardfile]}."

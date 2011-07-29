@@ -17,6 +17,7 @@ describe Guard::Dsl do
       lambda { subject.evaluate_guardfile(:guardfile_contents => valid_guardfile_string) }.should_not raise_error
       subject.guardfile_contents.should == valid_guardfile_string
     end
+
     it "should use a -command file over the default loc" do
       fake_guardfile('/abc/Guardfile', "guard :foo")
 
@@ -115,9 +116,13 @@ describe Guard::Dsl do
     end
 
     it "should raise error when guardfile_content ends up empty or nil" do
-      Guard::UI.should_receive(:error).twice.with(/The command file/)
+      Guard::UI.should_receive(:error).with(/The command file/)
       lambda { subject.evaluate_guardfile(:guardfile_contents => "") }.should raise_error
-      lambda { subject.evaluate_guardfile(:guardfile_contents => nil) }.should raise_error
+    end
+
+    it "should not raise error when guardfile_content is nil (skipped)" do
+      Guard::UI.should_not_receive(:error)
+      lambda { subject.evaluate_guardfile(:guardfile_contents => nil) }.should_not raise_error
     end
   end
 
