@@ -37,7 +37,7 @@ module Guard
           stop
         end
       else
-        UI.info "Your system doesn't support INT signal, so Ctrl-C (stop) won't work"
+        UI.info "Your system doesn't support INT signal, so Ctrl-C (Stop) won't work"
       end
 
       # Reload (Ctrl-Z)

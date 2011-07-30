@@ -24,9 +24,10 @@ module Guard
     end
 
     def start(options = {})
+      Interactor.init_signal_traps
+
       setup(options)
 
-      Interactor.init_signal_traps
       Dsl.evaluate_guardfile(options)
 
       listener.on_change do |files|
