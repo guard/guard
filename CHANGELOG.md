@@ -2,6 +2,7 @@
 
 ### Bugs fixes:
 
+- Small spelling fix. ([@dnagir][])
 - Dir.glob now ignores files that don't need to be watched. ([@rymai][])
 
 ## Improvements
@@ -187,6 +188,7 @@
 [@bronson]: https://github.com/bronson
 [@capotej]: https://github.com/capotej
 [@chrisberkhout]: https://github.com/chrisberkhout
+[@dnagir]: https://github.com/dnagir
 [@etehtsea]: https://github.com/etehtsea
 [@fnichol]: https://github.com/fnichol
 [@Gazer]: https://github.com/Gazer
