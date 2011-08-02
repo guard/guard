@@ -2,7 +2,7 @@
 
 ### Bugs fixes:
 
-- Small spelling fix. ([@dnagir][])
+- Pull request [#107](https://github.com/guard/guard/pull/107): Small spelling fix. ([@dnagir][])
 - Dir.glob now ignores files that don't need to be watched. ([@rymai][])
 
 ## Improvements
