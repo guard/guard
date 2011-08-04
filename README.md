@@ -284,7 +284,7 @@ You can list the defined groups and guards for the current Guardfile from the co
   shell
 Group backend:
   bundler
-  rspec: cli => "--color --format doc'
+  rspec: cli => "--color --format doc"
 Group frontend:
   coffeescript: output => "public/javascripts/compiled"
   livereload
