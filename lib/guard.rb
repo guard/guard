@@ -101,8 +101,9 @@ module Guard
         else
           UI.error "Could not find class Guard::#{const_name.capitalize}"
         end
-      rescue LoadError
+      rescue LoadError => loadError
         UI.error "Could not load 'guard/#{name.downcase}' or find class Guard::#{const_name.capitalize}"
+        UI.error loadError.to_s
       end
     end
 
