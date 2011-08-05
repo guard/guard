@@ -45,7 +45,7 @@ describe Guard do
       ::Guard.setup(:notify => true)
     end
   end
-  
+
   describe ".start" do
     it "basic check that core methods are called" do
       opts = { :my_opts => true, :guardfile => File.join(@fixture_path, "Guardfile") }
@@ -65,7 +65,7 @@ describe Guard do
     end
 
     it "reports an error if the class is not found" do
-      ::Guard::UI.should_receive(:error)
+      ::Guard::UI.should_receive(:error).twice
       Guard.get_guard_class('notAGuardClass')
     end
 
