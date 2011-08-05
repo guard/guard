@@ -7,6 +7,7 @@
 
 ## Improvements
 
+- Pull request [#95](https://github.com/guard/guard/pull/95): Output system commands and options to be executed when in debug mode. ([@uk-ar][] and [@netzpirat][])
 - `Guard::Dsl.revaluate_guardfile` has been renamed to `Guard::Dsl.reevaluate_guardfile`. ([@rymai][])
 - New CLI options: ([@nestegg][])
   - `watchdir`/`-w` to specify the directory in which Guard should watch for changes,
@@ -214,6 +215,7 @@
 [@thierryhenrio]: https://github.com/thierryhenrio
 [@tinogomes]: https://github.com/tinogomes
 [@tpope]: https://github.com/tpope
+[@uk-ar]: https://github.com/uk-ar
 [@veged]: https://github.com/veged
 [@wereHamster]: https://github.com/wereHamster
 [@yannlugrin]: https://github.com/yannlugrin

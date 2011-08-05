@@ -44,6 +44,11 @@ describe Guard do
       ::Guard::Notifier.should_receive(:turn_off)
       ::Guard.setup(:notify => true)
     end
+
+    it "logs command execution if the debug option is true" do
+      ::Guard.should_receive(:debug_command_execution)
+      ::Guard.setup(:debug => true)
+    end
   end
 
   describe ".start" do
@@ -177,6 +182,34 @@ describe Guard do
         failing_result.message.should == 'I break your system'
       end
     end
+  end
+
+  describe ".debug_command_execution" do
+    subject { ::Guard.setup }
+
+    before do
+      @original_system = Kernel.method(:system)
+      @original_command = Kernel.method(:"`")
+    end
+
+    after do
+      Kernel.send(:define_method, :system, @original_system.to_proc )
+      Kernel.send(:define_method, :"`", @original_command.to_proc )
+    end
+
+    it "outputs Kernel.#system method parameters" do
+      ::Guard.setup(:debug => true)
+      ::Guard::UI.should_receive(:debug).with("Command execution: echo test")
+      system("echo", "test").should be_true
+    end
+
+    it "outputs Kernel.#` method parameters" do
+      ::Guard.setup(:debug => true)
+      ::Guard::UI.should_receive(:debug).twice.with("Command execution: echo test")
+      `echo test`.should eql "test\n"
+      %x{echo test}.should eql "test\n"
+    end
+
   end
 
 end
