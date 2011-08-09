@@ -54,13 +54,13 @@
 
   <div class='man-navigation' style='display:none'>
     <a href="#NAME">NAME</a>
-    <a href="#SYNOPSIS">SYNOPSIS</a>
     <a href="#DESCRIPTION">DESCRIPTION</a>
-    <a href="#HOMEPAGE">HOMEPAGE</a>
-    <a href="#OPTIONS">OPTIONS</a>
+    <a href="#SYNOPSIS">SYNOPSIS</a>
     <a href="#COMMANDS">COMMANDS</a>
+    <a href="#OPTIONS">OPTIONS</a>
     <a href="#EXAMPLES">EXAMPLES</a>
     <a href="#AUTHORS-CONTRIBUTORS">AUTHORS / CONTRIBUTORS</a>
+    <a href="#WWW">WWW</a>
   </div>
 
   <ol class='man-decor man-head man head'>
@@ -74,47 +74,82 @@
   <code>guard</code> - <span class="man-whatis">Guard keeps an eye on your file modifications.</span>
 </p>
 
-<h2 id="SYNOPSIS">SYNOPSIS</h2>
-
-<p>guard <var>command</var> <var>options</var></p>
-
 <h2 id="DESCRIPTION">DESCRIPTION</h2>
 
 <p>Guard is a command line tool that easily handle events on files modifications.</p>
 
-<h2 id="HOMEPAGE">HOMEPAGE</h2>
+<h2 id="SYNOPSIS">SYNOPSIS</h2>
 
-<p>https://github.com/guard/guard</p>
+<p>guard <var>command</var> <var>options</var></p>
+
+<h2 id="COMMANDS">COMMANDS</h2>
+
+<h3 id="start">start</h3>
+
+<p>  Starts Guard. This is the default command if none is provided.</p>
+
+<p>The following options are available:</p>
+
+<p>  <code>-c</code>/<code>--clear</code></p>
+
+<pre><code>    Clears the Shell after each change.
+</code></pre>
+
+<p>  <code>-n</code>/<code>--notify</code> <var>flag</var></p>
+
+<pre><code>    Disable notifications (Growl or Libnotify depending on your system).
+    Note that notifications can also be disabled globally by setting a GUARD_NOTIFY environment variable to false.
+    The &lt;flag> part can be passed to guard using true/false or t/f.
+</code></pre>
+
+<p>  <code>-d</code>/<code>--debug</code></p>
+
+<pre><code>    Runs Guard in debug mode.
+</code></pre>
+
+<p>  <code>-g</code>/<code>--group</code> <var>group</var> ...</p>
+
+<pre><code>    Runs only the groups specified.
+</code></pre>
+
+<p>  <code>-w</code>/<code>--watchdir</code> <var>folder</var></p>
+
+<pre><code>    Specify the directory to watch.
+</code></pre>
+
+<p>  <code>-G</code>/<code>--guardfile</code> <var>file</var></p>
+
+<pre><code>    Specify a Guardfile by giving its path.
+</code></pre>
+
+<h3 id="init-guard-">init [guard]</h3>
+
+<p>  Add the requested guard's default Guardfile configuration to the current Guardfile.</p>
+
+<h3 id="list">list</h3>
+
+<p>  Lists guards that can be used with the <code>init</code> command.</p>
+
+<h3 id="-T-show">-T/show</h3>
+
+<p>  List defined groups and guards for the current Guardfile.</p>
 
 <h2 id="OPTIONS">OPTIONS</h2>
 
 <dl>
-<dt><code>-c</code>, <code>--clear</code></dt><dd><p>Clears the Shell after each change.</p></dd>
-<dt><code>-n</code> <var>flag</var>, <code>--notify</code> <var>flag</var></dt><dd><p>Disable notifications (Growl or Libnotify depending on your system).
-Note that notifications can also be disabled globally by setting a GUARD_NOTIFY environment variable to false.
-The <var>flag</var> part can be passed to guard using true/false or t/f.</p></dd>
-<dt><code>-g</code> <var>group</var> ..., <code>--group</code> <var>group</var> ...</dt><dd><p>Runs only the groups specified.</p></dd>
-<dt><code>-d</code>, <code>--debug</code></dt><dd><p>Runs Guard in debug mode.</p></dd>
-<dt class="flush"><code>-h</code></dt><dd><p>List all of Guard's available commands.</p></dd>
+<dt class="flush"><code>-h</code></dt><dd>List all of Guard's available commands.</dd>
 </dl>
 
 
-<h2 id="COMMANDS">COMMANDS</h2>
-
-<dl>
-<dt class="flush"><code>start</code></dt><dd><p>Starts Guard. This is the default command if none is provided.</p></dd>
-<dt><code>init</code> [guard]</dt><dd><p>Add the requested guard's default Guardfile configuration to the current Guardfile.</p></dd>
-<dt><code>show</code>, <code>-T</code></dt><dd><p>List defined groups and guards for the current Guardfile.</p></dd>
-</dl>
-
+<h3 id="start">start</h3>
 
 <h2 id="EXAMPLES">EXAMPLES</h2>
 
-<p><code>[bundle exec] guard --clear --group backend frontend --notify false --debug</code></p>
+<p><code>[bundle exec] guard [start] --watchdir ~/dev --guardfile ~/env/Guardfile --clear --group backend frontend --notify false --debug</code></p>
 
 <p>or in a more concise way:</p>
 
-<p><code>[bundle exec] guard -c -g backend frontend -n f -d</code></p>
+<p><code>[bundle exec] guard [start] -w ~/dev -G ~/env/Guardfile -c -g backend frontend -n f -d</code></p>
 
 <h2 id="AUTHORS-CONTRIBUTORS">AUTHORS / CONTRIBUTORS</h2>
 
@@ -126,10 +161,16 @@ https://github.com/guard/guard/contributors</p>
 <p>For an exhaustive list of all the contributors, please see the CHANGELOG:
 https://github.com/guard/guard/blob/master/CHANGELOG.md</p>
 
+<p>This manual has been written by Remy Coutable.</p>
+
+<h2 id="WWW">WWW</h2>
+
+<p>https://github.com/guard/guard</p>
+
 
   <ol class='man-decor man-foot man foot'>
     <li class='tl'></li>
-    <li class='tc'>June 2011</li>
+    <li class='tc'>August 2011</li>
     <li class='tr'>guard(1)</li>
   </ol>
 
