@@ -119,6 +119,16 @@ module Guard
       UI.error "Could not find 'guard-#{name}' gem path."
     end
 
+    ##
+    # Returns a list of guard Gem names installed locally.
+    def guard_gem_names
+      if Gem::Version.create(Gem::VERSION) >= Gem::Version.create('1.8.0')
+        Gem::Specification.find_all.select { |x| x.name =~ /^guard-/ }
+      else
+        Gem.source_index.find_name(/^guard-/)
+      end.map { |x| x.name.sub /^guard-/, '' }
+    end
+
     def debug_command_execution
       Kernel.send(:alias_method, :original_system, :system)
       Kernel.send(:define_method, :system) do |command, *args|
