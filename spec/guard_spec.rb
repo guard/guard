@@ -130,6 +130,13 @@ describe Guard do
     end
   end
 
+  describe ".guard_gem_names" do
+    it "returns the list of guard gems" do
+      gems = Guard.guard_gem_names
+      gems.should include("rspec")
+    end
+  end
+
   describe ".supervised_task" do
     subject { ::Guard.setup }
 

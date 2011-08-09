@@ -193,6 +193,12 @@ Add it to your Gemfile (inside the `development` group):
 gem '<guard-name>'
 ```
 
+You can list all guards installed on your system with:
+
+``` bash
+$ guard list
+```
+
 Insert default guard's definition to your Guardfile by running this command:
 
 ``` bash

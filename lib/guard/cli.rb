@@ -17,6 +17,27 @@ module Guard
       ::Guard.start(options)
     end
 
+    desc "list", "Lists guards that can be used with init"
+    def list
+      ::Guard::DslDescriber.evaluate_guardfile(options)
+      installed = []
+      ::Guard::DslDescriber.guardfile_structure.each do |group|
+        group[:guards].each {|x| installed << x[:name]} if group[:guards]
+      end
+
+      ::Guard::UI.info "Available guards:"
+      ::Guard::guard_gem_names.sort.each do |name|
+        if installed.include? name
+          ::Guard::UI.info "   #{name} *"
+        else
+          ::Guard::UI.info "   #{name}"
+        end
+      end
+      ::Guard::UI.info ' '
+      ::Guard::UI.info "See also https://github.com/guard/guard/wiki/List-of-available-Guards"
+      ::Guard::UI.info "* denotes ones already in your Guardfile"
+    end
+
     desc "version", "Prints Guard's version"
     def version
       ::Guard::UI.info "Guard version #{Guard::VERSION}"
