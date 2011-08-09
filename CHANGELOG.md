@@ -5,7 +5,11 @@
 - Pull request [#107](https://github.com/guard/guard/pull/107): Small spelling fix. ([@dnagir][])
 - Dir.glob now ignores files that don't need to be watched. ([@rymai][])
 
-## Improvements
+### New features
+
+- Pull request [#112](https://github.com/guard/guard/pull/112): Add list command to CLI. ([@docwhat][])
+
+### Improvements
 
 - Pull request [#95](https://github.com/guard/guard/pull/95): Output system commands and options to be executed when in debug mode. ([@uk-ar][] and [@netzpirat][])
 - `Guard::Dsl.revaluate_guardfile` has been renamed to `Guard::Dsl.reevaluate_guardfile`. ([@rymai][])
@@ -22,12 +26,12 @@
 
 ## 0.5.0 - July 2, 2011
 
-## New features
+### New features
 
 - Guard::Ego is now part of Guard, so Guardfile is automagically re-evaluated when modified. ([@thibaudgg][])
 - Pull request [#91](https://github.com/guard/guard/pull/91): Show Guards in Guardfile with the `guard -T`. ([@johnbintz][])
 
-## Improvements
+### Improvements
 
 - Issue [#98](https://github.com/guard/guard/issues/98): Multiple calls per watch event on linux with rb-inotify. ([@jeffutter][] & [@netzpirat][])
 - Pull request [#94](https://github.com/guard/guard/pull/94): Show backtrace in terminal when a problem with a watch action occurs. ([@capotej][])
