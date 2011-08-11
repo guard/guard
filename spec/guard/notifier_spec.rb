@@ -148,7 +148,8 @@ describe Guard::Notifier do
         Libnotify.should_receive(:show).with(
           :body      => "great",
           :summary   => 'Guard',
-          :icon_path => Pathname.new(File.dirname(__FILE__)).join('../../images/success.png').to_s
+          :icon_path => Pathname.new(File.dirname(__FILE__)).join('../../images/success.png').to_s,
+          :transient => true
         )
         subject.notify 'great', :title => 'Guard'
       end
@@ -164,6 +165,7 @@ describe Guard::Notifier do
           :body      => "great",
           :summary   => 'Guard',
           :icon_path => Pathname.new(File.dirname(__FILE__)).join('../../images/success.png').to_s,
+          :transient => true,
           :urgency    => :critical
         )
         subject.notify 'great', :title => 'Guard', :urgency => :critical
@@ -173,7 +175,8 @@ describe Guard::Notifier do
         Libnotify.should_receive(:show).with(
           :body      => "great",
           :summary   => 'Guard',
-          :icon_path => '~/.guard/success.png'
+          :icon_path => '~/.guard/success.png',
+          :transient => true
         )
         subject.notify 'great', :title => 'Guard', :icon_path => '~/.guard/success.png'
       end
