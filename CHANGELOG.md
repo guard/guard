@@ -7,10 +7,11 @@
 
 ### New features
 
-- Pull request [#112](https://github.com/guard/guard/pull/112): Add list command to CLI. ([@docwhat][])
+- Pull request [#112](https://github.com/guard/guard/pull/112): Add `list` command to CLI. ([@docwhat][])
 
 ### Improvements
 
+- Pull request [#115](https://github.com/guard/guard/pull/115): [Linux] Add ':transient => true' to default libnotify options. ([@zonque][])
 - Pull request [#95](https://github.com/guard/guard/pull/95): Output system commands and options to be executed when in debug mode. ([@uk-ar][] and [@netzpirat][])
 - `Guard::Dsl.revaluate_guardfile` has been renamed to `Guard::Dsl.reevaluate_guardfile`. ([@rymai][])
 - New CLI options: ([@nestegg][])
@@ -223,3 +224,4 @@
 [@veged]: https://github.com/veged
 [@wereHamster]: https://github.com/wereHamster
 [@yannlugrin]: https://github.com/yannlugrin
+[@zonque]: https://github.com/zonque
