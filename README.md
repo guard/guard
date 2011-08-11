@@ -92,6 +92,12 @@ Install the rb-fchange gem for [Directory Change Notification](http://msdn.micro
 $ gem install rb-fchange
 ```
 
+Install the win32console gem if you want colors in your terminal:
+
+``` bash
+$ gem install win32console
+```
+
 Install the Notifu gem if you want notification support:
 
 ``` bash
@@ -125,7 +131,7 @@ Guard will look for a Guardfile in your current directory. If it does not find o
 Command line options
 --------------------
 
-### `--clear` option
+### `-c`/`--clear` option
 
 Shell can be cleared after each change:
 
@@ -134,7 +140,7 @@ $ guard --clear
 $ guard -c # shortcut
 ```
 
-### `--notify` option
+### `-n`/`--notify` option
 
 Notifications (growl/libnotify) can be disabled:
 
@@ -145,7 +151,7 @@ $ guard -n f # shortcut
 
 Notifications can also be disabled globally by setting a `GUARD_NOTIFY` environment variable to `false`
 
-### `--group` option
+### `-g`/`--group` option
 
 Only certain guards groups can be run (see the Guardfile DSL below for creating groups):
 
@@ -154,13 +160,31 @@ $ guard --group group_name another_group_name
 $ guard -g group_name another_group_name # shortcut
 ```
 
-### `--debug` option
+### `-d`/`--debug` option
 
 Guard can be run in debug mode:
 
 ``` bash
 $ guard --debug
 $ guard -d # shortcut
+```
+
+### `-w`/`--watchdir` option
+
+Guard can watch in any directory (instead of the current directory):
+
+``` bash
+$ guard --watchdir ~/your/fancy/project
+$ guard -w ~/your/fancy/project # shortcut
+```
+
+### `-G`/`--guardfile` option
+
+Guard can use a Guardfile not located in the current directory:
+
+``` bash
+$ guard --guardfile ~/.your_global_guardfile
+$ guard -G ~/.your_global_guardfile # shortcut
 ```
 
 An exhaustive list of options is available with:
