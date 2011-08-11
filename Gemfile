@@ -4,6 +4,10 @@ gemspec
 
 gem 'rake'
 
+group :guard do
+  gem 'guard-ronn'
+end
+
 require 'rbconfig'
 
 if RbConfig::CONFIG['target_os'] =~ /darwin/i

@@ -17,3 +17,7 @@ end
 # group "exceptional" do
 #   guard :breaking
 # end
+
+guard 'ronn' do
+  watch(%r{^man/.+\.m(ark)?d(own)?$})
+end
