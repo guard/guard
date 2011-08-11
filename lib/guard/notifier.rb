@@ -51,7 +51,7 @@ module Guard
 
     def self.notify_linux(title, message, image, options)
       require_libnotify # need for guard-rspec formatter that is called out of guard scope
-      default_options = { :body => message, :summary => title, :icon_path => image_path(image) }
+      default_options = { :body => message, :summary => title, :icon_path => image_path(image), :transient => true }
       Libnotify.show default_options.merge(options) if enabled?
     end
 
