@@ -20,17 +20,28 @@ describe Guard::Notifier do
         RbConfig::CONFIG.should_receive(:[]).with('target_os').and_return 'darwin'
       end
 
-      context "with the Growl library available" do
+      context "with the GrowlNotify library available" do
+        before do
+          module ::GrowlNotify
+            def self.config ; end
+          end
+        end
+
         it "loads the library and enables the notifications" do
-          subject.should_receive(:require).with('growl').and_return true
+          subject.should_receive(:require).with('growl_notify').and_return true
+          GrowlNotify.should_receive(:application_name).and_return ''
           subject.turn_on
           subject.should be_enabled
         end
+
+        after do
+          Object.send(:remove_const, :GrowlNotify)
+        end
       end
 
-      context "without the Growl library available" do
+      context "without the GrowlNofity library available" do
         it "disables the notifications" do
-          subject.should_receive(:require).with('growl').and_raise LoadError
+          subject.should_receive(:require).with('growl_notify').and_raise LoadError
           subject.turn_on
           subject.should_not be_enabled
         end
@@ -89,46 +100,54 @@ describe Guard::Notifier do
       before do
         RbConfig::CONFIG.should_receive(:[]).with('target_os').and_return 'darwin'
         subject.stub(:require_growl)
-        Object.send(:remove_const, :Growl) if defined?(Growl)
-        Growl = Object.new
       end
 
-      after do
-        Object.send(:remove_const, :Growl)
-      end
+      context 'with growl_notify gem' do
+        before do
+          Object.send(:remove_const, :GrowlNotify) if defined?(GrowlNotify)
+          GrowlNotify = Object.new
+        end
 
-      it "passes the notification to Growl" do
-        Growl.should_receive(:notify).with("great",
-          :title => "Guard",
-          :icon  => Pathname.new(File.dirname(__FILE__)).join('../../images/success.png').to_s,
-          :name  => "Guard"
-        )
-        subject.notify 'great', :title => 'Guard'
-      end
+        after do
+          Object.send(:remove_const, :GrowlNotify)
+        end
 
-      it "don't passes the notification to Growl if library is not available" do
-        Growl.should_not_receive(:notify)
-        subject.should_receive(:enabled?).and_return(true, false)
-        subject.notify 'great', :title => 'Guard'
-      end
+        it "passes the notification to Growl" do
+          GrowlNotify.should_receive(:send_notification).with(
+            :title => "Guard",
+            :icon  => Pathname.new(File.dirname(__FILE__)).join('../../images/success.png').to_s,
+            :application_name  => "Guard",
+            :description => 'great'
+          )
+          subject.notify 'great', :title => 'Guard'
+        end
 
-      it "allows additional notification options" do
-        Growl.should_receive(:notify).with("great",
-          :title => "Guard",
-          :icon  => Pathname.new(File.dirname(__FILE__)).join('../../images/success.png').to_s,
-          :name  => "Guard",
-          :priority => 1
-        )
-        subject.notify 'great', :title => 'Guard', :priority => 1
-      end
+        it "don't passes the notification to Growl if library is not available" do
+          GrowlNotify.should_not_receive(:send_notification)
+          subject.should_receive(:enabled?).and_return(true, false)
+          subject.notify 'great', :title => 'Guard'
+        end
 
-      it "allows to overwrite a default notification option" do
-        Growl.should_receive(:notify).with("great",
-          :title => "Guard",
-          :icon  => Pathname.new(File.dirname(__FILE__)).join('../../images/success.png').to_s,
-          :name  => "Guard-Cucumber"
-        )
-        subject.notify 'great', :title => 'Guard', :name => "Guard-Cucumber"
+        it "allows additional notification options" do
+          GrowlNotify.should_receive(:send_notification).with(
+            :title => "Guard",
+            :icon  => Pathname.new(File.dirname(__FILE__)).join('../../images/success.png').to_s,
+            :application_name  => "Guard",
+            :description => 'great',
+            :priority => 1
+          )
+          subject.notify 'great', :title => 'Guard', :priority => 1
+        end
+
+        it "throws out the application name since Guard should only use one Growl App Name while running" do
+          GrowlNotify.should_receive(:send_notification).with(
+            :title => "Guard",
+            :icon  => Pathname.new(File.dirname(__FILE__)).join('../../images/success.png').to_s,
+            :application_name  => "Guard",
+            :description => 'great'
+          )
+          subject.notify 'great', :title => 'Guard', :name => "Guard-Cucumber"
+        end
       end
     end
 
