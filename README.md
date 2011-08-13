@@ -50,17 +50,17 @@ Install the rb-fsevent gem for [FSEvent](http://en.wikipedia.org/wiki/FSEvents) 
 $ gem install rb-fsevent
 ```
 
-Install the Growl gem if you want notification support:
+Install the growl_notify gem if you want notification support:
 
 ``` bash
-$ gem install growl
+$ gem install growl_notify
 ```
 
-And add them to your Gemfile:
+And add it to your Gemfile:
 
 ``` ruby
 gem 'rb-fsevent'
-gem 'growl'
+gem 'growl_notify'
 ```
 
 ### On Linux
