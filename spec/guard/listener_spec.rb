@@ -55,10 +55,10 @@ describe Guard::Listener do
     it "should relativize paths to the configured directory" do
       subject.relativize_paths(@paths).should =~ %w( a a/b a.b/c.d )
     end
-    
+
     context "when set to false" do
       subject { described_class.new('/tmp', :relativize_paths => false) }
-      
+
       it "can be disabled" do
         subject.relativize_paths(@paths).should eql @paths
       end
@@ -128,7 +128,6 @@ describe Guard::Listener do
   end
 
   describe "working directory" do
-
     context "unspecified" do
       subject { described_class.new }
       it "defaults to Dir.pwd" do
@@ -158,7 +157,6 @@ describe Guard::Listener do
         stop
       end
     end
-
   end
 
 end

@@ -26,7 +26,7 @@ module Guard
     end
 
     def start(options = {})
-      Interactor.init_signal_traps
+      # Interactor.init_signal_traps
 
       setup(options)
 
@@ -40,7 +40,9 @@ module Guard
 
       UI.info "Guard is now watching at '#{listener.directory}'"
       guards.each { |guard| supervised_task(guard, :start) }
-      listener.start
+      Thread.new { listener.start }
+
+      Interactor.listen
     end
 
     def run_on_change_for_all_guards(files)
@@ -78,7 +80,7 @@ module Guard
         yield
       rescue Interrupt
       end
-      listener.start
+      Thread.new { listener.start }
     end
 
     def add_guard(name, watchers = [], options = {})
