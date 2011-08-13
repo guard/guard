@@ -109,6 +109,7 @@ And add them to your Gemfile:
 ``` ruby
 gem 'rb-fchange'
 gem 'rb-notifu'
+gem 'win32console'
 ```
 
 Usage
