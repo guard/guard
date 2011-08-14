@@ -15,7 +15,12 @@ Features
 * Automatic & Super fast (when polling is not used) files modifications detection (even new files are detected).
 * Growl notifications ([growlnotify](http://growl.info/documentation/growlnotify.php) & [growl gem](https://rubygems.org/gems/growl) required).
 * Libnotify notifications ([libnotify gem](https://rubygems.org/gems/libnotify) required).
-* Tested on Ruby 1.8.7, 1.9.2 && ree.
+* Tested against Ruby 1.8.7, 1.9.2 and REE.
+
+Screencast
+----------
+
+Ryan Bates made a screencast on Guard, you can view it here: http://railscasts.com/episodes/264-guard
 
 Install
 -------
