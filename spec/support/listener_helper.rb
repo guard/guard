@@ -8,9 +8,11 @@ private
   end
 
   def record_results
+    noise = %r|\.sw.$|  # don't fail specs due to editor swap files, etc.
+
     @results = []
     @listener.on_change do |files|
-      @results += files
+      @results += files.reject { |f| f =~ noise }
     end
   end
 
