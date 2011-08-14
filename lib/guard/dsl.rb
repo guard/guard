@@ -104,7 +104,8 @@ module Guard
     end
 
     def group(name, &guard_definition)
-      guard_definition.call if guard_definition && (@@options[:group].empty? || @@options[:group].include?(name.to_s))
+      @groups = @@options[:group] || []
+      guard_definition.call if guard_definition && (@groups.empty? || @groups.include?(name.to_s))
     end
 
     def guard(name, options = {}, &watch_definition)
