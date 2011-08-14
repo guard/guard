@@ -14,6 +14,7 @@ module Guard
 
       def reevaluate_guardfile
         ::Guard.guards.clear
+        @@options.delete(:guardfile_contents)
         Dsl.evaluate_guardfile(@@options)
         msg = "Guardfile has been re-evaluated."
         UI.info(msg)
