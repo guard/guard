@@ -15,7 +15,12 @@ Features
 * Automatic & Super fast (when polling is not used) files modifications detection (even new files are detected).
 * Growl notifications ([growlnotify](http://growl.info/documentation/growlnotify.php) & [growl gem](https://rubygems.org/gems/growl) required).
 * Libnotify notifications ([libnotify gem](https://rubygems.org/gems/libnotify) required).
-* Tested on Ruby 1.8.7, 1.9.2 && ree.
+* Tested against Ruby 1.8.7, 1.9.2 and REE.
+
+Screencast
+----------
+
+Ryan Bates made a screencast on Guard, you can view it here: http://railscasts.com/episodes/264-guard
 
 Install
 -------
@@ -50,17 +55,17 @@ Install the rb-fsevent gem for [FSEvent](http://en.wikipedia.org/wiki/FSEvents) 
 $ gem install rb-fsevent
 ```
 
-Install the Growl gem if you want notification support:
+Install the growl_notify gem if you want notification support:
 
 ``` bash
-$ gem install growl
+$ gem install growl_notify
 ```
 
-And add them to your Gemfile:
+And add it to your Gemfile:
 
 ``` ruby
 gem 'rb-fsevent'
-gem 'growl'
+gem 'growl_notify'
 ```
 
 ### On Linux
@@ -90,6 +95,12 @@ Install the rb-fchange gem for [Directory Change Notification](http://msdn.micro
 
 ``` bash
 $ gem install rb-fchange
+```
+
+Install the win32console gem if you want colors in your terminal:
+
+``` bash
+$ gem install win32console
 ```
 
 Install the Notifu gem if you want notification support:
@@ -125,7 +136,7 @@ Guard will look for a Guardfile in your current directory. If it does not find o
 Command line options
 --------------------
 
-### `--clear` option
+### `-c`/`--clear` option
 
 Shell can be cleared after each change:
 
@@ -134,7 +145,7 @@ $ guard --clear
 $ guard -c # shortcut
 ```
 
-### `--notify` option
+### `-n`/`--notify` option
 
 Notifications (growl/libnotify) can be disabled:
 
@@ -145,7 +156,7 @@ $ guard -n f # shortcut
 
 Notifications can also be disabled globally by setting a `GUARD_NOTIFY` environment variable to `false`
 
-### `--group` option
+### `-g`/`--group` option
 
 Only certain guards groups can be run (see the Guardfile DSL below for creating groups):
 
@@ -154,13 +165,31 @@ $ guard --group group_name another_group_name
 $ guard -g group_name another_group_name # shortcut
 ```
 
-### `--debug` option
+### `-d`/`--debug` option
 
 Guard can be run in debug mode:
 
 ``` bash
 $ guard --debug
 $ guard -d # shortcut
+```
+
+### `-w`/`--watchdir` option
+
+Guard can watch in any directory (instead of the current directory):
+
+``` bash
+$ guard --watchdir ~/your/fancy/project
+$ guard -w ~/your/fancy/project # shortcut
+```
+
+### `-G`/`--guardfile` option
+
+Guard can use a Guardfile not located in the current directory:
+
+``` bash
+$ guard --guardfile ~/.your_global_guardfile
+$ guard -G ~/.your_global_guardfile # shortcut
 ```
 
 An exhaustive list of options is available with:
@@ -219,7 +248,7 @@ Required:
 Optional:
 
 * The `#watch` method allows you to define which files are supervised by this guard. An optional block can be added to overwrite the paths sent to the guard's `#run_on_change` method or to launch any arbitrary command.
-* The `#group` method allows you to group several guards together. Groups to be run can be specified with the Guard DSL option `--group` (or `-g`). This comes in handy especially when you have a huge Guardfile and want to focus your development on a certain part.
+* The `#group` method allows you to group several guards together. Groups to be run can be specified with the Guard DSL option `--group` (or `-g`). This comes in handy especially when you have a huge Guardfile and want to focus your development on a certain part. Guards that don't belong to a group are considered global and are always run.
 
 Example:
 
