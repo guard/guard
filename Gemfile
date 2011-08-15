@@ -1,4 +1,4 @@
-source "http://rubygems.org"
+source :rubygems
 
 gemspec
 
@@ -6,6 +6,10 @@ gem 'rake'
 
 group :guard do
   gem 'guard-ronn'
+end
+
+group :test do
+  gem 'fuubar'
 end
 
 require 'rbconfig'
