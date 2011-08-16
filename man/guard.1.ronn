@@ -59,7 +59,7 @@ List defined groups and guards for the current Guardfile.
 ### -h, help [COMMAND]
 
 List all of Guard's available commands.
-  
+
 If <COMMAND> is given, displays a specific help for <TASK>.
 
 ## EXAMPLES
