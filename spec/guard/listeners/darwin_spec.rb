@@ -21,7 +21,7 @@ describe Guard::Darwin do
       subject.should be_usable
     end
 
-    it_should_behave_like "a listener that reacts to #on_change"
-    it_should_behave_like "a listener scoped to a specific directory"
+    it_should_behave_like "a listener that reacts to #on_change", 0.4
+    it_should_behave_like "a listener scoped to a specific directory", 0.4
   end
 end

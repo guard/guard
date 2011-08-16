@@ -1,10 +1,10 @@
 private
 
   def start
-    sleep 1
+    sleep(@rest_delay || 1)
     @listener.update_last_event
     Thread.new { @listener.start }
-    sleep 1
+    sleep(@rest_delay || 1)
   end
 
   def record_results
@@ -17,17 +17,18 @@ private
   end
 
   def stop
-    sleep 1
+    sleep(@rest_delay || 1)
     @listener.stop
-    sleep 1
+    sleep(@rest_delay || 1)
   end
 
   def results
     @results.flatten
   end
 
-shared_examples_for 'a listener that reacts to #on_change' do
+shared_examples_for 'a listener that reacts to #on_change' do |rest_delay|
   before(:each) do
+    @rest_delay = rest_delay
     @listener = described_class.new
     record_results
   end
@@ -105,8 +106,9 @@ shared_examples_for 'a listener that reacts to #on_change' do
 
 end
 
-shared_examples_for "a listener scoped to a specific directory" do
+shared_examples_for "a listener scoped to a specific directory" do |rest_delay|
   before :each do
+    @rest_delay = rest_delay
     @wd = @fixture_path.join("folder1")
     @listener = described_class.new @wd
   end
