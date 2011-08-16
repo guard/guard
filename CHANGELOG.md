@@ -1,4 +1,11 @@
-## Master
+## 0.6.1 - August 15, 2011
+
+### Bugs fixes:
+
+- Pull request [#120](https://github.com/guard/guard/pull/120): remove guardfile_contents when re-evaluating so that the Guardfile gets reloaded correctly. ([@mordaroso][])
+- Pull request [#119](https://github.com/guard/guard/pull/119): Dsl.evaluate_guardfile uses all groups if none specified. ([@ches][])
+
+## 0.6.0 - August 13, 2011
 
 ### Bugs fixes:
 
@@ -7,10 +14,12 @@
 
 ### New features
 
-- Pull request [#112](https://github.com/guard/guard/pull/112): Add list command to CLI. ([@docwhat][])
+- Pull request [#112](https://github.com/guard/guard/pull/112): Add `list` command to CLI. ([@docwhat][])
 
 ### Improvements
 
+- Pull request [#99](https://github.com/guard/guard/pull/99): [OS X] Switch from growl gem to growl_notify gem. ([@johnbintz][])
+- Pull request [#115](https://github.com/guard/guard/pull/115): [Linux] Add ':transient => true' to default libnotify options. ([@zonque][])
 - Pull request [#95](https://github.com/guard/guard/pull/95): Output system commands and options to be executed when in debug mode. ([@uk-ar][] and [@netzpirat][])
 - `Guard::Dsl.revaluate_guardfile` has been renamed to `Guard::Dsl.reevaluate_guardfile`. ([@rymai][])
 - New CLI options: ([@nestegg][])
@@ -192,8 +201,10 @@
 [@brainopia]: https://github.com/brainopia
 [@bronson]: https://github.com/bronson
 [@capotej]: https://github.com/capotej
+[@ches]: https://github.com/ches
 [@chrisberkhout]: https://github.com/chrisberkhout
 [@dnagir]: https://github.com/dnagir
+[@docwhat]: https://github.com/docwhat
 [@etehtsea]: https://github.com/etehtsea
 [@fnichol]: https://github.com/fnichol
 [@Gazer]: https://github.com/Gazer
@@ -206,6 +217,7 @@
 [@koshigoe]: https://github.com/koshigoe
 [@mcmire]: https://github.com/mcmire
 [@mislav]: https://github.com/mislav
+[@mordaroso]: https://github.com/mordaroso
 [@nestegg]: https://github.com/nestegg
 [@netzpirat]: https://github.com/netzpirat
 [@nicksieger]: https://github.com/nicksieger
@@ -223,3 +235,4 @@
 [@veged]: https://github.com/veged
 [@wereHamster]: https://github.com/wereHamster
 [@yannlugrin]: https://github.com/yannlugrin
+[@zonque]: https://github.com/zonque

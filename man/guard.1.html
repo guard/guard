@@ -54,13 +54,12 @@
 
   <div class='man-navigation' style='display:none'>
     <a href="#NAME">NAME</a>
-    <a href="#SYNOPSIS">SYNOPSIS</a>
     <a href="#DESCRIPTION">DESCRIPTION</a>
-    <a href="#HOMEPAGE">HOMEPAGE</a>
-    <a href="#OPTIONS">OPTIONS</a>
+    <a href="#SYNOPSIS">SYNOPSIS</a>
     <a href="#COMMANDS">COMMANDS</a>
     <a href="#EXAMPLES">EXAMPLES</a>
     <a href="#AUTHORS-CONTRIBUTORS">AUTHORS / CONTRIBUTORS</a>
+    <a href="#WWW">WWW</a>
   </div>
 
   <ol class='man-decor man-head man head'>
@@ -74,47 +73,80 @@
   <code>guard</code> - <span class="man-whatis">Guard keeps an eye on your file modifications.</span>
 </p>
 
-<h2 id="SYNOPSIS">SYNOPSIS</h2>
-
-<p>guard <var>command</var> <var>options</var></p>
-
 <h2 id="DESCRIPTION">DESCRIPTION</h2>
 
 <p>Guard is a command line tool that easily handle events on files modifications.</p>
 
-<h2 id="HOMEPAGE">HOMEPAGE</h2>
+<h2 id="SYNOPSIS">SYNOPSIS</h2>
 
-<p>https://github.com/guard/guard</p>
-
-<h2 id="OPTIONS">OPTIONS</h2>
-
-<dl>
-<dt><code>-c</code>, <code>--clear</code></dt><dd><p>Clears the Shell after each change.</p></dd>
-<dt><code>-n</code> <var>flag</var>, <code>--notify</code> <var>flag</var></dt><dd><p>Disable notifications (Growl or Libnotify depending on your system).
-Note that notifications can also be disabled globally by setting a GUARD_NOTIFY environment variable to false.
-The <var>flag</var> part can be passed to guard using true/false or t/f.</p></dd>
-<dt><code>-g</code> <var>group</var> ..., <code>--group</code> <var>group</var> ...</dt><dd><p>Runs only the groups specified.</p></dd>
-<dt><code>-d</code>, <code>--debug</code></dt><dd><p>Runs Guard in debug mode.</p></dd>
-<dt class="flush"><code>-h</code></dt><dd><p>List all of Guard's available commands.</p></dd>
-</dl>
-
+<p><code>guard &lt;COMMAND> &lt;OPTIONS></code></p>
 
 <h2 id="COMMANDS">COMMANDS</h2>
 
-<dl>
-<dt class="flush"><code>start</code></dt><dd><p>Starts Guard. This is the default command if none is provided.</p></dd>
-<dt><code>init</code> [guard]</dt><dd><p>Add the requested guard's default Guardfile configuration to the current Guardfile.</p></dd>
-<dt><code>show</code>, <code>-T</code></dt><dd><p>List defined groups and guards for the current Guardfile.</p></dd>
-</dl>
+<h3 id="start">start</h3>
 
+<p>Starts Guard. This is the default command if none is provided.</p>
+
+<p>The following options are available:</p>
+
+<p><code>-c</code>, <code>--clear</code>
+  Clears the Shell after each change.</p>
+
+<p><code>-n</code>, <code>--notify</code> <var>FLAG</var>
+  Disable notifications (Growl or Libnotify depending on your system).
+  Notifications can be disabled globally by setting a GUARD_NOTIFY environment variable to false.
+  FLAG can be <code>true</code>/<code>false</code> or <code>t</code>/<code>f</code>.</p>
+
+<p><code>-d</code>, <code>--debug</code>
+  Runs Guard in debug mode.</p>
+
+<p><code>-g</code>, <code>--group</code> <var>GROUP1</var> <var>GROUP2</var>...
+  Runs only the groups specified by GROUP1, GROUP2 etc.
+  Groups name should be separated by spaces.
+  Guards that don't belong to a group are considered global and are always run.</p>
+
+<p><code>-w</code>, <code>--watchdir</code> <var>PATH</var></p>
+
+<p>Tells Guard to watch PATH instead of <code>./</code>.</p>
+
+<p><code>-G</code>, <code>--guardfile</code> <var>FILE</var>
+  Tells Guard to use FILE as its Guardfile instead of <code>./Guardfile</code> or <code>~/.Guardfile</code>.</p>
+
+<h3 id="init-GUARD-">init [GUARD]</h3>
+
+<p>If no Guardfile is present in the current directory, creates an empty Guardfile.</p>
+
+<p>If <var>GUARD</var> is present, add its default Guardfile configuration to the current Guardfile.
+Note that <var>GUARD</var> is the guard's name without the <code>guard-</code> prefix.
+For instance to initialize guard-rspec, run <code>guard init rspec</code>.</p>
+
+<h3 id="list">list</h3>
+
+<p>Lists guards that can be used with the <code>init</code> command.</p>
+
+<h3 id="-T-show">-T, show</h3>
+
+<p>List defined groups and guards for the current Guardfile.</p>
+
+<h3 id="-h-help-COMMAND-">-h, help [COMMAND]</h3>
+
+<p>List all of Guard's available commands.</p>
+
+<p>If <var>COMMAND</var> is given, displays a specific help for <var>TASK</var>.</p>
 
 <h2 id="EXAMPLES">EXAMPLES</h2>
 
-<p><code>[bundle exec] guard --clear --group backend frontend --notify false --debug</code></p>
+<p>Initialize Guard and a specific guard at the same time:</p>
+
+<p><code>[bundle exec] guard init [rspec]</code></p>
+
+<p>Run Guard:</p>
+
+<p><code>[bundle exec] guard [start] --watchdir ~/dev --guardfile ~/env/Guardfile --clear --group backend frontend --notify false --debug</code></p>
 
 <p>or in a more concise way:</p>
 
-<p><code>[bundle exec] guard -c -g backend frontend -n f -d</code></p>
+<p><code>[bundle exec] guard [start] -w ~/dev -G ~/env/Guardfile -c -g backend frontend -n f -d</code></p>
 
 <h2 id="AUTHORS-CONTRIBUTORS">AUTHORS / CONTRIBUTORS</h2>
 
@@ -126,10 +158,16 @@ https://github.com/guard/guard/contributors</p>
 <p>For an exhaustive list of all the contributors, please see the CHANGELOG:
 https://github.com/guard/guard/blob/master/CHANGELOG.md</p>
 
+<p>This manual has been written by Remy Coutable.</p>
+
+<h2 id="WWW">WWW</h2>
+
+<p>https://github.com/guard/guard</p>
+
 
   <ol class='man-decor man-foot man foot'>
     <li class='tl'></li>
-    <li class='tc'>June 2011</li>
+    <li class='tc'>August 2011</li>
     <li class='tr'>guard(1)</li>
   </ol>
 
