@@ -213,6 +213,11 @@ describe Guard::Dsl do
       ::Guard.should_receive(:add_guard).with('another', anything, {})
       lambda { subject.evaluate_guardfile(:guardfile_contents => valid_guardfile_string, :group => ['x','y']) }.should_not raise_error
     end
+    it "should evaluate all groups when no group option is specified" do
+      ::Guard.should_receive(:add_guard).with('test', anything, {}).twice
+      ::Guard.should_receive(:add_guard).with('another', anything, {}).twice
+      lambda { subject.evaluate_guardfile(:guardfile_contents => valid_guardfile_string) }.should_not raise_error
+    end
   end
 
   # TODO: not sure if each seperate quoting/call type needs its own test

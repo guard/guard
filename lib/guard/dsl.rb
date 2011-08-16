@@ -14,6 +14,7 @@ module Guard
 
       def reevaluate_guardfile
         ::Guard.guards.clear
+        @@options.delete(:guardfile_contents)
         Dsl.evaluate_guardfile(@@options)
         msg = "Guardfile has been re-evaluated."
         UI.info(msg)
@@ -104,7 +105,8 @@ module Guard
     end
 
     def group(name, &guard_definition)
-      guard_definition.call if guard_definition && (@@options[:group].empty? || @@options[:group].include?(name.to_s))
+      @groups = @@options[:group] || []
+      guard_definition.call if guard_definition && (@groups.empty? || @groups.include?(name.to_s))
     end
 
     def guard(name, options = {}, &watch_definition)

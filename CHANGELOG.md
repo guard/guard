@@ -1,3 +1,10 @@
+## 0.6.1 - August 15, 2011
+
+### Bugs fixes:
+
+- Pull request [#120](https://github.com/guard/guard/pull/120): remove guardfile_contents when re-evaluating so that the Guardfile gets reloaded correctly. ([@mordaroso][])
+- Pull request [#119](https://github.com/guard/guard/pull/119): Dsl.evaluate_guardfile uses all groups if none specified. ([@ches][])
+
 ## 0.6.0 - August 13, 2011
 
 ### Bugs fixes:
@@ -194,8 +201,10 @@
 [@brainopia]: https://github.com/brainopia
 [@bronson]: https://github.com/bronson
 [@capotej]: https://github.com/capotej
+[@ches]: https://github.com/ches
 [@chrisberkhout]: https://github.com/chrisberkhout
 [@dnagir]: https://github.com/dnagir
+[@docwhat]: https://github.com/docwhat
 [@etehtsea]: https://github.com/etehtsea
 [@fnichol]: https://github.com/fnichol
 [@Gazer]: https://github.com/Gazer
@@ -208,6 +217,7 @@
 [@koshigoe]: https://github.com/koshigoe
 [@mcmire]: https://github.com/mcmire
 [@mislav]: https://github.com/mislav
+[@mordaroso]: https://github.com/mordaroso
 [@nestegg]: https://github.com/nestegg
 [@netzpirat]: https://github.com/netzpirat
 [@nicksieger]: https://github.com/nicksieger

@@ -15,7 +15,12 @@ Features
 * Automatic & Super fast (when polling is not used) files modifications detection (even new files are detected).
 * Growl notifications ([growlnotify](http://growl.info/documentation/growlnotify.php) & [growl gem](https://rubygems.org/gems/growl) required).
 * Libnotify notifications ([libnotify gem](https://rubygems.org/gems/libnotify) required).
-* Tested on Ruby 1.8.7, 1.9.2 && ree.
+* Tested against Ruby 1.8.7, 1.9.2 and REE.
+
+Screencast
+----------
+
+Ryan Bates made a screencast on Guard, you can view it here: http://railscasts.com/episodes/264-guard
 
 Install
 -------
@@ -244,7 +249,7 @@ Required:
 Optional:
 
 * The `#watch` method allows you to define which files are supervised by this guard. An optional block can be added to overwrite the paths sent to the guard's `#run_on_change` method or to launch any arbitrary command.
-* The `#group` method allows you to group several guards together. Groups to be run can be specified with the Guard DSL option `--group` (or `-g`). This comes in handy especially when you have a huge Guardfile and want to focus your development on a certain part.
+* The `#group` method allows you to group several guards together. Groups to be run can be specified with the Guard DSL option `--group` (or `-g`). This comes in handy especially when you have a huge Guardfile and want to focus your development on a certain part. Guards that don't belong to a group are considered global and are always run.
 
 Example:
 
