@@ -1,10 +1,11 @@
 module Guard
   class Guard
 
-    attr_accessor :watchers, :options
+    attr_accessor :watchers, :options, :group
 
-    def initialize(watchers = [], options = {})
+    def initialize(watchers = [], options = {}, group = nil)
       @watchers, @options = watchers, options
+      @group ||= :default
     end
 
     # Guardfile template needed inside guard gem
