@@ -10,13 +10,17 @@ describe Guard do
       subject.should be ::Guard
     end
 
-    it "initializes the Guards" do
-      ::Guard.guards.should be_kind_of(Array)
+    it "initializes @guards" do
+      subject.guards.should eql []
+    end
+
+    it "initializes @groups" do
+      Guard.groups.should eql [:default]
     end
 
     it "initializes the options" do
       opts = { :my_opts => true }
-      ::Guard.setup(opts).options.should include(:my_opts)
+      Guard.setup(opts).options.should include(:my_opts)
     end
 
     it "initializes the listener" do
@@ -62,6 +66,96 @@ describe Guard do
     end
   end
 
+  describe ".add_guard" do
+    before(:each) do
+      @guard_rspec_class = double('Guard::RSpec')
+      @guard_rspec = double('Guard::RSpec')
+
+      Guard.stub!(:get_guard_class) { @guard_rspec_class }
+
+      Guard.setup
+    end
+
+    it "accepts guard name as string" do
+      @guard_rspec_class.should_receive(:new).and_return(@guard_rspec)
+
+      Guard.add_guard('rspec')
+    end
+
+    it "accepts guard name as symbol" do
+      @guard_rspec_class.should_receive(:new).and_return(@guard_rspec)
+
+      Guard.add_guard(:rspec)
+    end
+
+    it "adds guard to the @guards array" do
+      @guard_rspec_class.should_receive(:new).and_return(@guard_rspec)
+
+      Guard.add_guard(:rspec)
+
+      Guard.guards.should eql [@guard_rspec]
+    end
+
+    context "with no watchers given" do
+      it "gives an empty array of watchers" do
+        @guard_rspec_class.should_receive(:new).with([], {}, nil).and_return(@guard_rspec)
+
+        Guard.add_guard(:rspec, [])
+      end
+    end
+
+    context "with watchers given" do
+      it "give the watchers array" do
+        @guard_rspec_class.should_receive(:new).with([:foo], {}, nil).and_return(@guard_rspec)
+
+        Guard.add_guard(:rspec, [:foo])
+      end
+    end
+
+    context "with no options given" do
+      it "gives an empty hash of options" do
+        @guard_rspec_class.should_receive(:new).with([], {}, nil).and_return(@guard_rspec)
+
+        Guard.add_guard(:rspec, [], {})
+      end
+    end
+
+    context "with options given" do
+      it "give the options hash" do
+        @guard_rspec_class.should_receive(:new).with([], { :foo => true }, nil).and_return(@guard_rspec)
+
+        Guard.add_guard(:rspec, [], { :foo => true })
+      end
+    end
+
+    context "with the group :backend given" do
+      it "initialize the guard and pass it its group" do
+        @guard_rspec_class.should_receive(:new).with([], {}, :backend).and_return(@guard_rspec)
+
+        Guard.add_guard(:rspec, [], {}, :backend)
+      end
+    end
+  end
+
+
+  describe ".add_group" do
+    before(:each) do
+      Guard.setup
+    end
+
+    it "accepts group name as string" do
+      Guard.add_group('backend')
+      
+      Guard.groups.should eql [:default, :backend]
+    end
+
+    it "accepts group name as symbol" do
+      Guard.add_group(:backend)
+      
+      Guard.groups.should eql [:default, :backend]
+    end
+  end
+  
   describe ".get_guard_class" do
     after do
       [:Classname, :DashedClassName, :Inline].each do |const|
