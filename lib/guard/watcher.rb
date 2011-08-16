@@ -50,11 +50,15 @@ module Guard
       end
     end
 
+    def self.match_guardfile?(files)
+      files.any? { |file| "#{Dir.pwd}/#{file}" == Dsl.guardfile_path }
+    end
+
     def call_action(matches)
       begin
         @action.arity > 0 ? @action.call(matches) : @action.call
-      rescue
-        UI.error "Problem with watch action!"
+      rescue Exception => e
+        UI.error "Problem with watch action!\n#{e.message}\n\n#{e.backtrace.join("\n")}"
       end
     end
 

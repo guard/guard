@@ -4,23 +4,27 @@ require 'guard/guard'
 describe Guard::Watcher do
 
   describe "#initialize" do
-    describe "pattern parameter" do
-      it "is required" do
-        expect { Guard::Watcher.new }.to raise_error(ArgumentError)
+    it "requires a pattern parameter" do
+      expect { Guard::Watcher.new }.to raise_error(ArgumentError)
+    end
+
+    context "with a pattern parameter" do
+      context "that is a string" do
+        it "keeps the string pattern unmodified" do
+          Guard::Watcher.new('spec_helper.rb').pattern.should == 'spec_helper.rb'
+        end
       end
 
-      it "can be a string" do
-        Guard::Watcher.new('spec_helper.rb').pattern.should == 'spec_helper.rb'
+      context "that is a regexp" do
+        it "keeps the regex pattern unmodified" do
+          Guard::Watcher.new(/spec_helper\.rb/).pattern.should == /spec_helper\.rb/
+        end
       end
 
-      it "can be a regexp" do
-        Guard::Watcher.new(/spec_helper\.rb/).pattern.should == /spec_helper\.rb/
-      end
-
-      describe "can be a string looking like a regex (deprecated)" do
+      context "that is a string looking like a regex (deprecated)" do
         before(:each) { Guard::UI.should_receive(:info).any_number_of_times }
 
-        it "and is automatically casted to a regex" do
+        it "converts the string automatically to a regex" do
           Guard::Watcher.new('^spec_helper.rb').pattern.should == /^spec_helper.rb/
           Guard::Watcher.new('spec_helper.rb$').pattern.should == /spec_helper.rb$/
           Guard::Watcher.new('spec_helper\.rb').pattern.should == /spec_helper\.rb/
@@ -30,12 +34,12 @@ describe Guard::Watcher do
     end
   end
 
-  describe "action" do
-    it "should set action to nil by default" do
+  describe "#action" do
+    it "sets the action to nothing by default" do
       Guard::Watcher.new(/spec_helper\.rb/).action.should be_nil
     end
 
-    it "should set action with a block" do
+    it "sets the action to the supplied block" do
       action = lambda { |m| "spec/#{m[1]}_spec.rb" }
       Guard::Watcher.new(%r{^lib/(.*).rb}, action).action.should == action
     end
@@ -44,25 +48,25 @@ describe Guard::Watcher do
   describe ".match_files" do
     before(:all) { @guard = Guard::Guard.new }
 
-    describe "a watcher's with no action" do
-      context "regex pattern" do
+    context "with a watcher without action" do
+      context "that is a regex pattern" do
         before(:all) { @guard.watchers = [Guard::Watcher.new(/.*_spec\.rb/)] }
 
-        it "should return paths as they came" do
-          Guard::Watcher.match_files(@guard, ['guard_rocks_spec.rb']).should == ['guard_rocks_spec.rb']
+        it "returns the paths that matches the regex" do
+          Guard::Watcher.match_files(@guard, ['guard_rocks_spec.rb', 'guard_rocks.rb']).should == ['guard_rocks_spec.rb']
         end
       end
 
-      context "string pattern" do
+      context "that is a string pattern" do
         before(:all) { @guard.watchers = [Guard::Watcher.new('guard_rocks_spec.rb')] }
 
-        it "should return paths as they came" do
-          Guard::Watcher.match_files(@guard, ['guard_rocks_spec.rb']).should == ['guard_rocks_spec.rb']
+        it "returns the path that matches the string" do
+          Guard::Watcher.match_files(@guard, ['guard_rocks_spec.rb', 'guard_rocks.rb']).should == ['guard_rocks_spec.rb']
         end
       end
     end
 
-    describe "a watcher's action with an arity equal to 0" do
+    context "with a watcher action without parameter" do
       before(:all) do
         @guard.watchers = [
           Guard::Watcher.new('spec_helper.rb', lambda { 'spec' }),
@@ -74,27 +78,32 @@ describe Guard::Watcher do
         ]
       end
 
-      it "should return paths specified in the watcher's action" do
+      it "returns a single file specified within the action" do
         Guard::Watcher.match_files(@guard, ['spec_helper.rb']).should == ['spec']
       end
-      it "should return nothing if action.call doesn't respond_to :empty?" do
-        Guard::Watcher.match_files(@guard, ['addition.rb']).should == []
-      end
-      it "should return action.call.to_a if result respond_to :empty?" do
+
+      it "returns multiple files specified within the action" do
         Guard::Watcher.match_files(@guard, ['hash.rb']).should == ['foo', 'bar']
       end
-      it "should return files including files from array if paths are an array" do
+
+      it "returns multiple files by combining the results of different actions" do
         Guard::Watcher.match_files(@guard, ['spec_helper.rb', 'array.rb']).should == ['spec', 'foo', 'bar']
       end
-      it "should return nothing if action.call return ''" do
+
+      it "returns nothing if the action returns something other than a string or an array of strings" do
+        Guard::Watcher.match_files(@guard, ['addition.rb']).should == []
+      end
+
+      it "returns nothing if the action response is empty" do
         Guard::Watcher.match_files(@guard, ['blank.rb']).should == []
       end
-      it "should return nothing if action.call return nil" do
+
+      it "returns nothing if the action returns nothing" do
         Guard::Watcher.match_files(@guard, ['uptime.rb']).should == []
       end
     end
 
-    describe "a watcher's action with an arity equal to 1" do
+    context "with a watcher action that takes a parameter" do
       before(:all) do
         @guard.watchers = [
           Guard::Watcher.new(%r{lib/(.*)\.rb},   lambda { |m| "spec/#{m[1]}_spec.rb" }),
@@ -106,31 +115,40 @@ describe Guard::Watcher do
         ]
       end
 
-      it "should return paths after watcher's action has been called against them" do
+      it "returns a substituted single file specified within the action" do
         Guard::Watcher.match_files(@guard, ['lib/my_wonderful_lib.rb']).should == ['spec/my_wonderful_lib_spec.rb']
       end
-      it "should return nothing if action.call doesn't respond_to :empty?" do
-        Guard::Watcher.match_files(@guard, ['addition.rb']).should == []
-      end
-      it "should return action.call.to_a if result respond_to :empty?" do
+
+      it "returns multiple files specified within the action" do
         Guard::Watcher.match_files(@guard, ['hash.rb']).should == ['foo', 'bar']
       end
-      it "should return files including files from array if paths are an array" do
+
+      it "returns multiple files by combining the results of different actions" do
         Guard::Watcher.match_files(@guard, ['lib/my_wonderful_lib.rb', 'array.rb']).should == ['spec/my_wonderful_lib_spec.rb', 'foo', 'bar']
       end
-      it "should return nothing if action.call return ''" do
+
+      it "returns nothing if the action returns something other than a string or an array of strings" do
+        Guard::Watcher.match_files(@guard, ['addition.rb']).should == []
+      end
+
+      it "returns nothing if the action response is empty" do
         Guard::Watcher.match_files(@guard, ['blank.rb']).should == []
       end
-      it "should return nothing if action.call return nil" do
+
+      it "returns nothing if the action returns nothing" do
         Guard::Watcher.match_files(@guard, ['uptime.rb']).should == []
       end
     end
 
-    describe "an exception is raised" do
+    context "with an exception that is raised" do
       before(:all) { @guard.watchers = [Guard::Watcher.new('evil.rb', lambda { raise "EVIL" })] }
 
-      it "should display an error" do
-        Guard::UI.should_receive(:error).with("Problem with watch action!")
+      it "displays the error and backtrace" do
+        Guard::UI.should_receive(:error) { |msg|
+          msg.should include("Problem with watch action!")
+          msg.should include("EVIL")
+        }
+
         Guard::Watcher.match_files(@guard, ['evil.rb'])
       end
     end
@@ -143,37 +161,64 @@ describe Guard::Watcher do
       @guards = [@guard1, @guard2]
     end
 
-    describe "with at least on watcher that match a file given" do
+    context "with a watcher that matches a file" do
       specify { Guard::Watcher.match_files?(@guards, ['lib/my_wonderful_lib.rb', 'guard_rocks_spec.rb']).should be_true }
     end
 
-    describe "with no watcher matching a file given" do
+    context "with no watcher that matches a file" do
       specify { Guard::Watcher.match_files?(@guards, ['lib/my_wonderful_lib.rb']).should be_false }
     end
   end
 
   describe "#match_file?" do
-    describe "string pattern" do
-      describe "normal string" do
+    context "with a string pattern" do
+      context "that is a normal string" do
         subject { Guard::Watcher.new('guard_rocks_spec.rb') }
 
-        specify { subject.match_file?('lib/my_wonderful_lib.rb').should be_false }
-        specify { subject.match_file?('guard_rocks_spec.rb').should be_true }
+        context "with a watcher that matches a file" do
+          specify { subject.match_file?('guard_rocks_spec.rb').should be_true }
+        end
+
+        context "with no watcher that matches a file" do
+          specify { subject.match_file?('lib/my_wonderful_lib.rb').should be_false }
+        end
       end
 
-      describe "string representing a regexp converted (while deprecation is active)" do
+      context "that is a string representing a regexp (deprecated)" do
         subject { Guard::Watcher.new('^guard_rocks_spec\.rb$') }
 
-        specify { subject.match_file?('lib/my_wonderful_lib.rb').should be_false }
-        specify { subject.match_file?('guard_rocks_spec.rb').should be_true }
+        context "with a watcher that matches a file" do
+          specify { subject.match_file?('guard_rocks_spec.rb').should be_true }
+        end
+
+        context "with no watcher that matches a file" do
+          specify { subject.match_file?('lib/my_wonderful_lib.rb').should be_false }
+        end
       end
     end
 
-    describe "regexp pattern" do
+    context "that is a regexp pattern" do
       subject { Guard::Watcher.new(/.*_spec\.rb/) }
 
-      specify { subject.match_file?('lib/my_wonderful_lib.rb').should be_false }
-      specify { subject.match_file?('guard_rocks_spec.rb').should be_true }
+      context "with a watcher that matches a file" do
+        specify { subject.match_file?('guard_rocks_spec.rb').should be_true }
+      end
+
+      context "with no watcher that matches a file" do
+        specify { subject.match_file?('lib/my_wonderful_lib.rb').should be_false }
+      end
+    end
+  end
+
+  describe ".match_guardfile?" do
+    before(:all) { Guard::Dsl.stub(:guardfile_path) { Dir.pwd + '/Guardfile' } }
+
+    context "with files that match the Guardfile" do
+      specify { Guard::Watcher.match_guardfile?(['Guardfile', 'guard_rocks_spec.rb']).should be_true }
+    end
+
+    context "with no files that match the Guardfile" do
+      specify { Guard::Watcher.match_guardfile?(['guard_rocks.rb', 'guard_rocks_spec.rb']).should be_false }
     end
   end
 

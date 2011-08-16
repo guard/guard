@@ -1,55 +1,61 @@
 module Guard
 
-  autoload :UI,         'guard/ui'
-  autoload :Dsl,        'guard/dsl'
-  autoload :Interactor, 'guard/interactor'
-  autoload :Listener,   'guard/listener'
-  autoload :Watcher,    'guard/watcher'
-  autoload :Notifier,   'guard/notifier'
-  autoload :Hook,       'guard/hook'
+  autoload :UI,           'guard/ui'
+  autoload :Dsl,          'guard/dsl'
+  autoload :DslDescriber, 'guard/dsl_describer'
+  autoload :Interactor,   'guard/interactor'
+  autoload :Listener,     'guard/listener'
+  autoload :Watcher,      'guard/watcher'
+  autoload :Notifier,     'guard/notifier'
+  autoload :Hook,         'guard/hook'
 
   class << self
-    attr_accessor :options, :guards, :listener
+    attr_accessor :options, :guards, :groups, :listener
 
     # initialize this singleton
     def setup(options = {})
       @options  = options
-      @listener = Listener.select_and_init
+      @listener = Listener.select_and_init(@options[:watchdir] ? File.expand_path(@options[:watchdir]) : Dir.pwd)
+      @groups   = [:default]
       @guards   = []
 
-      Notifier.turn_off unless options[:notify]
+      @options[:notify] && ENV["GUARD_NOTIFY"] != 'false' ? Notifier.turn_on : Notifier.turn_off
+
+      UI.clear if @options[:clear]
+      debug_command_execution if @options[:debug]
 
       self
     end
 
     def start(options = {})
+      Interactor.init_signal_traps
+
       setup(options)
 
-      Interactor.init_signal_traps
       Dsl.evaluate_guardfile(options)
 
-      if guards.empty?
-        UI.error "No guards found in Guardfile, please add at least one."
-      else
-        listener.on_change do |files|
-          run { run_on_change_for_all_guards(files) } if Watcher.match_files?(guards, files)
-        end
+      listener.on_change do |files|
+        Dsl.reevaluate_guardfile if Watcher.match_guardfile?(files)
 
-        UI.info "Guard is now watching at '#{Dir.pwd}'"
-        guards.each { |guard| supervised_task(guard, :start) }
-        listener.start
+        run { run_on_change_for_all_guards(files) } if Watcher.match_files?(guards, files)
       end
+
+      UI.info "Guard is now watching at '#{listener.directory}'"
+      guards.each { |guard| supervised_task(guard, :start) }
+      listener.start
     end
 
     def run_on_change_for_all_guards(files)
       guards.each do |guard|
         paths = Watcher.match_files(guard, files)
-        supervised_task(guard, :run_on_change, paths) unless paths.empty?
+        unless paths.empty?
+          UI.debug "#{guard.class.name}#run_on_change with #{paths.inspect}"
+          supervised_task(guard, :run_on_change, paths)
+        end
       end
 
       # Reparse the whole directory to catch new files modified during the guards run
-      new_modified_files = listener.modified_files([Dir.pwd + '/'], :all => true)
-      listener.update_last_event
+      new_modified_files = listener.modified_files([listener.directory], :all => true)
       if !new_modified_files.empty? && Watcher.match_files?(guards, new_modified_files)
         run { run_on_change_for_all_guards(new_modified_files) }
       end
@@ -62,11 +68,12 @@ module Guard
       result = guard.send(task_to_supervise, *args)
       guard.hook("#{task_to_supervise}_end", result)
       result
-    rescue Exception
-      UI.error("#{guard.class.name} guard failed to achieve its <#{task_to_supervise}> command: #{$!}")
-      ::Guard.guards.delete guard
-      UI.info("Guard #{guard.class.name} has just been fired")
-      return $!
+    rescue Exception => ex
+      UI.error("#{guard.class.name} failed to achieve its <#{task_to_supervise.to_s}>, exception was:" +
+      "\n#{ex.class}: #{ex.message}\n#{ex.backtrace.join("\n")}")
+      guards.delete guard
+      UI.info("\n#{guard.class.name} has just been fired")
+      return ex
     end
 
     def run
@@ -79,29 +86,71 @@ module Guard
       listener.start
     end
 
-    def add_guard(name, watchers = [], callbacks = [], options = {})
-      guard_class = get_guard_class(name)
-      watchers = watchers.map { |watcher| ::Guard::Watcher.new(watcher[:pattern], watcher[:action]) }
-      @guards << guard_class.new(watchers, options)
-      callbacks.each { |callback| ::Guard::Hook.add_callback(callback[:listener], guard_class, callback[:events]) }
+    def add_guard(name, watchers = [], callbacks = [], options = {}, group = nil)
+      if name.to_sym == :ego
+        UI.deprecation("Guard::Ego is now part of Guard. You can remove it from your Guardfile.")
+      else
+        guard_class = get_guard_class(name)
+        callbacks.each { |callback| ::Guard::Hook.add_callback(callback[:listener], guard_class, callback[:events]) }
+        @guards << guard_class.new(watchers, options, group)
+      end
+    end
+
+    def add_group(name)
+      @groups << name.to_sym unless name.nil?
     end
 
     def get_guard_class(name)
-      try_to_load_gem name
-      self.const_get(self.constants.find{|klass_name| klass_name.to_s.downcase == name.downcase })
-    rescue TypeError
-      UI.error "Could not find load find gem 'guard-#{name}' or find class Guard::#{name}"
-    end
-
-    def try_to_load_gem(name)
-      require "guard/#{name.downcase}"
-    rescue LoadError
+      try_require = false
+      const_name = name.to_s.downcase.gsub('-', '')
+      begin
+        require "guard/#{name.downcase}" if try_require
+        self.const_get(self.constants.find { |c| c.to_s.downcase == const_name })
+      rescue TypeError
+        unless try_require
+          try_require = true
+          retry
+        else
+          UI.error "Could not find class Guard::#{const_name.capitalize}"
+        end
+      rescue LoadError => loadError
+        UI.error "Could not load 'guard/#{name.downcase}' or find class Guard::#{const_name.capitalize}"
+        UI.error loadError.to_s
+      end
     end
 
     def locate_guard(name)
-      Gem.source_index.find_name("guard-#{name}").last.full_gem_path
+      if Gem::Version.create(Gem::VERSION) >= Gem::Version.create('1.8.0')
+        Gem::Specification.find_by_name("guard-#{name}").full_gem_path
+      else
+        Gem.source_index.find_name("guard-#{name}").last.full_gem_path
+      end
     rescue
       UI.error "Could not find 'guard-#{name}' gem path."
+    end
+
+    ##
+    # Returns a list of guard Gem names installed locally.
+    def guard_gem_names
+      if Gem::Version.create(Gem::VERSION) >= Gem::Version.create('1.8.0')
+        Gem::Specification.find_all.select { |x| x.name =~ /^guard-/ }
+      else
+        Gem.source_index.find_name(/^guard-/)
+      end.map { |x| x.name.sub /^guard-/, '' }
+    end
+
+    def debug_command_execution
+      Kernel.send(:alias_method, :original_system, :system)
+      Kernel.send(:define_method, :system) do |command, *args|
+        ::Guard::UI.debug "Command execution: #{command} #{args.join(' ')}"
+        original_system command, *args
+      end
+
+      Kernel.send(:alias_method, :original_backtick, :"`")
+      Kernel.send(:define_method, :"`") do |command|
+        ::Guard::UI.debug "Command execution: #{command}"
+        original_backtick command
+      end
     end
 
   end

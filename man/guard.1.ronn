@@ -1,0 +1,93 @@
+guard(1) -- Guard keeps an eye on your file modifications.
+========================================================
+
+## DESCRIPTION
+
+Guard is a command line tool that easily handle events on files modifications.
+
+## SYNOPSIS
+
+`guard <COMMAND> <OPTIONS>`
+
+## COMMANDS
+
+### start
+
+Starts Guard. This is the default command if none is provided.
+
+The following options are available:
+
+`-c`, `--clear`
+  Clears the Shell after each change.
+
+`-n`, `--notify` <FLAG>
+  Disable notifications (Growl or Libnotify depending on your system).
+  Notifications can be disabled globally by setting a GUARD_NOTIFY environment variable to false.
+  FLAG can be `true`/`false` or `t`/`f`.
+
+`-d`, `--debug`
+  Runs Guard in debug mode.
+
+`-g`, `--group` <GROUP1> <GROUP2>...
+  Runs only the groups specified by GROUP1, GROUP2 etc.
+  Groups name should be separated by spaces.
+  Guards that don't belong to a group are considered global and are always run.
+
+`-w`, `--watchdir` <PATH>
+
+Tells Guard to watch PATH instead of `./`.
+
+`-G`, `--guardfile` <FILE>
+  Tells Guard to use FILE as its Guardfile instead of `./Guardfile` or `~/.Guardfile`.
+
+### init [GUARD]
+
+If no Guardfile is present in the current directory, creates an empty Guardfile.
+
+If <GUARD> is present, add its default Guardfile configuration to the current Guardfile.
+Note that <GUARD> is the guard's name without the `guard-` prefix.
+For instance to initialize guard-rspec, run `guard init rspec`.
+
+### list
+
+Lists guards that can be used with the `init` command.
+
+### -T, show
+
+List defined groups and guards for the current Guardfile.
+
+### -h, help [COMMAND]
+
+List all of Guard's available commands.
+
+If <COMMAND> is given, displays a specific help for <TASK>.
+
+## EXAMPLES
+
+Initialize Guard and a specific guard at the same time:
+
+`[bundle exec] guard init [rspec]`
+
+Run Guard:
+
+`[bundle exec] guard [start] --watchdir ~/dev --guardfile ~/env/Guardfile --clear --group backend frontend --notify false --debug`
+
+or in a more concise way:
+
+`[bundle exec] guard [start] -w ~/dev -G ~/env/Guardfile -c -g backend frontend -n f -d`
+
+## AUTHORS / CONTRIBUTORS
+
+Thibaud Guillaume-Gentil is the main author.
+
+A list of contributors based on all commits can be found here:
+https://github.com/guard/guard/contributors
+
+For an exhaustive list of all the contributors, please see the CHANGELOG:
+https://github.com/guard/guard/blob/master/CHANGELOG.md
+
+This manual has been written by Remy Coutable.
+
+## WWW
+
+https://github.com/guard/guard

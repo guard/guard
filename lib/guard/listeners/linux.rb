@@ -1,8 +1,7 @@
 module Guard
   class Linux < Listener
-    attr_reader :inotify, :files, :latency, :callback
 
-    def initialize
+    def initialize(*)
       super
 
       @inotify = INotify::Notifier.new
@@ -12,28 +11,21 @@ module Guard
 
     def start
       @stop = false
+      super
       watch_change unless watch_change?
     end
 
     def stop
+      super
       @stop = true
-      sleep latency
-    end
-
-    def on_change(&callback)
-      @callback = callback
-      inotify.watch(Dir.pwd, :recursive, :modify, :create, :delete, :move) do |event|
-        unless event.name == "" # Event on root directory
-          @files << event.absolute_name
-        end
-      end
-    rescue Interrupt
+      sleep(@latency)
     end
 
     def self.usable?
       require 'rb-inotify'
-      if !defined?(INotify::VERSION) || Gem::Version.new(INotify::VERSION.join('.')) < Gem::Version.new('0.5.1')
-        UI.info "Please update rb-inotify (>= 0.5.1)"
+      if !defined?(INotify::VERSION) || (defined?(Gem::Version) &&
+          Gem::Version.new(INotify::VERSION.join('.')) < Gem::Version.new('0.8.5'))
+        UI.info "Please update rb-inotify (>= 0.8.5)"
         false
       else
         true
@@ -49,22 +41,31 @@ module Guard
 
   private
 
+    def worker
+      @inotify
+    end
+
+    def watch(directory)
+      # The event selection is based on https://github.com/guard/guard/wiki/Analysis-of-inotify-events-for-different-editors
+      worker.watch(directory, :recursive, :create, :move_self, :close_write) do |event|
+        unless event.name == "" # Event on root directory
+          @files << event.absolute_name
+        end
+      end
+    rescue Interrupt
+    end
+
     def watch_change
       @watch_change = true
-      while !@stop
-        if Config::CONFIG['build'] =~ /java/ || IO.select([inotify.to_io], [], [], latency)
+      until @stop
+        if RbConfig::CONFIG['build'] =~ /java/ || IO.select([worker.to_io], [], [], @latency)
           break if @stop
 
-          sleep latency
-          inotify.process
-          update_last_event
+          sleep(@latency)
+          worker.process
 
-          unless files.empty?
-            files.uniq!
-            files.map! { |file| file.gsub("#{Dir.pwd}/", '') }
-            callback.call(files)
-            files.clear
-          end
+          files = modified_files(@files.shift(@files.size).map { |f| File.dirname(f) }.uniq)
+          @callback.call(files) unless files.empty?
         end
       end
       @watch_change = false

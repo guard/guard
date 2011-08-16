@@ -11,22 +11,28 @@ describe Guard::Linux do
     end
   end
 
-  if linux?
+  if windows?
+    it "isn't usable on windows" do
+      subject.should_not be_usable
+    end
+  end
+
+  if linux? && Guard::Linux.usable?
     it "is usable on linux" do
       subject.should be_usable
     end
 
-    describe "#start" do
+    describe "#start", :long_running => true do
       before(:each) do
         @listener = Guard::Linux.new
       end
 
-      it "should call watch_change if first start" do
+      it "calls watch_change on the first start" do
         @listener.should_receive(:watch_change)
         start
       end
 
-      it "should not call watch_change if start after stop" do
+      it "doesn't call watch_change on subsequent starts after a stop" do
         @listener.stub!(:stop)
         start
         stop
@@ -37,94 +43,35 @@ describe Guard::Linux do
         stop
         @listener.should_not be_watch_change
       end
-
     end
 
-    describe "#on_change" do
-      before(:each) do
-        @results = []
-        @listener = Guard::Linux.new
-        @listener.on_change do |files|
-          @results += files
-        end
-      end
+    it_should_behave_like "a listener that reacts to #on_change"
+    it_should_behave_like "a listener scoped to a specific directory"
 
-      it "should catch new file" do
-        file = @fixture_path.join("newfile.rb")
-        File.exists?(file).should be_false
-        start
-        FileUtils.touch file
-        stop
-        File.delete file
-        @results.should == ['spec/fixtures/newfile.rb']
-      end
+    # Fun fact: FileUtils.touch seems not to be enough on Linux to trigger a modify event
 
-      it "should catch file update" do
-        file = @fixture_path.join("folder1/file1.txt")
-        File.exists?(file).should be_true
-        start
-        File.open(file, 'w') {|f| f.write('') }
-        stop
-        @results.should == ['spec/fixtures/folder1/file1.txt']
-      end
-
-      it "should catch files update" do
-        file1 = @fixture_path.join("folder1/file1.txt")
-        file2 = @fixture_path.join("folder1/folder2/file2.txt")
-        File.exists?(file1).should be_true
-        File.exists?(file2).should be_true
-        start
-        File.open(file1, 'w') {|f| f.write('') }
-        File.open(file2, 'w') {|f| f.write('') }
-        stop
-        @results.should == ['spec/fixtures/folder1/file1.txt', 'spec/fixtures/folder1/folder2/file2.txt']
-      end
-
-      it "should catch deleted file" do
-        file = @fixture_path.join("folder1/file1.txt")
-        File.exists?(file).should be_true
-        start
-        File.delete file
-        stop
-        FileUtils.touch file
-        @results.should == ['spec/fixtures/folder1/file1.txt']
-      end
-
-      it "should catch moved file" do
-        file1 = @fixture_path.join("folder1/file1.txt")
-        file2 = @fixture_path.join("folder1/movedfile1.txt")
-        File.exists?(file1).should be_true
-        File.exists?(file2).should be_false
-        start
-        FileUtils.mv file1, file2
-        stop
-        FileUtils.mv file2, file1
-        @results.should == ['spec/fixtures/folder1/file1.txt', 'spec/fixtures/folder1/movedfile1.txt']
-      end
-
-      it "should not process change if stopped" do
-        file = @fixture_path.join("folder1/file1.txt")
-        File.exists?(file).should be_true
-        start
-        @listener.inotify.should_not_receive(:process)
-        stop
-        File.open(file, 'w') {|f| f.write('') }
-      end
+    it "catches modified files with glib saving routine (like Vim, Emacs or Gedit)" do
+      @listener = described_class.new
+      record_results
+      file = @fixture_path.join("folder1/file1.txt")
+      File.exists?(file).should be_true
+      start
+      File.open(file, 'r+').close
+      FileUtils.touch(file)
+      stop
+      results.should =~ ['spec/fixtures/folder1/file1.txt']
     end
+
+    it "doesn't process a change when it is stopped" do
+      @listener = described_class.new
+      record_results
+      file = @fixture_path.join("folder1/file1.txt")
+      File.exists?(file).should be_true
+      start
+      @listener.instance_variable_get(:@inotify).should_not_receive(:process)
+      stop
+      File.open(file, 'w') {|f| f.write('') }
+    end
+
   end
-
-private
-
-  def start
-    sleep 1
-    Thread.new { @listener.start }
-    sleep 1
-  end
-
-  def stop
-    sleep 1
-    @listener.stop
-    sleep 1
-  end
-
 end
