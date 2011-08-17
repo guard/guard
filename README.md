@@ -13,7 +13,7 @@ Features
 * [Directory Change Notification](http://msdn.microsoft.com/en-us/library/aa365261\(VS.85\).aspx) support on Windows ([rb-fchange, >= 0.0.2](https://rubygems.org/gems/rb-fchange) required).
 * Polling on the other operating systems (help us to support more OS).
 * Automatic & Super fast (when polling is not used) files modifications detection (even new files are detected).
-* Growl notifications ([growlnotify](http://growl.info/documentation/growlnotify.php) & [growl gem](https://rubygems.org/gems/growl) required).
+* Growl notifications ([growl_notify gem](https://rubygems.org/gems/growl_notify) or [growlnotify](http://growl.info/documentation/growlnotify.php) & [growl gem](https://rubygems.org/gems/growl) required).
 * Libnotify notifications ([libnotify gem](https://rubygems.org/gems/libnotify) required).
 * Tested against Ruby 1.8.7, 1.9.2 and REE.
 
@@ -55,7 +55,7 @@ Install the rb-fsevent gem for [FSEvent](http://en.wikipedia.org/wiki/FSEvents) 
 $ gem install rb-fsevent
 ```
 
-Install either the growl_notify or the Growl gem if you want notification support:
+Install either the growl_notify or the growl gem if you want notification support:
 
 ``` bash
 $ gem install growl_notify
@@ -70,8 +70,9 @@ gem 'rb-fsevent'
 gem 'growl'
 ```
 
-growl_notify uses AppleScript, the suggested method for interfacing with Growl,
-rather than the `growlnotify` command to display messages.
+The difference between growl and growl_notify is that growl_notify uses AppleScript to 
+display a message, whereas growl uses the `growlnotify` command. In general the AppleScript
+approach is preferred, but this is currently known to not work in conjunction with Spork.
 
 ### On Linux
 
