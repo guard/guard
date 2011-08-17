@@ -1,3 +1,19 @@
+## 0.6.2 - August 17, 2011
+
+### Bugs fixes:
+
+- Re-add the possibility to use the `growl` gem since the `growl_notify` gem this is currently known to not work in conjunction with Spork. ([@netzpirat][])
+- Ensure that scoped groups and group name are symbolized before checking for inclusion. ([@rymai][])
+
+### New features
+
+- Groups are now stored in a @groups variable (will be used for future features). ([@rymai][])
+- Guards will now receive their group in the options hash at initialization (will be used for future features). ([@rymai][])
+
+### Improvement
+
+- Explain the growl/growl_notify differences in the README. ([@netzpirat][])
+
 ## 0.6.1 - August 15, 2011
 
 ### Bugs fixes:
