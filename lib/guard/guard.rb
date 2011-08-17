@@ -4,9 +4,9 @@ module Guard
 
     attr_accessor :watchers, :options, :group
 
-    def initialize(watchers = [], options = {}, group = nil)
+    def initialize(watchers = [], options = {})
+      @group = options.delete(:group) || :default
       @watchers, @options = watchers, options
-      @group ||= :default
     end
 
     # Guardfile template needed inside guard gem

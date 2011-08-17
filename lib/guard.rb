@@ -86,13 +86,13 @@ module Guard
       listener.start
     end
 
-    def add_guard(name, watchers = [], callbacks = [], options = {}, group = nil)
+    def add_guard(name, watchers = [], callbacks = [], options = {})
       if name.to_sym == :ego
         UI.deprecation("Guard::Ego is now part of Guard. You can remove it from your Guardfile.")
       else
         guard_class = get_guard_class(name)
         callbacks.each { |callback| ::Guard::Hook.add_callback(callback[:listener], guard_class, callback[:events]) }
-        @guards << guard_class.new(watchers, options, group)
+        @guards << guard_class.new(watchers, options)
       end
     end
 

@@ -119,11 +119,12 @@ module Guard
       @watchers  = []
       @callbacks = []
       watch_and_callback_definition.call if watch_and_callback_definition
-      ::Guard.add_guard(name.to_s.downcase.to_sym, @watchers, @callbacks, options, @current_group || :default)
+      options.update(:group => (@current_group || :default))
+      ::Guard.add_guard(name.to_s.downcase.to_sym, @watchers, @callbacks, options)
     end
 
     def watch(pattern, &action)
-      @watchers << { :pattern => pattern, :action => action }
+      @watchers << ::Guard::Watcher.new(pattern, action)
     end
 
     def callback(*args, &listener)

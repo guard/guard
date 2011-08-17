@@ -98,7 +98,7 @@ describe Guard do
 
     context "with no watchers given" do
       it "gives an empty array of watchers" do
-        @guard_rspec_class.should_receive(:new).with([], {}, nil).and_return(@guard_rspec)
+        @guard_rspec_class.should_receive(:new).with([], {}).and_return(@guard_rspec)
 
         Guard.add_guard(:rspec, [])
       end
@@ -106,7 +106,7 @@ describe Guard do
 
     context "with watchers given" do
       it "give the watchers array" do
-        @guard_rspec_class.should_receive(:new).with([:foo], {}, nil).and_return(@guard_rspec)
+        @guard_rspec_class.should_receive(:new).with([:foo], {}).and_return(@guard_rspec)
 
         Guard.add_guard(:rspec, [:foo])
       end
@@ -114,7 +114,7 @@ describe Guard do
 
     context "with no options given" do
       it "gives an empty hash of options" do
-        @guard_rspec_class.should_receive(:new).with([], {}, nil).and_return(@guard_rspec)
+        @guard_rspec_class.should_receive(:new).with([], {}).and_return(@guard_rspec)
 
         Guard.add_guard(:rspec, [], [], {})
       end
@@ -122,17 +122,9 @@ describe Guard do
 
     context "with options given" do
       it "give the options hash" do
-        @guard_rspec_class.should_receive(:new).with([], { :foo => true }, nil).and_return(@guard_rspec)
+        @guard_rspec_class.should_receive(:new).with([], { :foo => true, :group => :backend }).and_return(@guard_rspec)
 
-        Guard.add_guard(:rspec, [], [], { :foo => true })
-      end
-    end
-
-    context "with the group :backend given" do
-      it "initialize the guard and pass it its group" do
-        @guard_rspec_class.should_receive(:new).with([], {}, :backend).and_return(@guard_rspec)
-
-        Guard.add_guard(:rspec, [], [], {}, :backend)
+        Guard.add_guard(:rspec, [], [], { :foo => true, :group => :backend })
       end
     end
   end
