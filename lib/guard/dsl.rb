@@ -118,7 +118,8 @@ module Guard
     def guard(name, options = {}, &watch_definition)
       @watchers = []
       watch_definition.call if watch_definition
-      ::Guard.add_guard(name.to_s.downcase.to_sym, @watchers, options, @current_group || :default)
+      options.update(:group => (@current_group || :default))
+      ::Guard.add_guard(name.to_s.downcase.to_sym, @watchers, options)
     end
 
     def watch(pattern, &action)

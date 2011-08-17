@@ -82,11 +82,11 @@ module Guard
       listener.start
     end
 
-    def add_guard(name, watchers = [], options = {}, group = nil)
+    def add_guard(name, watchers = [], options = {})
       if name.to_sym == :ego
         UI.deprecation("Guard::Ego is now part of Guard. You can remove it from your Guardfile.")
       else
-        guard = get_guard_class(name).new(watchers, options, group)
+        guard = get_guard_class(name).new(watchers, options)
         @guards << guard
       end
     end

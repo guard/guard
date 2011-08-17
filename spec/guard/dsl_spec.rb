@@ -201,41 +201,41 @@ describe Guard::Dsl do
 
   describe "#group" do
     it "evaluates only the specified string group" do
-      ::Guard.should_receive(:add_guard).with(:pow, [], {}, :default)
-      ::Guard.should_receive(:add_guard).with(:test, [], {}, :w)
+      ::Guard.should_receive(:add_guard).with(:pow, [], { :group => :default })
+      ::Guard.should_receive(:add_guard).with(:test, [], { :group => :w })
 
       subject.evaluate_guardfile(:guardfile_contents => valid_guardfile_string, :group => ['w'])
     end
 
     it "evaluates only the specified symbol group" do
-      ::Guard.should_receive(:add_guard).with(:pow, [], {}, :default)
-      ::Guard.should_receive(:add_guard).with(:test, [], {}, :w)
+      ::Guard.should_receive(:add_guard).with(:pow, [], { :group => :default })
+      ::Guard.should_receive(:add_guard).with(:test, [], { :group => :w })
 
       subject.evaluate_guardfile(:guardfile_contents => valid_guardfile_string, :group => [:w])
     end
 
     it "evaluates only the specified groups" do
-      ::Guard.should_receive(:add_guard).with(:pow, [], {}, :default)
-      ::Guard.should_receive(:add_guard).with(:rspec, [], {}, :x)
-      ::Guard.should_receive(:add_guard).with(:ronn, [], {}, :x)
-      ::Guard.should_receive(:add_guard).with(:less, [], {}, :y)
+      ::Guard.should_receive(:add_guard).with(:pow, [], { :group => :default })
+      ::Guard.should_receive(:add_guard).with(:rspec, [], { :group => :x })
+      ::Guard.should_receive(:add_guard).with(:ronn, [], { :group => :x })
+      ::Guard.should_receive(:add_guard).with(:less, [], { :group => :y })
 
       subject.evaluate_guardfile(:guardfile_contents => valid_guardfile_string, :group => [:x, :y])
     end
 
     it "evaluates always guard outside any group (even when a group is given)" do
-      ::Guard.should_receive(:add_guard).with(:pow, [], {}, :default)
-      ::Guard.should_receive(:add_guard).with(:test, [], {}, :w)
+      ::Guard.should_receive(:add_guard).with(:pow, [], { :group => :default })
+      ::Guard.should_receive(:add_guard).with(:test, [], { :group => :w })
 
       subject.evaluate_guardfile(:guardfile_contents => valid_guardfile_string, :group => [:w])
     end
 
     it "evaluates all groups when no group option is specified" do
-      ::Guard.should_receive(:add_guard).with(:pow, [], {}, :default)
-      ::Guard.should_receive(:add_guard).with(:test, [], {}, :w)
-      ::Guard.should_receive(:add_guard).with(:rspec, [], {}, :x)
-      ::Guard.should_receive(:add_guard).with(:ronn, [], {}, :x)
-      ::Guard.should_receive(:add_guard).with(:less, [], {}, :y)
+      ::Guard.should_receive(:add_guard).with(:pow, [], { :group => :default })
+      ::Guard.should_receive(:add_guard).with(:test, [], { :group => :w })
+      ::Guard.should_receive(:add_guard).with(:rspec, [], { :group => :x })
+      ::Guard.should_receive(:add_guard).with(:ronn, [], { :group => :x })
+      ::Guard.should_receive(:add_guard).with(:less, [], { :group => :y })
 
       subject.evaluate_guardfile(:guardfile_contents => valid_guardfile_string)
     end
@@ -243,31 +243,31 @@ describe Guard::Dsl do
 
   describe "#guard" do
     it "loads a guard specified as a quoted string from the DSL" do
-      ::Guard.should_receive(:add_guard).with(:test, [], {}, :default)
+      ::Guard.should_receive(:add_guard).with(:test, [], { :group => :default })
 
       subject.evaluate_guardfile(:guardfile_contents => "guard 'test'")
     end
 
     it "loads a guard specified as a double quoted string from the DSL" do
-      ::Guard.should_receive(:add_guard).with(:test, [], {}, :default)
+      ::Guard.should_receive(:add_guard).with(:test, [], { :group => :default })
 
       subject.evaluate_guardfile(:guardfile_contents => 'guard "test"')
     end
 
     it "loads a guard specified as a symbol from the DSL" do
-      ::Guard.should_receive(:add_guard).with(:test, [], {}, :default)
+      ::Guard.should_receive(:add_guard).with(:test, [], { :group => :default })
 
       subject.evaluate_guardfile(:guardfile_contents => "guard :test")
     end
 
     it "loads a guard specified as a symbol and called with parens from the DSL" do
-      ::Guard.should_receive(:add_guard).with(:test, [], {}, :default)
+      ::Guard.should_receive(:add_guard).with(:test, [], { :group => :default })
 
       subject.evaluate_guardfile(:guardfile_contents => "guard(:test)")
     end
 
     it "receives options when specified, from normal arg" do
-      ::Guard.should_receive(:add_guard).with(:test, [], { :opt_a => 1, :opt_b => 'fancy' }, :default)
+      ::Guard.should_receive(:add_guard).with(:test, [], { :opt_a => 1, :opt_b => 'fancy', :group => :default })
 
       subject.evaluate_guardfile(:guardfile_contents => "guard 'test', :opt_a => 1, :opt_b => 'fancy'")
     end
@@ -280,7 +280,7 @@ describe Guard::Dsl do
                                    watch('c')
                                  end"
 
-      ::Guard.should_receive(:add_guard).with(:test, anything, {}, :default) do |name, watchers, options|
+      ::Guard.should_receive(:add_guard).with(:test, anything, { :group => :default }) do |name, watchers, options|
         watchers.size.should == 2
         watchers[0].pattern.should     == 'a'
         watchers[0].action.call.should == proc { 'b' }.call
