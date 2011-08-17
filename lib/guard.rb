@@ -9,7 +9,7 @@ module Guard
   autoload :Notifier,     'guard/notifier'
 
   class << self
-    attr_accessor :options, :guards, :listener
+    attr_accessor :options, :guards, :listener, :interactor_thread
 
     # initialize this singleton
     def setup(options = {})
@@ -40,9 +40,9 @@ module Guard
 
       UI.info "Guard is now watching at '#{listener.directory}'"
       guards.each { |guard| supervised_task(guard, :start) }
-      Thread.new { listener.start }
 
       Interactor.listen
+      listener.start
     end
 
     def run_on_change_for_all_guards(files)
@@ -75,12 +75,14 @@ module Guard
 
     def run
       listener.stop
+      Interactor.cancel
       UI.clear if options[:clear]
       begin
         yield
       rescue Interrupt
       end
-      Thread.new { listener.start }
+      Interactor.listen
+      listener.start
     end
 
     def add_guard(name, watchers = [], options = {})
