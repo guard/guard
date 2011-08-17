@@ -8,10 +8,6 @@ group :guard do
   gem 'guard-ronn'
 end
 
-group :test do
-  gem 'fuubar'
-end
-
 require 'rbconfig'
 
 if RbConfig::CONFIG['target_os'] =~ /darwin/i
