@@ -39,9 +39,19 @@ describe Guard::Notifier do
         end
       end
 
-      context "without the GrowlNofity library available" do
+      context "with the Growl library available" do
+        it "loads the library and enables the notifications" do
+          subject.should_receive(:require).with('growl_notify').and_raise LoadError
+          subject.should_receive(:require).with('growl').and_return true
+          subject.turn_on
+          subject.should be_enabled
+        end
+      end
+
+      context "without the Growl library available" do
         it "disables the notifications" do
           subject.should_receive(:require).with('growl_notify').and_raise LoadError
+          subject.should_receive(:require).with('growl').and_raise LoadError
           subject.turn_on
           subject.should_not be_enabled
         end
@@ -100,6 +110,51 @@ describe Guard::Notifier do
       before do
         RbConfig::CONFIG.should_receive(:[]).with('target_os').and_return 'darwin'
         subject.stub(:require_growl)
+      end
+
+      context 'with growl gem' do
+        before do
+          Object.send(:remove_const, :Growl) if defined?(Growl)
+          Growl = Object.new
+        end
+
+        after do
+          Object.send(:remove_const, :Growl)
+        end
+
+        it "passes the notification to Growl" do
+          Growl.should_receive(:notify).with("great",
+            :title => "Guard",
+            :icon  => Pathname.new(File.dirname(__FILE__)).join('../../images/success.png').to_s,
+            :name  => "Guard"
+          )
+          subject.notify 'great', :title => 'Guard'
+        end
+
+        it "don't passes the notification to Growl if library is not available" do
+          Growl.should_not_receive(:notify)
+          subject.should_receive(:enabled?).and_return(true, false)
+          subject.notify 'great', :title => 'Guard'
+        end
+
+        it "allows additional notification options" do
+          Growl.should_receive(:notify).with("great",
+            :title => "Guard",
+            :icon  => Pathname.new(File.dirname(__FILE__)).join('../../images/success.png').to_s,
+            :name  => "Guard",
+            :priority => 1
+          )
+          subject.notify 'great', :title => 'Guard', :priority => 1
+        end
+
+        it "allows to overwrite a default notification option" do
+          Growl.should_receive(:notify).with("great",
+            :title => "Guard",
+            :icon  => Pathname.new(File.dirname(__FILE__)).join('../../images/success.png').to_s,
+            :name  => "Guard-Cucumber"
+          )
+          subject.notify 'great', :title => 'Guard', :name => "Guard-Cucumber"
+        end
       end
 
       context 'with growl_notify gem' do
