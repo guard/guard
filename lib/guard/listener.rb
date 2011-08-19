@@ -29,6 +29,7 @@ module Guard
       @directory           = directory.to_s
       @sha1_checksums_hash = {}
       @relativize_paths    = options.fetch(:relativize_paths, true)
+      @cached_files = all_files
       update_last_event
     end
 
@@ -49,6 +50,9 @@ module Guard
 
     def modified_files(dirs, options={})
       files = potentially_modified_files(dirs, options).select { |path| file_modified?(path) }
+      deleted_files = @cached_files.collect { |path| "!#{path}" unless File.exists?(path) }.compact
+      files.concat(deleted_files)
+      @cached_files = all_files
       update_last_event
       relativize_paths(files)
     end
