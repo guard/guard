@@ -14,10 +14,11 @@ module Guard
     # initialize this singleton
     def setup(options = {})
       @options  = options
-      @listener = Listener.select_and_init(@options[:watchdir] ? File.expand_path(@options[:watchdir]) : Dir.pwd)
+      @listener = Listener.select_and_init(@options[:watchdir] ? File.expand_path(@options[:watchdir]) : Dir.pwd,options)
       @groups   = [:default]
       @guards   = []
 
+      @watch_deletions = options[:deletions]
       @options[:notify] && ENV["GUARD_NOTIFY"] != 'false' ? Notifier.turn_on : Notifier.turn_off
 
       UI.clear if @options[:clear]
@@ -46,10 +47,24 @@ module Guard
 
     def run_on_change_for_all_guards(files)
       guards.each do |guard|
+        #UI.debug "files: #{files.inspect}"
         paths = Watcher.match_files(guard, files)
-        unless paths.empty?
-          UI.debug "#{guard.class.name}#run_on_change with #{paths.inspect}"
-          supervised_task(guard, :run_on_change, paths)
+        if @watch_deletions
+          unless paths.empty?
+            UI.debug "#{guard.class.name}#run_on_change with #{paths.inspect}"
+            supervised_task(guard, :run_on_change, paths.select {|f| !f.start_with?('!') })
+            deletions = paths.collect { |f| f.slice(1..-1) if f.start_with?('!') }.compact
+          end
+
+          unless deletions.empty?
+            UI.debug "#{guard.class.name}#run_on_deletion with #{deletions.inspect}"
+            supervised_task(guard, :run_on_deletion, deletions)
+          end
+        else
+          unless paths.empty?
+            UI.debug "#{guard.class.name}#run_on_change with #{paths.inspect}"
+            supervised_task(guard, :run_on_change, paths)
+          end
         end
       end
 

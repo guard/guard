@@ -11,6 +11,7 @@ module Guard
     method_option :group,     :type => :array,   :default => [],    :aliases => '-g', :banner => "Run only the passed groups"
     method_option :watchdir,  :type => :string,                     :aliases => '-w', :banner => "Specify the directory to watch"
     method_option :guardfile, :type => :string,                     :aliases => '-G', :banner => "Specify a Guardfile"
+    method_option :deletions, :type => :boolean, :default => false, :aliases => '-D', :banner => "Watch for deleted files"
 
     desc "start", "Starts Guard"
     def start

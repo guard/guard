@@ -29,12 +29,14 @@ module Guard
       @directory           = directory.to_s
       @sha1_checksums_hash = {}
       @relativize_paths    = options.fetch(:relativize_paths, true)
-      @cached_files = all_files
+      @watch_deletions = options.deletions
       update_last_event
     end
 
     def start
       watch(@directory)
+      # populate initial sha1 hash to watch for deleted or moved files
+      all_files.each {|path| set_sha1_checksums_hash(path, sha1_checksum(path))} if @watch_deletions
     end
 
     def stop
@@ -49,10 +51,17 @@ module Guard
     end
 
     def modified_files(dirs, options={})
-      files = potentially_modified_files(dirs, options).select { |path| file_modified?(path) }
-      deleted_files = @cached_files.collect { |path| "!#{path}" unless File.exists?(path) }.compact
-      files.concat(deleted_files)
-      @cached_files = all_files
+      files = []
+      if @watch_deletions
+        deleted_files = @sha1_checksums_hash.collect do |path, sha1|
+          unless File.exists?(path)
+            @sha1_checksums_hash.delete(path)
+            "!#{path}"
+          end
+        end
+        files.concat(deleted_files.compact)
+      end
+      files.concat(potentially_modified_files(dirs, options).select { |path| file_modified?(path) })
       update_last_event
       relativize_paths(files)
     end
@@ -74,7 +83,7 @@ module Guard
     def relativize_paths(paths)
       return paths unless relativize_paths?
       paths.map do |path|
-        path.gsub(%r{^#{@directory}/}, '')
+        path.gsub(%r{#{@directory}/}, '')
       end
     end
 
@@ -111,6 +120,8 @@ module Guard
       elsif File.mtime(path).to_i > @last_event.to_i
         set_sha1_checksums_hash(path, sha1_checksum(path))
         true
+      elsif @watch_deletions
+        file_content_modified?(path, sha1_checksum(path))
       end
     rescue
       false
