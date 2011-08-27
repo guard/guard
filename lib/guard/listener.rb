@@ -30,7 +30,7 @@ module Guard
       @sha1_checksums_hash = {}
       @file_timestamp_hash = {}
       @relativize_paths    = options.fetch(:relativize_paths, true)
-      @watch_deletions = options.deletions
+      @watch_deletions = options.fetch(:deletions, false)
       update_last_event
     end
 
