@@ -16,6 +16,8 @@ module Guard
       @options  = options
       @listener = Listener.select_and_init(@options[:watchdir] ? File.expand_path(@options[:watchdir]) : Dir.pwd)
       @guards   = []
+      @locked   = false
+      @files    = []
 
       @options[:notify] && ENV["GUARD_NOTIFY"] != 'false' ? Notifier.turn_on : Notifier.turn_off
 
@@ -35,13 +37,22 @@ module Guard
       listener.on_change do |files|
         Dsl.reevaluate_guardfile if Watcher.match_guardfile?(files)
 
-        run { run_on_change_for_all_guards(files) } if Watcher.match_files?(guards, files)
+        @files += files if Watcher.match_files?(guards, files)
       end
 
       UI.info "Guard is now watching at '#{listener.directory}'"
       guards.each { |guard| supervised_task(guard, :start) }
 
       Interactor.listen
+      Thread.new do
+        loop do
+          if @files != [] && !@listener_locked
+            files = @files.dup
+            @files.clear
+            run { run_on_change_for_all_guards(files) }
+          end
+        end
+      end
       listener.start
     end
 
@@ -55,10 +66,10 @@ module Guard
       end
 
       # Reparse the whole directory to catch new files modified during the guards run
-      new_modified_files = listener.modified_files([listener.directory], :all => true)
-      if !new_modified_files.empty? && Watcher.match_files?(guards, new_modified_files)
-        run { run_on_change_for_all_guards(new_modified_files) }
-      end
+      # new_modified_files = listener.modified_files([listener.directory], :all => true)
+      # if !new_modified_files.empty? && Watcher.match_files?(guards, new_modified_files)
+      #   run { run_on_change_for_all_guards(new_modified_files) }
+      # end
     end
 
     # Let a guard execute its task but
@@ -74,15 +85,15 @@ module Guard
     end
 
     def run
-      listener.stop
-      Interactor.cancel
+      @listener_locked = true
+      Interactor.lock
       UI.clear if options[:clear]
-      begin
+      # begin
         yield
-      rescue Interrupt
-      end
-      Interactor.listen
-      listener.start
+      # rescue Interrupt
+      # end
+      Interactor.unlock
+      @listener_locked = false
     end
 
     def add_guard(name, watchers = [], options = {})

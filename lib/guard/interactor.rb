@@ -2,51 +2,39 @@ module Guard
   module Interactor
     extend self
 
-    @@stopped = false
+    @@locked = false
 
     def listen
       return if ENV["GUARD_ENV"] == 'test'
-      # if @@thread
-      #   puts "listen kill"
-      #   @@thread.stop
-      # end
       Thread.new do
-        # puts "listen begin"
-        @@stopped = false
-        if entry = $stdin.gets
-          return if @@stopped
-          # puts "listen gets #{entry}"
-          entry.gsub! /\n/, ''
-          case entry
-          when 'quit', 'exit', 'q', 'e'
-            UI.info "Bye bye...", :reset => true
-            ::Guard.listener.stop
-            ::Guard.guards.each { |guard| ::Guard.supervised_task(guard, :stop) }
-            abort
-          when 'reload', 'r', 'z'
-            # puts "listen reload"
-            Thread.new do
-              ::Guard.run do
-                ::Guard.guards.each { |guard| ::Guard.supervised_task(guard, :reload) }
-              end
-            end
-          else # run_all
-            # puts "listen run_all"
-            Thread.new do
+        loop do
+          if (entry = $stdin.gets) && !@@locked
+            entry.gsub! /\n/, ''
+            case entry
+            when 'quit', 'exit', 'q', 'e'
+              UI.info "Bye bye...", :reset => true
+              ::Guard.listener.stop
+              ::Guard.guards.each { |guard| ::Guard.supervised_task(guard, :stop) }
+              abort
+            when 'reload', 'r', 'z'
+                ::Guard.run do
+                  ::Guard.guards.each { |guard| ::Guard.supervised_task(guard, :reload) }
+                end
+            else # run_all
               ::Guard.run do
                 ::Guard.guards.each { |guard| ::Guard.supervised_task(guard, :run_all) }
               end
             end
           end
-          # puts "listen end"
         end
-        # puts "listen end"
       end
     end
 
-    def cancel
-      # puts "listen stop"
-      @@stopped = true
+    def lock
+      @@locked = true
+    end
+    def unlock
+      @@locked = false
     end
 
     # def run_all
