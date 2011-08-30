@@ -50,6 +50,8 @@ module Guard
             files = @files.dup
             @files.clear
             run { run_on_change_for_all_guards(files) }
+          else
+            sleep 0.1
           end
         end
       end
