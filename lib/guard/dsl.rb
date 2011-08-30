@@ -106,13 +106,20 @@ module Guard
 
     def group(name, &guard_definition)
       @groups = @@options[:group] || []
-      guard_definition.call if guard_definition && (@groups.empty? || @groups.include?(name.to_s))
+      name = name.to_sym
+
+      if guard_definition && (@groups.empty? || @groups.map(&:to_sym).include?(name))
+        @current_group = name
+        guard_definition.call
+        @current_group = nil
+      end
     end
 
     def guard(name, options = {}, &watch_definition)
       @watchers = []
       watch_definition.call if watch_definition
-      ::Guard.add_guard(name, @watchers, options)
+      options.update(:group => (@current_group || :default))
+      ::Guard.add_guard(name.to_s.downcase.to_sym, @watchers, options)
     end
 
     def watch(pattern, &action)

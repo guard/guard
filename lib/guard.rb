@@ -9,12 +9,13 @@ module Guard
   autoload :Notifier,     'guard/notifier'
 
   class << self
-    attr_accessor :options, :guards, :interactor, :listener
+    attr_accessor :options, :guards, :groups, :interactor, :listener
 
     # initialize this singleton
     def setup(options = {})
       @options    = options
       @guards     = []
+      @groups     = [:default]
       @interactor = Interactor.new
       @listener   = Listener.select_and_init(@options[:watchdir] ? File.expand_path(@options[:watchdir]) : Dir.pwd)
 
@@ -105,20 +106,25 @@ module Guard
     end
 
     def add_guard(name, watchers = [], options = {})
-      if name.downcase == 'ego'
+      if name.to_sym == :ego
         UI.deprecation("Guard::Ego is now part of Guard. You can remove it from your Guardfile.")
       else
-        guard_class = get_guard_class(name)
-        @guards << guard_class.new(watchers, options)
+        guard = get_guard_class(name).new(watchers, options)
+        @guards << guard
       end
     end
 
+    def add_group(name)
+      @groups << name.to_sym unless name.nil?
+    end
+
     def get_guard_class(name)
+      name        = name.to_s
       try_require = false
-      const_name = name.to_s.downcase.gsub('-', '')
+      const_name  = name.downcase.gsub('-', '')
       begin
-        require "guard/#{name.to_s.downcase}" if try_require
-        self.const_get(self.constants.find {|c| c.to_s.downcase == const_name })
+        require "guard/#{name.downcase}" if try_require
+        self.const_get(self.constants.find { |c| c.to_s.downcase == const_name })
       rescue TypeError
         unless try_require
           try_require = true

@@ -1,9 +1,10 @@
 module Guard
   class Guard
 
-    attr_accessor :watchers, :options
+    attr_accessor :watchers, :options, :group
 
     def initialize(watchers = [], options = {})
+      @group = options.delete(:group) || :default
       @watchers, @options = watchers, options
     end
 
