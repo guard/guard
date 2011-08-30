@@ -9,8 +9,8 @@ module Guard
   autoload :Polling, 'guard/listeners/polling'
 
   class Listener
-    
-    attr_reader :directory
+
+    attr_reader :directory, :locked
 
     def self.select_and_init(*a)
       if mac? && Darwin.usable?
@@ -29,14 +29,51 @@ module Guard
       @directory           = directory.to_s
       @sha1_checksums_hash = {}
       @relativize_paths    = options.fetch(:relativize_paths, true)
+      @changed_files       = []
+      @locked              = false
       update_last_event
+      start_reactor
+    end
+
+    def start_reactor
+      Thread.new do
+        loop do
+          if @changed_files != [] && !@locked
+            changed_files = @changed_files.dup
+            clear_changed_files
+            ::Guard.run_on_change(changed_files)
+          else
+            sleep 0.1
+          end
+        end
+      end
     end
 
     def start
+      on_change do |files|
+        if Watcher.match_guardfile?(files)
+          Dsl.reevaluate_guardfile
+        end
+        if Watcher.match_files?(::Guard.guards, files)
+          @changed_files += files
+        end
+      end
       watch(@directory)
     end
 
     def stop
+    end
+
+    def lock
+      @locked = true
+    end
+
+    def unlock
+      @locked = false
+    end
+
+    def clear_changed_files
+      @changed_files.clear
     end
 
     def on_change(&callback)

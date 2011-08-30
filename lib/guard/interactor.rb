@@ -1,29 +1,25 @@
 module Guard
-  module Interactor
-    extend self
+  class Interactor
 
-    @@locked = false
+    def initialize
+      @locked = false
+    end
 
-    def listen
+    def start
       return if ENV["GUARD_ENV"] == 'test'
       Thread.new do
         loop do
-          if (entry = $stdin.gets) && !@@locked
+          if (entry = $stdin.gets) && !@locked
             entry.gsub! /\n/, ''
             case entry
-            when 'quit', 'exit', 'q', 'e'
-              UI.info "Bye bye...", :reset => true
-              ::Guard.listener.stop
-              ::Guard.guards.each { |guard| ::Guard.supervised_task(guard, :stop) }
-              abort
+            when 'stop', 'quit', 'exit', 's', 'q', 'e'
+              ::Guard.stop
             when 'reload', 'r', 'z'
-                ::Guard.run do
-                  ::Guard.guards.each { |guard| ::Guard.supervised_task(guard, :reload) }
-                end
-            else # run_all
-              ::Guard.run do
-                ::Guard.guards.each { |guard| ::Guard.supervised_task(guard, :run_all) }
-              end
+              ::Guard.reload
+            when 'pause', 'p'
+              ::Guard.pause
+            else
+              ::Guard.run_all
             end
           end
         end
@@ -31,59 +27,12 @@ module Guard
     end
 
     def lock
-      @@locked = true
-    end
-    def unlock
-      @@locked = false
+      @locked = true
     end
 
-    # def run_all
-    #   ::Guard.run do
-    #     ::Guard.guards.each { |guard| ::Guard.supervised_task(guard, :run_all) }
-    #   end
-    # end
-    #
-    # def stop
-    #   UI.info "Bye bye...", :reset => true
-    #   ::Guard.listener.stop
-    #   ::Guard.guards.each { |guard| ::Guard.supervised_task(guard, :stop) }
-    #   abort
-    # end
-    #
-    # def reload
-    #   ::Guard.run do
-    #     ::Guard.guards.each { |guard| ::Guard.supervised_task(guard, :reload) }
-    #   end
-    # end
-    #
-    # def self.init_signal_traps
-    #   # Run all (Ctrl-\)
-    #   if Signal.list.has_key?('QUIT')
-    #     Signal.trap('QUIT') do
-    #       run_all
-    #     end
-    #   else
-    #     UI.info "Your system doesn't support QUIT signal, so Ctrl-\\ (Run all) won't work"
-    #   end
-    #
-    #   # Stop (Ctrl-C)
-    #   if Signal.list.has_key?('INT')
-    #     Signal.trap('INT') do
-    #       stop
-    #     end
-    #   else
-    #     UI.info "Your system doesn't support INT signal, so Ctrl-C (Stop) won't work"
-    #   end
-    #
-    #   # Reload (Ctrl-Z)
-    #   if Signal.list.has_key?('TSTP')
-    #     Signal.trap('TSTP') do
-    #       reload
-    #     end
-    #   else
-    #     UI.info "Your system doesn't support TSTP signal, so Ctrl-Z (Reload) won't work"
-    #   end
-    #
-    # end
+    def unlock
+      @locked = false
+    end
+
   end
 end

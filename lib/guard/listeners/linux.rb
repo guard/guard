@@ -3,7 +3,6 @@ module Guard
 
     def initialize(*)
       super
-
       @inotify = INotify::Notifier.new
       @files   = []
       @latency = 0.5
