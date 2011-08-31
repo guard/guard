@@ -1,7 +1,11 @@
 require 'spec_helper'
 
 describe Guard::DslDescriber do
-  before(:each) { ::Guard.stub!(:guards).and_return([mock('Guard')]) }
+  before(:each) do
+    ::Guard.stub!(:guards).and_return([mock('Guard')])
+    user_config_path = File.expand_path(File.join('~', '.guard.rb'))
+    File.stub(:exist?).with(user_config_path) { false }
+  end
   subject { described_class }
 
 
