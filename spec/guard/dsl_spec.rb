@@ -5,12 +5,18 @@ describe Guard::Dsl do
   before(:each) do
     @local_guardfile_path = File.join(Dir.pwd, 'Guardfile')
     @home_guardfile_path  = File.expand_path(File.join("~", ".Guardfile"))
+    @user_config_path     = File.expand_path(File.join("~", ".guard.rb"))
     ::Guard.stub!(:options).and_return(:debug => true)
     ::Guard.stub!(:guards).and_return([mock('Guard')])
   end
 
+  def self.disable_user_config
+    before(:each) { File.stub(:exist?).with(@user_config_path) { false } }
+  end
+
   describe "it should select the correct data source for Guardfile" do
     before(:each) { ::Guard::Dsl.stub!(:instance_eval_guardfile) }
+    disable_user_config
 
     it "should use a string for initializing" do
       Guard::UI.should_not_receive(:error)
@@ -51,6 +57,15 @@ describe Guard::Dsl do
       lambda { subject.evaluate_guardfile(:guardfile => '/abc/Guardfile') }.should_not raise_error
       subject.guardfile_contents.should == "guard :foo"
     end
+
+    it 'should append the user config file if present' do
+      fake_guardfile('/abc/Guardfile', "guard :foo")
+      fake_guardfile(@user_config_path, "guard :bar")
+      Guard::UI.should_not_receive(:error)
+      lambda { subject.evaluate_guardfile(:guardfile => '/abc/Guardfile') }.should_not raise_error
+        subject.guardfile_contents_with_user_config.should == "guard :foo\nguard :bar"
+    end
+
   end
 
   it "displays an error message when no Guardfile is found" do
@@ -68,6 +83,7 @@ describe Guard::Dsl do
 
   describe "correctly reads data from its valid data source" do
     before(:each) { ::Guard::Dsl.stub!(:instance_eval_guardfile) }
+    disable_user_config
 
     it "reads correctly from a string" do
       lambda { subject.evaluate_guardfile(:guardfile_contents => valid_guardfile_string) }.should_not raise_error
@@ -200,6 +216,8 @@ describe Guard::Dsl do
   end
 
   describe "#group" do
+    disable_user_config
+
     it "evaluates only the specified string group" do
       ::Guard.should_receive(:add_guard).with(:pow, [], { :group => :default })
       ::Guard.should_receive(:add_guard).with(:test, [], { :group => :w })
@@ -242,6 +260,8 @@ describe Guard::Dsl do
   end
 
   describe "#guard" do
+    disable_user_config
+
     it "loads a guard specified as a quoted string from the DSL" do
       ::Guard.should_receive(:add_guard).with(:test, [], { :group => :default })
 
@@ -274,6 +294,8 @@ describe Guard::Dsl do
   end
 
   describe "#watch" do
+    disable_user_config
+
     it "should receive watchers when specified" do
       guardfile_with_watchers = "guard 'test' do
                                    watch('a') { 'b' }

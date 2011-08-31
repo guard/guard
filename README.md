@@ -331,6 +331,21 @@ Group frontend:
   livereload
 ```
 
+User config file
+----------------
+
+If a .guard.rb is found in your home directory, it will be appended to
+the Guardfile.  This can be used for tasks you want guard to handle but
+other users probably don't.  For example, indexing your source tree with
+[Ctags](http://ctags.sourceforge.net):
+
+``` ruby
+guard 'shell' do
+  watch(%r{^(?:app|lib)/.+\.rb$}) { `ctags -R` }
+end
+
+```
+
 Create a new guard
 ------------------
 

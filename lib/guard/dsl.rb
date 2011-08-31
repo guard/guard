@@ -7,7 +7,8 @@ module Guard
         options.is_a?(Hash) or raise ArgumentError.new("evaluate_guardfile not passed a Hash!")
 
         @@options = options.dup
-        instance_eval_guardfile(fetch_guardfile_contents)
+        fetch_guardfile_contents
+        instance_eval_guardfile(guardfile_contents_with_user_config)
 
         UI.error "No guards found in Guardfile, please add at least one." if !::Guard.guards.nil? && ::Guard.guards.empty?
       end
@@ -72,12 +73,15 @@ module Guard
           UI.error "The command file(#{@@options[:guardfile]}) seems to be empty."
           exit 1
         end
-
-        guardfile_contents
       end
 
       def guardfile_contents
         @@options ? @@options[:guardfile_contents] : ""
+      end
+
+      def guardfile_contents_with_user_config
+        config = File.read(user_config_path) if File.exist?(user_config_path)
+        [guardfile_contents, config].join("\n")
       end
 
       def guardfile_path
@@ -100,6 +104,10 @@ module Guard
 
       def home_guardfile_path
         File.expand_path(File.join("~", ".Guardfile"))
+      end
+
+      def user_config_path
+        File.expand_path(File.join("~", ".guard.rb"))
       end
 
     end
