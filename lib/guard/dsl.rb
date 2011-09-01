@@ -135,6 +135,7 @@ module Guard
     end
 
     def ignore_paths(*paths)
+      UI.info "Ignoring paths: #{paths.join(', ')}"
       ::Guard.listener.ignore_paths.push(*paths)
     end
   end

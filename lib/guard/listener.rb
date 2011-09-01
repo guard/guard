@@ -80,7 +80,8 @@ module Guard
     def relativize_paths?
       !!@relativize_paths
     end
-
+    
+    # return children of the passed dirs that are not in the ignore_paths list
     def exclude_ignored_paths(dirs, ignore_paths = self.ignore_paths)
       Dir.glob(dirs.map { |d| "#{d.sub(%r{/+$}, '')}/*" }, File::FNM_DOTMATCH).reject do |path|
         ignore_paths.include?(File.basename(path))
