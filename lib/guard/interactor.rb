@@ -1,6 +1,8 @@
 module Guard
   class Interactor
 
+    attr_reader :locked
+
     def initialize
       @locked = false
     end

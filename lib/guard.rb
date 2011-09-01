@@ -32,6 +32,11 @@ module Guard
 
       Dsl.evaluate_guardfile(options)
 
+      listener.on_change do |files|
+        Dsl.reevaluate_guardfile        if Watcher.match_guardfile?(files)
+        listener.changed_files += files if Watcher.match_files?(guards, files)
+      end
+
       UI.info "Guard is now watching at '#{listener.directory}'"
       guards.each { |guard| supervised_task(guard, :start) }
 

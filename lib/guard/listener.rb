@@ -11,6 +11,7 @@ module Guard
   class Listener
 
     DefaultIgnorePaths = %w[. .. .bundle .git log tmp vendor]
+    attr_accessor :changed_files
     attr_reader :directory, :ignore_paths, :locked
 
     def self.select_and_init(*a)
@@ -32,8 +33,9 @@ module Guard
       @relativize_paths    = options.fetch(:relativize_paths, true)
       @changed_files       = []
       @locked              = false
-      @ignore_paths        = options[:ignore_paths] || DefaultIgnorePaths
-      
+      @ignore_paths        = DefaultIgnorePaths
+      @ignore_paths        |= options[:ignore_paths] if options[:ignore_paths]
+
       update_last_event
       start_reactor
     end
@@ -53,14 +55,6 @@ module Guard
     end
 
     def start
-      on_change do |files|
-        if Watcher.match_guardfile?(files)
-          Dsl.reevaluate_guardfile
-        end
-        if Watcher.match_files?(::Guard.guards, files)
-          @changed_files += files
-        end
-      end
       watch(@directory)
     end
 
@@ -117,7 +111,7 @@ module Guard
     def relativize_paths?
       !!@relativize_paths
     end
-    
+
     # return children of the passed dirs that are not in the ignore_paths list
     def exclude_ignored_paths(dirs, ignore_paths = self.ignore_paths)
       Dir.glob(dirs.map { |d| "#{d.sub(%r{/+$}, '')}/*" }, File::FNM_DOTMATCH).reject do |path|
@@ -129,7 +123,7 @@ module Guard
 
     def potentially_modified_files(dirs, options={})
       paths = exclude_ignored_paths(dirs)
-      
+
       if options[:all]
         paths.inject([]) do |array, path|
           if File.file?(path)
