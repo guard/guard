@@ -160,5 +160,16 @@ describe Guard::Listener do
     end
 
   end
+  
+  describe "#ignore_paths" do
+    it "defaults to the default ignore paths" do
+      subject.new.ignore_paths.should == Guard::Listener::DefaultIgnorePaths
+    end
+    
+    it "can be set via :ignore_paths option" do
+      listener = subject.new 'path', :ignore_paths => ['foo', 'bar']
+      listener.ignore_paths.should == ['foo', 'bar']
+    end
+  end
 
 end

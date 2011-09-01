@@ -9,8 +9,9 @@ module Guard
   autoload :Polling, 'guard/listeners/polling'
 
   class Listener
+    DefaultIgnorePaths = %w[. .. .bundle .git log tmp vendor]
     
-    attr_reader :directory
+    attr_reader :directory, :ignore_paths
 
     def self.select_and_init(*a)
       if mac? && Darwin.usable?
@@ -29,6 +30,7 @@ module Guard
       @directory           = directory.to_s
       @sha1_checksums_hash = {}
       @relativize_paths    = options.fetch(:relativize_paths, true)
+      @ignore_paths        = options.fetch(:ignore_paths, DefaultIgnorePaths)
       update_last_event
     end
 
@@ -81,10 +83,8 @@ module Guard
   private
 
     def potentially_modified_files(dirs, options={})
-      paths = Dir.glob(dirs.map { |d| "#{d.sub(%r{/+$}, '')}/*" }, File::FNM_DOTMATCH).reject do |path|
-        %w[. .. .bundle .git log tmp vendor].include?(File.basename(path))
-      end
-
+      paths = exclude_ignored_paths_from_dirs(dirs)
+      
       if options[:all]
         paths.inject([]) do |array, path|
           if File.file?(path)
@@ -96,6 +96,12 @@ module Guard
         end
       else
         paths.select { |path| File.file?(path) }
+      end
+    end
+
+    def exclude_ignored_paths_from_dirs(dirs)
+      paths = Dir.glob(dirs.map { |d| "#{d.sub(%r{/+$}, '')}/*" }, File::FNM_DOTMATCH).reject do |path|
+        @ignore_paths.include?(File.basename(path))
       end
     end
 
