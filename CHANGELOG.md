@@ -1,3 +1,10 @@
+## Master
+
+### New features:
+
+- Pull request [#130](https://github.com/guard/guard/pull/130): Adds ignore_paths option to DSL. ([@ianwhite][])
+- Pull request [#128](https://github.com/guard/guard/pull/128): Users can add additional settings to ~/.guard.rb that augment the existing Guardfile. ([@tpope][])
+
 ## 0.6.2 - August 17, 2011
 
 ### Bugs fixes:

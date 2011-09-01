@@ -256,10 +256,13 @@ Optional:
 
 * The `#watch` method allows you to define which files are supervised by this guard. An optional block can be added to overwrite the paths sent to the guard's `#run_on_change` method or to launch any arbitrary command.
 * The `#group` method allows you to group several guards together. Groups to be run can be specified with the Guard DSL option `--group` (or `-g`). This comes in handy especially when you have a huge Guardfile and want to focus your development on a certain part. Guards that don't belong to a group are considered global and are always run.
+* The `#ignore_paths` method allows you to ignore top level directories altogether.  This comes is handy when you have large amounts of non-source data in you project.  By default .bundle, .git, log, tmp, and vendor are ignored.  Currently it is only possible to ignore the immediate descendants of the watched directory.
 
 Example:
 
 ``` ruby
+ignore_paths 'foo', 'bar'
+
 group 'backend' do
   guard 'bundler' do
     watch('Gemfile')
@@ -330,6 +333,21 @@ Group backend:
 Group frontend:
   coffeescript: output => "public/javascripts/compiled"
   livereload
+```
+
+User config file
+----------------
+
+If a .guard.rb is found in your home directory, it will be appended to
+the Guardfile.  This can be used for tasks you want guard to handle but
+other users probably don't.  For example, indexing your source tree with
+[Ctags](http://ctags.sourceforge.net):
+
+``` ruby
+guard 'shell' do
+  watch(%r{^(?:app|lib)/.+\.rb$}) { `ctags -R` }
+end
+
 ```
 
 Create a new guard
