@@ -215,6 +215,18 @@ describe Guard::Dsl do
     end
   end
 
+  describe "#ignore_paths" do
+    disable_user_config
+    
+    it "adds the paths to the listener's ignore_paths" do
+      ::Guard.stub!(:listener).and_return(mock('Listener'))
+      ::Guard.listener.should_receive(:ignore_paths).and_return(ignore_paths = ['faz'])
+      
+      subject.evaluate_guardfile(:guardfile_contents => "ignore_paths 'foo', 'bar'")
+      ignore_paths.should == ['faz', 'foo', 'bar']
+    end
+  end
+  
   describe "#group" do
     disable_user_config
 

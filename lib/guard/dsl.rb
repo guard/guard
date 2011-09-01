@@ -134,5 +134,9 @@ module Guard
       @watchers << ::Guard::Watcher.new(pattern, action)
     end
 
+    def ignore_paths(*paths)
+      UI.info "Ignoring paths: #{paths.join(', ')}"
+      ::Guard.listener.ignore_paths.push(*paths)
+    end
   end
 end
