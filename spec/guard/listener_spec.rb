@@ -166,10 +166,26 @@ describe Guard::Listener do
       subject.new.ignore_paths.should == Guard::Listener::DefaultIgnorePaths
     end
     
-    it "can be set via :ignore_paths option" do
+    it "can be added to via :ignore_paths option" do
       listener = subject.new 'path', :ignore_paths => ['foo', 'bar']
-      listener.ignore_paths.should == ['foo', 'bar']
+      listener.ignore_paths.should include('foo', 'bar')
     end
   end
-
+  
+  describe "#exclude_ignored_paths [<dirs>]" do
+    let(:ignore_paths) { nil }
+    subject { described_class.new(@fixture_path, {:ignore_paths => ignore_paths}) }
+    
+    it "returns children of <dirs>" do
+      subject.exclude_ignored_paths(["spec/fixtures"]).should =~ ["spec/fixtures/.dotfile", "spec/fixtures/folder1", "spec/fixtures/Guardfile"]
+    end
+    
+    describe "when ignore_paths set to some of <dirs> children" do
+      let(:ignore_paths) { ['Guardfile', '.dotfile'] }
+      
+      it "excludes the ignored paths" do
+        subject.exclude_ignored_paths(["spec/fixtures"]).should =~ ["spec/fixtures/folder1"]
+      end
+    end
+  end
 end

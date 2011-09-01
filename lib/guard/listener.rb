@@ -30,7 +30,8 @@ module Guard
       @directory           = directory.to_s
       @sha1_checksums_hash = {}
       @relativize_paths    = options.fetch(:relativize_paths, true)
-      @ignore_paths        = options.fetch(:ignore_paths, DefaultIgnorePaths)
+      @ignore_paths        = DefaultIgnorePaths
+      @ignore_paths        |= options[:ignore_paths] if options[:ignore_paths]
       update_last_event
     end
 
@@ -80,10 +81,16 @@ module Guard
       !!@relativize_paths
     end
 
+    def exclude_ignored_paths(dirs, ignore_paths = self.ignore_paths)
+      Dir.glob(dirs.map { |d| "#{d.sub(%r{/+$}, '')}/*" }, File::FNM_DOTMATCH).reject do |path|
+        ignore_paths.include?(File.basename(path))
+      end
+    end
+
   private
 
     def potentially_modified_files(dirs, options={})
-      paths = exclude_ignored_paths_from_dirs(dirs)
+      paths = exclude_ignored_paths(dirs)
       
       if options[:all]
         paths.inject([]) do |array, path|
@@ -96,12 +103,6 @@ module Guard
         end
       else
         paths.select { |path| File.file?(path) }
-      end
-    end
-
-    def exclude_ignored_paths_from_dirs(dirs)
-      paths = Dir.glob(dirs.map { |d| "#{d.sub(%r{/+$}, '')}/*" }, File::FNM_DOTMATCH).reject do |path|
-        @ignore_paths.include?(File.basename(path))
       end
     end
 
