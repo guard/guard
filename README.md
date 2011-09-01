@@ -1,4 +1,4 @@
-Guard [![Build Status](https://secure.travis-ci.org/guard/guard.png)](http://travis-ci.org/guard/guard)
+Guard [![Build Status](https://travis-ci.org/guard/guard.png)](http://travis-ci.org/guard/guard)
 =====
 
 Guard is a command line tool that easily handle events on files modifications.
