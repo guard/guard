@@ -6,5 +6,6 @@ branches:
   only:
     - master
     - hook
+    - stdin
 notifications:
   irc: "irc.freenode.org#guard"
