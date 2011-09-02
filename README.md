@@ -72,7 +72,7 @@ gem 'growl'
 
 The difference between growl and growl_notify is that growl_notify uses AppleScript to 
 display a message, whereas growl uses the `growlnotify` command. In general the AppleScript
-approach is preferred, but this is currently known to not work in conjunction with Spork.
+approach is preferred, but you may also use the older growl gem.
 
 ### On Linux
 
