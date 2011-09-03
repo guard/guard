@@ -1,16 +1,18 @@
+## Master
+
 ### Major Changes
 
-- Posix Signals handlers (`Ctrl-C`, `Ctrl-\` and `Ctrl-Z`) are no more supported and replaced by `$stdin.gets`. Please refer to Interactions section in the README for more information. ([@thibaudgg][])
-- jruby support (beta) ([@thibaudgg][])
-- rbx support (beta) ([@thibaudgg][])
+- Posix Signals handlers (`Ctrl-C`, `Ctrl-\` and `Ctrl-Z`) are no more supported and replaced by `$stdin.gets`. Please refer to the "Interactions" section in the README for more information. ([@thibaudgg][])
+- JRuby support (beta). ([@thibaudgg][])
+- Rubinius support (beta). ([@thibaudgg][])
 
 ### New feature:
 
-- Ability to 'pause' files modification listening. Please refer to Interactions section in the README for more information. ([@thibaudgg][])
+- Ability to 'pause' files modification listening. Please refer to the "Interactions" section in the README for more information. ([@thibaudgg][])
 
 ### Improvement:
 
-- Remove the need to scan the whole directory after guards run_on_change method. ([@thibaudgg][])
+- Remove the need to scan the whole directory after guard's `run_on_change` method. ([@thibaudgg][])
 
 ## 0.6.3 - September 1, 2011
 
@@ -247,6 +249,7 @@
 [@Gazer]: https://github.com/Gazer
 [@gix]: https://github.com/gix
 [@hashrocketeer]: https://github.com/hashrocketeer
+[@ianwhite]: https://github.com/ianwhite
 [@indirect]: https://github.com/indirect
 [@jeffutter]: https://github.com/jeffutter
 [@johnbintz]: https://github.com/johnbintz
