@@ -69,7 +69,7 @@ Use the [growl_notify gem](https://rubygems.org/gems/growl_notify) (recommended)
 $ gem install growl_notify
 ```
 
-Use the [growlnotify](http://growl.info/extras.php#growlnotify) (cli tool for growl) + the [growl gem](https://rubygems.org/gems/growl) required).
+Use the [growlnotify](http://growl.info/extras.php#growlnotify) (cli tool for growl) + the [growl gem](https://rubygems.org/gems/growl).
 
 ``` bash
 $ brew install growlnotify
