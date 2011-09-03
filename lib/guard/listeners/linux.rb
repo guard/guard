@@ -46,7 +46,7 @@ module Guard
 
     def watch(directory)
       # The event selection is based on https://github.com/guard/guard/wiki/Analysis-of-inotify-events-for-different-editors
-      worker.watch(directory, :recursive, :create, :move_self, :close_write) do |event|
+      worker.watch(directory, :recursive, :attrib, :create, :move_self, :close_write) do |event|
         unless event.name == "" # Event on root directory
           @files << event.absolute_name
         end
