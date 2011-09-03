@@ -84,7 +84,7 @@ module Guard
     end
 
     def modified_files(dirs, options = {})
-      last_event = @last_event.dup
+      last_event = @last_event
       update_last_event
       files = potentially_modified_files(dirs, options).select { |path| file_modified?(path, last_event) }
       p "modified_files"
@@ -150,6 +150,7 @@ module Guard
       p @last_event.to_i
       p last_event.to_i
       p File.ctime(path).to_i
+      p File.mtime(path).to_i
       if File.ctime(path).to_i == last_event.to_i
         p "File.ctime == last_event"
         res = file_content_modified?(path, sha1_checksum(path))
