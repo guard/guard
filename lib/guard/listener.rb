@@ -42,6 +42,7 @@ module Guard
 
     def start_reactor
       return if ENV["GUARD_ENV"] == 'test'
+      p "start_reactor"
       Thread.new do
         loop do
           if @changed_files != [] && !@locked
@@ -86,6 +87,8 @@ module Guard
       last_event = @last_event.dup
       update_last_event
       files = potentially_modified_files(dirs, options).select { |path| file_modified?(path, last_event) }
+      p "modified_files"
+      p files
       relativize_paths(files)
     end
 
@@ -143,13 +146,25 @@ module Guard
     # Depending on the filesystem, mtime is probably only precise to the second, so round
     # both values down to the second for the comparison.
     def file_modified?(path, last_event)
+      p path
+      p last_event.to_i
+      p File.ctime(path).to_i
       if File.ctime(path).to_i == last_event.to_i
-        file_content_modified?(path, sha1_checksum(path))
+        p "File.ctime == last_event"
+        res = file_content_modified?(path, sha1_checksum(path))
+        p res.to_s
+        res
       elsif File.ctime(path).to_i > last_event.to_i
+        p "File.ctime > last_event"
         set_sha1_checksums_hash(path, sha1_checksum(path))
+        p "true"
         true
+      else
+        p "false"
+        false
       end
     rescue
+      p "false"
       false
     end
 
