@@ -3,7 +3,7 @@ private
   def start(rest_delay = @rest_delay)
     sleep(rest_delay || 1)
     @listener.update_last_event
-    @thread = Thread.new { @listener.start }
+    Thread.new { @listener.start }
     sleep(rest_delay || 1)
   end
 
@@ -19,7 +19,6 @@ private
   def stop(rest_delay = @rest_delay)
     sleep(rest_delay || 1)
     @listener.stop
-    Thread.kill(@thread)
     sleep(rest_delay || 1)
   end
 
