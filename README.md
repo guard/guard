@@ -33,11 +33,11 @@ $ gem install guard
 Or add it to your Gemfile (inside the `development` group):
 
 ``` ruby
-# In your Gemfile
 gem 'guard'
 ```
 
 and install it via Bundler:
+
 ``` bash
 $ bundle install
 ```
@@ -64,11 +64,13 @@ $ gem install rb-fsevent
 You have two possibilities:
 
 Use the [growl_notify gem](https://rubygems.org/gems/growl_notify) (recommended):
+
 ``` bash
 $ gem install growl_notify
 ```
 
 Use the [growlnotify](http://growl.info/extras.php#growlnotify) (cli tool for growl) + the [growl gem](https://rubygems.org/gems/growl) required).
+
 ``` bash
 $ brew install growlnotify
 $ gem install growl
