@@ -87,8 +87,8 @@ module Guard
       last_event = @last_event
       update_last_event
       files = potentially_modified_files(dirs, options).select { |path| file_modified?(path, last_event) }
-      p "modified_files"
-      p files
+      # p "modified_files"
+      # p files
       relativize_paths(files)
     end
 
@@ -143,30 +143,31 @@ module Guard
       end
     end
 
-    # Depending on the filesystem, mtime is probably only precise to the second, so round
+    # Depending on the filesystem, mtime/ctime is probably only precise to the second, so round
     # both values down to the second for the comparison.
+    # ctime is used only on == comparaison to always catches Rails 3.1 Assets pipelined on Mac OSX
     def file_modified?(path, last_event)
-      p path
-      p @last_event.to_i
-      p last_event.to_i
-      p File.ctime(path).to_i
-      p File.mtime(path).to_i
+      # p path
+      # p @last_event.to_i
+      # p last_event.to_i
+      # p File.ctime(path).to_i
+      # p File.mtime(path).to_i
       if File.ctime(path).to_i == last_event.to_i
-        p "File.ctime == last_event"
+        # p "File.ctime == last_event"
         res = file_content_modified?(path, sha1_checksum(path))
-        p res.to_s
+        # p res.to_s
         res
       elsif File.mtime(path).to_i > last_event.to_i
-        p "File.ctime > last_event"
+        # p "File.ctime > last_event"
         set_sha1_checksums_hash(path, sha1_checksum(path))
-        p "true"
+        # p "true"
         true
       else
-        p "false"
+        # p "false"
         false
       end
     rescue
-      p "false"
+      # p "false"
       false
     end
 

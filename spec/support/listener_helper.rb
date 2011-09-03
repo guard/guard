@@ -1,10 +1,10 @@
 private
 
-  def start
-    sleep(@rest_delay || 1)
+  def start(rest_delay = @rest_delay)
+    sleep(rest_delay || 1)
     @listener.update_last_event
-    Thread.new { @listener.start }
-    sleep(@rest_delay || 1)
+    @thread = Thread.new { @listener.start }
+    sleep(rest_delay || 1)
   end
 
   def record_results
@@ -16,10 +16,11 @@ private
     end
   end
 
-  def stop
-    sleep(@rest_delay || 1)
+  def stop(rest_delay = @rest_delay)
+    sleep(rest_delay || 1)
     @listener.stop
-    sleep(@rest_delay || 1)
+    Thread.kill(@thread)
+    sleep(rest_delay || 1)
   end
 
   def results
@@ -61,14 +62,14 @@ shared_examples_for 'a listener that reacts to #on_change' do |rest_delay|
     results.should =~ ['spec/fixtures/folder1/file1.txt']
   end
 
-  it "catches a single file chmod update" do
+  it "not catches a single file chmod update" do
     file = @fixture_path.join("folder1/file1.txt")
     File.exists?(file).should be_true
     File.chmod(0775, file)
     start
     File.chmod(0777, file)
     stop
-    results.should =~ ['spec/fixtures/folder1/file1.txt']
+    results.should =~ []
   end
 
   it "catches a dotfile update" do
@@ -102,7 +103,7 @@ shared_examples_for 'a listener that reacts to #on_change' do |rest_delay|
     results.should =~ []
   end
 
-  it "not catches a moved file", :focus => true do
+  it "not catches a moved file" do
     file1 = @fixture_path.join("folder1/file1.txt")
     file2 = @fixture_path.join("folder1/movedfile1.txt")
     File.exists?(file1).should be_true
