@@ -61,6 +61,16 @@ shared_examples_for 'a listener that reacts to #on_change' do |rest_delay|
     results.should =~ ['spec/fixtures/folder1/file1.txt']
   end
 
+  it "catches a single file chmod update" do
+    file = @fixture_path.join("folder1/file1.txt")
+    File.exists?(file).should be_true
+    File.chmod(0775, file)
+    start
+    File.chmod(0777, file)
+    stop
+    results.should =~ ['spec/fixtures/folder1/file1.txt']
+  end
+
   it "catches a dotfile update" do
     file = @fixture_path.join(".dotfile")
     File.exists?(file).should be_true
