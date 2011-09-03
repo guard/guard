@@ -83,7 +83,7 @@ gem 'rb-fsevent'
 gem 'growl_notify' # or gem 'growl'
 ```
 
-The difference between growl and growl_notify is that growl_notify uses AppleScript to 
+The difference between growl and growl_notify is that growl_notify uses AppleScript to
 display a message, whereas growl uses the `growlnotify` command. In general the AppleScript
 approach is preferred, but you may also use the older growl gem.
 
@@ -218,16 +218,17 @@ An exhaustive list of options is available with:
 $ guard help [TASK]
 ```
 
-Signal handlers
----------------
+Interactions
+------------
 
-Signal handlers are used to interact with Guard:
+**From version >= 0.7.0 Posix Signal handlers are no more used to interact with Guard.**
 
-* `Ctrl-C` - Calls each guard's `#stop` method, in the same order they are declared in the Guardfile, and then quits Guard itself.
-* `Ctrl-\` - Calls each guard's `#run_all` method, in the same order they are declared in the Guardfile.
-* `Ctrl-Z` - Calls each guard's `#reload` method, in the same order they are declared in the Guardfile.
+When Guard do nothing you can interact with by entering a command + hitting enter:
 
-You can read more about [configure the signal keyboard shortcuts](https://github.com/guard/guard/wiki/Configure-keyboard-shortcuts) in the wiki.
+* `stop|quit|exit|s|q|e + enter` - Calls each guard's `#stop` method, in the same order they are declared in the Guardfile, and then quits Guard itself.
+* `reload|r|z + enter` - Calls each guard's `#reload` method, in the same order they are declared in the Guardfile.
+* `pause|p + enter` - Toggle files modification listening. Useful when switching git branches.
+* `just enter (no commands)` - Calls each guard's `#run_all` method, in the same order they are declared in the Guardfile.
 
 Available Guards
 ----------------
