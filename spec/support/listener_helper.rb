@@ -102,7 +102,7 @@ shared_examples_for 'a listener that reacts to #on_change' do |rest_delay|
     results.should =~ []
   end
 
-  it "not catches a moved file" do
+  it "not catches a moved file", :focus => true do
     file1 = @fixture_path.join("folder1/file1.txt")
     file2 = @fixture_path.join("folder1/movedfile1.txt")
     File.exists?(file1).should be_true

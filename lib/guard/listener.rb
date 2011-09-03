@@ -147,6 +147,7 @@ module Guard
     # both values down to the second for the comparison.
     def file_modified?(path, last_event)
       p path
+      p @last_event.to_i
       p last_event.to_i
       p File.ctime(path).to_i
       if File.ctime(path).to_i == last_event.to_i
