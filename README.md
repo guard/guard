@@ -85,7 +85,8 @@ gem 'growl_notify' # or gem 'growl'
 
 The difference between growl and growl_notify is that growl_notify uses AppleScript to
 display a message, whereas growl uses the `growlnotify` command. In general the AppleScript
-approach is preferred, but you may also use the older growl gem.
+approach is preferred, but you may also use the older growl gem. Have a look at the
+[Guard Wiki](https://github.com/guard/guard/wiki/Use-growl_notify-or-growl-gem) for more information.
 
 ### On Linux
 
