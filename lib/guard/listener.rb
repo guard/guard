@@ -156,7 +156,7 @@ module Guard
         res = file_content_modified?(path, sha1_checksum(path))
         p res.to_s
         res
-      elsif File.ctime(path).to_i > last_event.to_i
+      elsif File.mtime(path).to_i > last_event.to_i
         p "File.ctime > last_event"
         set_sha1_checksums_hash(path, sha1_checksum(path))
         p "true"
