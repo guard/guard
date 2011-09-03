@@ -42,7 +42,6 @@ module Guard
 
     def start_reactor
       return if ENV["GUARD_ENV"] == 'test'
-      p "start_reactor"
       Thread.new do
         loop do
           if @changed_files != [] && !@locked
