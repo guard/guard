@@ -13,14 +13,13 @@ Features
 * [Directory Change Notification](http://msdn.microsoft.com/en-us/library/aa365261\(VS.85\).aspx) support on Windows ([rb-fchange, >= 0.0.2](https://rubygems.org/gems/rb-fchange) required).
 * Polling on the other operating systems (help us to support more OS).
 * Automatic & Super fast (when polling is not used) files modifications detection (even new files are detected).
-* Growl notifications ([growl_notify gem](https://rubygems.org/gems/growl_notify) or [growlnotify](http://growl.info/documentation/growlnotify.php) & [growl gem](https://rubygems.org/gems/growl) required).
-* Libnotify notifications ([libnotify gem](https://rubygems.org/gems/libnotify) required).
+* Visual notifications on Mac OSX ([Growl](http://growl.info)), Linux ([Libnotify](http://developer.gnome.org/libnotify)) and Windows ([Notifu](http://www.paralint.com/projects/notifu)).
 * Tested against Ruby 1.8.7, 1.9.2 and REE.
 
 Screencast
 ----------
 
-Ryan Bates made a screencast on Guard, you can view it here: http://railscasts.com/episodes/264-guard
+Ryan Bates made a Railscast on Guard, you can view it here: http://railscasts.com/episodes/264-guard
 
 Install
 -------
@@ -31,10 +30,16 @@ Install the gem:
 $ gem install guard
 ```
 
-Add it to your Gemfile (inside the `development` group):
+Or add it to your Gemfile (inside the `development` group):
 
 ``` ruby
 gem 'guard'
+```
+
+and install it via Bundler:
+
+``` bash
+$ bundle install
 ```
 
 Generate an empty Guardfile with:
@@ -44,6 +49,7 @@ $ guard init
 ```
 
 You may optionally place a .Guardfile in your home directory to use it across multiple projects.
+Also note that if a `.guard.rb` is found in your home directory, it will be appended to the Guardfile.
 
 Add the guards you need to your Guardfile (see the existing guards below).
 
@@ -55,11 +61,18 @@ Install the rb-fsevent gem for [FSEvent](http://en.wikipedia.org/wiki/FSEvents) 
 $ gem install rb-fsevent
 ```
 
-Install either the growl_notify or the growl gem if you want notification support:
+You have two possibilities:
+
+Use the [growl_notify gem](https://rubygems.org/gems/growl_notify) (recommended):
 
 ``` bash
 $ gem install growl_notify
-$ # or
+```
+
+Use the [growlnotify](http://growl.info/extras.php#growlnotify) (cli tool for growl) + the [growl gem](https://rubygems.org/gems/growl).
+
+``` bash
+$ brew install growlnotify
 $ gem install growl
 ```
 
@@ -67,7 +80,7 @@ And add them to your Gemfile:
 
 ``` ruby
 gem 'rb-fsevent'
-gem 'growl'
+gem 'growl_notify' # or gem 'growl'
 ```
 
 The difference between growl and growl_notify is that growl_notify uses AppleScript to 
@@ -76,13 +89,13 @@ approach is preferred, but you may also use the older growl gem.
 
 ### On Linux
 
-Install the rb-inotify gem for [inotify](http://en.wikipedia.org/wiki/Inotify) support:
+Install the [rb-inotify gem](https://rubygems.org/gems/rb-inotify) for [inotify](http://en.wikipedia.org/wiki/Inotify) support:
 
 ``` bash
 $ gem install rb-inotify
 ```
 
-Install the Libnotify gem if you want notification support:
+Install the [libnotify gem](https://rubygems.org/gems/libnotify) if you want visual notification support:
 
 ``` bash
 $ gem install libnotify
@@ -97,19 +110,19 @@ gem 'libnotify'
 
 ### On Windows
 
-Install the rb-fchange gem for [Directory Change Notification](http://msdn.microsoft.com/en-us/library/aa365261\(VS.85\).aspx) support:
+Install the [rb-fchange gem](https://rubygems.org/gems/rb-fchange) for [Directory Change Notification](http://msdn.microsoft.com/en-us/library/aa365261\(VS.85\).aspx) support:
 
 ``` bash
 $ gem install rb-fchange
 ```
 
-Install the win32console gem if you want colors in your terminal:
+Install the [win32console gem](https://rubygems.org/gems/win32console) if you want colors in your terminal:
 
 ``` bash
 $ gem install win32console
 ```
 
-Install the Notifu gem if you want notification support:
+Install the [rb-notifu gem](https://rubygems.org/gems/rb-notifu) if you want visual notification support:
 
 ``` bash
 $ gem install rb-notifu
@@ -338,7 +351,7 @@ Group frontend:
 User config file
 ----------------
 
-If a .guard.rb is found in your home directory, it will be appended to
+If a `.guard.rb` is found in your home directory, it will be appended to
 the Guardfile.  This can be used for tasks you want guard to handle but
 other users probably don't.  For example, indexing your source tree with
 [Ctags](http://ctags.sourceforge.net):
@@ -347,7 +360,6 @@ other users probably don't.  For example, indexing your source tree with
 guard 'shell' do
   watch(%r{^(?:app|lib)/.+\.rb$}) { `ctags -R` }
 end
-
 ```
 
 Create a new guard
