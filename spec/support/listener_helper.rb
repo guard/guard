@@ -1,10 +1,10 @@
 private
 
-  def start(rest_delay = @rest_delay)
-    sleep(rest_delay || 1)
+  def start
+    sleep(@rest_delay || 1)
     @listener.update_last_event
     Thread.new { @listener.start }
-    sleep(rest_delay || 1)
+    sleep(@rest_delay || 1)
   end
 
   def record_results
@@ -16,10 +16,10 @@ private
     end
   end
 
-  def stop(rest_delay = @rest_delay)
-    sleep(rest_delay || 1)
+  def stop
+    sleep(@rest_delay || 1)
     @listener.stop
-    sleep(rest_delay || 1)
+    sleep(@rest_delay || 1)
   end
 
   def results
@@ -28,7 +28,7 @@ private
 
 shared_examples_for 'a listener that reacts to #on_change' do |rest_delay|
   before(:each) do
-    @rest_delay = rest_delay
+    @rest_delay = rest_delay if rest_delay.is_a?(Integer) || rest_delay.is_a?(Float) # jruby workaround
     @listener = described_class.new
     record_results
   end
@@ -64,7 +64,6 @@ shared_examples_for 'a listener that reacts to #on_change' do |rest_delay|
   it "not catches a single file chmod update" do
     file = @fixture_path.join("folder1/file1.txt")
     File.exists?(file).should be_true
-    File.chmod(0775, file)
     start
     File.chmod(0777, file)
     stop
@@ -118,7 +117,7 @@ end
 
 shared_examples_for "a listener scoped to a specific directory" do |rest_delay|
   before :each do
-    @rest_delay = rest_delay
+    @rest_delay = rest_delay if rest_delay.is_a?(Integer) || rest_delay.is_a?(Float) # jruby workaround
     @wd = @fixture_path.join("folder1")
     @listener = described_class.new @wd
   end
