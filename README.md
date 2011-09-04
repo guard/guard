@@ -261,17 +261,13 @@ You are good to go, or you can modify your guards' definition to suit your needs
 Guardfile DSL
 -------------
 
-The Guardfile DSL consists of just three simple methods: `#guard`, `#watch` & `#group`.
+The Guardfile DSL consists of the following methods:
 
-Required:
-
-* The `#guard` method allows you to add a guard with an optional hash of options.
-
-Optional:
-
-* The `#watch` method allows you to define which files are supervised by this guard. An optional block can be added to overwrite the paths sent to the guard's `#run_on_change` method or to launch any arbitrary command.
-* The `#group` method allows you to group several guards together. Groups to be run can be specified with the Guard DSL option `--group` (or `-g`). This comes in handy especially when you have a huge Guardfile and want to focus your development on a certain part. Guards that don't belong to a group are considered global and are always run.
-* The `#ignore_paths` method allows you to ignore top level directories altogether.  This comes is handy when you have large amounts of non-source data in you project.  By default .bundle, .git, log, tmp, and vendor are ignored.  Currently it is only possible to ignore the immediate descendants of the watched directory.
+* `#guard`: allows you to add a guard with an optional hash of options.
+* `#watch`: allows you to define which files are supervised by this guard. An optional block can be added to overwrite the paths sent to the guard's `#run_on_change` method or to launch any arbitrary command.
+* `#group`: allows you to group several guards together. Groups to be run can be specified with the Guard DSL option `--group` (or `-g`). This comes in handy especially when you have a huge Guardfile and want to focus your development on a certain part. Guards that don't belong to a group are considered global and are always run.
+* `#callback`: allows you to execute arbitrary code before or after any of the `start`, `stop`, `reload`, `run_all` and `run_on_change` guards' method. You can even insert more hooks inside these methods. Please [checkout the Wiki page](https://github.com/guard/guard/wiki/Hooks-and-callbacks) for more details.
+* `#ignore_paths`: allows you to ignore top level directories altogether.  This comes is handy when you have large amounts of non-source data in you project.  By default .bundle, .git, log, tmp, and vendor are ignored.  Currently it is only possible to ignore the immediate descendants of the watched directory.
 
 Example:
 
@@ -306,7 +302,8 @@ group 'frontend' do
 end
 ```
 
-### Using a Guardfile without the `guard` binary
+Using a Guardfile without the `guard` binary
+--------------------------------------------
 
 The Guardfile DSL can also be used in a programmatic fashion by calling directly `Guard::Dsl.evaluate_guardfile`.
 Available options are as follow:
@@ -463,18 +460,19 @@ end
 
 Here is a very cool example by [@avdi](https://github.com/avdi) : http://avdi.org/devblog/2011/06/15/a-guardfile-for-redis
 
-Guard Hooks and Callbacks
--------------------------
-
-Guard provides a mechanism for you to hook into the execution of individual Guards. [Checkout the Wiki page for more details. ](https://github.com/guard/guard/wiki/Hooks-and-callbacks)
-
 Development
 -----------
 
 * Source hosted at [GitHub](https://github.com/guard/guard).
 * Report issues and feature requests to [GitHub Issues](https://github.com/guard/guard/issues).
 
-Pull requests are very welcome! Make sure your patches are well tested. Please create a topic branch for every separate change you make. Please **do not change** the version in your pull-request.
+Pull requests are very welcome! Please try to follow these simple "rules", though:
+
+- Please create a topic branch for every separate change you make;
+- Make sure your patches are well tested;
+- Update the README (if applicable);
+- Update the CHANGELOG (maybe not for a typo but don't hesitate!);
+- Please **do not change** the version number.
 
 For questions please join us on our [Google group](http://groups.google.com/group/guard-dev) or on `#guard` (irc.freenode.net).
 
@@ -484,6 +482,6 @@ Author
 [Thibaud Guillaume-Gentil](https://github.com/thibaudgg)
 
 Contributors
-------
+------------
 
 https://github.com/guard/guard/contributors
