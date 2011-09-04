@@ -48,6 +48,7 @@ describe Guard::Listener do
 
   describe "#relativize_paths" do
     subject { described_class.new('/tmp') }
+
     before :each do
       @paths = %w( /tmp/a /tmp/a/b /tmp/a.b/c.d )
     end
@@ -83,32 +84,36 @@ describe Guard::Listener do
     let(:file3) { @fixture_path.join("folder1", "deletedfile1.txt") }
 
     before do
-      subject.update_last_event
-      sleep 0.6
+      @listener = subject
     end
 
     context "without the :all option" do
       it "finds modified files only in the directory supplied" do
+        start
         FileUtils.touch([file1, file2, file3])
         subject.modified_files([@fixture_path.join("folder1")], {}).should =~ ["spec/fixtures/folder1/deletedfile1.txt", "spec/fixtures/folder1/file1.txt"]
+        stop
       end
     end
 
     context "with the :all options" do
       it "finds modified files within subdirectories" do
+        start
         FileUtils.touch([file1, file2, file3])
         subject.modified_files([@fixture_path.join("folder1")], { :all => true }).should =~ ["spec/fixtures/folder1/deletedfile1.txt", "spec/fixtures/folder1/file1.txt", "spec/fixtures/folder1/folder2/file2.txt"]
+        stop
       end
     end
 
     context "without updating the content" do
       it "ignores the files for the second time" do
+        start
         FileUtils.touch([file1, file2, file3])
         subject.modified_files([@fixture_path.join("folder1")], {}).should =~ ["spec/fixtures/folder1/deletedfile1.txt", "spec/fixtures/folder1/file1.txt"]
         subject.update_last_event
         FileUtils.touch([file1, file2, file3])
         subject.modified_files([@fixture_path.join("folder1")], {}).should be_empty
-        sleep 1
+        stop
       end
     end
 
@@ -116,13 +121,14 @@ describe Guard::Listener do
       after { File.open(file1, "w") { |f| f.write("") } }
 
       it "identifies the files for the second time" do
+        start
         FileUtils.touch([file1, file2, file3])
         subject.modified_files([@fixture_path.join("folder1")], {}).should =~ ["spec/fixtures/folder1/deletedfile1.txt", "spec/fixtures/folder1/file1.txt"]
         subject.update_last_event
         FileUtils.touch([file2, file3])
         File.open(file1, "w") { |f| f.write("changed content") }
         subject.modified_files([@fixture_path.join("folder1")], {}).should =~ ["spec/fixtures/folder1/file1.txt"]
-        sleep 1
+        stop
       end
     end
   end
@@ -130,29 +136,34 @@ describe Guard::Listener do
   describe "working directory" do
     context "unspecified" do
       subject { described_class.new }
+
       it "defaults to Dir.pwd" do
         subject.instance_variable_get(:@directory).should eql Dir.pwd
       end
+
       it "can be not changed" do
         subject.should_not respond_to(:directory=)
       end
     end
 
     context "specified as first argument to ::new" do
-      before :each do
-        @wd = @fixture_path.join("folder1")
-      end
       subject { described_class.new @wd }
+
+      before do
+        @wd = @fixture_path.join("folder1")
+        @listener = subject
+      end
+
       it "can be inspected" do
         subject.instance_variable_get(:@directory).should eql @wd.to_s
       end
+
       it "can be not changed" do
         subject.should_not respond_to(:directory=)
       end
 
       it "will be used to watch" do
         subject.should_receive(:watch).with(@wd.to_s)
-        @listener = subject # indeed.
         start
         stop
       end
