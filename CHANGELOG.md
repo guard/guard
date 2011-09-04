@@ -8,6 +8,7 @@
 
 ### New feature:
 
+- Pull request [#42](https://github.com/guard/guard/pull/42): New DSL method: `callback` allows you to execute arbitrary code before or after any of the `start`, `stop`, `reload`, `run_all` and `run_on_change` guards' method. New [Wiki page](https://github.com/guard/guard/wiki/Hooks-and-callbacks) for documenting it. ([@monocle][] & [@rymai][])
 - Ability to 'pause' files modification listening. Please refer to the "Interactions" section in the README for more information. ([@thibaudgg][])
 
 ### Improvement:
@@ -18,8 +19,8 @@
 
 ### New features:
 
-- Pull request [#130](https://github.com/guard/guard/pull/130): Adds ignore_paths option to DSL. ([@ianwhite][])
-- Pull request [#128](https://github.com/guard/guard/pull/128): Users can add additional settings to ~/.guard.rb that augment the existing Guardfile. ([@tpope][])
+- Pull request [#130](https://github.com/guard/guard/pull/130): Adds `ignore_paths` method to DSL. ([@ianwhite][])
+- Pull request [#128](https://github.com/guard/guard/pull/128): Users can add additional settings to `~/.guard.rb` that augment the existing Guardfile. ([@tpope][])
 
 ## 0.6.2 - August 17, 2011
 
@@ -30,7 +31,7 @@
 
 ### New features:
 
-- Groups are now stored in a @groups variable (will be used for future features). ([@rymai][])
+- Groups are now stored in a `@groups` variable (will be used for future features). ([@rymai][])
 - Guards will now receive their group in the options hash at initialization (will be used for future features). ([@rymai][])
 
 ### Improvement:
@@ -41,15 +42,15 @@
 
 ### Bugs fixes:
 
-- Pull request [#120](https://github.com/guard/guard/pull/120): remove guardfile_contents when re-evaluating so that the Guardfile gets reloaded correctly. ([@mordaroso][])
-- Pull request [#119](https://github.com/guard/guard/pull/119): Dsl.evaluate_guardfile uses all groups if none specified. ([@ches][])
+- Pull request [#120](https://github.com/guard/guard/pull/120): remove `guardfile_contents` when re-evaluating so that the Guardfile gets reloaded correctly. ([@mordaroso][])
+- Pull request [#119](https://github.com/guard/guard/pull/119): `Dsl.evaluate_guardfile` uses all groups if none specified. ([@ches][])
 
 ## 0.6.0 - August 13, 2011
 
 ### Bugs fixes:
 
 - Pull request [#107](https://github.com/guard/guard/pull/107): Small spelling fix. ([@dnagir][])
-- Dir.glob now ignores files that don't need to be watched. ([@rymai][])
+- `Dir.glob` now ignores files that don't need to be watched. ([@rymai][])
 
 ### New features:
 
@@ -58,7 +59,7 @@
 ### Improvements:
 
 - Pull request [#99](https://github.com/guard/guard/pull/99): [OS X] Switch from growl gem to growl_notify gem. ([@johnbintz][])
-- Pull request [#115](https://github.com/guard/guard/pull/115): [Linux] Add ':transient => true' to default libnotify options. ([@zonque][])
+- Pull request [#115](https://github.com/guard/guard/pull/115): [Linux] Add `:transient => true` to default libnotify options. ([@zonque][])
 - Pull request [#95](https://github.com/guard/guard/pull/95): Output system commands and options to be executed when in debug mode. ([@uk-ar][] and [@netzpirat][])
 - `Guard::Dsl.revaluate_guardfile` has been renamed to `Guard::Dsl.reevaluate_guardfile`. ([@rymai][])
 - New CLI options: ([@nestegg][])
@@ -257,6 +258,7 @@
 [@koshigoe]: https://github.com/koshigoe
 [@mcmire]: https://github.com/mcmire
 [@mislav]: https://github.com/mislav
+[@monocle]: https://github.com/monocle
 [@mordaroso]: https://github.com/mordaroso
 [@nestegg]: https://github.com/nestegg
 [@netzpirat]: https://github.com/netzpirat
