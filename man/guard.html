@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv='content-type' value='text/html;charset=utf8'>
+  <meta name='generator' value='Ronn/v0.7.3 (http://github.com/rtomayko/ronn/tree/0.7.3)'>
+  <title>guard</title>
+  <style type='text/css' media='all'>
+  /* style: man */
+  body#manpage {margin:0}
+  .mp {max-width:100ex;padding:0 9ex 1ex 4ex}
+  .mp p,.mp pre,.mp ul,.mp ol,.mp dl {margin:0 0 20px 0}
+  .mp h2 {margin:10px 0 0 0}
+  .mp > p,.mp > pre,.mp > ul,.mp > ol,.mp > dl {margin-left:8ex}
+  .mp h3 {margin:0 0 0 4ex}
+  .mp dt {margin:0;clear:left}
+  .mp dt.flush {float:left;width:8ex}
+  .mp dd {margin:0 0 0 9ex}
+  .mp h1,.mp h2,.mp h3,.mp h4 {clear:left}
+  .mp pre {margin-bottom:20px}
+  .mp pre+h2,.mp pre+h3 {margin-top:22px}
+  .mp h2+pre,.mp h3+pre {margin-top:5px}
+  .mp img {display:block;margin:auto}
+  .mp h1.man-title {display:none}
+  .mp,.mp code,.mp pre,.mp tt,.mp kbd,.mp samp,.mp h3,.mp h4 {font-family:monospace;font-size:14px;line-height:1.42857142857143}
+  .mp h2 {font-size:16px;line-height:1.25}
+  .mp h1 {font-size:20px;line-height:2}
+  .mp {text-align:justify;background:#fff}
+  .mp,.mp code,.mp pre,.mp pre code,.mp tt,.mp kbd,.mp samp {color:#131211}
+  .mp h1,.mp h2,.mp h3,.mp h4 {color:#030201}
+  .mp u {text-decoration:underline}
+  .mp code,.mp strong,.mp b {font-weight:bold;color:#131211}
+  .mp em,.mp var {font-style:italic;color:#232221;text-decoration:none}
+  .mp a,.mp a:link,.mp a:hover,.mp a code,.mp a pre,.mp a tt,.mp a kbd,.mp a samp {color:#0000ff}
+  .mp b.man-ref {font-weight:normal;color:#434241}
+  .mp pre {padding:0 4ex}
+  .mp pre code {font-weight:normal;color:#434241}
+  .mp h2+pre,h3+pre {padding-left:0}
+  ol.man-decor,ol.man-decor li {margin:3px 0 10px 0;padding:0;float:left;width:33%;list-style-type:none;text-transform:uppercase;color:#999;letter-spacing:1px}
+  ol.man-decor {width:100%}
+  ol.man-decor li.tl {text-align:left}
+  ol.man-decor li.tc {text-align:center;letter-spacing:4px}
+  ol.man-decor li.tr {text-align:right;float:right}
+  </style>
+</head>
+<!--
+  The following styles are deprecated and will be removed at some point:
+  div#man, div#man ol.man, div#man ol.head, div#man ol.man.
+
+  The .man-page, .man-decor, .man-head, .man-foot, .man-title, and
+  .man-navigation should be used instead.
+-->
+<body id='manpage'>
+  <div class='mp' id='man'>
+
+  <div class='man-navigation' style='display:none'>
+    <a href="#NAME">NAME</a>
+    <a href="#NAME">NAME</a>
+  </div>
+
+  <ol class='man-decor man-head man head'>
+    <li class='tl'>guard</li>
+    <li class='tc'></li>
+    <li class='tr'>guard</li>
+  </ol>
+
+  <h2 id="NAME">NAME</h2>
+<p class="man-name">
+  <code>guard</code>
+</p>
+<p><var>!DOCTYPE html</var>
+<html>
+<head>
+  <meta http-equiv="content-type" value="text/html;charset=utf8" />
+  <meta name="generator" value="Ronn/v0.7.3 (http://github.com/rtomayko/ronn/tree/0.7.3)" />
+  <title>guard</title>
+  <style type="text/css" media="all">
+  /<em> style: man </em>/
+  body#manpage {margin:0}
+  .mp {max-width:100ex;padding:0 9ex 1ex 4ex}
+  .mp p,.mp pre,.mp ul,.mp ol,.mp dl {margin:0 0 20px 0}
+  .mp h2 {margin:10px 0 0 0}
+  .mp > p,.mp > pre,.mp > ul,.mp > ol,.mp > dl {margin-left:8ex}
+  .mp h3 {margin:0 0 0 4ex}
+  .mp dt {margin:0;clear:left}
+  .mp dt.flush {float:left;width:8ex}
+  .mp dd {margin:0 0 0 9ex}
+  .mp h1,.mp h2,.mp h3,.mp h4 {clear:left}
+  .mp pre {margin-bottom:20px}
+  .mp pre+h2,.mp pre+h3 {margin-top:22px}
+  .mp h2+pre,.mp h3+pre {margin-top:5px}
+  .mp img {display:block;margin:auto}
+  .mp h1.man-title {display:none}
+  .mp,.mp code,.mp pre,.mp tt,.mp kbd,.mp samp,.mp h3,.mp h4 {font-family:monospace;font-size:14px;line-height:1.42857142857143}
+  .mp h2 {font-size:16px;line-height:1.25}
+  .mp h1 {font-size:20px;line-height:2}
+  .mp {text-align:justify;background:#fff}
+  .mp,.mp code,.mp pre,.mp pre code,.mp tt,.mp kbd,.mp samp {color:#131211}
+  .mp h1,.mp h2,.mp h3,.mp h4 {color:#030201}
+  .mp u {text-decoration:underline}
+  .mp code,.mp strong,.mp b {font-weight:bold;color:#131211}
+  .mp em,.mp var {font-style:italic;color:#232221;text-decoration:none}
+  .mp a,.mp a:link,.mp a:hover,.mp a code,.mp a pre,.mp a tt,.mp a kbd,.mp a samp {color:#0000ff}
+  .mp b.man-ref {font-weight:normal;color:#434241}
+  .mp pre {padding:0 4ex}
+  .mp pre code {font-weight:normal;color:#434241}
+  .mp h2+pre,h3+pre {padding-left:0}
+  ol.man-decor,ol.man-decor li {margin:3px 0 10px 0;padding:0;float:left;width:33%;list-style-type:none;text-transform:uppercase;color:#999;letter-spacing:1px}
+  ol.man-decor {width:100%}
+  ol.man-decor li.tl {text-align:left}
+  ol.man-decor li.tc {text-align:center;letter-spacing:4px}
+  ol.man-decor li.tr {text-align:right;float:right}
+  </style>
+</head></html></p>
+
+<!--
+  The following styles are deprecated and will be removed at some point:
+  div#man, div#man ol.man, div#man ol.head, div#man ol.man.
+
+  The .man-page, .man-decor, .man-head, .man-foot, .man-title, and
+  .man-navigation should be used instead.
+-->
+
+
+<p><body id="manpage">
+  <div class="mp" id="man" /></body></p>
+
+<p>  <div class="man-navigation" style="display:none" /></p>
+
+<pre><code>&lt;a href="#NAME"&gt;NAME&lt;/a&gt;
+</code></pre>
+
+<p>  </p>
+
+<p>  <ol class="man-decor man-head man head" /></p>
+
+<pre><code>&lt;li class='tl'&gt;guard&lt;/li&gt;
+&lt;li class='tc'&gt;&lt;/li&gt;
+&lt;li class='tr'&gt;guard&lt;/li&gt;
+</code></pre>
+
+<p>  </p>
+
+<p>  <h2 id="NAME">NAME</h2></p>
+
+<p class="man-name">
+  <code>guard</code>
+</p>
+
+
+<p>.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "GUARD" "1" "August 2011" "" ""
+.
+.SH "NAME"
+\fBguard\fR - Guard keeps an eye on your file modifications.
+.
+.SH "DESCRIPTION"
+Guard is a command line tool that easily handle events on files modifications.
+.
+.SH "SYNOPSIS"
+\fBguard <var>COMMAND</var> <var>OPTIONS</var>\fR
+.
+.SH "COMMANDS"
+.
+.SS "start"
+Starts Guard. This is the default command if none is provided.
+.
+.P
+The following options are available:
+.
+.P
+\fB-c\fR, \fB--clear\fR Clears the Shell after each change.
+.
+.P
+\fB-n\fR, \fB--notify\fR \fIFLAG\fR Disable notifications (Growl or Libnotify depending on your system). Notifications can be disabled globally by setting a GUARD_NOTIFY environment variable to false. FLAG can be \fBtrue\fR/\fBfalse\fR or \fBt\fR/\fBf\fR.
+.
+.P
+\fB-d\fR, \fB--debug\fR Runs Guard in debug mode.
+.
+.P
+\fB-g\fR, \fB--group\fR \fIGROUP1\fR \fIGROUP2\fR... Runs only the groups specified by GROUP1, GROUP2 etc. Groups name should be separated by spaces. Guards that don\'t belong to a group are considered global and are always run.
+.
+.P
+\fB-w\fR, \fB--watchdir\fR \fIPATH\fR
+.
+.P
+Tells Guard to watch PATH instead of \fB./\fR.
+.
+.P
+\fB-G\fR, \fB--guardfile\fR \fIFILE\fR Tells Guard to use FILE as its Guardfile instead of \fB./Guardfile\fR or \fB~/.Guardfile\fR.
+.
+.SS "init [GUARD]"
+If no Guardfile is present in the current directory, creates an empty Guardfile.
+.
+.P
+If \fIGUARD\fR is present, add its default Guardfile configuration to the current Guardfile. Note that \fIGUARD\fR is the guard\'s name without the \fBguard-\fR prefix. For instance to initialize guard-rspec, run \fBguard init rspec\fR.
+.
+.SS "list"
+Lists guards that can be used with the \fBinit\fR command.
+.
+.SS "-T, show"
+List defined groups and guards for the current Guardfile.
+.
+.SS "-h, help [COMMAND]"
+List all of Guard\'s available commands.
+.
+.P
+If \fICOMMAND\fR is given, displays a specific help for \fITASK\fR.
+.
+.SH "EXAMPLES"
+Initialize Guard and a specific guard at the same time:
+.
+.P
+\fB[bundle exec] guard init [rspec]\fR
+.
+.P
+Run Guard:
+.
+.P
+\fB[bundle exec] guard [start] --watchdir ~/dev --guardfile ~/env/Guardfile --clear --group backend frontend --notify false --debug\fR
+.
+.P
+or in a more concise way:
+.
+.P
+\fB[bundle exec] guard [start] -w ~/dev -G ~/env/Guardfile -c -g backend frontend -n f -d\fR
+.
+.SH "AUTHORS / CONTRIBUTORS"
+Thibaud Guillaume-Gentil is the main author.
+.
+.P
+A list of contributors based on all commits can be found here: https://github.com/guard/guard/contributors
+.
+.P
+For an exhaustive list of all the contributors, please see the CHANGELOG: https://github.com/guard/guard/blob/master/CHANGELOG.md
+.
+.P
+This manual has been written by Remy Coutable.
+.
+.SH "WWW"
+https://github.com/guard/guard</p>
+
+
+<p>  <ol class="man-decor man-foot man foot" /></p>
+
+<pre><code>&lt;li class='tl'&gt;&lt;/li&gt;
+&lt;li class='tc'&gt;September 2011&lt;/li&gt;
+&lt;li class='tr'&gt;guard&lt;/li&gt;
+</code></pre>
+
+<p>  </p>
+
+<p>  
+
+</p>
+
+
+  <ol class='man-decor man-foot man foot'>
+    <li class='tl'></li>
+    <li class='tc'>September 2011</li>
+    <li class='tr'>guard</li>
+  </ol>
+
+  </div>
+</body>
+</html>
