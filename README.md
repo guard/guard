@@ -222,7 +222,7 @@ $ guard help [TASK]
 Interactions
 ------------
 
-**From version >= 0.7.0 Posix Signal handlers are no more used to interact with Guard.**
+**From version >= 0.7.0 Posix Signal handlers are no more used to interact with Guard. If you're using a version < 0.7, please refer to the [README in the v0.6 branch](https://github.com/guard/guard/blob/v0.6/README.md).**
 
 When Guard do nothing you can interact with by entering a command + hitting enter:
 
