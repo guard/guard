@@ -85,19 +85,6 @@ describe Guard::Hook do
       Guard::Hook.should_receive(:notify).with(guard_class, :special_sauce, 'first_arg', 'second_arg')
       @guard.stop
     end
-
-    context "--UI message--" do
-      it "is sent when in development mode" do
-        ENV["GUARD_ENV"] = 'development'
-        Guard::UI.should_receive(:info)
-        @guard.start
-        ENV["GUARD_ENV"] = 'test'
-      end
-
-      it "is not sent when not in development mode" do
-        Guard::UI.should_not_receive(:info)
-        @guard.start
-      end
-    end
   end
+
 end

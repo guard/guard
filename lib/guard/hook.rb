@@ -30,14 +30,12 @@ module Guard
       def hook(event, *args)
         hook_name = if event.is_a? Symbol
           calling_method = caller[0][/`([^']*)'/, 1]
-          "#{calling_method}_#{event}".to_sym
+          "#{calling_method}_#{event}"
         else
-          event.to_sym
-        end
+          event
+        end.to_sym
 
-        if ENV["GUARD_ENV"] == "development"
-          UI.info "\nHook :#{hook_name} executed for #{self.class}"
-        end
+        UI.debug "\nHook :#{hook_name} executed for #{self.class}"
 
         Hook.notify(self.class, hook_name, *args)
       end
