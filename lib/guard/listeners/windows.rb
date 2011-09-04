@@ -3,7 +3,6 @@ module Guard
 
     def initialize(*)
       super
-
       @fchange = FChange::Notifier.new
     end
 

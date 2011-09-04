@@ -10,14 +10,15 @@ module Guard
   autoload :Hook,         'guard/hook'
 
   class << self
-    attr_accessor :options, :guards, :groups, :listener
+    attr_accessor :options, :guards, :groups, :interactor, :listener
 
     # initialize this singleton
     def setup(options = {})
-      @options  = options
-      @listener = Listener.select_and_init(@options[:watchdir] ? File.expand_path(@options[:watchdir]) : Dir.pwd)
-      @groups   = [:default]
-      @guards   = []
+      @options    = options
+      @guards     = []
+      @groups     = [:default]
+      @interactor = Interactor.new
+      @listener   = Listener.select_and_init(@options[:watchdir] ? File.expand_path(@options[:watchdir]) : Dir.pwd)
 
       @options[:notify] && ENV["GUARD_NOTIFY"] != 'false' ? Notifier.turn_on : Notifier.turn_off
 
@@ -28,37 +29,74 @@ module Guard
     end
 
     def start(options = {})
-      Interactor.init_signal_traps
-
       setup(options)
 
       Dsl.evaluate_guardfile(options)
 
       listener.on_change do |files|
-        Dsl.reevaluate_guardfile if Watcher.match_guardfile?(files)
-
-        run { run_on_change_for_all_guards(files) } if Watcher.match_files?(guards, files)
+        Dsl.reevaluate_guardfile        if Watcher.match_guardfile?(files)
+        listener.changed_files += files if Watcher.match_files?(guards, files)
       end
 
       UI.info "Guard is now watching at '#{listener.directory}'"
       guards.each { |guard| supervised_task(guard, :start) }
+
+      interactor.start
       listener.start
     end
 
-    def run_on_change_for_all_guards(files)
-      guards.each do |guard|
-        paths = Watcher.match_files(guard, files)
-        unless paths.empty?
-          UI.debug "#{guard.class.name}#run_on_change with #{paths.inspect}"
-          supervised_task(guard, :run_on_change, paths)
+    def stop
+      UI.info "Bye bye...", :reset => true
+      listener.stop
+      guards.each { |guard| supervised_task(guard, :stop) }
+      abort
+    end
+
+    def reload
+      run do
+        guards.each { |guard| supervised_task(guard, :reload) }
+      end
+    end
+
+    def run_all
+      run do
+        guards.each { |guard| supervised_task(guard, :run_all) }
+      end
+    end
+
+    def pause
+      if listener.locked
+        UI.info "Un-paused files modification listening", :reset => true
+        listener.clear_changed_files
+        listener.unlock
+      else
+        UI.info "Paused files modification listening", :reset => true
+        listener.lock
+      end
+    end
+
+    def run_on_change(files)
+      run do
+        guards.each do |guard|
+          paths = Watcher.match_files(guard, files)
+          unless paths.empty?
+            UI.debug "#{guard.class.name}#run_on_change with #{paths.inspect}"
+            supervised_task(guard, :run_on_change, paths)
+          end
         end
       end
+    end
 
-      # Reparse the whole directory to catch new files modified during the guards run
-      new_modified_files = listener.modified_files([listener.directory], :all => true)
-      if !new_modified_files.empty? && Watcher.match_files?(guards, new_modified_files)
-        run { run_on_change_for_all_guards(new_modified_files) }
+    def run
+      listener.lock
+      interactor.lock
+      UI.clear if options[:clear]
+      begin
+        yield
+      rescue Interrupt
       end
+      interactor.unlock
+      listener.unlock
     end
 
     # Let a guard execute its task but
@@ -76,22 +114,12 @@ module Guard
       return ex
     end
 
-    def run
-      listener.stop
-      UI.clear if options[:clear]
-      begin
-        yield
-      rescue Interrupt
-      end
-      listener.start
-    end
-
     def add_guard(name, watchers = [], callbacks = [], options = {})
       if name.to_sym == :ego
         UI.deprecation("Guard::Ego is now part of Guard. You can remove it from your Guardfile.")
       else
         guard_class = get_guard_class(name)
-        callbacks.each { |callback| ::Guard::Hook.add_callback(callback[:listener], guard_class, callback[:events]) }
+        callbacks.each { |callback| Hook.add_callback(callback[:listener], guard_class, callback[:events]) }
         @guards << guard_class.new(watchers, options)
       end
     end

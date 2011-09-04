@@ -1,5 +1,8 @@
 pkg/*
 *.gem
+*.rbc
+.*.swp
+*.bak
 .bundle
 Gemfile.lock
 

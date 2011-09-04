@@ -2,9 +2,13 @@ rvm:
   - 1.8.7
   - 1.9.2
   - ree
+  - jruby
+  - rbx
 branches:
   only:
     - master
     - hook
+    - stdin
+    - jruby_on_travis
 notifications:
   irc: "irc.freenode.org#guard"

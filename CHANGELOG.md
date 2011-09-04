@@ -1,3 +1,42 @@
+## Master
+
+### Major Changes
+
+- Posix Signals handlers (`Ctrl-C`, `Ctrl-\` and `Ctrl-Z`) are no more supported and replaced by `$stdin.gets`. Please refer to the "Interactions" section in the README for more information. ([@thibaudgg][])
+- JRuby support (beta). ([@thibaudgg][])
+- Rubinius support (beta). ([@thibaudgg][])
+
+### New feature:
+
+- Ability to 'pause' files modification listening. Please refer to the "Interactions" section in the README for more information. ([@thibaudgg][])
+
+### Improvement:
+
+- Remove the need to scan the whole directory after guard's `run_on_change` method. ([@thibaudgg][])
+
+## 0.6.3 - September 1, 2011
+
+### New features:
+
+- Pull request [#130](https://github.com/guard/guard/pull/130): Adds ignore_paths option to DSL. ([@ianwhite][])
+- Pull request [#128](https://github.com/guard/guard/pull/128): Users can add additional settings to ~/.guard.rb that augment the existing Guardfile. ([@tpope][])
+
+## 0.6.2 - August 17, 2011
+
+### Bugs fixes:
+
+- Re-add the possibility to use the `growl` gem since the `growl_notify` gem this is currently known to not work in conjunction with Spork. ([@netzpirat][])
+- Ensure that scoped groups and group name are symbolized before checking for inclusion. ([@rymai][])
+
+### New features:
+
+- Groups are now stored in a @groups variable (will be used for future features). ([@rymai][])
+- Guards will now receive their group in the options hash at initialization (will be used for future features). ([@rymai][])
+
+### Improvement:
+
+- Explain the growl/growl_notify differences in the README. ([@netzpirat][])
+
 ## 0.6.1 - August 15, 2011
 
 ### Bugs fixes:
@@ -12,11 +51,11 @@
 - Pull request [#107](https://github.com/guard/guard/pull/107): Small spelling fix. ([@dnagir][])
 - Dir.glob now ignores files that don't need to be watched. ([@rymai][])
 
-### New features
+### New features:
 
 - Pull request [#112](https://github.com/guard/guard/pull/112): Add `list` command to CLI. ([@docwhat][])
 
-### Improvements
+### Improvements:
 
 - Pull request [#99](https://github.com/guard/guard/pull/99): [OS X] Switch from growl gem to growl_notify gem. ([@johnbintz][])
 - Pull request [#115](https://github.com/guard/guard/pull/115): [Linux] Add ':transient => true' to default libnotify options. ([@zonque][])
@@ -35,12 +74,12 @@
 
 ## 0.5.0 - July 2, 2011
 
-### New features
+### New features:
 
 - Guard::Ego is now part of Guard, so Guardfile is automagically re-evaluated when modified. ([@thibaudgg][])
 - Pull request [#91](https://github.com/guard/guard/pull/91): Show Guards in Guardfile with the `guard -T`. ([@johnbintz][])
 
-### Improvements
+### Improvements:
 
 - Issue [#98](https://github.com/guard/guard/issues/98): Multiple calls per watch event on linux with rb-inotify. ([@jeffutter][] & [@netzpirat][])
 - Pull request [#94](https://github.com/guard/guard/pull/94): Show backtrace in terminal when a problem with a watch action occurs. ([@capotej][])
@@ -62,7 +101,7 @@
 
 ## 0.4.1 - June 7, 2011
 
-### Improvements
+### Improvements:
 
 - Pull request [#77](https://github.com/guard/guard/pull/77): Refactor `get_guard_class` to first try the constant and fallback to require + various tweaks. ([@mislav][])
 - Notifier improvement, don't use system notification library if could not be required. ([@yannlugrin][])
@@ -78,7 +117,7 @@
 - Pull request [#73](https://github.com/guard/guard/pull/73): Allow DSL's `group` method to accept a Symbol as group name. ([@johnbintz][])
 - Pull request [#51](https://github.com/guard/guard/pull/51): Allow options (like `:priority`) to be passed through to the Notifier. ([@indirect][] & [@netzpirat][])
 
-### Improvements
+### Improvements:
 
 - Pull request [#74](https://github.com/guard/guard/pull/74): Added link definitions to make the CHANGELOG more DRY! That's for sure now, we have the cleanest CHANGELOG ever! (even the link definitions are sorted alphabetically!) ([@pcreux][])
 
@@ -210,6 +249,7 @@
 [@Gazer]: https://github.com/Gazer
 [@gix]: https://github.com/gix
 [@hashrocketeer]: https://github.com/hashrocketeer
+[@ianwhite]: https://github.com/ianwhite
 [@indirect]: https://github.com/indirect
 [@jeffutter]: https://github.com/jeffutter
 [@johnbintz]: https://github.com/johnbintz

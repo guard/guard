@@ -9,8 +9,10 @@ module Guard
   autoload :Polling, 'guard/listeners/polling'
 
   class Listener
-    
-    attr_reader :directory
+
+    DefaultIgnorePaths = %w[. .. .bundle .git log tmp vendor]
+    attr_accessor :changed_files
+    attr_reader :directory, :ignore_paths, :locked
 
     def self.select_and_init(*a)
       if mac? && Darwin.usable?
@@ -25,11 +27,32 @@ module Guard
       end
     end
 
-    def initialize(directory=Dir.pwd, options={})
+    def initialize(directory = Dir.pwd, options = {})
       @directory           = directory.to_s
       @sha1_checksums_hash = {}
       @relativize_paths    = options.fetch(:relativize_paths, true)
+      @changed_files       = []
+      @locked              = false
+      @ignore_paths        = DefaultIgnorePaths
+      @ignore_paths        |= options[:ignore_paths] if options[:ignore_paths]
+
       update_last_event
+      start_reactor
+    end
+
+    def start_reactor
+      return if ENV["GUARD_ENV"] == 'test'
+      Thread.new do
+        loop do
+          if @changed_files != [] && !@locked
+            changed_files = @changed_files.dup
+            clear_changed_files
+            ::Guard.run_on_change(changed_files)
+          else
+            sleep 0.1
+          end
+        end
+      end
     end
 
     def start
@@ -37,6 +60,18 @@ module Guard
     end
 
     def stop
+    end
+
+    def lock
+      @locked = true
+    end
+
+    def unlock
+      @locked = false
+    end
+
+    def clear_changed_files
+      @changed_files.clear
     end
 
     def on_change(&callback)
@@ -47,9 +82,10 @@ module Guard
       @last_event = Time.now
     end
 
-    def modified_files(dirs, options={})
-      files = potentially_modified_files(dirs, options).select { |path| file_modified?(path) }
+    def modified_files(dirs, options = {})
+      last_event = @last_event
       update_last_event
+      files = potentially_modified_files(dirs, options).select { |path| file_modified?(path, last_event) }
       relativize_paths(files)
     end
 
@@ -78,12 +114,17 @@ module Guard
       !!@relativize_paths
     end
 
+    # return children of the passed dirs that are not in the ignore_paths list
+    def exclude_ignored_paths(dirs, ignore_paths = self.ignore_paths)
+      Dir.glob(dirs.map { |d| "#{d.sub(%r{/+$}, '')}/*" }, File::FNM_DOTMATCH).reject do |path|
+        ignore_paths.include?(File.basename(path))
+      end
+    end
+
   private
 
     def potentially_modified_files(dirs, options={})
-      paths = Dir.glob(dirs.map { |d| "#{d.sub(%r{/+$}, '')}/*" }, File::FNM_DOTMATCH).reject do |path|
-        %w[. .. .bundle .git log tmp vendor].include?(File.basename(path))
-      end
+      paths = exclude_ignored_paths(dirs)
 
       if options[:all]
         paths.inject([]) do |array, path|
@@ -99,14 +140,17 @@ module Guard
       end
     end
 
-    # Depending on the filesystem, mtime is probably only precise to the second, so round
+    # Depending on the filesystem, mtime/ctime is probably only precise to the second, so round
     # both values down to the second for the comparison.
-    def file_modified?(path)
-      if File.mtime(path).to_i == @last_event.to_i
+    # ctime is used only on == comparaison to always catches Rails 3.1 Assets pipelined on Mac OSX
+    def file_modified?(path, last_event)
+      if File.ctime(path).to_i == last_event.to_i
         file_content_modified?(path, sha1_checksum(path))
-      elsif File.mtime(path).to_i > @last_event.to_i
+      elsif File.mtime(path).to_i > last_event.to_i
         set_sha1_checksums_hash(path, sha1_checksum(path))
         true
+      else
+        false
       end
     rescue
       false
