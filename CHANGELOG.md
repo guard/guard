@@ -3,8 +3,7 @@
 ### Major Changes
 
 - Posix Signals handlers (`Ctrl-C`, `Ctrl-\` and `Ctrl-Z`) are no more supported and replaced by `$stdin.gets`. Please refer to the "Interactions" section in the README for more information. ([@thibaudgg][])
-- JRuby support (beta). ([@thibaudgg][])
-- Rubinius support (beta). ([@thibaudgg][])
+- JRuby & Rubinius support (beta). ([@thibaudgg][] and [@netzpirat][])
 
 ### New feature:
 
