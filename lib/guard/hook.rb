@@ -35,7 +35,7 @@ module Guard
           event
         end.to_sym
 
-        UI.debug "\nHook :#{hook_name} executed for #{self.class}"
+        UI.debug "Hook :#{hook_name} executed for #{self.class}"
 
         Hook.notify(self.class, hook_name, *args)
       end
