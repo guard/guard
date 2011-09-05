@@ -9,6 +9,7 @@ branches:
     - master
     - hook
     - stdin
-    - jruby_on_travis
+    - jruby_travis_ctime_bug
+    - jruby_specs
 notifications:
   irc: "irc.freenode.org#guard"
