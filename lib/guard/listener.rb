@@ -142,7 +142,7 @@ module Guard
 
     # Depending on the filesystem, mtime/ctime is probably only precise to the second, so round
     # both values down to the second for the comparison.
-    # ctime is used only on == comparaison to always catches Rails 3.1 Assets pipelined on Mac OSX
+    # ctime is used only on == comparison to always catches Rails 3.1 Assets pipelined on Mac OSX
     def file_modified?(path, last_event)
       ctime = File.ctime(path).to_i
       mtime = File.mtime(path).to_i
