@@ -39,8 +39,8 @@ namespace(:spec) do
                    echo "`ruby -v`";
                    for ((c=1; c<$ruby_version_string_size; c++)); do echo -n "="; done
                    echo;
-                   bundle install;
-                   bundle exec rspec spec -f doc 2>&1;'
+                   RBXOPT="-Xrbc.db" bundle install;
+                   RBXOPT="-Xrbc.db" bundle exec rspec spec -f doc 2>&1;'
         BASH
       end
     end

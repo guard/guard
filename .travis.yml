@@ -12,4 +12,9 @@ branches:
     - jruby_travis_ctime_bug
     - jruby_specs
 notifications:
+  recipients:
+    - thibaud@thibaud.me
+    - rymai@rymai.me
+    - michi@netzpiraten.ch
+    - yann.lugrin@sans-savoir.net
   irc: "irc.freenode.org#guard"
