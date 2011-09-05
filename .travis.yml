@@ -11,4 +11,9 @@ branches:
     - stdin
     - jruby_on_travis
 notifications:
+  recipients:
+    - thibaud@thibaud.me
+    - rymai@rymai.me
+    - michi@netzpiraten.ch
+    - yann.lugrin@sans-savoir.net
   irc: "irc.freenode.org#guard"
