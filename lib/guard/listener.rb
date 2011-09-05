@@ -144,9 +144,11 @@ module Guard
     # both values down to the second for the comparison.
     # ctime is used only on == comparaison to always catches Rails 3.1 Assets pipelined on Mac OSX
     def file_modified?(path, last_event)
-      if File.ctime(path).to_i == last_event.to_i
+      ctime = File.ctime(path).to_i
+      mtime = File.mtime(path).to_i
+      if [mtime, ctime].max == last_event.to_i
         file_content_modified?(path, sha1_checksum(path))
-      elsif File.mtime(path).to_i > last_event.to_i
+      elsif mtime > last_event.to_i
         set_sha1_checksums_hash(path, sha1_checksum(path))
         true
       else
