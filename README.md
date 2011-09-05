@@ -14,7 +14,7 @@ Features
 * Polling on the other operating systems (help us to support more OS).
 * Automatic & Super fast (when polling is not used) files modifications detection (even new files are detected).
 * Visual notifications on Mac OSX ([Growl](http://growl.info)), Linux ([Libnotify](http://developer.gnome.org/libnotify)) and Windows ([Notifu](http://www.paralint.com/projects/notifu)).
-* Tested against Ruby 1.8.7, 1.9.2 and REE.
+* Tested against Ruby 1.8.7, 1.9.2, REE and the latest versions of JRuby & Rubinius.
 
 Screencast
 ----------
