@@ -1,4 +1,4 @@
-## Master
+## 0.7.0.rc1 - September 5, 2011
 
 ### Major Changes
 
