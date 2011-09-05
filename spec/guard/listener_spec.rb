@@ -186,4 +186,26 @@ describe Guard::Listener do
       end
     end
   end
+
+  describe "Travis test" do
+    let(:file) { @fixture_path.join("folder1", "test.txt") }
+
+    it "shows the os name" do
+      puts `uname -a`
+    end
+
+    it "runs the ctime test" do
+      FileUtils.touch(file)
+      puts "#{ File.ctime(file).to_i },#{ File.mtime(file).to_i }"
+      sleep 2
+      FileUtils.touch(file)
+      puts "#{ File.ctime(file).to_i },#{ File.mtime(file).to_i }"
+      sleep 2
+      File.open(file, 'w') do |file|
+        file.write('test')
+      end
+      puts "#{ File.ctime(file).to_i },#{ File.mtime(file).to_i }"
+      File.delete(file)
+    end
+  end
 end
