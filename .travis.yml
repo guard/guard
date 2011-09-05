@@ -10,7 +10,6 @@ branches:
     - hook
     - stdin
     - jruby_travis_ctime_bug
-    - jruby_specs
 notifications:
   recipients:
     - thibaud@thibaud.me
