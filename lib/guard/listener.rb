@@ -30,14 +30,13 @@ module Guard
       @sha1_checksums_hash = {}
       @file_timestamp_hash = {}
       @relativize_paths    = options.fetch(:relativize_paths, true)
-      @watch_deletions = options.fetch(:deletions, false)
+      @watch_deletions     = options.fetch(:deletions, false)
       update_last_event
     end
 
     def start
       watch(@directory)
-      # populate initial sha1 hash to watch for deleted or moved files
-      all_files.each {|path| set_file_timestamp_hash(path, file_timestamp(path)) } if @watch_deletions
+      timestamp_files
     end
 
     def stop
@@ -93,6 +92,11 @@ module Guard
       !!@relativize_paths
     end
 
+    def timestamp_files
+      # populate initial timestamp file hash to watch for deleted or moved files
+      all_files.each {|path| set_file_timestamp_hash(path, file_timestamp(path)) } if @watch_deletions
+    end
+
   private
 
     def potentially_modified_files(dirs, options={})
@@ -123,11 +127,11 @@ module Guard
         set_sha1_checksums_hash(path, sha1_checksum(path))
         true
       elsif @watch_deletions
-          ts = file_timestamp(path)
-          if ts != @file_timestamp_hash[path]
-            set_file_timestamp_hash(path, ts)
-            true
-          end
+        ts = file_timestamp(path)
+        if ts != @file_timestamp_hash[path]
+          set_file_timestamp_hash(path, ts)
+          true
+        end
       end
     rescue
       false
