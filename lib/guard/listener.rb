@@ -9,8 +9,10 @@ module Guard
   autoload :Polling, 'guard/listeners/polling'
 
   class Listener
-    
-    attr_reader :directory
+
+    DefaultIgnorePaths = %w[. .. .bundle .git log tmp vendor]
+    attr_accessor :changed_files
+    attr_reader :directory, :ignore_paths, :locked
 
     def self.select_and_init(*a)
       if mac? && Darwin.usable?
@@ -25,13 +27,34 @@ module Guard
       end
     end
 
-    def initialize(directory=Dir.pwd, options={})
+    def initialize(directory = Dir.pwd, options = {})
       @directory           = directory.to_s
       @sha1_checksums_hash = {}
       @file_timestamp_hash = {}
       @relativize_paths    = options.fetch(:relativize_paths, true)
       @watch_deletions     = options.fetch(:deletions, false)
+      @changed_files       = []
+      @locked              = false
+      @ignore_paths        = DefaultIgnorePaths
+      @ignore_paths        |= options[:ignore_paths] if options[:ignore_paths]
+
       update_last_event
+      start_reactor
+    end
+
+    def start_reactor
+      return if ENV["GUARD_ENV"] == 'test'
+      Thread.new do
+        loop do
+          if @changed_files != [] && !@locked
+            changed_files = @changed_files.dup
+            clear_changed_files
+            ::Guard.run_on_change(changed_files)
+          else
+            sleep 0.1
+          end
+        end
+      end
     end
 
     def start
@@ -40,6 +63,18 @@ module Guard
     end
 
     def stop
+    end
+
+    def lock
+      @locked = true
+    end
+
+    def unlock
+      @locked = false
+    end
+
+    def clear_changed_files
+      @changed_files.clear
     end
 
     def on_change(&callback)
@@ -51,6 +86,7 @@ module Guard
     end
 
     def modified_files(dirs, options={})
+      last_event = @last_event
       files = []
       if @watch_deletions
         deleted_files = @file_timestamp_hash.collect do |path, ts|
@@ -62,8 +98,8 @@ module Guard
         end
         files.concat(deleted_files.compact)
       end
-      files.concat(potentially_modified_files(dirs, options).select { |path| file_modified?(path) })
       update_last_event
+      files.concat(potentially_modified_files(dirs, options).select { |path| file_modified?(path, last_event) })
       relativize_paths(files)
     end
 
@@ -92,17 +128,22 @@ module Guard
       !!@relativize_paths
     end
 
+    # populate initial timestamp file hash to watch for deleted or moved files
     def timestamp_files
-      # populate initial timestamp file hash to watch for deleted or moved files
       all_files.each {|path| set_file_timestamp_hash(path, file_timestamp(path)) } if @watch_deletions
+    end
+
+    # return children of the passed dirs that are not in the ignore_paths list
+    def exclude_ignored_paths(dirs, ignore_paths = self.ignore_paths)
+      Dir.glob(dirs.map { |d| "#{d.sub(%r{/+$}, '')}/*" }, File::FNM_DOTMATCH).reject do |path|
+        ignore_paths.include?(File.basename(path))
+      end
     end
 
   private
 
     def potentially_modified_files(dirs, options={})
-      paths = Dir.glob(dirs.map { |d| "#{d.sub(%r{/+$}, '')}/*" }, File::FNM_DOTMATCH).reject do |path|
-        %w[. .. .bundle .git log tmp vendor].include?(File.basename(path))
-      end
+      paths = exclude_ignored_paths(dirs)
 
       if options[:all]
         paths.inject([]) do |array, path|
@@ -118,12 +159,15 @@ module Guard
       end
     end
 
-    # Depending on the filesystem, mtime is probably only precise to the second, so round
+    # Depending on the filesystem, mtime/ctime is probably only precise to the second, so round
     # both values down to the second for the comparison.
-    def file_modified?(path)
-      if File.mtime(path).to_i == @last_event.to_i
+    # ctime is used only on == comparison to always catches Rails 3.1 Assets pipelined on Mac OSX
+    def file_modified?(path, last_event)
+      ctime = File.ctime(path).to_i
+      mtime = File.mtime(path).to_i
+      if [mtime, ctime].max == last_event.to_i
         file_content_modified?(path, sha1_checksum(path))
-      elsif File.mtime(path).to_i > @last_event.to_i
+      elsif mtime > last_event.to_i
         set_sha1_checksums_hash(path, sha1_checksum(path))
         true
       elsif @watch_deletions
@@ -132,6 +176,8 @@ module Guard
           set_file_timestamp_hash(path, ts)
           true
         end
+      else
+        false
       end
     rescue
       false

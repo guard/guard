@@ -48,6 +48,7 @@ describe Guard::Listener do
 
   describe "#relativize_paths" do
     subject { described_class.new('/tmp') }
+
     before :each do
       @paths = %w( /tmp/a /tmp/a/b /tmp/a.b/c.d )
     end
@@ -55,10 +56,10 @@ describe Guard::Listener do
     it "should relativize paths to the configured directory" do
       subject.relativize_paths(@paths).should =~ %w( a a/b a.b/c.d )
     end
-    
+
     context "when set to false" do
       subject { described_class.new('/tmp', :relativize_paths => false) }
-      
+
       it "can be disabled" do
         subject.relativize_paths(@paths).should eql @paths
       end
@@ -85,32 +86,36 @@ describe Guard::Listener do
     let(:destfile) { @fixture_path.join("folder1", "folder2","movedfile1.txt") }
 
     before do
-      subject.update_last_event
-      sleep 0.6
+      @listener = subject
     end
 
     context "without the :all option" do
       it "finds modified files only in the directory supplied" do
+        start
         FileUtils.touch([file1, file2, file3])
         subject.modified_files([@fixture_path.join("folder1")], {}).should =~ ["spec/fixtures/folder1/deletedfile1.txt", "spec/fixtures/folder1/file1.txt"]
+        stop
       end
     end
 
     context "with the :all options" do
       it "finds modified files within subdirectories" do
+        start
         FileUtils.touch([file1, file2, file3])
         subject.modified_files([@fixture_path.join("folder1")], { :all => true }).should =~ ["spec/fixtures/folder1/deletedfile1.txt", "spec/fixtures/folder1/file1.txt", "spec/fixtures/folder1/folder2/file2.txt"]
+        stop
       end
     end
 
     context "without updating the content" do
-      it "ignores the}fil)s for the second time" do
+      it "ignores the files for the second time" do
+        start
         FileUtils.touch([file1, file2, file3])
         subject.modified_files([@fixture_path.join("folder1")], {}).should =~ ["spec/fixtures/folder1/deletedfile1.txt", "spec/fixtures/folder1/file1.txt"]
         subject.update_last_event
         FileUtils.touch([file1, file2, file3])
         subject.modified_files([@fixture_path.join("folder1")], {}).should be_empty
-        sleep 1
+        stop
       end
     end
 
@@ -118,13 +123,14 @@ describe Guard::Listener do
       after { File.open(file1, "w") { |f| f.write("") } }
 
       it "identifies the files for the second time" do
+        start
         FileUtils.touch([file1, file2, file3])
         subject.modified_files([@fixture_path.join("folder1")], {}).should =~ ["spec/fixtures/folder1/deletedfile1.txt", "spec/fixtures/folder1/file1.txt"]
         subject.update_last_event
         FileUtils.touch([file2, file3])
         File.open(file1, "w") { |f| f.write("changed content") }
         subject.modified_files([@fixture_path.join("folder1")], {}).should =~ ["spec/fixtures/folder1/file1.txt"]
-        sleep 1
+        stop
       end
     end
 
@@ -211,36 +217,67 @@ describe Guard::Listener do
   end
 
   describe "working directory" do
-
     context "unspecified" do
       subject { described_class.new }
+
       it "defaults to Dir.pwd" do
         subject.instance_variable_get(:@directory).should eql Dir.pwd
       end
+
       it "can be not changed" do
         subject.should_not respond_to(:directory=)
       end
     end
 
     context "specified as first argument to ::new" do
-      before :each do
-        @wd = @fixture_path.join("folder1")
-      end
       subject { described_class.new @wd }
+
+      before do
+        @wd = @fixture_path.join("folder1")
+        @listener = subject
+      end
+
       it "can be inspected" do
         subject.instance_variable_get(:@directory).should eql @wd.to_s
       end
+
       it "can be not changed" do
         subject.should_not respond_to(:directory=)
       end
 
       it "will be used to watch" do
         subject.should_receive(:watch).with(@wd.to_s)
-        @listener = subject # indeed.
         start
         stop
       end
     end
+  end
 
+  describe "#ignore_paths" do
+    it "defaults to the default ignore paths" do
+      subject.new.ignore_paths.should == Guard::Listener::DefaultIgnorePaths
+    end
+
+    it "can be added to via :ignore_paths option" do
+      listener = subject.new 'path', :ignore_paths => ['foo', 'bar']
+      listener.ignore_paths.should include('foo', 'bar')
+    end
+  end
+
+  describe "#exclude_ignored_paths [<dirs>]" do
+    let(:ignore_paths) { nil }
+    subject { described_class.new(@fixture_path, {:ignore_paths => ignore_paths}) }
+
+    it "returns children of <dirs>" do
+      subject.exclude_ignored_paths(["spec/fixtures"]).should =~ ["spec/fixtures/.dotfile", "spec/fixtures/folder1", "spec/fixtures/Guardfile"]
+    end
+
+    describe "when ignore_paths set to some of <dirs> children" do
+      let(:ignore_paths) { ['Guardfile', '.dotfile'] }
+
+      it "excludes the ignored paths" do
+        subject.exclude_ignored_paths(["spec/fixtures"]).should =~ ["spec/fixtures/folder1"]
+      end
+    end
   end
 end

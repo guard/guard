@@ -1,0 +1,69 @@
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "GUARD" "" "September 2011" "" ""
+.
+.SH "NAME"
+\fBguard\fR
+.
+.P
+\fI!DOCTYPE html\fR
+.
+.P
+.
+.P
+.
+.IP "" 4
+.
+.nf
+
+<a href="#NAME">NAME</a>
+.
+.fi
+.
+.IP "" 0
+.
+.P
+.
+.P
+.
+.IP "" 4
+.
+.nf
+
+<li class=\'tl\'>guard</li>
+<li class=\'tc\'></li>
+<li class=\'tr\'>guard</li>
+.
+.fi
+.
+.IP "" 0
+.
+.P
+.
+.P
+.
+.P
+\fBguard\fR
+.
+.P
+\&\.\e" generated with Ronn/v0\.7\.3 \.\e" http://github\.com/rtomayko/ronn/tree/0\.7\.3 \. \.TH "GUARD" "1" "August 2011" "" "" \. \.SH "NAME" \efBguard\efR \- Guard keeps an eye on your file modifications\. \. \.SH "DESCRIPTION" Guard is a command line tool that easily handle events on files modifications\. \. \.SH "SYNOPSIS" \efBguard \fICOMMAND\fR \fIOPTIONS\fR\efR \. \.SH "COMMANDS" \. \.SS "start" Starts Guard\. This is the default command if none is provided\. \. \.P The following options are available: \. \.P \efB\-c\efR, \efB\-\-clear\efR Clears the Shell after each change\. \. \.P \efB\-n\efR, \efB\-\-notify\efR \efIFLAG\efR Disable notifications (Growl or Libnotify depending on your system)\. Notifications can be disabled globally by setting a GUARD_NOTIFY environment variable to false\. FLAG can be \efBtrue\efR/\efBfalse\efR or \efBt\efR/\efBf\efR\. \. \.P \efB\-d\efR, \efB\-\-debug\efR Runs Guard in debug mode\. \. \.P \efB\-g\efR, \efB\-\-group\efR \efIGROUP1\efR \efIGROUP2\efR\.\.\. Runs only the groups specified by GROUP1, GROUP2 etc\. Groups name should be separated by spaces\. Guards that don\e\'t belong to a group are considered global and are always run\. \. \.P \efB\-w\efR, \efB\-\-watchdir\efR \efIPATH\efR \. \.P Tells Guard to watch PATH instead of \efB\./\efR\. \. \.P \efB\-G\efR, \efB\-\-guardfile\efR \efIFILE\efR Tells Guard to use FILE as its Guardfile instead of \efB\./Guardfile\efR or \efB~/\.Guardfile\efR\. \. \.SS "init [GUARD]" If no Guardfile is present in the current directory, creates an empty Guardfile\. \. \.P If \efIGUARD\efR is present, add its default Guardfile configuration to the current Guardfile\. Note that \efIGUARD\efR is the guard\e\'s name without the \efBguard\-\efR prefix\. For instance to initialize guard\-rspec, run \efBguard init rspec\efR\. \. \.SS "list" Lists guards that can be used with the \efBinit\efR command\. \. \.SS "\-T, show" List defined groups and guards for the current Guardfile\. \. \.SS "\-h, help [COMMAND]" List all of Guard\e\'s available commands\. \. \.P If \efICOMMAND\efR is given, displays a specific help for \efITASK\efR\. \. \.SH "EXAMPLES" Initialize Guard and a specific guard at the same time: \. \.P \efB[bundle exec] guard init [rspec]\efR \. \.P Run Guard: \. \.P \efB[bundle exec] guard [start] \-\-watchdir ~/dev \-\-guardfile ~/env/Guardfile \-\-clear \-\-group backend frontend \-\-notify false \-\-debug\efR \. \.P or in a more concise way: \. \.P \efB[bundle exec] guard [start] \-w ~/dev \-G ~/env/Guardfile \-c \-g backend frontend \-n f \-d\efR \. \.SH "AUTHORS / CONTRIBUTORS" Thibaud Guillaume\-Gentil is the main author\. \. \.P A list of contributors based on all commits can be found here: https://github\.com/guard/guard/contributors \. \.P For an exhaustive list of all the contributors, please see the CHANGELOG: https://github\.com/guard/guard/blob/master/CHANGELOG\.md \. \.P This manual has been written by Remy Coutable\. \. \.SH "WWW" https://github\.com/guard/guard
+.
+.P
+.
+.IP "" 4
+.
+.nf
+
+<li class=\'tl\'></li>
+<li class=\'tc\'>September 2011</li>
+<li class=\'tr\'>guard</li>
+.
+.fi
+.
+.IP "" 0
+.
+.P
+.
+.P
+

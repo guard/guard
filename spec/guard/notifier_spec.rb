@@ -205,7 +205,7 @@ describe Guard::Notifier do
         end
       end
     end
-
+    
     context "on Linux" do
       before do
         RbConfig::CONFIG.should_receive(:[]).with('target_os').and_return 'linux'

@@ -2,9 +2,18 @@ rvm:
   - 1.8.7
   - 1.9.2
   - ree
+  - jruby
+  - rbx
 branches:
   only:
     - master
     - hook
+    - stdin
+    - jruby_travis_ctime_bug
 notifications:
+  recipients:
+    - thibaud@thibaud.me
+    - rymai@rymai.me
+    - michi@netzpiraten.ch
+    - yann.lugrin@sans-savoir.net
   irc: "irc.freenode.org#guard"

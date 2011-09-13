@@ -7,7 +7,8 @@ module Guard
         options.is_a?(Hash) or raise ArgumentError.new("evaluate_guardfile not passed a Hash!")
 
         @@options = options.dup
-        instance_eval_guardfile(fetch_guardfile_contents)
+        fetch_guardfile_contents
+        instance_eval_guardfile(guardfile_contents_with_user_config)
 
         UI.error "No guards found in Guardfile, please add at least one." if !::Guard.guards.nil? && ::Guard.guards.empty?
       end
@@ -72,12 +73,15 @@ module Guard
           UI.error "The command file(#{@@options[:guardfile]}) seems to be empty."
           exit 1
         end
-
-        guardfile_contents
       end
 
       def guardfile_contents
         @@options ? @@options[:guardfile_contents] : ""
+      end
+
+      def guardfile_contents_with_user_config
+        config = File.read(user_config_path) if File.exist?(user_config_path)
+        [guardfile_contents, config].join("\n")
       end
 
       def guardfile_path
@@ -102,6 +106,10 @@ module Guard
         File.expand_path(File.join("~", ".Guardfile"))
       end
 
+      def user_config_path
+        File.expand_path(File.join("~", ".guard.rb"))
+      end
+
     end
 
     def group(name, &guard_definition)
@@ -115,16 +123,26 @@ module Guard
       end
     end
 
-    def guard(name, options = {}, &watch_definition)
-      @watchers = []
-      watch_definition.call if watch_definition
+    def guard(name, options = {}, &watch_and_callback_definition)
+      @watchers  = []
+      @callbacks = []
+      watch_and_callback_definition.call if watch_and_callback_definition
       options.update(:group => (@current_group || :default))
-      ::Guard.add_guard(name.to_s.downcase.to_sym, @watchers, options)
+      ::Guard.add_guard(name.to_s.downcase.to_sym, @watchers, @callbacks, options)
     end
 
     def watch(pattern, &action)
       @watchers << ::Guard::Watcher.new(pattern, action)
     end
 
+    def callback(*args, &listener)
+      listener, events = args.size > 1 ? args : [listener, args[0]]
+      @callbacks << { :events => events, :listener => listener }
+    end
+
+    def ignore_paths(*paths)
+      UI.info "Ignoring paths: #{paths.join(', ')}"
+      ::Guard.listener.ignore_paths.push(*paths)
+    end
   end
 end

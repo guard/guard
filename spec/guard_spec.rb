@@ -116,7 +116,7 @@ describe Guard do
       it "gives an empty hash of options" do
         @guard_rspec_class.should_receive(:new).with([], {}).and_return(@guard_rspec)
 
-        Guard.add_guard(:rspec, [], {})
+        Guard.add_guard(:rspec, [], [], {})
       end
     end
 
@@ -124,7 +124,7 @@ describe Guard do
       it "give the options hash" do
         @guard_rspec_class.should_receive(:new).with([], { :foo => true, :group => :backend }).and_return(@guard_rspec)
 
-        Guard.add_guard(:rspec, [], { :foo => true, :group => :backend })
+        Guard.add_guard(:rspec, [], [], { :foo => true, :group => :backend })
       end
     end
   end
@@ -234,15 +234,26 @@ describe Guard do
     context "with a task that succeed" do
       context 'without any arguments' do
         before(:each) do
-          @g.stub!(:regular) { true }
+          @g.stub!(:regular_without_arg) { true }
         end
 
         it "doesn't fire the Guard" do
-          lambda { subject.supervised_task(@g, :regular) }.should_not change(subject.guards, :size)
+          lambda { subject.supervised_task(@g, :regular_without_arg) }.should_not change(subject.guards, :size)
         end
 
         it "returns the result of the task" do
-          ::Guard.supervised_task(@g, :regular).should be_true
+          ::Guard.supervised_task(@g, :regular_without_arg).should be_true
+        end
+
+        it "passes the args to the :begin hook" do
+          @g.should_receive(:hook).with("regular_without_arg_begin", "given_path")
+          ::Guard.supervised_task(@g, :regular_without_arg, "given_path")
+        end
+
+        it "passes the result of the supervised method to the :end hook" do
+          @g.should_receive(:hook).with("regular_without_arg_begin", "given_path")
+          @g.should_receive(:hook).with("regular_without_arg_end", true)
+          ::Guard.supervised_task(@g, :regular_without_arg, "given_path")
         end
       end
 
@@ -256,7 +267,13 @@ describe Guard do
         end
 
         it "returns the result of the task" do
-          ::Guard.supervised_task(@g, :regular_with_arg, "given_path").should == "I'm a success"
+          ::Guard.supervised_task(@g, :regular_with_arg, "given_path").should eql "I'm a success"
+        end
+
+        it "calls the default begin hook but not the default end hook" do
+          @g.should_receive(:hook).with("failing_begin")
+          @g.should_not_receive(:hook).with("failing_end")
+          ::Guard.supervised_task(@g, :failing)
         end
       end
     end

@@ -116,7 +116,7 @@ module Guard
       end
     rescue LoadError
       turn_off
-      UI.info "Please install growl or growl_notify gem for Mac OS X notification support and add it to your Gemfile"
+      UI.info "Please install growl_notify or growl gem for Mac OS X notification support and add it to your Gemfile"
     end
 
     def self.require_libnotify

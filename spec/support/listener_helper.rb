@@ -28,7 +28,7 @@ private
 
 shared_examples_for 'a listener that reacts to #on_change' do |rest_delay|
   before(:each) do
-    @rest_delay = rest_delay
+    @rest_delay = rest_delay if rest_delay.is_a?(Integer) || rest_delay.is_a?(Float) # jruby workaround
     @listener = described_class.new
     record_results
   end
@@ -59,6 +59,15 @@ shared_examples_for 'a listener that reacts to #on_change' do |rest_delay|
     File.open(file, 'w') { |f| f.write('') }
     stop
     results.should =~ ['spec/fixtures/folder1/file1.txt']
+  end
+
+  it "not catches a single file chmod update" do
+    file = @fixture_path.join("folder1/file1.txt")
+    File.exists?(file).should be_true
+    start
+    File.chmod(0777, file)
+    stop
+    results.should =~ []
   end
 
   it "catches a dotfile update" do
@@ -108,7 +117,7 @@ end
 
 shared_examples_for "a listener scoped to a specific directory" do |rest_delay|
   before :each do
-    @rest_delay = rest_delay
+    @rest_delay = rest_delay if rest_delay.is_a?(Integer) || rest_delay.is_a?(Float) # jruby workaround
     @wd = @fixture_path.join("folder1")
     @listener = described_class.new @wd
   end
