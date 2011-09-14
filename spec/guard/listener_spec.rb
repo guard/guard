@@ -83,7 +83,7 @@ describe Guard::Listener do
     let(:file2) { @fixture_path.join("folder1", "folder2", "file2.txt") }
     let(:file3) { @fixture_path.join("folder1", "deletedfile1.txt") }
     let(:file4) { @fixture_path.join("folder1", "movedfile1.txt") }
-    let(:destfile) { @fixture_path.join("folder1", "folder2","movedfile1.txt") }
+    let(:file5) { @fixture_path.join("folder1", "folder2", "movedfile1.txt") }
 
     before do
       @listener = subject
@@ -162,8 +162,7 @@ describe Guard::Listener do
         end
 
         after :each do
-            FileUtils.touch([file1, file2, file3, file4])
-            FileUtils.rm_f([destfile])
+            FileUtils.touch([file1, file2, file3])
         end
 
         it "should be true when set" do
@@ -187,9 +186,10 @@ describe Guard::Listener do
                 ["spec/fixtures/folder1/deletedfile1.txt", "spec/fixtures/folder1/file1.txt"]
 
             subject.update_last_event
-            FileUtils.move(file4, destfile)
+            FileUtils.move(file1, file4)
             subject.modified_files([@fixture_path.join("folder1")], {}).should =~ 
-                ["!spec/fixtures/folder1/movedfile1.txt"]
+                ["!spec/fixtures/folder1/file1.txt", "spec/fixtures/folder1/movedfile1.txt"]
+            FileUtils.move(file4, file1)
         end
 
         it "should track deleted files with all option" do
@@ -209,9 +209,10 @@ describe Guard::Listener do
                 ["spec/fixtures/folder1/file1.txt", "spec/fixtures/folder1/folder2/file2.txt"]
 
             subject.update_last_event
-            FileUtils.move(file4, destfile)
+            FileUtils.move(file1, file5)
             subject.modified_files([@fixture_path.join("folder1")], {:all=>true}).should =~ 
-                ["!spec/fixtures/folder1/movedfile1.txt","spec/fixtures/folder1/folder2/movedfile1.txt"]
+                ["!spec/fixtures/folder1/file1.txt","spec/fixtures/folder1/folder2/movedfile1.txt"]
+            FileUtils.move(file5, file1)
         end
     end
   end
