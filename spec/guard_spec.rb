@@ -15,7 +15,7 @@ describe Guard do
     end
 
     it "initializes @groups" do
-      Guard.groups.should eql [:default]
+      Guard.groups.should eql [{ :name => :default, :options => {} }]
     end
 
     it "initializes the options" do
@@ -129,22 +129,25 @@ describe Guard do
     end
   end
 
-
   describe ".add_group" do
-    before(:each) do
-      Guard.setup
-    end
+    subject { ::Guard.setup }
 
     it "accepts group name as string" do
-      Guard.add_group('backend')
+      subject.add_group('backend')
 
-      Guard.groups.should eql [:default, :backend]
+      subject.groups.should eql [{ :name => :default, :options => {} }, { :name => :backend, :options => {} }]
     end
 
     it "accepts group name as symbol" do
-      Guard.add_group(:backend)
+      subject.add_group(:backend)
 
-      Guard.groups.should eql [:default, :backend]
+      subject.groups.should eql [{ :name => :default, :options => {} }, { :name => :backend, :options => {} }]
+    end
+
+    it "accepts options" do
+      subject.add_group(:backend, { :halt_on_fail => true })
+
+      subject.groups.should eql [{ :name => :default, :options => {} }, { :name => :backend, :options => { :halt_on_fail => true } }]
     end
   end
 
@@ -223,12 +226,54 @@ describe Guard do
     end
   end
 
+  describe ".execute_supervised_task_for_all_guards" do
+    subject { ::Guard.setup }
+
+    before do
+      class Guard::Dummy < Guard::Guard; end
+
+      subject.add_group(:foo, { :halt_on_fail => true })
+      subject.add_group(:bar)
+      subject.add_guard(:dummy, [], [], { :group => :foo })
+      subject.add_guard(:dummy, [], [], { :group => :foo })
+      subject.add_guard(:dummy, [], [], { :group => :bar })
+      subject.add_guard(:dummy, [], [], { :group => :bar })
+      @sum = { :foo => 0, :bar => 0}
+    end
+
+    context "all tasks succeed" do
+      before do
+        subject.guards.each { |guard| guard.stub!(:task) { @sum[guard.group] += 1; true } }
+      end
+
+      it "executes the task for each guard in each group" do
+        subject.execute_supervised_task_for_all_guards(:task)
+
+        @sum.all? { |k, v| v == 2 }.should be_true
+      end
+    end
+
+    context "one guard fails (by returning false)" do
+      before do
+        subject.guards.each_with_index { |g, i| g.stub!(:task) { @sum[g.group] += i+1; i != 0 && i != 2 } }
+      end
+
+      it "executes the task only for guards that didn't fail for group with :halt_on_fail == true" do
+        subject.execute_supervised_task_for_all_guards(:task)
+
+        @sum[:foo].should eql 1
+        @sum[:bar].should eql 7
+      end
+    end
+  end
+
   describe ".supervised_task" do
     subject { ::Guard.setup }
 
-    before(:each) do
+    before do
       @g = mock(Guard::Guard).as_null_object
       subject.guards.push(@g)
+      subject.groups.push({ :name => :foo, :options => { :halt_on_fail => true } })
     end
 
     context "with a task that succeed" do
@@ -275,6 +320,14 @@ describe Guard do
           @g.should_not_receive(:hook).with("failing_end")
           ::Guard.supervised_task(@g, :failing)
         end
+      end
+    end
+
+    context "with a task that return false and guard's group has the :halt_on_fail option == true" do
+      before(:each) { @g.stub!(:group) { :foo }; @g.stub!(:failing) { false } }
+
+      it "throws :task_has_failed" do
+        expect { subject.supervised_task(@g, :failing) }.to throw_symbol(:task_has_failed)
       end
     end
 

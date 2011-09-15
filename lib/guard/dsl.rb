@@ -15,6 +15,7 @@ module Guard
 
       def reevaluate_guardfile
         ::Guard.guards.clear
+        ::Guard.groups.clear
         @@options.delete(:guardfile_contents)
         Dsl.evaluate_guardfile(@@options)
         msg = "Guardfile has been re-evaluated."
@@ -112,11 +113,12 @@ module Guard
 
     end
 
-    def group(name, &guard_definition)
+    def group(name, options = {}, &guard_definition)
       @groups = @@options[:group] || []
       name = name.to_sym
 
       if guard_definition && (@groups.empty? || @groups.map(&:to_sym).include?(name))
+        ::Guard.add_group(name.to_s.downcase.to_sym, options)
         @current_group = name
         guard_definition.call
         @current_group = nil

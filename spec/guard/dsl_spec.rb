@@ -9,6 +9,7 @@ describe Guard::Dsl do
     @local_guardfile_path = File.join(Dir.pwd, 'Guardfile')
     @home_guardfile_path  = File.expand_path(File.join("~", ".Guardfile"))
     @user_config_path     = File.expand_path(File.join("~", ".guard.rb"))
+    ::Guard.setup
     ::Guard.stub!(:options).and_return(:debug => true)
     ::Guard.stub!(:guards).and_return([mock('Guard')])
   end
@@ -220,16 +221,16 @@ describe Guard::Dsl do
 
   describe "#ignore_paths" do
     disable_user_config
-    
+
     it "adds the paths to the listener's ignore_paths" do
       ::Guard.stub!(:listener).and_return(mock('Listener'))
       ::Guard.listener.should_receive(:ignore_paths).and_return(ignore_paths = ['faz'])
-      
+
       subject.evaluate_guardfile(:guardfile_contents => "ignore_paths 'foo', 'bar'")
       ignore_paths.should == ['faz', 'foo', 'bar']
     end
   end
-  
+
   describe "#group" do
     disable_user_config
 
@@ -238,6 +239,8 @@ describe Guard::Dsl do
       ::Guard.should_receive(:add_guard).with(:test, [], [], { :group => :w })
 
       subject.evaluate_guardfile(:guardfile_contents => valid_guardfile_string, :group => ['w'])
+
+      ::Guard.groups.should eql [{ :name => :default, :options => {} }, { :name => :w, :options => {} }]
     end
 
     it "evaluates only the specified symbol group" do
@@ -245,15 +248,19 @@ describe Guard::Dsl do
       ::Guard.should_receive(:add_guard).with(:test, [], [], { :group => :w })
 
       subject.evaluate_guardfile(:guardfile_contents => valid_guardfile_string, :group => [:w])
+
+      ::Guard.groups.should eql [{ :name => :default, :options => {} }, { :name => :w, :options => {} }]
     end
 
-    it "evaluates only the specified groups" do
+    it "evaluates only the specified groups (with their options)" do
       ::Guard.should_receive(:add_guard).with(:pow, [], [], { :group => :default })
       ::Guard.should_receive(:add_guard).with(:rspec, [], [], { :group => :x })
       ::Guard.should_receive(:add_guard).with(:ronn, [], [], { :group => :x })
       ::Guard.should_receive(:add_guard).with(:less, [], [], { :group => :y })
 
       subject.evaluate_guardfile(:guardfile_contents => valid_guardfile_string, :group => [:x, :y])
+
+      ::Guard.groups.should eql [{ :name => :default, :options => {} }, { :name => :x, :options => { :halt_on_fail => true } }, { :name => :y, :options => {} }]
     end
 
     it "evaluates always guard outside any group (even when a group is given)" do
@@ -261,9 +268,11 @@ describe Guard::Dsl do
       ::Guard.should_receive(:add_guard).with(:test, [], [], { :group => :w })
 
       subject.evaluate_guardfile(:guardfile_contents => valid_guardfile_string, :group => [:w])
+
+      ::Guard.groups.should eql [{ :name => :default, :options => {} }, { :name => :w, :options => {} }]
     end
 
-    it "evaluates all groups when no group option is specified" do
+    it "evaluates all groups when no group option is specified (with their options)" do
       ::Guard.should_receive(:add_guard).with(:pow, [], [], { :group => :default })
       ::Guard.should_receive(:add_guard).with(:test, [], [], { :group => :w })
       ::Guard.should_receive(:add_guard).with(:rspec, [], [], { :group => :x })
@@ -271,6 +280,9 @@ describe Guard::Dsl do
       ::Guard.should_receive(:add_guard).with(:less, [], [], { :group => :y })
 
       subject.evaluate_guardfile(:guardfile_contents => valid_guardfile_string)
+
+      ::Guard.groups.should eql [{ :name => :default, :options => {} }, { :name => :w, :options => {} }, { :name => :x, :options => { :halt_on_fail => true } }, { :name => :y, :options => {} }]
+
     end
   end
 
@@ -365,7 +377,7 @@ private
       guard 'test'
     end
 
-    group :x do
+    group :x, :halt_on_fail => true do
       guard 'rspec'
       guard :ronn
     end

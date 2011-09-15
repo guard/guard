@@ -16,7 +16,7 @@ module Guard
     def setup(options = {})
       @options    = options
       @guards     = []
-      @groups     = [:default]
+      @groups     = [{ :name => :default, :options => {} }]
       @interactor = Interactor.new
       @listener   = Listener.select_and_init(@options[:watchdir] ? File.expand_path(@options[:watchdir]) : Dir.pwd)
 
@@ -39,7 +39,8 @@ module Guard
       end
 
       UI.info "Guard is now watching at '#{listener.directory}'"
-      guards.each { |guard| supervised_task(guard, :start) }
+
+      execute_supervised_task_for_all_guards(:start)
 
       interactor.start
       listener.start
@@ -48,19 +49,19 @@ module Guard
     def stop
       UI.info "Bye bye...", :reset => true
       listener.stop
-      guards.each { |guard| supervised_task(guard, :stop) }
+      execute_supervised_task_for_all_guards(:stop)
       abort
     end
 
     def reload
       run do
-        guards.each { |guard| supervised_task(guard, :reload) }
+        execute_supervised_task_for_all_guards(:reload)
       end
     end
 
     def run_all
       run do
-        guards.each { |guard| supervised_task(guard, :run_all) }
+        execute_supervised_task_for_all_guards(:run_all)
       end
     end
 
@@ -77,13 +78,7 @@ module Guard
 
     def run_on_change(files)
       run do
-        guards.each do |guard|
-          paths = Watcher.match_files(guard, files)
-          unless paths.empty?
-            UI.debug "#{guard.class.name}#run_on_change with #{paths.inspect}"
-            supervised_task(guard, :run_on_change, paths)
-          end
-        end
+        execute_supervised_task_for_all_guards(:run_on_change, files)
       end
     end
 
@@ -99,13 +94,37 @@ module Guard
       listener.unlock
     end
 
+    def execute_supervised_task_for_all_guards(task, files = nil)
+      groups.each do |group_hash|
+        catch :task_has_failed do
+          guards.find_all { |guard| guard.group == group_hash[:name] }.each do |guard|
+            paths = Watcher.match_files(guard, files) if files
+            if paths && !paths.empty?
+              UI.debug "#{guard.class.name}##{task} with #{paths.inspect}"
+              supervised_task(guard, task, paths)
+            else
+              supervised_task(guard, task)
+            end
+          end
+        end
+      end
+    end
+
     # Let a guard execute its task but
     # fire it if his work leads to a system failure
     def supervised_task(guard, task_to_supervise, *args)
       guard.hook("#{task_to_supervise}_begin", *args)
       result = guard.send(task_to_supervise, *args)
       guard.hook("#{task_to_supervise}_end", result)
-      result
+
+      group = @groups.find { |group| group[:name] == guard.group }
+      if result === false && group[:options][:halt_on_fail] == true
+        UI.error "#{guard.class.name}##{task_to_supervise} failed."
+        throw :task_has_failed
+      else
+        result
+      end
+
     rescue Exception => ex
       UI.error("#{guard.class.name} failed to achieve its <#{task_to_supervise.to_s}>, exception was:" +
       "\n#{ex.class}: #{ex.message}\n#{ex.backtrace.join("\n")}")
@@ -124,8 +143,8 @@ module Guard
       end
     end
 
-    def add_group(name)
-      @groups << name.to_sym unless name.nil?
+    def add_group(name, options = {})
+      @groups << { :name => name.to_sym, :options => options } unless name.nil? || @groups.find { |group| group[:name] == name }
     end
 
     def get_guard_class(name)
