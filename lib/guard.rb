@@ -96,7 +96,7 @@ module Guard
 
     def execute_supervised_task_for_all_guards(task, files = nil)
       groups.each do |group_hash|
-        catch :task_has_failed do
+        catch group_hash[:options][:halt_on_fail] == true ? :task_has_failed : nil do
           guards.find_all { |guard| guard.group == group_hash[:name] }.each do |guard|
             paths = Watcher.match_files(guard, files) if files
             if paths && !paths.empty?
@@ -116,14 +116,7 @@ module Guard
       guard.hook("#{task_to_supervise}_begin", *args)
       result = guard.send(task_to_supervise, *args)
       guard.hook("#{task_to_supervise}_end", result)
-
-      group = @groups.find { |group| group[:name] == guard.group }
-      if result === false && group[:options][:halt_on_fail] == true
-        UI.error "#{guard.class.name}##{task_to_supervise} failed."
-        throw :task_has_failed
-      else
-        result
-      end
+      result
 
     rescue Exception => ex
       UI.error("#{guard.class.name} failed to achieve its <#{task_to_supervise.to_s}>, exception was:" +

@@ -255,7 +255,16 @@ describe Guard do
 
     context "one guard fails (by returning false)" do
       before do
-        subject.guards.each_with_index { |g, i| g.stub!(:task) { @sum[g.group] += i+1; i != 0 && i != 2 } }
+        subject.guards.each_with_index do |g, i|
+          g.stub!(:task) do
+            @sum[g.group] += i+1
+            if i % 2 == 0
+              throw :task_has_failed
+            else
+              true
+            end
+          end
+        end
       end
 
       it "executes the task only for guards that didn't fail for group with :halt_on_fail == true" do
@@ -324,7 +333,7 @@ describe Guard do
     end
 
     context "with a task that return false and guard's group has the :halt_on_fail option == true" do
-      before(:each) { @g.stub!(:group) { :foo }; @g.stub!(:failing) { false } }
+      before(:each) { @g.stub!(:group) { :foo }; @g.stub!(:failing) { throw :task_has_failed } }
 
       it "throws :task_has_failed" do
         expect { subject.supervised_task(@g, :failing) }.to throw_symbol(:task_has_failed)
