@@ -9,7 +9,7 @@ module Guard
 
     def start
       return if ENV["GUARD_ENV"] == 'test'
-      Thread.new do
+      @thread = Thread.new do
         loop do
           if (entry = $stdin.gets) && !@locked
             entry.gsub! /\n/, ''
@@ -28,12 +28,18 @@ module Guard
       end
     end
 
+    def stop
+      @thread.kill
+    end
+
     def lock
       @locked = true
+      stop
     end
 
     def unlock
       @locked = false
+      start
     end
 
   end
