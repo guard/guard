@@ -412,18 +412,18 @@ module Guard
       true
     end
 
-    # Called on Ctrl-C signal (when Guard quits)
+    # Called when `stop|quit|exit|s|q|e + enter` is pressed (when Guard quits)
     def stop
       true
     end
 
-    # Called on Ctrl-Z signal
+    # Called when `reload|r|z + enter` is pressed
     # This method should be mainly used for "reload" (really!) actions like reloading passenger/spork/bundler/...
     def reload
       true
     end
 
-    # Called on Ctrl-\ signal
+    # Called when just `enter` is pressed
     # This method should be principally used for long action like running all specs/tests/...
     def run_all
       true
