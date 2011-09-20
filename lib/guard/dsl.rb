@@ -325,7 +325,7 @@ module Guard
     # Define a callback to execute arbitary code before or after any of
     # the `start`, `stop`, `reload`, `run_all` and `run_on_change` guards' method.
     #
-    # @params [Array] args the callback arguments
+    # @param [Array] args the callback arguments
     # @yield a block with listeners
     #
     def callback(*args, &listener)
@@ -338,7 +338,7 @@ module Guard
     # @example Ignore some paths
     #   ignore_paths .git, .svn
     #
-    # @params [Array] paths the list of paths to ignore
+    # @param [Array] paths the list of paths to ignore
     #
     def ignore_paths(*paths)
       UI.info "Ignoring paths: #{ paths.join(', ') }"
