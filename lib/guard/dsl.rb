@@ -250,7 +250,7 @@ module Guard
 
     end
 
-    # Declares a group of guards to be run with `guard start --group group_name`
+    # Declares a group of guards to be run with `guard start --group group_name`.
     #
     # @example Declare two groups of Guards
     #   group 'backend' do
@@ -267,14 +267,17 @@ module Guard
     # @yield a block where you can declare several guards
     #
     # @see Dsl#guard
+    # @see Guard::DslDescriber
     #
-    def group(name, &guard_definition)
+    def group(name)
       @groups = @@options[:group] || []
       name    = name.to_sym
 
       if guard_definition && (@groups.empty? || @groups.map(&:to_sym).include?(name))
         @current_group = name
-        guard_definition.call
+
+        yield if block_given?
+
         @current_group = nil
       end
     end
@@ -295,6 +298,7 @@ module Guard
     # @yield a block where you can declare several watch patterns and actions
     #
     # @see Dsl#watch
+    # @see Guard::DslDescriber
     #
     def guard(name, options = {})
       @watchers  = []
