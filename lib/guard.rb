@@ -139,7 +139,7 @@ module Guard
     #
     # @param [Guard::Guard] the guard to execute
     # @param [Symbol] task_to_supervise the task to run
-    # @params [Array] args the arguments for the task
+    # @param [Array] args the arguments for the task
     # @return [Boolean, Exception] the result of the Guard
     #
     def supervised_task(guard, task_to_supervise, *args)
