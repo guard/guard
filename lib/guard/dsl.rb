@@ -342,7 +342,7 @@ module Guard
     # Ignore certain paths globally.
     #
     # @example Ignore some paths
-    #   ignore_paths .git, .svn
+    #   ignore_paths ".git", ".svn"
     #
     # @param [Array] paths the list of paths to ignore
     #

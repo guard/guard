@@ -46,13 +46,13 @@ module Guard
         end
       end
 
-      # Show a debug message that is prefixed with DEBUG and a timestampe.
+      # Show a debug message that is prefixed with DEBUG and a timestamp.
       #
       # @param [String] message the message to show
       # @param [Hash] options the options
       # @option options [Boolean] reset whether to clean the output before
       #
-      def debug(message, options={ })
+      def debug(message, options = { })
         unless ENV['GUARD_ENV'] == 'test'
           reset_line if options[:reset]
           puts color("DEBUG (#{Time.now.strftime('%T')}): ", :yellow) + message if ::Guard.options && ::Guard.options[:debug]

@@ -140,7 +140,7 @@ module Guard
     # Let a Guard execute its task, but fire it
     # if his work leads to a system failure.
     #
-    # @param [Guard::Guard] the guard to execute
+    # @param [Guard::Guard] guard the Guard to execute
     # @param [Symbol] task_to_supervise the task to run
     # @param [Array] args the arguments for the task
     # @return [Boolean, Exception] the result of the Guard
@@ -166,7 +166,7 @@ module Guard
     # @param [String] name the Guard name
     # @param [Array<Watcher>] watchers the list of declared watchers
     # @param [Array<Hash>] callbacks the list of callbacks
-    # @param [Hash] the Guard options
+    # @param [Hash] options the Guard options
     #
     def add_guard(name, watchers = [], callbacks = [], options = {})
       if name.to_sym == :ego
