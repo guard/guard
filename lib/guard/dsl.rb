@@ -81,6 +81,8 @@ module Guard
       # Evaluate the DSL methods in the `Guardfile`.
       #
       # @param [Hash] options the Guard options
+      # @option options [String] guardfile the path to a valid Guardfile
+      # @option options [String] guardfile_contents a string representing the content of a valid Guardfile
       # @raise [ArgumentError] when options are not a Hash
       #
       def evaluate_guardfile(options = { })
