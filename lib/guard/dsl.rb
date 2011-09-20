@@ -81,11 +81,12 @@ module Guard
       # Evaluate the DSL methods in the `Guardfile`.
       #
       # @param [Hash] options the Guard options
+      # @option options [Array<Symbol,String>] groups the groups to evaluate
       # @option options [String] guardfile the path to a valid Guardfile
       # @option options [String] guardfile_contents a string representing the content of a valid Guardfile
       # @raise [ArgumentError] when options are not a Hash
       #
-      def evaluate_guardfile(options = { })
+      def evaluate_guardfile(options = {})
         raise ArgumentError.new('No option hash passed to evaluate_guardfile!') unless options.is_a?(Hash)
 
         @@options = options.dup
@@ -140,9 +141,8 @@ module Guard
         exit 1
       end
 
-      # Get the content to evaluate.
-      #
-      # @return [String] the content of the Guardfile.
+      # Get the content to evaluate and stores it into
+      # the options as :guardfile_contents.
       #
       def fetch_guardfile_contents
         if @@options[:guardfile_contents]
@@ -263,7 +263,7 @@ module Guard
     #     guard 'livereload'
     #   end
     #
-    # @param [String] name the group's name called from the CLI
+    # @param [Symbol, String] name the group's name called from the CLI
     # @yield a block where you can declare several guards
     #
     # @see Dsl#guard
@@ -273,7 +273,7 @@ module Guard
       @groups = @@options[:group] || []
       name    = name.to_sym
 
-      if guard_definition && (@groups.empty? || @groups.map(&:to_sym).include?(name))
+      if block_given? && (@groups.empty? || @groups.map(&:to_sym).include?(name))
         @current_group = name
 
         yield if block_given?
