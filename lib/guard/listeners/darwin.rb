@@ -1,6 +1,6 @@
 module Guard
 
-  # Listener implementation for Mac OS X FSEvents.
+  # Listener implementation for Mac OS X `FSEvents`.
   #
   class Darwin < Listener
 

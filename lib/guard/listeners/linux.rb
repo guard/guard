@@ -1,6 +1,6 @@
 module Guard
 
-  # Listener implementation for Linux inotify.
+  # Listener implementation for Linux `inotify`.
   #
   class Linux < Listener
 

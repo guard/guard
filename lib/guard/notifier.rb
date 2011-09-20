@@ -5,6 +5,7 @@ require 'guard/ui'
 module Guard
 
   # The notifier class handles cross-platform system notifications that supports:
+  #
   # - Growl on Mac OS X
   # - Libnotify on Linux
   # - Notifu on Windows
@@ -14,7 +15,7 @@ module Guard
     # Application name as shown in the specific notification settings
     APPLICATION_NAME = "Guard"
 
-    # Turn notifications of.
+    # Turn notifications off.
     #
     def self.turn_off
       ENV["GUARD_NOTIFY"] = 'false'
@@ -72,7 +73,7 @@ module Guard
 
   private
 
-    # Send a message to Growl either with the growl gem or the growl_notify gem.
+    # Send a message to Growl either with the `growl` gem or the `growl_notify` gem.
     #
     # @param [String] title the notification title
     # @param [String] message the message to show
@@ -125,6 +126,7 @@ module Guard
     # Get the image path for an image symbol.
     #
     # Known symbols are:
+    #
     # - failed
     # - pending
     # - success

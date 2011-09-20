@@ -13,7 +13,7 @@ module Guard
 
     attr_accessor :watchers, :options, :group
 
-    # initialize a Guard.
+    # Initialize a Guard.
     #
     # @param [Array<Guard::Watcher>] watchers the Guard file watchers
     # @param [Hash] options the custom Guard options.
@@ -43,7 +43,7 @@ module Guard
       end
     end
 
-    # Call once when guard starts. Please override initialize method to init stuff.
+    # Call once when Guard starts. Please override initialize method to init stuff.
     #
     # @return [Boolean] Whether the start action was successful or not
     #
@@ -51,7 +51,7 @@ module Guard
       true
     end
 
-    # Call once when guard quit.
+    # Call once when Guard quit.
     #
     # @return [Boolean] Whether the stop action was successful or not
     #
@@ -67,7 +67,7 @@ module Guard
       true
     end
 
-    # Should be  used for long action like running all specs/tests/...
+    # Should be used for long action like running all specs/tests/...
     #
     # @return [Boolean] Whether the run_all action was successful or not
     #
