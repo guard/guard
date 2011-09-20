@@ -1,3 +1,6 @@
+# Guard is the main module for all Guard related modules and classes.
+# Also other Guard implementation should use this namespace.
+#
 module Guard
 
   autoload :UI,           'guard/ui'

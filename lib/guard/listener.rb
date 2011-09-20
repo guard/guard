@@ -11,8 +11,11 @@ module Guard
   # The Listener is the base class for all listener
   # implementations.
   #
+  # @abstract
+  #
   class Listener
 
+    # Default paths that gets ignored by the listener
     DEFAULT_IGNORE_PATHS = %w[. .. .bundle .git log tmp vendor]
 
     attr_accessor :changed_files
@@ -44,7 +47,7 @@ module Guard
     # @option options [Boolean] relativize_paths use only relative paths
     # @option options [Array<String>] ignore_paths the paths to ignore by the listener
     #
-    def initialize(directory = Dir.pwd, options = { })
+    def initialize(directory = Dir.pwd, options = {})
       @directory           = directory.to_s
       @sha1_checksums_hash = { }
       @relativize_paths    = options.fetch(:relativize_paths, true)
@@ -118,7 +121,12 @@ module Guard
       @last_event = Time.now
     end
 
-    def modified_files(dirs, options = { })
+    # Get the modified files.
+    #
+    # @param [Array<String>] dirs the watched directories
+    # @param [Hash] options the listener options
+    #
+    def modified_files(dirs, options = {})
       last_event = @last_event
       update_last_event
       files = potentially_modified_files(dirs, options).select { |path| file_modified?(path, last_event) }
