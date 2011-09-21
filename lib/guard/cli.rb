@@ -4,7 +4,7 @@ require 'guard/version'
 module Guard
 
   # Guard command line interface managed by [Thor](https://github.com/wycats/thor).
-  # This is the main interface to Guard that is called by the Guard binary at `bin/guard`.
+  # This is the main interface to Guard that is called by the Guard binary `bin/guard`.
   #
   class CLI < Thor
 
@@ -66,7 +66,7 @@ module Guard
     # List the Guards that are available for use in your system and marks
     # those that are currently used in your `Guardfile`.
     #
-    # @example guard list output
+    # @example Guard list output
     #
     #   Available guards:
     #     bundler *
@@ -113,7 +113,7 @@ module Guard
     desc 'init [GUARD]', 'Generates a Guardfile at the current working directory, or insert the given GUARD to an existing Guardfile'
 
     # Appends the Guard template to the `Guardfile`, or creates an initial
-    # `Guardfile` when no Guard name is passed,
+    # `Guardfile` when no Guard name is passed.
     #
     # @param [String] guard_name the name of the Guard to initialize
     #

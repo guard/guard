@@ -2,8 +2,8 @@ module Guard
 
   # Guard has a hook mechanism that allows you to insert callbacks for individual Guards.
   # By default, each of the Guard instance methods has a "_begin" and an "_end" hook.
-  # For example, the Guard::Guard#start method has a :start_begin hook that is run immediately
-  # before Guard::Guard#start and a :start_end hook that is run immediately after Guard::Guard#start.
+  # For example, the Guard::Guard#start method has a :start_begin hook that is runs immediately
+  # before Guard::Guard#start, and a :start_end hook that runs immediately after Guard::Guard#start.
   #
   # Read more about [hooks and callbacks on the wiki](https://github.com/guard/guard/wiki/Hooks-and-callbacks).
   #
@@ -21,11 +21,12 @@ module Guard
     #
     module InstanceMethods
 
-      # When +event+ is a Symbol, {#hook} will generate a hook name
+      # When event is a Symbol, {#hook} will generate a hook name
       # by concatenating the method name from where {#hook} is called
       # with the given Symbol.
       #
       # @example Add a hook with a Symbol
+      #
       #   def run_all
       #     hook :foo
       #   end
@@ -33,10 +34,11 @@ module Guard
       # Here, when {Guard::Guard#run_all} is called, {#hook} will notify callbacks
       # registered for the "run_all_foo" event.
       #
-      # When +event+ is a String, {#hook} will directly turn the String
+      # When event is a String, {#hook} will directly turn the String
       # into a Symbol.
       #
       # @example Add a hook with a String
+      #
       #   def run_all
       #     hook "foo_bar"
       #   end
@@ -63,7 +65,7 @@ module Guard
 
     class << self
 
-      # Get all callbacks
+      # Get all callbacks.
       #
       def callbacks
         @callbacks ||= Hash.new { |hash, key| hash[key] = [] }
@@ -104,7 +106,7 @@ module Guard
         end
       end
 
-      # Reset all callbacks
+      # Reset all callbacks.
       #
       def reset_callbacks!
         @callbacks = nil

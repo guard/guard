@@ -1,6 +1,6 @@
 module Guard
 
-  # The watcher defines a RegEx that will be matched against file system modifications.
+  # The watcher defines a RegExp that will be matched against file system modifications.
   # When a watcher matches a change, an optional action block is executed to enable
   # processing the file system change result.
   #

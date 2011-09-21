@@ -46,13 +46,13 @@ module Guard
         end
       end
 
-      # Show a debug message that is prefixed with DEBUG and a timestampe.
+      # Show a debug message that is prefixed with DEBUG and a timestamp.
       #
       # @param [String] message the message to show
       # @param [Hash] options the options
       # @option options [Boolean] reset whether to clean the output before
       #
-      def debug(message, options={ })
+      def debug(message, options = { })
         unless ENV['GUARD_ENV'] == 'test'
           reset_line if options[:reset]
           puts color("DEBUG (#{Time.now.strftime('%T')}): ", :yellow) + message if ::Guard.options && ::Guard.options[:debug]
@@ -110,11 +110,12 @@ module Guard
         @color_enabled
       end
 
-      # Colorizes a text message. See the constant below for possible
-      # color_options parameters. You can pass :bright, a foreground
-      # and a background color.
+      # Colorizes a text message. See the constant in the UI class for possible
+      # color_options parameters. You can pass optionally :bright, a foreground
+      # color and a background color.
       #
       # @example
+      #
       #   color('Hello World', :red, :bright)
       #
       # @param [String] the text to colorize
@@ -136,55 +137,55 @@ module Guard
 
     end
 
-    # bright color
+    # Brighten the color
     ANSI_ESCAPE_BRIGHT    = '1'
 
-    # black foreground color
+    # Black foreground color
     ANSI_ESCAPE_BLACK     = '30'
 
-    # red foreground color
+    # Red foreground color
     ANSI_ESCAPE_RED       = '31'
 
-    # green foreground color
+    # Green foreground color
     ANSI_ESCAPE_GREEN     = '32'
 
-    # yellow foreground color
+    # Yellow foreground color
     ANSI_ESCAPE_YELLOW    = '33'
 
-    # blue foreground color
+    # Blue foreground color
     ANSI_ESCAPE_BLUE      = '34'
 
-    # magenta foreground color
+    # Magenta foreground color
     ANSI_ESCAPE_MAGENTA   = '35'
 
-    # cyan foreground color
+    # Cyan foreground color
     ANSI_ESCAPE_CYAN      = '36'
 
-    # white foreground color
+    # White foreground color
     ANSI_ESCAPE_WHITE     = '37'
 
-    # black background color
+    # Black background color
     ANSI_ESCAPE_BGBLACK   = '40'
 
-    # red background color
+    # Red background color
     ANSI_ESCAPE_BGRED     = '41'
 
-    # green background color
+    # Green background color
     ANSI_ESCAPE_BGGREEN   = '42'
 
-    # yellow background color
+    # Yellow background color
     ANSI_ESCAPE_BGYELLOW  = '43'
 
-    # blue background color
+    # Blue background color
     ANSI_ESCAPE_BGBLUE    = '44'
 
-    # magenta background color
+    # Magenta background color
     ANSI_ESCAPE_BGMAGENTA = '45'
 
-    # cyan background color
+    # Cyan background color
     ANSI_ESCAPE_BGCYAN    = '46'
 
-    # white background color
+    # White background color
     ANSI_ESCAPE_BGWHITE   = '47'
 
   end

@@ -177,7 +177,7 @@ module Guard
       end
     end
 
-    # Use relative paths?
+    # Use paths relative to the current directory.
     #
     # @return [Boolean] whether to use relative or absolute paths
     #
@@ -190,7 +190,7 @@ module Guard
       all_files.each {|path| set_file_timestamp_hash(path, file_timestamp(path)) } if @watch_all_modifications
     end
 
-    # Removes ignored paths from the directory list.
+    # Removes the ignored paths from the directory list.
     #
     # @param [Array<String>] dirs the directory to listen to
     # @param [Array<String>] ignore_paths the paths to ignore
@@ -204,7 +204,7 @@ module Guard
 
     private
 
-    # Gets a list of files that are in the modified firectories.
+    # Gets a list of files that are in the modified directories.
     #
     # @param [Array<String>] dirs the list of directories
     # @param [Hash] options the options

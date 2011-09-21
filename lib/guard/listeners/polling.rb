@@ -1,9 +1,9 @@
 module Guard
 
-  # Polling listener that works cross-plattform and
+  # Polling listener that works cross-platform and
   # has no dependencies. This is the listener that
   # uses the most CPU processing power and has higher
-  # File IO that the other implementations.
+  # file IO that the other implementations.
   #
   class Polling < Listener
 

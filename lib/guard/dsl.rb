@@ -3,15 +3,15 @@ module Guard
   # The DSL class provides the methods that are used in each `Guardfile` to describe
   # the behaviour of Guard.
   #
-  # The main keywords of the DSL are `guard` and `watch`, which are necessary to define
-  # which Guards are used a what file changes they are watching.
+  # The main keywords of the DSL are `guard` and `watch`. These are necessary to define
+  # the used Guards and the file changes they are watching.
   #
-  # Optionally you can group the Guards with the `group` keyword and ignore certain paths
+  # You can optionally group the Guards with the `group` keyword and ignore certain paths
   # with the `ignore_paths` keyword.
   #
-  # A more advanced DSL use is the `callback` keyword, that allows you to execute arbitrary
+  # A more advanced DSL use is the `callback` keyword that allows you to execute arbitrary
   # code before or after any of the `start`, `stop`, `reload`, `run_all` and `run_on_change`
-  # guards' method. You can even insert more hooks inside these methods.
+  # Guards' method. You can even insert more hooks inside these methods.
   # Please [checkout the Wiki page](https://github.com/guard/guard/wiki/Hooks-and-callbacks) for more details.
   #
   # The DSL will also evaluate normal Ruby code.
@@ -24,6 +24,7 @@ module Guard
   # be appended to the current project `Guardfile`.
   #
   # @example A sample of a complex Guardfile
+  #
   #   group 'frontend' do
   #     guard 'passenger', :ping => true do
   #       watch('config/application.rb')
@@ -97,8 +98,7 @@ module Guard
         UI.error 'No guards found in Guardfile, please add at least one.' if !::Guard.guards.nil? && ::Guard.guards.empty?
       end
 
-      # Reevaluate the Guardfile to update the current Guard configuration
-      # when the `Guardfile` has been changed after Guard is started.
+      # Re-evaluate the `Guardfile` to update the current Guard configuration.
       #
       def reevaluate_guardfile
         ::Guard.guards.clear
@@ -142,7 +142,7 @@ module Guard
       end
 
       # Get the content to evaluate and stores it into
-      # the options as :guardfile_contents.
+      # the options as `:guardfile_contents`.
       #
       def fetch_guardfile_contents
         if @@options[:guardfile_contents]
@@ -206,12 +206,12 @@ module Guard
       # @return [Boolean] if the Guardfile is usable
       #
       def guardfile_contents_usable?
-        guardfile_contents && guardfile_contents.size >= 'guard :a'.size # smallest guard-definition
+        guardfile_contents && guardfile_contents.size >= 'guard :a'.size # Smallest Guard definition
       end
 
-      # Gets the default path of the `Guardfile`.
-      # This returns the `Guardfile` from the current directory when existing,
-      # or the global `Guardfile` at the home directory.
+      # Gets the default path of the `Guardfile`. This returns the `Guardfile`
+      # from the current directory when existing, or the global `.Guardfile`
+      # at the home directory.
       #
       # @return [String] the path to the Guardfile
       #
@@ -222,7 +222,7 @@ module Guard
       private
 
       # The path to the `Guardfile` that is located at
-      # the directory where Guard has been started from.
+      # the directory, where Guard has been started from.
       #
       # @param [String] the path to the local Guardfile
       #
@@ -253,6 +253,7 @@ module Guard
     # Declares a group of guards to be run with `guard start --group group_name`.
     #
     # @example Declare two groups of Guards
+    #
     #   group 'backend' do
     #     guard 'spork'
     #     guard 'rspec'
@@ -290,6 +291,7 @@ module Guard
     # The available options are different for each Guard implementation.
     #
     # @example Declare a Guard
+    #
     #   guard 'rspec' do
     #   end
     #
@@ -313,6 +315,7 @@ module Guard
     # Define a pattern to be watched in order to run actions on file modification.
     #
     # @example Declare watchers for a Guard
+    #
     #   guard 'rspec' do
     #     watch('spec/spec_helper.rb')
     #     watch(%r{^.+_spec.rb})
@@ -328,7 +331,7 @@ module Guard
       @watchers << ::Guard::Watcher.new(pattern, action)
     end
 
-    # Define a callback to execute arbitary code before or after any of
+    # Define a callback to execute arbitrary code before or after any of
     # the `start`, `stop`, `reload`, `run_all` and `run_on_change` guards' method.
     #
     # @param [Array] args the callback arguments
@@ -342,7 +345,7 @@ module Guard
     # Ignore certain paths globally.
     #
     # @example Ignore some paths
-    #   ignore_paths .git, .svn
+    #   ignore_paths ".git", ".svn"
     #
     # @param [Array] paths the list of paths to ignore
     #
@@ -350,5 +353,6 @@ module Guard
       UI.info "Ignoring paths: #{ paths.join(', ') }"
       ::Guard.listener.ignore_paths.push(*paths)
     end
+
   end
 end

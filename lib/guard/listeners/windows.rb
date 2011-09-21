@@ -1,6 +1,6 @@
 module Guard
 
-  # Listener implementation for Windows fchange.
+  # Listener implementation for Windows `fchange`.
   #
   class Windows < Listener
 
