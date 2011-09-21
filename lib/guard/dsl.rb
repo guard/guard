@@ -142,7 +142,7 @@ module Guard
       end
 
       # Get the content to evaluate and stores it into
-      # the options as :guardfile_contents.
+      # the options as `:guardfile_contents`.
       #
       def fetch_guardfile_contents
         if @@options[:guardfile_contents]
@@ -210,7 +210,7 @@ module Guard
       end
 
       # Gets the default path of the `Guardfile`. This returns the `Guardfile`
-      # from the current directory when existing, or the global `Guardfile`
+      # from the current directory when existing, or the global `.Guardfile`
       # at the home directory.
       #
       # @return [String] the path to the Guardfile
