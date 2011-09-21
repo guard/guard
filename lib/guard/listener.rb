@@ -8,42 +8,65 @@ module Guard
   autoload :Windows, 'guard/listeners/windows'
   autoload :Polling, 'guard/listeners/polling'
 
+  # The Listener is the base class for all listener
+  # implementations.
+  #
+  # @abstract
+  #
   class Listener
 
-    DefaultIgnorePaths = %w[. .. .bundle .git log tmp vendor]
+    # Default paths that gets ignored by the listener
+    DEFAULT_IGNORE_PATHS = %w[. .. .bundle .git log tmp vendor]
+
     attr_accessor :changed_files
     attr_reader :directory, :ignore_paths, :locked
 
-    def self.select_and_init(*a)
+    # Select the appropriate listener implementation for the
+    # current OS and initializes it.
+    #
+    # @param [Array] args the arguments for the listener
+    # @return [Guard::Listener] the chosen listener
+    #
+    def self.select_and_init(*args)
       if mac? && Darwin.usable?
-        Darwin.new(*a)
+        Darwin.new(*args)
       elsif linux? && Linux.usable?
-        Linux.new(*a)
+        Linux.new(*args)
       elsif windows? && Windows.usable?
-        Windows.new(*a)
+        Windows.new(*args)
       else
-        UI.info "Using polling (Please help us to support your system better than that.)"
-        Polling.new(*a)
+        UI.info 'Using polling (Please help us to support your system better than that).'
+        Polling.new(*args)
       end
     end
 
+    # Initialize the listener.
+    #
+    # @param [String] directory the root directory to listen to
+    # @param [Hash] options the listener options
+    # @option options [Boolean] relativize_paths use only relative paths
+    # @option options [Array<String>] ignore_paths the paths to ignore by the listener
+    #
     def initialize(directory = Dir.pwd, options = {})
       @directory           = directory.to_s
       @sha1_checksums_hash = {}
       @file_timestamp_hash = {}
       @relativize_paths    = options.fetch(:relativize_paths, true)
-      @watch_deletions     = options.fetch(:deletions, false)
       @changed_files       = []
       @locked              = false
-      @ignore_paths        = DefaultIgnorePaths
-      @ignore_paths        |= options[:ignore_paths] if options[:ignore_paths]
+      @ignore_paths        = DEFAULT_IGNORE_PATHS
+      @ignore_paths |= options[:ignore_paths] if options[:ignore_paths]
+      @watch_all_modifications  = options.fetch(:watch_all_modifications, false)
 
       update_last_event
       start_reactor
     end
 
+    # Start the listener thread.
+    #
     def start_reactor
       return if ENV["GUARD_ENV"] == 'test'
+
       Thread.new do
         loop do
           if @changed_files != [] && !@locked
@@ -57,38 +80,59 @@ module Guard
       end
     end
 
+    # Start watching the root directory.
+    #
     def start
       watch(@directory)
       timestamp_files
     end
 
+    # Stop listening for events.
+    #
     def stop
     end
 
+    # Lock the listener to ignore change events.
+    #
     def lock
       @locked = true
     end
 
+    # Unlock the listener to listen again to change events.
+    #
     def unlock
       @locked = false
     end
 
+    # Clear the list of changed files.
+    #
     def clear_changed_files
       @changed_files.clear
     end
 
+    # Store a listener callback.
+    #
+    # @param [Block] callback the callback to store
+    #
     def on_change(&callback)
       @callback = callback
     end
 
+    # Updates the timestamp of the last event.
+    #
     def update_last_event
       @last_event = Time.now
     end
 
-    def modified_files(dirs, options={})
+    # Get the modified files.
+    #
+    # @param [Array<String>] dirs the watched directories
+    # @param [Hash] options the listener options
+    #
+    def modified_files(dirs, options = {})
       last_event = @last_event
       files = []
-      if @watch_deletions
+      if @watch_all_modifications
         deleted_files = @file_timestamp_hash.collect do |path, ts|
           unless File.exists?(path)
             @sha1_checksums_hash.delete(path)
@@ -103,46 +147,70 @@ module Guard
       relativize_paths(files)
     end
 
-    def worker
-      raise NotImplementedError, "should respond to #watch"
-    end
-
-    # register a directory to watch. must be implemented by the subclasses
+    # Register a directory to watch.
+    # Must be implemented by the subclasses.
+    #
+    # @param [String] directory the directory to watch
+    #
     def watch(directory)
       raise NotImplementedError, "do whatever you want here, given the directory as only argument"
     end
 
+    # Get all files that are in the watched directory.
+    #
+    # @return [Array<String>] the list of files
+    #
     def all_files
       potentially_modified_files([@directory], :all => true)
     end
 
-    # scopes all given paths to the current #directory
+    # Scopes all given paths to the current directory.
+    #
+    # @param [Array<String>] paths the paths to change
+    # @return [Array<String>] all paths now relative to the current dir
+    #
     def relativize_paths(paths)
       return paths unless relativize_paths?
       paths.map do |path|
         path.gsub(%r{#{@directory}/}, '')
+        #path.gsub(%r{^#{ @directory }/}, '')
       end
     end
 
+    # Use relative paths?
+    #
+    # @return [Boolean] whether to use relative or absolute paths
+    #
     def relativize_paths?
       !!@relativize_paths
     end
 
     # populate initial timestamp file hash to watch for deleted or moved files
     def timestamp_files
-      all_files.each {|path| set_file_timestamp_hash(path, file_timestamp(path)) } if @watch_deletions
+      all_files.each {|path| set_file_timestamp_hash(path, file_timestamp(path)) } if @watch_all_modifications
     end
 
-    # return children of the passed dirs that are not in the ignore_paths list
+    # Removes ignored paths from the directory list.
+    #
+    # @param [Array<String>] dirs the directory to listen to
+    # @param [Array<String>] ignore_paths the paths to ignore
+    # @return children of the passed dirs that are not in the ignore_paths list
+    #
     def exclude_ignored_paths(dirs, ignore_paths = self.ignore_paths)
       Dir.glob(dirs.map { |d| "#{d.sub(%r{/+$}, '')}/*" }, File::FNM_DOTMATCH).reject do |path|
         ignore_paths.include?(File.basename(path))
       end
     end
 
-  private
+    private
 
-    def potentially_modified_files(dirs, options={})
+    # Gets a list of files that are in the modified firectories.
+    #
+    # @param [Array<String>] dirs the list of directories
+    # @param [Hash] options the options
+    # @option options [Symbol] all whether to include all files
+    #
+    def potentially_modified_files(dirs, options = {})
       paths = exclude_ignored_paths(dirs)
 
       if options[:all]
@@ -150,7 +218,7 @@ module Guard
           if File.file?(path)
             array << path
           else
-            array += Dir.glob("#{path}/**/*", File::FNM_DOTMATCH).select { |p| File.file?(p) }
+            array += Dir.glob("#{ path }/**/*", File::FNM_DOTMATCH).select { |p| File.file?(p) }
           end
           array
         end
@@ -159,9 +227,17 @@ module Guard
       end
     end
 
+    # Test if the file content has changed.
+    #
     # Depending on the filesystem, mtime/ctime is probably only precise to the second, so round
     # both values down to the second for the comparison.
+    #
     # ctime is used only on == comparison to always catches Rails 3.1 Assets pipelined on Mac OSX
+    #
+    # @param [String] path the file path
+    # @param [Time] last_event the time of the last event
+    # @return [Boolean] Whether the file content has changed or not.
+    #
     def file_modified?(path, last_event)
       ctime = File.ctime(path).to_i
       mtime = File.mtime(path).to_i
@@ -170,7 +246,7 @@ module Guard
       elsif mtime > last_event.to_i
         set_sha1_checksums_hash(path, sha1_checksum(path))
         true
-      elsif @watch_deletions
+      elsif @watch_all_modifications
         ts = file_timestamp(path)
         if ts != @file_timestamp_hash[path]
           set_file_timestamp_hash(path, ts)
@@ -183,6 +259,12 @@ module Guard
       false
     end
 
+    # Tests if the file content has been modified by
+    # comparing the SHA1 checksum.
+    #
+    # @param [String] path the file path
+    # @param [String] sha1_checksum the checksum of the file
+    #
     def file_content_modified?(path, sha1_checksum)
       if @sha1_checksums_hash[path] != sha1_checksum
         set_sha1_checksums_hash(path, sha1_checksum)
@@ -196,6 +278,11 @@ module Guard
         @file_timestamp_hash[path] = file_timestamp
     end
 
+    # Set the current checksum of a file.
+    #
+    # @param [String] path the file path
+    # @param [String] sha1_checksum the checksum of the file
+    #
     def set_sha1_checksums_hash(path, sha1_checksum)
       @sha1_checksums_hash[path] = sha1_checksum
     end
@@ -204,18 +291,35 @@ module Guard
       File.mtime(path).to_i
     end
 
+    # Calculates the SHA1 checksum of a file.
+    #
+    # @param [String] path the path to the file
+    # @return [String] the SHA1 checksum
+    #
     def sha1_checksum(path)
       Digest::SHA1.file(path).to_s
     end
 
+    # Test if the OS is Mac OS X.
+    #
+    # @return [Boolean] Whether the OS is Mac OS X
+    #
     def self.mac?
       RbConfig::CONFIG['target_os'] =~ /darwin/i
     end
 
+    # Test if the OS is Linux.
+    #
+    # @return [Boolean] Whether the OS is Linux
+    #
     def self.linux?
       RbConfig::CONFIG['target_os'] =~ /linux/i
     end
 
+    # Test if the OS is Windows.
+    #
+    # @return [Boolean] Whether the OS is Windows
+    #
     def self.windows?
       RbConfig::CONFIG['target_os'] =~ /mswin|mingw/i
     end

@@ -134,12 +134,12 @@ describe Guard::Listener do
       end
     end
 
-    context "without watch_deletions" do
+    context "without watch_all_modifications" do
         
         after { FileUtils.touch(file3) }
 
         it "defaults to false" do
-            subject.instance_variable_get(:@watch_deletions).should eql false
+            subject.instance_variable_get(:@watch_all_modifications).should eql false
         end
 
         it "it should not track deleted files" do
@@ -152,8 +152,8 @@ describe Guard::Listener do
         end
     end
 
-    context "with watch_deletions" do
-        subject { described_class.new(Dir.pwd, :deletions=>true) }
+    context "with watch_all_modifications" do
+        subject { described_class.new(Dir.pwd, :watch_all_modifications=>true) }
         
         before :each do
             subject.timestamp_files
@@ -166,7 +166,7 @@ describe Guard::Listener do
         end
 
         it "should be true when set" do
-            subject.instance_variable_get(:@watch_deletions).should eql true
+            subject.instance_variable_get(:@watch_all_modifications).should eql true
         end
 
         it "should track deleted files" do
@@ -256,7 +256,7 @@ describe Guard::Listener do
 
   describe "#ignore_paths" do
     it "defaults to the default ignore paths" do
-      subject.new.ignore_paths.should == Guard::Listener::DefaultIgnorePaths
+      subject.new.ignore_paths.should == Guard::Listener::DEFAULT_IGNORE_PATHS
     end
 
     it "can be added to via :ignore_paths option" do
