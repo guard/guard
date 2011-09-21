@@ -213,13 +213,13 @@ $ guard --guardfile ~/.your_global_guardfile
 $ guard -G ~/.your_global_guardfile # shortcut
 ```
 
-### `-D`/`--watch-moves-deletions` option
+### `-A`/`--watch-all-modifications` option
 
-Guard can optionally watch moved or deleted files with:
+Guard can optionally watch all file modifactions like moves or deletions with:
 
 ``` bash
-$ guard start -D
-$ guard start --watch-moves-deletions
+$ guard start -A
+$ guard start --watch-all-modifactions
 ```
 
 An exhaustive list of options is available with:
