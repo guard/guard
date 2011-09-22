@@ -4,20 +4,22 @@ describe Guard::Interactor do
   subject { Guard::Interactor.new }
 
   describe "#initialize" do
-    it "un-lock by default" do
+    it "unlocks the interactor by default" do
       subject.locked.should be_false
     end
   end
 
   describe "#lock" do
-    it "locks" do
+    it "locks the interactor" do
+      subject.start
       subject.lock
       subject.locked.should be_true
     end
   end
 
   describe "#unlock" do
-    it "unlocks" do
+    it "unlocks the interactor" do
+      subject.start
       subject.unlock
       subject.locked.should be_false
     end

@@ -1,9 +1,11 @@
 pkg/*
+doc/*
 *.gem
 *.rbc
 .*.swp
 *.bak
 .bundle
+.yardoc
 Gemfile.lock
 
 ## MAC OS

@@ -14,11 +14,13 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = '>= 1.3.6'
   s.rubyforge_project = 'guard'
 
+  s.add_dependency 'thor',     '~> 0.14.6'
+
   s.add_development_dependency 'bundler'
   s.add_development_dependency 'rspec',       '~> 2.6.0'
   s.add_development_dependency 'guard-rspec', '~> 0.3.1'
-
-  s.add_dependency 'thor',     '~> 0.14.6'
+  s.add_development_dependency 'yard',        '~> 0.7.2'
+  s.add_development_dependency 'kramdown',    '~> 0.13.3'
 
   s.files        = Dir.glob('{bin,images,lib}/**/*') + %w[CHANGELOG.md LICENSE man/guard.1 man/guard.1.html README.md]
   s.executable   = 'guard'

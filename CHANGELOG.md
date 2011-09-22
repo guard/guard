@@ -1,3 +1,7 @@
+## Master
+
+- Pull request [#137](https://github.com/guard/guard/pull/137): Fix interacting with tools like ruby-debug. ([@hron][] & [@netzpirat][])
+
 ## 0.7.0 - September 14, 2011
 
 ## 0.7.0.rc1 - September 5, 2011
@@ -250,6 +254,7 @@
 [@fnichol]: https://github.com/fnichol
 [@Gazer]: https://github.com/Gazer
 [@gix]: https://github.com/gix
+[@hron]: https://github.com/hron
 [@hashrocketeer]: https://github.com/hashrocketeer
 [@ianwhite]: https://github.com/ianwhite
 [@indirect]: https://github.com/indirect

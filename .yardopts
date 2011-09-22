@@ -1,0 +1,11 @@
+--title 'Guard Documentation'
+--readme README.md
+--markup markdown
+--markup-provider kramdown
+--private
+--protected
+--output-dir ./doc
+lib/**/*.rb
+-
+CHANGELOG.md
+LICENSE
