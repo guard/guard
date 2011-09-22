@@ -1,12 +1,11 @@
 require 'spec_helper'
 
 describe Guard::Notifier do
-  subject { Guard::Notifier }
 
   describe ".turn_off" do
     before do
       ENV["GUARD_NOTIFY"] = 'true'
-      subject.turn_off
+      described_class.turn_off
     end
 
     it "disables the notifications" do
@@ -28,10 +27,10 @@ describe Guard::Notifier do
         end
 
         it "loads the library and enables the notifications" do
-          subject.should_receive(:require).with('growl_notify').and_return true
+          described_class.should_receive(:require).with('growl_notify').and_return true
           GrowlNotify.should_receive(:application_name).and_return ''
-          subject.turn_on
-          subject.should be_enabled
+          described_class.turn_on
+          described_class.should be_enabled
         end
 
         after do
@@ -41,19 +40,19 @@ describe Guard::Notifier do
 
       context "with the Growl library available" do
         it "loads the library and enables the notifications" do
-          subject.should_receive(:require).with('growl_notify').and_raise LoadError
-          subject.should_receive(:require).with('growl').and_return true
-          subject.turn_on
-          subject.should be_enabled
+          described_class.should_receive(:require).with('growl_notify').and_raise LoadError
+          described_class.should_receive(:require).with('growl').and_return true
+          described_class.turn_on
+          described_class.should be_enabled
         end
       end
 
       context "without the Growl library available" do
         it "disables the notifications" do
-          subject.should_receive(:require).with('growl_notify').and_raise LoadError
-          subject.should_receive(:require).with('growl').and_raise LoadError
-          subject.turn_on
-          subject.should_not be_enabled
+          described_class.should_receive(:require).with('growl_notify').and_raise LoadError
+          described_class.should_receive(:require).with('growl').and_raise LoadError
+          described_class.turn_on
+          described_class.should_not be_enabled
         end
       end
     end
@@ -65,17 +64,17 @@ describe Guard::Notifier do
 
       context "with the Libnotify library available" do
         it "loads the library and enables the notifications" do
-          subject.should_receive(:require).with('libnotify').and_return true
-          subject.turn_on
-          subject.should be_enabled
+          described_class.should_receive(:require).with('libnotify').and_return true
+          described_class.turn_on
+          described_class.should be_enabled
         end
       end
 
       context "without the Libnotify library available" do
         it "disables the notifications" do
-          subject.should_receive(:require).with('libnotify').and_raise LoadError
-          subject.turn_on
-          subject.should_not be_enabled
+          described_class.should_receive(:require).with('libnotify').and_raise LoadError
+          described_class.turn_on
+          described_class.should_not be_enabled
         end
       end
     end
@@ -87,29 +86,29 @@ describe Guard::Notifier do
 
       context "with the rb-notifu library available" do
         it "loads the library and enables the notifications" do
-          subject.should_receive(:require).with('rb-notifu').and_return true
-          subject.turn_on
-          subject.should be_enabled
+          described_class.should_receive(:require).with('rb-notifu').and_return true
+          described_class.turn_on
+          described_class.should be_enabled
         end
       end
 
       context "without the rb-notify library available" do
         it "disables the notifications" do
-          subject.should_receive(:require).with('rb-notifu').and_raise LoadError
-          subject.turn_on
-          subject.should_not be_enabled
+          described_class.should_receive(:require).with('rb-notifu').and_raise LoadError
+          described_class.turn_on
+          described_class.should_not be_enabled
         end
       end
     end
   end
 
   describe ".notify" do
-    before { subject.stub(:enabled?).and_return(true) }
+    before { described_class.stub(:enabled?).and_return(true) }
 
     context "on Mac OS" do
       before do
         RbConfig::CONFIG.should_receive(:[]).with('target_os').and_return 'darwin'
-        subject.stub(:require_growl)
+        described_class.stub(:require_growl)
       end
 
       context 'with growl gem' do
@@ -128,13 +127,13 @@ describe Guard::Notifier do
             :icon  => Pathname.new(File.dirname(__FILE__)).join('../../images/success.png').to_s,
             :name  => "Guard"
           )
-          subject.notify 'great', :title => 'Guard'
+          described_class.notify 'great', :title => 'Guard'
         end
 
         it "don't passes the notification to Growl if library is not available" do
           Growl.should_not_receive(:notify)
-          subject.should_receive(:enabled?).and_return(true, false)
-          subject.notify 'great', :title => 'Guard'
+          described_class.should_receive(:enabled?).and_return(true, false)
+          described_class.notify 'great', :title => 'Guard'
         end
 
         it "allows additional notification options" do
@@ -144,7 +143,7 @@ describe Guard::Notifier do
             :name  => "Guard",
             :priority => 1
           )
-          subject.notify 'great', :title => 'Guard', :priority => 1
+          described_class.notify 'great', :title => 'Guard', :priority => 1
         end
 
         it "allows to overwrite a default notification option" do
@@ -153,7 +152,7 @@ describe Guard::Notifier do
             :icon  => Pathname.new(File.dirname(__FILE__)).join('../../images/success.png').to_s,
             :name  => "Guard-Cucumber"
           )
-          subject.notify 'great', :title => 'Guard', :name => "Guard-Cucumber"
+          described_class.notify 'great', :title => 'Guard', :name => "Guard-Cucumber"
         end
       end
 
@@ -174,13 +173,13 @@ describe Guard::Notifier do
             :application_name  => "Guard",
             :description => 'great'
           )
-          subject.notify 'great', :title => 'Guard'
+          described_class.notify 'great', :title => 'Guard'
         end
 
         it "don't passes the notification to Growl if library is not available" do
           GrowlNotify.should_not_receive(:send_notification)
-          subject.should_receive(:enabled?).and_return(true, false)
-          subject.notify 'great', :title => 'Guard'
+          described_class.should_receive(:enabled?).and_return(true, false)
+          described_class.notify 'great', :title => 'Guard'
         end
 
         it "allows additional notification options" do
@@ -191,7 +190,7 @@ describe Guard::Notifier do
             :description => 'great',
             :priority => 1
           )
-          subject.notify 'great', :title => 'Guard', :priority => 1
+          described_class.notify 'great', :title => 'Guard', :priority => 1
         end
 
         it "throws out the application name since Guard should only use one Growl App Name while running" do
@@ -201,15 +200,15 @@ describe Guard::Notifier do
             :application_name  => "Guard",
             :description => 'great'
           )
-          subject.notify 'great', :title => 'Guard', :name => "Guard-Cucumber"
+          described_class.notify 'great', :title => 'Guard', :name => "Guard-Cucumber"
         end
       end
     end
-    
+
     context "on Linux" do
       before do
         RbConfig::CONFIG.should_receive(:[]).with('target_os').and_return 'linux'
-        subject.stub(:require_libnotify)
+        described_class.stub(:require_libnotify)
         Object.send(:remove_const, :Libnotify) if defined?(Libnotify)
         Libnotify = Object.new
       end
@@ -225,13 +224,13 @@ describe Guard::Notifier do
           :icon_path => Pathname.new(File.dirname(__FILE__)).join('../../images/success.png').to_s,
           :transient => true
         )
-        subject.notify 'great', :title => 'Guard'
+        described_class.notify 'great', :title => 'Guard'
       end
 
       it "don't passes the notification to Libnotify if library is not available" do
         Libnotify.should_not_receive(:show)
-        subject.should_receive(:enabled?).and_return(true, false)
-        subject.notify 'great', :title => 'Guard'
+        described_class.should_receive(:enabled?).and_return(true, false)
+        described_class.notify 'great', :title => 'Guard'
       end
 
       it "allows additional notification options" do
@@ -242,7 +241,7 @@ describe Guard::Notifier do
           :transient => true,
           :urgency    => :critical
         )
-        subject.notify 'great', :title => 'Guard', :urgency => :critical
+        described_class.notify 'great', :title => 'Guard', :urgency => :critical
       end
 
       it "allows to overwrite a default notification option" do
@@ -252,14 +251,14 @@ describe Guard::Notifier do
           :icon_path => '~/.guard/success.png',
           :transient => true
         )
-        subject.notify 'great', :title => 'Guard', :icon_path => '~/.guard/success.png'
+        described_class.notify 'great', :title => 'Guard', :icon_path => '~/.guard/success.png'
       end
     end
 
     context "on Windows" do
       before do
         RbConfig::CONFIG.should_receive(:[]).with('target_os').and_return 'mswin'
-        subject.stub(:require_rbnotifu)
+        described_class.stub(:require_rbnotifu)
         Object.send(:remove_const, :Notifu) if defined?(Notifu)
         Notifu = Object.new
       end
@@ -275,13 +274,13 @@ describe Guard::Notifier do
           :type      => :info,
           :time      => 3
         )
-        subject.notify 'great', :title => 'Guard'
+        described_class.notify 'great', :title => 'Guard'
       end
 
       it "don't passes the notification to rb-notifu if library is not available" do
         Notifu.should_not_receive(:show)
-        subject.should_receive(:enabled?).and_return(true, false)
-        subject.notify 'great', :title => 'Guard'
+        described_class.should_receive(:enabled?).and_return(true, false)
+        described_class.notify 'great', :title => 'Guard'
       end
 
       it "allows additional notification options" do
@@ -292,7 +291,7 @@ describe Guard::Notifier do
           :time      => 3,
           :nosound   => true
         )
-        subject.notify 'great', :title => 'Guard', :nosound => true
+        described_class.notify 'great', :title => 'Guard', :nosound => true
       end
 
       it "allows to overwrite a default notification option" do
@@ -302,7 +301,7 @@ describe Guard::Notifier do
           :type      => :info,
           :time      => 10
         )
-        subject.notify 'great', :title => 'Guard', :time => 10
+        described_class.notify 'great', :title => 'Guard', :time => 10
       end
     end
   end
@@ -320,4 +319,5 @@ describe Guard::Notifier do
       it { should_not be_enabled }
     end
   end
+
 end

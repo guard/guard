@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 describe Guard::Listener do
-  subject { Guard::Listener }
 
   describe ".select_and_init" do
     before(:each) { @target_os = RbConfig::CONFIG['target_os'] }
@@ -11,30 +10,30 @@ describe Guard::Listener do
       RbConfig::CONFIG['target_os'] = 'darwin10.4.0'
       Guard::Darwin.stub(:usable?).and_return(true)
       Guard::Darwin.should_receive(:new)
-      subject.select_and_init
+      described_class.select_and_init
     end
 
     it "uses the Windows listener on Windows" do
       RbConfig::CONFIG['target_os'] = 'mingw'
       Guard::Windows.stub(:usable?).and_return(true)
       Guard::Windows.should_receive(:new)
-      subject.select_and_init
+      described_class.select_and_init
     end
 
     it "uses the Linux listener on Linux" do
       RbConfig::CONFIG['target_os'] = 'linux'
       Guard::Linux.stub(:usable?).and_return(true)
       Guard::Linux.should_receive(:new)
-      subject.select_and_init
+      described_class.select_and_init
     end
 
     it "forwards its arguments to the constructor" do
-      subject.stub!(:mac?).and_return(true)
+      described_class.stub!(:mac?).and_return(true)
       Guard::Darwin.stub!(:usable?).and_return(true)
 
       path, opts = 'path', { :foo => 23 }
       Guard::Darwin.should_receive(:new).with(path, opts).and_return(true)
-      subject.select_and_init(path, opts)
+      described_class.select_and_init(path, opts)
     end
   end
 
@@ -172,11 +171,11 @@ describe Guard::Listener do
 
   describe "#ignore_paths" do
     it "defaults to the default ignore paths" do
-      subject.new.ignore_paths.should == Guard::Listener::DEFAULT_IGNORE_PATHS
+      described_class.new.ignore_paths.should == Guard::Listener::DEFAULT_IGNORE_PATHS
     end
 
     it "can be added to via :ignore_paths option" do
-      listener = subject.new 'path', :ignore_paths => ['foo', 'bar']
+      listener = described_class.new 'path', :ignore_paths => ['foo', 'bar']
       listener.ignore_paths.should include('foo', 'bar')
     end
   end
@@ -197,4 +196,5 @@ describe Guard::Listener do
       end
     end
   end
+
 end

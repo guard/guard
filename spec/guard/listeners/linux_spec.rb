@@ -3,23 +3,22 @@ require 'fileutils'
 require 'guard/listeners/linux'
 
 describe Guard::Linux do
-  subject { Guard::Linux }
 
   if mac?
     it "isn't usable on 10.6" do
-      subject.should_not be_usable
+      described_class.should_not be_usable
     end
   end
 
   if windows?
     it "isn't usable on windows" do
-      subject.should_not be_usable
+      described_class.should_not be_usable
     end
   end
 
   if linux? && Guard::Linux.usable?
     it "is usable on linux" do
-      subject.should be_usable
+      described_class.should be_usable
     end
 
     describe "#start", :long_running => true do
@@ -72,6 +71,6 @@ describe Guard::Linux do
       stop
       File.open(file, 'w') {|f| f.write('') }
     end
-
   end
+
 end

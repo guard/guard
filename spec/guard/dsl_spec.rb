@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'guard/guard'
 
 describe Guard::Dsl do
-  subject { described_class }
+
   class Guard::Dummy < Guard::Guard; end
 
   before(:each) do
@@ -24,24 +24,24 @@ describe Guard::Dsl do
 
     it "should use a string for initializing" do
       Guard::UI.should_not_receive(:error)
-      lambda { subject.evaluate_guardfile(:guardfile_contents => valid_guardfile_string) }.should_not raise_error
-      subject.guardfile_contents.should == valid_guardfile_string
+      lambda { described_class.evaluate_guardfile(:guardfile_contents => valid_guardfile_string) }.should_not raise_error
+      described_class.guardfile_contents.should == valid_guardfile_string
     end
 
     it "should use a given file over the default loc" do
       fake_guardfile('/abc/Guardfile', "guard :foo")
 
       Guard::UI.should_not_receive(:error)
-      lambda { subject.evaluate_guardfile(:guardfile => '/abc/Guardfile') }.should_not raise_error
-      subject.guardfile_contents.should == "guard :foo"
+      lambda { described_class.evaluate_guardfile(:guardfile => '/abc/Guardfile') }.should_not raise_error
+      described_class.guardfile_contents.should == "guard :foo"
     end
 
     it "should use a default file if no other options are given" do
       fake_guardfile(@local_guardfile_path, "guard :bar")
 
       Guard::UI.should_not_receive(:error)
-      lambda { subject.evaluate_guardfile }.should_not raise_error
-      subject.guardfile_contents.should == "guard :bar"
+      lambda { described_class.evaluate_guardfile }.should_not raise_error
+      described_class.guardfile_contents.should == "guard :bar"
     end
 
     it "should use a string over any other method" do
@@ -49,8 +49,8 @@ describe Guard::Dsl do
       fake_guardfile(@local_guardfile_path, "guard :bar")
 
       Guard::UI.should_not_receive(:error)
-      lambda { subject.evaluate_guardfile(:guardfile_contents => valid_guardfile_string) }.should_not raise_error
-      subject.guardfile_contents.should == valid_guardfile_string
+      lambda { described_class.evaluate_guardfile(:guardfile_contents => valid_guardfile_string) }.should_not raise_error
+      described_class.guardfile_contents.should == valid_guardfile_string
     end
 
     it "should use the given Guardfile over default Guardfile" do
@@ -58,31 +58,31 @@ describe Guard::Dsl do
       fake_guardfile(@local_guardfile_path, "guard :bar")
 
       Guard::UI.should_not_receive(:error)
-      lambda { subject.evaluate_guardfile(:guardfile => '/abc/Guardfile') }.should_not raise_error
-      subject.guardfile_contents.should == "guard :foo"
+      lambda { described_class.evaluate_guardfile(:guardfile => '/abc/Guardfile') }.should_not raise_error
+      described_class.guardfile_contents.should == "guard :foo"
     end
 
     it 'should append the user config file if present' do
       fake_guardfile('/abc/Guardfile', "guard :foo")
       fake_guardfile(@user_config_path, "guard :bar")
       Guard::UI.should_not_receive(:error)
-      lambda { subject.evaluate_guardfile(:guardfile => '/abc/Guardfile') }.should_not raise_error
-        subject.guardfile_contents_with_user_config.should == "guard :foo\nguard :bar"
+      lambda { described_class.evaluate_guardfile(:guardfile => '/abc/Guardfile') }.should_not raise_error
+      described_class.guardfile_contents_with_user_config.should == "guard :foo\nguard :bar"
     end
 
   end
 
   it "displays an error message when no Guardfile is found" do
-    subject.stub(:guardfile_default_path).and_return("no_guardfile_here")
+    described_class.stub(:guardfile_default_path).and_return("no_guardfile_here")
     Guard::UI.should_receive(:error).with("No Guardfile found, please create one with `guard init`.")
-    lambda { subject.evaluate_guardfile }.should raise_error
+    lambda { described_class.evaluate_guardfile }.should raise_error
   end
 
   it "displays an error message when no guard are defined in Guardfile" do
     ::Guard::Dsl.stub!(:instance_eval_guardfile)
     ::Guard.stub!(:guards).and_return([])
     Guard::UI.should_receive(:error)
-    subject.evaluate_guardfile(:guardfile_contents => valid_guardfile_string)
+    described_class.evaluate_guardfile(:guardfile_contents => valid_guardfile_string)
   end
 
   describe "correctly reads data from its valid data source" do
@@ -90,22 +90,22 @@ describe Guard::Dsl do
     disable_user_config
 
     it "reads correctly from a string" do
-      lambda { subject.evaluate_guardfile(:guardfile_contents => valid_guardfile_string) }.should_not raise_error
-      subject.guardfile_contents.should == valid_guardfile_string
+      lambda { described_class.evaluate_guardfile(:guardfile_contents => valid_guardfile_string) }.should_not raise_error
+      described_class.guardfile_contents.should == valid_guardfile_string
     end
 
     it "reads correctly from a Guardfile" do
       fake_guardfile('/abc/Guardfile', "guard :foo" )
 
-      lambda { subject.evaluate_guardfile(:guardfile => '/abc/Guardfile') }.should_not raise_error
-      subject.guardfile_contents.should == "guard :foo"
+      lambda { described_class.evaluate_guardfile(:guardfile => '/abc/Guardfile') }.should_not raise_error
+      described_class.guardfile_contents.should == "guard :foo"
     end
 
     it "reads correctly from a Guardfile" do
       fake_guardfile(File.join(Dir.pwd, 'Guardfile'), valid_guardfile_string)
 
-      lambda { subject.evaluate_guardfile }.should_not raise_error
-      subject.guardfile_contents.should == valid_guardfile_string
+      lambda { described_class.evaluate_guardfile }.should_not raise_error
+      described_class.guardfile_contents.should == valid_guardfile_string
     end
   end
 
@@ -117,14 +117,14 @@ describe Guard::Dsl do
       File.stub!(:read).with('/def/Guardfile')   { raise Errno::EACCES.new("permission error") }
 
       Guard::UI.should_receive(:error).with(/^Error reading file/)
-      lambda { subject.evaluate_guardfile(:guardfile => '/def/Guardfile') }.should raise_error
+      lambda { described_class.evaluate_guardfile(:guardfile => '/def/Guardfile') }.should raise_error
     end
 
     it "raises error when given Guardfile doesn't exist" do
       File.stub!(:exist?).with('/def/Guardfile') { false }
 
       Guard::UI.should_receive(:error).with(/No Guardfile exists at/)
-      lambda { subject.evaluate_guardfile(:guardfile => '/def/Guardfile') }.should raise_error
+      lambda { described_class.evaluate_guardfile(:guardfile => '/def/Guardfile') }.should raise_error
     end
 
     it "raises error when resorting to use default, finds no default" do
@@ -132,24 +132,24 @@ describe Guard::Dsl do
       File.stub!(:exist?).with(@home_guardfile_path) { false }
 
       Guard::UI.should_receive(:error).with("No Guardfile found, please create one with `guard init`.")
-      lambda { subject.evaluate_guardfile }.should raise_error
+      lambda { described_class.evaluate_guardfile }.should raise_error
     end
 
     it "raises error when guardfile_content ends up empty or nil" do
       Guard::UI.should_receive(:error).with(/The command file/)
-      lambda { subject.evaluate_guardfile(:guardfile_contents => "") }.should raise_error
+      lambda { described_class.evaluate_guardfile(:guardfile_contents => "") }.should raise_error
     end
 
     it "doesn't raise error when guardfile_content is nil (skipped)" do
       Guard::UI.should_not_receive(:error)
-      lambda { subject.evaluate_guardfile(:guardfile_contents => nil) }.should_not raise_error
+      lambda { described_class.evaluate_guardfile(:guardfile_contents => nil) }.should_not raise_error
     end
   end
 
   it "displays an error message when Guardfile is not valid" do
     Guard::UI.should_receive(:error).with(/Invalid Guardfile, original error is:/)
 
-    lambda { subject.evaluate_guardfile(:guardfile_contents => invalid_guardfile_string ) }.should raise_error
+    lambda { described_class.evaluate_guardfile(:guardfile_contents => invalid_guardfile_string ) }.should raise_error
   end
 
   describe ".reevaluate_guardfile" do
@@ -157,10 +157,10 @@ describe Guard::Dsl do
 
     it "resets already definded guards before calling evaluate_guardfile" do
       Guard::Notifier.turn_off
-      subject.evaluate_guardfile(:guardfile_contents => invalid_guardfile_string)
+      described_class.evaluate_guardfile(:guardfile_contents => invalid_guardfile_string)
       ::Guard.guards.should_not be_empty
       ::Guard::Dsl.should_receive(:evaluate_guardfile)
-      subject.reevaluate_guardfile
+      described_class.reevaluate_guardfile
       ::Guard.guards.should be_empty
     end
   end
@@ -173,14 +173,14 @@ describe Guard::Dsl do
     context "when there is a local Guardfile" do
       it "returns the path to the local Guardfile" do
         File.stub(:exist?).with(local_path).and_return(true)
-        subject.guardfile_default_path.should == local_path
+        described_class.guardfile_default_path.should == local_path
       end
     end
 
     context "when there is a Guardfile in the user's home directory" do
       it "returns the path to the user Guardfile" do
         File.stub(:exist?).with(user_path).and_return(true)
-        subject.guardfile_default_path.should == user_path
+        described_class.guardfile_default_path.should == user_path
       end
     end
 
@@ -188,34 +188,34 @@ describe Guard::Dsl do
       it "returns the path to the local Guardfile" do
         File.stub(:exist?).with(local_path).and_return(true)
         File.stub(:exist?).with(user_path).and_return(true)
-        subject.guardfile_default_path.should == local_path
+        described_class.guardfile_default_path.should == local_path
       end
     end
   end
 
   describe ".guardfile_include?" do
     it "detects a guard specified by a string with double quotes" do
-      subject.stub(:guardfile_contents => 'guard "test" {watch("c")}')
+      described_class.stub(:guardfile_contents => 'guard "test" {watch("c")}')
 
-      subject.guardfile_include?('test').should be_true
+      described_class.guardfile_include?('test').should be_true
     end
 
     it "detects a guard specified by a string with single quote" do
-      subject.stub(:guardfile_contents => 'guard \'test\' {watch("c")}')
+      described_class.stub(:guardfile_contents => 'guard \'test\' {watch("c")}')
 
-      subject.guardfile_include?('test').should be_true
+      described_class.guardfile_include?('test').should be_true
     end
 
     it "detects a guard specified by a symbol" do
-      subject.stub(:guardfile_contents => 'guard :test {watch("c")}')
+      described_class.stub(:guardfile_contents => 'guard :test {watch("c")}')
 
-      subject.guardfile_include?('test').should be_true
+      described_class.guardfile_include?('test').should be_true
     end
 
     it "detects a guard wrapped in parentheses" do
-      subject.stub(:guardfile_contents => 'guard(:test) {watch("c")}')
+      described_class.stub(:guardfile_contents => 'guard(:test) {watch("c")}')
 
-      subject.guardfile_include?('test').should be_true
+      described_class.guardfile_include?('test').should be_true
     end
   end
 
@@ -226,7 +226,7 @@ describe Guard::Dsl do
       ::Guard.stub!(:listener).and_return(mock('Listener'))
       ::Guard.listener.should_receive(:ignore_paths).and_return(ignore_paths = ['faz'])
 
-      subject.evaluate_guardfile(:guardfile_contents => "ignore_paths 'foo', 'bar'")
+      described_class.evaluate_guardfile(:guardfile_contents => "ignore_paths 'foo', 'bar'")
       ignore_paths.should == ['faz', 'foo', 'bar']
     end
   end
@@ -238,18 +238,14 @@ describe Guard::Dsl do
       ::Guard.should_receive(:add_guard).with('pow', [], [], { :group => :default })
       ::Guard.should_receive(:add_guard).with('test', [], [], { :group => :w })
 
-      subject.evaluate_guardfile(:guardfile_contents => valid_guardfile_string, :group => [:w])
-
-      ::Guard.groups.should eql [{ :name => :default, :options => {} }, { :name => :w, :options => {} }]
+      described_class.evaluate_guardfile(:guardfile_contents => valid_guardfile_string, :group => [:w])
     end
 
     it "evaluates only the specified symbol group" do
       ::Guard.should_receive(:add_guard).with('pow', [], [], { :group => :default })
       ::Guard.should_receive(:add_guard).with('test', [], [], { :group => :w })
 
-      subject.evaluate_guardfile(:guardfile_contents => valid_guardfile_string, :group => [:w])
-
-      ::Guard.groups.should eql [{ :name => :default, :options => {} }, { :name => :w, :options => {} }]
+      described_class.evaluate_guardfile(:guardfile_contents => valid_guardfile_string, :group => [:w])
     end
 
     it "evaluates only the specified groups (with their options)" do
@@ -258,18 +254,14 @@ describe Guard::Dsl do
       ::Guard.should_receive(:add_guard).with('ronn', [], [], { :group => :x })
       ::Guard.should_receive(:add_guard).with('less', [], [], { :group => :y })
 
-      subject.evaluate_guardfile(:guardfile_contents => valid_guardfile_string, :group => [:x, :y])
-
-      ::Guard.groups.should eql [{ :name => :default, :options => {} }, { :name => :x, :options => { :halt_on_fail => true } }, { :name => :y, :options => {} }]
+      described_class.evaluate_guardfile(:guardfile_contents => valid_guardfile_string, :group => [:x, :y])
     end
 
     it "evaluates always guard outside any group (even when a group is given)" do
       ::Guard.should_receive(:add_guard).with('pow', [], [], { :group => :default })
       ::Guard.should_receive(:add_guard).with('test', [], [], { :group => :w })
 
-      subject.evaluate_guardfile(:guardfile_contents => valid_guardfile_string, :group => [:w])
-
-      ::Guard.groups.should eql [{ :name => :default, :options => {} }, { :name => :w, :options => {} }]
+      described_class.evaluate_guardfile(:guardfile_contents => valid_guardfile_string, :group => [:w])
     end
 
     it "evaluates all groups when no group option is specified (with their options)" do
@@ -279,10 +271,7 @@ describe Guard::Dsl do
       ::Guard.should_receive(:add_guard).with('ronn', [], [], { :group => :x })
       ::Guard.should_receive(:add_guard).with('less', [], [], { :group => :y })
 
-      subject.evaluate_guardfile(:guardfile_contents => valid_guardfile_string)
-
-      ::Guard.groups.should eql [{ :name => :default, :options => {} }, { :name => :w, :options => {} }, { :name => :x, :options => { :halt_on_fail => true } }, { :name => :y, :options => {} }]
-
+      described_class.evaluate_guardfile(:guardfile_contents => valid_guardfile_string)
     end
   end
 
@@ -292,31 +281,31 @@ describe Guard::Dsl do
     it "loads a guard specified as a quoted string from the DSL" do
       ::Guard.should_receive(:add_guard).with('test', [], [], { :group => :default })
 
-      subject.evaluate_guardfile(:guardfile_contents => "guard 'test'")
+      described_class.evaluate_guardfile(:guardfile_contents => "guard 'test'")
     end
 
     it "loads a guard specified as a double quoted string from the DSL" do
       ::Guard.should_receive(:add_guard).with('test', [], [], { :group => :default })
 
-      subject.evaluate_guardfile(:guardfile_contents => 'guard "test"')
+      described_class.evaluate_guardfile(:guardfile_contents => 'guard "test"')
     end
 
     it "loads a guard specified as a symbol from the DSL" do
       ::Guard.should_receive(:add_guard).with('test', [], [], { :group => :default })
 
-      subject.evaluate_guardfile(:guardfile_contents => "guard :test")
+      described_class.evaluate_guardfile(:guardfile_contents => "guard :test")
     end
 
     it "loads a guard specified as a symbol and called with parens from the DSL" do
       ::Guard.should_receive(:add_guard).with('test', [], [], { :group => :default })
 
-      subject.evaluate_guardfile(:guardfile_contents => "guard(:test)")
+      described_class.evaluate_guardfile(:guardfile_contents => "guard(:test)")
     end
 
     it "receives options when specified, from normal arg" do
       ::Guard.should_receive(:add_guard).with('test', [], [], { :opt_a => 1, :opt_b => 'fancy', :group => :default })
 
-      subject.evaluate_guardfile(:guardfile_contents => "guard 'test', :opt_a => 1, :opt_b => 'fancy'")
+      described_class.evaluate_guardfile(:guardfile_contents => "guard 'test', :opt_a => 1, :opt_b => 'fancy'")
     end
   end
 
@@ -331,7 +320,7 @@ describe Guard::Dsl do
         watchers[1].pattern.should     == 'c'
         watchers[1].action.should == nil
       end
-      subject.evaluate_guardfile(:guardfile_contents => "
+      described_class.evaluate_guardfile(:guardfile_contents => "
       guard :dummy do
          watch('a') { 'b' }
          watch('c')
@@ -354,7 +343,7 @@ describe Guard::Dsl do
         callbacks[1][:events].should   == [:start_begin, :run_all_begin]
         callbacks[1][:listener].should == MyCustomCallback
       end
-      subject.evaluate_guardfile(:guardfile_contents => '
+      described_class.evaluate_guardfile(:guardfile_contents => '
         guard :dummy do
           callback(:start_end) { |guard_class, event, args| "#{guard_class} executed \'#{event}\' hook with #{args}!" }
           callback(MyCustomCallback, [:start_begin, :run_all_begin])
