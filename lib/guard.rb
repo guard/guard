@@ -6,6 +6,7 @@ module Guard
   autoload :UI,           'guard/ui'
   autoload :Dsl,          'guard/dsl'
   autoload :DslDescriber, 'guard/dsl_describer'
+  autoload :Group,        'guard/group'
   autoload :Interactor,   'guard/interactor'
   autoload :Listener,     'guard/listener'
   autoload :Watcher,      'guard/watcher'
@@ -28,7 +29,7 @@ module Guard
     def setup(options = {})
       @options    = options
       @guards     = []
-      @groups     = [{ :name => :default, :options => {} }]
+      @groups     = [Group.new(:default)]
       @interactor = Interactor.new
       @listener   = Listener.select_and_init(@options[:watchdir] ? File.expand_path(@options[:watchdir]) : Dir.pwd)
 
@@ -140,9 +141,9 @@ module Guard
     # @param [Array] files the list of files to pass to the task
     #
     def execute_supervised_task_for_all_guards(task, files = nil)
-      groups.each do |group_hash|
-        catch group_hash[:options][:halt_on_fail] == true ? :task_has_failed : :no_catch do
           guards.find_all { |guard| guard.group == group_hash[:name] }.each do |guard|
+      groups.each do |group|
+        catch group.options[:halt_on_fail] == true ? :task_has_failed : :no_catch do
             if task == :run_on_change
               paths = Watcher.match_files(guard, files)
               UI.debug "#{guard.class.name}##{task} with #{paths.inspect}"
@@ -200,10 +201,16 @@ module Guard
     #
     # @param [String] name the group name
     # @param [Hash] options the group options
-    # @option options [Boolean] halt_on_fail if a task execution should be halted for all Guards in this group if one Guard throws `:task_has_failed`
+    # @option options [Boolean] halt_on_fail if a task execution
+    # should be halted for all Guards in this group if one Guard throws `:task_has_failed`
     #
     def add_group(name, options = {})
-      @groups << { :name => name.to_sym, :options => options } unless name.nil? || @groups.find { |group| group[:name] == name }
+      group = groups(name)
+      if group.nil?
+        group = Group.new(name, options)
+        @groups << group
+      end
+      group
     end
 
     # Tries to load the Guard main class.
