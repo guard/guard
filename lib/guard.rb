@@ -56,7 +56,11 @@ module Guard
         @guards.find_all { |guard| guard.class.to_s.downcase.sub('guard::', '') =~ filter }
       when Hash
         filter.inject(@guards) do |matches, (k, v)|
-          matches.find_all { |guard| guard.send(k).to_sym == v.to_sym }
+          if k.to_sym == :name
+            matches.find_all { |guard| guard.class.to_s.downcase.sub('guard::', '') == v.to_s.downcase.gsub('-', '') }
+          else
+            matches.find_all { |guard| guard.send(k).to_sym == v.to_sym }
+          end
         end
       else
         @guards

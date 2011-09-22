@@ -63,10 +63,14 @@ describe Guard do
 
     subject do
       guard = ::Guard.setup
-      @guard_foo_bar = Guard::FooBar.new([], { :group => 'backend' })
-      @guard_foo_baz = Guard::FooBaz.new([], { :group => 'frontend' })
-      guard.instance_variable_get("@guards").push(@guard_foo_bar)
-      guard.instance_variable_get("@guards").push(@guard_foo_baz)
+      @guard_foo_bar_backend  = Guard::FooBar.new([], { :group => 'backend' })
+      @guard_foo_bar_frontend = Guard::FooBar.new([], { :group => 'frontend' })
+      @guard_foo_baz_backend  = Guard::FooBaz.new([], { :group => 'backend' })
+      @guard_foo_baz_frontend = Guard::FooBaz.new([], { :group => 'frontend' })
+      guard.instance_variable_get("@guards").push(@guard_foo_bar_backend)
+      guard.instance_variable_get("@guards").push(@guard_foo_bar_frontend)
+      guard.instance_variable_get("@guards").push(@guard_foo_baz_backend)
+      guard.instance_variable_get("@guards").push(@guard_foo_baz_frontend)
       guard
     end
 
@@ -76,11 +80,11 @@ describe Guard do
 
     describe "find a guard by as string/symbol" do
       it "find a guard by a string" do
-        subject.guards('foo-bar').should eql @guard_foo_bar
+        subject.guards('foo-bar').should eql @guard_foo_bar_backend
       end
 
       it "find a guard by a symbol" do
-        subject.guards(:'foo-bar').should eql @guard_foo_bar
+        subject.guards(:'foo-bar').should eql @guard_foo_bar_backend
       end
 
       it "returns nil if guard is not found" do
@@ -90,9 +94,9 @@ describe Guard do
 
     describe "find guards matching a regexp" do
       it "with matches" do
-        subject.guards(/^foo/).should eql [@guard_foo_bar, @guard_foo_baz]
+        subject.guards(/^foobar/).should eql [@guard_foo_bar_backend, @guard_foo_bar_frontend]
       end
-      
+
       it "without matches" do
         subject.guards(/foo$/).should eql []
       end
@@ -100,14 +104,29 @@ describe Guard do
 
     describe "find guards by their group" do
       it "group name is a string" do
-        subject.guards(:group => 'backend').should eql [@guard_foo_bar]
+        subject.guards(:group => 'backend').should eql [@guard_foo_bar_backend, @guard_foo_baz_backend]
       end
+
       it "group name is a symbol" do
-        subject.guards(:group => :frontend).should eql [@guard_foo_baz]
+        subject.guards(:group => :frontend).should eql [@guard_foo_bar_frontend, @guard_foo_baz_frontend]
       end
 
       it "returns [] if guard is not found" do
         subject.guards(:group => :unknown).should eql []
+      end
+    end
+
+    describe "find guards by their group & name" do
+      it "group name is a string" do
+        subject.guards(:group => 'backend', :name => 'foo-bar').should eql [@guard_foo_bar_backend]
+      end
+
+      it "group name is a symbol" do
+        subject.guards(:group => :frontend, :name => :'foo-baz').should eql [@guard_foo_baz_frontend]
+      end
+
+      it "returns [] if guard is not found" do
+        subject.guards(:group => :unknown, :name => :'foo-baz').should eql []
       end
     end
   end
@@ -142,7 +161,7 @@ describe Guard do
       it "with matches" do
         subject.groups(/^back/).should eql [@group_backend, @group_backflip]
       end
-      
+
       it "without matches" do
         subject.groups(/back$/).should eql []
       end
