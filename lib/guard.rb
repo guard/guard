@@ -79,7 +79,7 @@ module Guard
       when String, Symbol
         @groups.find { |group| group.name == filter.to_sym }
       when Regexp
-        @groups.find_all { |group| group.name =~ filter }
+        @groups.find_all { |group| group.name.to_s =~ filter }
       else
         @groups
       end
