@@ -14,7 +14,7 @@ module Guard
   autoload :Hook,         'guard/hook'
 
   class << self
-    attr_accessor :options, :guards, :groups, :interactor, :listener
+    attr_accessor :options, :interactor, :listener
 
     # Initialize the Guard singleton.
     #
@@ -39,6 +39,46 @@ module Guard
       debug_command_execution if @options[:debug]
 
       self
+    end
+
+    # Smart accessor for retrieving a specific guard or several guards at once.
+    #
+    # @param [Object] filter an optional filter to retrieve specific guard(s).
+    # @option filter [String, Symbol] return the guard with the given name, or nil if not found
+    # @option filter [Regexp] returns all guards matching the Regexp, or [] if no guard match
+    # @option filter [NilClass] returns all guards
+    #
+    def guards(filter = nil)
+      case filter
+      when String, Symbol
+        @guards.find { |guard| guard.class.to_s.downcase.sub('guard::', '') == filter.to_s.downcase.gsub('-', '') }
+      when Regexp
+        @guards.find_all { |guard| guard.class.to_s.downcase.sub('guard::', '') =~ filter }
+      when Hash
+        filter.inject(@guards) do |matches, (k, v)|
+          matches.find_all { |guard| guard.send(k).to_sym == v.to_sym }
+        end
+      else
+        @guards
+      end
+    end
+
+    # Smart accessor for retrieving a specific group or several groups at once.
+    #
+    # @param [Object] filter an optional filter to retrieve specific group(s).
+    # @option filter [String, Symbol] return the group with the given name, or nil if not found
+    # @option filter [Regexp] returns all groups matching the Regexp, or [] if no group match
+    # @option filter [NilClass] returns all groups
+    #
+    def groups(filter = nil)
+      case filter
+      when String, Symbol
+        @groups.find { |group| group.name == filter.to_sym }
+      when Regexp
+        @groups.find_all { |group| group.name =~ filter }
+      else
+        @groups
+      end
     end
 
     # Start Guard by evaluate the `Guardfile`, initialize the declared Guards
@@ -141,9 +181,9 @@ module Guard
     # @param [Array] files the list of files to pass to the task
     #
     def execute_supervised_task_for_all_guards(task, files = nil)
-          guards.find_all { |guard| guard.group == group_hash[:name] }.each do |guard|
       groups.each do |group|
         catch group.options[:halt_on_fail] == true ? :task_has_failed : :no_catch do
+          guards(:group => group.name).each do |guard|
             if task == :run_on_change
               paths = Watcher.match_files(guard, files)
               UI.debug "#{guard.class.name}##{task} with #{paths.inspect}"

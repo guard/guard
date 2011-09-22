@@ -15,7 +15,8 @@ describe Guard do
     end
 
     it "initializes @groups" do
-      Guard.groups.should eql [{ :name => :default, :options => {} }]
+      described_class.groups[0].name.should eql :default
+      described_class.groups[0].options.should == {}
     end
 
     it "initializes the options" do
@@ -52,6 +53,99 @@ describe Guard do
     it "logs command execution if the debug option is true" do
       ::Guard.should_receive(:debug_command_execution)
       ::Guard.setup(:debug => true)
+    end
+  end
+
+  describe ".guards" do
+
+    class Guard::FooBar < Guard::Guard; end
+    class Guard::FooBaz < Guard::Guard; end
+
+    subject do
+      guard = ::Guard.setup
+      @guard_foo_bar = Guard::FooBar.new([], { :group => 'backend' })
+      @guard_foo_baz = Guard::FooBaz.new([], { :group => 'frontend' })
+      guard.instance_variable_get("@guards").push(@guard_foo_bar)
+      guard.instance_variable_get("@guards").push(@guard_foo_baz)
+      guard
+    end
+
+    it "return @guards without any argument" do
+      subject.guards.should eql subject.instance_variable_get("@guards")
+    end
+
+    describe "find a guard by as string/symbol" do
+      it "find a guard by a string" do
+        subject.guards('foo-bar').should eql @guard_foo_bar
+      end
+
+      it "find a guard by a symbol" do
+        subject.guards(:'foo-bar').should eql @guard_foo_bar
+      end
+
+      it "returns nil if guard is not found" do
+        subject.guards('foo-foo').should be_nil
+      end
+    end
+
+    describe "find guards matching a regexp" do
+      it "with matches" do
+        subject.guards(/^foo/).should eql [@guard_foo_bar, @guard_foo_baz]
+      end
+      
+      it "without matches" do
+        subject.guards(/foo$/).should eql []
+      end
+    end
+
+    describe "find guards by their group" do
+      it "group name is a string" do
+        subject.guards(:group => 'backend').should eql [@guard_foo_bar]
+      end
+      it "group name is a symbol" do
+        subject.guards(:group => :frontend).should eql [@guard_foo_baz]
+      end
+
+      it "returns [] if guard is not found" do
+        subject.guards(:group => :unknown).should eql []
+      end
+    end
+  end
+
+  describe ".groups" do
+    subject do
+      guard = ::Guard.setup
+      @group_backend  = guard.add_group(:backend)
+      @group_backflip = guard.add_group(:backflip)
+      guard
+    end
+
+    it "return @groups without any argument" do
+      subject.groups.should eql subject.instance_variable_get("@groups")
+    end
+
+    describe "find a group by as string/symbol" do
+      it "find a group by a string" do
+        subject.groups('backend').should eql @group_backend
+      end
+
+      it "find a group by a symbol" do
+        subject.groups(:backend).should eql @group_backend
+      end
+
+      it "returns nil if group is not found" do
+        subject.groups(:foo).should be_nil
+      end
+    end
+
+    describe "find groups matching a regexp" do
+      it "with matches" do
+        subject.groups(/^back/).should eql [@group_backend, @group_backflip]
+      end
+      
+      it "without matches" do
+        subject.groups(/back$/).should eql []
+      end
     end
   end
 
@@ -135,19 +229,22 @@ describe Guard do
     it "accepts group name as string" do
       subject.add_group('backend')
 
-      subject.groups.should eql [{ :name => :default, :options => {} }, { :name => :backend, :options => {} }]
+      subject.groups[0].name.should eql :default
+      subject.groups[1].name.should eql :backend
     end
 
     it "accepts group name as symbol" do
       subject.add_group(:backend)
 
-      subject.groups.should eql [{ :name => :default, :options => {} }, { :name => :backend, :options => {} }]
+      subject.groups[0].name.should eql :default
+      subject.groups[1].name.should eql :backend
     end
 
     it "accepts options" do
       subject.add_group(:backend, { :halt_on_fail => true })
 
-      subject.groups.should eql [{ :name => :default, :options => {} }, { :name => :backend, :options => { :halt_on_fail => true } }]
+      subject.groups[0].options.should == {}
+      subject.groups[1].options.should == { :halt_on_fail => true }
     end
   end
 
@@ -282,7 +379,7 @@ describe Guard do
     before do
       @g = mock(Guard::Guard).as_null_object
       subject.guards.push(@g)
-      subject.groups.push({ :name => :foo, :options => { :halt_on_fail => true } })
+      subject.add_group(:foo, { :halt_on_fail => true })
     end
 
     context "with a task that succeed" do
