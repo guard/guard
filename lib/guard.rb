@@ -43,10 +43,13 @@ module Guard
 
     # Smart accessor for retrieving a specific guard or several guards at once.
     #
-    # @param [Object] filter an optional filter to retrieve specific guard(s).
-    # @option filter [String, Symbol] return the guard with the given name, or nil if not found
-    # @option filter [Regexp] returns all guards matching the Regexp, or [] if no guard match
-    # @option filter [NilClass] returns all guards
+    # @param [String, Symbol] filter return the guard with the given name, or nil if not found.
+    # @param [Regexp] filter returns all guards matching the Regexp, or [] if no guard found.
+    # @param [Hash] filter returns all guards matching the given Hash.
+    #   Example: `{ :name => 'rspec', :group => 'backend' }, or [] if no guard found.
+    # @param [NilClass] filter returns all guards.
+    #
+    # @see Guard.groups
     #
     def guards(filter = nil)
       case filter
@@ -69,10 +72,11 @@ module Guard
 
     # Smart accessor for retrieving a specific group or several groups at once.
     #
-    # @param [Object] filter an optional filter to retrieve specific group(s).
-    # @option filter [String, Symbol] return the group with the given name, or nil if not found
-    # @option filter [Regexp] returns all groups matching the Regexp, or [] if no group match
-    # @option filter [NilClass] returns all groups
+    # @param [NilClass] filter returns all groups.
+    # @param [String, Symbol] filter return the group with the given name, or nil if not found.
+    # @param [Regexp] filter returns all groups matching the Regexp, or [] if no group found.
+    #
+    # @see Guard.guards
     #
     def groups(filter = nil)
       case filter
@@ -247,6 +251,7 @@ module Guard
     # @param [Hash] options the group options
     # @option options [Boolean] halt_on_fail if a task execution
     # should be halted for all Guards in this group if one Guard throws `:task_has_failed`
+    # @return [Guard::Group] the group added (or retrieved from the `@groups` variable if already present)
     #
     def add_group(name, options = {})
       group = groups(name)
