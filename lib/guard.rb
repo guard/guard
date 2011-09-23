@@ -18,7 +18,6 @@ module Guard
 
     # Initialize the Guard singleton.
     #
-    # @param [Hash] options the Guard options.
     # @option options [Boolean] clear if auto clear the UI should be done
     # @option options [Boolean] notify if system notifications should be shown
     # @option options [Boolean] debug if debug output should be shown
@@ -43,11 +42,11 @@ module Guard
 
     # Smart accessor for retrieving a specific guard or several guards at once.
     #
-    # @param [String, Symbol] filter return the guard with the given name, or nil if not found.
-    # @param [Regexp] filter returns all guards matching the Regexp, or [] if no guard found.
+    # @param [String, Symbol] filter return the guard with the given name, or nil if not found
+    # @param [Regexp] filter returns all guards matching the Regexp, or [] if no guard found
     # @param [Hash] filter returns all guards matching the given Hash.
-    #   Example: `{ :name => 'rspec', :group => 'backend' }, or [] if no guard found.
-    # @param [NilClass] filter returns all guards.
+    #   Example: `{ :name => 'rspec', :group => 'backend' }`, or [] if no guard found
+    # @param [NilClass] filter returns all guards
     #
     # @see Guard.groups
     #
@@ -72,9 +71,9 @@ module Guard
 
     # Smart accessor for retrieving a specific group or several groups at once.
     #
-    # @param [NilClass] filter returns all groups.
-    # @param [String, Symbol] filter return the group with the given name, or nil if not found.
-    # @param [Regexp] filter returns all groups matching the Regexp, or [] if no group found.
+    # @param [NilClass] filter returns all groups
+    # @param [String, Symbol] filter return the group with the given name, or nil if not found
+    # @param [Regexp] filter returns all groups matching the Regexp, or [] if no group found
     #
     # @see Guard.guards
     #
@@ -92,7 +91,6 @@ module Guard
     # Start Guard by evaluate the `Guardfile`, initialize the declared Guards
     # and start the available file change listener.
     #
-    # @param [Hash] options the Guard options.
     # @option options [Boolean] clear if auto clear the UI should be done
     # @option options [Boolean] notify if system notifications should be shown
     # @option options [Boolean] debug if debug output should be shown
@@ -233,7 +231,7 @@ module Guard
     # @param [String] name the Guard name
     # @param [Array<Watcher>] watchers the list of declared watchers
     # @param [Array<Hash>] callbacks the list of callbacks
-    # @param [Hash] options the Guard options
+    # @param [Hash] options the Guard options (see the given Guard documentation)
     #
     def add_guard(name, watchers = [], callbacks = [], options = {})
       if name.to_sym == :ego
@@ -248,9 +246,8 @@ module Guard
     # Add a Guard group.
     #
     # @param [String] name the group name
-    # @param [Hash] options the group options
     # @option options [Boolean] halt_on_fail if a task execution
-    # should be halted for all Guards in this group if one Guard throws `:task_has_failed`
+    #   should be halted for all Guards in this group if one Guard throws `:task_has_failed`
     # @return [Guard::Group] the group added (or retrieved from the `@groups` variable if already present)
     #
     def add_group(name, options = {})

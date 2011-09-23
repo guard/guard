@@ -81,7 +81,6 @@ module Guard
 
       # Evaluate the DSL methods in the `Guardfile`.
       #
-      # @param [Hash] options the Guard options
       # @option options [Array<Symbol,String>] groups the groups to evaluate
       # @option options [String] guardfile the path to a valid Guardfile
       # @option options [String] guardfile_contents a string representing the content of a valid Guardfile
