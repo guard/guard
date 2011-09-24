@@ -9,7 +9,7 @@ branches:
     - master
     - guard_dependencies
 env:
-  - GUARD_SPEC_SLEEP=2
+  - GUARD_SLEEP=1.5
 notifications:
   recipients:
     - thibaud@thibaud.me

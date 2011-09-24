@@ -1,10 +1,11 @@
 private
 
   def sleep_time
-    ENV['GUARD_SPEC_SLEEP'] ? ENV['GUARD_SPEC_SLEEP'].to_i : 1
+    @sleep_time ||= ENV['GUARD_SLEEP'] ? ENV['GUARD_SLEEP'].to_f : 1
   end
 
   def start
+    puts "ST #{sleep_time}"
     sleep(sleep_time)
     @listener.update_last_event
     Thread.new { @listener.start }
