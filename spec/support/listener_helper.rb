@@ -1,10 +1,14 @@
 private
 
+  def sleep_time
+    ENV['GUARD_SPEC_SLEEP'] ? ENV['GUARD_SPEC_SLEEP'].to_i : 1
+  end
+
   def start
-    sleep(@rest_delay || 1)
+    sleep(sleep_time)
     @listener.update_last_event
     Thread.new { @listener.start }
-    sleep(@rest_delay || 1)
+    sleep(sleep_time)
   end
 
   def record_results
@@ -17,18 +21,17 @@ private
   end
 
   def stop
-    sleep(@rest_delay || 1)
+    sleep(sleep_time)
     @listener.stop
-    sleep(@rest_delay || 1)
+    sleep(sleep_time)
   end
 
   def results
     @results.flatten
   end
 
-shared_examples_for 'a listener that reacts to #on_change' do |rest_delay|
+shared_examples_for 'a listener that reacts to #on_change' do
   before(:each) do
-    @rest_delay = rest_delay if rest_delay.is_a?(Integer) || rest_delay.is_a?(Float) # jruby workaround
     @listener = described_class.new
     record_results
   end
@@ -115,9 +118,8 @@ shared_examples_for 'a listener that reacts to #on_change' do |rest_delay|
 
 end
 
-shared_examples_for "a listener scoped to a specific directory" do |rest_delay|
+shared_examples_for "a listener scoped to a specific directory" do
   before :each do
-    @rest_delay = rest_delay if rest_delay.is_a?(Integer) || rest_delay.is_a?(Float) # jruby workaround
     @wd = @fixture_path.join("folder1")
     @listener = described_class.new @wd
   end
