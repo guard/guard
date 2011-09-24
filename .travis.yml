@@ -8,6 +8,8 @@ branches:
   only:
     - master
     - guard_dependencies
+env:
+  - GUARD_SPEC_SLEEP=2
 notifications:
   recipients:
     - thibaud@thibaud.me
