@@ -5,7 +5,6 @@ private
   end
 
   def start
-    puts "ST #{sleep_time}"
     sleep(sleep_time)
     @listener.update_last_event
     Thread.new { @listener.start }
