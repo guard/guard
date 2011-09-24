@@ -37,6 +37,7 @@ module Guard
                 when 'stop', 'quit', 'exit', 's', 'q', 'e'
                   ::Guard.stop
                 when 'reload', 'r', 'z'
+                  ::Guard::Dsl.reevaluate_guardfile
                   ::Guard.reload
                 when 'pause', 'p'
                   ::Guard.pause
