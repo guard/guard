@@ -24,13 +24,13 @@ module Guard
     # @option options [Array<String>] group the list of groups to start
     # @option options [String] watchdir the director to watch
     # @option options [String] guardfile the path to the Guardfile
-    # @optuin options [Boolean] watch_all_modifications watches all file modifications if true
+    # @option options [Boolean] watch_all_modifications watches all file modifications if true
     def setup(options = {})
       @options    = options
       @guards     = []
       @groups     = [:default]
       @interactor = Interactor.new
-      @listener   = Listener.select_and_init(@options[:watchdir] ? File.expand_path(@options[:watchdir]) : Dir.pwd,options)
+      @listener   = Listener.select_and_init(@options[:watchdir] ? File.expand_path(@options[:watchdir]) : Dir.pwd, options)
 
       @watch_all_modifications = options[:watch_all_modifications]
       @options[:notify] && ENV['GUARD_NOTIFY'] != 'false' ? Notifier.turn_on : Notifier.turn_off

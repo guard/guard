@@ -126,8 +126,12 @@ module Guard
 
     # Get the modified files.
     #
+    # If watch_all_modifications is true then moved and deleted files are also appended
+    # to the returned array prefixed so !/home/user/dir/file.rb
+    #
     # @param [Array<String>] dirs the watched directories
     # @param [Hash] options the listener options
+    # @return [Array<String>] paths of files that have been modified
     #
     def modified_files(dirs, options = {})
       last_event = @last_event
@@ -172,8 +176,7 @@ module Guard
     def relativize_paths(paths)
       return paths unless relativize_paths?
       paths.map do |path|
-        path.gsub(%r{#{@directory}/}, '')
-        #path.gsub(%r{^#{ @directory }/}, '')
+      path.gsub(%r{^(!)?#{ @directory }/},'\1')
       end
     end
 
@@ -274,6 +277,11 @@ module Guard
       end
     end
 
+    # Set save a files current timestamp
+    #
+    # @param [String] path the file path
+    # @param [Int] file_timestamp the files modified timestamp
+    #
     def set_file_timestamp_hash(path, file_timestamp)
         @file_timestamp_hash[path] = file_timestamp
     end
@@ -287,6 +295,11 @@ module Guard
       @sha1_checksums_hash[path] = sha1_checksum
     end
 
+    # Gets a files modified timestamp
+    #
+    # @path [String] path the file path
+    # @return [Int] file modified timestamp
+    #
     def file_timestamp(path)
       File.mtime(path).to_i
     end
