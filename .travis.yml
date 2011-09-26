@@ -7,9 +7,9 @@ rvm:
 branches:
   only:
     - master
-    - hook
-    - stdin
-    - jruby_travis_ctime_bug
+    - guard_dependencies
+env:
+  - GUARD_SLEEP=1
 notifications:
   recipients:
     - thibaud@thibaud.me

@@ -43,7 +43,6 @@ module Guard
     # Initialize the listener.
     #
     # @param [String] directory the root directory to listen to
-    # @param [Hash] options the listener options
     # @option options [Boolean] relativize_paths use only relative paths
     # @option options [Array<String>] ignore_paths the paths to ignore by the listener
     #
@@ -210,7 +209,6 @@ module Guard
     # Gets a list of files that are in the modified directories.
     #
     # @param [Array<String>] dirs the list of directories
-    # @param [Hash] options the options
     # @option options [Symbol] all whether to include all files
     #
     def potentially_modified_files(dirs, options = {})

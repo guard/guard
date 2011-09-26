@@ -10,7 +10,6 @@ module Guard
       # Show an info message.
       #
       # @param [String] message the message to show
-      # @param [Hash] options the options
       # @option options [Boolean] reset whether to clean the output before
       #
       def info(message, options = { })
@@ -23,7 +22,6 @@ module Guard
       # Show a red error message that is prefixed with ERROR.
       #
       # @param [String] message the message to show
-      # @param [Hash] options the options
       # @option options [Boolean] reset whether to clean the output before
       #
       def error(message, options = { })
@@ -36,7 +34,6 @@ module Guard
       # Show a red deprecation message that is prefixed with DEPRECATION.
       #
       # @param [String] message the message to show
-      # @param [Hash] options the options
       # @option options [Boolean] reset whether to clean the output before
       #
       def deprecation(message, options = { })
@@ -49,7 +46,6 @@ module Guard
       # Show a debug message that is prefixed with DEBUG and a timestamp.
       #
       # @param [String] message the message to show
-      # @param [Hash] options the options
       # @option options [Boolean] reset whether to clean the output before
       #
       def debug(message, options = { })

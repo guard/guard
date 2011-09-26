@@ -31,7 +31,7 @@ module Guard
     # @param [String] name the group's name called from the CLI
     # @yield a block where you can declare several guards
     #
-    # @see Guard::Dsl
+    # @see Guard::Dsl#group
     #
     def group(name)
       @@guardfile_structure << { :group => name.to_sym, :guards => [] }
@@ -42,13 +42,13 @@ module Guard
       @group = false
     end
 
-    # Declare a guard.
+    # Declares a Guard.
     #
     # @param [String] name the Guard name
     # @param [Hash] options the options accepted by the Guard
     # @yield a block where you can declare several watch patterns and actions
     #
-    # @see Guard::Dsl
+    # @see Guard::Dsl#guard
     #
     def guard(name, options = {})
       node = (@group ? @@guardfile_structure.last : @@guardfile_structure.first)

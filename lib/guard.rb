@@ -6,6 +6,7 @@ module Guard
   autoload :UI,           'guard/ui'
   autoload :Dsl,          'guard/dsl'
   autoload :DslDescriber, 'guard/dsl_describer'
+  autoload :Group,        'guard/group'
   autoload :Interactor,   'guard/interactor'
   autoload :Listener,     'guard/listener'
   autoload :Watcher,      'guard/watcher'
@@ -13,11 +14,10 @@ module Guard
   autoload :Hook,         'guard/hook'
 
   class << self
-    attr_accessor :options, :guards, :groups, :interactor, :listener
+    attr_accessor :options, :interactor, :listener
 
     # Initialize the Guard singleton.
     #
-    # @param [Hash] options the Guard options.
     # @option options [Boolean] clear if auto clear the UI should be done
     # @option options [Boolean] notify if system notifications should be shown
     # @option options [Boolean] debug if debug output should be shown
@@ -28,7 +28,7 @@ module Guard
     def setup(options = {})
       @options    = options
       @guards     = []
-      @groups     = [:default]
+      @groups     = [Group.new(:default)]
       @interactor = Interactor.new
       @listener   = Listener.select_and_init(@options[:watchdir] ? File.expand_path(@options[:watchdir]) : Dir.pwd, options)
 
@@ -41,10 +41,57 @@ module Guard
       self
     end
 
+    # Smart accessor for retrieving a specific guard or several guards at once.
+    #
+    # @param [String, Symbol] filter return the guard with the given name, or nil if not found
+    # @param [Regexp] filter returns all guards matching the Regexp, or [] if no guard found
+    # @param [Hash] filter returns all guards matching the given Hash.
+    #   Example: `{ :name => 'rspec', :group => 'backend' }`, or [] if no guard found
+    # @param [NilClass] filter returns all guards
+    #
+    # @see Guard.groups
+    #
+    def guards(filter = nil)
+      case filter
+      when String, Symbol
+        @guards.find { |guard| guard.class.to_s.downcase.sub('guard::', '') == filter.to_s.downcase.gsub('-', '') }
+      when Regexp
+        @guards.find_all { |guard| guard.class.to_s.downcase.sub('guard::', '') =~ filter }
+      when Hash
+        filter.inject(@guards) do |matches, (k, v)|
+          if k.to_sym == :name
+            matches.find_all { |guard| guard.class.to_s.downcase.sub('guard::', '') == v.to_s.downcase.gsub('-', '') }
+          else
+            matches.find_all { |guard| guard.send(k).to_sym == v.to_sym }
+          end
+        end
+      else
+        @guards
+      end
+    end
+
+    # Smart accessor for retrieving a specific group or several groups at once.
+    #
+    # @param [NilClass] filter returns all groups
+    # @param [String, Symbol] filter return the group with the given name, or nil if not found
+    # @param [Regexp] filter returns all groups matching the Regexp, or [] if no group found
+    #
+    # @see Guard.guards
+    #
+    def groups(filter = nil)
+      case filter
+      when String, Symbol
+        @groups.find { |group| group.name == filter.to_sym }
+      when Regexp
+        @groups.find_all { |group| group.name.to_s =~ filter }
+      else
+        @groups
+      end
+    end
+
     # Start Guard by evaluate the `Guardfile`, initialize the declared Guards
     # and start the available file change listener.
     #
-    # @param [Hash] options the Guard options.
     # @option options [Boolean] clear if auto clear the UI should be done
     # @option options [Boolean] notify if system notifications should be shown
     # @option options [Boolean] debug if debug output should be shown
@@ -63,7 +110,8 @@ module Guard
       end
 
       UI.info "Guard is now watching at '#{ listener.directory }'"
-      guards.each { |guard| supervised_task(guard, :start) }
+
+      execute_supervised_task_for_all_guards(:start)
 
       interactor.start
       listener.start
@@ -74,7 +122,7 @@ module Guard
     def stop
       UI.info 'Bye bye...', :reset => true
       listener.stop
-      guards.each { |guard| supervised_task(guard, :stop) }
+      execute_supervised_task_for_all_guards(:stop)
       abort
     end
 
@@ -82,7 +130,7 @@ module Guard
     #
     def reload
       run do
-        guards.each { |guard| supervised_task(guard, :reload) }
+        execute_supervised_task_for_all_guards(:reload)
       end
     end
 
@@ -90,7 +138,7 @@ module Guard
     #
     def run_all
       run do
-        guards.each { |guard| supervised_task(guard, :run_all) }
+        execute_supervised_task_for_all_guards(:run_all)
       end
     end
 
@@ -107,29 +155,11 @@ module Guard
       end
     end
 
-    # Trigger `run_on_change` on all Guards currently enabled and
+    # Trigger `run_on_change` on all Guards currently enabled.
     #
-    def run_on_change(files)
+    def run_on_change(paths)
       run do
-        guards.each do |guard|
-          paths = Watcher.match_files(guard, files)
-          if @watch_all_modifications
-            unless paths.empty?
-              UI.debug "#{guard.class.name}#run_on_change with #{paths.inspect}"
-              supervised_task(guard, :run_on_change, paths.select {|f| !f.start_with?('!') })
-              deletions = paths.collect { |f| f.slice(1..-1) if f.start_with?('!') }.compact
-              unless deletions.empty?
-                UI.debug "#{guard.class.name}#run_on_deletion with #{deletions.inspect}"
-                supervised_task(guard, :run_on_deletion, deletions)
-              end
-            end
-          else
-            unless paths.empty?
-              UI.debug "#{guard.class.name}#run_on_change with #{paths.inspect}"
-              supervised_task(guard, :run_on_change, paths)
-            end
-          end
-        end
+        execute_supervised_task_for_all_guards(:run_on_change, paths)
       end
     end
 
@@ -148,6 +178,41 @@ module Guard
       end
       interactor.unlock
       listener.unlock
+    end
+
+    # Loop through all groups and execute the given task for each Guard in it,
+    # but halt the task execution for the all Guards within a group if one Guard
+    # throws `:task_has_failed` and the group has its `:halt_on_fail` option to `true`.
+    #
+    # @param [Symbol] task the task to run
+    # @param [Array] files the list of files to pass to the task
+    #
+    def execute_supervised_task_for_all_guards(task, files = nil)
+      groups.each do |group|
+        catch group.options[:halt_on_fail] == true ? :task_has_failed : :no_catch do
+          guards(:group => group.name).each do |guard|
+            if task == :run_on_change
+                paths = Watcher.match_files(guard, files)
+                unless paths.empty?
+                    if @watch_all_modifications
+                        UI.debug "#{guard.class.name}##{task} with #{paths.inspect}"
+                        supervised_task(guard, task, paths.select {|f| !f.start_with?('!') })
+                        deletions = paths.collect { |f| f.slice(1..-1) if f.start_with?('!') }.compact
+                        unless deletions.empty?
+                            UI.debug "#{guard.class.name}#run_on_deletion with #{deletions.inspect}"
+                            supervised_task(guard, :run_on_deletion, deletions)
+                        end
+                    else
+                        UI.debug "#{guard.class.name}##{task} with #{paths.inspect}"
+                        supervised_task(guard, task, paths)
+                    end
+                end
+            else
+              supervised_task(guard, task)
+            end
+          end
+        end
+      end
     end
 
     # Let a Guard execute its task, but fire it
@@ -179,7 +244,7 @@ module Guard
     # @param [String] name the Guard name
     # @param [Array<Watcher>] watchers the list of declared watchers
     # @param [Array<Hash>] callbacks the list of callbacks
-    # @param [Hash] options the Guard options
+    # @param [Hash] options the Guard options (see the given Guard documentation)
     #
     def add_guard(name, watchers = [], callbacks = [], options = {})
       if name.to_sym == :ego
@@ -194,9 +259,17 @@ module Guard
     # Add a Guard group.
     #
     # @param [String] name the group name
+    # @option options [Boolean] halt_on_fail if a task execution
+    #   should be halted for all Guards in this group if one Guard throws `:task_has_failed`
+    # @return [Guard::Group] the group added (or retrieved from the `@groups` variable if already present)
     #
-    def add_group(name)
-      @groups << name.to_sym unless name.nil?
+    def add_group(name, options = {})
+      group = groups(name)
+      if group.nil?
+        group = Group.new(name, options)
+        @groups << group
+      end
+      group
     end
 
     # Tries to load the Guard main class.

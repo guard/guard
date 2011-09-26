@@ -6,8 +6,6 @@ describe Guard::DslDescriber do
     user_config_path = File.expand_path(File.join('~', '.guard.rb'))
     File.stub(:exist?).with(user_config_path) { false }
   end
-  subject { described_class }
-
 
   it 'should evaluate a Guardfile and create the right structure' do
     mixed_guardfile_string = <<-GUARD
@@ -28,13 +26,13 @@ group "b" do
 end
 GUARD
 
-    subject.evaluate_guardfile(:guardfile_contents => mixed_guardfile_string)
+    described_class.evaluate_guardfile(:guardfile_contents => mixed_guardfile_string)
 
-    subject.guardfile_structure.should == [
+    described_class.guardfile_structure.should == [
       { :guards => [ { :name => 'test', :options => { :a => :b } } ] },
       { :group => :a, :guards => [ { :name => 'test', :options => {} } ] },
       { :group => :b, :guards => [ { :name => 'another', :options => {} } ] }
     ]
-
   end
+
 end

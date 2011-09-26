@@ -1,6 +1,19 @@
 ## Master
 
+### Bugs fixes:
+
 - Pull request [#137](https://github.com/guard/guard/pull/137): Fix interacting with tools like ruby-debug. ([@hron][] & [@netzpirat][])
+- Pull request [#138](https://github.com/guard/guard/pull/138): Fixed comments in example scaffold to reference interactions. ([@rmm5t][] & [@netzpirat][])
+
+### New feature:
+
+- Issue [#97](https://github.com/guard/guard/issues/97): Guard dependencies. Task execution can now be halted if a Guard throws `:task_has_failed` and `Guard::Dsl#group` options include `:halt_on_fail => true`. ([@rymai][])
+- Issue [#121](https://github.com/guard/guard/issues/121): `Guard.guards` and `Guard.groups` are now smart accessors. Filters can be passed to find a specific Guard/group or several Guards/groups that match (see YARDoc). ([@rymai][] & [@ches][])
+- New `Guard::Group` class to store groups defined in Guardfile (with `Guard::Dsl#group`). ([@rymai][])
+
+### Improvement:
+
+- Full YARD documentation. ([@netzpirat][] & a little of [@rymai][])
 
 ## 0.7.0 - September 14, 2011
 
@@ -9,7 +22,7 @@
 ### Major Changes
 
 - Posix Signals handlers (`Ctrl-C`, `Ctrl-\` and `Ctrl-Z`) are no more supported and replaced by `$stdin.gets`. Please refer to the "Interactions" section in the README for more information. ([@thibaudgg][])
-- JRuby & Rubinius support (beta). ([@thibaudgg][] and [@netzpirat][])
+- JRuby & Rubinius support (beta). ([@thibaudgg][] & [@netzpirat][])
 
 ### New feature:
 
@@ -272,6 +285,7 @@
 [@niklas]: https://github.com/niklas
 [@oliamb]: https://github.com/oliamb
 [@pcreux]: https://github.com/pcreux
+[@rmm5t]: https://github.com/rmm5t
 [@rymai]: https://github.com/rymai
 [@stereobooster]: https://github.com/stereobooster
 [@stouset]: https://github.com/stouset

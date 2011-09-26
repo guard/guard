@@ -81,7 +81,6 @@ module Guard
 
       # Evaluate the DSL methods in the `Guardfile`.
       #
-      # @param [Hash] options the Guard options
       # @option options [Array<Symbol,String>] groups the groups to evaluate
       # @option options [String] guardfile the path to a valid Guardfile
       # @option options [String] guardfile_contents a string representing the content of a valid Guardfile
@@ -102,6 +101,7 @@ module Guard
       #
       def reevaluate_guardfile
         ::Guard.guards.clear
+        ::Guard.groups.clear
         @@options.delete(:guardfile_contents)
         Dsl.evaluate_guardfile(@@options)
         msg = 'Guardfile has been re-evaluated.'
@@ -265,16 +265,19 @@ module Guard
     #   end
     #
     # @param [Symbol, String] name the group's name called from the CLI
+    # @param [Hash] options the options accepted by the group
     # @yield a block where you can declare several guards
     #
+    # @see Guard.add_group
     # @see Dsl#guard
     # @see Guard::DslDescriber
     #
-    def group(name)
+    def group(name, options = {})
       @groups = @@options[:group] || []
       name    = name.to_sym
 
       if block_given? && (@groups.empty? || @groups.map(&:to_sym).include?(name))
+        ::Guard.add_group(name.to_s.downcase, options)
         @current_group = name
 
         yield if block_given?
@@ -299,6 +302,8 @@ module Guard
     # @param [Hash] options the options accepted by the Guard
     # @yield a block where you can declare several watch patterns and actions
     #
+    # @see Guard.add_guard
+    # @see Dsl#group
     # @see Dsl#watch
     # @see Guard::DslDescriber
     #
@@ -309,7 +314,7 @@ module Guard
       yield if block_given?
 
       options.update(:group => (@current_group || :default))
-      ::Guard.add_guard(name.to_s.downcase.to_sym, @watchers, @callbacks, options)
+      ::Guard.add_guard(name.to_s.downcase, @watchers, @callbacks, options)
     end
 
     # Define a pattern to be watched in order to run actions on file modification.
@@ -327,6 +332,9 @@ module Guard
     # @yieldparam [MatchData] m matches of the pattern
     # @yieldreturn a directory, a filename, an array of directories / filenames, or nothing (can be an arbitrary command)
     #
+    # @see Guard::Watcher
+    # @see Dsl#guard
+    #
     def watch(pattern, &action)
       @watchers << ::Guard::Watcher.new(pattern, action)
     end
@@ -336,6 +344,8 @@ module Guard
     #
     # @param [Array] args the callback arguments
     # @yield a block with listeners
+    #
+    # @see Guard::Hook
     #
     def callback(*args, &listener)
       listener, events = args.size > 1 ? args : [listener, args[0]]
@@ -348,6 +358,8 @@ module Guard
     #   ignore_paths ".git", ".svn"
     #
     # @param [Array] paths the list of paths to ignore
+    #
+    # @see Guard::Listener
     #
     def ignore_paths(*paths)
       UI.info "Ignoring paths: #{ paths.join(', ') }"

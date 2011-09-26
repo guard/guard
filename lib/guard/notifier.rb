@@ -43,7 +43,6 @@ module Guard
     # @see .image_path
     #
     # @param [String] the message to show
-    # @param [Hash] options the notification options
     # @option options [Symbol, String] image the image symbol or path to an image
     # @option options [String] title the notification title
     #
@@ -80,7 +79,7 @@ module Guard
     # @param [Symbol, String] the image to user
     # @param [Hash] options the growl options
     #
-    def self.notify_mac(title, message, image, options)
+    def self.notify_mac(title, message, image, options = {})
       require_growl # need for guard-rspec formatter that is called out of guard scope
 
       default_options = { :title => title, :icon => image_path(image), :name => APPLICATION_NAME }
@@ -104,7 +103,7 @@ module Guard
     # @param [Symbol, String] the image to user
     # @param [Hash] options the libnotify options
     #
-    def self.notify_linux(title, message, image, options)
+    def self.notify_linux(title, message, image, options = {})
       require_libnotify # need for guard-rspec formatter that is called out of guard scope
       default_options = { :body => message, :summary => title, :icon_path => image_path(image), :transient => true }
       Libnotify.show default_options.merge(options) if enabled?
@@ -117,7 +116,7 @@ module Guard
     # @param [Symbol, String] the image to user
     # @param [Hash] options the notifu options
     #
-    def self.notify_windows(title, message, image, options)
+    def self.notify_windows(title, message, image, options = {})
       require_rbnotifu # need for guard-rspec formatter that is called out of guard scope
       default_options = { :message => message, :title => title, :type => image_level(image), :time => 3 }
       Notifu.show default_options.merge(options) if enabled?

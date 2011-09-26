@@ -16,10 +16,10 @@ module Guard
     # Initialize a Guard.
     #
     # @param [Array<Guard::Watcher>] watchers the Guard file watchers
-    # @param [Hash] options the custom Guard options.
+    # @param [Hash] options the custom Guard options
     #
     def initialize(watchers = [], options = {})
-      @group = options.delete(:group) || :default
+      @group = options[:group] ? options.delete(:group).to_sym : :default
       @watchers, @options = watchers, options
     end
 
@@ -89,4 +89,5 @@ module Guard
     end
 
   end
+
 end
