@@ -167,6 +167,15 @@ Guard can use a Guardfile not located in the current directory:
     $ guard --guardfile ~/.your_global_guardfile
     $ guard -G ~/.your_global_guardfile # shortcut
 
+### `-A`/`--watch-all-modifications` option
+
+Guard can optionally watch all file modifactions like moves or deletions with:
+
+``` bash
+$ guard start -A
+$ guard start --watch-all-modifactions
+```
+
 An exhaustive list of options is available with:
 
     $ guard help [TASK]

@@ -48,12 +48,14 @@ module Guard
     #
     def initialize(directory = Dir.pwd, options = {})
       @directory           = directory.to_s
-      @sha1_checksums_hash = { }
+      @sha1_checksums_hash = {}
+      @file_timestamp_hash = {}
       @relativize_paths    = options.fetch(:relativize_paths, true)
       @changed_files       = []
       @locked              = false
       @ignore_paths        = DEFAULT_IGNORE_PATHS
       @ignore_paths |= options[:ignore_paths] if options[:ignore_paths]
+      @watch_all_modifications  = options.fetch(:watch_all_modifications, false)
 
       update_last_event
       start_reactor
@@ -81,6 +83,7 @@ module Guard
     #
     def start
       watch(@directory)
+      timestamp_files
     end
 
     # Stop listening for events.
@@ -122,13 +125,28 @@ module Guard
 
     # Get the modified files.
     #
+    # If watch_all_modifications is true then moved and deleted files are also appended
+    # to the returned array prefixed so !/home/user/dir/file.rb
+    #
     # @param [Array<String>] dirs the watched directories
     # @param [Hash] options the listener options
+    # @return [Array<String>] paths of files that have been modified
     #
     def modified_files(dirs, options = {})
       last_event = @last_event
+      files = []
+      if @watch_all_modifications
+        deleted_files = @file_timestamp_hash.collect do |path, ts|
+          unless File.exists?(path)
+            @sha1_checksums_hash.delete(path)
+            @file_timestamp_hash.delete(path)
+            "!#{path}"
+          end
+        end
+        files.concat(deleted_files.compact)
+      end
       update_last_event
-      files = potentially_modified_files(dirs, options).select { |path| file_modified?(path, last_event) }
+      files.concat(potentially_modified_files(dirs, options).select { |path| file_modified?(path, last_event) })
       relativize_paths(files)
     end
 
@@ -157,7 +175,7 @@ module Guard
     def relativize_paths(paths)
       return paths unless relativize_paths?
       paths.map do |path|
-        path.gsub(%r{^#{ @directory }/}, '')
+      path.gsub(%r{^(!)?#{ @directory }/},'\1')
       end
     end
 
@@ -167,6 +185,11 @@ module Guard
     #
     def relativize_paths?
       !!@relativize_paths
+    end
+
+    # populate initial timestamp file hash to watch for deleted or moved files
+    def timestamp_files
+      all_files.each {|path| set_file_timestamp_hash(path, file_timestamp(path)) } if @watch_all_modifications
     end
 
     # Removes the ignored paths from the directory list.
@@ -224,6 +247,12 @@ module Guard
       elsif mtime > last_event.to_i
         set_sha1_checksums_hash(path, sha1_checksum(path))
         true
+      elsif @watch_all_modifications
+        ts = file_timestamp(path)
+        if ts != @file_timestamp_hash[path]
+          set_file_timestamp_hash(path, ts)
+          true
+        end
       else
         false
       end
@@ -246,6 +275,15 @@ module Guard
       end
     end
 
+    # Set save a files current timestamp
+    #
+    # @param [String] path the file path
+    # @param [Int] file_timestamp the files modified timestamp
+    #
+    def set_file_timestamp_hash(path, file_timestamp)
+        @file_timestamp_hash[path] = file_timestamp
+    end
+
     # Set the current checksum of a file.
     #
     # @param [String] path the file path
@@ -253,6 +291,15 @@ module Guard
     #
     def set_sha1_checksums_hash(path, sha1_checksum)
       @sha1_checksums_hash[path] = sha1_checksum
+    end
+
+    # Gets a files modified timestamp
+    #
+    # @path [String] path the file path
+    # @return [Int] file modified timestamp
+    #
+    def file_timestamp(path)
+      File.mtime(path).to_i
     end
 
     # Calculates the SHA1 checksum of a file.

@@ -24,14 +24,15 @@ module Guard
     # @option options [Array<String>] group the list of groups to start
     # @option options [String] watchdir the director to watch
     # @option options [String] guardfile the path to the Guardfile
-    #
+    # @option options [Boolean] watch_all_modifications watches all file modifications if true
     def setup(options = {})
       @options    = options
       @guards     = []
       @groups     = [Group.new(:default)]
       @interactor = Interactor.new
-      @listener   = Listener.select_and_init(@options[:watchdir] ? File.expand_path(@options[:watchdir]) : Dir.pwd)
+      @listener   = Listener.select_and_init(@options[:watchdir] ? File.expand_path(@options[:watchdir]) : Dir.pwd, options)
 
+      @watch_all_modifications = options[:watch_all_modifications]
       @options[:notify] && ENV['GUARD_NOTIFY'] != 'false' ? Notifier.turn_on : Notifier.turn_off
 
       UI.clear if @options[:clear]
@@ -191,9 +192,21 @@ module Guard
         catch group.options[:halt_on_fail] == true ? :task_has_failed : :no_catch do
           guards(:group => group.name).each do |guard|
             if task == :run_on_change
-              paths = Watcher.match_files(guard, files)
-              UI.debug "#{guard.class.name}##{task} with #{paths.inspect}"
-              supervised_task(guard, task, paths)
+                paths = Watcher.match_files(guard, files)
+                unless paths.empty?
+                    if @watch_all_modifications
+                        UI.debug "#{guard.class.name}##{task} with #{paths.inspect}"
+                        supervised_task(guard, task, paths.select {|f| !f.start_with?('!') })
+                        deletions = paths.collect { |f| f.slice(1..-1) if f.start_with?('!') }.compact
+                        unless deletions.empty?
+                            UI.debug "#{guard.class.name}#run_on_deletion with #{deletions.inspect}"
+                            supervised_task(guard, :run_on_deletion, deletions)
+                        end
+                    else
+                        UI.debug "#{guard.class.name}##{task} with #{paths.inspect}"
+                        supervised_task(guard, task, paths)
+                    end
+                end
             else
               supervised_task(guard, task)
             end

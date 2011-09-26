@@ -84,6 +84,10 @@ module Guard
       true
     end
 
+    def run_on_deletion(paths)
+      true
+    end
+
   end
 
 end

@@ -81,6 +81,8 @@ describe Guard::Listener do
     let(:file1) { @fixture_path.join("folder1", "file1.txt") }
     let(:file2) { @fixture_path.join("folder1", "folder2", "file2.txt") }
     let(:file3) { @fixture_path.join("folder1", "deletedfile1.txt") }
+    let(:file4) { @fixture_path.join("folder1", "movedfile1.txt") }
+    let(:file5) { @fixture_path.join("folder1", "folder2", "movedfile1.txt") }
 
     before do
       @listener = subject
@@ -129,6 +131,88 @@ describe Guard::Listener do
         subject.modified_files([@fixture_path.join("folder1")], {}).should =~ ["spec/fixtures/folder1/file1.txt"]
         stop
       end
+    end
+
+    context "without watch_all_modifications" do
+        
+        after { FileUtils.touch(file3) }
+
+        it "defaults to false" do
+            subject.instance_variable_get(:@watch_all_modifications).should eql false
+        end
+
+        it "it should not track deleted files" do
+            FileUtils.touch([file1, file2, file3])
+            subject.modified_files([@fixture_path.join("folder1")], {}).should =~ ["spec/fixtures/folder1/deletedfile1.txt", "spec/fixtures/folder1/file1.txt"]
+            subject.update_last_event
+            FileUtils.rm(file3)
+            subject.modified_files([@fixture_path.join("folder1")], {}).should =~ []
+            sleep 1
+        end
+    end
+
+    context "with watch_all_modifications" do
+        subject { described_class.new(Dir.pwd, :watch_all_modifications=>true) }
+        
+        before :each do
+            subject.timestamp_files
+            sleep 1
+            subject.update_last_event
+        end
+
+        after :each do
+            FileUtils.touch([file1, file2, file3])
+        end
+
+        it "should be true when set" do
+            subject.instance_variable_get(:@watch_all_modifications).should eql true
+        end
+
+        it "should track deleted files" do
+            FileUtils.touch([file1, file3])
+            subject.modified_files([@fixture_path.join("folder1")], {}).should =~ 
+                ["spec/fixtures/folder1/deletedfile1.txt", "spec/fixtures/folder1/file1.txt"]
+
+            subject.update_last_event
+            FileUtils.remove_file(file3)
+            subject.modified_files([@fixture_path.join("folder1")], {}).should =~ 
+                ["!spec/fixtures/folder1/deletedfile1.txt"]
+        end
+
+        it "should track moved files" do
+            FileUtils.touch([file1, file3])
+            subject.modified_files([@fixture_path.join("folder1")], {}).should =~ 
+                ["spec/fixtures/folder1/deletedfile1.txt", "spec/fixtures/folder1/file1.txt"]
+
+            subject.update_last_event
+            FileUtils.move(file1, file4)
+            subject.modified_files([@fixture_path.join("folder1")], {}).should =~ 
+                ["!spec/fixtures/folder1/file1.txt", "spec/fixtures/folder1/movedfile1.txt"]
+            FileUtils.move(file4, file1)
+        end
+
+        it "should track deleted files with all option" do
+            FileUtils.touch([file1, file2])
+            subject.modified_files([@fixture_path.join("folder1")], {:all=>true}).should =~ 
+                ["spec/fixtures/folder1/file1.txt", "spec/fixtures/folder1/folder2/file2.txt"]
+
+            subject.update_last_event
+            FileUtils.remove_file(file2)
+            subject.modified_files([@fixture_path.join("folder1")], {:all=>true}).should =~ 
+                ["!spec/fixtures/folder1/folder2/file2.txt"]
+        end
+
+        it "should track moved files with all option" do
+            FileUtils.touch([file1, file2])
+            subject.modified_files([@fixture_path.join("folder1")], {:all=>true}).should =~ 
+                ["spec/fixtures/folder1/file1.txt", "spec/fixtures/folder1/folder2/file2.txt"]
+
+            subject.update_last_event
+            FileUtils.move(file1, file5)
+            subject.modified_files([@fixture_path.join("folder1")], {:all=>true}).should =~ 
+                ["!spec/fixtures/folder1/file1.txt","spec/fixtures/folder1/folder2/movedfile1.txt"]
+            FileUtils.move(file5, file1)
+        end
     end
   end
 
