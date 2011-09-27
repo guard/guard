@@ -78,12 +78,17 @@ module Guard
     # Will be triggered when a file change matched a watcher.
     #
     # @param [Array<String>] paths the changes files or paths
-    # @return [Boolean] Whether the run_all action was successful or not
+    # @return [Boolean] Whether the run_on_change action was successful or not
     #
     def run_on_change(paths)
       true
     end
 
+    # Will be triggered when a file deletion matched a watcher.
+    #
+    # @param [Array<String>] paths the deleted files or paths
+    # @return [Boolean] Whether the run_on_deletion action was successful or not
+    #
     def run_on_deletion(paths)
       true
     end
