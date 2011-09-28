@@ -342,7 +342,7 @@ describe Guard do
     end
   end
 
-  describe ".execute_supervised_task_for_all_guards" do
+  describe ".run_guard_task" do
     subject { ::Guard.setup }
 
     before do
@@ -363,7 +363,7 @@ describe Guard do
       end
 
       it "executes the task for each guard in each group" do
-        subject.execute_supervised_task_for_all_guards(:task)
+        subject.run_guard_task(:task)
 
         @sum.all? { |k, v| v == 2 }.should be_true
       end
@@ -384,7 +384,7 @@ describe Guard do
       end
 
       it "executes the task only for guards that didn't fail for group with :halt_on_fail == true" do
-        subject.execute_supervised_task_for_all_guards(:task)
+        subject.run_guard_task(:task)
 
         @sum[:foo].should eql 1
         @sum[:bar].should eql 7
@@ -392,7 +392,45 @@ describe Guard do
     end
   end
 
-  describe ".supervised_task" do
+  describe ".run_on_change_task" do
+    let(:guard) do
+      class Guard::Dummy < Guard::Guard
+        def watchers
+          [Guard::Watcher.new(/.+\.rb/)]
+        end
+      end
+
+      Guard::Dummy.new
+    end
+
+    it 'runs the :run_on_change task with the watched file changes' do
+      Guard.should_receive(:run_supervised_task).with(guard, :run_on_change, ['a.rb', 'b.rb'])
+      Guard.run_on_change_task(['a.rb', 'b.rb', 'templates/d.haml'], guard, :run_on_change)
+    end
+
+    it 'runs the :run_on_deletion task with the watched file deletions' do
+      Guard.should_receive(:run_supervised_task).with(guard, :run_on_deletion, ['c.rb'])
+      Guard.run_on_change_task(['!c.rb', '!templates/e.haml'], guard, :run_on_change)
+    end
+  end
+
+  describe ".changed_paths" do
+    let(:paths) { ['a.rb', 'b.rb', '!c.rb', 'templates/d.haml', '!templates/e.haml'] }
+
+    it 'returns the changed paths' do
+      Guard.changed_paths(paths).should =~ ['a.rb', 'b.rb', 'templates/d.haml']
+    end
+  end
+
+  describe ".deleted_paths" do
+    let(:paths) { ['a.rb', 'b.rb', '!c.rb', 'templates/d.haml', '!templates/e.haml'] }
+
+    it 'returns the deleted paths' do
+      Guard.deleted_paths(paths).should =~ ['c.rb', 'templates/e.haml']
+    end
+  end
+
+  describe ".run_supervised_task" do
     subject { ::Guard.setup }
 
     before do
@@ -408,22 +446,22 @@ describe Guard do
         end
 
         it "doesn't fire the Guard" do
-          lambda { subject.supervised_task(@g, :regular_without_arg) }.should_not change(subject.guards, :size)
+          lambda { subject.run_supervised_task(@g, :regular_without_arg) }.should_not change(subject.guards, :size)
         end
 
         it "returns the result of the task" do
-          ::Guard.supervised_task(@g, :regular_without_arg).should be_true
+          ::Guard.run_supervised_task(@g, :regular_without_arg).should be_true
         end
 
         it "passes the args to the :begin hook" do
           @g.should_receive(:hook).with("regular_without_arg_begin", "given_path")
-          ::Guard.supervised_task(@g, :regular_without_arg, "given_path")
+          ::Guard.run_supervised_task(@g, :regular_without_arg, "given_path")
         end
 
         it "passes the result of the supervised method to the :end hook" do
           @g.should_receive(:hook).with("regular_without_arg_begin", "given_path")
           @g.should_receive(:hook).with("regular_without_arg_end", true)
-          ::Guard.supervised_task(@g, :regular_without_arg, "given_path")
+          ::Guard.run_supervised_task(@g, :regular_without_arg, "given_path")
         end
       end
 
@@ -433,17 +471,17 @@ describe Guard do
         end
 
         it "doesn't fire the Guard" do
-          lambda { subject.supervised_task(@g, :regular_with_arg, "given_path") }.should_not change(subject.guards, :size)
+          lambda { subject.run_supervised_task(@g, :regular_with_arg, "given_path") }.should_not change(subject.guards, :size)
         end
 
         it "returns the result of the task" do
-          ::Guard.supervised_task(@g, :regular_with_arg, "given_path").should eql "I'm a success"
+          ::Guard.run_supervised_task(@g, :regular_with_arg, "given_path").should eql "I'm a success"
         end
 
         it "calls the default begin hook but not the default end hook" do
           @g.should_receive(:hook).with("failing_begin")
           @g.should_not_receive(:hook).with("failing_end")
-          ::Guard.supervised_task(@g, :failing)
+          ::Guard.run_supervised_task(@g, :failing)
         end
       end
     end
@@ -452,7 +490,7 @@ describe Guard do
       before(:each) { @g.stub!(:group) { :foo }; @g.stub!(:failing) { throw :task_has_failed } }
 
       it "throws :task_has_failed" do
-        expect { subject.supervised_task(@g, :failing) }.to throw_symbol(:task_has_failed)
+        expect { subject.run_supervised_task(@g, :failing) }.to throw_symbol(:task_has_failed)
       end
     end
 
@@ -460,12 +498,12 @@ describe Guard do
       before(:each) { @g.stub!(:failing) { raise "I break your system" } }
 
       it "fires the Guard" do
-        lambda { subject.supervised_task(@g, :failing) }.should change(subject.guards, :size).by(-1)
+        lambda { subject.run_supervised_task(@g, :failing) }.should change(subject.guards, :size).by(-1)
         subject.guards.should_not include(@g)
       end
 
       it "returns the exception" do
-        failing_result = ::Guard.supervised_task(@g, :failing)
+        failing_result = ::Guard.run_supervised_task(@g, :failing)
         failing_result.should be_kind_of(Exception)
         failing_result.message.should == 'I break your system'
       end

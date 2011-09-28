@@ -33,10 +33,10 @@ module Guard
       @interactor = Interactor.new
       @listener   = Listener.select_and_init(@options[:watchdir] ? File.expand_path(@options[:watchdir]) : Dir.pwd, options)
 
-      @watch_all_modifications = options[:watch_all_modifications]
       @options[:notify] && ENV['GUARD_NOTIFY'] != 'false' ? Notifier.turn_on : Notifier.turn_off
 
       UI.clear if @options[:clear]
+
       debug_command_execution if @options[:debug]
 
       self
@@ -112,7 +112,7 @@ module Guard
 
       UI.info "Guard is now watching at '#{ listener.directory }'"
 
-      execute_supervised_task_for_all_guards(:start)
+      run_guard_task(:start)
 
       interactor.start
       listener.start
@@ -123,7 +123,7 @@ module Guard
     def stop
       UI.info 'Bye bye...', :reset => true
       listener.stop
-      execute_supervised_task_for_all_guards(:stop)
+      run_guard_task(:stop)
       abort
     end
 
@@ -131,7 +131,7 @@ module Guard
     #
     def reload
       run do
-        execute_supervised_task_for_all_guards(:reload)
+        run_guard_task(:reload)
       end
     end
 
@@ -139,7 +139,7 @@ module Guard
     #
     def run_all
       run do
-        execute_supervised_task_for_all_guards(:run_all)
+        run_guard_task(:run_all)
       end
     end
 
@@ -160,7 +160,7 @@ module Guard
     #
     def run_on_change(paths)
       run do
-        execute_supervised_task_for_all_guards(:run_on_change, paths)
+        run_guard_task(:run_on_change, paths)
       end
     end
 
@@ -172,68 +172,104 @@ module Guard
     def run
       listener.lock
       interactor.lock
+
       UI.clear if options[:clear]
+
       begin
         yield
       rescue Interrupt
       end
+
       interactor.unlock
       listener.unlock
     end
 
-    # Loop through all groups and execute the given task for each Guard in it,
-    # but halt the task execution for the all Guards within a group if one Guard
+    # Loop through all groups and run the given task for each Guard.
+    #
+    # Stop the task run for the all Guards within a group if one Guard
     # throws `:task_has_failed` and the group has its `:halt_on_fail` option to `true`.
     #
     # @param [Symbol] task the task to run
-    # @param [Array] files the list of files to pass to the task
+    # @param [Array<String>] files the list of files to pass to the task
     #
-    def execute_supervised_task_for_all_guards(task, files = nil)
+    def run_guard_task(task, files = nil)
       groups.each do |group|
         catch group.options[:halt_on_fail] == true ? :task_has_failed : :no_catch do
           guards(:group => group.name).each do |guard|
             if task == :run_on_change
-              paths = Watcher.match_files(guard, files)
-              unless paths.empty?
-                if @watch_all_modifications
-                  UI.debug "#{guard.class.name}##{task} with #{paths.inspect}"
-                  supervised_task(guard, task, paths.select { |f| !f.start_with?('!') })
-                  deletions = paths.collect { |f| f.slice(1..-1) if f.start_with?('!') }.compact
-                  unless deletions.empty?
-                    UI.debug "#{guard.class.name}#run_on_deletion with #{deletions.inspect}"
-                    supervised_task(guard, :run_on_deletion, deletions)
-                  end
-                else
-                  UI.debug "#{guard.class.name}##{task} with #{paths.inspect}"
-                  supervised_task(guard, task, paths)
-                end
-              end
+              run_on_change_task(files, guard, task)
             else
-              supervised_task(guard, task)
+              run_supervised_task(guard, task)
             end
           end
         end
       end
     end
 
-    # Let a Guard execute its task, but fire it
-    # if his work leads to a system failure.
+    # Run the `:run_on_change` task. When the option `watch_all_modifications` is set,
+    # the task is split to run changed paths on {Guard::Guard#run_on_change}, whereas
+    # deleted paths run on {Guard::Guard#run_on_deletion}.
+    #
+    # @param [Array<String>] files the list of files to pass to the task
+    # @param [Guard::Guard] guard the guard to run
+    # @param [Symbol] task the task to run
+    #
+    def run_on_change_task(files, guard, task)
+      paths = Watcher.match_files(guard, files)
+      changes = changed_paths(paths)
+      deletions = deleted_paths(paths)
+
+      unless changes.empty?
+        UI.debug "#{ guard.class.name }##{ task } with #{ changes.inspect }"
+        run_supervised_task(guard, task, changes)
+      end
+
+      unless deletions.empty?
+        UI.debug "#{ guard.class.name }#run_on_deletion with #{ deletions.inspect }"
+        run_supervised_task(guard, :run_on_deletion, deletions)
+      end
+    end
+
+    # Detects the paths that have changed.
+    #
+    # Deleted paths are prefixed by an exclamation point, @see Guard::Listener#modified_files
+    #
+    # @param [Array<String>] paths the watched paths
+    # @return [Array<String>] the changed paths
+    #
+    def changed_paths(paths)
+      paths.select { |f| !f.start_with?('!') }
+    end
+
+    # Detects the paths that have been deleted.
+    #
+    # Deleted paths are prefixed by an exclamation point, @see Guard::Listener#modified_files
+    #
+    # @param [Array<String>] paths the watched paths
+    # @return [Array<String>] the deleted paths
+    #
+    def deleted_paths(paths)
+      paths.select { |f| f.start_with?('!') }.map { |f| f.slice(1..-1) }
+    end
+
+    # Run a Guard task, but remove the Guard when his work leads to a system failure.
     #
     # @param [Guard::Guard] guard the Guard to execute
-    # @param [Symbol] task_to_supervise the task to run
+    # @param [Symbol] task the task to run
     # @param [Array] args the arguments for the task
     # @return [Boolean, Exception] the result of the Guard
     #
-    def supervised_task(guard, task_to_supervise, *args)
-      guard.hook("#{ task_to_supervise }_begin", *args)
-      result = guard.send(task_to_supervise, *args)
-      guard.hook("#{ task_to_supervise }_end", result)
+    def run_supervised_task(guard, task, *args)
+      guard.hook("#{ task }_begin", *args)
+      result = guard.send(task, *args)
+      guard.hook("#{ task }_end", result)
 
       result
 
     rescue Exception => ex
-      UI.error("#{ guard.class.name } failed to achieve its <#{ task_to_supervise.to_s }>, exception was:" +
+      UI.error("#{ guard.class.name } failed to achieve its <#{ task.to_s }>, exception was:" +
                "\n#{ ex.class }: #{ ex.message }\n#{ ex.backtrace.join("\n") }")
+
       guards.delete guard
       UI.info("\n#{ guard.class.name } has just been fired")
 

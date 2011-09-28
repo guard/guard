@@ -125,8 +125,11 @@ module Guard
 
     # Get the modified files.
     #
-    # If watch_all_modifications is true then moved and deleted files are also appended
-    # to the returned array prefixed so !/home/user/dir/file.rb
+    # If the `:watch_all_modifications` option is true, then moved and
+    # deleted files are also reported, but prefixed by an exclamation point.
+    #
+    # @example Deleted or moved file
+    #   !/home/user/dir/file.rb
     #
     # @param [Array<String>] dirs the watched directories
     # @param [Hash] options the listener options
