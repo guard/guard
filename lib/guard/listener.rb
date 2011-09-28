@@ -190,7 +190,8 @@ module Guard
       !!@relativize_paths
     end
 
-    # populate initial timestamp file hash to watch for deleted or moved files
+    # Populate initial timestamp file hash to watch for deleted or moved files.
+    #
     def timestamp_files
       all_files.each {|path| set_file_timestamp_hash(path, file_timestamp(path)) } if @watch_all_modifications
     end

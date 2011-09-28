@@ -206,7 +206,7 @@ module Guard
       end
     end
 
-    # Run the `:run_on_change` task. When the option `watch_all_modifications` is set,
+    # Run the `:run_on_change` task. When the option `:watch_all_modifications` is set,
     # the task is split to run changed paths on {Guard::Guard#run_on_change}, whereas
     # deleted paths run on {Guard::Guard#run_on_deletion}.
     #
@@ -232,7 +232,8 @@ module Guard
 
     # Detects the paths that have changed.
     #
-    # Deleted paths are prefixed by an exclamation point, @see Guard::Listener#modified_files
+    # Deleted paths are prefixed by an exclamation point.
+    # @see Guard::Listener#modified_files
     #
     # @param [Array<String>] paths the watched paths
     # @return [Array<String>] the changed paths
@@ -243,7 +244,8 @@ module Guard
 
     # Detects the paths that have been deleted.
     #
-    # Deleted paths are prefixed by an exclamation point, @see Guard::Listener#modified_files
+    # Deleted paths are prefixed by an exclamation point.
+    # @see Guard::Listener#modified_files
     #
     # @param [Array<String>] paths the watched paths
     # @return [Array<String>] the deleted paths
