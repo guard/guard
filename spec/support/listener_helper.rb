@@ -188,7 +188,7 @@ shared_examples_for 'a listener that reacts to #on_change' do
 
     after { FileUtils.mv file2, file1 }
 
-    it 'does not catches the move' do
+    it 'does not catch the move' do
       File.exists?(file1).should be_true
       File.exists?(file2).should be_false
 
