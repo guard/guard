@@ -47,8 +47,8 @@ module Guard
                   :banner  => 'Specify a Guardfile'
 
     method_option :watch_all_modifications,
-                  :type => :boolean, 
-                  :default => false, 
+                  :type => :boolean,
+                  :default => false,
                   :aliases => '-A',
                   :banner => "Watch for all file modifications including moves and deletions"
 
@@ -118,18 +118,17 @@ module Guard
     # @param [String] guard_name the name of the Guard to initialize
     #
     def init(guard_name = nil)
+      if !File.exist?('Guardfile')
+        puts 'Writing new Guardfile to #{Dir.pwd}/Guardfile'
+        FileUtils.cp(File.expand_path('../templates/Guardfile', __FILE__), 'Guardfile')
+      elsif guard_name.nil?
+        Guard::UI.error "Guardfile already exists at #{ Dir.pwd }/Guardfile"
+        exit 1
+      end
+
       if guard_name
         guard_class = ::Guard.get_guard_class(guard_name)
         guard_class.init(guard_name)
-
-      else
-        if File.exist?('Guardfile')
-          puts 'Writing new Guardfile to #{Dir.pwd}/Guardfile'
-          FileUtils.cp(File.expand_path('../templates/Guardfile', __FILE__), 'Guardfile')
-        else
-          Guard::UI.error "Guardfile already exists at #{ Dir.pwd }/Guardfile"
-          exit 1
-        end
       end
     end
 

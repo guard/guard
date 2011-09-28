@@ -1,3 +1,9 @@
+## Master
+
+### Bugs fixes:
+
+- Pull request [#144](https://github.com/guard/guard/pull/144): Fix `guard init`. (reported by [@fabioyamate][], fixed by [@rymai][])
+
 ## 0.8.0 - September 28, 2011
 
 ### Bugs fixes:
@@ -266,6 +272,7 @@
 [@dnagir]: https://github.com/dnagir
 [@docwhat]: https://github.com/docwhat
 [@etehtsea]: https://github.com/etehtsea
+[@fabioyamate]: https://github.com/fabioyamate
 [@fnichol]: https://github.com/fnichol
 [@Gazer]: https://github.com/Gazer
 [@gix]: https://github.com/gix
