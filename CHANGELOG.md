@@ -7,12 +7,14 @@
 
 ### New feature:
 
+- Pull request [#136](https://github.com/guard/guard/pull/136): New CLI `:watch_all_modifications`/`-A` option to watch for deleted and moved files too. ([@limeyd][])
 - Issue [#97](https://github.com/guard/guard/issues/97): Guard dependencies. Task execution can now be halted if a Guard throws `:task_has_failed` and `Guard::Dsl#group` options include `:halt_on_fail => true`. ([@rymai][])
 - Issue [#121](https://github.com/guard/guard/issues/121): `Guard.guards` and `Guard.groups` are now smart accessors. Filters can be passed to find a specific Guard/group or several Guards/groups that match (see YARDoc). ([@rymai][] & [@ches][])
 - New `Guard::Group` class to store groups defined in Guardfile (with `Guard::Dsl#group`). ([@rymai][])
 
 ### Improvement:
 
+- Specs refactoring. ([@netzpirat][])
 - Full YARD documentation. ([@netzpirat][] & a little of [@rymai][])
 
 ## 0.7.0 - September 14, 2011
@@ -275,6 +277,7 @@
 [@johnbintz]: https://github.com/johnbintz
 [@jrsacks]: https://github.com/jrsacks
 [@koshigoe]: https://github.com/koshigoe
+[@limeyd]: https://github.com/limeyd
 [@mcmire]: https://github.com/mcmire
 [@mislav]: https://github.com/mislav
 [@monocle]: https://github.com/monocle
