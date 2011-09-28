@@ -169,11 +169,11 @@ Guard can use a Guardfile not located in the current directory:
 
 ### `-A`/`--watch-all-modifications` option
 
-Guard can optionally watch all file modifactions like moves or deletions with:
+Guard can optionally watch all file modifications like moves or deletions with:
 
 ``` bash
 $ guard start -A
-$ guard start --watch-all-modifactions
+$ guard start --watch-all-modifications
 ```
 
 An exhaustive list of options is available with:
