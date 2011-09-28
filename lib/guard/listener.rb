@@ -47,14 +47,14 @@ module Guard
     # @option options [Array<String>] ignore_paths the paths to ignore by the listener
     #
     def initialize(directory = Dir.pwd, options = {})
-      @directory           = directory.to_s
-      @sha1_checksums_hash = {}
-      @file_timestamp_hash = {}
-      @relativize_paths    = options.fetch(:relativize_paths, true)
-      @changed_files       = []
-      @locked              = false
-      @ignore_paths        = DEFAULT_IGNORE_PATHS
-      @ignore_paths |= options[:ignore_paths] if options[:ignore_paths]
+      @directory                = directory.to_s
+      @sha1_checksums_hash      = {}
+      @file_timestamp_hash      = {}
+      @relativize_paths         = options.fetch(:relativize_paths, true)
+      @changed_files            = []
+      @locked                   = false
+      @ignore_paths             = DEFAULT_IGNORE_PATHS
+      @ignore_paths            |= options[:ignore_paths] if options[:ignore_paths]
       @watch_all_modifications  = options.fetch(:watch_all_modifications, false)
 
       update_last_event
@@ -150,6 +150,7 @@ module Guard
       end
       update_last_event
       files.concat(potentially_modified_files(dirs, options).select { |path| file_modified?(path, last_event) })
+
       relativize_paths(files)
     end
 
