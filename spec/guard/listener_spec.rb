@@ -41,7 +41,8 @@ describe Guard::Listener do
     subject { described_class.new(@fixture_path) }
 
     it 'should return all files' do
-      subject.all_files.should =~ Dir.glob("#{ @fixture_path }/**/*", File::FNM_DOTMATCH).select { |file| File.file?(file) }
+      subject.all_files.should =~
+          Dir.glob("#{ @fixture_path }/**/*", File::FNM_DOTMATCH).select { |file| File.file?(file) }
     end
   end
 
@@ -194,7 +195,7 @@ describe Guard::Listener do
       it 'should track moved files' do
         watch do
           FileUtils.touch([file1, file3])
-          subject.modified_files([@fixture_path.join('folder1')], { }).should =~
+          subject.modified_files([fixture('folder1')], { }).should =~
               ['spec/fixtures/folder1/deletedfile1.txt', 'spec/fixtures/folder1/file1.txt']
 
           subject.update_last_event
@@ -210,13 +211,13 @@ describe Guard::Listener do
       it 'should track deleted files with all option' do
         watch do
           FileUtils.touch([file1, file2])
-          subject.modified_files([@fixture_path.join('folder1')], { :all => true }).should =~
+          subject.modified_files([fixture('folder1')], { :all => true }).should =~
               ['spec/fixtures/folder1/file1.txt', 'spec/fixtures/folder1/folder2/file2.txt']
 
           subject.update_last_event
 
           FileUtils.remove_file(file2)
-          subject.modified_files([@fixture_path.join('folder1')], { :all => true }).should =~
+          subject.modified_files([fixture('folder1')], { :all => true }).should =~
               ['!spec/fixtures/folder1/folder2/file2.txt']
         end
       end
@@ -224,13 +225,13 @@ describe Guard::Listener do
       it 'should track moved files with all option' do
         watch do
           FileUtils.touch([file1, file2])
-          subject.modified_files([@fixture_path.join('folder1')], { :all => true }).should =~
+          subject.modified_files([fixture('folder1')], { :all => true }).should =~
               ['spec/fixtures/folder1/file1.txt', 'spec/fixtures/folder1/folder2/file2.txt']
 
           subject.update_last_event
 
           FileUtils.move(file1, file5)
-          subject.modified_files([@fixture_path.join('folder1')], { :all => true }).should =~
+          subject.modified_files([fixture('folder1')], { :all => true }).should =~
               ['!spec/fixtures/folder1/file1.txt', 'spec/fixtures/folder1/folder2/movedfile1.txt']
 
           FileUtils.move(file5, file1)
