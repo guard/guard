@@ -133,6 +133,7 @@ module Guard
     #
     # @param [Array<String>] dirs the watched directories
     # @param [Hash] options the listener options
+    # @option options [Symbol] all whether to files in sub directories
     # @return [Array<String>] paths of files that have been modified
     #
     def modified_files(dirs, options = {})
@@ -214,7 +215,8 @@ module Guard
     # Gets a list of files that are in the modified directories.
     #
     # @param [Array<String>] dirs the list of directories
-    # @option options [Symbol] all whether to include all files
+    # @param [Hash] options the find file option
+    # @option options [Symbol] all whether to files in sub directories
     #
     def potentially_modified_files(dirs, options = {})
       paths = exclude_ignored_paths(dirs)
