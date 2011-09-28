@@ -148,16 +148,32 @@ describe Guard::Listener do
         subject.instance_variable_get(:@watch_all_modifications).should eql false
       end
 
-      it 'it should not track deleted files' do
-        watch do
-          FileUtils.touch([file1, file2, file3])
-          subject.modified_files([fixture('folder1')], {}).should =~
-              ['spec/fixtures/folder1/deletedfile1.txt', 'spec/fixtures/folder1/file1.txt']
+      context 'for a deleted file' do
+        after { FileUtils.touch(file3) }
 
-          subject.update_last_event
+        it 'does not catch the deletion' do
+          File.exists?(file3).should be_true
 
-          FileUtils.rm(file3)
+          watch do
+            FileUtils.remove_file(file3)
+          end
+
           subject.modified_files([fixture('folder1')], {}).should =~ []
+        end
+      end
+
+      context 'for a moved file' do
+        after { FileUtils.move(file4, file1) }
+
+        it 'does not catch the move' do
+          File.exists?(file1).should be_true
+          File.exists?(file4).should be_false
+
+          watch do
+            FileUtils.move(file1, file4)
+          end
+
+          subject.modified_files([@fixture_path.join('folder1')], {}).should =~ []
         end
       end
     end
@@ -170,71 +186,38 @@ describe Guard::Listener do
         subject.update_last_event
       end
 
-      after do
-        FileUtils.touch([file1, file2, file3])
-      end
-
       it 'should be true when set' do
         subject.instance_variable_get(:@watch_all_modifications).should eql true
       end
 
-      it 'should track deleted files' do
-        watch do
-          FileUtils.touch([file1, file3])
-          subject.modified_files([fixture('folder1')], { }).should =~
-              ['spec/fixtures/folder1/deletedfile1.txt', 'spec/fixtures/folder1/file1.txt']
+      context 'for a deleted file' do
+        after { FileUtils.touch(file3) }
 
-          subject.update_last_event
+        it 'catches the deletion' do
+          File.exists?(file3).should be_true
 
-          FileUtils.remove_file(file3)
-          subject.modified_files([fixture('folder1')], { }).should =~
+          watch do
+            FileUtils.remove_file(file3)
+          end
+
+          subject.modified_files([fixture('folder1')], {}).should =~
               ['!spec/fixtures/folder1/deletedfile1.txt']
         end
       end
 
-      it 'should track moved files' do
-        watch do
-          FileUtils.touch([file1, file3])
-          subject.modified_files([fixture('folder1')], { }).should =~
-              ['spec/fixtures/folder1/deletedfile1.txt', 'spec/fixtures/folder1/file1.txt']
+      context 'for a moved file' do
+        after { FileUtils.move(file4, file1) }
 
-          subject.update_last_event
+        it 'catches the move' do
+          File.exists?(file1).should be_true
+          File.exists?(file4).should be_false
 
-          FileUtils.move(file1, file4)
-          subject.modified_files([@fixture_path.join('folder1')], { }).should =~
+          watch do
+            FileUtils.move(file1, file4)
+          end
+
+          subject.modified_files([@fixture_path.join('folder1')], {}).should =~
               ['!spec/fixtures/folder1/file1.txt', 'spec/fixtures/folder1/movedfile1.txt']
-
-          FileUtils.move(file4, file1)
-        end
-      end
-
-      it 'should track deleted files with all option' do
-        watch do
-          FileUtils.touch([file1, file2])
-          subject.modified_files([fixture('folder1')], { :all => true }).should =~
-              ['spec/fixtures/folder1/file1.txt', 'spec/fixtures/folder1/folder2/file2.txt']
-
-          subject.update_last_event
-
-          FileUtils.remove_file(file2)
-          subject.modified_files([fixture('folder1')], { :all => true }).should =~
-              ['!spec/fixtures/folder1/folder2/file2.txt']
-        end
-      end
-
-      it 'should track moved files with all option' do
-        watch do
-          FileUtils.touch([file1, file2])
-          subject.modified_files([fixture('folder1')], { :all => true }).should =~
-              ['spec/fixtures/folder1/file1.txt', 'spec/fixtures/folder1/folder2/file2.txt']
-
-          subject.update_last_event
-
-          FileUtils.move(file1, file5)
-          subject.modified_files([fixture('folder1')], { :all => true }).should =~
-              ['!spec/fixtures/folder1/file1.txt', 'spec/fixtures/folder1/folder2/movedfile1.txt']
-
-          FileUtils.move(file5, file1)
         end
       end
     end
