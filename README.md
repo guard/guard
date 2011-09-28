@@ -338,7 +338,7 @@ Here is an example scaffold for `lib/guard/guard-name.rb`:
     module Guard
       class GuardName < Guard
 
-        def initialize(watchers=[], options={})
+        def initialize(watchers = [], options = {})
           super
           # init stuff here, thx!
         end
@@ -375,6 +375,11 @@ Here is an example scaffold for `lib/guard/guard-name.rb`:
 
         # Called on file(s) modifications
         def run_on_change(paths)
+          true
+        end
+
+        # Called on file(s) deletions
+        def run_on_deletion(paths)
           true
         end
 
