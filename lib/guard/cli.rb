@@ -123,7 +123,7 @@ module Guard
         guard_class.init(guard_name)
 
       else
-        if File.exist?('Guardfile')
+        if !File.exist?('Guardfile')
           puts 'Writing new Guardfile to #{Dir.pwd}/Guardfile'
           FileUtils.cp(File.expand_path('../templates/Guardfile', __FILE__), 'Guardfile')
         else
