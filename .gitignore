@@ -6,6 +6,7 @@ doc/*
 *.bak
 .bundle
 .yardoc
+.rbx
 Gemfile.lock
 
 ## MAC OS
