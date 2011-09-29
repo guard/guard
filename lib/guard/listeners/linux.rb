@@ -26,7 +26,6 @@ module Guard
     def stop
       super
       @stop = true
-      sleep(@latency)
     end
 
     # Check if the listener is usable on the current OS.

@@ -122,8 +122,13 @@ module Guard
     #
     def stop
       UI.info 'Bye bye...', :reset => true
-      listener.stop
+
+      listener.lock
+      interactor.lock
+
       run_guard_task(:stop)
+
+      listener.stop
       abort
     end
 
