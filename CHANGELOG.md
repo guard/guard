@@ -1,4 +1,4 @@
-## Master
+## 0.8.1 - September 29, 2011
 
 ### Bugs fixes:
 
