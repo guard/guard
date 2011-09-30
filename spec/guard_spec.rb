@@ -369,7 +369,7 @@ describe Guard do
       end
     end
 
-    context "one guard fails (by returning false)" do
+    context "one guard fails" do
       before do
         subject.guards.each_with_index do |g, i|
           g.stub!(:task) do
@@ -437,6 +437,7 @@ describe Guard do
       @g = mock(Guard::Guard).as_null_object
       subject.guards.push(@g)
       subject.add_group(:foo, { :halt_on_fail => true })
+      subject.add_group(:bar, { :halt_on_fail => false })
     end
 
     context "with a task that succeed" do
@@ -486,16 +487,26 @@ describe Guard do
       end
     end
 
-    context "with a task that return false and guard's group has the :halt_on_fail option == true" do
-      before(:each) { @g.stub!(:group) { :foo }; @g.stub!(:failing) { throw :task_has_failed } }
+    context "with a task that throw :task_has_failed" do
+      context "for a guard's group has the :halt_on_fail option == true" do
+        before(:each) { @g.stub!(:group) { :foo }; @g.stub!(:failing) { throw :task_has_failed } }
 
-      it "throws :task_has_failed" do
-        expect { subject.run_supervised_task(@g, :failing) }.to throw_symbol(:task_has_failed)
+        it "throws :task_has_failed" do
+          expect { subject.run_supervised_task(@g, :failing) }.to throw_symbol(:task_has_failed)
+        end
+      end
+
+      context "for a guard's group has the :halt_on_fail option == false" do
+        before(:each) { @g.stub!(:group) { :bar }; @g.stub!(:failing) { throw :task_has_failed } }
+
+        it "catches :task_has_failed" do
+          expect { subject.run_supervised_task(@g, :failing) }.to_not throw_symbol(:task_has_failed)
+        end
       end
     end
 
     context "with a task that raises an exception" do
-      before(:each) { @g.stub!(:failing) { raise "I break your system" } }
+      before(:each) { @g.stub!(:group) { :foo }; @g.stub!(:failing) { raise "I break your system" } }
 
       it "fires the Guard" do
         lambda { subject.run_supervised_task(@g, :failing) }.should change(subject.guards, :size).by(-1)
@@ -506,6 +517,42 @@ describe Guard do
         failing_result = ::Guard.run_supervised_task(@g, :failing)
         failing_result.should be_kind_of(Exception)
         failing_result.message.should == 'I break your system'
+      end
+    end
+  end
+
+  describe '.guard_symbol' do
+    let(:guard) { mock(Guard::Guard).as_null_object }
+
+    it 'returns :task_has_failed when the group is missing' do
+      subject.guard_symbol(guard).should eql :task_has_failed
+    end
+
+    context 'for a group with :halt_on_fail' do
+      let(:group) { mock(Guard::Group) }
+
+      before do
+        guard.stub(:group).and_return :foo
+        group.stub(:options).and_return({ :halt_on_fail => true })
+      end
+
+      it 'returns :task_has_failed when the group is missing' do
+        subject.should_receive(:groups).with(:foo).and_return group
+        subject.guard_symbol(guard).should eql :no_catch
+      end
+    end
+
+    context 'for a group without :halt_on_fail' do
+      let(:group) { mock(Guard::Group) }
+
+      before do
+        guard.stub(:group).and_return :foo
+        group.stub(:options).and_return({ :halt_on_fail => false })
+      end
+
+      it 'returns :task_has_failed when the group is missing' do
+        subject.should_receive(:groups).with(:foo).and_return group
+        subject.guard_symbol(guard).should eql :task_has_failed
       end
     end
   end

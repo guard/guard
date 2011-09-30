@@ -192,14 +192,14 @@ module Guard
     # Loop through all groups and run the given task for each Guard.
     #
     # Stop the task run for the all Guards within a group if one Guard
-    # throws `:task_has_failed` and the group has its `:halt_on_fail` option to `true`.
+    # throws `:task_has_failed`.
     #
     # @param [Symbol] task the task to run
     # @param [Array<String>] files the list of files to pass to the task
     #
     def run_guard_task(task, files = nil)
       groups.each do |group|
-        catch group.options[:halt_on_fail] == true ? :task_has_failed : :no_catch do
+        catch :task_has_failed do
           guards(:group => group.name).each do |guard|
             if task == :run_on_change
               run_on_change_task(files, guard, task)
@@ -262,17 +262,22 @@ module Guard
 
     # Run a Guard task, but remove the Guard when his work leads to a system failure.
     #
+    # When the Group has `:halt_on_fail` disabled, we've to catch `:task_has_failed`
+    # here in order to avoid an uncaught throw error.
+    #
     # @param [Guard::Guard] guard the Guard to execute
     # @param [Symbol] task the task to run
     # @param [Array] args the arguments for the task
     # @raise [:task_has_failed] when task has failed
     #
     def run_supervised_task(guard, task, *args)
-      guard.hook("#{ task }_begin", *args)
-      result = guard.send(task, *args)
-      guard.hook("#{ task }_end", result)
+      catch guard_symbol(guard) do
+        guard.hook("#{ task }_begin", *args)
+        result = guard.send(task, *args)
+        guard.hook("#{ task }_end", result)
 
-      result
+        result
+      end
 
     rescue Exception => ex
       UI.error("#{ guard.class.name } failed to achieve its <#{ task.to_s }>, exception was:" +
@@ -282,6 +287,25 @@ module Guard
       UI.info("\n#{ guard.class.name } has just been fired")
 
       ex
+    end
+
+    # Get the symbol we have to catch when running a supervised task.
+    # If we are within a Guard group that has the `:halt_on_fail`
+    # option set, we do NOT catch it here, it will be catched at the
+    # group level.
+    #
+    # @see .run_guard_task
+    #
+    # @param [Guard::Guard] guard the Guard to execute
+    # @return [Symbol] the symbol to catch
+    #
+    def guard_symbol(guard)
+      if guard.group.class == Symbol
+        group = groups(guard.group)
+        group.options[:halt_on_fail] ? :no_catch : :task_has_failed
+      else
+        :task_has_failed
+      end
     end
 
     # Add a Guard to use.
