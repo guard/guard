@@ -45,6 +45,7 @@ module Guard
                   ::Guard.run_all
               end
             end
+            sleep 0.1
           rescue LockException
             lock
           rescue UnlockException
