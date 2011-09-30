@@ -7,17 +7,17 @@ module Guard
   #
   # In each of these Guard methods you have to implement some work when you want to
   # support this kind of task. The return value of each Guard method is ignored, but
-  # you can raise a `:task_has_failed` exception to indicate that your Guard method was
-  # not successful. When a `:task_has_failed` exception is raised, successive guard tasks
+  # you can throw `:task_has_failed` to indicate that your Guard method was
+  # not successful. When `:task_has_failed` is thrown, successive guard tasks
   # can be aborted when the group has set the `:halt_on_fail` option.
   #
   # @see Guard::Group
   #
-  # @example Raise a :task_has_failed exception
+  # @example Throw :task_has_failed
   #
   #   def run_all
   #     if !runner.run(['all'])
-  #       raise :task_has_failed
+  #       throw :task_has_failed
   #     end
   #   end
   #
