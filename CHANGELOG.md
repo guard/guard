@@ -1,3 +1,13 @@
+## 0.8.2 - September 30, 2011
+
+### Bugs fixes:
+
+- Fixed guard stop to prevent run_guard_task(:stop) to be skipped [guard-spork issue #28](https://github.com/guard/guard-spork/issues/28). ([@thibaudgg][])
+
+### Improvement:
+
+- Update docs regarding :task_has_failed. ([@netzpirat][])
+
 ## 0.8.1 - September 29, 2011
 
 ### Bugs fixes:
