@@ -328,7 +328,9 @@ Creating a new guard is very easy, just create a new gem (`bundle gem` if you us
     test/ # or spec/
     README.md
 
-`Guard::GuardName` (in `lib/guard/guard-name.rb`) must inherit from `Guard::Guard` and should overwrite at least one of the five basic `Guard::Guard` instance methods.
+`Guard::GuardName` (in `lib/guard/guard-name.rb`) must inherit from
+[Guard::Guard](http://rubydoc.info/github/guard/guard/master/Guard/Guard) and should overwrite at least one of
+the basic `Guard::Guard` task methods.
 
 Here is an example scaffold for `lib/guard/guard-name.rb`:
 
@@ -338,55 +340,52 @@ Here is an example scaffold for `lib/guard/guard-name.rb`:
     module Guard
       class GuardName < Guard
 
+        # Initialize a Guard.
+        # @param [Array<Guard::Watcher>] watchers the Guard file watchers
+        # @param [Hash] options the custom Guard options
         def initialize(watchers = [], options = {})
           super
-          # init stuff here, thx!
         end
 
-        # =================
-        # = Guard methods =
-        # =================
-
-        # If one of those methods raise an exception, the Guard::GuardName instance
-        # will be removed from the active guards.
-
-        # Called once when Guard starts
-        # Please override initialize method to init stuff
+        # Call once when Guard starts. Please override initialize method to init stuff.
+        # @raise [:task_has_failed] when start has failed
         def start
-          true
         end
 
-        # Called when `stop|quit|exit|s|q|e + enter` is pressed (when Guard quits)
+        # Called when `stop|quit|exit|s|q|e + enter` is pressed (when Guard quits).
+        # @raise [:task_has_failed] when stop has failed
         def stop
-          true
         end
 
-        # Called when `reload|r|z + enter` is pressed
+        # Called when `reload|r|z + enter` is pressed.
         # This method should be mainly used for "reload" (really!) actions like reloading passenger/spork/bundler/...
+        # @raise [:task_has_failed] when reload has failed
         def reload
-          true
         end
 
         # Called when just `enter` is pressed
         # This method should be principally used for long action like running all specs/tests/...
+        # @raise [:task_has_failed] when run_all has failed
         def run_all
-          true
         end
 
-        # Called on file(s) modifications
+        # Called on file(s) modifications that the Guard watches.
+        # @param [Array<String>] paths the changes files or paths
+        # @raise [:task_has_failed] when run_on_change has failed
         def run_on_change(paths)
-          true
         end
 
-        # Called on file(s) deletions
+        # Called on file(s) deletions that the Guard watches.
+        # @param [Array<String>] paths the deleted files or paths
+        # @raise [:task_has_failed] when run_on_change has failed
         def run_on_deletion(paths)
-          true
         end
 
       end
     end
 
-Please take a look at the [existing guards' source code](https://github.com/guard/guard/wiki/List-of-available-Guards) for more concrete example and inspiration.
+Please take a look at the [existing guards' source code](https://github.com/guard/guard/wiki/List-of-available-Guards)
+for more concrete example and inspiration.
 
 Alternatively, a new guard can be added inline to a Guardfile with this basic structure:
 
@@ -395,11 +394,9 @@ Alternatively, a new guard can be added inline to a Guardfile with this basic st
     module ::Guard
       class InlineGuard < ::Guard::Guard
         def run_all
-          true
         end
 
         def run_on_change(paths)
-          true
         end
       end
     end

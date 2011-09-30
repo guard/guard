@@ -218,6 +218,7 @@ module Guard
     # @param [Array<String>] files the list of files to pass to the task
     # @param [Guard::Guard] guard the guard to run
     # @param [Symbol] task the task to run
+    # @raise [:task_has_failed] when task has failed
     #
     def run_on_change_task(files, guard, task)
       paths = Watcher.match_files(guard, files)
@@ -264,7 +265,7 @@ module Guard
     # @param [Guard::Guard] guard the Guard to execute
     # @param [Symbol] task the task to run
     # @param [Array] args the arguments for the task
-    # @return [Boolean, Exception] the result of the Guard
+    # @raise [:task_has_failed] when task has failed
     #
     def run_supervised_task(guard, task, *args)
       guard.hook("#{ task }_begin", *args)

@@ -2,11 +2,30 @@ module Guard
 
   # Main class that every Guard implementation must subclass.
   #
-  # Guard will trigger the `start`, `stop`, `reload`, `run_all` and `run_on_change`
-  # methods depending on user interaction and file modification.
+  # Guard will trigger the `start`, `stop`, `reload`, `run_all`, `run_on_change` and
+  # `run_on_deletion` methods depending on user interaction and file modification.
+  #
+  # In each of these Guard methods you have to implement some work when you want to
+  # support this kind of task. The return value of each Guard method is ignored, but
+  # you can raise a `:task_has_failed` exception to indicate that your Guard method was
+  # not successful. When a `:task_has_failed` exception is raised, successive guard tasks
+  # can be aborted when the group has set the `:halt_on_fail` option.
+  #
+  # @see Guard::Group
+  #
+  # @example Raise a :task_has_failed exception
+  #
+  #   def run_all
+  #     if !runner.run(['all'])
+  #       raise :task_has_failed
+  #     end
+  #   end
   #
   # Each Guard should provide a template Guardfile located within the Gem
   # at `lib/guard/guard-name/templates/Guardfile`.
+  #
+  # If one of those methods raise an exception other than `:task_has_failed`,
+  # the Guard::GuardName instance will be removed from the active guards.
   #
   class Guard
     include Hook
@@ -45,52 +64,48 @@ module Guard
 
     # Call once when Guard starts. Please override initialize method to init stuff.
     #
-    # @return [Boolean] Whether the start action was successful or not
+    # @raise [:task_has_failed] when start has failed
     #
     def start
-      true
     end
 
-    # Call once when Guard quit.
+    # Called when `stop|quit|exit|s|q|e + enter` is pressed (when Guard quits).
     #
-    # @return [Boolean] Whether the stop action was successful or not
+    # @raise [:task_has_failed] when stop has failed
     #
     def stop
-      true
     end
 
-    # Should be used for "reload" (really!) actions like reloading passenger/spork/bundler/...
+    # Called when `reload|r|z + enter` is pressed.
+    # This method should be mainly used for "reload" (really!) actions like reloading passenger/spork/bundler/...
     #
-    # @return [Boolean] Whether the reload action was successful or not
+    # @raise [:task_has_failed] when reload has failed
     #
     def reload
-      true
     end
 
-    # Should be used for long action like running all specs/tests/...
+    # Called when just `enter` is pressed
+    # This method should be principally used for long action like running all specs/tests/...
     #
-    # @return [Boolean] Whether the run_all action was successful or not
+    # @raise [:task_has_failed] when run_all has failed
     #
     def run_all
-      true
     end
 
-    # Will be triggered when a file change matched a watcher.
+    # Called on file(s) modifications that the Guard watches.
     #
     # @param [Array<String>] paths the changes files or paths
-    # @return [Boolean] Whether the run_on_change action was successful or not
+    # @raise [:task_has_failed] when run_on_change has failed
     #
     def run_on_change(paths)
-      true
     end
 
-    # Will be triggered when a file deletion matched a watcher.
+    # Called on file(s) deletions that the Guard watches.
     #
     # @param [Array<String>] paths the deleted files or paths
-    # @return [Boolean] Whether the run_on_deletion action was successful or not
+    # @raise [:task_has_failed] when run_on_change has failed
     #
     def run_on_deletion(paths)
-      true
     end
 
   end
