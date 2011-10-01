@@ -1,3 +1,14 @@
+## Master
+
+### Bugs fixes:
+
+- Pull request [#145](https://github.com/guard/guard/pull/145): Fix over-utilization of CPU in Interactor. ([@johnbintz][])
+
+### Improvement:
+
+- Pull request [#146](https://github.com/guard/guard/pull/146): Use a mutex instead of a lock for more efficient/simple locking. ([@f1sherman][])
+- Make Guard implementation of `:task_has_failed` simple. ([@netzpirat][])
+
 ## 0.8.2 - September 30, 2011
 
 ### Bugs fixes:
@@ -282,6 +293,7 @@
 [@dnagir]: https://github.com/dnagir
 [@docwhat]: https://github.com/docwhat
 [@etehtsea]: https://github.com/etehtsea
+[@f1sherman]: https://github.com/f1sherman
 [@fabioyamate]: https://github.com/fabioyamate
 [@fnichol]: https://github.com/fnichol
 [@Gazer]: https://github.com/Gazer
