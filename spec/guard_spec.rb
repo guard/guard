@@ -536,7 +536,7 @@ describe Guard do
         group.stub(:options).and_return({ :halt_on_fail => true })
       end
 
-      it 'returns :task_has_failed when the group is missing' do
+      it 'returns :no_catch' do
         subject.should_receive(:groups).with(:foo).and_return group
         subject.guard_symbol(guard).should eql :no_catch
       end
@@ -550,7 +550,7 @@ describe Guard do
         group.stub(:options).and_return({ :halt_on_fail => false })
       end
 
-      it 'returns :task_has_failed when the group is missing' do
+      it 'returns :task_has_failed' do
         subject.should_receive(:groups).with(:foo).and_return group
         subject.guard_symbol(guard).should eql :task_has_failed
       end
