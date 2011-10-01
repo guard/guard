@@ -1,3 +1,5 @@
+require 'thread'
+
 # Guard is the main module for all Guard related modules and classes.
 # Also other Guard implementation should use this namespace.
 #
@@ -38,6 +40,8 @@ module Guard
       UI.clear if @options[:clear]
 
       debug_command_execution if @options[:debug]
+
+      @lock = Mutex.new
 
       self
     end
@@ -123,9 +127,6 @@ module Guard
     def stop
       UI.info 'Bye bye...', :reset => true
 
-      listener.lock
-      interactor.lock
-
       run_guard_task(:stop)
 
       listener.stop
@@ -151,13 +152,13 @@ module Guard
     # Pause Guard listening to file changes.
     #
     def pause
-      if listener.locked
+      if listener.paused?
         UI.info 'Un-paused files modification listening', :reset => true
         listener.clear_changed_files
-        listener.unlock
+        listener.run
       else
         UI.info 'Paused files modification listening', :reset => true
-        listener.lock
+        listener.pause
       end
     end
 
@@ -175,18 +176,14 @@ module Guard
     # @yield the block to run
     #
     def run
-      listener.lock
-      interactor.lock
-
       UI.clear if options[:clear]
 
-      begin
-        yield
-      rescue Interrupt
+      @lock.synchronize do
+        begin
+          yield
+        rescue Interrupt
+        end
       end
-
-      interactor.unlock
-      listener.unlock
     end
 
     # Loop through all groups and run the given task for each Guard.

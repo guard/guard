@@ -19,7 +19,11 @@ module Guard
     DEFAULT_IGNORE_PATHS = %w[. .. .bundle .git log tmp vendor]
 
     attr_accessor :changed_files
-    attr_reader :directory, :ignore_paths, :locked
+    attr_reader :directory, :ignore_paths
+
+    def paused?
+      @paused
+    end
 
     # Select the appropriate listener implementation for the
     # current OS and initializes it.
@@ -52,7 +56,7 @@ module Guard
       @file_timestamp_hash      = {}
       @relativize_paths         = options.fetch(:relativize_paths, true)
       @changed_files            = []
-      @locked                   = false
+      @paused                   = false
       @ignore_paths             = DEFAULT_IGNORE_PATHS
       @ignore_paths            |= options[:ignore_paths] if options[:ignore_paths]
       @watch_all_modifications  = options.fetch(:watch_all_modifications, false)
@@ -68,7 +72,7 @@ module Guard
 
       Thread.new do
         loop do
-          if @changed_files != [] && !@locked
+          if @changed_files != [] && !@paused
             changed_files = @changed_files.dup
             clear_changed_files
             ::Guard.run_on_change(changed_files)
@@ -91,16 +95,16 @@ module Guard
     def stop
     end
 
-    # Lock the listener to ignore change events.
+    # Pause the listener to ignore change events.
     #
-    def lock
-      @locked = true
+    def pause
+      @paused = true
     end
 
-    # Unlock the listener to listen again to change events.
+    # Unpause the listener to listen again to change events.
     #
-    def unlock
-      @locked = false
+    def run
+      @paused = false
     end
 
     # Clear the list of changed files.
