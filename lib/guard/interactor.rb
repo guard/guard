@@ -11,27 +11,33 @@ module Guard
   # - Everything else => Run all
   #
   class Interactor
-
     # Start the interactor in its own thread.
     #
     def start
       return if ENV["GUARD_ENV"] == 'test'
 
-      @thread = Thread.new do
-        while entry = $stdin.gets.chomp
-          entry.gsub! /\n/, ''
-          case entry
-            when 'stop', 'quit', 'exit', 's', 'q', 'e'
-              ::Guard.stop
-            when 'reload', 'r', 'z'
-              ::Guard::Dsl.reevaluate_guardfile
-              ::Guard.reload
-            when 'pause', 'p'
-              ::Guard.pause
-            else
-              ::Guard.run_all
+      if !@thread || @thread.stop?
+        @thread = Thread.new do
+          while entry = $stdin.gets.chomp
+            case entry
+              when 'stop', 'quit', 'exit', 's', 'q', 'e'
+                ::Guard.stop
+              when 'reload', 'r', 'z'
+                ::Guard::Dsl.reevaluate_guardfile
+                ::Guard.reload
+              when 'pause', 'p'
+                ::Guard.pause
+              else
+                ::Guard.run_all
+            end
           end
         end
+      end
+    end
+
+    def stop_if_not_current
+      unless Thread.current == @thread
+        @thread.kill
       end
     end
   end
