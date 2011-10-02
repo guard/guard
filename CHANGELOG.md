@@ -2,7 +2,7 @@
 
 ### Bug fix
 
-- [#149](https://github.com/guard/guard/issues/149) & [#150](https://github.com/guard/guard/pull/150): Fix issue where interator thread was continuing to capture input from stdin while a guard is being executed. (reported by @hardipe, fixed by [@f1sherman][])
+- [#149](https://github.com/guard/guard/issues/149) & [#150](https://github.com/guard/guard/pull/150): Fix issue where interator thread was continuing to capture input from stdin while a guard is being executed. (reported by [@hardipe][], fixed by [@f1sherman][])
 
 ## 0.8.3 - October 1, 2011
 
