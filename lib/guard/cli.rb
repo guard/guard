@@ -119,7 +119,7 @@ module Guard
     #
     def init(guard_name = nil)
       if !File.exist?('Guardfile')
-        puts 'Writing new Guardfile to #{Dir.pwd}/Guardfile'
+        puts "Writing new Guardfile to #{Dir.pwd}/Guardfile"
         FileUtils.cp(File.expand_path('../templates/Guardfile', __FILE__), 'Guardfile')
       elsif guard_name.nil?
         Guard::UI.error "Guardfile already exists at #{ Dir.pwd }/Guardfile"
