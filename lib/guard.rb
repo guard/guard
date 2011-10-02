@@ -29,6 +29,8 @@ module Guard
     # @option options [Boolean] watch_all_modifications watches all file modifications if true
     #
     def setup(options = {})
+      @lock = Mutex.new
+
       @options    = options
       @guards     = []
       @groups     = [Group.new(:default)]
@@ -40,8 +42,6 @@ module Guard
       UI.clear if @options[:clear]
 
       debug_command_execution if @options[:debug]
-
-      @lock = Mutex.new
 
       self
     end
@@ -180,9 +180,12 @@ module Guard
 
       @lock.synchronize do
         begin
+          @interactor.stop_if_not_current
           yield
         rescue Interrupt
         end
+
+        @interactor.start
       end
     end
 
