@@ -1,4 +1,4 @@
-## Master
+## 0.8.4 - October 3, 2011
 
 ### Bug fix
 
