@@ -3,14 +3,16 @@ module Guard
   # Main class that every Guard implementation must subclass.
   #
   # Guard will trigger the `start`, `stop`, `reload`, `run_all`, `run_on_change` and
-  # `run_on_deletion` methods depending on user interaction and file modification.
+  # `run_on_deletion` task methods depending on user interaction and file modification.
   #
-  # In each of these Guard methods you have to implement some work when you want to
-  # support this kind of task. The return value of each Guard method is ignored, but
-  # you can throw `:task_has_failed` to indicate that your Guard method was
-  # not successful. When `:task_has_failed` is thrown, successive guard tasks
-  # can be aborted when the group has set the `:halt_on_fail` option.
+  # In each of these Guard task methods you have to implement some work when you want to
+  # support this kind of task. The return value of each Guard task method is not evaluated
+  # by Guard, but I'll be passed to the "_end" hook for further evaluation. You can
+  # throw `:task_has_failed` to indicate that your Guard method was not successful,
+  # and successive guard tasks will be aborted when the group has set the `:halt_on_fail`
+  # option.
   #
+  # @see Guard::Hook
   # @see Guard::Group
   #
   # @example Throw :task_has_failed
@@ -65,6 +67,7 @@ module Guard
     # Call once when Guard starts. Please override initialize method to init stuff.
     #
     # @raise [:task_has_failed] when start has failed
+    # @return [Object] the task result
     #
     def start
     end
@@ -72,6 +75,7 @@ module Guard
     # Called when `stop|quit|exit|s|q|e + enter` is pressed (when Guard quits).
     #
     # @raise [:task_has_failed] when stop has failed
+    # @return [Object] the task result
     #
     def stop
     end
@@ -80,6 +84,7 @@ module Guard
     # This method should be mainly used for "reload" (really!) actions like reloading passenger/spork/bundler/...
     #
     # @raise [:task_has_failed] when reload has failed
+    # @return [Object] the task result
     #
     def reload
     end
@@ -88,6 +93,7 @@ module Guard
     # This method should be principally used for long action like running all specs/tests/...
     #
     # @raise [:task_has_failed] when run_all has failed
+    # @return [Object] the task result
     #
     def run_all
     end
@@ -96,6 +102,7 @@ module Guard
     #
     # @param [Array<String>] paths the changes files or paths
     # @raise [:task_has_failed] when run_on_change has failed
+    # @return [Object] the task result
     #
     def run_on_change(paths)
     end
@@ -104,6 +111,7 @@ module Guard
     #
     # @param [Array<String>] paths the deleted files or paths
     # @raise [:task_has_failed] when run_on_change has failed
+    # @return [Object] the task result
     #
     def run_on_deletion(paths)
     end
