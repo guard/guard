@@ -50,7 +50,7 @@ module Guard
                   :type => :boolean,
                   :default => false,
                   :aliases => '-A',
-                  :banner => "Watch for all file modifications including moves and deletions"
+                  :banner => 'Watch for all file modifications including moves and deletions'
 
     # Start Guard by initialize the defined Guards and watch the file system.
     # This is the default task, so calling `guard` is the same as calling `guard start`.
@@ -66,37 +66,8 @@ module Guard
     # List the Guards that are available for use in your system and marks
     # those that are currently used in your `Guardfile`.
     #
-    # @example Guard list output
-    #
-    #   Available guards:
-    #     bundler *
-    #     livereload
-    #     ronn
-    #     rspec *
-    #     spork
-    #
-    #   See also https://github.com/guard/guard/wiki/List-of-available-Guards
-    #   * denotes ones already in your Guardfile
-    #
-    # @see Guard::DslDescriber
-    #
     def list
-      Guard::DslDescriber.evaluate_guardfile(options)
-
-      installed = Guard::DslDescriber.guardfile_structure.inject([]) do |installed, group|
-        group[:guards].each { |guard| installed << guard[:name] } if group[:guards]
-        installed
-      end
-
-      Guard::UI.info 'Available guards:'
-
-      Guard::guard_gem_names.sort.uniq.each do |name|
-        Guard::UI.info "   #{ name } #{ installed.include?(name) ? '*' : '' }"
-      end
-
-      Guard::UI.info ' '
-      Guard::UI.info 'See also https://github.com/guard/guard/wiki/List-of-available-Guards'
-      Guard::UI.info '* denotes ones already in your Guardfile'
+      Guard::DslDescriber.list(options)
     end
 
     desc 'version', 'Show the Guard version'
@@ -138,40 +109,8 @@ module Guard
     # Shows all Guards and their options that are defined in
     # the `Guardfile`.
     #
-    # @example guard show output
-    #
-    #   (global):
-    #     bundler
-    #     coffeescript: input => "app/assets/javascripts", noop => true
-    #     jasmine
-    #     rspec: cli => "--fail-fast --format Fuubar
-    #
-    # @see Guard::DslDescriber
-    #
     def show
-      Guard::DslDescriber.evaluate_guardfile(options)
-
-      Guard::DslDescriber.guardfile_structure.each do |group|
-        unless group[:guards].empty?
-          if group[:group]
-            Guard::UI.info "Group #{ group[:group] }:"
-          else
-            Guard::UI.info '(global):'
-          end
-
-          group[:guards].each do |guard|
-            line = "  #{ guard[:name] }"
-
-            unless guard[:options].empty?
-              line += ": #{ guard[:options].collect { |k, v| "#{ k } => #{ v.inspect }" }.join(', ') }"
-            end
-
-            Guard::UI.info line
-          end
-        end
-      end
-
-      Guard::UI.info ''
+      Guard::DslDescriber.show(options)
     end
 
   end

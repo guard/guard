@@ -1,38 +1,70 @@
 require 'spec_helper'
 
 describe Guard::DslDescriber do
-  before(:each) do
-    ::Guard.stub!(:guards).and_return([mock('Guard')])
-    user_config_path = File.expand_path(File.join('~', '.guard.rb'))
-    File.stub(:exist?).with(user_config_path) { false }
+
+  let(:describer) { ::Guard::DslDescriber }
+
+  let(:guardfile) do
+    <<-GUARD
+      guard 'test', :a => :b do
+        watch('c')
+      end
+
+      group :a do
+        guard 'test', :x => 1, :y => 2, :z => 3 do
+          watch('c')
+        end
+      end
+
+      group "b" do
+        guard 'another' do
+          watch('c')
+        end
+      end
+    GUARD
   end
 
-  it 'should evaluate a Guardfile and create the right structure' do
-    mixed_guardfile_string = <<-GUARD
-guard 'test', :a => :b do
-  watch('c')
-end
-
-group :a do
-  guard 'test' do
-    watch('c')
+  before do
+    @output = ''
+    Guard::UI.stub(:info) { |msg| @output << msg + "\n" }
   end
-end
 
-group "b" do
-  guard 'another' do
-    watch('c')
+  after do
+    Guard::UI.unstub(:info)
   end
-end
-GUARD
 
-    described_class.evaluate_guardfile(:guardfile_contents => mixed_guardfile_string)
+  describe '.list' do
+    it 'lists the available Guards' do
+      Guard.stub(:guard_gem_names).and_return ['test', 'another', 'even', 'more']
+      describer.list(:guardfile_contents => guardfile)
+      @output.should eql <<OUTPUT
+Using inline Guardfile.
+Available guards:
+   another*
+   even
+   more
+   test*
 
-    described_class.guardfile_structure.should == [
-      { :guards => [ { :name => 'test', :options => { :a => :b } } ] },
-      { :group => :a, :guards => [ { :name => 'test', :options => {} } ] },
-      { :group => :b, :guards => [ { :name => 'another', :options => {} } ] }
-    ]
+See also https://github.com/guard/guard/wiki/List-of-available-Guards
+* denotes ones already in your Guardfile
+OUTPUT
+    end
+  end
+
+  describe '.show' do
+    it 'shows the Guards and their options' do
+      describer.show(:guardfile_contents => guardfile)
+      @output.should eql <<OUTPUT
+Using inline Guardfile.
+(global):
+  test: a => :b
+Group a:
+  test: x => 1, y => 2, z => 3
+Group b:
+  another
+
+OUTPUT
+    end
   end
 
 end
