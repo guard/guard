@@ -3,8 +3,9 @@ require 'guard/version'
 
 module Guard
 
-  # Guard command line interface managed by [Thor](https://github.com/wycats/thor).
+  # Facade for the Guard command line interface managed by [Thor](https://github.com/wycats/thor).
   # This is the main interface to Guard that is called by the Guard binary `bin/guard`.
+  # Do not put any logic in here, create a class and delegate instead.
   #
   class CLI < Thor
 
@@ -66,6 +67,8 @@ module Guard
     # List the Guards that are available for use in your system and marks
     # those that are currently used in your `Guardfile`.
     #
+    # @see Guard::DslDescriber.list
+    #
     def list
       Guard::DslDescriber.list(options)
     end
@@ -86,21 +89,12 @@ module Guard
     # Appends the Guard template to the `Guardfile`, or creates an initial
     # `Guardfile` when no Guard name is passed.
     #
+    # @see Guard.initialize_template
+    #
     # @param [String] guard_name the name of the Guard to initialize
     #
     def init(guard_name = nil)
-      if !File.exist?('Guardfile')
-        puts "Writing new Guardfile to #{Dir.pwd}/Guardfile"
-        FileUtils.cp(File.expand_path('../templates/Guardfile', __FILE__), 'Guardfile')
-      elsif guard_name.nil?
-        Guard::UI.error "Guardfile already exists at #{ Dir.pwd }/Guardfile"
-        exit 1
-      end
-
-      if guard_name
-        guard_class = ::Guard.get_guard_class(guard_name)
-        guard_class.init(guard_name)
-      end
+      Guard.initialize_template(guard_name)
     end
 
     desc 'show', 'Show all defined Guards and their options'
@@ -108,6 +102,8 @@ module Guard
 
     # Shows all Guards and their options that are defined in
     # the `Guardfile`.
+    #
+    # @see Guard::DslDescriber.show
     #
     def show
       Guard::DslDescriber.show(options)

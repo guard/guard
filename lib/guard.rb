@@ -18,6 +18,28 @@ module Guard
   class << self
     attr_accessor :options, :interactor, :listener
 
+    # Creates the initial Guardfile template or add a Guard implementation
+    # Guardfile template to an existing Guardfile.
+    #
+    # @see Guard::Guard.init
+    #
+    # @param [String] guard_name the name of the Guard to initialize
+    #
+    def initialize_template(guard_name = nil)
+      if guard_name
+        guard_class = ::Guard.get_guard_class(guard_name)
+        guard_class.init(guard_name)
+      else
+        if !File.exist?('Guardfile')
+          ::Guard::UI.info "Writing new Guardfile to #{ Dir.pwd }/Guardfile"
+          FileUtils.cp(File.expand_path('../templates/Guardfile', __FILE__), 'Guardfile')
+        else
+          ::Guard::UI.error "Guardfile already exists at #{ Dir.pwd }/Guardfile"
+          exit 1
+        end
+      end
+    end
+
     # Initialize the Guard singleton.
     #
     # @option options [Boolean] clear if auto clear the UI should be done
