@@ -1,5 +1,5 @@
 group :specs do
-  guard :rspec, :cli => '--format doc' do
+  guard :rspec, :cli => '--fail-fast --format doc' do
     watch(%r{^spec/.+_spec\.rb$})
     watch(%r{^lib/(.+)\.rb$})                { |m| "spec/#{m[1]}_spec.rb" }
     watch('spec/support/listener_helper.rb') { Dir.glob("spec/guard/listeners/*") }
