@@ -11,7 +11,7 @@ describe Guard::DslDescriber do
       end
 
       group :a do
-        guard 'test', :x => 1, :y => 2, :z => 3 do
+        guard 'test', :x => 1 do
           watch('c')
         end
       end
@@ -59,7 +59,7 @@ Using inline Guardfile.
 (global):
   test: a => :b
 Group a:
-  test: x => 1, y => 2, z => 3
+  test: x => 1
 Group b:
   another
 
