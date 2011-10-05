@@ -39,21 +39,20 @@ module Guard
     # @param [Guard::Guard] guard the guard which watchers are used
     # @param [Array<String>] files the changed files
     # @return [Array<String>] the matched files
-    #
+    # @optional_return [Anything] return whatever you want to path 
     def self.match_files(guard, files)
       guard.watchers.inject([]) do |paths, watcher|
         files.each do |file|
           if matches = watcher.match_file?(file)
             if watcher.action
               result = watcher.call_action(matches)
-              paths << Array(result) if result.respond_to?(:empty?) && !result.empty?
+              paths << Array(result) if result
             else
               paths << matches[0]
             end
           end
         end
-
-        paths.flatten.map { |p| p.to_s }
+        return paths
       end
     end
 
