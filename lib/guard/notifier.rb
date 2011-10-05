@@ -181,6 +181,9 @@ module Guard
         end
       rescue LoadError
         require 'growl'
+      rescue ::GrowlNotify::GrowlNotFound
+        turn_off
+        UI.info "Please install Growl from http://growl.info"
       end
     rescue LoadError
       turn_off
