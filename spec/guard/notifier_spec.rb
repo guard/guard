@@ -21,9 +21,19 @@ describe Guard::Notifier do
 
       context "with the GrowlNotify library available" do
         before do
-          module ::GrowlNotify
+          class ::GrowlNotify
+            class GrowlNotFound < Exception; end
             def self.config ; end
           end
+        end
+        
+        it "should respond properly to a GrowlNotify exception" do
+          ::GrowlNotify.should_receive(:config).and_raise ::GrowlNotify::GrowlNotFound
+          ::GrowlNotify.should_receive(:application_name).and_return ''
+          ::Guard::UI.should_receive(:info)
+          described_class.should_receive(:require).with('growl_notify').and_return true
+          described_class.turn_on
+          described_class.should_not be_enabled
         end
 
         it "loads the library and enables the notifications" do
