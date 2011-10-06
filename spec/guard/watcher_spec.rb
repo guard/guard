@@ -84,7 +84,7 @@ describe Guard::Watcher do
       end
 
       it "returns multiple files specified within the action" do
-        described_class.match_files(@guard, ['hash.rb']).should == [{:foo, 'bar'}]
+        described_class.match_files(@guard, ['hash.rb']).should == [{:foo => 'bar'}]
       end
 
       it "returns multiple files by combining the results of different actions" do
