@@ -46,13 +46,13 @@ module Guard
           if matches = watcher.match_file?(file)
             if watcher.action
               result = watcher.call_action(matches)
-              paths << Array(result) if result
+              paths << result
             else
               paths << matches[0]
             end
           end
         end
-        return paths
+         paths 
       end
     end
 

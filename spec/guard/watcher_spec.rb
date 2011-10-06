@@ -79,27 +79,29 @@ describe Guard::Watcher do
       end
 
       it "returns a single file specified within the action" do
-        described_class.match_files(@guard, ['spec_helper.rb']).should == ['spec']
+        described_class.match_files(@guard, ['spec_helper.rb']).class.should == Array
+        described_class.match_files(@guard, ['spec_helper.rb']).empty?.should == false
       end
 
       it "returns multiple files specified within the action" do
-        described_class.match_files(@guard, ['hash.rb']).should == ['foo', 'bar']
+        described_class.match_files(@guard, ['hash.rb']).should == [{:foo, 'bar'}]
       end
 
       it "returns multiple files by combining the results of different actions" do
-        described_class.match_files(@guard, ['spec_helper.rb', 'array.rb']).should == ['spec', 'foo', 'bar']
+        described_class.match_files(@guard, ['spec_helper.rb', 'array.rb']).should == ['spec', ['foo', 'bar']]
       end
 
       it "returns nothing if the action returns something other than a string or an array of strings" do
-        described_class.match_files(@guard, ['addition.rb']).should == []
+        described_class.match_files(@guard, ['addition.rb']).class.should == Array
+        described_class.match_files(@guard, ['addition.rb'])[0].should == 2
       end
 
       it "returns nothing if the action response is empty" do
-        described_class.match_files(@guard, ['blank.rb']).should == []
+        described_class.match_files(@guard, ['blank.rb']).should == ['']
       end
 
       it "returns nothing if the action returns nothing" do
-        described_class.match_files(@guard, ['uptime.rb']).should == []
+        described_class.match_files(@guard, ['uptime.rb']).should == ['']
       end
     end
 
@@ -107,9 +109,9 @@ describe Guard::Watcher do
       before(:all) do
         @guard.watchers = [
           described_class.new(%r{lib/(.*)\.rb},   lambda { |m| "spec/#{m[1]}_spec.rb" }),
-          described_class.new(/addition(.*)\.rb/, lambda { |m| 1 + 1 }),
-          described_class.new('hash.rb',          lambda { Hash[:foo, 'bar'] }),
-          described_class.new(/array(.*)\.rb/,    lambda { |m| ['foo', 'bar'] }),
+          described_class.new(/addition(.*)\.rb/, lambda { |m| (1 + 1).to_s + m[0] }),
+          described_class.new('hash.rb',          lambda {|m| Hash[:foo, 'bar', :file_name, m[0]] }),
+          described_class.new(/array(.*)\.rb/,    lambda { |m| ['foo', 'bar', m[0]] }),
           described_class.new(/blank(.*)\.rb/,    lambda { |m| '' }),
           described_class.new(/uptime(.*)\.rb/,   lambda { |m| `uptime > /dev/null` })
         ]
@@ -120,23 +122,23 @@ describe Guard::Watcher do
       end
 
       it "returns multiple files specified within the action" do
-        described_class.match_files(@guard, ['hash.rb']).should == ['foo', 'bar']
+        described_class.match_files(@guard, ['hash.rb']).should == [{:foo => 'bar', :file_name => 'hash.rb'}]
       end
 
       it "returns multiple files by combining the results of different actions" do
-        described_class.match_files(@guard, ['lib/my_wonderful_lib.rb', 'array.rb']).should == ['spec/my_wonderful_lib_spec.rb', 'foo', 'bar']
+        described_class.match_files(@guard, ['lib/my_wonderful_lib.rb', 'array.rb']).should == ['spec/my_wonderful_lib_spec.rb', ['foo', 'bar', "array.rb"]]
       end
 
       it "returns nothing if the action returns something other than a string or an array of strings" do
-        described_class.match_files(@guard, ['addition.rb']).should == []
+        described_class.match_files(@guard, ['addition.rb']).should == ["2addition.rb"]
       end
 
       it "returns nothing if the action response is empty" do
-        described_class.match_files(@guard, ['blank.rb']).should == []
+        described_class.match_files(@guard, ['blank.rb']).should == ['']
       end
 
       it "returns nothing if the action returns nothing" do
-        described_class.match_files(@guard, ['uptime.rb']).should == []
+        described_class.match_files(@guard, ['uptime.rb']).should == ['']
       end
     end
 
