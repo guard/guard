@@ -6,15 +6,15 @@ module Guard
   #
   class Watcher
 
-    attr_accessor :pattern, :action
+    attr_accessor :pattern, :action, :any_rtn
 
     # Initialize a file watcher.
     #
     # @param [String, Regexp] pattern the pattern to be watched by the guard
     # @param [Block] action the action to execute before passing the result to the Guard
     #
-    def initialize(pattern, action = nil)
-      @pattern, @action = pattern, action
+    def initialize(pattern, action = nil, any_rtn = false)
+      @pattern, @action, @any_rtn = pattern, action, any_rtn
       @@warning_printed ||= false
 
       # deprecation warning
@@ -38,21 +38,26 @@ module Guard
     #
     # @param [Guard::Guard] guard the guard which watchers are used
     # @param [Array<String>] files the changed files
-    # @return [Array<String>] the matched files
-    # @optional_return [Anything] return whatever you want to path 
+    # @return [Array<Object>] the matched watcher response
     def self.match_files(guard, files)
       guard.watchers.inject([]) do |paths, watcher|
+        wa = watcher.any_rtn
         files.each do |file|
           if matches = watcher.match_file?(file)
             if watcher.action
               result = watcher.call_action(matches)
-              paths << result
+              if wa
+                paths << result 
+              elsif result.respond_to?(:empty?) && ! result.empty?
+                paths << Array(result)
+              end
             else
               paths << matches[0]
             end
           end
         end
-         paths 
+        
+        wa ? paths : paths.flatten.map{|p| p.to_s}
       end
     end
 
