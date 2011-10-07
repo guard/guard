@@ -128,16 +128,16 @@ describe Guard::Watcher do
         described_class.match_files(@guard, ['spec_helper.rb', 'array.rb']).should == ['spec', ['foo', 'bar']]
       end
 
-      it "returns nothing if the action returns something other than a string or an array of strings" do
+      it "returns the evaluated addition argument in an array" do
         described_class.match_files(@guard, ['addition.rb']).class.should == Array
         described_class.match_files(@guard, ['addition.rb'])[0].should == 2
       end
 
-      it "returns nothing if the action response is empty" do
+      it "returns nothing if the action response is empty string" do
         described_class.match_files(@guard, ['blank.rb']).should == ['']
       end
 
-      it "returns nothing if the action returns nothing" do
+      it "returns nothing if the action returns empty string" do
         described_class.match_files(@guard, ['uptime.rb']).should == ['']
       end
     end
@@ -195,7 +195,7 @@ describe Guard::Watcher do
         described_class.match_files(@guard, ['lib/my_wonderful_lib.rb']).should == ['spec/my_wonderful_lib_spec.rb']
       end
 
-      it "returns multiple files specified within the action" do
+      it "returns a hash specified within the action" do
         described_class.match_files(@guard, ['hash.rb']).should == [{:foo => 'bar', :file_name => 'hash.rb'}]
       end
 
@@ -203,15 +203,15 @@ describe Guard::Watcher do
         described_class.match_files(@guard, ['lib/my_wonderful_lib.rb', 'array.rb']).should == ['spec/my_wonderful_lib_spec.rb', ['foo', 'bar', "array.rb"]]
       end
 
-      it "returns nothing if the action returns something other than a string or an array of strings" do
+      it "returns the evaluated addition argument + the path" do
         described_class.match_files(@guard, ['addition.rb']).should == ["2addition.rb"]
       end
 
-      it "returns nothing if the action response is empty" do
+      it "returns nothing if the action response is empty string" do
         described_class.match_files(@guard, ['blank.rb']).should == ['']
       end
 
-      it "returns nothing if the action returns nothing" do
+      it "returns nothing if the action returns empty string" do
         described_class.match_files(@guard, ['uptime.rb']).should == ['']
       end
     end
