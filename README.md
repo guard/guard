@@ -53,11 +53,11 @@ Install the rb-fsevent gem for [FSEvent](http://en.wikipedia.org/wiki/FSEvents) 
 
 You have two possibilities:
 
-Use the [growl_notify gem](https://rubygems.org/gems/growl_notify) (recommended):
+Use the [growl_notify gem](https://rubygems.org/gems/growl_notify) (recommended, compatible with Growl >= 1.3):
 
     $ gem install growl_notify
 
-Use the [growlnotify](http://growl.info/extras.php#growlnotify) (cli tool for growl) + the [growl gem](https://rubygems.org/gems/growl).
+Use the [growlnotify](http://growl.info/extras.php#growlnotify) (cli tool for Growl <= 1.2) + the [growl gem](https://rubygems.org/gems/growl).
 
     $ brew install growlnotify
     $ gem install growl
