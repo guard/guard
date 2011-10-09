@@ -46,7 +46,10 @@ describe Guard::Watcher do
   end
 
   describe ".match_files" do
-    before(:all) { @guard = Guard::Guard.new }
+    before(:all) { @guard = Guard::Guard.new 
+                   @guard_any_return = Guard::Guard.new
+                   @guard_any_return.any_return = true
+    }
 
     context "with a watcher without action" do
       context "that is a regex pattern" do
@@ -105,13 +108,13 @@ describe Guard::Watcher do
 
     context 'with a watcher action without parameter for a watcher that matches information objects' do
       before(:all) do
-        @guard.watchers = [
-          described_class.new('spec_helper.rb', lambda { 'spec' }, true),
-          described_class.new('addition.rb',    lambda { 1 + 1 }, true),
-          described_class.new('hash.rb',        lambda { Hash[:foo, 'bar'] }, true),
-          described_class.new('array.rb',       lambda { ['foo', 'bar'] }, true),
-          described_class.new('blank.rb',       lambda { '' }, true),
-          described_class.new(/^uptime\.rb/,    lambda { `uptime > /dev/null` }, true)
+        @guard_any_return.watchers = [
+          described_class.new('spec_helper.rb', lambda { 'spec' }),
+          described_class.new('addition.rb',    lambda { 1 + 1 }),
+          described_class.new('hash.rb',        lambda { Hash[:foo, 'bar'] }),
+          described_class.new('array.rb',       lambda { ['foo', 'bar'] }),
+          described_class.new('blank.rb',       lambda { '' }),
+          described_class.new(/^uptime\.rb/,    lambda { `uptime > /dev/null` })
         ]
       end
   
@@ -182,12 +185,12 @@ describe Guard::Watcher do
     context "with a watcher action that takes a parameter for a watcher that matches information objects" do
       before(:all) do
         @guard.watchers = [
-          described_class.new(%r{lib/(.*)\.rb},   lambda { |m| "spec/#{m[1]}_spec.rb" }, true),
-          described_class.new(/addition(.*)\.rb/, lambda { |m| (1 + 1).to_s + m[0] }, true),
-          described_class.new('hash.rb',          lambda {|m| Hash[:foo, 'bar', :file_name, m[0]] }, true),
-          described_class.new(/array(.*)\.rb/,    lambda { |m| ['foo', 'bar', m[0]] }, true),
-          described_class.new(/blank(.*)\.rb/,    lambda { |m| '' }, true),
-          described_class.new(/uptime(.*)\.rb/,   lambda { |m| `uptime > /dev/null` }, true)
+          described_class.new(%r{lib/(.*)\.rb},   lambda { |m| "spec/#{m[1]}_spec.rb" }),
+          described_class.new(/addition(.*)\.rb/, lambda { |m| (1 + 1).to_s + m[0] }),
+          described_class.new('hash.rb',          lambda {|m| Hash[:foo, 'bar', :file_name, m[0]] }),
+          described_class.new(/array(.*)\.rb/,    lambda { |m| ['foo', 'bar', m[0]] }),
+          described_class.new(/blank(.*)\.rb/,    lambda { |m| '' }),
+          described_class.new(/uptime(.*)\.rb/,   lambda { |m| `uptime > /dev/null` })
         ]
       end
 
