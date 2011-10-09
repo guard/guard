@@ -15,7 +15,7 @@ module Guard
       def info(message, options = { })
         unless ENV['GUARD_ENV'] == 'test'
           reset_line if options[:reset]
-          puts color(message) if message != ''
+          STDERR.puts color(message) if message != ''
         end
       end
 
@@ -27,7 +27,7 @@ module Guard
       def error(message, options = { })
         unless ENV['GUARD_ENV'] == 'test'
           reset_line if options[:reset]
-          puts color('ERROR: ', :red) + message
+          STDERR.puts color('ERROR: ', :red) + message
         end
       end
 
@@ -39,7 +39,7 @@ module Guard
       def deprecation(message, options = { })
         unless ENV['GUARD_ENV'] == 'test'
           reset_line if options[:reset]
-          puts color('DEPRECATION: ', :red) + message
+          STDERR.puts color('DEPRECATION: ', :red) + message
         end
       end
 
@@ -51,14 +51,14 @@ module Guard
       def debug(message, options = { })
         unless ENV['GUARD_ENV'] == 'test'
           reset_line if options[:reset]
-          puts color("DEBUG (#{Time.now.strftime('%T')}): ", :yellow) + message if ::Guard.options && ::Guard.options[:debug]
+          STDERR.puts color("DEBUG (#{Time.now.strftime('%T')}): ", :yellow) + message if ::Guard.options && ::Guard.options[:debug]
         end
       end
 
       # Reset a line.
       #
       def reset_line
-        print(color_enabled? ? "\r\e[0m" : "\r\n")
+        STDERR.print(color_enabled? ? "\r\e[0m" : "\r\n")
       end
 
       # Clear the output.
