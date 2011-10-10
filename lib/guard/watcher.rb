@@ -6,7 +6,7 @@ module Guard
   #
   class Watcher
 
-    attr_accessor :pattern, :action, :any_return
+    attr_accessor :pattern, :action
 
     # Initialize a file watcher.
     #
@@ -57,7 +57,7 @@ module Guard
           end
         end
         
-       guard.options[:any_return] ? paths : paths.flatten.map{ |p| p.to_s }
+        guard.options[:any_return] ? paths : paths.flatten.map { |p| p.to_s }
       end
     end
 
