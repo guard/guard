@@ -55,12 +55,14 @@ module Guard
       else
         content = File.read('Guardfile')
         guard   = File.read("#{ ::Guard.locate_guard(name) }/lib/guard/#{ name }/templates/Guardfile")
+
         File.open('Guardfile', 'wb') do |f|
           f.puts(content)
           f.puts("")
           f.puts(guard)
         end
-        ::Guard::UI.info "#{name} guard added to Guardfile, feel free to edit it"
+
+        ::Guard::UI.info "#{ name } guard added to Guardfile, feel free to edit it"
       end
     end
 
