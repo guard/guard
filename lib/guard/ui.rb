@@ -1,6 +1,11 @@
 module Guard
 
-  # The UI class helps to format messages for the user.
+  # The UI class helps to format messages for the user. Everything that is logged
+  # through this class is considered either as an error message or a diagnostic
+  # message and is written to standard error (STDERR).
+  #
+  # If your Guard does some output that is piped into another process for further
+  # processing, please just write it to STDOUT with `puts`.
   #
   module UI
     class << self
