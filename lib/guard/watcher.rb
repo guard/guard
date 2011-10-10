@@ -40,6 +40,7 @@ module Guard
     # @param [Guard::Guard] guard the guard which watchers are used
     # @param [Array<String>] files the changed files
     # @return [Array<Object>] the matched watcher response
+    #
     def self.match_files(guard, files)
       guard.watchers.inject([]) do |paths, watcher|
         files.each do |file|
@@ -57,7 +58,7 @@ module Guard
           end
         end
         
-        watcher.any_return ? paths : paths.flatten.map{|p| p.to_s}
+        watcher.any_return ? paths : paths.flatten.map{ |p| p.to_s }
       end
     end
 

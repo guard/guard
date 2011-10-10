@@ -147,7 +147,7 @@ describe Guard::Watcher do
          @guard.watchers = [
            described_class.new(%r{lib/(.*)\.rb},   lambda { |m| "spec/#{m[1]}_spec.rb" }),
            described_class.new(/addition(.*)\.rb/, lambda { |m| 1 + 1 }),
-           described_class.new('hash.rb',          lambda { Hash[:foo, 'bar'] }),
+           described_class.new('hash.rb',          lambda { |m| Hash[:foo, 'bar'] }),
            described_class.new(/array(.*)\.rb/,    lambda { |m| ['foo', 'bar'] }),
            described_class.new(/blank(.*)\.rb/,    lambda { |m| '' }),
            described_class.new(/uptime(.*)\.rb/,   lambda { |m| `uptime > /dev/null` })
@@ -184,7 +184,7 @@ describe Guard::Watcher do
         @guard.watchers = [
           described_class.new(%r{lib/(.*)\.rb},   lambda { |m| "spec/#{m[1]}_spec.rb" }, true),
           described_class.new(/addition(.*)\.rb/, lambda { |m| (1 + 1).to_s + m[0] }, true),
-          described_class.new('hash.rb',          lambda {|m| Hash[:foo, 'bar', :file_name, m[0]] }, true),
+          described_class.new('hash.rb',          lambda { |m| Hash[:foo, 'bar', :file_name, m[0]] }, true),
           described_class.new(/array(.*)\.rb/,    lambda { |m| ['foo', 'bar', m[0]] }, true),
           described_class.new(/blank(.*)\.rb/,    lambda { |m| '' }, true),
           described_class.new(/uptime(.*)\.rb/,   lambda { |m| `uptime > /dev/null` }, true)
@@ -220,10 +220,10 @@ describe Guard::Watcher do
        before(:all) { @guard.watchers = [described_class.new('evil.rb', lambda { raise "EVIL" })] }
 
        it "displays the error and backtrace" do
-         Guard::UI.should_receive(:error) { |msg|
+         Guard::UI.should_receive(:error) do |msg|
            msg.should include("Problem with watch action!")
            msg.should include("EVIL")
-         }
+         end
 
          described_class.match_files(@guard, ['evil.rb'])
        end
