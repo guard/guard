@@ -49,7 +49,7 @@ describe Guard::Watcher do
     before(:all) do 
       @guard = Guard::Guard.new 
       @guard_any_return = Guard::Guard.new
-      @guard_any_return.any_return = true
+      @guard_any_return.options[:any_return] = true
     end
 
     context "with a watcher without action" do

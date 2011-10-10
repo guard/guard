@@ -46,7 +46,7 @@ module Guard
           if matches = watcher.match_file?(file)
             if watcher.action
               result = watcher.call_action(matches)
-              if guard.any_return
+              if guard.options[:any_return]
                 paths << result 
               elsif result.respond_to?(:empty?) && !result.empty?
                 paths << Array(result)
@@ -57,7 +57,7 @@ module Guard
           end
         end
         
-       guard.any_return ? paths : paths.flatten.map{ |p| p.to_s }
+       guard.options[:any_return] ? paths : paths.flatten.map{ |p| p.to_s }
       end
     end
 
