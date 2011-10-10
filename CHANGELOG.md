@@ -1,3 +1,10 @@
+## Master
+
+### Improvements
+
+- [#156](https://github.com/guard/guard/pull/156): Log error and diagnostic messages to STDERR. ([@sunaku][])
+- [#152](https://github.com/guard/guard/pull/152): Growl Notify API update for a graceful fail. ([@scottdavis][])
+
 ## 0.8.4 - October 3, 2011
 
 ### Bug fix
@@ -317,8 +324,10 @@
 [@pcreux]: https://github.com/pcreux
 [@rmm5t]: https://github.com/rmm5t
 [@rymai]: https://github.com/rymai
+[@scottdavis]: https://github.com/scottdavis
 [@stereobooster]: https://github.com/stereobooster
 [@stouset]: https://github.com/stouset
+[@sunaku]: https://github.com/sunaku
 [@thibaudgg]: https://github.com/thibaudgg
 [@thierryhenrio]: https://github.com/thierryhenrio
 [@tinogomes]: https://github.com/tinogomes
