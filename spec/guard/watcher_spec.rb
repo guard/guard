@@ -46,10 +46,11 @@ describe Guard::Watcher do
   end
 
   describe ".match_files" do
-    before(:all) { @guard = Guard::Guard.new 
-                   @guard_any_return = Guard::Guard.new
-                   @guard_any_return.any_return = true
-    }
+    before(:all) do 
+      @guard = Guard::Guard.new 
+      @guard_any_return = Guard::Guard.new
+      @guard_any_return.any_return = true
+    end
 
     context "with a watcher without action" do
       context "that is a regex pattern" do
@@ -119,29 +120,29 @@ describe Guard::Watcher do
       end
   
       it "returns a single file specified within the action" do
-        described_class.match_files(@guard, ['spec_helper.rb']).class.should == Array
-        described_class.match_files(@guard, ['spec_helper.rb']).empty?.should == false
+        described_class.match_files(@guard_any_return, ['spec_helper.rb']).class.should == Array
+        described_class.match_files(@guard_any_return, ['spec_helper.rb']).empty?.should == false
       end
 
       it "returns multiple files specified within the action" do
-        described_class.match_files(@guard, ['hash.rb']).should == [{:foo => 'bar'}]
+        described_class.match_files(@guard_any_return, ['hash.rb']).should == [{:foo => 'bar'}]
       end
 
       it "returns multiple files by combining the results of different actions" do
-        described_class.match_files(@guard, ['spec_helper.rb', 'array.rb']).should == ['spec', ['foo', 'bar']]
+        described_class.match_files(@guard_any_return, ['spec_helper.rb', 'array.rb']).should == ['spec', ['foo', 'bar']]
       end
 
       it "returns the evaluated addition argument in an array" do
-        described_class.match_files(@guard, ['addition.rb']).class.should == Array
-        described_class.match_files(@guard, ['addition.rb'])[0].should == 2
+        described_class.match_files(@guard_any_return, ['addition.rb']).class.should == Array
+        described_class.match_files(@guard_any_return, ['addition.rb'])[0].should == 2
       end
 
       it "returns nothing if the action response is empty string" do
-        described_class.match_files(@guard, ['blank.rb']).should == ['']
+        described_class.match_files(@guard_any_return, ['blank.rb']).should == ['']
       end
 
       it "returns nothing if the action returns empty string" do
-        described_class.match_files(@guard, ['uptime.rb']).should == ['']
+        described_class.match_files(@guard_any_return, ['uptime.rb']).should == ['']
       end
     end
     
@@ -150,7 +151,7 @@ describe Guard::Watcher do
          @guard.watchers = [
            described_class.new(%r{lib/(.*)\.rb},   lambda { |m| "spec/#{m[1]}_spec.rb" }),
            described_class.new(/addition(.*)\.rb/, lambda { |m| 1 + 1 }),
-           described_class.new('hash.rb',          lambda { Hash[:foo, 'bar'] }),
+           described_class.new('hash.rb',          lambda { |m| Hash[:foo, 'bar'] }),
            described_class.new(/array(.*)\.rb/,    lambda { |m| ['foo', 'bar'] }),
            described_class.new(/blank(.*)\.rb/,    lambda { |m| '' }),
            described_class.new(/uptime(.*)\.rb/,   lambda { |m| `uptime > /dev/null` })
@@ -184,10 +185,10 @@ describe Guard::Watcher do
    
     context "with a watcher action that takes a parameter for a watcher that matches information objects" do
       before(:all) do
-        @guard.watchers = [
+        @guard_any_return.watchers = [
           described_class.new(%r{lib/(.*)\.rb},   lambda { |m| "spec/#{m[1]}_spec.rb" }),
           described_class.new(/addition(.*)\.rb/, lambda { |m| (1 + 1).to_s + m[0] }),
-          described_class.new('hash.rb',          lambda {|m| Hash[:foo, 'bar', :file_name, m[0]] }),
+          described_class.new('hash.rb',          lambda { |m| Hash[:foo, 'bar', :file_name, m[0]] }),
           described_class.new(/array(.*)\.rb/,    lambda { |m| ['foo', 'bar', m[0]] }),
           described_class.new(/blank(.*)\.rb/,    lambda { |m| '' }),
           described_class.new(/uptime(.*)\.rb/,   lambda { |m| `uptime > /dev/null` })
@@ -195,27 +196,27 @@ describe Guard::Watcher do
       end
 
       it "returns a substituted single file specified within the action" do
-        described_class.match_files(@guard, ['lib/my_wonderful_lib.rb']).should == ['spec/my_wonderful_lib_spec.rb']
+        described_class.match_files(@guard_any_return, ['lib/my_wonderful_lib.rb']).should == ['spec/my_wonderful_lib_spec.rb']
       end
 
       it "returns a hash specified within the action" do
-        described_class.match_files(@guard, ['hash.rb']).should == [{:foo => 'bar', :file_name => 'hash.rb'}]
+        described_class.match_files(@guard_any_return, ['hash.rb']).should == [{:foo => 'bar', :file_name => 'hash.rb'}]
       end
 
       it "returns multiple files by combining the results of different actions" do
-        described_class.match_files(@guard, ['lib/my_wonderful_lib.rb', 'array.rb']).should == ['spec/my_wonderful_lib_spec.rb', ['foo', 'bar', "array.rb"]]
+        described_class.match_files(@guard_any_return, ['lib/my_wonderful_lib.rb', 'array.rb']).should == ['spec/my_wonderful_lib_spec.rb', ['foo', 'bar', "array.rb"]]
       end
 
       it "returns the evaluated addition argument + the path" do
-        described_class.match_files(@guard, ['addition.rb']).should == ["2addition.rb"]
+        described_class.match_files(@guard_any_return, ['addition.rb']).should == ["2addition.rb"]
       end
 
       it "returns nothing if the action response is empty string" do
-        described_class.match_files(@guard, ['blank.rb']).should == ['']
+        described_class.match_files(@guard_any_return, ['blank.rb']).should == ['']
       end
 
       it "returns nothing if the action returns empty string" do
-        described_class.match_files(@guard, ['uptime.rb']).should == ['']
+        described_class.match_files(@guard_any_return, ['uptime.rb']).should == ['']
       end
     end
 
@@ -223,10 +224,10 @@ describe Guard::Watcher do
        before(:all) { @guard.watchers = [described_class.new('evil.rb', lambda { raise "EVIL" })] }
 
        it "displays the error and backtrace" do
-         Guard::UI.should_receive(:error) { |msg|
+         Guard::UI.should_receive(:error) do |msg|
            msg.should include("Problem with watch action!")
            msg.should include("EVIL")
-         }
+         end
 
          described_class.match_files(@guard, ['evil.rb'])
        end

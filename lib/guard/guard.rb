@@ -30,16 +30,17 @@ module Guard
   class Guard
     include Hook
 
-    attr_accessor :watchers, :options, :group
+    attr_accessor :watchers, :options, :group, :any_return
 
     # Initialize a Guard.
     #
     # @param [Array<Guard::Watcher>] watchers the Guard file watchers
     # @param [Hash] options the custom Guard options
+    # @param [Boolean] any_return allow the user to define return when using a block with a watcher
     #
-    def initialize(watchers = [], options = {})
+    def initialize(watchers = [], options = {}, any_return = false)
       @group = options[:group] ? options.delete(:group).to_sym : :default
-      @watchers, @options = watchers, options
+      @watchers, @options, @any_return = watchers, options, any_return
     end
 
     # Initialize the Guard. This will copy the Guardfile template inside the Guard gem.

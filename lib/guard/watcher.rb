@@ -12,10 +12,9 @@ module Guard
     #
     # @param [String, Regexp] pattern the pattern to be watched by the guard
     # @param [Block] action the action to execute before passing the result to the Guard
-    # @param [Boolean] any_return allow the user to define return when using a block
     #
-    def initialize(pattern, action = nil, any_return = false)
-      @pattern, @action, @any_return = pattern, action, any_return
+    def initialize(pattern, action = nil)
+      @pattern, @action = pattern, action
       @@warning_printed ||= false
 
       # deprecation warning
@@ -40,15 +39,16 @@ module Guard
     # @param [Guard::Guard] guard the guard which watchers are used
     # @param [Array<String>] files the changed files
     # @return [Array<Object>] the matched watcher response
+    #
     def self.match_files(guard, files)
       guard.watchers.inject([]) do |paths, watcher|
         files.each do |file|
           if matches = watcher.match_file?(file)
             if watcher.action
               result = watcher.call_action(matches)
-              if watcher.any_return
+              if guard.any_return
                 paths << result 
-              elsif result.respond_to?(:empty?) && ! result.empty?
+              elsif result.respond_to?(:empty?) && !result.empty?
                 paths << Array(result)
               end
             else
@@ -57,7 +57,7 @@ module Guard
           end
         end
         
-        watcher.any_return ? paths : paths.flatten.map{|p| p.to_s}
+       guard.any_return ? paths : paths.flatten.map{ |p| p.to_s }
       end
     end
 
