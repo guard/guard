@@ -26,6 +26,10 @@ module Guard
   # Each Guard should provide a template Guardfile located within the Gem
   # at `lib/guard/guard-name/templates/Guardfile`.
   #
+  # By default all watchers for a Guard are returning strings of paths to the
+  # Guard, but if your Guard want to allow any return value from a watcher,
+  # you can set the `any_return` option to true.
+  #
   # If one of those methods raise an exception other than `:task_has_failed`,
   # the Guard::GuardName instance will be removed from the active guards.
   #
