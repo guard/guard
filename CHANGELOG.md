@@ -2,6 +2,7 @@
 
 ### Improvements
 
+- [#157](https://github.com/guard/guard/pull/157): Allow any return from the Guard watchers. ([@earlonrails][])
 - [#156](https://github.com/guard/guard/pull/156): Log error and diagnostic messages to STDERR. ([@sunaku][])
 - [#152](https://github.com/guard/guard/pull/152): Growl Notify API update for a graceful fail. ([@scottdavis][])
 
@@ -296,6 +297,7 @@
 [@chrisberkhout]: https://github.com/chrisberkhout
 [@dnagir]: https://github.com/dnagir
 [@docwhat]: https://github.com/docwhat
+[@earlonrails]: https://github.com/earlonrails
 [@etehtsea]: https://github.com/etehtsea
 [@f1sherman]: https://github.com/f1sherman
 [@fabioyamate]: https://github.com/fabioyamate
