@@ -51,26 +51,38 @@ Install the rb-fsevent gem for [FSEvent](http://en.wikipedia.org/wiki/FSEvents) 
 
     $ gem install rb-fsevent
 
-You have two possibilities:
+You have three possibilities for getting Growl support:
 
-Use the [growl_notify gem](https://rubygems.org/gems/growl_notify) (recommended, compatible with Growl >= 1.3):
+Use the [growl_notify gem](https://rubygems.org/gems/growl_notify):
 
     $ gem install growl_notify
 
-Use the [growlnotify](http://growl.info/extras.php#growlnotify) (cli tool for Growl <= 1.2) + the [growl gem](https://rubygems.org/gems/growl).
+The `growl_notify` gem is compatible with Growl >= 1.3 and uses AppleScript to send Growl notifications.
+The gem needs a native C extension to make use of AppleScript and does not run on JRuby and MacRuby.
 
-    $ brew install growlnotify
+Use the [ruby_gntp gem](https://github.com/snaka/ruby_gntp):
+
+    $ gem install ruby_gntp
+
+The `ruby_gntp` gem is compatible with Growl >= 0.7 and uses the Growl Notification Transport Protocol to send Growl
+notifications. Guard supports multiple notification channels for customizing each notification type, but it's limited
+to the local host currently.
+
+Use the [growl gem](https://rubygems.org/gems/growl):
+
     $ gem install growl
 
-And add them to your Gemfile:
+The `growl` gem is compatible with all versions of Growl and uses a command line tool [growlnotify](http://growl.info/extras.php#growlnotify)
+that must be separately downloaded and installed. You can alsi install it with HomeBrew:
+
+    $ brew install growlnotify
+
+Finally you have to add your Growl library of choice to your Gemfile:
 
     gem 'rb-fsevent'
-    gem 'growl_notify' # or gem 'growl'
+    gem 'growl_notify' # or gem 'ruby_gntp' or gem 'growl'
 
-The difference between growl and growl_notify is that growl_notify uses AppleScript to
-display a message, whereas growl uses the `growlnotify` command. In general the AppleScript
-approach is preferred, but you may also use the older growl gem. Have a look at the
-[Guard Wiki](https://github.com/guard/guard/wiki/Use-growl_notify-or-growl-gem) for more information.
+Have a look at the [Guard Wiki](https://github.com/guard/guard/wiki/Which-Growl-library-should-I-use) for more information.
 
 ### On Linux
 

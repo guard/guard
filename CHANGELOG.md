@@ -2,6 +2,7 @@
 
 ### Improvements
 
+- Add support for Growl Notification Transport Protocol. ([@netzpirat][])
 - [#157](https://github.com/guard/guard/pull/157): Allow any return from the Guard watchers. ([@earlonrails][])
 - [#156](https://github.com/guard/guard/pull/156): Log error and diagnostic messages to STDERR. ([@sunaku][])
 - [#152](https://github.com/guard/guard/pull/152): Growl Notify API update for a graceful fail. ([@scottdavis][])

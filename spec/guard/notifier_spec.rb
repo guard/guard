@@ -26,15 +26,6 @@ describe Guard::Notifier do
             def self.config ; end
           end
         end
-        
-        it "should respond properly to a GrowlNotify exception" do
-          ::GrowlNotify.should_receive(:config).and_raise ::GrowlNotify::GrowlNotFound
-          ::GrowlNotify.should_receive(:application_name).and_return ''
-          ::Guard::UI.should_receive(:info)
-          described_class.should_receive(:require).with('growl_notify').and_return true
-          described_class.turn_on
-          described_class.should_not be_enabled
-        end
 
         it "loads the library and enables the notifications" do
           described_class.should_receive(:require).with('growl_notify').and_return true
@@ -43,26 +34,60 @@ describe Guard::Notifier do
           described_class.should be_enabled
         end
 
+        it "should respond properly to a GrowlNotify exception" do
+          ::GrowlNotify.should_receive(:config).and_raise ::GrowlNotify::GrowlNotFound
+          ::GrowlNotify.should_receive(:application_name).and_return ''
+          ::Guard::UI.should_receive(:info)
+          described_class.should_receive(:require).with('growl_notify').and_return true
+          described_class.turn_on
+          described_class.should_not be_enabled
+          described_class.growl_library.should eql :growl_notify
+        end
+
         after do
           Object.send(:remove_const, :GrowlNotify)
+        end
+      end
+
+      context "with the GNTP library available" do
+        before do
+          class ::GNTP
+            def register(config) ; end
+          end
+        end
+
+        it "loads the library and enables the notifications" do
+          described_class.should_receive(:require).with('growl_notify').and_raise LoadError
+          described_class.should_receive(:require).with('ruby_gntp').and_return true
+          described_class.turn_on
+          described_class.should be_enabled
+          described_class.growl_library.should eql :ruby_gntp
+        end
+
+        after do
+          Object.send(:remove_const, :GNTP)
         end
       end
 
       context "with the Growl library available" do
         it "loads the library and enables the notifications" do
           described_class.should_receive(:require).with('growl_notify').and_raise LoadError
+          described_class.should_receive(:require).with('ruby_gntp').and_raise LoadError
           described_class.should_receive(:require).with('growl').and_return true
           described_class.turn_on
           described_class.should be_enabled
+          described_class.growl_library.should eql :growl
         end
       end
 
-      context "without the Growl library available" do
+      context "without a Growl library available" do
         it "disables the notifications" do
           described_class.should_receive(:require).with('growl_notify').and_raise LoadError
+          described_class.should_receive(:require).with('ruby_gntp').and_raise LoadError
           described_class.should_receive(:require).with('growl').and_raise LoadError
           described_class.turn_on
           described_class.should_not be_enabled
+          described_class.growl_library.should be nil
         end
       end
     end
@@ -117,7 +142,7 @@ describe Guard::Notifier do
 
     context "on Mac OS" do
       before do
-        RbConfig::CONFIG.should_receive(:[]).with('target_os').and_return 'darwin'
+        RbConfig::CONFIG.stub(:[]).and_return 'darwin'
         described_class.stub(:require_growl)
       end
 
@@ -125,6 +150,7 @@ describe Guard::Notifier do
         before do
           Object.send(:remove_const, :Growl) if defined?(Growl)
           Growl = Object.new
+          described_class.growl_library = :growl
         end
 
         after do
@@ -142,7 +168,8 @@ describe Guard::Notifier do
 
         it "don't passes the notification to Growl if library is not available" do
           Growl.should_not_receive(:notify)
-          described_class.should_receive(:enabled?).and_return(true, false)
+          described_class.growl_library = nil
+          described_class.should_receive(:enabled?).and_return(false)
           described_class.notify 'great', :title => 'Guard'
         end
 
@@ -170,6 +197,7 @@ describe Guard::Notifier do
         before do
           Object.send(:remove_const, :GrowlNotify) if defined?(GrowlNotify)
           GrowlNotify = Object.new
+          described_class.growl_library = :growl_notify
         end
 
         after do
@@ -188,7 +216,8 @@ describe Guard::Notifier do
 
         it "don't passes the notification to Growl if library is not available" do
           GrowlNotify.should_not_receive(:send_notification)
-          described_class.should_receive(:enabled?).and_return(true, false)
+          described_class.growl_library = nil
+          described_class.should_receive(:enabled?).and_return(false)
           described_class.notify 'great', :title => 'Guard'
         end
 
@@ -213,11 +242,75 @@ describe Guard::Notifier do
           described_class.notify 'great', :title => 'Guard', :name => "Guard-Cucumber"
         end
       end
+
+      context 'with ruby_gntp gem' do
+        before do
+          described_class.growl_library = :ruby_gntp
+        end
+
+        it "passes a success notification to Ruby GNTP" do
+          described_class.gntp.should_receive(:notify).with(
+            :name => "success",
+            :text => 'great',
+            :title => "Guard",
+            :icon  => 'file://' + Pathname.new(File.dirname(__FILE__)).join('../../images/success.png').to_s
+          )
+          described_class.notify 'great', :title => 'Guard'
+        end
+
+        it "passes a pending notification to Ruby GNTP" do
+          described_class.gntp.should_receive(:notify).with(
+            :name => "pending",
+            :text => 'great',
+            :title => "Guard",
+            :icon  => 'file://' + Pathname.new(File.dirname(__FILE__)).join('../../images/pending.png').to_s
+          )
+          described_class.notify 'great', :title => 'Guard', :image => :pending
+        end
+
+        it "passes a failure notification to Ruby GNTP" do
+          described_class.gntp.should_receive(:notify).with(
+            :name => "failed",
+            :text => 'great',
+            :title => "Guard",
+            :icon  => 'file://' + Pathname.new(File.dirname(__FILE__)).join('../../images/failed.png').to_s
+          )
+          described_class.notify 'great', :title => 'Guard', :image => :failed
+        end
+
+        it "passes a general notification to Ruby GNTP" do
+          described_class.gntp.should_receive(:notify).with(
+            :name => "notify",
+            :text => 'great',
+            :title => "Guard",
+            :icon  => 'file:///path/to/custom.png'
+          )
+          described_class.notify 'great', :title => 'Guard', :image => '/path/to/custom.png'
+        end
+
+        it "don't passes the notification to Ruby GNTP if library is not available" do
+          described_class.gntp.should_not_receive(:notify)
+          described_class.growl_library = nil
+          described_class.should_receive(:enabled?).and_return(false)
+          described_class.notify 'great', :title => 'Guard'
+        end
+
+        it "allows additional notification options" do
+          described_class.gntp.should_receive(:notify).with(
+            :name => "success",
+            :text => 'great',
+            :title => "Guard",
+            :icon  => 'file://' + Pathname.new(File.dirname(__FILE__)).join('../../images/success.png').to_s,
+            :sticky => true
+          )
+          described_class.notify 'great', :title => 'Guard', :sticky => true
+        end
+      end
     end
 
     context "on Linux" do
       before do
-        RbConfig::CONFIG.should_receive(:[]).with('target_os').and_return 'linux'
+        RbConfig::CONFIG.stub(:[]).and_return 'linux'
         described_class.stub(:require_libnotify)
         Object.send(:remove_const, :Libnotify) if defined?(Libnotify)
         Libnotify = Object.new
@@ -239,7 +332,7 @@ describe Guard::Notifier do
 
       it "don't passes the notification to Libnotify if library is not available" do
         Libnotify.should_not_receive(:show)
-        described_class.should_receive(:enabled?).and_return(true, false)
+        described_class.should_receive(:enabled?).and_return(false)
         described_class.notify 'great', :title => 'Guard'
       end
 
@@ -267,7 +360,7 @@ describe Guard::Notifier do
 
     context "on Windows" do
       before do
-        RbConfig::CONFIG.should_receive(:[]).with('target_os').and_return 'mswin'
+        RbConfig::CONFIG.stub(:[]).and_return 'mswin'
         described_class.stub(:require_rbnotifu)
         Object.send(:remove_const, :Notifu) if defined?(Notifu)
         Notifu = Object.new
@@ -289,7 +382,7 @@ describe Guard::Notifier do
 
       it "don't passes the notification to rb-notifu if library is not available" do
         Notifu.should_not_receive(:show)
-        described_class.should_receive(:enabled?).and_return(true, false)
+        described_class.should_receive(:enabled?).and_return(false)
         described_class.notify 'great', :title => 'Guard'
       end
 
