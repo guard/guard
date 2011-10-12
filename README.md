@@ -19,7 +19,7 @@ Features
 Screencast
 ----------
 
-Ryan Bates made a Railscast on Guard, you can view it here: http://railscasts.com/episodes/264-guard
+Ryan Bates made a Railscast on Guard, you can view it here: [http://railscasts.com/episodes/264-guard](http://railscasts.com/episodes/264-guard)
 
 Install
 -------
@@ -246,11 +246,11 @@ Guardfile DSL
 
 The Guardfile DSL consists of the following methods:
 
-* `#guard`: allows you to add a guard with an optional hash of options.
-* `#watch`: allows you to define which files are supervised by this guard. An optional block can be added to overwrite the paths sent to the guard's `#run_on_change` method or to launch any arbitrary command.
-* `#group`: allows you to group several guards together. Groups to be run can be specified with the Guard DSL option `--group` (or `-g`). This comes in handy especially when you have a huge Guardfile and want to focus your development on a certain part. Guards that don't belong to a group are considered global and are always run.
-* `#callback`: allows you to execute arbitrary code before or after any of the `start`, `stop`, `reload`, `run_all` and `run_on_change` guards' method. You can even insert more hooks inside these methods. Please [checkout the Wiki page](https://github.com/guard/guard/wiki/Hooks-and-callbacks) for more details.
-* `#ignore_paths`: allows you to ignore top level directories altogether.  This comes is handy when you have large amounts of non-source data in you project.  By default .bundle, .git, log, tmp, and vendor are ignored.  Currently it is only possible to ignore the immediate descendants of the watched directory.
+* `#guard`        - Allows you to add a guard with an optional hash of options.
+* `#watch`        - Allows you to define which files are supervised by a guard. An optional block can be added to overwrite the paths sent to the guard's `#run_on_change` method or to launch any arbitrary command.
+* `#group`        - Allows you to group several guards together. Groups to be run can be specified with the Guard DSL option `--group` (or `-g`). This comes in handy especially when you have a huge Guardfile and want to focus your development on a certain part. Guards that don't belong to a group are considered global and are always run.
+* `#callback`     - Allows you to execute arbitrary code before or after any of the `start`, `stop`, `reload`, `run_all` and `run_on_change` guards' method. You can even insert more hooks inside these methods. Please [checkout the Wiki page](https://github.com/guard/guard/wiki/Hooks-and-callbacks) for more details.
+* `#ignore_paths` - Allows you to ignore top level directories altogether. This comes is handy when you have large amounts of non-source data in you project.  By default .bundle, .git, log, tmp, and vendor are ignored.  Currently it is only possible to ignore the immediate descendants of the watched directory.
 
 Example:
 
@@ -429,7 +429,7 @@ Alternatively, a new guard can be added inline to a Guardfile with this basic st
       end
     end
 
-Here is a very cool example by [@avdi](https://github.com/avdi) : http://avdi.org/devblog/2011/06/15/a-guardfile-for-redis
+Here is a very cool example by [@avdi](https://github.com/avdi) : [http://avdi.org/devblog/2011/06/15/a-guardfile-for-redis](http://avdi.org/devblog/2011/06/15/a-guardfile-for-redis)
 
 Development
 -----------
@@ -456,4 +456,4 @@ Author
 Contributors
 ------------
 
-https://github.com/guard/guard/contributors
+[https://github.com/guard/guard/contributors](https://github.com/guard/guard/contributors)
