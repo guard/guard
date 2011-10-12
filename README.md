@@ -49,6 +49,7 @@ Add the guards you need to your Guardfile (see the existing guards below).
 Now, be sure to read the particular instructions for your operating system: [Mac OS X](#mac) | [Linux](#linux) | [Windows](#win)
 
 <a name="mac" />
+
 ### On Mac OS X
 
 Install the rb-fsevent gem for [FSEvent](http://en.wikipedia.org/wiki/FSEvents) support:
@@ -89,6 +90,7 @@ Finally you have to add your Growl library of choice to your Gemfile:
 Have a look at the [Guard Wiki](https://github.com/guard/guard/wiki/Which-Growl-library-should-I-use) for more information.
 
 <a name="linux" />
+
 ### On Linux
 
 Install the [rb-inotify gem](https://rubygems.org/gems/rb-inotify) for [inotify](http://en.wikipedia.org/wiki/Inotify) support:
@@ -105,6 +107,7 @@ And add them to your Gemfile:
     gem 'libnotify'
 
 <a name="win" />
+
 ### On Windows
 
 Install the [rb-fchange gem](https://rubygems.org/gems/rb-fchange) for [Directory Change Notification](http://msdn.microsoft.com/en-us/library/aa365261\(VS.85\).aspx) support:
@@ -189,27 +192,22 @@ Guard can use a Guardfile not located in the current directory:
 
 Guard can optionally watch all file modifications like moves or deletions with:
 
-``` bash
-$ guard start -A
-$ guard start --watch-all-modifications
-```
+    $ guard start -A
+    $ guard start --watch-all-modifications
 
 ### `-i`/`--no-interactions` option
 
 Turn off completely any Guard terminal [interactions](#interactions) with:
 
-``` bash
-$ guard start -i
-$ guard start --no-interactions
-```
+    $ guard start -A
+    $ guard start --watch-all-modifications
 
 An exhaustive list of options is available with:
 
-``` bash
-$ guard help [TASK]
-```
+    $ guard help [TASK]
 
 <a name="interactions" />
+
 Interactions
 ------------
 
