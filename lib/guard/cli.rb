@@ -76,7 +76,7 @@ module Guard
     # @see Guard::DslDescriber.list
     #
     def list
-      Guard::DslDescriber.list(options)
+      ::Guard::DslDescriber.list(options)
     end
 
     desc 'version', 'Show the Guard version'
@@ -87,7 +87,7 @@ module Guard
     # @see Guard::VERSION
     #
     def version
-      Guard::UI.info "Guard version #{ Guard::VERSION }"
+      ::Guard::UI.info "Guard version #{ Guard::VERSION }"
     end
 
     desc 'init [GUARD]', 'Generates a Guardfile at the current working directory, or insert the given GUARD to an existing Guardfile'
@@ -100,7 +100,7 @@ module Guard
     # @param [String] guard_name the name of the Guard to initialize
     #
     def init(guard_name = nil)
-      Guard.initialize_template(guard_name)
+      ::Guard.initialize_template(guard_name)
     end
 
     desc 'show', 'Show all defined Guards and their options'
@@ -112,7 +112,7 @@ module Guard
     # @see Guard::DslDescriber.show
     #
     def show
-      Guard::DslDescriber.show(options)
+      ::Guard::DslDescriber.show(options)
     end
 
   end
