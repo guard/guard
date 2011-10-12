@@ -24,6 +24,7 @@ Ryan Bates made a Railscast on Guard, you can view it here: http://railscasts.co
 Install
 -------
 
+
 Install the gem:
 
     $ gem install guard
@@ -45,6 +46,9 @@ Also note that if a `.guard.rb` is found in your home directory, it will be appe
 
 Add the guards you need to your Guardfile (see the existing guards below).
 
+Now, be sure to read the particular instructions for your operating system: [Mac OS X](#mac) | [Linux](#linux) | [Windows](#win)
+
+<a name="mac" />
 ### On Mac OS X
 
 Install the rb-fsevent gem for [FSEvent](http://en.wikipedia.org/wiki/FSEvents) support:
@@ -84,6 +88,7 @@ Finally you have to add your Growl library of choice to your Gemfile:
 
 Have a look at the [Guard Wiki](https://github.com/guard/guard/wiki/Which-Growl-library-should-I-use) for more information.
 
+<a name="linux" />
 ### On Linux
 
 Install the [rb-inotify gem](https://rubygems.org/gems/rb-inotify) for [inotify](http://en.wikipedia.org/wiki/Inotify) support:
@@ -99,6 +104,7 @@ And add them to your Gemfile:
     gem 'rb-inotify'
     gem 'libnotify'
 
+<a name="win" />
 ### On Windows
 
 Install the [rb-fchange gem](https://rubygems.org/gems/rb-fchange) for [Directory Change Notification](http://msdn.microsoft.com/en-us/library/aa365261\(VS.85\).aspx) support:
