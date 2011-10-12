@@ -52,6 +52,7 @@ describe Guard::Notifier do
       context "with the GNTP library available" do
         before do
           class ::GNTP
+            def initialize(app); end
             def register(config) ; end
           end
         end
@@ -246,6 +247,7 @@ describe Guard::Notifier do
       context 'with ruby_gntp gem' do
         before do
           described_class.growl_library = :ruby_gntp
+          described_class.gntp = Object.new
         end
 
         it "passes a success notification to Ruby GNTP" do
