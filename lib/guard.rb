@@ -16,7 +16,7 @@ module Guard
   autoload :Hook,         'guard/hook'
 
   class << self
-    attr_accessor :options, :interactor, :listener
+    attr_accessor :options, :interactor, :listener, :lock
 
     # Creates the initial Guardfile template or add a Guard implementation
     # Guardfile template to an existing Guardfile.
@@ -56,7 +56,7 @@ module Guard
       @options    = options
       @guards     = []
       @groups     = [Group.new(:default)]
-      @interactor = Interactor.new
+      @interactor = Interactor.new unless @options[:no_interactions]
       @listener   = Listener.select_and_init(@options[:watchdir] ? File.expand_path(@options[:watchdir]) : Dir.pwd, options)
 
       @options[:notify] && ENV['GUARD_NOTIFY'] != 'false' ? Notifier.turn_on : Notifier.turn_off
@@ -140,7 +140,7 @@ module Guard
 
       run_guard_task(:start)
 
-      interactor.start
+      interactor.start if interactor
       listener.start
     end
 
@@ -200,14 +200,14 @@ module Guard
     def run
       UI.clear if options[:clear]
 
-      @lock.synchronize do
+      lock.synchronize do
         begin
-          @interactor.stop_if_not_current
+          interactor.stop_if_not_current if interactor
           yield
         rescue Interrupt
         end
 
-        @interactor.start
+        interactor.start if interactor
       end
     end
 

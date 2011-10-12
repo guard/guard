@@ -2,6 +2,7 @@
 
 ### Improvements
 
+- Add cli option (-i / --no-interactions) to turn off Guard terminal interactions. ([@thibaudgg][])
 - Add support for Growl Notification Transport Protocol. ([@netzpirat][])
 - [#157](https://github.com/guard/guard/pull/157): Allow any return from the Guard watchers. ([@earlonrails][])
 - [#156](https://github.com/guard/guard/pull/156): Log error and diagnostic messages to STDERR. ([@sunaku][])

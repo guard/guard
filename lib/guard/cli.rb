@@ -53,6 +53,12 @@ module Guard
                   :aliases => '-A',
                   :banner => 'Watch for all file modifications including moves and deletions'
 
+    method_option :no_interactions,
+                  :type => :boolean,
+                  :default => false,
+                  :aliases => '-i',
+                  :banner => 'Turn off completely any guard terminal interactions'
+
     # Start Guard by initialize the defined Guards and watch the file system.
     # This is the default task, so calling `guard` is the same as calling `guard start`.
     #

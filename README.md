@@ -194,10 +194,22 @@ $ guard start -A
 $ guard start --watch-all-modifications
 ```
 
+### `-i`/`--no-interactions` option
+
+Turn off completely any Guard terminal [interactions](#interactions) with:
+
+``` bash
+$ guard start -i
+$ guard start --no-interactions
+```
+
 An exhaustive list of options is available with:
 
-    $ guard help [TASK]
+``` bash
+$ guard help [TASK]
+```
 
+<a name="interactions" />
 Interactions
 ------------
 

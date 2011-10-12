@@ -93,6 +93,17 @@ describe Guard do
       ::Guard.should_receive(:debug_command_execution)
       ::Guard.setup(:debug => true)
     end
+
+    it "initializes the interactor" do
+      ::Guard.setup
+      ::Guard.interactor.should be_kind_of(Guard::Interactor)
+    end
+
+    it "skips the interactor initalization if no-interactions is true" do
+      ::Guard.interactor = nil
+      ::Guard.setup(:no_interactions => true)
+      ::Guard.interactor.should be_nil
+    end
   end
 
   describe ".guards" do
