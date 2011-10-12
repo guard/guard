@@ -77,7 +77,7 @@ Use the [growl gem](https://rubygems.org/gems/growl):
     $ gem install growl
 
 The `growl` gem is compatible with all versions of Growl and uses a command line tool [growlnotify](http://growl.info/extras.php#growlnotify)
-that must be separately downloaded and installed. You can alsi install it with HomeBrew:
+that must be separately downloaded and installed. You can also install it with HomeBrew:
 
     $ brew install growlnotify
 
