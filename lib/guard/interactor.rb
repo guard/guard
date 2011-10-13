@@ -10,7 +10,7 @@ module Guard
   # - pause, p => Pause Guard
   # - Everything else => Run all
   #
-  # It's aslo possible to scope to group or guard reload and `run all` actions
+  # It's also possible to scope `reload` and `run all` actions to only a specified group or a guard.
   #
   # @example `backend reload` will only reload backend group
   # @example `spork reload` will only reload rspec guard
