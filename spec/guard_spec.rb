@@ -404,7 +404,6 @@ describe Guard do
       subject.add_guard(:dummy, [], [], { :group => :foo })
       subject.add_guard(:dummy, [], [], { :group => :foo })
       @dumby_guard = subject.add_guard(:dumby, [], [], { :group => :bar })
-      # subject.add_guard(:dummy, [], [], { :group => :bar })
       subject.add_guard(:dummy, [], [], { :group => :bar })
       @sum = { :foo => 0, :bar => 0 }
     end
