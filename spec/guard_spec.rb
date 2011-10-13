@@ -392,19 +392,21 @@ describe Guard do
     end
   end
 
-  describe ".run_guard_task" do
+  describe ".run_on_guards" do
     subject { ::Guard.setup }
 
     before do
       class Guard::Dummy < Guard::Guard; end
+      class Guard::Dumby < Guard::Guard; end
 
-      subject.add_group(:foo, { :halt_on_fail => true })
+      @foo_group = subject.add_group(:foo, { :halt_on_fail => true })
       subject.add_group(:bar)
       subject.add_guard(:dummy, [], [], { :group => :foo })
       subject.add_guard(:dummy, [], [], { :group => :foo })
+      @dumby_guard = subject.add_guard(:dumby, [], [], { :group => :bar })
+      # subject.add_guard(:dummy, [], [], { :group => :bar })
       subject.add_guard(:dummy, [], [], { :group => :bar })
-      subject.add_guard(:dummy, [], [], { :group => :bar })
-      @sum = { :foo => 0, :bar => 0}
+      @sum = { :foo => 0, :bar => 0 }
     end
 
     context "all tasks succeed" do
@@ -413,17 +415,37 @@ describe Guard do
       end
 
       it "executes the task for each guard in each group" do
-        subject.run_guard_task(:task)
+        subject.run_on_guards do |guard|
+          guard.task
+        end
 
         @sum.all? { |k, v| v == 2 }.should be_true
+      end
+
+      it "executes the task for each guard in foo group only" do
+        subject.run_on_guards(group: @foo_group) do |guard|
+          guard.task
+        end
+
+        @sum[:foo].should == 2
+        @sum[:bar].should == 0
+      end
+
+      it "executes the task for dumby guard only" do
+        subject.run_on_guards(guard: @dumby_guard) do |guard|
+          guard.task
+        end
+
+        @sum[:foo].should == 0
+        @sum[:bar].should == 1
       end
     end
 
     context "one guard fails" do
       before do
-        subject.guards.each_with_index do |g, i|
-          g.stub!(:task) do
-            @sum[g.group] += i+1
+        subject.guards.each_with_index do |guard, i|
+          guard.stub!(:task) do
+            @sum[guard.group] += i+1
             if i % 2 == 0
               throw :task_has_failed
             else
@@ -434,7 +456,9 @@ describe Guard do
       end
 
       it "executes the task only for guards that didn't fail for group with :halt_on_fail == true" do
-        subject.run_guard_task(:task)
+        subject.run_on_guards do |guard|
+          subject.run_supervised_task(guard, :task)
+        end
 
         @sum[:foo].should eql 1
         @sum[:bar].should eql 7
@@ -455,12 +479,12 @@ describe Guard do
 
     it 'runs the :run_on_change task with the watched file changes' do
       Guard.should_receive(:run_supervised_task).with(guard, :run_on_change, ['a.rb', 'b.rb'])
-      Guard.run_on_change_task(['a.rb', 'b.rb', 'templates/d.haml'], guard, :run_on_change)
+      Guard.run_on_change_task(['a.rb', 'b.rb', 'templates/d.haml'], guard)
     end
 
     it 'runs the :run_on_deletion task with the watched file deletions' do
       Guard.should_receive(:run_supervised_task).with(guard, :run_on_deletion, ['c.rb'])
-      Guard.run_on_change_task(['!c.rb', '!templates/e.haml'], guard, :run_on_change)
+      Guard.run_on_change_task(['!c.rb', '!templates/e.haml'], guard)
     end
   end
 

@@ -213,12 +213,17 @@ Interactions
 
 **From version >= 0.7.0 Posix Signal handlers are no more used to interact with Guard. If you're using a version < 0.7, please refer to the [README in the v0.6 branch](https://github.com/guard/guard/blob/v0.6/README.md).**
 
-When Guard do nothing you can interact with by entering a command + hitting enter:
+When Guard do nothing you can interact with by entering a command + hitting return/enter:
 
-* `stop|quit|exit|s|q|e + enter` - Calls each guard's `#stop` method, in the same order they are declared in the Guardfile, and then quits Guard itself.
-* `reload|r|z + enter` - Calls each guard's `#reload` method, in the same order they are declared in the Guardfile.
-* `pause|p + enter` - Toggle files modification listening. Useful when switching git branches.
-* `just enter (no commands)` - Calls each guard's `#run_all` method, in the same order they are declared in the Guardfile.
+* `stop`:    `stop|quit|exit|s|q|e + return` - Calls each guard's `#stop` method, in the same order they are declared in the Guardfile, and then quits Guard itself.
+* `reload`:  `reload|r|z + return` - Calls each guard's `#reload` method, in the same order they are declared in the Guardfile.
+* `pause`:   `pause|p + return` - Toggle files modification listening. Useful when switching git branches.
+* `run_all`: `just return (no commands)` - Calls each guard's `#run_all` method, in the same order they are declared in the Guardfile.
+
+`reload` and `run_all` actions can be scoped to only run on a certain guard or group. Examples:
+
+* `backend reload + return` - Call only each guard's `#reload` method on backend group.
+* `rspec + return` - Call only rspec guard's `#run_all` method.
 
 Available Guards
 ----------------

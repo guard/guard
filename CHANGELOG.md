@@ -2,6 +2,7 @@
 
 ### Improvements
 
+- `reload` and `run_all` Guard terminal interactions actions can be scoped to only run on a certain guard or group. ([@thibaudgg][])
 - Add cli option (-i / --no-interactions) to turn off Guard terminal interactions. ([@thibaudgg][])
 - Add support for Growl Notification Transport Protocol. ([@netzpirat][])
 - [#157](https://github.com/guard/guard/pull/157): Allow any return from the Guard watchers. ([@earlonrails][])

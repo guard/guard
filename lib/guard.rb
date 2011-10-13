@@ -138,7 +138,9 @@ module Guard
 
       UI.info "Guard is now watching at '#{ listener.directory }'"
 
-      run_guard_task(:start)
+      run_on_guards do |guard|
+        run_supervised_task(guard, :start)
+      end
 
       interactor.start if interactor
       listener.start
@@ -149,7 +151,9 @@ module Guard
     def stop
       UI.info 'Bye bye...', :reset => true
 
-      run_guard_task(:stop)
+      run_on_guards do |guard|
+        run_supervised_task(guard, :stop)
+      end
 
       listener.stop
       abort
@@ -157,17 +161,25 @@ module Guard
 
     # Reload all Guards currently enabled.
     #
-    def reload
+    # @param [Hash] An hash with a guard or a group scope
+    #
+    def reload(scopes)
       run do
-        run_guard_task(:reload)
+        run_on_guards(scopes) do |guard|
+          run_supervised_task(guard, :reload)
+        end
       end
     end
 
     # Trigger `run_all` on all Guards currently enabled.
     #
-    def run_all
+    # @param [Hash] An hash with a guard or a group scope
+    #
+    def run_all(scopes)
       run do
-        run_guard_task(:run_all)
+        run_on_guards(scopes) do |guard|
+          run_supervised_task(guard, :run_all)
+        end
       end
     end
 
@@ -186,9 +198,11 @@ module Guard
 
     # Trigger `run_on_change` on all Guards currently enabled.
     #
-    def run_on_change(paths)
+    def run_on_change(files)
       run do
-        run_guard_task(:run_on_change, paths)
+        run_on_guards do |guard|
+          run_on_change_task(files, guard)
+        end
       end
     end
 
@@ -211,22 +225,22 @@ module Guard
       end
     end
 
-    # Loop through all groups and run the given task for each Guard.
+    # Loop through all groups and run the given task (as block) for each Guard.
     #
     # Stop the task run for the all Guards within a group if one Guard
     # throws `:task_has_failed`.
     #
-    # @param [Symbol] task the task to run
-    # @param [Array<String>] files the list of files to pass to the task
+    # @param [Hash] An hash with a guard or a group scope
     #
-    def run_guard_task(task, files = nil)
-      groups.each do |group|
-        catch :task_has_failed do
-          guards(:group => group.name).each do |guard|
-            if task == :run_on_change
-              run_on_change_task(files, guard, task)
-            else
-              run_supervised_task(guard, task)
+    def run_on_guards(scopes = {})
+      if guard = scopes[:guard]
+        yield(guard)
+      else
+        groups = scopes[:group] ? [scopes[:group]] : @groups
+        groups.each do |group|
+          catch :task_has_failed do
+            guards(:group => group.name).each do |guard|
+              yield(guard)
             end
           end
         end
@@ -239,17 +253,16 @@ module Guard
     #
     # @param [Array<String>] files the list of files to pass to the task
     # @param [Guard::Guard] guard the guard to run
-    # @param [Symbol] task the task to run
     # @raise [:task_has_failed] when task has failed
     #
-    def run_on_change_task(files, guard, task)
+    def run_on_change_task(files, guard)
       paths = Watcher.match_files(guard, files)
       changes = changed_paths(paths)
       deletions = deleted_paths(paths)
 
       unless changes.empty?
-        UI.debug "#{ guard.class.name }##{ task } with #{ changes.inspect }"
-        run_supervised_task(guard, task, changes)
+        UI.debug "#{ guard.class.name }#run_on_change with #{ changes.inspect }"
+        run_supervised_task(guard, :run_on_change, changes)
       end
 
       unless deletions.empty?
@@ -316,7 +329,7 @@ module Guard
     # option set, we do NOT catch it here, it will be catched at the
     # group level.
     #
-    # @see .run_guard_task
+    # @see .run_on_guards
     #
     # @param [Guard::Guard] guard the Guard to execute
     # @return [Symbol] the symbol to catch
@@ -336,6 +349,7 @@ module Guard
     # @param [Array<Watcher>] watchers the list of declared watchers
     # @param [Array<Hash>] callbacks the list of callbacks
     # @param [Hash] options the Guard options (see the given Guard documentation)
+    # @return [Guard::Guard] the guard added
     #
     def add_guard(name, watchers = [], callbacks = [], options = {})
       if name.to_sym == :ego
@@ -343,7 +357,9 @@ module Guard
       else
         guard_class = get_guard_class(name)
         callbacks.each { |callback| Hook.add_callback(callback[:listener], guard_class, callback[:events]) }
-        @guards << guard_class.new(watchers, options)
+        guard = guard_class.new(watchers, options)
+        @guards << guard
+        guard
       end
     end
 
