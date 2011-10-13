@@ -1,6 +1,8 @@
 require 'spec_helper'
+require 'guard/guard'
 
 describe Guard::Interactor do
+  subject { Guard::Interactor.new }
 
   describe "#extract_scopes_and_action" do
 
