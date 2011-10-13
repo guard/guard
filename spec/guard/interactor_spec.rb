@@ -1,12 +1,11 @@
 require 'spec_helper'
 
 describe Guard::Interactor do
-  subject { Guard::Interactor.new }
 
   describe "#extract_scopes_and_action" do
 
-    class Guard::Foo < ::Guard::Guard; end
-    class Guard::FooBar < ::Guard::Guard; end
+    class Guard::Foo < Guard::Guard; end
+    class Guard::FooBar < Guard::Guard; end
 
     before(:each) do
       guard = ::Guard.setup
