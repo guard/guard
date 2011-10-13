@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency 'bundler'
   s.add_development_dependency 'rspec',       '~> 2.6.0'
-  s.add_development_dependency 'guard-rspec', '~> 0.3.1'
+  s.add_development_dependency 'guard-rspec', '~> 0.5.0'
   s.add_development_dependency 'yard',        '~> 0.7.2'
   s.add_development_dependency 'kramdown',    '~> 0.13.3'
 
