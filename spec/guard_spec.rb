@@ -422,7 +422,7 @@ describe Guard do
       end
 
       it "executes the task for each guard in foo group only" do
-        subject.run_on_guards(group: @foo_group) do |guard|
+        subject.run_on_guards(:group => @foo_group) do |guard|
           guard.task
         end
 
@@ -431,7 +431,7 @@ describe Guard do
       end
 
       it "executes the task for dumby guard only" do
-        subject.run_on_guards(guard: @dumby_guard) do |guard|
+        subject.run_on_guards(:guard => @dumby_guard) do |guard|
           guard.task
         end
 
