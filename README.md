@@ -69,7 +69,7 @@ Use the [ruby_gntp gem](https://github.com/snaka/ruby_gntp):
 
     $ gem install ruby_gntp
 
-The `ruby_gntp` gem is compatible with Growl >= 0.7 and uses the Growl Notification Transport Protocol to send Growl
+The `ruby_gntp` gem is compatible with Growl >= 1.3 and uses the Growl Notification Transport Protocol to send Growl
 notifications. Guard supports multiple notification channels for customizing each notification type, but it's limited
 to the local host currently.
 
