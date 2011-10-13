@@ -33,12 +33,12 @@ module Guard
       def turn_on
         ENV["GUARD_NOTIFY"] = 'true'
         case RbConfig::CONFIG['target_os']
-          when /darwin/i
-            require_growl
-          when /linux/i
-            require_libnotify
-          when /mswin|mingw/i
-            require_rbnotifu
+        when /darwin/i
+          require_growl
+        when /linux/i
+          require_libnotify
+        when /mswin|mingw/i
+          require_rbnotifu
         end
       end
 
@@ -56,12 +56,12 @@ module Guard
           title = options.delete(:title) || "Guard"
 
           case RbConfig::CONFIG['target_os']
-            when /darwin/i
-              notify_mac(title, message, image, options)
-            when /linux/i
-              notify_linux(title, message, image, options)
-            when /mswin|mingw/i
-              notify_windows(title, message, image, options)
+          when /darwin/i
+            notify_mac(title, message, image, options)
+          when /linux/i
+            notify_linux(title, message, image, options)
+          when /mswin|mingw/i
+            notify_windows(title, message, image, options)
           end
         end
       end
@@ -89,27 +89,27 @@ module Guard
         notification = { :title => title, :icon => image_path(image) }.merge(options)
 
         case self.growl_library
-          when :growl_notify
-            notification.delete(:name)
+        when :growl_notify
+          notification.delete(:name)
 
-            GrowlNotify.send_notification({
-                :description      => message,
-                :application_name => APPLICATION_NAME
-            }.merge(notification))
+          GrowlNotify.send_notification({
+              :description      => message,
+              :application_name => APPLICATION_NAME
+          }.merge(notification))
 
-          when :ruby_gntp
-            icon = "file://#{ notification.delete(:icon) }"
+        when :ruby_gntp
+          icon = "file://#{ notification.delete(:icon) }"
 
-            self.gntp.notify({
-                :name  => [:pending, :success, :failed].include?(image) ? image.to_s : 'notify',
-                :text  => message,
-                :icon => icon
-            }.merge(notification))
+          self.gntp.notify({
+              :name  => [:pending, :success, :failed].include?(image) ? image.to_s : 'notify',
+              :text  => message,
+              :icon => icon
+          }.merge(notification))
 
-          when :growl
-            Growl.notify(message, {
-                :name => APPLICATION_NAME
-            }.merge(notification))
+        when :growl
+          Growl.notify(message, {
+              :name => APPLICATION_NAME
+          }.merge(notification))
         end
       end
 
@@ -155,15 +155,15 @@ module Guard
       def image_path(image)
         images_path = Pathname.new(File.dirname(__FILE__)).join('../../images')
         case image
-          when :failed
-            images_path.join("failed.png").to_s
-          when :pending
-            images_path.join("pending.png").to_s
-          when :success
-            images_path.join("success.png").to_s
-          else
-            # path given
-            image
+        when :failed
+          images_path.join("failed.png").to_s
+        when :pending
+          images_path.join("pending.png").to_s
+        when :success
+          images_path.join("success.png").to_s
+        else
+          # path given
+          image
         end
       end
 
@@ -174,14 +174,14 @@ module Guard
       #
       def image_level(image)
         case image
-          when :failed
-            :error
-          when :pending
-            :warn
-          when :success
-            :info
-          else
-            :info
+        when :failed
+          :error
+        when :pending
+          :warn
+        when :success
+          :info
+        else
+          :info
         end
       end
 
