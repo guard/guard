@@ -1,6 +1,6 @@
 module Guard
 
-  # Main class that every Guard implementation must subclass.
+  # Base class that every Guard implementation must inherit from.
   #
   # Guard will trigger the `start`, `stop`, `reload`, `run_all`, `run_on_change` and
   # `run_on_deletion` task methods depending on user interaction and file modification.
