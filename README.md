@@ -32,6 +32,9 @@ Install the gem:
 Or add it to your Gemfile (inside the `development` group):
 
     gem 'guard'
+    gem 'rb-inotify', :require => false if RUBY_PLATFORM =~ /linux/i
+    gem 'rb-fsevent', :require => false if RUBY_PLATFORM =~ /darwin/i
+    gem 'rb-fchange', :require => false if RUBY_PLATFORM =~ /mingw/i
 
 and install it via Bundler:
 
