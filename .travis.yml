@@ -7,7 +7,7 @@ rvm:
 branches:
   only:
     - master
-    - guard_dependencies
+    - notifications
 env:
   - GUARD_SLEEP=1
 notifications:
