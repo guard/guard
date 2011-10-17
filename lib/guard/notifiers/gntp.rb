@@ -23,7 +23,7 @@ module Guard
     #   notification :gntp
     #
     # @example Add the `:gntp` notifier with configuration options to your `Guardfile`
-    #   notification :growl, :sticky => true, :host => '192.168.1.5', :password => 'secret'
+    #   notification :gntp, :sticky => true, :host => '192.168.1.5', :password => 'secret'
     #
     module GNTP
       extend self
