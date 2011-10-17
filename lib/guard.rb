@@ -15,6 +15,9 @@ module Guard
   autoload :Notifier,     'guard/notifier'
   autoload :Hook,         'guard/hook'
 
+  # The Guardfile template for `guard init`
+  GUARDFILE_TEMPLATE = File.expand_path('../guard/templates/Guardfile', __FILE__)
+
   class << self
     attr_accessor :options, :interactor, :listener, :lock
 
@@ -32,7 +35,7 @@ module Guard
       else
         if !File.exist?('Guardfile')
           ::Guard::UI.info "Writing new Guardfile to #{ Dir.pwd }/Guardfile"
-          FileUtils.cp(File.expand_path('../guard/templates/Guardfile', __FILE__), 'Guardfile')
+          FileUtils.cp(GUARDFILE_TEMPLATE, 'Guardfile')
         else
           ::Guard::UI.error "Guardfile already exists at #{ Dir.pwd }/Guardfile"
           exit 1

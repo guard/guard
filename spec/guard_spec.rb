@@ -3,6 +3,10 @@ require 'guard/guard'
 
 describe Guard do
 
+  it "has a valid Guardfile template" do
+    File.exists?(Guard::GUARDFILE_TEMPLATE).should be_true
+  end
+
   describe ".initialize_template" do
     context "with a Guard name" do
       it "initializes a the Guard" do
