@@ -50,6 +50,7 @@ describe Guard::Notifier::GrowlNotify do
       let(:config) { mock('config') }
 
       it 'does configure GrowlNotify' do
+        RbConfig::CONFIG.should_receive(:[]).with('host_os').and_return 'darwin'
         ::GrowlNotify.should_receive(:application_name).and_return nil
         ::GrowlNotify.should_receive(:config).and_yield config
         config.should_receive(:notifications=).with ['success', 'pending', 'failed', 'notify']
@@ -61,6 +62,7 @@ describe Guard::Notifier::GrowlNotify do
 
     context 'when the application name is Guard' do
       it 'does not configure GrowlNotify again' do
+        RbConfig::CONFIG.should_receive(:[]).with('host_os').and_return 'darwin'
         ::GrowlNotify.should_receive(:application_name).and_return 'Guard'
         ::GrowlNotify.should_not_receive(:config)
         subject.available?
