@@ -12,6 +12,8 @@ describe Guard::Dsl do
     ::Guard.setup
     ::Guard.stub!(:options).and_return(:debug => true)
     ::Guard.stub!(:guards).and_return([mock('Guard')])
+    ::Guard::Notifier.stub!(:notifications).and_return([mock('Notifications')])
+    ::Guard::Notifier.stub!(:add_notification)
   end
 
   def self.disable_user_config
@@ -153,15 +155,22 @@ describe Guard::Dsl do
   end
 
   describe ".reevaluate_guardfile" do
-    before(:each) { ::Guard::Dsl.stub!(:instance_eval_guardfile) }
+    before do
+      ::Guard::Dsl.stub!(:instance_eval_guardfile)
+      ::Guard::Notifier.notifications = [{ :name => :growl }]
+    end
 
     it "resets already definded guards before calling evaluate_guardfile" do
       Guard::Notifier.turn_off
       described_class.evaluate_guardfile(:guardfile_contents => invalid_guardfile_string)
+      ::Guard::Notifier.notifications.should_not be_empty
+      ::Guard.groups.should_not be_empty
       ::Guard.guards.should_not be_empty
       ::Guard::Dsl.should_receive(:evaluate_guardfile)
       described_class.reevaluate_guardfile
       ::Guard.guards.should be_empty
+      ::Guard.groups.should be_empty
+      ::Guard::Notifier.notifications.should be_empty
     end
   end
 
@@ -228,6 +237,21 @@ describe Guard::Dsl do
 
       described_class.evaluate_guardfile(:guardfile_contents => "ignore_paths 'foo', 'bar'")
       ignore_paths.should == ['faz', 'foo', 'bar']
+    end
+  end
+
+  describe "#notification" do
+    disable_user_config
+
+    it 'adds a notification to the notifier' do
+      ::Guard::Notifier.should_receive(:add_notification).with(:growl, {}, false)
+      described_class.evaluate_guardfile(:guardfile_contents => 'notification :growl')
+    end
+
+    it 'adds multiple notification to the notifier' do
+      ::Guard::Notifier.should_receive(:add_notification).with(:growl, {}, false)
+      ::Guard::Notifier.should_receive(:add_notification).with(:ruby_gntp, { :host => '192.168.1.5' }, false)
+      described_class.evaluate_guardfile(:guardfile_contents => "notification :growl\nnotification :ruby_gntp, :host => '192.168.1.5'")
     end
   end
 
@@ -360,6 +384,8 @@ private
 
   def valid_guardfile_string
     "
+    notification :growl
+
     guard :pow
 
     group :w do

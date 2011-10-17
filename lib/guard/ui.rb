@@ -16,24 +16,30 @@ module Guard
       #
       # @param [String] message the message to show
       # @option options [Boolean] reset whether to clean the output before
+      # @return [Boolean] always true
       #
       def info(message, options = { })
         unless ENV['GUARD_ENV'] == 'test'
           reset_line if options[:reset]
           STDERR.puts color(message) if message != ''
         end
+
+        true
       end
 
       # Show a red error message that is prefixed with ERROR.
       #
       # @param [String] message the message to show
       # @option options [Boolean] reset whether to clean the output before
+      # @return [Boolean] always false
       #
       def error(message, options = { })
         unless ENV['GUARD_ENV'] == 'test'
           reset_line if options[:reset]
           STDERR.puts color('ERROR: ', :red) + message
         end
+
+        false
       end
 
       # Show a red deprecation message that is prefixed with DEPRECATION.

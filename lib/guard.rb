@@ -40,7 +40,11 @@ module Guard
       end
     end
 
-    # Initialize the Guard singleton.
+    # Initialize the Guard singleton:
+    #
+    # - Initialize the internal Guard state.
+    # - Create the interactor when necessary for user interaction.
+    # - Select and initialize the file change listener.
     #
     # @option options [Boolean] clear if auto clear the UI should be done
     # @option options [Boolean] notify if system notifications should be shown
@@ -51,18 +55,14 @@ module Guard
     # @option options [Boolean] watch_all_modifications watches all file modifications if true
     #
     def setup(options = {})
-      @lock = Mutex.new
-
+      @lock       = Mutex.new
       @options    = options
       @guards     = []
       @groups     = [Group.new(:default)]
       @interactor = Interactor.new unless @options[:no_interactions]
       @listener   = Listener.select_and_init(@options[:watchdir] ? File.expand_path(@options[:watchdir]) : Dir.pwd, options)
 
-      @options[:notify] && ENV['GUARD_NOTIFY'] != 'false' ? Notifier.turn_on : Notifier.turn_off
-
       UI.clear if @options[:clear]
-
       debug_command_execution if @options[:debug]
 
       self
@@ -116,8 +116,13 @@ module Guard
       end
     end
 
-    # Start Guard by evaluate the `Guardfile`, initialize the declared Guards
-    # and start the available file change listener.
+    # Main method for Guard that is called from the CLI when guard starts.
+    #
+    # - Setup Guard internals
+    # - Evaluate the `Guardfile`
+    # - Configure Notifiers
+    # - Initialize the declared Guards
+    # - Start the available file change listener
     #
     # @option options [Boolean] clear if auto clear the UI should be done
     # @option options [Boolean] notify if system notifications should be shown
@@ -130,6 +135,8 @@ module Guard
       setup(options)
 
       Dsl.evaluate_guardfile(options)
+
+      options[:notify] && ENV['GUARD_NOTIFY'] != 'false' ? Notifier.turn_on : Notifier.turn_off
 
       listener.on_change do |files|
         Dsl.reevaluate_guardfile        if Watcher.match_guardfile?(files)

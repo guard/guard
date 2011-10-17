@@ -72,23 +72,6 @@ describe Guard do
       ::Guard.listener.directory.should eql "/foo/bar"
     end
 
-    it "turns on the notifier by default" do
-      ENV["GUARD_NOTIFY"] = nil
-      ::Guard::Notifier.should_receive(:turn_on)
-      ::Guard.setup(:notify => true)
-    end
-
-    it "turns off the notifier if the notify option is false" do
-      ::Guard::Notifier.should_receive(:turn_off)
-      ::Guard.setup(:notify => false)
-    end
-
-    it "turns off the notifier if environment variable GUARD_NOTIFY is false" do
-      ENV["GUARD_NOTIFY"] = 'false'
-      ::Guard::Notifier.should_receive(:turn_off)
-      ::Guard.setup(:notify => true)
-    end
-
     it "logs command execution if the debug option is true" do
       ::Guard.should_receive(:debug_command_execution)
       ::Guard.setup(:debug => true)
@@ -219,13 +202,87 @@ describe Guard do
   end
 
   describe ".start" do
-    it "basic check that core methods are called" do
-      opts = { :my_opts => true, :guardfile => File.join(@fixture_path, "Guardfile") }
-      ::Guard.should_receive(:setup).with(opts)
-      ::Guard::Dsl.should_receive(:evaluate_guardfile).with(opts)
-      ::Guard.listener.should_receive(:start)
+    let(:options) { { :my_opts => true, :guardfile => File.join(@fixture_path, "Guardfile") } }
 
-      ::Guard.start(opts)
+    before do
+      Guard.stub(:setup)
+      Guard.listener.stub(:start)
+      Guard::Dsl.stub(:evaluate_guardfile)
+      Guard::Notifier.stub(:turn_on)
+      Guard::Notifier.stub(:turn_off)
+    end
+
+    it "setup Guard" do
+      ::Guard.should_receive(:setup).with(options)
+      ::Guard.start(options)
+    end
+
+    it "evaluates the DSL" do
+      ::Guard::Dsl.should_receive(:evaluate_guardfile).with(options)
+      ::Guard.start(options)
+    end
+
+    it "starts the listeners" do
+      ::Guard.listener.should_receive(:start)
+      ::Guard.start(options)
+    end
+
+    context "with the notify option enabled" do
+      context 'without the environment variable GUARD_NOTIFY set' do
+        before { ENV["GUARD_NOTIFY"] = nil }
+
+        it "turns on the notifier on" do
+          ::Guard::Notifier.should_receive(:turn_on)
+          ::Guard.start(:notify => true)
+        end
+      end
+
+      context 'with the environment variable GUARD_NOTIFY set to true' do
+        before { ENV["GUARD_NOTIFY"] = 'true' }
+
+        it "turns on the notifier on" do
+          ::Guard::Notifier.should_receive(:turn_on)
+          ::Guard.start(:notify => true)
+        end
+      end
+
+      context 'with the environment variable GUARD_NOTIFY set to false' do
+        before { ENV["GUARD_NOTIFY"] = 'false' }
+
+        it "turns on the notifier off" do
+          ::Guard::Notifier.should_receive(:turn_off)
+          ::Guard.start(:notify => true)
+        end
+      end
+    end
+
+    context "with the notify option disable" do
+      context 'without the environment variable GUARD_NOTIFY set' do
+        before { ENV["GUARD_NOTIFY"] = nil }
+
+        it "turns on the notifier off" do
+          ::Guard::Notifier.should_receive(:turn_off)
+          ::Guard.start(:notify => false)
+        end
+      end
+
+      context 'with the environment variable GUARD_NOTIFY set to true' do
+        before { ENV["GUARD_NOTIFY"] = 'true' }
+
+        it "turns on the notifier on" do
+          ::Guard::Notifier.should_receive(:turn_off)
+          ::Guard.start(:notify => false)
+        end
+      end
+
+      context 'with the environment variable GUARD_NOTIFY set to false' do
+        before { ENV["GUARD_NOTIFY"] = 'false' }
+
+        it "turns on the notifier off" do
+          ::Guard::Notifier.should_receive(:turn_off)
+          ::Guard.start(:notify => false)
+        end
+      end
     end
   end
 
