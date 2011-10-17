@@ -24,18 +24,18 @@ Ryan Bates made a Railscast on Guard, you can view it here: [http://railscasts.c
 Install
 -------
 
+Add Guard to your `Gemfile`:
 
-Install the gem:
-
-    $ gem install guard
-
-Or add it to your Gemfile (inside the `development` group):
-
-    gem 'guard'
+    group :development do
+      gem 'guard'
+      gem 'rb-inotify', :require => false
+      gem 'rb-fsevent', :require => false
+      gem 'rb-fchange', :require => false
+    end
 
 and install it via Bundler:
 
-    $ bundle install
+    $ bundle
 
 Generate an empty Guardfile with:
 

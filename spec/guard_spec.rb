@@ -3,6 +3,10 @@ require 'guard/guard'
 
 describe Guard do
 
+  it "has a valid Guardfile template" do
+    File.exists?(Guard::GUARDFILE_TEMPLATE).should be_true
+  end
+
   describe ".initialize_template" do
     context "with a Guard name" do
       it "initializes a the Guard" do
@@ -545,18 +549,38 @@ describe Guard do
   end
 
   describe ".changed_paths" do
-    let(:paths) { ['a.rb', 'b.rb', '!c.rb', 'templates/d.haml', '!templates/e.haml'] }
+    context 'for an array with string paths' do
+      let(:paths) { ['a.rb', 'b.rb', '!c.rb', 'templates/d.haml', '!templates/e.haml'] }
 
-    it 'returns the changed paths' do
-      Guard.changed_paths(paths).should =~ ['a.rb', 'b.rb', 'templates/d.haml']
+      it 'returns the changed paths' do
+        Guard.changed_paths(paths).should =~ ['a.rb', 'b.rb', 'templates/d.haml']
+      end
+    end
+
+    context 'for an array with objects that do not respond to .start_with (any_return option)' do
+      let(:paths) { [42, 'a.rb', [1], '!c.rb', 'templates/d.haml', '!templates/e.haml', { :a => 1 }] }
+
+      it 'returns the changed paths and the objects' do
+        Guard.changed_paths(paths).should =~ [42, 'a.rb', [1], 'templates/d.haml', { :a => 1 }]
+      end
     end
   end
 
   describe ".deleted_paths" do
-    let(:paths) { ['a.rb', 'b.rb', '!c.rb', 'templates/d.haml', '!templates/e.haml'] }
+    context 'for an array with string' do
+      let(:paths) { ['a.rb', 'b.rb', '!c.rb', 'templates/d.haml', '!templates/e.haml'] }
 
-    it 'returns the deleted paths' do
-      Guard.deleted_paths(paths).should =~ ['c.rb', 'templates/e.haml']
+      it 'returns the deleted paths' do
+        Guard.deleted_paths(paths).should =~ ['c.rb', 'templates/e.haml']
+      end
+    end
+
+    context 'for an array with objects that do not respond to .start_with (any_return option)' do
+      let(:paths) { [42, 'a.rb', [1], '!c.rb', 'templates/d.haml', '!templates/e.haml', { :a => 1 }] }
+
+      it 'returns the deleted paths' do
+        Guard.deleted_paths(paths).should =~ ['c.rb', 'templates/e.haml']
+      end
     end
   end
 

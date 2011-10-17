@@ -1,4 +1,4 @@
-## Master
+## 0.8.5 - October 17, 2011
 
 ### Improvements
 

@@ -15,6 +15,9 @@ module Guard
   autoload :Notifier,     'guard/notifier'
   autoload :Hook,         'guard/hook'
 
+  # The Guardfile template for `guard init`
+  GUARDFILE_TEMPLATE = File.expand_path('../guard/templates/Guardfile', __FILE__)
+
   class << self
     attr_accessor :options, :interactor, :listener, :lock
 
@@ -32,7 +35,7 @@ module Guard
       else
         if !File.exist?('Guardfile')
           ::Guard::UI.info "Writing new Guardfile to #{ Dir.pwd }/Guardfile"
-          FileUtils.cp(File.expand_path('../templates/Guardfile', __FILE__), 'Guardfile')
+          FileUtils.cp(GUARDFILE_TEMPLATE, 'Guardfile')
         else
           ::Guard::UI.error "Guardfile already exists at #{ Dir.pwd }/Guardfile"
           exit 1
@@ -287,7 +290,7 @@ module Guard
     # @return [Array<String>] the changed paths
     #
     def changed_paths(paths)
-      paths.select { |f| !f.start_with?('!') }
+      paths.select { |f| !f.respond_to?(:start_with?) || !f.start_with?('!') }
     end
 
     # Detects the paths that have been deleted.
@@ -299,7 +302,7 @@ module Guard
     # @return [Array<String>] the deleted paths
     #
     def deleted_paths(paths)
-      paths.select { |f| f.start_with?('!') }.map { |f| f.slice(1..-1) }
+      paths.select { |f| f.respond_to?(:start_with?) && f.start_with?('!') }.map { |f| f.slice(1..-1) }
     end
 
     # Run a Guard task, but remove the Guard when his work leads to a system failure.
