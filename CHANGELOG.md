@@ -1,3 +1,10 @@
+## 0.8.6 - October 17, 2011
+
+### Bug fix
+
+- [#149](https://github.com/guard/guard/issues/160): Include objects in changed_paths when Guard allows any return from the watchers. (reported by [@earlonrails][], fixed by [@netzpirat][])
+- [#168](https://github.com/guard/guard/issues/167): Fix `guard init` path to Guardfile template. (reported by [@semperos][])
+
 ## 0.8.5 - October 17, 2011
 
 ### Improvements
@@ -333,6 +340,7 @@
 [@pcreux]: https://github.com/pcreux
 [@rmm5t]: https://github.com/rmm5t
 [@rymai]: https://github.com/rymai
+[@semperos]: https://github.com/semperos
 [@scottdavis]: https://github.com/scottdavis
 [@stereobooster]: https://github.com/stereobooster
 [@stouset]: https://github.com/stouset
