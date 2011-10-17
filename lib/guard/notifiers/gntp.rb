@@ -36,6 +36,20 @@ module Guard
         :port     => 23053
       }
 
+      # Is this notifier already registered
+      #
+      # @return [Boolean] registration status
+      #
+      def registered?
+        @registered ||= false
+      end
+
+      # Mark the notifier as registered.
+      #
+      def registered!
+        @registered = true
+      end
+
       # Test if the notification library is available.
       #
       # @param [Boolean] silent true if not error message should be shown
@@ -68,12 +82,26 @@ module Guard
       def notify(type, title, message, image, options = { })
         require 'ruby_gntp'
 
-        ::GNTP.notify(DEFAULTS.merge(options).merge({
-            :app_name => 'Guard',
-            :name     => type,
-            :title    => title,
-            :text     => message,
-            :icon     => "file://#{ image }"
+        options = DEFAULTS.merge(options)
+
+        gntp = ::GNTP.new('Guard', options.delete(:host), options.delete(:password), options.delete(:port))
+
+        unless registered?
+          gntp.register(:notifications => [
+              { :name => 'notify', :enabled => true },
+              { :name => 'failed', :enabled => true },
+              { :name => 'pending', :enabled => true },
+              { :name => 'success', :enabled => true }
+          ])
+
+          registered!
+        end
+
+        gntp.notify(options.merge({
+            :name  => type,
+            :title => title,
+            :text  => message,
+            :icon  => "file://#{ image }"
         }))
       end
 
