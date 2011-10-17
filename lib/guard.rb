@@ -283,7 +283,7 @@ module Guard
     # @return [Array<String>] the changed paths
     #
     def changed_paths(paths)
-      paths.select { |f| !f.start_with?('!') }
+      paths.select { |f| !f.respond_to?(:start_with?) || !f.start_with?('!') }
     end
 
     # Detects the paths that have been deleted.
@@ -295,7 +295,7 @@ module Guard
     # @return [Array<String>] the deleted paths
     #
     def deleted_paths(paths)
-      paths.select { |f| f.start_with?('!') }.map { |f| f.slice(1..-1) }
+      paths.select { |f| f.respond_to?(:start_with?) && f.start_with?('!') }.map { |f| f.slice(1..-1) }
     end
 
     # Run a Guard task, but remove the Guard when his work leads to a system failure.
