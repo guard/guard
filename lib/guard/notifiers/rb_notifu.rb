@@ -75,7 +75,7 @@ module Guard
       private
 
       # Convert Guards notification type to the best matching
-      # Notify type.
+      # Notifu type.
       #
       # @param [String] type the Guard notification type
       # @return [Symbol] the Notify notification type
