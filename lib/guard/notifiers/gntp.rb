@@ -73,7 +73,7 @@ module Guard
             :name     => type,
             :title    => title,
             :text     => message,
-            :icon     => image
+            :icon     => "file://#{ image }"
         }))
       end
 

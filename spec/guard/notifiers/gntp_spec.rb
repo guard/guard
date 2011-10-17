@@ -63,7 +63,7 @@ describe Guard::Notifier::GNTP do
             :name     => 'success',
             :title    => 'Welcome',
             :text     => 'Welcome to Guard',
-            :icon     => '/tmp/welcome.png'
+            :icon     => 'file:///tmp/welcome.png'
         })
         subject.notify('success', 'Welcome', 'Welcome to Guard', '/tmp/welcome.png', { })
       end
@@ -80,7 +80,7 @@ describe Guard::Notifier::GNTP do
             :name     => 'pending',
             :title    => 'Waiting',
             :text     => 'Waiting for something',
-            :icon     => '/tmp/wait.png'
+            :icon     => 'file:///tmp/wait.png'
         })
         subject.notify('pending', 'Waiting', 'Waiting for something', '/tmp/wait.png', {
             :sticky   => true,
@@ -100,7 +100,7 @@ describe Guard::Notifier::GNTP do
             :name     => 'failed',
             :title    => 'Failed',
             :text     => 'Something failed',
-            :icon     => '/tmp/fail.png'
+            :icon     => 'file:///tmp/fail.png'
         })
         subject.notify('failed', 'Failed', 'Something failed', '/tmp/fail.png', {
             :app_name => 'Guard CoffeeScript',
