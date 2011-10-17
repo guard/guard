@@ -32,7 +32,7 @@ module Guard
       else
         if !File.exist?('Guardfile')
           ::Guard::UI.info "Writing new Guardfile to #{ Dir.pwd }/Guardfile"
-          FileUtils.cp(File.expand_path('../templates/Guardfile', __FILE__), 'Guardfile')
+          FileUtils.cp(File.expand_path('../guard/templates/Guardfile', __FILE__), 'Guardfile')
         else
           ::Guard::UI.error "Guardfile already exists at #{ Dir.pwd }/Guardfile"
           exit 1
