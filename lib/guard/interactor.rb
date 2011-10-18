@@ -56,7 +56,7 @@ module Guard
     end
 
     private
-    
+
     # Extract guard or group scope and action from Interactor entry
     #
     # @example `spork reload` will only reload rspec
@@ -64,6 +64,7 @@ module Guard
     #
     # @param [String] Interactor entry gets from $stdin
     # @return [Array] entry group or guard scope hash and action
+    #
     def extract_scopes_and_action(entry)
       scopes  = {}
       entries = entry.split(' ')
@@ -77,6 +78,7 @@ module Guard
         action = action_from_entry(entries[1])
       end
       action ||= :run_all
+
       [scopes, action]
     end
 
@@ -84,6 +86,7 @@ module Guard
     #
     # @param [String] Interactor entry gets from $stdin
     # @return [Hash] An hash with a guard or a group scope
+    #
     def scopes_from_entry(entry)
       scopes = {}
       if guard = ::Guard.guards(entry)
@@ -92,6 +95,7 @@ module Guard
       if group = ::Guard.groups(entry)
         scopes[:group] = group
       end
+
       scopes
     end
 
@@ -99,6 +103,7 @@ module Guard
     #
     # @param [String] Interactor entry gets from $stdin
     # @return [Symbol] A guard action
+    #
     def action_from_entry(entry)
       if STOP_ACTIONS.include?(entry)
         :stop
