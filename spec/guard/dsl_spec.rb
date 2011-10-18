@@ -160,17 +160,32 @@ describe Guard::Dsl do
       ::Guard::Notifier.notifications = [{ :name => :growl }]
     end
 
-    it "resets already definded guards before calling evaluate_guardfile" do
+    it "resets already defined guards before calling evaluate_guardfile" do
       Guard::Notifier.turn_off
       described_class.evaluate_guardfile(:guardfile_contents => invalid_guardfile_string)
-      ::Guard::Notifier.notifications.should_not be_empty
-      ::Guard.groups.should_not be_empty
+
       ::Guard.guards.should_not be_empty
       ::Guard::Dsl.should_receive(:evaluate_guardfile)
+
       described_class.reevaluate_guardfile
+
       ::Guard.guards.should be_empty
       ::Guard.groups.should be_empty
       ::Guard::Notifier.notifications.should be_empty
+    end
+
+    it "resets groups before calling evaluate_guardfile" do
+      Guard::Notifier.turn_off
+      described_class.evaluate_guardfile(:guardfile_contents => invalid_guardfile_string)
+
+      ::Guard.groups.should_not be_empty
+      ::Guard::Dsl.should_receive(:evaluate_guardfile)
+
+      described_class.reevaluate_guardfile
+
+      ::Guard.groups.should_not be_empty
+      ::Guard.groups[0].name.should eql :default
+      ::Guard.groups[0].options.should == {}
     end
   end
 

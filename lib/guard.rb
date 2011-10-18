@@ -61,7 +61,7 @@ module Guard
       @lock       = Mutex.new
       @options    = options
       @guards     = []
-      @groups     = [Group.new(:default)]
+      self.reset_groups
       @interactor = Interactor.new unless @options[:no_interactions]
       @listener   = Listener.select_and_init(@options[:watchdir] ? File.expand_path(@options[:watchdir]) : Dir.pwd, options)
 
@@ -119,6 +119,16 @@ module Guard
       end
     end
 
+    # Initialize the groups array with the `:default` group.
+    #
+    # @see Guard.groups
+    #
+    def reset_groups
+      @groups = [Group.new(:default)]
+    end
+
+    # Start Guard by evaluate the `Guardfile`, initialize the declared Guards
+    # and start the available file change listener.
     # Main method for Guard that is called from the CLI when guard starts.
     #
     # - Setup Guard internals
@@ -235,12 +245,13 @@ module Guard
       end
     end
 
-    # Loop through all groups and run the given task (as block) for each Guard.
+    # Loop through all groups and run the given task for each Guard.
     #
     # Stop the task run for the all Guards within a group if one Guard
     # throws `:task_has_failed`.
     #
     # @param [Hash] An hash with a guard or a group scope
+    # @yield the task to run
     #
     def run_on_guards(scopes = {})
       if guard = scopes[:guard]
