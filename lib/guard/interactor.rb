@@ -27,7 +27,7 @@ module Guard
     def start
       return if ENV["GUARD_ENV"] == 'test'
 
-      if !@thread || @thread.stop?
+      if !@thread || !@thread.alive?
         @thread = Thread.new do
           while entry = $stdin.gets.chomp
             scopes, action = extract_scopes_and_action(entry)
