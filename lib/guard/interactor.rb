@@ -54,9 +54,7 @@ module Guard
         @thread.kill
       end
     end
-
-    private
-
+    
     # Extract guard or group scope and action from Interactor entry
     #
     # @example `spork reload` will only reload rspec
