@@ -236,12 +236,13 @@ module Guard
       end
     end
 
-    # Loop through all groups and run the given task (as block) for each Guard.
+    # Loop through all groups and run the given task for each Guard.
     #
     # Stop the task run for the all Guards within a group if one Guard
     # throws `:task_has_failed`.
     #
     # @param [Hash] An hash with a guard or a group scope
+    # @yield the task to run
     #
     def run_on_guards(scopes = {})
       if guard = scopes[:guard]
