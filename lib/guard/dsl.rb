@@ -101,7 +101,7 @@ module Guard
       #
       def reevaluate_guardfile
         ::Guard.guards.clear
-        ::Guard.groups.clear
+        ::Guard.reset_groups
         @@options.delete(:guardfile_contents)
         Dsl.evaluate_guardfile(@@options)
         msg = 'Guardfile has been re-evaluated.'

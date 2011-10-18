@@ -58,8 +58,8 @@ describe Guard do
     end
 
     it "initializes @groups" do
-      described_class.groups[0].name.should eql :default
-      described_class.groups[0].options.should == {}
+      subject.groups[0].name.should eql :default
+      subject.groups[0].options.should == {}
     end
 
     it "initializes the options" do
@@ -219,6 +219,25 @@ describe Guard do
       it "without matches" do
         subject.groups(/back$/).should eql []
       end
+    end
+  end
+
+  describe ".reset_groups" do
+    subject do
+      guard = ::Guard.setup
+      @group_backend  = guard.add_group(:backend)
+      @group_backflip = guard.add_group(:backflip)
+      guard
+    end
+
+    it "return @groups without any argument" do
+      subject.groups.should have(3).items
+
+      subject.reset_groups
+
+      subject.groups.should have(1).item
+      subject.groups[0].name.should eql :default
+      subject.groups[0].options.should == {}
     end
   end
 

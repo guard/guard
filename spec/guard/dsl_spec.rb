@@ -155,13 +155,30 @@ describe Guard::Dsl do
   describe ".reevaluate_guardfile" do
     before(:each) { ::Guard::Dsl.stub!(:instance_eval_guardfile) }
 
-    it "resets already definded guards before calling evaluate_guardfile" do
+    it "resets already defined guards before calling evaluate_guardfile" do
       Guard::Notifier.turn_off
       described_class.evaluate_guardfile(:guardfile_contents => invalid_guardfile_string)
+
       ::Guard.guards.should_not be_empty
       ::Guard::Dsl.should_receive(:evaluate_guardfile)
+
       described_class.reevaluate_guardfile
+
       ::Guard.guards.should be_empty
+    end
+
+    it "resets groups before calling evaluate_guardfile" do
+      Guard::Notifier.turn_off
+      described_class.evaluate_guardfile(:guardfile_contents => invalid_guardfile_string)
+
+      ::Guard.groups.should_not be_empty
+      ::Guard::Dsl.should_receive(:evaluate_guardfile)
+
+      described_class.reevaluate_guardfile
+
+      ::Guard.groups.should_not be_empty
+      ::Guard.groups[0].name.should eql :default
+      ::Guard.groups[0].options.should == {}
     end
   end
 

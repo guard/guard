@@ -58,7 +58,7 @@ module Guard
 
       @options    = options
       @guards     = []
-      @groups     = [Group.new(:default)]
+      self.reset_groups
       @interactor = Interactor.new unless @options[:no_interactions]
       @listener   = Listener.select_and_init(@options[:watchdir] ? File.expand_path(@options[:watchdir]) : Dir.pwd, options)
 
@@ -117,6 +117,14 @@ module Guard
       else
         @groups
       end
+    end
+
+    # Initialize the groups array with the `:default` group.
+    #
+    # @see Guard.groups
+    #
+    def reset_groups
+      @groups = [Group.new(:default)]
     end
 
     # Start Guard by evaluate the `Guardfile`, initialize the declared Guards
