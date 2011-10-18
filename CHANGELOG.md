@@ -2,7 +2,7 @@
 
 ### Bug fix
 
-- [#166](https://github.com/guard/guard/issues/166): Fix silent failure after re-evaluating Guardfile. (reported by [@dgutov][], fixed by [@rymai][], special thanks to [@dyfrgi][] for the [reproductible test case](https://github.com/dyfrgi/Guard-Broken))
+- [#166](https://github.com/guard/guard/issues/166): Fix silent failure after re-evaluating Guardfile. (reported by [@dgutov][], fixed by [@rymai][], special thanks to [@dyfrgi][] for the [reproducible test case](https://github.com/dyfrgi/Guard-Broken))
 
 ## 0.8.6 - October 17, 2011
 
