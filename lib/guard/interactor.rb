@@ -47,6 +47,16 @@ module Guard
       end
     end
 
+    # Kill interactor thread if not current
+    #
+    def stop
+      unless Thread.current == @thread
+        @thread.kill
+      end
+    end
+
+    private
+    
     # Extract guard or group scope and action from Interactor entry
     #
     # @example `spork reload` will only reload rspec
@@ -99,12 +109,5 @@ module Guard
       end
     end
 
-    # Kill interactor thread if not current
-    #
-    def stop_if_not_current
-      unless Thread.current == @thread
-        @thread.kill
-      end
-    end
   end
 end

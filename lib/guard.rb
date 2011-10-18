@@ -219,7 +219,7 @@ module Guard
 
       lock.synchronize do
         begin
-          interactor.stop_if_not_current if interactor
+          interactor.stop if interactor
           yield
         rescue Interrupt
         end
