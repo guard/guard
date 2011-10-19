@@ -1,19 +1,19 @@
 Guard [![Build Status](https://secure.travis-ci.org/guard/guard.png?branch=master)](http://travis-ci.org/guard/guard)
 =====
 
-Guard is a command line tool that easily handle events on files modifications.
+Guard is a command line tool to easily handle events on file system modifications.
 
 If you have any questions please join us on our [Google group](http://groups.google.com/group/guard-dev) or on `#guard` (irc.freenode.net).
 
 Features
 --------
 
-* [FSEvent](http://en.wikipedia.org/wiki/FSEvents) support on Mac OS X 10.5+ (without RubyCocoa!, [rb-fsevent gem, >= 0.3.5](https://rubygems.org/gems/rb-fsevent) required).
-* [Inotify](http://en.wikipedia.org/wiki/Inotify) support on Linux ([rb-inotify gem, >= 0.5.1](https://rubygems.org/gems/rb-inotify) required).
-* [Directory Change Notification](http://msdn.microsoft.com/en-us/library/aa365261\(VS.85\).aspx) support on Windows ([rb-fchange, >= 0.0.2](https://rubygems.org/gems/rb-fchange) required).
+* [FSEvent](http://en.wikipedia.org/wiki/FSEvents) support on Mac OS X.
+* [Inotify](http://en.wikipedia.org/wiki/Inotify) support on Linux.
+* [Directory Change Notification](http://msdn.microsoft.com/en-us/library/aa365261\(VS.85\).aspx) support on Windows.
 * Polling on the other operating systems (help us to support more OS).
-* Automatic & Super fast (when polling is not used) files modifications detection (even new files are detected).
-* Visual notifications on Mac OSX ([Growl](http://growl.info)), Linux ([Libnotify](http://developer.gnome.org/libnotify)) and Windows ([Notifu](http://www.paralint.com/projects/notifu)).
+* Automatic and super fast (when polling is not used) files modifications detection (even new and deleted files are detected).
+* Support for visual system notifications.
 * Tested against Ruby 1.8.7, 1.9.2, REE and the latest versions of JRuby & Rubinius.
 
 Screencast
@@ -28,116 +28,129 @@ Add Guard to your `Gemfile`:
 
     group :development do
       gem 'guard'
-      gem 'rb-inotify', :require => false
-      gem 'rb-fsevent', :require => false
-      gem 'rb-fchange', :require => false
+      gem 'rb-inotify', :require => false   # Linux
+      gem 'rb-fsevent', :require => false   # Mac OS X
+      gem 'rb-fchange', :require => false   # Windows
     end
 
 and install it via Bundler:
 
     $ bundle
 
-Generate an empty Guardfile with:
+Generate an empty `Guardfile` with:
 
     $ guard init
 
-You may optionally place a .Guardfile in your home directory to use it across multiple projects.
-Also note that if a `.guard.rb` is found in your home directory, it will be appended to the Guardfile.
+Guard is now ready to use, but you should add some Guards for your specific use now! Start exploring the many Guards
+available by browsing the [Guard organization](https://github.com/guard) on GitHub or by searching for `guard-` on
+[RubyGems](https://rubygems.org/search?utf8=%E2%9C%93&query=guard-).
 
-Add the guards you need to your Guardfile (see the existing guards below).
+If you are using Windows and want colors in your terminal, you'll have to add the
+[win32console gem](https://rubygems.org/gems/win32console) to your `Gemfile` and install it with Bundler:
 
-Now, be sure to read the particular instructions for your operating system: [Mac OS X](#mac) | [Linux](#linux) | [Windows](#win)
+    group :development
+      gem 'win32console'
+    end
 
-<a name="mac" />
+### Shared configurations
 
-### On Mac OS X
+You may optionally place a `.Guardfile` in your home directory to use it across multiple projects. It's evaluated when
+you have no `Guardfile` in your current directory.
 
-Install the rb-fsevent gem for [FSEvent](http://en.wikipedia.org/wiki/FSEvents) support:
+If a `.guard.rb` is found in your home directory, it will be appended to the `Guardfile` in your current directory.
 
-    $ gem install rb-fsevent
+### System notifications
 
-You have three possibilities for getting Growl support:
+You can configure Guard to make use of the following system notification libraries:
 
-Use the [growl_notify gem](https://rubygems.org/gems/growl_notify):
+#### Ruby GNTP
 
-    $ gem install growl_notify
+* Runs on Mac OS X, Linux, Windows
+* Supports [Growl](http://growl.info/), [Growl for Linux](http://mattn.github.com/growl-for-linux/), [Growl for Windows](http://www.growlforwindows.com/gfw/default.aspx) and [Snarl](https://sites.google.com/site/snarlapp/home)
 
-The `growl_notify` gem is compatible with Growl >= 1.3 and uses AppleScript to send Growl notifications.
+The [ruby_gntp](https://rubygems.org/gems/ruby_gntp) gem sends system notifications over the network with the
+[Growl Notification Transport Protocol](http://www.growlforwindows.com/gfw/help/gntp.aspx) and supports local and
+remote notifications.
+
+Guard supports multiple notification channels for customizing each notification type. For Growl on Mac OS X you need
+to have at least version 1.3 installed.
+
+To use `ruby_gntp` you have to add it to your `Gemfile` and run bundler:
+
+    group :development
+      gem 'ruby_gntp'
+    end
+
+#### GrowlNotify
+
+* Runs on Mac OS X
+* Supports [Growl](http://growl.info/)
+
+The [growl_notify](https://rubygems.org/gems/growl_notify) gem uses AppleScript to send Growl notifications.
 The gem needs a native C extension to make use of AppleScript and does not run on JRuby and MacRuby.
 
-Use the [ruby_gntp gem](https://github.com/snaka/ruby_gntp):
+Guard supports multiple notification channels for customizing each notification type and you need to have at least
+Growl version 1.3 installed.
 
-    $ gem install ruby_gntp
+To use `growl_notify` you have to add it to your `Gemfile` and run bundler:
 
-The `ruby_gntp` gem is compatible with Growl >= 1.3 and uses the Growl Notification Transport Protocol to send Growl
-notifications. Guard supports multiple notification channels for customizing each notification type, but it's limited
-to the local host currently.
+    group :development
+      gem 'growl_notify'
+    end
 
-Use the [growl gem](https://rubygems.org/gems/growl):
+#### Growl
 
-    $ gem install growl
+* Runs on Mac OS X
+* Supports [Growl](http://growl.info/)
 
-The `growl` gem is compatible with all versions of Growl and uses a command line tool [growlnotify](http://growl.info/extras.php#growlnotify)
-that must be separately downloaded and installed. You can also install it with HomeBrew:
+The [growl](https://rubygems.org/gems/growl) gem is compatible with all versions of Growl and uses a command line tool
+[growlnotify](http://growl.info/extras.php#growlnotify) that must be separately downloaded and installed. The version of
+the command line tool must match your Growl version. The `growl` gem does **not** support multiple notification channels.
+
+You can download an installer for `growlnotify` from the [Growl download section](http://growl.info/downloads) or
+install it with HomeBrew:
 
     $ brew install growlnotify
 
-Finally you have to add your Growl library of choice to your Gemfile:
+To use `growl` you have to add it to your `Gemfile` and run bundler:
 
-    gem 'rb-fsevent'
-    gem 'growl_notify' # or gem 'ruby_gntp' or gem 'growl'
+    group :development
+      gem 'growl'
+    end
 
-Have a look at the [Guard Wiki](https://github.com/guard/guard/wiki/Which-Growl-library-should-I-use) for more information.
+#### Libnotify
 
-<a name="linux" />
+* Runs on Linux, FreeBSD, OpenBSD and Solaris
+* Supports [Libnotify](http://developer.gnome.org/libnotify/)
 
-### On Linux
+The [libnotify](https://rubygems.org/gems/libnotify) gem supports the Gnome libnotify notification daemon, but it can be
+used on other window managers as well. You have to install the `libnotify-bin` package with your favorite package manager.
 
-Install the [rb-inotify gem](https://rubygems.org/gems/rb-inotify) for [inotify](http://en.wikipedia.org/wiki/Inotify) support:
+To use `libnotify` you have to add it to your `Gemfile` and run bundler:
 
-    $ gem install rb-inotify
+    group :development
+      gem 'libnotify'
+    end
 
-Install the [libnotify gem](https://rubygems.org/gems/libnotify) if you want visual notification support:
+#### Notifu
 
-    $ gem install libnotify
+* Runs on Windows
+* Supports [Notifu](http://www.paralint.com/projects/notifu/)
 
-And add them to your Gemfile:
+The [rb-notifu](https://rubygems.org/gems/rb-notifu) gem supports Windows system tray notifications.
 
-    gem 'rb-inotify'
-    gem 'libnotify'
+To use `rb-notifu` you have to add it to your `Gemfile` and run bundler:
 
-<a name="win" />
-
-### On Windows
-
-Install the [rb-fchange gem](https://rubygems.org/gems/rb-fchange) for [Directory Change Notification](http://msdn.microsoft.com/en-us/library/aa365261\(VS.85\).aspx) support:
-
-    $ gem install rb-fchange
-
-Install the [win32console gem](https://rubygems.org/gems/win32console) if you want colors in your terminal:
-
-    $ gem install win32console
-
-Install the [rb-notifu gem](https://rubygems.org/gems/rb-notifu) if you want visual notification support:
-
-    $ gem install rb-notifu
-
-And add them to your Gemfile:
-
-    gem 'rb-fchange'
-    gem 'rb-notifu'
-    gem 'win32console'
+    group :development
+      gem 'rb-notifu'
+    end
 
 Usage
 -----
 
 Just launch Guard inside your Ruby / Rails project with:
 
-    $ guard [start]
-
-or if you use Bundler, to run the Guard executable specific to your bundle:
-
-    $ bundle exec guard [start]
+    $ bundle exec guard
 
 Guard will look for a Guardfile in your current directory. If it does not find one, it will look in your `$HOME` directory for a .Guardfile.
 
@@ -153,12 +166,12 @@ Shell can be cleared after each change:
 
 ### `-n`/`--notify` option
 
-Notifications (growl/libnotify) can be disabled:
+System notifications can be disabled:
 
     $ guard --notify false
     $ guard -n f # shortcut
 
-Notifications can also be disabled globally by setting a `GUARD_NOTIFY` environment variable to `false`
+Notifications can also be disabled globally by setting a `GUARD_NOTIFY` environment variable to `false`.
 
 ### `-g`/`--group` option
 
@@ -225,26 +238,26 @@ When Guard do nothing you can interact with by entering a command + hitting retu
 * `backend reload + return` - Call only each guard's `#reload` method on backend group.
 * `rspec + return` - Call only rspec guard's `#run_all` method.
 
-Available Guards
-----------------
-
-A list of the available guards is present [in the wiki](https://github.com/guard/guard/wiki/List-of-available-Guards).
+Adding more Guards
+------------------
 
 ### Add a guard to your Guardfile
 
-Add it to your Gemfile (inside the `development` group):
+Add it to your `Gemfile`:
 
-    gem '<guard-name>'
+    group :development
+      gem '<guard-name>'
+    end
 
-You can list all guards installed on your system with:
+You can list all Guards installed on your system with:
 
     $ guard list
 
-Insert default guard's definition to your Guardfile by running this command:
+Insert the supplied Guard template to your `Guardfile` by running this command:
 
     $ guard init <guard-name>
 
-You are good to go, or you can modify your guards' definition to suit your needs.
+You are good to go, or you can modify your Guards' definition to suit your needs.
 
 Guardfile DSL
 -------------
@@ -254,11 +267,13 @@ The Guardfile DSL consists of the following methods:
 * `#guard`        - Allows you to add a guard with an optional hash of options.
 * `#watch`        - Allows you to define which files are supervised by a guard. An optional block can be added to overwrite the paths sent to the guard's `#run_on_change` method or to launch any arbitrary command.
 * `#group`        - Allows you to group several guards together. Groups to be run can be specified with the Guard DSL option `--group` (or `-g`). This comes in handy especially when you have a huge Guardfile and want to focus your development on a certain part. Guards that don't belong to a group are considered global and are always run.
+* `#notification` - Allows you to choose and configure your preferred system notification library.
 * `#callback`     - Allows you to execute arbitrary code before or after any of the `start`, `stop`, `reload`, `run_all` and `run_on_change` guards' method. You can even insert more hooks inside these methods. Please [checkout the Wiki page](https://github.com/guard/guard/wiki/Hooks-and-callbacks) for more details.
 * `#ignore_paths` - Allows you to ignore top level directories altogether. This comes is handy when you have large amounts of non-source data in you project.  By default .bundle, .git, log, tmp, and vendor are ignored.  Currently it is only possible to ignore the immediate descendants of the watched directory.
 
 Example:
 
+    notification :gntp
     ignore_paths 'foo', 'bar'
 
     group 'backend' do
@@ -287,6 +302,33 @@ Example:
         watch(%r{^app/.+\.(erb|haml)$})
       end
     end
+
+### Configure system notifications
+
+If you don't specify any notification configuration in your Guardfile, Guard goes through the list of available
+notifiers and takes the first that is available. If you specify your preferred library, auto detection will not take place:
+
+    notification :growl
+
+will select the `growl` gem for notifications. You can also set options for a notifier:
+
+    notification :growl, :sticky => true
+
+Each notifier has a slightly different set of supported options:
+
+    notification :growl, :sticky => true, :host => '192.168.1.5', :password => 'secret'
+    notification :gntp, :sticky => true, :host => '192.168.1.5', :password => 'secret'
+    notification :growl_notify, :sticky => true, :priority => 0
+    notification :libnotify, :timeout => 5, :transient => true, :append => false
+    notification :notifu, :time => 5, :nosound => true, :xp => true
+
+It's possible to use more than one notifier. This allows you to configure different notifiers for different OS if your
+project is developed cross-platform or if you like to have local and remote notifications.
+
+Notifications can also be turned off in the Guardfile, in addition to setting the environment variable `GUARD_NOTIFY`
+or using the cli switch `-n`:
+
+    notification :off
 
 Using a Guardfile without the `guard` binary
 --------------------------------------------
