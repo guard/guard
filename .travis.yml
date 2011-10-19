@@ -8,7 +8,6 @@ branches:
   only:
     - master
     - dev
-    - notifications
 env:
   - GUARD_SLEEP=1
 notifications:
