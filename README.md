@@ -199,8 +199,8 @@ Guard can optionally watch all file modifications like moves or deletions with:
 
 Turn off completely any Guard terminal [interactions](#interactions) with:
 
-    $ guard start -A
-    $ guard start --watch-all-modifications
+    $ guard start -i
+    $ guard start --no-interactions
 
 An exhaustive list of options is available with:
 
