@@ -58,13 +58,16 @@ module Guard
       def available?(silent = false)
         if RbConfig::CONFIG['host_os'] =~ /darwin|linux|freebsd|openbsd|sunos|solaris|mswin|mingw/
           require 'ruby_gntp'
+          true
 
         else
           ::Guard::UI.error 'The :gntp notifier runs only on Mac OS X, Linux, FreeBSD, OpenBSD, Solaris and Windows.' unless silent
+          false
         end
 
       rescue LoadError
         ::Guard::UI.error "Please add \"gem 'ruby_gntp'\" to your Gemfile and run Guard with \"bundle exec\"." unless silent
+        false
       end
 
       # Show a system notification.

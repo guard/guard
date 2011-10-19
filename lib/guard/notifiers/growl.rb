@@ -52,14 +52,17 @@ module Guard
             true
           else
             ::Guard::UI.error "Please install the 'growlnotify' executable." unless silent
+            false
           end
 
         else
           ::Guard::UI.error 'The :growl notifier runs only on Mac OS X.' unless silent
+          false
         end
 
       rescue LoadError
         ::Guard::UI.error "Please add \"gem 'growl'\" to your Gemfile and run Guard with \"bundle exec\"." unless silent
+        false
       end
 
       # Show a system notification.

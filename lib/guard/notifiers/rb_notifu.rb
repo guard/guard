@@ -40,12 +40,17 @@ module Guard
       def available?(silent = false)
         if RbConfig::CONFIG['host_os'] =~ /mswin|mingw/
           require 'rb-notifu'
+
+          true
+
         else
           ::Guard::UI.error 'The :notifu notifier runs only on Windows.' unless silent
+          false
         end
 
       rescue LoadError
         ::Guard::UI.error "Please add \"gem 'rb-notifu'\" to your Gemfile and run Guard with \"bundle exec\"." unless silent
+        false
       end
 
       # Show a system notification.

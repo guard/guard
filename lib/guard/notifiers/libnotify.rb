@@ -37,12 +37,17 @@ module Guard
       def available?(silent = false)
         if RbConfig::CONFIG['host_os'] =~ /linux|freebsd|openbsd|sunos|solaris/
           require 'libnotify'
+
+          true
+
         else
           ::Guard::UI.error 'The :libnotify notifier runs only on Linux, FreeBSD, OpenBSD and Solaris.' unless silent
+          false
         end
 
       rescue LoadError
         ::Guard::UI.error "Please add \"gem 'libnotify'\" to your Gemfile and run Guard with \"bundle exec\"." unless silent
+        false
       end
 
       # Show a system notification.
