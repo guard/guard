@@ -3,7 +3,7 @@ Guard [![Build Status](https://secure.travis-ci.org/guard/guard.png?branch=maste
 
 Guard is a command line tool to easily handle events on file system modifications.
 
-If you have any questions please join us on our [Google group](http://groups.google.com/group/guard-dev) or on `#guard` (irc.freenode.net).
+If you have any questions please join us in our [Google group](http://groups.google.com/group/guard-dev) or on `#guard` (irc.freenode.net).
 
 Features
 --------
@@ -21,8 +21,10 @@ Screencast
 
 Ryan Bates made a RailsCast on Guard, you can view it here: [http://railscasts.com/episodes/264-guard](http://railscasts.com/episodes/264-guard)
 
-Install
--------
+Installation
+------------
+
+The simplest way to install Guard is to use [Bundler](http://gembundler.com/).
 
 Add Guard to your `Gemfile`:
 
@@ -33,7 +35,7 @@ Add Guard to your `Gemfile`:
       gem 'rb-fchange', :require => false   # Windows
     end
 
-and install it by executing [Bundler](http://gembundler.com/):
+and install it by running Bundler:
 
     $ bundle
 
@@ -65,8 +67,8 @@ You can configure Guard to make use of the following system notification librari
 
 #### Ruby GNTP
 
-* Runs on Mac OS X, Linux, Windows
-* Supports [Growl](http://growl.info/), [Growl for Linux](http://mattn.github.com/growl-for-linux/), [Growl for Windows](http://www.growlforwindows.com/gfw/default.aspx) and [Snarl](https://sites.google.com/site/snarlapp/home)
+* Runs on Mac OS X, Linux and Windows
+* Supports [Growl](http://growl.info/) version >= 1.3, [Growl for Linux](http://mattn.github.com/growl-for-linux/), [Growl for Windows](http://www.growlforwindows.com/gfw/default.aspx) and [Snarl](https://sites.google.com/site/snarlapp/home)
 
 The [ruby_gntp](https://rubygems.org/gems/ruby_gntp) gem sends system notifications over the network with the
 [Growl Notification Transport Protocol](http://www.growlforwindows.com/gfw/help/gntp.aspx) and supports local and
@@ -84,7 +86,7 @@ To use `ruby_gntp` you have to add it to your `Gemfile` and run bundler:
 #### GrowlNotify
 
 * Runs on Mac OS X
-* Supports [Growl](http://growl.info/)
+* Supports [Growl](http://growl.info/) version >= 1.3
 
 The [growl_notify](https://rubygems.org/gems/growl_notify) gem uses AppleScript to send Growl notifications.
 The gem needs a native C extension to make use of AppleScript and does not run on JRuby and MacRuby.
@@ -101,7 +103,7 @@ To use `growl_notify` you have to add it to your `Gemfile` and run bundler:
 #### Growl
 
 * Runs on Mac OS X
-* Supports [Growl](http://growl.info/)
+* Supports all [Growl](http://growl.info/) versions
 
 The [growl](https://rubygems.org/gems/growl) gem is compatible with all versions of Growl and uses a command line tool
 [growlnotify](http://growl.info/extras.php#growlnotify) that must be separately downloaded and installed. The version of
@@ -152,7 +154,7 @@ Just launch Guard inside your Ruby / Rails project with:
 
     $ bundle exec guard
 
-Guard will look for a Guardfile in your current directory. If it does not find one, it will look in your `$HOME` directory for a .Guardfile.
+Guard will look for a `Guardfile` in your current directory. If it does not find one, it will look in your `$HOME` directory for a `.Guardfile`.
 
 Command line options
 --------------------
@@ -196,7 +198,7 @@ Guard can watch in any directory (instead of the current directory):
 
 ### `-G`/`--guardfile` option
 
-Guard can use a Guardfile not located in the current directory:
+Guard can use a `Guardfile` not located in the current directory:
 
     $ guard --guardfile ~/.your_global_guardfile
     $ guard -G ~/.your_global_guardfile # shortcut
@@ -228,15 +230,15 @@ Interactions
 
 When Guard do nothing you can interact with by entering a command + hitting return/enter:
 
-* `stop`:    `stop|quit|exit|s|q|e + return` - Calls each guard's `#stop` method, in the same order they are declared in the Guardfile, and then quits Guard itself.
-* `reload`:  `reload|r|z + return` - Calls each guard's `#reload` method, in the same order they are declared in the Guardfile.
+* `stop`:    `stop|quit|exit|s|q|e + return` - Calls each Guard's `#stop` method, in the same order they are declared in the `Guardfile`, and then quits Guard itself.
+* `reload`:  `reload|r|z + return` - Calls each Guard's `#reload` method, in the same order they are declared in the `Guardfile`.
 * `pause`:   `pause|p + return` - Toggle files modification listening. Useful when switching git branches.
-* `run_all`: `just return (no commands)` - Calls each guard's `#run_all` method, in the same order they are declared in the Guardfile.
+* `run_all`: `just return (no commands)` - Calls each Guard's `#run_all` method, in the same order they are declared in the `Guardfile`.
 
 `reload` and `run_all` actions can be scoped to only run on a certain guard or group. Examples:
 
 * `backend reload + return` - Call only each guard's `#reload` method on backend group.
-* `rspec + return` - Call only rspec guard's `#run_all` method.
+* `rspec + return` - Call only RSpec guard's `#run_all` method.
 
 Adding more Guards
 ------------------
@@ -264,12 +266,12 @@ Guardfile DSL
 
 The Guardfile DSL consists of the following methods:
 
-* `#guard`        - Allows you to add a guard with an optional hash of options.
-* `#watch`        - Allows you to define which files are supervised by a guard. An optional block can be added to overwrite the paths sent to the guard's `#run_on_change` method or to launch any arbitrary command.
-* `#group`        - Allows you to group several guards together. Groups to be run can be specified with the Guard DSL option `--group` (or `-g`). This comes in handy especially when you have a huge Guardfile and want to focus your development on a certain part. Guards that don't belong to a group are considered global and are always run.
+* `#guard`        - Allows you to add a Guard with an optional hash of options.
+* `#watch`        - Allows you to define which files are supervised by a Guard. An optional block can be added to overwrite the paths sent to the guard's `#run_on_change` method or to launch any arbitrary command.
+* `#group`        - Allows you to group several guards together. Groups to be run can be specified with the Guard DSL option `--group` (or `-g`). This comes in handy especially when you have a huge `Guardfile` and want to focus your development on a certain part. Guards that don't belong to a group are considered global and are always run.
 * `#notification` - Allows you to choose and configure your preferred system notification library.
 * `#callback`     - Allows you to execute arbitrary code before or after any of the `start`, `stop`, `reload`, `run_all` and `run_on_change` guards' method. You can even insert more hooks inside these methods. Please [checkout the Wiki page](https://github.com/guard/guard/wiki/Hooks-and-callbacks) for more details.
-* `#ignore_paths` - Allows you to ignore top level directories altogether. This comes is handy when you have large amounts of non-source data in you project.  By default .bundle, .git, log, tmp, and vendor are ignored.  Currently it is only possible to ignore the immediate descendants of the watched directory.
+* `#ignore_paths` - Allows you to ignore top level directories altogether. This comes is handy when you have large amounts of non-source data in you project.  By default `.bundle`, `.git`, `log`, `tmp`, and `vendor` are ignored. Currently it is only possible to ignore the immediate descendants of the watched directory.
 
 Example:
 
@@ -305,7 +307,7 @@ Example:
 
 ### Configure system notifications
 
-If you don't specify any notification configuration in your Guardfile, Guard goes through the list of available
+If you don't specify any notification configuration in your `Guardfile`, Guard goes through the list of available
 notifiers and takes the first that is available. If you specify your preferred library, auto detection will not take place:
 
     notification :growl
@@ -325,7 +327,7 @@ Each notifier has a slightly different set of supported options:
 It's possible to use more than one notifier. This allows you to configure different notifiers for different OS if your
 project is developed cross-platform or if you like to have local and remote notifications.
 
-Notifications can also be turned off in the Guardfile, in addition to setting the environment variable `GUARD_NOTIFY`
+Notifications can also be turned off in the `Guardfile`, in addition to setting the environment variable `GUARD_NOTIFY`
 or using the cli switch `-n`:
 
     notification :off
@@ -339,7 +341,7 @@ Available options are as follow:
 * `:guardfile`          - The path to a valid Guardfile.
 * `:guardfile_contents` - A string representing the content of a valid Guardfile
 
-Remember, without any options given, Guard will look for a Guardfile in your current directory and if it does not find one, it will look for it in your `$HOME` directory.
+Remember, without any options given, Guard will look for a `Guardfile` in your current directory and if it does not find one, it will look for it in your `$HOME` directory.
 
 For instance, you could use it as follow:
 
@@ -358,7 +360,7 @@ For instance, you could use it as follow:
 
 ### Listing defined guards/groups for the current project
 
-You can list the defined groups and guards for the current Guardfile from the command line using `guard show` or `guard -T`:
+You can list the defined groups and guards for the current `Guardfile` from the command line using `guard show` or `guard -T`:
 
     $ guard -T
 
@@ -375,7 +377,7 @@ User config file
 ----------------
 
 If a `.guard.rb` is found in your home directory, it will be appended to
-the Guardfile.  This can be used for tasks you want guard to handle but
+the `Guardfile`.  This can be used for tasks you want guard to handle but
 other users probably don't.  For example, indexing your source tree with
 [Ctags](http://ctags.sourceforge.net):
 
@@ -459,10 +461,10 @@ Here is an example scaffold for `lib/guard/guard-name.rb`:
       end
     end
 
-Please take a look at the [existing guards' source code](https://github.com/guard/guard/wiki/List-of-available-Guards)
+Please take a look at the [existing Guards' source code](https://github.com/guard)
 for more concrete example and inspiration.
 
-Alternatively, a new guard can be added inline to a Guardfile with this basic structure:
+Alternatively, a new guard can be added inline to a `Guardfile` with this basic structure:
 
     require 'guard/guard'
 
@@ -493,7 +495,7 @@ Pull requests are very welcome! Please try to follow these simple "rules", thoug
 - Update the CHANGELOG (maybe not for a typo but don't hesitate!);
 - Please **do not change** the version number.
 
-For questions please join us on our [Google group](http://groups.google.com/group/guard-dev) or on `#guard` (irc.freenode.net).
+For questions please join us in our [Google group](http://groups.google.com/group/guard-dev) or on `#guard` (irc.freenode.net).
 
 Author
 ------
