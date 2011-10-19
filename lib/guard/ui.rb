@@ -16,7 +16,6 @@ module Guard
       #
       # @param [String] message the message to show
       # @option options [Boolean] reset whether to clean the output before
-      # @return [Boolean] always true
       #
       def info(message, options = { })
         unless ENV['GUARD_ENV'] == 'test'
@@ -29,7 +28,6 @@ module Guard
       #
       # @param [String] message the message to show
       # @option options [Boolean] reset whether to clean the output before
-      # @return [Boolean] always false
       #
       def error(message, options = { })
         unless ENV['GUARD_ENV'] == 'test'
