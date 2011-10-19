@@ -1,3 +1,9 @@
+## Dev
+
+### Improvements
+
+- Add support for notification configuration. ([@netzpirat][])
+
 ## 0.8.7 - October 18, 2011
 
 ### Bug fix
