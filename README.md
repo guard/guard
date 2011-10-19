@@ -33,7 +33,7 @@ Add Guard to your `Gemfile`:
       gem 'rb-fchange', :require => false   # Windows
     end
 
-and install it via Bundler:
+and install it by executing [Bundler](http://gembundler.com/):
 
     $ bundle
 
