@@ -23,8 +23,6 @@ module Guard
           reset_line if options[:reset]
           STDERR.puts color(message) if message != ''
         end
-
-        true
       end
 
       # Show a red error message that is prefixed with ERROR.
@@ -38,8 +36,6 @@ module Guard
           reset_line if options[:reset]
           STDERR.puts color('ERROR: ', :red) + message
         end
-
-        false
       end
 
       # Show a red deprecation message that is prefixed with DEPRECATION.
