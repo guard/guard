@@ -12,8 +12,6 @@ describe Guard::Dsl do
     ::Guard.setup
     ::Guard.stub!(:options).and_return(:debug => true)
     ::Guard.stub!(:guards).and_return([mock('Guard')])
-    ::Guard::Notifier.stub!(:notifications).and_return([mock('Notifications')])
-    ::Guard::Notifier.stub!(:add_notification)
   end
 
   def self.disable_user_config
@@ -155,10 +153,7 @@ describe Guard::Dsl do
   end
 
   describe ".reevaluate_guardfile" do
-    before do
-      ::Guard::Dsl.stub!(:instance_eval_guardfile)
-      ::Guard::Notifier.notifications = [{ :name => :growl }]
-    end
+    before(:each) { ::Guard::Dsl.stub!(:instance_eval_guardfile) }
 
     it "resets already defined guards before calling evaluate_guardfile" do
       Guard::Notifier.turn_off
@@ -170,8 +165,6 @@ describe Guard::Dsl do
       described_class.reevaluate_guardfile
 
       ::Guard.guards.should be_empty
-      ::Guard.groups.should be_empty
-      ::Guard::Notifier.notifications.should be_empty
     end
 
     it "resets groups before calling evaluate_guardfile" do
@@ -186,6 +179,19 @@ describe Guard::Dsl do
       ::Guard.groups.should_not be_empty
       ::Guard.groups[0].name.should eql :default
       ::Guard.groups[0].options.should == {}
+    end
+
+    it "resets notifications before calling evaluate_guardfile" do
+      Guard::Notifier.turn_off
+      Guard::Notifier.notifications = [{ :name => :growl }]
+      described_class.evaluate_guardfile(:guardfile_contents => invalid_guardfile_string)
+
+      ::Guard::Notifier.notifications.should_not be_empty
+      ::Guard::Dsl.should_receive(:evaluate_guardfile)
+
+      described_class.reevaluate_guardfile
+
+      ::Guard::Notifier.notifications.should be_empty
     end
   end
 

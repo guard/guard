@@ -107,6 +107,7 @@ module Guard
       # Re-evaluate the `Guardfile` to update the current Guard configuration.
       #
       def reevaluate_guardfile
+        ::Guard.guards.clear
         ::Guard.reset_groups
         ::Guard::Notifier.notifications.clear
         @@options.delete(:guardfile_contents)
