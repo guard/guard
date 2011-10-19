@@ -12,14 +12,14 @@ Features
 * [Inotify](http://en.wikipedia.org/wiki/Inotify) support on Linux.
 * [Directory Change Notification](http://msdn.microsoft.com/en-us/library/aa365261\(VS.85\).aspx) support on Windows.
 * Polling on the other operating systems (help us to support more OS).
-* Automatic and super fast (when polling is not used) files modifications detection (even new and deleted files are detected).
+* Automatic and super fast (when polling is not used) file modification detection (even new and deleted files are detected).
 * Support for visual system notifications.
 * Tested against Ruby 1.8.7, 1.9.2, REE and the latest versions of JRuby & Rubinius.
 
 Screencast
 ----------
 
-Ryan Bates made a Railscast on Guard, you can view it here: [http://railscasts.com/episodes/264-guard](http://railscasts.com/episodes/264-guard)
+Ryan Bates made a RailsCast on Guard, you can view it here: [http://railscasts.com/episodes/264-guard](http://railscasts.com/episodes/264-guard)
 
 Install
 -------
@@ -41,12 +41,12 @@ Generate an empty `Guardfile` with:
 
     $ guard init
 
-Guard is now ready to use, but you should add some Guards for your specific use now! Start exploring the many Guards
+Guard is now ready to use, but you should add some Guards for your specific use. Start exploring the many Guards
 available by browsing the [Guard organization](https://github.com/guard) on GitHub or by searching for `guard-` on
 [RubyGems](https://rubygems.org/search?utf8=%E2%9C%93&query=guard-).
 
 If you are using Windows and want colors in your terminal, you'll have to add the
-[win32console gem](https://rubygems.org/gems/win32console) to your `Gemfile` and install it with Bundler:
+[win32console](https://rubygems.org/gems/win32console) gem to your `Gemfile` and install it with Bundler:
 
     group :development
       gem 'win32console'
