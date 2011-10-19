@@ -1,18 +1,17 @@
 require 'spec_helper'
 
 describe Guard::Notifier::Libnotify do
+  before(:all) { Object.send(:remove_const, :Libnotify) if defined?(::Libnotify) }
 
   before do
     subject.stub(:require)
 
-    class Libnotify
+    class ::Libnotify
       def self.show(options) end
     end
   end
 
-  after do
-    Object.send(:remove_const, :Libnotify)
-  end
+  after { Object.send(:remove_const, :Libnotify) if defined?(::Libnotify) }
 
   describe '.available?' do
     context 'without the silent option' do

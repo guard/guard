@@ -1,19 +1,18 @@
 require 'spec_helper'
 
 describe Guard::Notifier::Growl do
+  before(:all) { Object.send(:remove_const, :Growl) if defined?(::Growl) }
 
   before do
     subject.stub(:require)
 
-    class Growl
+    class ::Growl
       def self.notify(message, options) end
       def self.installed?; end
     end
   end
 
-  after do
-    Object.send(:remove_const, :Growl)
-  end
+  after { Object.send(:remove_const, :Growl) if defined?(::Growl) }
 
   describe '.available?' do
     context 'without the silent option' do

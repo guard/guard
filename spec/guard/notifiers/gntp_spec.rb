@@ -1,18 +1,17 @@
 require 'spec_helper'
 
 describe Guard::Notifier::GNTP do
+  before(:all) { Object.send(:remove_const, :GNTP) if defined?(::GNTP) }
 
   before do
     subject.stub(:require)
 
-    class GNTP
+    class ::GNTP
       def self.notify(options) end
     end
   end
 
-  after do
-    Object.send(:remove_const, :GNTP)
-  end
+  after { Object.send(:remove_const, :GNTP) if defined?(::GNTP) }
 
   describe '.available?' do
     context 'without the silent option' do

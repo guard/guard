@@ -1,18 +1,17 @@
 require 'spec_helper'
 
 describe Guard::Notifier::Notifu do
+  before(:all) { Object.send(:remove_const, :Notifu) if defined?(::Notifu) }
 
   before do
     subject.stub(:require)
 
-    class Notifu
+    class ::Notifu
       def self.show(options) end
     end
   end
 
-  after do
-    Object.send(:remove_const, :Notifu)
-  end
+  after { Object.send(:remove_const, :Notifu) if defined?(::Notifu) }
 
   describe '.available?' do
     context 'without the silent option' do
