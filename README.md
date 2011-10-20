@@ -12,7 +12,7 @@ Features
 * [Inotify](http://en.wikipedia.org/wiki/Inotify) support on Linux.
 * [Directory Change Notification](http://msdn.microsoft.com/en-us/library/aa365261\(VS.85\).aspx) support on Windows.
 * Polling on the other operating systems.
-* Automatic and super fast (when polling is not used) file modification detection (even new and deleted files are detected).
+* Automatic and super fast file modification detection when polling is not used (even new and deleted files are detected).
 * Support for visual system notifications.
 * Tested against Ruby 1.8.7, 1.9.2, REE and the latest versions of JRuby & Rubinius.
 
