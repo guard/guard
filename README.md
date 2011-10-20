@@ -52,7 +52,7 @@ If you are using Windows and want colors in your terminal, you'll have to add th
 [win32console](https://rubygems.org/gems/win32console) gem to your `Gemfile` and install it with Bundler:
 
 ```ruby
-group :development
+group :development do
   gem 'win32console'
 end
 ```
@@ -76,7 +76,7 @@ to have at least version 1.3 installed.
 To use `ruby_gntp` you have to add it to your `Gemfile` and run bundler:
 
 ```ruby
-group :development
+group :development do
   gem 'ruby_gntp'
 end
 ```
@@ -95,7 +95,7 @@ Growl version 1.3 installed.
 To use `growl_notify` you have to add it to your `Gemfile` and run bundler:
 
 ```ruby
-group :development
+group :development do
   gem 'growl_notify'
 end
 ```
@@ -119,7 +119,7 @@ $ brew install growlnotify
 To use `growl` you have to add it to your `Gemfile` and run bundler:
 
 ```ruby
-group :development
+group :development do
   gem 'growl'
 end
 ```
@@ -135,7 +135,7 @@ used on other window managers as well. You have to install the `libnotify-bin` p
 To use `libnotify` you have to add it to your `Gemfile` and run bundler:
 
 ```ruby
-group :development
+group :development do
   gem 'libnotify'
 end
 ```
@@ -150,7 +150,7 @@ The [rb-notifu](https://rubygems.org/gems/rb-notifu) gem supports Windows system
 To use `rb-notifu` you have to add it to your `Gemfile` and run bundler:
 
 ```ruby
-group :development
+group :development do
   gem 'rb-notifu'
 end
 ```
@@ -167,7 +167,7 @@ available by browsing the [Guard organization](https://github.com/guard) on GitH
 Add it to your `Gemfile`:
 
 ```ruby
-group :development
+group :development do
   gem '<guard-name>'
 end
 ```
