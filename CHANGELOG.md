@@ -2,6 +2,7 @@
 
 ### Improvements
 
+- Add readline support to the interactor. ([@netzpirat][])
 - Add support for notification configuration. ([@netzpirat][])
 
 ## 0.8.7 - October 18, 2011
