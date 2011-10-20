@@ -453,8 +453,10 @@ ignore_paths 'public'
 ### Example
 
 ```ruby
-notification :gntp
 ignore_paths 'foo', 'bar'
+
+notification :growl_notify
+notification :gntp, :host => '192.168.1.5'
 
 group :backend do
   guard :bundler do
@@ -495,7 +497,7 @@ This can be used for tasks you want guard to handle but other users probably don
 For example, indexing your source tree with [Ctags](http://ctags.sourceforge.net):
 
 ```ruby
-guard 'shell' do
+guard :shell do
   watch(%r{^(?:app|lib)/.+\.rb$}) { `ctags -R` }
 end
 ```
