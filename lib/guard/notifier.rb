@@ -138,7 +138,7 @@ module Guard
 
     private
 
-    # Auto detect the avaiable notification library. This goes through
+    # Auto detect the available notification library. This goes through
     # the list of supported notification gems and picks the first that
     # is available.
     #
