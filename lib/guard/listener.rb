@@ -289,7 +289,7 @@ module Guard
     # Set save a files current timestamp
     #
     # @param [String] path the file path
-    # @param [Int] file_timestamp the files modified timestamp
+    # @param [Integer] file_timestamp the files modified timestamp
     #
     def set_file_timestamp_hash(path, file_timestamp)
         @file_timestamp_hash[path] = file_timestamp
@@ -306,8 +306,8 @@ module Guard
 
     # Gets a files modified timestamp
     #
-    # @path [String] path the file path
-    # @return [Int] file modified timestamp
+    # @param [String] path the file path
+    # @return [Integer] file modified timestamp
     #
     def file_timestamp(path)
       File.mtime(path).to_i
