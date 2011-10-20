@@ -49,7 +49,7 @@ $ bundle
 Generate an empty `Guardfile` with:
 
 ```bash
-$ bundle exec guard init
+$ guard init
 ```
 
 If you are using Windows and want colors in your terminal, you'll have to add the
@@ -61,18 +61,8 @@ group :development do
 end
 ```
 
-It's important that you always run Guard through Bundler to avoid errors. If you get sick of typing `bundle exec` all
-the time, you can assign an alias to your shell:
-
-```bash
-$ alias be='bundle exec'
-```
-
-Now you can just use `be` instead of `bundle exec`:
-
-```bash
-$ be guard
-```
+It's important that you always run Guard through Bundler to avoid errors. If you're getting sick of typing `bundle exec` all
+the time, try the [Rubygems Bundler](https://github.com/mpapis/rubygems-bundler).
 
 ### System notifications
 
@@ -204,14 +194,14 @@ Guard is run from the command line. Please open your terminal and go to your pro
 You can always get help on the available tasks with the `help` task:
 
 ```bash
-$ bundle exec guard help
+$ guard help
 ```
 
 To request more detailed help on a specific task is simple: just appending the task name to the help task.
 For example, to get help for the `start` task, simply run:
 
 ```bash
-$ bundle exec guard help start
+$ guard help start
 ```
 
 ### Init
@@ -219,14 +209,14 @@ $ bundle exec guard help start
 You can generate an empty `Guardfile` by running the `init` task:
 
 ```bash
-$ bundle exec guard init
+$ guard init
 ```
 
 In addition, the `init` task can be used to append a supplied Guard template from an installed Guard to your existing
 `Guardfile`:
 
 ```bash
-$ bundle exec guard init <guard-name>
+$ guard init <guard-name>
 ```
 
 ### Start
@@ -234,7 +224,7 @@ $ bundle exec guard init <guard-name>
 Just launch Guard inside your Ruby or Rails project with:
 
 ```bash
-$ bundle exec guard
+$ guard
 ```
 
 Guard will look for a `Guardfile` in your current directory. If it does not find one, it will look in your `$HOME`
@@ -245,8 +235,8 @@ directory for a `.Guardfile`.
 The shell can be cleared after each change:
 
 ```bash
-$ bundle exec guard --clear
-$ bundle exec guard -c # shortcut
+$ guard --clear
+$ guard -c # shortcut
 ```
 
 #### `-n`/`--notify` option
@@ -254,8 +244,8 @@ $ bundle exec guard -c # shortcut
 System notifications can be disabled:
 
 ```bash
-$ bundle exec guard --notify false
-$ bundle exec guard -n f # shortcut
+$ guard --notify false
+$ guard -n f # shortcut
 ```
 
 Notifications can also be disabled globally by setting a `GUARD_NOTIFY` environment variable to `false`.
@@ -265,8 +255,8 @@ Notifications can also be disabled globally by setting a `GUARD_NOTIFY` environm
 Only certain Guard groups can be run:
 
 ```bash
-$ bundle exec guard --group group_name another_group_name
-$ bundle exec guard -g group_name another_group_name # shortcut
+$ guard --group group_name another_group_name
+$ guard -g group_name another_group_name # shortcut
 ```
 
 See the Guardfile DSL below for creating groups.
@@ -276,8 +266,8 @@ See the Guardfile DSL below for creating groups.
 Guard can be run in debug mode:
 
 ```bash
-$ bundle exec guard --debug
-$ bundle exec guard -d # shortcut
+$ guard --debug
+$ guard -d # shortcut
 ```
 
 #### `-w`/`--watchdir` option
@@ -285,8 +275,8 @@ $ bundle exec guard -d # shortcut
 Guard can watch in any directory instead of the current directory:
 
 ```bash
-$ bundle exec guard --watchdir ~/your/fancy/project
-$ bundle exec guard -w ~/your/fancy/project # shortcut
+$ guard --watchdir ~/your/fancy/project
+$ guard -w ~/your/fancy/project # shortcut
 ```
 
 #### `-G`/`--guardfile` option
@@ -294,8 +284,8 @@ $ bundle exec guard -w ~/your/fancy/project # shortcut
 Guard can use a `Guardfile` not located in the current directory:
 
 ```bash
-$ bundle exec guard --guardfile ~/.your_global_guardfile
-$ bundle exec guard -G ~/.your_global_guardfile # shortcut
+$ guard --guardfile ~/.your_global_guardfile
+$ guard -G ~/.your_global_guardfile # shortcut
 ```
 
 #### `-A`/`--watch-all-modifications` option
@@ -303,8 +293,8 @@ $ bundle exec guard -G ~/.your_global_guardfile # shortcut
 Guard can optionally watch all file modifications like moves or deletions with:
 
 ```bash
-$ bundle exec guard start -A
-$ bundle exec guard start --watch-all-modifications
+$ guard start -A
+$ guard start --watch-all-modifications
 ```
 
 #### `-i`/`--no-interactions` option
@@ -312,8 +302,8 @@ $ bundle exec guard start --watch-all-modifications
 Turn off completely any Guard terminal interactions with:
 
 ```bash
-$ bundle exec guard start -i
-$ bundle exec guard start --no-interactions
+$ guard start -i
+$ guard start --no-interactions
 ```
 
 ### List
@@ -321,7 +311,7 @@ $ bundle exec guard start --no-interactions
 You can list the available Guard with the `list` task:
 
 ```bash
-$ bundle exec guard list
+$ guard list
 
 Available guards:
    coffeescript
@@ -341,7 +331,7 @@ See also https://github.com/guard/guard/wiki/List-of-available-Guards
 You can show the structure of the groups and their Guards with the `show` task:
 
 ```bash
-$ bundle exec guard show
+$ guard show
 
 (global):
   shell
