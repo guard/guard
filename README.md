@@ -354,15 +354,13 @@ is ready to accept a command. The command line supports history navigation and a
 
 You can execute the following commands:
 
-* `help`:         Show a help of the available interactor commands.
-* `exit`:         Stop all Guards and quit Guard.
-* `reload`:       Reload all Guards.
-* `pause`:        Toggles the file modification listener and the prompt will change to `p>`. Useful when switching Git
-                  branches.
-* `<return>`:     Run all Guards.
-* `notification`: Toggle system notifications on and off.
-
-You can also execute a command by entering its first letter only. For example, `exit` can be executed by `e` also.
+* `<return>`:          Run all Guards.
+* `h`, `help`:         Show a help of the available interactor commands.
+* `r`, `reload`:       Reload all Guards.
+* `n`, `notification`: Toggle system notifications on and off.
+* `p`, `pause`:        Toggles the file modification listener. The prompt will change to `p>` when paused.
+                       This is useful when switching Git branches.
+* `e`, `exit`:         Stop all Guards and quit Guard.
 
 Instead of running all Guards by pressing `<enter>`, you can also run a single Guard by entering its name:
 
