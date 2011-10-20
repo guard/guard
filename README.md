@@ -680,7 +680,7 @@ where the issue belongs to: Is it an issue with Guard itself or with a Guard imp
 ask question in the issue tracker, instead join us in our [Google group](http://groups.google.com/group/guard-dev) or on
 `#guard` (irc.freenode.net).
 
-When you file an issue, please...
+When you file an issue, please try to follow to these simple rules if applicable:
 
 * Make sure you run Guard with `bundle exec` first.
 * Add debug information to the issue by running Guard with the `--debug` option.
@@ -695,14 +695,14 @@ The development of Guard takes place on the [dev branch](https://github.com/guar
 * Documentation hosted at [RubyDoc](http://rubydoc.info/github/guard/guard/master/frames).
 * Source hosted at [GitHub](https://github.com/guard/guard).
 
-Pull requests are very welcome! Please try to follow these simple "rules", though:
+Pull requests are very welcome! Please try to follow these simple rules if applicable:
 
-- Please create a topic branch for every separate change you make.
-- Make sure your patches are well tested.
-- Update the [Yard](http://yardoc.org/) documentation.
-- Update the README if applicable.
-- Update the CHANGELOG for noteworthy changes.
-- Please **do not change** the version number.
+* Please create a topic branch for every separate change you make.
+* Make sure your patches are well tested.
+* Update the [Yard](http://yardoc.org/) documentation.
+* Update the README.
+* Update the CHANGELOG for noteworthy changes.
+* Please **do not change** the version number.
 
 For questions please join us in our [Google group](http://groups.google.com/group/guard-dev) or on
 `#guard` (irc.freenode.net).
