@@ -650,7 +650,7 @@ end
 Development
 -----------
 
-The development of Guard takes place in the [dev branch](https://github.com/guard/guard/tree/dev).
+The development of Guard takes place on the [dev branch](https://github.com/guard/guard/tree/dev).
 
 * Documentation hosted at [RubyDoc](http://rubydoc.info/github/guard/guard/master/frames).
 * Source hosted at [GitHub](https://github.com/guard/guard).
