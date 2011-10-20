@@ -301,50 +301,95 @@ When Guard do nothing you can interact with by entering a command + hitting retu
 Guardfile DSL
 -------------
 
-The Guardfile DSL consists of the following methods:
+The Guardfile DSL is evaluated as plain Ruby, so you can use normal Ruby code in your `Guardfile`.
+Guard itself provides the following DSL methods that can be used for configuration:
 
-* `#guard`        - Allows you to add a Guard with an optional hash of options.
-* `#watch`        - Allows you to define which files are supervised by a Guard. An optional block can be added to overwrite the paths sent to the guard's `#run_on_change` method or to launch any arbitrary command.
-* `#group`        - Allows you to group several Guards together. Groups to be run can be specified with the Guard DSL option `--group` (or `-g`). This comes in handy especially when you have a huge `Guardfile` and want to focus your development on a certain part. Guards that don't belong to a group are considered global and are always run.
-* `#notification` - Allows you to choose and configure your preferred system notification library.
-* `#callback`     - Allows you to execute arbitrary code before or after any of the `start`, `stop`, `reload`, `run_all` and `run_on_change` guards' method. You can even insert more hooks inside these methods. Please [checkout the Wiki page](https://github.com/guard/guard/wiki/Hooks-and-callbacks) for more details.
-* `#ignore_paths` - Allows you to ignore top level directories altogether. This comes is handy when you have large amounts of non-source data in you project.  By default `.bundle`, `.git`, `log`, `tmp`, and `vendor` are ignored. Currently it is only possible to ignore the immediate descendants of the watched directory.
+### guard
 
-Example:
+The `guard` method allows you to add a Guard to your toolchain and configure it by passing the
+options after the name of the Guard:
 
 ```ruby
-notification :gntp
-ignore_paths 'foo', 'bar'
+guard :coffeescript, :input => 'coffeescripts', :output => 'javascripts'
+```
 
-group 'backend' do
-  guard 'bundler' do
-    watch('Gemfile')
-  end
+You can define the same Guard more than once:
 
-  guard 'rspec', :cli => '--color --format doc' do
-    # Regexp watch patterns are matched with Regexp#match
+```ruby
+guard :coffeescript, :input => 'coffeescripts', :output => 'javascripts'
+guard :coffeescript, :input => 'specs', :output => 'specs'
+```
+
+### watch
+
+The `watch` method allows you to define which files are watched by a Guard:
+
+```ruby
+guard 'bundler' do
+  watch('Gemfile')
+end
+```
+
+You can also pass a regular expression to the watch method:
+
+```ruby
+guard :jessie do
+  watch(%r{^spec/.+(_spec|Spec)\.(js|coffee)})
+end
+```
+
+This instructs the jessie Guard to watch for file changes in the `spec` folder,
+but only for file names that ends with `_spec` or `Spec` and have a file type of `js` or `coffee`.
+You can easily test your watcher regular expressions with [Rubular](http://rubular.com/).
+
+When you add an optional block to the watch expression, you can modify the file name that has been
+detected before sending it to the Guard for processing:
+
+```ruby
+guard :rspec do
+  watch(%r{^lib/(.+)\.rb$})     { |m| "spec/lib/#{m[1]}_spec.rb" }
+end
+```
+
+In this example the regular expression capture group `(.+)` is used to transform a file change
+in the `lib` folder to its test case in the `spec` folder.
+
+You can also launch any arbitrary command in the supplied block:
+
+```ruby
+guard :shell do
+  watch('.*') { `git status` }
+end
+```
+
+### group
+
+The `group` method allows you to group several Guards together. This comes in handy especially when you
+have a huge `Guardfile` and want to focus your development on a certain part.
+
+```ruby
+group :specs do
+  guard :rspec do
     watch(%r{^spec/.+_spec\.rb$})
-    watch(%r{^lib/(.+)\.rb$})         { |m| "spec/lib/#{m[1]}_spec.rb" }
-    watch(%r{^spec/models/.+\.rb$})   { ["spec/models", "spec/acceptance"] }
-    watch(%r{^spec/.+\.rb$})          { `say hello` }
-
-    # String watch patterns are matched with simple '=='
-    watch('spec/spec_helper.rb') { "spec" }
   end
 end
 
-group 'frontend' do
-  guard 'coffeescript', :output => 'public/javascripts/compiled' do
-    watch(%r{^app/coffeescripts/.+\.coffee$})
-  end
-
-  guard 'livereload' do
-    watch(%r{^app/.+\.(erb|haml)$})
+group :docs do
+  guard :ronn do
+    watch(%r{^man/.+\.ronn?$})
   end
 end
 ```
 
-### Configure system notifications
+Groups to be run can be specified with the Guard DSL option `--group` (or `-g`):
+
+```bash
+$ guard -g specs
+```
+
+Guards that don't belong to a group are considered global and are always run.
+
+### notification
 
 If you don't specify any notification configuration in your `Guardfile`, Guard goes through the list of available
 notifiers and takes the first that is available. If you specify your preferred library, auto detection will not take place:
@@ -377,6 +422,65 @@ or using the cli switch `-n`:
 
 ```ruby
 notification :off
+```
+
+### callback
+
+The `callback` method allows you to execute arbitrary code before or after any of the `start`, `stop`, `reload`, `run_all`
+and `run_on_change` guards' method. You can even insert more hooks inside these methods.
+
+```ruby
+guard 'rspec' do
+  watch(%r{^spec/.+_spec\.rb$})
+
+  callback(:start_begin) { `mate .` }
+end
+```
+
+Please see the [hooks and callbacks](https://github.com/guard/guard/wiki/Hooks-and-callbacks) page in the Guard wiki for more details.
+
+### ignore_path
+
+The `ignore_path` method allows you to ignore top level directories altogether. This comes is handy when you have large
+amounts of non-source data in you project. By default `.bundle`, `.git`, `log`, `tmp`, and `vendor` are ignored. Currently
+it is only possible to ignore the immediate descendants of the watched directory.
+
+```ruby
+ignore_path 'public'
+```
+
+### Example
+
+```ruby
+notification :gntp
+ignore_paths 'foo', 'bar'
+
+group :backend do
+  guard :bundler do
+    watch('Gemfile')
+  end
+
+  guard :rspec, :cli => '--color --format doc' do
+    # Regexp watch patterns are matched with Regexp#match
+    watch(%r{^spec/.+_spec\.rb$})
+    watch(%r{^lib/(.+)\.rb$})         { |m| "spec/lib/#{m[1]}_spec.rb" }
+    watch(%r{^spec/models/.+\.rb$})   { ["spec/models", "spec/acceptance"] }
+    watch(%r{^spec/.+\.rb$})          { `say hello` }
+
+    # String watch patterns are matched with simple '=='
+    watch('spec/spec_helper.rb') { "spec" }
+  end
+end
+
+group :frontend do
+  guard :coffeescript, :output => 'public/javascripts/compiled' do
+    watch(%r{^app/coffeescripts/.+\.coffee$})
+  end
+
+  guard :livereload do
+    watch(%r{^app/.+\.(erb|haml)$})
+  end
+end
 ```
 
 Shared configurations
