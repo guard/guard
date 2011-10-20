@@ -19,7 +19,8 @@ Features
 Screencast
 ----------
 
-Ryan Bates made a RailsCast on Guard, you can view it here: [http://railscasts.com/episodes/264-guard](http://railscasts.com/episodes/264-guard)
+Ryan Bates made an excellent [RailsCast about Guard](http://railscasts.com/episodes/264-guard) and you should definitely
+watch it for a nice introduction to Guard.
 
 Installation
 ------------
