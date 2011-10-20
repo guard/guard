@@ -7,10 +7,10 @@ module Guard
   #
   # Currently the following actions are implemented:
   #
-  # - stop, quit, exit, s, q, e => Exit Guard
-  # - reload, r, z => Reload Guard
-  # - pause, p => Pause Guard
-  # - Everything else => Run all
+  # - e, exit   => Exit Guard
+  # - r, reload => Reload Guard
+  # - p, pause  => Pause Guard
+  # - <enter>   => Run all
   #
   # It's also possible to scope `reload` and `run all` actions to only a specified group or a guard.
   #
@@ -20,11 +20,26 @@ module Guard
   #
   class Interactor
 
-    STOP_ACTIONS   = %w[stop quit exit s q e]
-    RELOAD_ACTIONS = %w[reload r z]
-    PAUSE_ACTIONS  = %w[pause p]
+    HELP_ACTIONS         = %w[help h]
+    RELOAD_ACTIONS       = %w[reload r]
+    STOP_ACTIONS         = %w[exit q]
+    PAUSE_ACTIONS        = %w[pause p]
+    NOTIFICATION_ACTIONS = %w[notification n]
 
-    COMPLETION = %w{ help stop quit exit reload pause }
+    attr_accessor :completion
+
+    # Initialize the interactor.
+    #
+    def initialize
+      Thread.abort_on_exception = true
+
+      Readline.completion_append_character = ' '
+
+      Readline.completion_proc = proc do |word|
+        update_completion_list
+        completion.grep(/^#{ Regexp.escape(word) }/)
+      end
+    end
 
     # Start the interactor in its own thread.
     #
@@ -33,17 +48,6 @@ module Guard
 
       if !@thread || !@thread.alive?
         @thread = Thread.new do
-
-          Readline.completion_append_character = " "
-
-          Readline.completion_proc = Proc.new do |line|
-            if line =~ /reload/
-              ::Guard.groups.map { |group| group.name.to.s }.grep(/^#{ Regexp.escape(line) }/)
-            else
-              COMPLETION.grep(/^#{ Regexp.escape(line) }/)
-            end
-          end
-
           while line = Readline.readline(prompt, true)
             if line =~ /^\s*$/ or Readline::HISTORY.to_a[-2] == line
               Readline::HISTORY.pop
@@ -53,19 +57,26 @@ module Guard
 
             case action
             when :help
-              puts 'stop'
-              puts 'pause'
-              puts 'reload'
-              puts 'run_all'
+              help
             when :stop
               ::Guard.stop
             when :pause
               ::Guard.pause
             when :reload
+              puts 'Reload'
               ::Guard::Dsl.reevaluate_guardfile if scopes.empty?
               ::Guard.reload(scopes)
             when :run_all
               ::Guard.run_all(scopes)
+            when :notification
+              if ENV['GUARD_NOTIFY'] == 'true'
+                puts 'Turn off notifications'
+                ::Guard::Notifier.turn_off
+              else
+                ::Guard::Notifier.turn_on
+              end
+            else
+              puts "Unknown command #{ line }"
             end
           end
         end
@@ -80,12 +91,44 @@ module Guard
       end
     end
 
+    # Update the auto completion list.
+    #
+    def update_completion_list
+      commands = %w[help reload exit pause notification]
+      groups   = ::Guard.groups.map { |group| group.name.to_s }
+      guards   = ::Guard.guards.map { |guard| guard.class.to_s.downcase.sub('guard::', '') }
+
+      self.completion = guards + groups + commands - ['default']
+    end
+
     # The current interactor prompt
     #
     # @return [String] the prompt to show
     #
     def prompt
-      ::Guard.listener.paused? ? '*> ' : '> '
+      ::Guard.listener.paused? ? 'p> ' : '> '
+    end
+
+    # Show the help.
+    #
+    def help
+      puts ''
+      puts 'e, exit          Exit Guard'
+      puts 'p, pause         Toggle file modification listener'
+      puts 'r, reload        Reload Guard'
+      puts 'n, notification  Toggle notifications'
+      puts '<enter>          Run all Guards'
+      puts ''
+      puts 'You can scope the reload action to a specific guard or group:'
+      puts ''
+      puts 'rspec reload     Reload the RSpec Guard'
+      puts 'backend reload   Reload the backend group'
+      puts ''
+      puts 'You can also run only a specific Guard or all Guards in a specific group:'
+      puts ''
+      puts 'jasmine          Run the jasmine Guard'
+      puts 'frontend         Run all Guards in the frontend group'
+      puts ''
     end
 
     # Extract guard or group scope and action from Interactor entry
@@ -97,8 +140,9 @@ module Guard
     # @return [Array] entry group or guard scope hash and action
     #
     def extract_scopes_and_action(entry)
-      scopes  = {}
+      scopes  = { }
       entries = entry.split(' ')
+
       case entries.length
       when 1
         unless action = action_from_entry(entries[0])
@@ -108,7 +152,8 @@ module Guard
         scopes = scopes_from_entry(entries[0])
         action = action_from_entry(entries[1])
       end
-      action ||= :run_all
+
+      action = :run_all if !action && (!scopes.empty? || entries.empty?)
 
       [scopes, action]
     end
@@ -142,8 +187,10 @@ module Guard
         :reload
       elsif PAUSE_ACTIONS.include?(entry)
         :pause
-      elsif 'help' =~ entry
+      elsif HELP_ACTIONS.include?(entry)
         :help
+      elsif NOTIFICATION_ACTIONS.include?(entry)
+        :notification
       end
     end
 
