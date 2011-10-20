@@ -648,16 +648,19 @@ Here is a very cool example by [@avdi](https://github.com/avdi) : [http://avdi.o
 Development
 -----------
 
+The development of Guard takes place in the [dev branch](https://github.com/guard/guard/tree/dev).
+
 * Documentation hosted at [RubyDoc](http://rubydoc.info/github/guard/guard/master/frames).
 * Source hosted at [GitHub](https://github.com/guard/guard).
 * Report issues and feature requests to [GitHub Issues](https://github.com/guard/guard/issues).
 
 Pull requests are very welcome! Please try to follow these simple "rules", though:
 
-- Please create a topic branch for every separate change you make;
-- Make sure your patches are well tested;
-- Update the README (if applicable);
-- Update the CHANGELOG (maybe not for a typo but don't hesitate!);
+- Please create a topic branch for every separate change you make.
+- Make sure your patches are well tested.
+- Update the [Yard](http://yardoc.org/) documentation.
+- Update the README if applicable.
+- Update the CHANGELOG for noteworthy changes.
 - Please **do not change** the version number.
 
 For questions please join us in our [Google group](http://groups.google.com/group/guard-dev) or on `#guard` (irc.freenode.net).
