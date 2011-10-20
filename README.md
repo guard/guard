@@ -308,7 +308,7 @@ $ guard start --no-interactions
 
 ### List
 
-You can list the available Guard with the `list` task:
+You can list the available Guards with the `list` task:
 
 ```bash
 $ guard list
