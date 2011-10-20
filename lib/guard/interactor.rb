@@ -5,18 +5,28 @@ module Guard
   # The interactor reads user input and triggers
   # specific action upon them unless its locked.
   #
+  # It used the readline library for history and
+  # completion support.
+  #
   # Currently the following actions are implemented:
   #
-  # - e, exit   => Exit Guard
-  # - r, reload => Reload Guard
-  # - p, pause  => Pause Guard
-  # - <enter>   => Run all
+  # - h, help         => Show help
+  # - e, exit         => Exit Guard
+  # - r, reload       => Reload Guard
+  # - p, pause        => Toggle file modification listener
+  # - n, notification => Toggle notifications
+  # - <enter>         => Run all
   #
   # It's also possible to scope `reload` and `run all` actions to only a specified group or a guard.
   #
-  # @example `backend reload` will only reload backend group
-  # @example `spork reload` will only reload rspec guard
-  # @example `jasmine` will only run all jasmine specs
+  # @example Reload backend group
+  #   backend reload
+  #
+  # @example Reload rspec guard
+  #   spork reload
+  #
+  # @example Run all jasmine specs
+  #   jasmine
   #
   class Interactor
 
@@ -26,8 +36,6 @@ module Guard
     PAUSE_ACTIONS        = %w[pause p]
     NOTIFICATION_ACTIONS = %w[notification n]
 
-    attr_accessor :completion
-
     # Initialize the interactor.
     #
     def initialize
@@ -36,8 +44,7 @@ module Guard
       Readline.completion_append_character = ' '
 
       Readline.completion_proc = proc do |word|
-        update_completion_list
-        completion.grep(/^#{ Regexp.escape(word) }/)
+        completion_list.grep(/^#{ Regexp.escape(word) }/)
       end
     end
 
@@ -91,14 +98,16 @@ module Guard
       end
     end
 
-    # Update the auto completion list.
+    # Get the auto completion list.
     #
-    def update_completion_list
+    # @return [Array<String>] the list of words
+    #
+    def completion_list
       commands = %w[help reload exit pause notification]
       groups   = ::Guard.groups.map { |group| group.name.to_s }
       guards   = ::Guard.guards.map { |guard| guard.class.to_s.downcase.sub('guard::', '') }
 
-      self.completion = guards + groups + commands - ['default']
+      guards + groups + commands - ['default']
     end
 
     # The current interactor prompt
