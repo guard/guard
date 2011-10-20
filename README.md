@@ -594,45 +594,6 @@ guard :shell do
 end
 ```
 
-Programmatic use of Guard
--------------------------
-
-The Guardfile DSL can also be used in a programmatic fashion by calling
-[Guard::Dsl.evaluate_guardfile](http://rubydoc.info/github/guard/guard/master/Guard/Dsl#evaluate_guardfile-class_method).
-
-Available options are as follow:
-
-* `:guardfile`          - The path to a valid `Guardfile`.
-* `:guardfile_contents` - A string representing the content of a valid `Guardfile`.
-
-Remember, without any options given, Guard will look for a `Guardfile` in your current directory and if it does not find
-one, it will look for it in your `$HOME` directory.
-
-Evaluate a `Guardfile`:
-
-```ruby
-require 'guard'
-
-Guard.setup
-Guard::Dsl.evaluate_guardfile(:guardfile => '/path/to/Guardfile')
-```
-
-Evaluate a string as `Guardfile`:
-
-```ruby
-require 'guard'
-
-Guard.setup
-
-guardfile = <<-EOF
-  guard 'rspec' do
-    watch(%r{^spec/.+_spec\.rb$})
-  end
-EOF
-
-Guard::Dsl.evaluate_guardfile(:guardfile_contents => guardfile)
-```
-
 Create a Guard
 --------------
 
@@ -734,6 +695,45 @@ end
 
 [@avdi](https://github.com/avdi) has a very cool inline Guard example in his blog post
 [A Guardfile for Redis](http://avdi.org/devblog/2011/06/15/a-guardfile-for-redis).
+
+Programmatic use of Guard
+-------------------------
+
+The Guardfile DSL can also be used in a programmatic fashion by calling
+[Guard::Dsl.evaluate_guardfile](http://rubydoc.info/github/guard/guard/master/Guard/Dsl#evaluate_guardfile-class_method).
+
+Available options are as follow:
+
+* `:guardfile`          - The path to a valid `Guardfile`.
+* `:guardfile_contents` - A string representing the content of a valid `Guardfile`.
+
+Remember, without any options given, Guard will look for a `Guardfile` in your current directory and if it does not find
+one, it will look for it in your `$HOME` directory.
+
+Evaluate a `Guardfile`:
+
+```ruby
+require 'guard'
+
+Guard.setup
+Guard::Dsl.evaluate_guardfile(:guardfile => '/path/to/Guardfile')
+```
+
+Evaluate a string as `Guardfile`:
+
+```ruby
+require 'guard'
+
+Guard.setup
+
+guardfile = <<-EOF
+  guard 'rspec' do
+    watch(%r{^spec/.+_spec\.rb$})
+  end
+EOF
+
+Guard::Dsl.evaluate_guardfile(:guardfile_contents => guardfile)
+```
 
 Issues
 ------
