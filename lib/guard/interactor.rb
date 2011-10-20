@@ -1,3 +1,5 @@
+require 'readline'
+
 module Guard
 
   # The interactor reads user input and triggers
@@ -22,6 +24,8 @@ module Guard
     RELOAD_ACTIONS = %w[reload r z]
     PAUSE_ACTIONS  = %w[pause p]
 
+    COMPLETION = %w{ help stop quit exit reload pause }
+
     # Start the interactor in its own thread.
     #
     def start
@@ -29,9 +33,30 @@ module Guard
 
       if !@thread || !@thread.alive?
         @thread = Thread.new do
-          while entry = $stdin.gets.chomp
-            scopes, action = extract_scopes_and_action(entry)
+
+          Readline.completion_append_character = " "
+
+          Readline.completion_proc = Proc.new do |line|
+            if line =~ /reload/
+              ::Guard.groups.map { |group| group.name.to.s }.grep(/^#{ Regexp.escape(line) }/)
+            else
+              COMPLETION.grep(/^#{ Regexp.escape(line) }/)
+            end
+          end
+
+          while line = Readline.readline(prompt, true)
+            if line =~ /^\s*$/ or Readline::HISTORY.to_a[-2] == line
+              Readline::HISTORY.pop
+            end
+
+            scopes, action = extract_scopes_and_action(line)
+
             case action
+            when :help
+              puts 'stop'
+              puts 'pause'
+              puts 'reload'
+              puts 'run_all'
             when :stop
               ::Guard.stop
             when :pause
@@ -54,7 +79,15 @@ module Guard
         @thread.kill
       end
     end
-    
+
+    # The current interactor prompt
+    #
+    # @return [String] the prompt to show
+    #
+    def prompt
+      ::Guard.listener.paused? ? '*> ' : '> '
+    end
+
     # Extract guard or group scope and action from Interactor entry
     #
     # @example `spork reload` will only reload rspec
@@ -109,6 +142,8 @@ module Guard
         :reload
       elsif PAUSE_ACTIONS.include?(entry)
         :pause
+      elsif 'help' =~ entry
+        :help
       end
     end
 
