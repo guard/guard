@@ -31,7 +31,7 @@ module Guard
 
       # Test if the notification library is available.
       #
-      # @param [Boolean] silent true if not error message should be shown
+      # @param [Boolean] silent true if no error messages should be shown
       # @return [Boolean] the availability status
       #
       def available?(silent = false)
