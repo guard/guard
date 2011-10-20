@@ -363,7 +363,7 @@ You can execute the following commands:
                        This is useful when switching Git branches.
 * `e`, `exit`:         Stop all Guards and quit Guard.
 
-Instead of running all Guards by pressing `<enter>`, you can also run a single Guard by entering its name:
+Instead of running all Guards with the `↩` key, you can also run a single Guard by entering its name:
 
 ```bash
 > rspec
