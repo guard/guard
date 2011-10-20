@@ -351,11 +351,11 @@ Interactions
 
 You can interact with Guard and enter commands when Guard has nothing to do. You'll see a command prompt `>` when Guard
 is ready to accept a command. The command line supports history navigation with the `↑` and `↓` arrow keys, and
-command auto-completion with the `<tab>` key.
+command auto-completion with the `⇥` key.
 
 You can execute the following commands:
 
-* `<return>`:          Run all Guards.
+* `↩`:                 Run all Guards.
 * `h`, `help`:         Show a help of the available interactor commands.
 * `r`, `reload`:       Reload all Guards.
 * `n`, `notification`: Toggle system notifications on and off.
