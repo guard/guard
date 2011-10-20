@@ -499,8 +499,8 @@ guard 'shell' do
 end
 ```
         
-Using a Guardfile without the `guard` binary
---------------------------------------------
+Using a Guardfile without the guard binary
+------------------------------------------
 
 The Guardfile DSL can also be used in a programmatic fashion by calling directly `Guard::Dsl.evaluate_guardfile`.
 Available options are as follow:
