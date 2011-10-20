@@ -270,7 +270,7 @@ module Guard
     # @see Guard::Notifier for available notifier and its options.
     #
     # @param [Symbol, String] notifier the name of the notifier to use
-    # @params [Hash] options the notification library options
+    # @param [Hash] options the notification library options
     #
     def notification(notifier, options = {})
       ::Guard::Notifier.add_notification(notifier.to_sym, options, false)
