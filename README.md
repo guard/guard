@@ -161,8 +161,8 @@ group :development do
 end
 ```
 
-Adding more Guards
-------------------
+Add more Guards
+---------------
 
 Guard is now ready to use and you should add some Guards for your specific use. Start exploring the many Guards
 available by browsing the [Guard organization](https://github.com/guard) on GitHub or by searching for `guard-` on
@@ -573,8 +573,8 @@ Group frontend:
   livereload
 ```
 
-Create a new guard
-------------------
+Create a Guard
+--------------
 
 Creating a new Guard is very easy, just create a new gem (`bundle gem` if you use Bundler) with this basic structure:
 
