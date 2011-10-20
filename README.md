@@ -11,7 +11,7 @@ Features
 * [FSEvent](http://en.wikipedia.org/wiki/FSEvents) support on Mac OS X.
 * [Inotify](http://en.wikipedia.org/wiki/Inotify) support on Linux.
 * [Directory Change Notification](http://msdn.microsoft.com/en-us/library/aa365261\(VS.85\).aspx) support on Windows.
-* Polling on the other operating systems (help us to support more OS).
+* Polling on the other operating systems.
 * Automatic and super fast (when polling is not used) file modification detection (even new and deleted files are detected).
 * Support for visual system notifications.
 * Tested against Ruby 1.8.7, 1.9.2, REE and the latest versions of JRuby & Rubinius.
@@ -261,7 +261,7 @@ The Guardfile DSL consists of the following methods:
 
 * `#guard`        - Allows you to add a Guard with an optional hash of options.
 * `#watch`        - Allows you to define which files are supervised by a Guard. An optional block can be added to overwrite the paths sent to the guard's `#run_on_change` method or to launch any arbitrary command.
-* `#group`        - Allows you to group several guards together. Groups to be run can be specified with the Guard DSL option `--group` (or `-g`). This comes in handy especially when you have a huge `Guardfile` and want to focus your development on a certain part. Guards that don't belong to a group are considered global and are always run.
+* `#group`        - Allows you to group several Guards together. Groups to be run can be specified with the Guard DSL option `--group` (or `-g`). This comes in handy especially when you have a huge `Guardfile` and want to focus your development on a certain part. Guards that don't belong to a group are considered global and are always run.
 * `#notification` - Allows you to choose and configure your preferred system notification library.
 * `#callback`     - Allows you to execute arbitrary code before or after any of the `start`, `stop`, `reload`, `run_all` and `run_on_change` guards' method. You can even insert more hooks inside these methods. Please [checkout the Wiki page](https://github.com/guard/guard/wiki/Hooks-and-callbacks) for more details.
 * `#ignore_paths` - Allows you to ignore top level directories altogether. This comes is handy when you have large amounts of non-source data in you project.  By default `.bundle`, `.git`, `log`, `tmp`, and `vendor` are ignored. Currently it is only possible to ignore the immediate descendants of the watched directory.
