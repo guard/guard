@@ -61,7 +61,7 @@ group :development do
 end
 ```
 
-It's important that you always run Guard through Bundler to avoid errors. If you're getting sick of typing `bundle exec` all
+**It's important that you always run Guard through Bundler to avoid errors.** If you're getting sick of typing `bundle exec` all
 the time, try the [Rubygems Bundler](https://github.com/mpapis/rubygems-bundler).
 
 ### System notifications
