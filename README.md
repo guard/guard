@@ -331,7 +331,7 @@ guard :bundler do
 end
 ```
 
-String watch patterns are matched with [Strings#==](http://www.ruby-doc.org/core-1.9.2/String.html#method-i-3D-3D).
+String watch patterns are matched with [String#==](http://www.ruby-doc.org/core-1.9.2/String.html#method-i-3D-3D).
 You can also pass a regular expression to the watch method:
 
 ```ruby
