@@ -1,7 +1,7 @@
 --title 'Guard Documentation'
 --readme README.md
 --markup markdown
---markup-provider kramdown
+--markup-provider redcarpet
 --private
 --protected
 --output-dir ./doc
