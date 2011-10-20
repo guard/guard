@@ -48,7 +48,9 @@ $ bundle
 
 Generate an empty `Guardfile` with:
 
-    $ guard init
+```bash
+$ bundle exec guard init
+```
 
 If you are using Windows and want colors in your terminal, you'll have to add the
 [win32console](https://rubygems.org/gems/win32console) gem to your `Gemfile` and install it with Bundler:
@@ -168,9 +170,7 @@ Guard is now ready to use and you should add some Guards for your specific use. 
 available by browsing the [Guard organization](https://github.com/guard) on GitHub or by searching for `guard-` on
 [RubyGems](https://rubygems.org/search?utf8=%E2%9C%93&query=guard-).
 
-### Add a guard to your Guardfile
-
-Add it to your `Gemfile`:
+When you have found a Guard of your interest, add it to your `Gemfile`:
 
 ```ruby
 group :development do
@@ -178,24 +178,47 @@ group :development do
 end
 ```
 
-You can list all Guards installed on your system with:
-
-```bash
-$ guard list
-```
-
-Insert the supplied Guard template to your `Guardfile` by running this command:
-
-```bash
-$ guard init <guard-name>
-```
-
-You are good to go, or you can modify your Guards' definition to suit your needs.
+See the init section of the Guard usage below to see how to install the supplied Guard template that you can install and
+to suit your needs.
 
 Usage
 -----
 
-Just launch Guard inside your Ruby / Rails project with:
+Guard is run from the command line. Please open your terminal and go to your project work directory.
+
+### Help
+
+You can always get help on the available tasks with the `help` task:
+
+```bash
+$ bundle exec guard help
+```
+
+To request more detailed help on a specific task is simple: just appending the task name to the help task.
+For example, to get help for the `start` task, simply run:
+
+```bash
+$ bundle exec guard help start
+```
+
+### Init
+
+You can generate an empty `Guardfile` by running the `init` task:
+
+```bash
+$ bundle exec guard init
+```
+
+In addition, the `init` task can be used to append a supplied Guard template from an installed Guard to your existing
+`Guardfile`:
+
+```bash
+$ bundle exec guard init <guard-name>
+```
+
+### Start
+
+Just launch Guard inside your Ruby or Rails project with:
 
 ```bash
 $ bundle exec guard
@@ -204,90 +227,121 @@ $ bundle exec guard
 Guard will look for a `Guardfile` in your current directory. If it does not find one, it will look in your `$HOME`
 directory for a `.Guardfile`.
 
-Command line options
---------------------
-
-### `-c`/`--clear` option
+#### `-c`/`--clear` option
 
 The shell can be cleared after each change:
 
 ```bash
-$ guard --clear
-$ guard -c # shortcut
+$ bundle exec guard --clear
+$ bundle exec guard -c # shortcut
 ```
 
-### `-n`/`--notify` option
+#### `-n`/`--notify` option
 
 System notifications can be disabled:
 
 ```bash
-$ guard --notify false
-$ guard -n f # shortcut
+$ bundle exec guard --notify false
+$ bundle exec guard -n f # shortcut
 ```
 
 Notifications can also be disabled globally by setting a `GUARD_NOTIFY` environment variable to `false`.
 
-### `-g`/`--group` option
+#### `-g`/`--group` option
 
 Only certain Guard groups can be run:
 
 ```bash
-$ guard --group group_name another_group_name
-$ guard -g group_name another_group_name # shortcut
+$ bundle exec guard --group group_name another_group_name
+$ bundle exec guard -g group_name another_group_name # shortcut
 ```
 
 See the Guardfile DSL below for creating groups.
 
-### `-d`/`--debug` option
+#### `-d`/`--debug` option
 
 Guard can be run in debug mode:
 
 ```bash
-$ guard --debug
-$ guard -d # shortcut
+$ bundle exec guard --debug
+$ bundle exec guard -d # shortcut
 ```
 
-### `-w`/`--watchdir` option
+#### `-w`/`--watchdir` option
 
 Guard can watch in any directory instead of the current directory:
 
 ```bash
-$ guard --watchdir ~/your/fancy/project
-$ guard -w ~/your/fancy/project # shortcut
+$ bundle exec guard --watchdir ~/your/fancy/project
+$ bundle exec guard -w ~/your/fancy/project # shortcut
 ```
 
-### `-G`/`--guardfile` option
+#### `-G`/`--guardfile` option
 
 Guard can use a `Guardfile` not located in the current directory:
 
 ```bash
-$ guard --guardfile ~/.your_global_guardfile
-$ guard -G ~/.your_global_guardfile # shortcut
+$ bundle exec guard --guardfile ~/.your_global_guardfile
+$ bundle exec guard -G ~/.your_global_guardfile # shortcut
 ```
 
-### `-A`/`--watch-all-modifications` option
+#### `-A`/`--watch-all-modifications` option
 
 Guard can optionally watch all file modifications like moves or deletions with:
 
 ```bash
-$ guard start -A
-$ guard start --watch-all-modifications
+$ bundle exec guard start -A
+$ bundle exec guard start --watch-all-modifications
 ```
 
-### `-i`/`--no-interactions` option
+#### `-i`/`--no-interactions` option
 
 Turn off completely any Guard terminal interactions with:
 
 ```bash
-$ guard start -i
-$ guard start --no-interactions
+$ bundle exec guard start -i
+$ bundle exec guard start --no-interactions
 ```
 
-An exhaustive list of options is available with:
+### List
+
+You can list the available Guard with the `list` task:
 
 ```bash
-$ guard help [TASK]
+$ bundle exec guard list
+
+Available guards:
+   coffeescript
+   compass
+   cucumber
+   jammit
+   ronn
+   rspec *
+   spork
+   yard
+See also https://github.com/guard/guard/wiki/List-of-available-Guards
+* denotes ones already in your Guardfile
 ```
+
+### Show
+
+You can show the structure of the groups and their Guards with the `show` task:
+
+```bash
+$ bundle exec guard show
+
+(global):
+  shell
+Group backend:
+  bundler
+  rspec: cli => "--color --format doc"
+Group frontend:
+  coffeescript: output => "public/javascripts/compiled"
+  livereload
+```
+
+This shows the internal structure of the evaluated `Guardfile` or `.Guardfile`, with the `.guard.rb` file. You can
+read more about these files in the shared configuration section below.
 
 Interactions
 ------------
@@ -550,24 +604,6 @@ guardfile = <<-EOF
 EOF
 
 Guard::Dsl.evaluate_guardfile(:guardfile_contents => guardfile)
-```
-
-### Listing defined guards/groups for the current project
-
-You can list the defined groups and Guards for the current `Guardfile` from the command line using `guard show` or
-`guard -T`:
-
-```bash
-$ guard -T
-
-(global):
-  shell
-Group backend:
-  bundler
-  rspec: cli => "--color --format doc"
-Group frontend:
-  coffeescript: output => "public/javascripts/compiled"
-  livereload
 ```
 
 Create a Guard
