@@ -18,7 +18,7 @@ describe Guard::Notifier::GrowlNotify do
     context 'without the silent option' do
       it 'shows an error message when not available on the host OS' do
         ::Guard::UI.should_receive(:error).with 'The :growl_notify notifier runs only on Mac OS X.'
-        RbConfig::CONFIG.should_receive(:[]).with('host_os').and_return 'wswin'
+        RbConfig::CONFIG.should_receive(:[]).with('host_os').and_return 'mswin'
         subject.available?
       end
 
@@ -33,7 +33,7 @@ describe Guard::Notifier::GrowlNotify do
     context 'with the silent option' do
       it 'does not show an error message when not available on the host OS' do
         ::Guard::UI.should_not_receive(:error).with 'The :growl_notify notifier runs only on Mac OS X.'
-        RbConfig::CONFIG.should_receive(:[]).with('host_os').and_return 'wswin'
+        RbConfig::CONFIG.should_receive(:[]).with('host_os').and_return 'mswin'
         subject.available?(true)
       end
 
