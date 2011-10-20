@@ -350,7 +350,8 @@ Interactions
 ------------
 
 You can interact with Guard and enter commands when Guard has nothing to do. You'll see a command prompt `>` when Guard
-is ready to accept a command. The command line supports history navigation and auto-completion by pressing `<tab>`.
+is ready to accept a command. The command line supports history navigation with the `↑` and `↓` arrow keys, and
+auto-completion with `<tab>` key.
 
 You can execute the following commands:
 
