@@ -201,7 +201,7 @@ Command line options
 
 ### `-c`/`--clear` option
 
-Shell can be cleared after each change:
+The shell can be cleared after each change:
 
 ```bash
 $ guard --clear
@@ -221,12 +221,14 @@ Notifications can also be disabled globally by setting a `GUARD_NOTIFY` environm
 
 ### `-g`/`--group` option
 
-Only certain guards groups can be run (see the Guardfile DSL below for creating groups):
+Only certain Guard groups can be run:
 
 ```bash
 $ guard --group group_name another_group_name
 $ guard -g group_name another_group_name # shortcut
 ```
+
+See the Guardfile DSL below for creating groups.
 
 ### `-d`/`--debug` option
 
@@ -239,7 +241,7 @@ $ guard -d # shortcut
 
 ### `-w`/`--watchdir` option
 
-Guard can watch in any directory (instead of the current directory):
+Guard can watch in any directory instead of the current directory:
 
 ```bash
 $ guard --watchdir ~/your/fancy/project
@@ -266,7 +268,7 @@ $ guard start --watch-all-modifications
 
 ### `-i`/`--no-interactions` option
 
-Turn off completely any Guard terminal [interactions](#interactions) with:
+Turn off completely any Guard terminal interactions with:
 
 ```bash
 $ guard start -i
@@ -278,8 +280,6 @@ An exhaustive list of options is available with:
 ```bash
 $ guard help [TASK]
 ```
-
-<a name="interactions" />
 
 Interactions
 ------------
@@ -325,7 +325,7 @@ guard :coffeescript, :input => 'specs', :output => 'specs'
 The `watch` method allows you to define which files are watched by a Guard:
 
 ```ruby
-guard 'bundler' do
+guard :bundler do
   watch('Gemfile')
 end
 ```
@@ -430,7 +430,7 @@ The `callback` method allows you to execute arbitrary code before or after any o
 and `run_on_change` guards' method. You can even insert more hooks inside these methods.
 
 ```ruby
-guard 'rspec' do
+guard :rspec do
   watch(%r{^spec/.+_spec\.rb$})
 
   callback(:start_begin) { `mate .` }
@@ -508,7 +508,8 @@ Available options are as follow:
 * `:guardfile`          - The path to a valid Guardfile.
 * `:guardfile_contents` - A string representing the content of a valid Guardfile
 
-Remember, without any options given, Guard will look for a `Guardfile` in your current directory and if it does not find one, it will look for it in your `$HOME` directory.
+Remember, without any options given, Guard will look for a `Guardfile` in your current directory and if it does not find one,
+it will look for it in your `$HOME` directory.
 
 For instance, you could use it as follow:
 
@@ -529,7 +530,7 @@ Guard::Dsl.evaluate_guardfile(:guardfile_contents => "
 
 ### Listing defined guards/groups for the current project
 
-You can list the defined groups and guards for the current `Guardfile` from the command line using `guard show` or `guard -T`:
+You can list the defined groups and Guards for the current `Guardfile` from the command line using `guard show` or `guard -T`:
 
 ```bash
 $ guard -T
@@ -547,7 +548,7 @@ Group frontend:
 Create a new guard
 ------------------
 
-Creating a new guard is very easy, just create a new gem (`bundle gem` if you use Bundler) with this basic structure:
+Creating a new Guard is very easy, just create a new gem (`bundle gem` if you use Bundler) with this basic structure:
 
 ```bash
 .travis.yml  # bonus point!
@@ -627,7 +628,7 @@ end
 Please take a look at the [existing Guards' source code](https://github.com/guard)
 for more concrete example and inspiration.
 
-Alternatively, a new guard can be added inline to a `Guardfile` with this basic structure:
+Alternatively, a new Guard can be added inline to a `Guardfile` with this basic structure:
 
 ```ruby
 require 'guard/guard'
@@ -643,7 +644,7 @@ module ::Guard
 end
 ```
 
-Here is a very cool example by [@avdi](https://github.com/avdi) : [http://avdi.org/devblog/2011/06/15/a-guardfile-for-redis](http://avdi.org/devblog/2011/06/15/a-guardfile-for-redis)
+[@avdi](https://github.com/avdi) has a very cool inline Guard example in his blog post [A Guardfile for Redis](http://avdi.org/devblog/2011/06/15/a-guardfile-for-redis).
 
 Development
 -----------
