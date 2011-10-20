@@ -503,8 +503,8 @@ guard :shell do
 end
 ```
         
-Programmatic use Guard
-----------------------
+Programmatic use of Guard
+-------------------------
 
 The Guardfile DSL can also be used in a programmatic fashion by calling [Guard::Dsl.evaluate_guardfile](http://rubydoc.info/github/guard/guard/master/Guard/Dsl#evaluate_guardfile-class_method).
 
