@@ -439,14 +439,14 @@ end
 
 Please see the [hooks and callbacks](https://github.com/guard/guard/wiki/Hooks-and-callbacks) page in the Guard wiki for more details.
 
-### ignore_path
+### ignore_paths
 
-The `ignore_path` method allows you to ignore top level directories altogether. This comes is handy when you have large
+The `ignore_paths` method allows you to ignore top level directories altogether. This comes is handy when you have large
 amounts of non-source data in you project. By default `.bundle`, `.git`, `log`, `tmp`, and `vendor` are ignored. Currently
 it is only possible to ignore the immediate descendants of the watched directory.
 
 ```ruby
-ignore_path 'public'
+ignore_paths 'public'
 ```
 
 ### Example
