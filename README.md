@@ -43,10 +43,6 @@ Generate an empty `Guardfile` with:
 
     $ guard init
 
-Guard is now ready to use, but you should add some Guards for your specific use. Start exploring the many Guards
-available by browsing the [Guard organization](https://github.com/guard) on GitHub or by searching for `guard-` on
-[RubyGems](https://rubygems.org/search?utf8=%E2%9C%93&query=guard-).
-
 If you are using Windows and want colors in your terminal, you'll have to add the
 [win32console](https://rubygems.org/gems/win32console) gem to your `Gemfile` and install it with Bundler:
 
@@ -140,6 +136,31 @@ To use `rb-notifu` you have to add it to your `Gemfile` and run bundler:
       gem 'rb-notifu'
     end
 
+Adding more Guards
+------------------
+
+Guard is now ready to use and you should add some Guards for your specific use. Start exploring the many Guards
+available by browsing the [Guard organization](https://github.com/guard) on GitHub or by searching for `guard-` on
+[RubyGems](https://rubygems.org/search?utf8=%E2%9C%93&query=guard-).
+
+### Add a guard to your Guardfile
+
+Add it to your `Gemfile`:
+
+    group :development
+      gem '<guard-name>'
+    end
+
+You can list all Guards installed on your system with:
+
+    $ guard list
+
+Insert the supplied Guard template to your `Guardfile` by running this command:
+
+    $ guard init <guard-name>
+
+You are good to go, or you can modify your Guards' definition to suit your needs.
+
 Usage
 -----
 
@@ -232,27 +253,6 @@ When Guard do nothing you can interact with by entering a command + hitting retu
 
 * `backend reload + return` - Call only each guard's `#reload` method on backend group.
 * `rspec + return` - Call only RSpec guard's `#run_all` method.
-
-Adding more Guards
-------------------
-
-### Add a guard to your Guardfile
-
-Add it to your `Gemfile`:
-
-    group :development
-      gem '<guard-name>'
-    end
-
-You can list all Guards installed on your system with:
-
-    $ guard list
-
-Insert the supplied Guard template to your `Guardfile` by running this command:
-
-    $ guard init <guard-name>
-
-You are good to go, or you can modify your Guards' definition to suit your needs.
 
 Guardfile DSL
 -------------
