@@ -5,11 +5,6 @@ describe Guard::Interactor do
   subject { Guard::Interactor.new }
 
   describe "#initialize" do
-    it 'configures the thread to abort on exception' do
-      subject
-      Thread.abort_on_exception.should be_true
-    end
-
     it 'sets the Readline append character' do
       subject
       Readline.completion_append_character.should eql ' '

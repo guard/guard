@@ -39,8 +39,6 @@ module Guard
     # Initialize the interactor.
     #
     def initialize
-      Thread.abort_on_exception = true
-
       Readline.completion_append_character = ' '
 
       Readline.completion_proc = proc do |word|
