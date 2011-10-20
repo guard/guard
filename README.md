@@ -54,13 +54,6 @@ If you are using Windows and want colors in your terminal, you'll have to add th
       gem 'win32console'
     end
 
-### Shared configurations
-
-You may optionally place a `.Guardfile` in your home directory to use it across multiple projects. It's evaluated when
-you have no `Guardfile` in your current directory.
-
-If a `.guard.rb` is found in your home directory, it will be appended to the `Guardfile` in your current directory.
-
 ### System notifications
 
 You can configure Guard to make use of the following system notification libraries:
@@ -332,6 +325,20 @@ or using the cli switch `-n`:
 
     notification :off
 
+Shared configurations
+---------------------
+
+You may optionally place a `.Guardfile` in your home directory to use it across multiple projects. It's evaluated when
+you have no `Guardfile` in your current directory.
+
+If a `.guard.rb` is found in your home directory, it will be appended to the `Guardfile` in your current directory.
+This can be used for tasks you want guard to handle but other users probably don't.  
+For example, indexing your source tree with [Ctags](http://ctags.sourceforge.net):
+
+    guard 'shell' do
+      watch(%r{^(?:app|lib)/.+\.rb$}) { `ctags -R` }
+    end
+        
 Using a Guardfile without the `guard` binary
 --------------------------------------------
 
@@ -372,18 +379,6 @@ You can list the defined groups and guards for the current `Guardfile` from the 
     Group frontend:
       coffeescript: output => "public/javascripts/compiled"
       livereload
-
-User config file
-----------------
-
-If a `.guard.rb` is found in your home directory, it will be appended to
-the `Guardfile`.  This can be used for tasks you want guard to handle but
-other users probably don't.  For example, indexing your source tree with
-[Ctags](http://ctags.sourceforge.net):
-
-    guard 'shell' do
-      watch(%r{^(?:app|lib)/.+\.rb$}) { `ctags -R` }
-    end
 
 Create a new guard
 ------------------
