@@ -3,7 +3,8 @@ Guard [![Build Status](https://secure.travis-ci.org/guard/guard.png?branch=maste
 
 Guard is a command line tool to easily handle events on file system modifications.
 
-If you have any questions please join us in our [Google group](http://groups.google.com/group/guard-dev) or on `#guard` (irc.freenode.net).
+If you have any questions please join us in our [Google group](http://groups.google.com/group/guard-dev) or on
+`#guard` (irc.freenode.net).
 
 Features
 --------
@@ -12,7 +13,8 @@ Features
 * [Inotify](http://en.wikipedia.org/wiki/Inotify) support on Linux.
 * [Directory Change Notification](http://msdn.microsoft.com/en-us/library/aa365261\(VS.85\).aspx) support on Windows.
 * Polling on the other operating systems.
-* Automatic and super fast file modification detection when polling is not used (even new and deleted files are detected).
+* Automatic and super fast file modification detection when polling is not used.
+  Even new and deleted files are detected.
 * Support for visual system notifications.
 * Tested against Ruby 1.8.7, 1.9.2, REE and the latest versions of JRuby & Rubinius.
 
@@ -64,7 +66,9 @@ You can configure Guard to make use of the following system notification librari
 #### Ruby GNTP
 
 * Runs on Mac OS X, Linux and Windows
-* Supports [Growl](http://growl.info/) version >= 1.3, [Growl for Linux](http://mattn.github.com/growl-for-linux/), [Growl for Windows](http://www.growlforwindows.com/gfw/default.aspx) and [Snarl](https://sites.google.com/site/snarlapp/home)
+* Supports [Growl](http://growl.info/) version >= 1.3, [Growl for Linux](http://mattn.github.com/growl-for-linux/),
+  [Growl for Windows](http://www.growlforwindows.com/gfw/default.aspx) and
+  [Snarl](https://sites.google.com/site/snarlapp/home)
 
 The [ruby_gntp](https://rubygems.org/gems/ruby_gntp) gem sends system notifications over the network with the
 [Growl Notification Transport Protocol](http://www.growlforwindows.com/gfw/help/gntp.aspx) and supports local and
@@ -107,7 +111,8 @@ end
 
 The [growl](https://rubygems.org/gems/growl) gem is compatible with all versions of Growl and uses a command line tool
 [growlnotify](http://growl.info/extras.php#growlnotify) that must be separately downloaded and installed. The version of
-the command line tool must match your Growl version. The `growl` gem does **not** support multiple notification channels.
+the command line tool must match your Growl version. The `growl` gem does **not** support multiple notification
+channels.
 
 You can download an installer for `growlnotify` from the [Growl download section](http://growl.info/downloads) or
 install it with HomeBrew:
@@ -130,7 +135,8 @@ end
 * Supports [Libnotify](http://developer.gnome.org/libnotify/)
 
 The [libnotify](https://rubygems.org/gems/libnotify) gem supports the Gnome libnotify notification daemon, but it can be
-used on other window managers as well. You have to install the `libnotify-bin` package with your favorite package manager.
+used on other window managers as well. You have to install the `libnotify-bin` package with your favorite package
+manager.
 
 To use `libnotify` you have to add it to your `Gemfile` and run bundler:
 
@@ -195,7 +201,8 @@ Just launch Guard inside your Ruby / Rails project with:
 $ bundle exec guard
 ```
 
-Guard will look for a `Guardfile` in your current directory. If it does not find one, it will look in your `$HOME` directory for a `.Guardfile`.
+Guard will look for a `Guardfile` in your current directory. If it does not find one, it will look in your `$HOME`
+directory for a `.Guardfile`.
 
 Command line options
 --------------------
@@ -285,14 +292,18 @@ $ guard help [TASK]
 Interactions
 ------------
 
-**From version >= 0.7.0 Posix Signal handlers are no more used to interact with Guard. If you're using a version < 0.7, please refer to the [README in the v0.6 branch](https://github.com/guard/guard/blob/v0.6/README.md).**
+**From version >= 0.7.0 Posix Signal handlers are no more used to interact with Guard. If you're using a version < 0.7,
+please refer to the [README in the v0.6 branch](https://github.com/guard/guard/blob/v0.6/README.md).**
 
 When Guard do nothing you can interact with by entering a command + hitting return/enter:
 
-* `stop`:    `stop|quit|exit|s|q|e + return` - Calls each Guard's `#stop` method, in the same order they are declared in the `Guardfile`, and then quits Guard itself.
-* `reload`:  `reload|r|z + return` - Calls each Guard's `#reload` method, in the same order they are declared in the `Guardfile`.
+* `stop`:    `stop|quit|exit|s|q|e + return` - Calls each Guard's `#stop` method, in the same order they are declared
+  in the `Guardfile`, and then quits Guard itself.
+* `reload`:  `reload|r|z + return` - Calls each Guard's `#reload` method, in the same order they are declared in the
+  `Guardfile`.
 * `pause`:   `pause|p + return` - Toggle files modification listening. Useful when switching git branches.
-* `run_all`: `just return (no commands)` - Calls each Guard's `#run_all` method, in the same order they are declared in the `Guardfile`.
+* `run_all`: `just return (no commands)` - Calls each Guard's `#run_all` method, in the same order they are declared in
+   the `Guardfile`.
 
 `reload` and `run_all` actions can be scoped to only run on a certain guard or group. Examples:
 
@@ -396,7 +407,8 @@ Guards that don't belong to a group are considered global and are always run.
 ### notification
 
 If you don't specify any notification configuration in your `Guardfile`, Guard goes through the list of available
-notifiers and takes the first that is available. If you specify your preferred library, auto detection will not take place:
+notifiers and takes the first that is available. If you specify your preferred library, auto detection will not take
+place:
 
 ```ruby
 notification :growl
@@ -430,8 +442,8 @@ notification :off
 
 ### callback
 
-The `callback` method allows you to execute arbitrary code before or after any of the `start`, `stop`, `reload`, `run_all`
-and `run_on_change` guards' method. You can even insert more hooks inside these methods.
+The `callback` method allows you to execute arbitrary code before or after any of the `start`, `stop`, `reload`,
+`run_all` and `run_on_change` Guards' method. You can even insert more hooks inside these methods.
 
 ```ruby
 guard :rspec do
@@ -441,13 +453,14 @@ guard :rspec do
 end
 ```
 
-Please see the [hooks and callbacks](https://github.com/guard/guard/wiki/Hooks-and-callbacks) page in the Guard wiki for more details.
+Please see the [hooks and callbacks](https://github.com/guard/guard/wiki/Hooks-and-callbacks) page in the Guard wiki for
+more details.
 
 ### ignore_paths
 
 The `ignore_paths` method allows you to ignore top level directories altogether. This comes is handy when you have large
-amounts of non-source data in you project. By default `.bundle`, `.git`, `log`, `tmp`, and `vendor` are ignored. Currently
-it is only possible to ignore the immediate descendants of the watched directory.
+amounts of non-source data in you project. By default `.bundle`, `.git`, `log`, `tmp`, and `vendor` are ignored.
+Currently it is only possible to ignore the immediate descendants of the watched directory.
 
 ```ruby
 ignore_paths 'public'
@@ -502,19 +515,20 @@ guard :shell do
   watch(%r{^(?:app|lib)/.+\.rb$}) { `ctags -R` }
 end
 ```
-        
+
 Programmatic use of Guard
 -------------------------
 
-The Guardfile DSL can also be used in a programmatic fashion by calling [Guard::Dsl.evaluate_guardfile](http://rubydoc.info/github/guard/guard/master/Guard/Dsl#evaluate_guardfile-class_method).
+The Guardfile DSL can also be used in a programmatic fashion by calling
+[Guard::Dsl.evaluate_guardfile](http://rubydoc.info/github/guard/guard/master/Guard/Dsl#evaluate_guardfile-class_method).
 
 Available options are as follow:
 
 * `:guardfile`          - The path to a valid `Guardfile`.
 * `:guardfile_contents` - A string representing the content of a valid `Guardfile`.
 
-Remember, without any options given, Guard will look for a `Guardfile` in your current directory and if it does not find one,
-it will look for it in your `$HOME` directory.
+Remember, without any options given, Guard will look for a `Guardfile` in your current directory and if it does not find
+one, it will look for it in your `$HOME` directory.
 
 Evaluate a `Guardfile`:
 
@@ -543,7 +557,8 @@ Guard::Dsl.evaluate_guardfile(:guardfile_contents => guardfile)
 
 ### Listing defined guards/groups for the current project
 
-You can list the defined groups and Guards for the current `Guardfile` from the command line using `guard show` or `guard -T`:
+You can list the defined groups and Guards for the current `Guardfile` from the command line using `guard show` or
+`guard -T`:
 
 ```bash
 $ guard -T
@@ -657,7 +672,8 @@ module ::Guard
 end
 ```
 
-[@avdi](https://github.com/avdi) has a very cool inline Guard example in his blog post [A Guardfile for Redis](http://avdi.org/devblog/2011/06/15/a-guardfile-for-redis).
+[@avdi](https://github.com/avdi) has a very cool inline Guard example in his blog post
+[A Guardfile for Redis](http://avdi.org/devblog/2011/06/15/a-guardfile-for-redis).
 
 Development
 -----------
@@ -677,7 +693,8 @@ Pull requests are very welcome! Please try to follow these simple "rules", thoug
 - Update the CHANGELOG for noteworthy changes.
 - Please **do not change** the version number.
 
-For questions please join us in our [Google group](http://groups.google.com/group/guard-dev) or on `#guard` (irc.freenode.net).
+For questions please join us in our [Google group](http://groups.google.com/group/guard-dev) or on
+`#guard` (irc.freenode.net).
 
 Author
 ------
