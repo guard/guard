@@ -773,14 +773,14 @@ For questions please join us in our [Google group](http://groups.google.com/grou
 Core Team
 ---------
 
-* [Michael Kessler](https://github.com/netzpirat) ([twitter](http://twitter.com/netzpirat))
-* [Rémy Coutable](https://github.com/rymai) ([twitter](http://twitter.com/rymai))
-* [Thibaud Guillaume-Gentil](https://github.com/thibaudgg) ([twitter](http://twitter.com/thibaudgg))
+* [Michael Kessler](https://github.com/netzpirat) ([@netzpirat](http://twitter.com/netzpirat))
+* [Rémy Coutable](https://github.com/rymai) ([@rymai](http://twitter.com/rymai))
+* [Thibaud Guillaume-Gentil](https://github.com/thibaudgg) ([@thibaudgg](http://twitter.com/thibaudgg))
 
 Author
 ------
 
-[Thibaud Guillaume-Gentil](https://github.com/thibaudgg) ([twitter](http://twitter.com/thibaudgg))
+[Thibaud Guillaume-Gentil](https://github.com/thibaudgg) ([@thibaudgg](http://twitter.com/thibaudgg))
 
 Contributors
 ------------
