@@ -331,6 +331,7 @@ guard :bundler do
 end
 ```
 
+String watch patterns are matched with [Strings#==](http://www.ruby-doc.org/core-1.9.2/String.html#method-i-3D-3D).
 You can also pass a regular expression to the watch method:
 
 ```ruby
@@ -341,9 +342,10 @@ end
 
 This instructs the jessie Guard to watch for file changes in the `spec` folder,
 but only for file names that ends with `_spec` or `Spec` and have a file type of `js` or `coffee`.
+
 You can easily test your watcher regular expressions with [Rubular](http://rubular.com/).
 
-When you add an optional block to the watch expression, you can modify the file name that has been
+When you add a block to the watch expression, you can modify the file name that has been
 detected before sending it to the Guard for processing:
 
 ```ruby
@@ -353,7 +355,8 @@ end
 ```
 
 In this example the regular expression capture group `(.+)` is used to transform a file change
-in the `lib` folder to its test case in the `spec` folder.
+in the `lib` folder to its test case in the `spec` folder. Regular expression watch patterns
+are matched with [Regexp#match](http://www.ruby-doc.org/core-1.9.2/Regexp.html#method-i-match).
 
 You can also launch any arbitrary command in the supplied block:
 
@@ -464,14 +467,11 @@ group :backend do
   end
 
   guard :rspec, :cli => '--color --format doc' do
-    # Regexp watch patterns are matched with Regexp#match
     watch(%r{^spec/.+_spec\.rb$})
     watch(%r{^lib/(.+)\.rb$})         { |m| "spec/lib/#{m[1]}_spec.rb" }
     watch(%r{^spec/models/.+\.rb$})   { ["spec/models", "spec/acceptance"] }
     watch(%r{^spec/.+\.rb$})          { `say hello` }
-
-    # String watch patterns are matched with simple '=='
-    watch('spec/spec_helper.rb') { "spec" }
+    watch('spec/spec_helper.rb')      { "spec" }
   end
 end
 
