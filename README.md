@@ -349,20 +349,44 @@ read more about these files in the shared configuration section below.
 Interactions
 ------------
 
-When Guard do nothing you can interact with by entering a command + hitting return/enter:
+You can interact with Guard and enter commands when Guard has nothing to do. You'll see a command prompt `>` when Guard
+is ready to accept a command. The command line supports history navigation and auto-completion by pressing TAB.
 
-* `stop`:    `stop|quit|exit|s|q|e + return` - Calls each Guard's `#stop` method, in the same order they are declared
-  in the `Guardfile`, and then quits Guard itself.
-* `reload`:  `reload|r|z + return` - Calls each Guard's `#reload` method, in the same order they are declared in the
-  `Guardfile`.
-* `pause`:   `pause|p + return` - Toggle files modification listening. Useful when switching git branches.
-* `run_all`: `just return (no commands)` - Calls each Guard's `#run_all` method, in the same order they are declared in
-   the `Guardfile`.
+You can execute the following commands:
 
-`reload` and `run_all` actions can be scoped to only run on a certain guard or group. Examples:
+* `help`:         Show a help of the available interactor commands.
+* `exit`:         Stop all Guards and quit Guard.
+* `reload`:       Reload all Guards.
+* `pause`:        Toggles the file modification listener and the prompt will change to `p>`. Useful when switching Git
+                  branches.
+* `<return>`:     Run all Guards.
+* 'notification': Toggle system notifications on and off.
 
-* `backend reload + return` - Call only each guard's `#reload` method on backend group.
-* `rspec + return` - Call only RSpec guard's `#run_all` method.
+You can also execute a command by entering its first letter only. For example, `exit` can be executed by `e` also.
+
+Instead of running all Guards by pressing `<enter>`, you can also run a single Guard by entering its name:
+
+```bash
+> rspec
+```
+
+It's also possible to run all Guards within a group by entering the group name:
+
+```bash
+> frontend
+```
+
+The same applies to Guard reloading. You can reload a Guard with the following command:
+
+```bash
+> ronn reload
+```
+
+This will reload only the Ronn Guard. You can also reload all Guards within a group:
+
+```bash
+> backend reload
+```
 
 Guardfile DSL
 -------------
