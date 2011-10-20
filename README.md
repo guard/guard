@@ -770,10 +770,17 @@ Pull requests are very welcome! Please try to follow these simple rules if appli
 For questions please join us in our [Google group](http://groups.google.com/group/guard-dev) or on
 `#guard` (irc.freenode.net).
 
+Core Team
+---------
+
+* [Michael Kessler](https://github.com/netzpirat) ([twitter](http://twitter.com/netzpirat))
+* [Rémy Coutable](https://github.com/rymai) ([twitter](http://twitter.com/rymai))
+* [Thibaud Guillaume-Gentil](https://github.com/thibaudgg) ([twitter](http://twitter.com/thibaudgg))
+
 Author
 ------
 
-[Thibaud Guillaume-Gentil](https://github.com/thibaudgg)
+[Thibaud Guillaume-Gentil](https://github.com/thibaudgg) ([twitter](http://twitter.com/thibaudgg))
 
 Contributors
 ------------
