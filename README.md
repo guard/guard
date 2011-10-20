@@ -506,30 +506,39 @@ end
 Using a Guardfile without the guard binary
 ------------------------------------------
 
-The Guardfile DSL can also be used in a programmatic fashion by calling directly `Guard::Dsl.evaluate_guardfile`.
+The Guardfile DSL can also be used in a programmatic fashion by calling [Guard::Dsl.evaluate_guardfile](http://rubydoc.info/github/guard/guard/master/Guard/Dsl#evaluate_guardfile-class_method).
+
 Available options are as follow:
 
-* `:guardfile`          - The path to a valid Guardfile.
-* `:guardfile_contents` - A string representing the content of a valid Guardfile
+* `:guardfile`          - The path to a valid `Guardfile`.
+* `:guardfile_contents` - A string representing the content of a valid `Guardfile`.
 
 Remember, without any options given, Guard will look for a `Guardfile` in your current directory and if it does not find one,
 it will look for it in your `$HOME` directory.
 
-For instance, you could use it as follow:
+Evaluate a `Guardfile`:
 
 ```ruby
-gem 'guard'
+require 'guard'
+
+Guard.setup
+Guard::Dsl.evaluate_guardfile(:guardfile => '/path/to/Guardfile')
+```
+
+Evaluate a string as `Guardfile`:
+
+```ruby
 require 'guard'
 
 Guard.setup
 
-Guard::Dsl.evaluate_guardfile(:guardfile => '/your/custom/path/to/a/valid/Guardfile')
-# or
-Guard::Dsl.evaluate_guardfile(:guardfile_contents => "
+guardfile = <<-EOF
   guard 'rspec' do
     watch(%r{^spec/.+_spec\.rb$})
   end
-")
+EOF
+
+Guard::Dsl.evaluate_guardfile(:guardfile_contents => guardfile)
 ```
 
 ### Listing defined guards/groups for the current project
