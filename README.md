@@ -360,7 +360,7 @@ You can execute the following commands:
 * `pause`:        Toggles the file modification listener and the prompt will change to `p>`. Useful when switching Git
                   branches.
 * `<return>`:     Run all Guards.
-* 'notification': Toggle system notifications on and off.
+* `notification`: Toggle system notifications on and off.
 
 You can also execute a command by entering its first letter only. For example, `exit` can be executed by `e` also.
 
