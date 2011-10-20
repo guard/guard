@@ -672,6 +672,21 @@ end
 [@avdi](https://github.com/avdi) has a very cool inline Guard example in his blog post
 [A Guardfile for Redis](http://avdi.org/devblog/2011/06/15/a-guardfile-for-redis).
 
+Issues
+------
+
+You can report issues and feature requests to [GitHub Issues](https://github.com/guard/guard/issues). Try to figure out
+where the issue belongs to: Is it an issue with Guard itself or with a Guard implementation you're using? Please don't
+ask question in the issue tracker, instead join us in our [Google group](http://groups.google.com/group/guard-dev) or on
+`#guard` (irc.freenode.net).
+
+When you file an issue, please...
+
+* Make sure you run Guard with `bundle exec` first.
+* Add debug information to the issue by running Guard with the `--debug` option.
+* Add your `Guardfile` and `Gemfile` to the issue.
+* Make sure that the issue is reproducible with your description.
+
 Development
 -----------
 
@@ -679,7 +694,6 @@ The development of Guard takes place on the [dev branch](https://github.com/guar
 
 * Documentation hosted at [RubyDoc](http://rubydoc.info/github/guard/guard/master/frames).
 * Source hosted at [GitHub](https://github.com/guard/guard).
-* Report issues and feature requests to [GitHub Issues](https://github.com/guard/guard/issues).
 
 Pull requests are very welcome! Please try to follow these simple "rules", though:
 
