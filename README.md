@@ -61,6 +61,19 @@ group :development do
 end
 ```
 
+It's important that you always run Guard through Bundler to avoid errors. If you get sick of typing `bundle exec` all
+the time, you can assign an alias to your shell:
+
+```bash
+$ alias be='bundle exec'
+```
+
+Now you can just use `be` instead of `bundle exec`:
+
+```bash
+$ be guard
+```
+
 ### System notifications
 
 You can configure Guard to make use of the following system notification libraries:
