@@ -32,7 +32,7 @@ module Guard
 
     HELP_ENTRIES         = %w[help h]
     RELOAD_ENTRIES       = %w[reload r]
-    STOP_ENTRIES         = %w[exit q]
+    STOP_ENTRIES         = %w[exit e]
     PAUSE_ENTRIES        = %w[pause p]
     NOTIFICATION_ENTRIES = %w[notification n]
 
