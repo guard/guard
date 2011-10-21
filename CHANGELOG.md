@@ -1,5 +1,9 @@
 ## Dev
 
+### Bug fix
+
+- Fix `guard init` when a guard name is given. ([@rymai][])
+
 ### Improvements
 
 - Add readline support to the interactor. ([@netzpirat][])
