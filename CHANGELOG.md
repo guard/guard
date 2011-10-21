@@ -1,3 +1,9 @@
+## 0.8.8 - October 21, 2011
+
+### Bug fix
+
+- Fix `guard init` when a guard name is given. ([@rymai][])
+
 ## 0.8.7 - October 18, 2011
 
 ### Bug fix

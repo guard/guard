@@ -8,39 +8,51 @@ describe Guard do
   end
 
   describe ".initialize_template" do
+    before { Dir.stub(:pwd).and_return "/home/user" }
+
     context "with a Guard name" do
-      it "initializes a the Guard" do
-        class Guard::TestGuard < Guard::Guard
+      class Guard::Foo < Guard::Guard
+      end
+
+      context "with an existing Guardfile" do
+        before { File.should_receive(:exist?).and_return true }
+
+        it "initializes the Guard" do
+          Guard::Foo.should_receive(:init)
+          Guard.initialize_template('foo')
         end
-        Guard::TestGuard.should_receive(:init)
-        Guard.initialize_template('test-guard')
+      end
+
+      context "without an existing Guardfile" do
+        before { File.should_receive(:exist?).and_return false }
+
+        it "copies the Guardfile template and initializes the Guard" do
+          ::Guard::UI.should_receive(:info).with("Writing new Guardfile to /home/user/Guardfile")
+          FileUtils.should_receive(:cp).with(an_instance_of(String), 'Guardfile')
+          Guard::Foo.should_receive(:init)
+          Guard.initialize_template('foo')
+        end
       end
     end
 
     context "without a Guard name" do
       context "with an existing Guardfile" do
-        before do
-          File.stub(:exist?).and_return true
-          Dir.stub(:pwd).and_return "/home/user"
-        end
+        before { File.should_receive(:exist?).and_return true }
 
         it "shows an error" do
           Guard.should_receive(:exit).with 1
           ::Guard::UI.should_receive(:error).with("Guardfile already exists at /home/user/Guardfile")
-          Guard.initialize_template()
+          Guard.initialize_template
         end
       end
 
       context "without an existing Guardfile" do
-        before do
-          File.stub(:exist?).and_return false
-          Dir.stub(:pwd).and_return "/home/user"
-        end
+        before { File.should_receive(:exist?).and_return false }
 
         it "copies the Guardfile template" do
           ::Guard::UI.should_receive(:info).with("Writing new Guardfile to /home/user/Guardfile")
           FileUtils.should_receive(:cp).with(an_instance_of(String), 'Guardfile')
-          Guard.initialize_template()
+          Guard.initialize_template
         end
       end
     end
