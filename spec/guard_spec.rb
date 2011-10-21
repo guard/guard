@@ -757,8 +757,8 @@ describe Guard do
 
     it "outputs Kernel.#system method parameters" do
       ::Guard.setup(:debug => true)
-      ::Guard::UI.should_receive(:debug).with("Command execution: echo test")
-      system("echo", "test").should be_true
+      ::Guard::UI.should_receive(:debug).with("Command execution: exit 0")
+      system("exit", "0").should be_false
     end
 
     it "outputs Kernel.#` method parameters" do
