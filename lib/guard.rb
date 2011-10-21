@@ -21,7 +21,7 @@ module Guard
   class << self
     attr_accessor :options, :interactor, :listener, :lock
 
-    # Creates the initial Guardfile template or add a Guard implementation
+    # Creates the initial Guardfile template and/or add a Guard implementation
     # Guardfile template to an existing Guardfile.
     #
     # @see Guard::Guard.init
