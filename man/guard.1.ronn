@@ -34,11 +34,16 @@ The following options are available:
   Guards that don't belong to a group are considered global and are always run.
 
 `-w`, `--watchdir` <PATH>
-
-Tells Guard to watch PATH instead of `./`.
+  Tells Guard to watch PATH instead of `./`.
 
 `-G`, `--guardfile` <FILE>
   Tells Guard to use FILE as its Guardfile instead of `./Guardfile` or `~/.Guardfile`.
+
+`-A`, `--watch-all-modifications`
+  Watch all file modifications like moves or deletions with.
+
+`-i`, `--no-interactions`
+  Turn off completely any Guard terminal interactions.
 
 ### init [GUARD]
 
