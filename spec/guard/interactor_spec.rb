@@ -5,11 +5,6 @@ describe Guard::Interactor do
   subject { Guard::Interactor.new }
 
   describe "#initialize" do
-    it 'sets the Readline append character' do
-      subject
-      Readline.completion_append_character.should eql ' '
-    end
-
     it 'sets the Readline completion proc' do
       subject
       Readline.completion_proc.should be_a Proc

@@ -41,8 +41,13 @@ module Guard
     # Initialize the interactor.
     #
     def initialize
-      Readline.completion_append_character = ' '
-      Readline.completion_proc             = proc { |word| auto_complete(word) }
+      Readline.completion_proc = proc { |word| auto_complete(word) }
+
+      begin
+        Readline.completion_append_character = ' '
+      rescue NotImplementedError
+        # Ignore, we just don't support it then
+      end
     end
 
     # Start the line reader in its own thread.
