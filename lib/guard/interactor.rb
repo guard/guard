@@ -135,7 +135,7 @@ module Guard
     # @param [Hash] scopes the reload scopes
     #
     def reload(scopes)
-      puts 'Reload'
+      ::Guard::UI.info 'Reload'
       ::Guard::Dsl.reevaluate_guardfile if scopes.empty?
       ::Guard.reload(scopes)
     end
@@ -144,7 +144,7 @@ module Guard
     #
     def toggle_notification
       if ENV['GUARD_NOTIFY'] == 'true'
-        puts 'Turn off notifications'
+        ::Guard::UI.info 'Turn off notifications'
         ::Guard::Notifier.turn_off
       else
         ::Guard::Notifier.turn_on

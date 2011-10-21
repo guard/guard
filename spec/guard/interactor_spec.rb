@@ -120,6 +120,7 @@ describe Guard::Interactor do
     before do
       ::Guard.stub(:reload)
       ::Guard::Dsl.stub(:reevaluate_guardfile)
+      ::Guard::UI.stub(:info)
     end
 
     context 'with a scope' do
@@ -148,6 +149,8 @@ describe Guard::Interactor do
   end
 
   describe "toggle_notification" do
+    before { ::Guard::UI.stub(:info) }
+
     it 'disables the notifications when enabled' do
       ENV['GUARD_NOTIFY'] = 'true'
       ::Guard::Notifier.should_receive(:turn_off)
