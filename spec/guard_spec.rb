@@ -8,6 +8,8 @@ describe Guard do
   end
 
   describe ".initialize_template" do
+    before { FileUtils.stub(:cp) }
+
     context "with a Guard name" do
       it "initializes a the Guard" do
         class Guard::TestGuard < Guard::Guard
