@@ -336,10 +336,11 @@ module Guard
     def guard(name, options = {})
       @watchers  = []
       @callbacks = []
+      @current_group ||= :default
 
       yield if block_given?
 
-      options.update(:group => (@current_group || :default))
+      options.update(:group => @current_group)
       ::Guard.add_guard(name.to_s.downcase, @watchers, @callbacks, options)
     end
 

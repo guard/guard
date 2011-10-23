@@ -392,8 +392,8 @@ describe Guard do
     it "accepts options" do
       subject.add_group(:backend, { :halt_on_fail => true })
 
-      subject.groups[0].options.should == {}
-      subject.groups[1].options.should == { :halt_on_fail => true }
+      subject.groups[0].options.should be == {}
+      subject.groups[1].options.should be == { :halt_on_fail => true }
     end
   end
 
@@ -412,7 +412,7 @@ describe Guard do
     context 'with a nested Guard class' do
       it "resolves the Guard class from string" do
         Guard.should_receive(:require) { |classname|
-          classname.should == 'guard/classname'
+          classname.should be == 'guard/classname'
           class Guard::Classname
           end
         }
@@ -421,7 +421,7 @@ describe Guard do
 
       it "resolves the Guard class from symbol" do
         Guard.should_receive(:require) { |classname|
-          classname.should == 'guard/classname'
+          classname.should be == 'guard/classname'
           class Guard::Classname
           end
         }
@@ -432,7 +432,7 @@ describe Guard do
     context 'with a name with dashes' do
       it "returns the Guard class" do
         Guard.should_receive(:require) { |classname|
-          classname.should == 'guard/dashed-class-name'
+          classname.should be == 'guard/dashed-class-name'
           class Guard::DashedClassName
           end
         }
@@ -506,8 +506,8 @@ describe Guard do
           guard.task
         end
 
-        @sum[:foo].should == 2
-        @sum[:bar].should == 0
+        @sum[:foo].should be == 2
+        @sum[:bar].should be == 0
       end
 
       it "executes the task for dumby guard only" do
@@ -515,8 +515,8 @@ describe Guard do
           guard.task
         end
 
-        @sum[:foo].should == 0
-        @sum[:bar].should == 1
+        @sum[:foo].should be == 0
+        @sum[:bar].should be == 1
       end
     end
 
@@ -547,13 +547,15 @@ describe Guard do
 
   describe ".run_on_change_task" do
     let(:guard) do
-      class Guard::Dummy < Guard::Guard
-        def watchers
-          [Guard::Watcher.new(/.+\.rb/)]
+      unless defined? Guard::DummyClass
+        class Guard::DummyClass < Guard::Guard
+          def watchers
+            [Guard::Watcher.new(/.+\.rb/)]
+          end
         end
       end
 
-      Guard::Dummy.new
+      Guard::DummyClass.new
     end
 
     it 'runs the :run_on_change task with the watched file changes' do
@@ -739,8 +741,9 @@ describe Guard do
     end
 
     after do
-      Kernel.send(:define_method, :system, @original_system.to_proc )
-      Kernel.send(:define_method, :"`", @original_command.to_proc )
+      Kernel.send(:remove_method, *[:system, :'`'])
+      Kernel.send(:define_method, :system, @original_system.to_proc)
+      Kernel.send(:define_method, :"`", @original_command.to_proc)
     end
 
     it "outputs Kernel.#system method parameters" do

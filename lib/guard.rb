@@ -82,6 +82,8 @@ module Guard
     # @see Guard.groups
     #
     def guards(filter = nil)
+      @guards ||= []
+
       case filter
       when String, Symbol
         @guards.find { |guard| guard.class.to_s.downcase.sub('guard::', '') == filter.to_s.downcase.gsub('-', '') }
@@ -254,8 +256,8 @@ module Guard
     # @yield the task to run
     #
     def run_on_guards(scopes = {})
-      if guard = scopes[:guard]
-        yield(guard)
+      if scope_guard = scopes[:guard]
+        yield(scope_guard)
       else
         groups = scopes[:group] ? [scopes[:group]] : @groups
         groups.each do |group|
@@ -449,13 +451,14 @@ module Guard
         Gem::Specification.find_all.select { |x| x.name =~ /^guard-/ }
       else
         Gem.source_index.find_name(/^guard-/)
-      end.map { |x| x.name.sub /^guard-/, '' }
+      end.map { |x| x.name.sub(/^guard-/, '') }
     end
 
     # Adds a command logger in debug mode. This wraps common command
     # execution functions and logs the executed command before execution.
     #
     def debug_command_execution
+      #enable_debug
       Kernel.send(:alias_method, :original_system, :system)
       Kernel.send(:define_method, :system) do |command, *args|
         ::Guard::UI.debug "Command execution: #{ command } #{ args.join(' ') }"

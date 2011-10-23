@@ -72,7 +72,7 @@ module Guard
     # @return [Boolean] whether inotify is active or not
     #
     def watch_change?
-      !!@watch_change
+      !!(defined? @watch_change and @watch_change)
     end
 
     # Watch for file system changes.
