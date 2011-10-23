@@ -30,62 +30,31 @@ module Guard
   #
   class Interactor
 
-    HELP_ACTIONS         = %w[help h]
-    RELOAD_ACTIONS       = %w[reload r]
-    STOP_ACTIONS         = %w[exit q]
-    PAUSE_ACTIONS        = %w[pause p]
-    NOTIFICATION_ACTIONS = %w[notification n]
+    HELP_ENTRIES         = %w[help h]
+    RELOAD_ENTRIES       = %w[reload r]
+    STOP_ENTRIES         = %w[exit e]
+    PAUSE_ENTRIES        = %w[pause p]
+    NOTIFICATION_ENTRIES = %w[notification n]
+
+    COMPLETION_ACTIONS   = %w[help reload exit pause notification]
 
     # Initialize the interactor.
     #
     def initialize
-      Readline.completion_append_character = ' '
+      Readline.completion_proc = proc { |word| auto_complete(word) }
 
-      Readline.completion_proc = proc do |word|
-        completion_list.grep(/^#{ Regexp.escape(word) }/)
+      begin
+        Readline.completion_append_character = ' '
+      rescue NotImplementedError
+        # Ignore, we just don't support it then
       end
     end
 
-    # Start the interactor in its own thread.
+    # Start the line reader in its own thread.
     #
     def start
-      return if ENV["GUARD_ENV"] == 'test'
-
-      if !@thread || !@thread.alive?
-        @thread = Thread.new do
-          while line = Readline.readline(prompt, true)
-            if line =~ /^\s*$/ or Readline::HISTORY.to_a[-2] == line
-              Readline::HISTORY.pop
-            end
-
-            scopes, action = extract_scopes_and_action(line)
-
-            case action
-            when :help
-              help
-            when :stop
-              ::Guard.stop
-            when :pause
-              ::Guard.pause
-            when :reload
-              puts 'Reload'
-              ::Guard::Dsl.reevaluate_guardfile if scopes.empty?
-              ::Guard.reload(scopes)
-            when :run_all
-              ::Guard.run_all(scopes)
-            when :notification
-              if ENV['GUARD_NOTIFY'] == 'true'
-                puts 'Turn off notifications'
-                ::Guard::Notifier.turn_off
-              else
-                ::Guard::Notifier.turn_on
-              end
-            else
-              puts "Unknown command #{ line }"
-            end
-          end
-        end
-      end
+      return if ENV['GUARD_ENV'] == 'test'
+      @thread = Thread.new { read_line } if !@thread || !@thread.alive?
     end
 
     # Kill interactor thread if not current
@@ -96,16 +65,32 @@ module Guard
       end
     end
 
+    # Read a line from stdin with Readline.
+    #
+    def read_line
+      while line = Readline.readline(prompt, true)
+        process_input(line)
+      end
+    end
+
+    # Auto complete the given word.
+    #
+    # @param [String] word the partial word
+    # @return [Array<String>] the matching words
+    #
+    def auto_complete(word)
+      completion_list.grep(/^#{ Regexp.escape(word) }/)
+    end
+
     # Get the auto completion list.
     #
     # @return [Array<String>] the list of words
     #
     def completion_list
-      commands = %w[help reload exit pause notification]
-      groups   = ::Guard.groups.map { |group| group.name.to_s }
-      guards   = ::Guard.guards.map { |guard| guard.class.to_s.downcase.sub('guard::', '') }
+      groups = ::Guard.groups.map { |group| group.name.to_s }
+      guards = ::Guard.guards.map { |guard| guard.class.to_s.downcase.sub('guard::', '') }
 
-      guards + groups + commands - ['default']
+      COMPLETION_ACTIONS + groups + guards - ['default']
     end
 
     # The current interactor prompt
@@ -114,6 +99,56 @@ module Guard
     #
     def prompt
       ::Guard.listener.paused? ? 'p> ' : '> '
+    end
+
+    # Process the input from readline.
+    #
+    # @param [String] line the input line
+    #
+    def process_input(line)
+      if line =~ /^\s*$/ or Readline::HISTORY.to_a[-2] == line
+        Readline::HISTORY.pop
+      end
+
+      scopes, action = extract_scopes_and_action(line)
+
+      case action
+      when :help
+        help
+      when :stop
+        ::Guard.stop
+      when :pause
+        ::Guard.pause
+      when :reload
+        reload(scopes)
+      when :run_all
+        ::Guard.run_all(scopes)
+      when :notification
+        toggle_notification
+      else
+        ::Guard::UI.error "Unknown command #{ line }"
+      end
+    end
+
+    # Execute the reload action.
+    #
+    # @param [Hash] scopes the reload scopes
+    #
+    def reload(scopes)
+      ::Guard::UI.info 'Reload'
+      ::Guard::Dsl.reevaluate_guardfile if scopes.empty?
+      ::Guard.reload(scopes)
+    end
+
+    # Toggle the system notifications on/off
+    #
+    def toggle_notification
+      if ENV['GUARD_NOTIFY'] == 'true'
+        ::Guard::UI.info 'Turn off notifications'
+        ::Guard::Notifier.turn_off
+      else
+        ::Guard::Notifier.turn_on
+      end
     end
 
     # Show the help.
@@ -138,17 +173,18 @@ module Guard
       puts ''
     end
 
-    # Extract guard or group scope and action from Interactor entry
+    # Extract the Guard or group scope and action from the
+    # input line.
     #
     # @example `spork reload` will only reload rspec
     # @example `jasmine` will only run all jasmine specs
     #
-    # @param [String] Interactor entry gets from $stdin
-    # @return [Array] entry group or guard scope hash and action
+    # @param [String] line the readline input
+    # @return [Array] the group or guard scope and the action
     #
-    def extract_scopes_and_action(entry)
+    def extract_scopes_and_action(line)
       scopes  = { }
-      entries = entry.split(' ')
+      entries = line.split(' ')
 
       case entries.length
       when 1
@@ -165,13 +201,15 @@ module Guard
       [scopes, action]
     end
 
+    private
+
     # Extract guard or group scope from entry if valid
     #
-    # @param [String] Interactor entry gets from $stdin
-    # @return [Hash] An hash with a guard or a group scope
+    # @param [String] entry the possible scope entry
+    # @return [Hash] a hash with a Guard or a group scope
     #
     def scopes_from_entry(entry)
-      scopes = {}
+      scopes = { }
       if guard = ::Guard.guards(entry)
         scopes[:guard] = guard
       end
@@ -182,21 +220,21 @@ module Guard
       scopes
     end
 
-    # Extract action from entry if an existing action is present
+    # Find the action for the given input entry.
     #
-    # @param [String] Interactor entry gets from $stdin
-    # @return [Symbol] A guard action
+    # @param [String] entry the possible action entry
+    # @return [Symbol] a Guard action
     #
     def action_from_entry(entry)
-      if STOP_ACTIONS.include?(entry)
+      if STOP_ENTRIES.include?(entry)
         :stop
-      elsif RELOAD_ACTIONS.include?(entry)
+      elsif RELOAD_ENTRIES.include?(entry)
         :reload
-      elsif PAUSE_ACTIONS.include?(entry)
+      elsif PAUSE_ENTRIES.include?(entry)
         :pause
-      elsif HELP_ACTIONS.include?(entry)
+      elsif HELP_ENTRIES.include?(entry)
         :help
-      elsif NOTIFICATION_ACTIONS.include?(entry)
+      elsif NOTIFICATION_ENTRIES.include?(entry)
         :notification
       end
     end

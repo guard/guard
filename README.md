@@ -596,7 +596,16 @@ end
 Create a Guard
 --------------
 
-Creating a new Guard is very easy, just create a new gem (`bundle gem` if you use Bundler) with this basic structure:
+Creating a new Guard is very easy, just create a new gem by running `bundle gem guard-name`, where `name` is
+the name of your Guard. Please make your Guard start with `guard-`, so that it can easily be found on RubyGems.
+
+```bash
+$ mkdir guard-name
+$ cd guard-name
+$ bundle gem guard-name
+```
+
+Now extend the project structure to have an initial Guard:
 
 ```bash
 .travis.yml  # bonus point!
@@ -615,9 +624,9 @@ test/ # or spec/
 README.md
 ```
 
-`Guard::GuardName` (in `lib/guard/guard-name.rb`) must inherit from
-[Guard::Guard](http://rubydoc.info/github/guard/guard/master/Guard/Guard) and should overwrite at least one of
-the basic `Guard::Guard` task methods.
+Your Guard main class `Guard::GuardName` in `lib/guard/guard-name.rb` must inherit from
+[Guard::Guard](http://rubydoc.info/github/guard/guard/master/Guard/Guard) and should overwrite at least the
+`#run_on_change` task methods.
 
 Here is an example scaffold for `lib/guard/guard-name.rb`:
 
@@ -673,7 +682,7 @@ module Guard
 end
 ```
 
-Please take a look at the [existing Guards' source code](https://github.com/guard)
+Please take a look at the source code of some of the [existing Guards](https://github.com/guard)
 for more concrete example and inspiration.
 
 Alternatively, a new Guard can be added inline to a `Guardfile` with this basic structure:
