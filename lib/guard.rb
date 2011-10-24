@@ -458,7 +458,6 @@ module Guard
     # execution functions and logs the executed command before execution.
     #
     def debug_command_execution
-      #enable_debug
       Kernel.send(:alias_method, :original_system, :system)
       Kernel.send(:define_method, :system) do |command, *args|
         ::Guard::UI.debug "Command execution: #{ command } #{ args.join(' ') }"
