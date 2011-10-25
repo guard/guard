@@ -748,7 +748,7 @@ describe Guard do
     end
 
     after do
-      Kernel.send(:remove_method, *[:system, :'`'])
+      Kernel.send(:remove_method, :system, :'`')
       Kernel.send(:define_method, :system, @original_system.to_proc)
       Kernel.send(:define_method, :"`", @original_command.to_proc)
     end
