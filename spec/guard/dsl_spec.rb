@@ -359,11 +359,11 @@ describe Guard::Dsl do
 
     it "should receive watchers when specified" do
       ::Guard.should_receive(:add_guard).with('dummy', anything, anything, { :group => :default }) do |name, watchers, callbacks, options|
-        watchers.size.should be == 2
-        watchers[0].pattern.should be     == 'a'
-        watchers[0].action.call.should be == proc { 'b' }.call
-        watchers[1].pattern.should be     == 'c'
-        watchers[1].action.should be == nil
+        watchers.size.should eq 2
+        watchers[0].pattern.should        eq 'a'
+        watchers[0].action.call.should    eq proc { 'b' }.call
+        watchers[1].pattern.should        eq 'c'
+        watchers[1].action.should be_nil
       end
       described_class.evaluate_guardfile(:guardfile_contents => "
       guard :dummy do
@@ -383,10 +383,10 @@ describe Guard::Dsl do
 
       ::Guard.should_receive(:add_guard).with('dummy', anything, anything, { :group => :default }) do |name, watchers, callbacks, options|
         callbacks.should have(2).items
-        callbacks[0][:events].should be   == :start_end
-        callbacks[0][:listener].call(Guard::Dummy, :start_end, 'foo').should be == "Guard::Dummy executed 'start_end' hook with foo!"
-        callbacks[1][:events].should be   == [:start_begin, :run_all_begin]
-        callbacks[1][:listener].should be == MyCustomCallback
+        callbacks[0][:events].should    eq :start_end
+        callbacks[0][:listener].call(Guard::Dummy, :start_end, 'foo').should eq "Guard::Dummy executed 'start_end' hook with foo!"
+        callbacks[1][:events].should eq [:start_begin, :run_all_begin]
+        callbacks[1][:listener].should eq MyCustomCallback
       end
       described_class.evaluate_guardfile(:guardfile_contents => '
         guard :dummy do

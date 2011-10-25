@@ -25,10 +25,10 @@ describe Guard::Watcher do
         before(:each) { Guard::UI.should_receive(:info).any_number_of_times }
 
         it "converts the string automatically to a regex" do
-          described_class.new('^spec_helper.rb').pattern.should be == /^spec_helper.rb/
-          described_class.new('spec_helper.rb$').pattern.should be == /spec_helper.rb$/
-          described_class.new('spec_helper\.rb').pattern.should be == /spec_helper\.rb/
-          described_class.new('.*_spec.rb').pattern.should be == /.*_spec.rb/
+          described_class.new('^spec_helper.rb').pattern.should eq(/^spec_helper.rb/)
+          described_class.new('spec_helper.rb$').pattern.should eq(/spec_helper.rb$/)
+          described_class.new('spec_helper\.rb').pattern.should eq(/spec_helper\.rb/)
+          described_class.new('.*_spec.rb').pattern.should eq(/.*_spec.rb/)
         end
       end
     end
@@ -121,8 +121,8 @@ describe Guard::Watcher do
         end
 
         it "returns a single file specified within the action" do
-          described_class.match_files(@guard_any_return, ['spec_helper.rb']).class.should be == Array
-          described_class.match_files(@guard_any_return, ['spec_helper.rb']).empty?.should be == false
+          described_class.match_files(@guard_any_return, ['spec_helper.rb']).class.should be Array
+          described_class.match_files(@guard_any_return, ['spec_helper.rb']).empty?.should be_false
         end
 
         it "returns multiple files specified within the action" do
@@ -134,8 +134,8 @@ describe Guard::Watcher do
         end
 
         it "returns the evaluated addition argument in an array" do
-          described_class.match_files(@guard_any_return, ['addition.rb']).class.should be == Array
-          described_class.match_files(@guard_any_return, ['addition.rb'])[0].should be == 2
+          described_class.match_files(@guard_any_return, ['addition.rb']).class.should be Array
+          described_class.match_files(@guard_any_return, ['addition.rb'])[0].should eq 2
         end
 
         it "returns nothing if the action response is empty string" do
