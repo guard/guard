@@ -5,9 +5,13 @@ describe Guard::Interactor do
   subject { Guard::Interactor.new }
 
   describe "#initialize" do
-    it 'sets the Readline completion proc' do
-      subject
-      Readline.completion_proc.should be_a Proc
+    # completion_proc getter is not implemented in JRuby
+    # see https://github.com/jruby/jruby/blob/master/src/org/jruby/ext/Readline.java#L349
+    if RUBY_PLATFORM != 'java'
+      it 'sets the Readline completion proc' do
+        subject
+        Readline.completion_proc.should be_a Proc
+      end
     end
   end
 
