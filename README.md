@@ -37,6 +37,10 @@ group :development do
   gem 'rb-inotify', :require => false   # Linux
   gem 'rb-fsevent', :require => false   # Mac OS X
   gem 'rb-fchange', :require => false   # Windows
+  
+  platforms :ruby do
+    gem 'rb-readline'
+  end
 end
 ```
 
