@@ -405,9 +405,14 @@ module Guard
     # Tries to load the Guard main class. This transforms the supplied Guard
     # name into a class name:
     #
-    # * guardname will become Guard::Guardname
-    # * dashed-guard-name will become Guard::DashedGuardName
-    # * underscore_guard_name will become Guard::UnderscoreGuardName
+    # * `guardname` will become `Guard::Guardname`
+    # * `dashed-guard-name` will become `Guard::DashedGuardName`
+    # * `underscore_guard_name` will become `Guard::UnderscoreGuardName`
+    #
+    # When no class is found with the strict case sensitive rules, another
+    # try is made to locate the class without matching case:
+    #
+    # * `rspec` will find a class `Guard::RSpec`
     #
     # @param [String] name the name of the Guard
     # @return [Class, nil] the loaded class
@@ -418,7 +423,7 @@ module Guard
       const_name  = name.gsub(/\/(.?)/) { "::#{ $1.upcase }" }.gsub(/(?:^|[_-])(.)/) { $1.upcase }
       begin
         require "guard/#{ name.downcase }" if try_require
-        self.const_get(self.constants.find { |c| c.to_s == const_name })
+        self.const_get(self.constants.find { |c| c.to_s == const_name } || self.constants.find { |c| c.to_s.downcase == const_name.downcase })
       rescue TypeError
         unless try_require
           try_require = true

@@ -411,7 +411,7 @@ describe Guard do
 
   describe ".get_guard_class" do
     after do
-      [:Classname, :DashedClassName, :UnderscoreClassName, :Inline].each do |const|
+      [:Classname, :DashedClassName, :UnderscoreClassName, :VSpec, :Inline].each do |const|
         Guard.send(:remove_const, const) rescue nil
       end
     end
@@ -460,6 +460,17 @@ describe Guard do
           end
         }
         Guard.get_guard_class('underscore_class_name').should == Guard::UnderscoreClassName
+      end
+    end
+
+    context 'with a name where its class does not follow the strict case rules' do
+      it "returns the Guard class" do
+        Guard.should_receive(:require) { |classname|
+          classname.should eq 'guard/vspec'
+          class Guard::VSpec
+          end
+        }
+        Guard.get_guard_class('vspec').should == Guard::VSpec
       end
     end
 
