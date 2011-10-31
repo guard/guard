@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'thor/core_ext/hash_with_indifferent_access'
 
 describe Guard::Listener do
 
@@ -54,10 +53,13 @@ describe Guard::Listener do
     end
 
     context 'with the relativize_paths option' do
-      let(:options) { Thor::CoreExt::HashWithIndifferentAccess.new('relativize_paths' => false) }
+      it 'takes the passed option value from a string key' do
+        listener = described_class.new('/tmp', { 'relativize_paths' => false })
+        listener.relativize_paths?.should be_false
+      end
 
-      it 'takes the passed option value' do
-        listener = described_class.new('/tmp', options)
+      it 'takes the passed option value from a symbol key' do
+        listener = described_class.new('/tmp', { :relativize_paths => false })
         listener.relativize_paths?.should be_false
       end
     end
@@ -70,10 +72,13 @@ describe Guard::Listener do
     end
 
     context 'with the watch_all_modifications option' do
-      let(:options) { Thor::CoreExt::HashWithIndifferentAccess.new('watch_all_modifications' => true) }
+      it 'takes the passed option value from a string key' do
+        listener = described_class.new('/tmp', { 'watch_all_modifications' => true })
+        listener.watch_all_modifications?.should be_true
+      end
 
-      it 'takes the passed option value' do
-        listener = described_class.new('/tmp', options)
+      it 'takes the passed option value from a symbol key' do
+        listener = described_class.new('/tmp', { :watch_all_modifications => true })
         listener.watch_all_modifications?.should be_true
       end
     end
@@ -93,10 +98,8 @@ describe Guard::Listener do
     end
 
     context 'with the ignored_paths options' do
-      let(:options) { Thor::CoreExt::HashWithIndifferentAccess.new('ignore_paths' => %w[.idea coverage]) }
-
       it 'adds the paths to the default ignore paths' do
-        listener = described_class.new('/tmp', options)
+        listener = described_class.new('/tmp', { :ignore_paths => %w[.idea coverage] })
         listener.ignore_paths.should =~ %w[. .. .bundle .git log tmp vendor .idea coverage]
       end
     end
@@ -210,7 +213,7 @@ describe Guard::Listener do
       after { FileUtils.touch(file3) }
 
       it 'defaults to false' do
-        subject.instance_variable_get(:@watch_all_modifications).should eql false
+        subject.watch_all_modifications?.should eql false
       end
 
       context 'for a deleted file' do
@@ -252,7 +255,7 @@ describe Guard::Listener do
       end
 
       it 'should be true when set' do
-        subject.instance_variable_get(:@watch_all_modifications).should eql true
+        subject.watch_all_modifications?.should eql true
       end
 
       context 'for a deleted file' do
@@ -293,7 +296,7 @@ describe Guard::Listener do
       subject { described_class.new }
 
       it 'defaults to Dir.pwd' do
-        subject.instance_variable_get(:@directory).should eql Dir.pwd
+        subject.directory.should eql Dir.pwd
       end
 
       it 'can be not changed' do

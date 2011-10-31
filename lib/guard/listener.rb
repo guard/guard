@@ -59,8 +59,9 @@ module Guard
 
       @directory                = directory.to_s
 
-      @relativize_paths         = options.fetch('relativize_paths', true)
-      @watch_all_modifications  = options.fetch('watch_all_modifications', false)
+      options                   = options.inject({}) { |h,(k,v)| h[k.to_sym] = v; h }
+      @relativize_paths         = options.fetch(:relativize_paths, true)
+      @watch_all_modifications  = options.fetch(:watch_all_modifications, false)
 
       @ignore_paths             = DEFAULT_IGNORE_PATHS
       @ignore_paths            |= options[:ignore_paths] if options[:ignore_paths]
