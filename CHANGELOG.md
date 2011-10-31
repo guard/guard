@@ -6,6 +6,7 @@
 
 ### Improvements
 
+- [#165](https://github.com/guard/guard/issues/175): Allow underscores in Guard name. ([@benolee][])
 - Add readline support to the interactor. ([@netzpirat][])
 - Add support for notification configuration. ([@netzpirat][])
 
@@ -321,6 +322,7 @@
 - Added polling listening fallback. ([@thibaudgg][])
 
 [@anithri]: https://github.com/anithri
+[@benolee]: https://github.com/benolee
 [@brainopia]: https://github.com/brainopia
 [@bronson]: https://github.com/bronson
 [@capotej]: https://github.com/capotej
