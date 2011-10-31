@@ -48,18 +48,22 @@ module Guard
     #
     # @param [String] directory the root directory to listen to
     # @option options [Boolean] relativize_paths use only relative paths
+    # @option options [Boolean] watch_all_modifications to enable deleted and moved file listening.
     # @option options [Array<String>] ignore_paths the paths to ignore by the listener
     #
     def initialize(directory = Dir.pwd, options = {})
-      @directory                = directory.to_s
       @sha1_checksums_hash      = {}
       @file_timestamp_hash      = {}
-      @relativize_paths         = options.fetch(:relativize_paths, true)
       @changed_files            = []
       @paused                   = false
+
+      @directory                = directory.to_s
+
+      @relativize_paths         = options.fetch('relativize_paths', true)
+      @watch_all_modifications  = options.fetch('watch_all_modifications', false)
+
       @ignore_paths             = DEFAULT_IGNORE_PATHS
       @ignore_paths            |= options[:ignore_paths] if options[:ignore_paths]
-      @watch_all_modifications  = options.fetch(:watch_all_modifications, false)
 
       update_last_event
       start_reactor
@@ -143,7 +147,7 @@ module Guard
     def modified_files(dirs, options = {})
       last_event = @last_event
       files = []
-      if @watch_all_modifications
+      if watch_all_modifications?
         deleted_files = @file_timestamp_hash.collect do |path, ts|
           unless File.exists?(path)
             @sha1_checksums_hash.delete(path)
@@ -196,10 +200,19 @@ module Guard
       !!@relativize_paths
     end
 
+    # test if the listener should also watch for deleted and
+    # moved files
+    #
+    # @return [Boolean] whether to watch all file modifications or not
+    #
+    def watch_all_modifications?
+      !!@watch_all_modifications
+    end
+
     # Populate initial timestamp file hash to watch for deleted or moved files.
     #
     def timestamp_files
-      all_files.each {|path| set_file_timestamp_hash(path, file_timestamp(path)) } if @watch_all_modifications
+      all_files.each {|path| set_file_timestamp_hash(path, file_timestamp(path)) } if watch_all_modifications?
     end
 
     # Removes the ignored paths from the directory list.
@@ -258,7 +271,7 @@ module Guard
       elsif mtime > last_event.to_i
         set_sha1_checksums_hash(path, sha1_checksum(path))
         true
-      elsif @watch_all_modifications
+      elsif watch_all_modifications?
         ts = file_timestamp(path)
         if ts != @file_timestamp_hash[path]
           set_file_timestamp_hash(path, ts)

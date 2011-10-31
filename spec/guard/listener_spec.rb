@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'thor/core_ext/hash_with_indifferent_access'
 
 describe Guard::Listener do
 
@@ -34,6 +35,70 @@ describe Guard::Listener do
       path, opts = 'path', { :foo => 23 }
       Guard::Darwin.should_receive(:new).with(path, opts).and_return(true)
       described_class.select_and_init(path, opts)
+    end
+  end
+
+  describe '#initialize' do
+    context 'with a directory parameter' do
+      it 'ensures the directory is a String' do
+        listener = described_class.new(Pathname.new('/tmp'))
+        listener.directory.should eql '/tmp'
+      end
+    end
+
+    context 'without a directory parameter' do
+      it 'takes the current working directory' do
+        listener = described_class.new()
+        listener.directory.should eql Dir.pwd.to_s
+      end
+    end
+
+    context 'with the relativize_paths option' do
+      let(:options) { Thor::CoreExt::HashWithIndifferentAccess.new('relativize_paths' => false) }
+
+      it 'takes the passed option value' do
+        listener = described_class.new('/tmp', options)
+        listener.relativize_paths?.should be_false
+      end
+    end
+
+    context 'without the relativize_paths option' do
+      it 'sets it to true as default' do
+        listener = described_class.new
+        listener.relativize_paths?.should be_true
+      end
+    end
+
+    context 'with the watch_all_modifications option' do
+      let(:options) { Thor::CoreExt::HashWithIndifferentAccess.new('watch_all_modifications' => true) }
+
+      it 'takes the passed option value' do
+        listener = described_class.new('/tmp', options)
+        listener.watch_all_modifications?.should be_true
+      end
+    end
+
+    context 'without the watch_all_modifications option' do
+      it 'sets it to false as default' do
+        listener = described_class.new
+        listener.watch_all_modifications?.should be_false
+      end
+    end
+
+    context 'without the ignored_paths options' do
+      it 'sets the default ignore paths' do
+        listener = described_class.new
+        listener.ignore_paths.should =~ %w[. .. .bundle .git log tmp vendor]
+      end
+    end
+
+    context 'with the ignored_paths options' do
+      let(:options) { Thor::CoreExt::HashWithIndifferentAccess.new('ignore_paths' => %w[.idea coverage]) }
+
+      it 'adds the paths to the default ignore paths' do
+        listener = described_class.new('/tmp', options)
+        listener.ignore_paths.should =~ %w[. .. .bundle .git log tmp vendor .idea coverage]
+      end
     end
   end
 

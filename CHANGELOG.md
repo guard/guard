@@ -2,6 +2,7 @@
 
 ### Bug fix
 
+- [#173](https://github.com/guard/guard/issues/173): Cannot set the watch_all_modifications option. (reported by [@sutherland][], fixed by [@netzpirat][]
 - Fix `guard init` when a guard name is given. ([@rymai][])
 
 ### Improvements
@@ -366,6 +367,7 @@
 [@stereobooster]: https://github.com/stereobooster
 [@stouset]: https://github.com/stouset
 [@sunaku]: https://github.com/sunaku
+[@sutherland]: https://github.com/sutherland
 [@thibaudgg]: https://github.com/thibaudgg
 [@thierryhenrio]: https://github.com/thierryhenrio
 [@tinogomes]: https://github.com/tinogomes
