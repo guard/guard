@@ -402,7 +402,12 @@ module Guard
       group
     end
 
-    # Tries to load the Guard main class.
+    # Tries to load the Guard main class. This transforms the supplied Guard
+    # name into a class name:
+    #
+    # * guardname will become Guard::Guardname
+    # * dashed-guard-name will become Guard::DashedGuardName
+    # * underscore_guard_name will become Guard::UnderscoreGuardName
     #
     # @param [String] name the name of the Guard
     # @return [Class, nil] the loaded class
