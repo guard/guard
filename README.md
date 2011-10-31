@@ -314,6 +314,8 @@ For instance, you could use it as follow:
       end
     ")
 
+    Guard.start
+
 ### Listing defined guards/groups for the current project
 
 You can list the defined groups and guards for the current Guardfile from the command line using `guard show` or `guard -T`:
