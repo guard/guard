@@ -410,10 +410,10 @@ module Guard
     def get_guard_class(name)
       name        = name.to_s
       try_require = false
-      const_name  = name.downcase.gsub('-', '')
+      const_name  = name.gsub(/\/(.?)/) { "::#{ $1.upcase }" }.gsub(/(?:^|[_-])(.)/) { $1.upcase }
       begin
         require "guard/#{ name.downcase }" if try_require
-        self.const_get(self.constants.find { |c| c.to_s.downcase == const_name })
+        self.const_get(self.constants.find { |c| c.to_s == const_name })
       rescue TypeError
         unless try_require
           try_require = true

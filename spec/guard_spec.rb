@@ -411,7 +411,7 @@ describe Guard do
 
   describe ".get_guard_class" do
     after do
-      [:Classname, :DashedClassName, :Inline].each do |const|
+      [:Classname, :DashedClassName, :UnderscoreClassName, :Inline].each do |const|
         Guard.send(:remove_const, const) rescue nil
       end
     end
@@ -449,6 +449,17 @@ describe Guard do
           end
         }
         Guard.get_guard_class('dashed-class-name').should == Guard::DashedClassName
+      end
+    end
+
+    context 'with a name with underscores' do
+      it "returns the Guard class" do
+        Guard.should_receive(:require) { |classname|
+          classname.should eq 'guard/underscore_class_name'
+          class Guard::UnderscoreClassName
+          end
+        }
+        Guard.get_guard_class('underscore_class_name').should == Guard::UnderscoreClassName
       end
     end
 
@@ -564,7 +575,7 @@ describe Guard do
 
       guard
     end
-    
+
     it 'runs the :run_on_change task with the watched file changes' do
       Guard.should_receive(:run_supervised_task).with(guard, :run_on_change, ['a.rb', 'b.rb'])
       Guard.run_on_change_task(['a.rb', 'b.rb', 'templates/d.haml'], guard)
