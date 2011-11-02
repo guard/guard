@@ -729,6 +729,7 @@ require 'guard'
 
 Guard.setup
 Guard::Dsl.evaluate_guardfile(:guardfile => '/path/to/Guardfile')
+Guard.start
 ```
 
 Evaluate a string as `Guardfile`:
@@ -745,6 +746,7 @@ guardfile = <<-EOF
 EOF
 
 Guard::Dsl.evaluate_guardfile(:guardfile_contents => guardfile)
+Guard.start
 ```
 
 Issues
