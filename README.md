@@ -128,6 +128,26 @@ And add them to your Gemfile:
     gem 'rb-notifu'
     gem 'win32console'
 
+System Configuration
+--------------------
+
+It is not uncommon to encounter a system limit on the number of files you can monitor.  
+Example: Ubuntu Lucid's (64bit) inotify limit is/can be 8192 (`$ cat /proc/sys/fs/inotify/max_user_watches`)
+
+### On Linux
+Temporary change
+
+    sudo sysctl fs.inotify.max_user_watches=524288
+    sudo sysctl -p
+
+Permanent change   
+
+    echo fs.inotify.max_user_watches=524288 |sudo tee -a /etc/sysctl.conf
+    sudo sysctl -p
+
+You may also need to pay attention to the values of `max_queued_events` and `max_user_instances`.
+
+
 Usage
 -----
 
