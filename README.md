@@ -600,20 +600,26 @@ end
 Advanced Linux system configuration
 -----------------------------------
 
-It is not uncommon to encounter a system limit on the number of files you can monitor.
-Example: Ubuntu Lucid's (64bit) inotify limit is/can be 8192 (`$ cat /proc/sys/fs/inotify/max_user_watches`)
+It's not uncommon to encounter a system limit on the number of files you can monitor.
+For example, Ubuntu Lucid's (64bit) inotify limit is set to 8192.
 
-Temporary change
+You can get your current inotify file watch limit by executing:
+
+```bash
+$ cat /proc/sys/fs/inotify/max_user_watches
+```
+
+And set a new limit temporary with:
 
 ```bash
 sudo sysctl fs.inotify.max_user_watches=524288
 sudo sysctl -p
 ```
 
-Permanent change
+If you like to make your limit permanent, use:
 
 ```bash
-echo fs.inotify.max_user_watches=524288 |sudo tee -a /etc/sysctl.conf
+echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf
 sudo sysctl -p
 ```
 
