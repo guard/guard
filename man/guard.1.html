@@ -105,14 +105,19 @@
   Groups name should be separated by spaces.
   Guards that don't belong to a group are considered global and are always run.</p>
 
-<p><code>-w</code>, <code>--watchdir</code> <var>PATH</var></p>
-
-<p>Tells Guard to watch PATH instead of <code>./</code>.</p>
+<p><code>-w</code>, <code>--watchdir</code> <var>PATH</var>
+  Tells Guard to watch PATH instead of <code>./</code>.</p>
 
 <p><code>-G</code>, <code>--guardfile</code> <var>FILE</var>
   Tells Guard to use FILE as its Guardfile instead of <code>./Guardfile</code> or <code>~/.Guardfile</code>.</p>
 
-<h3 id="init-GUARD-">init [GUARD]</h3>
+<p><code>-A</code>, <code>--watch-all-modifications</code>
+  Watch all file modifications like moves or deletions with.</p>
+
+<p><code>-i</code>, <code>--no-interactions</code>
+  Turn off completely any Guard terminal interactions.</p>
+
+<h3 id="init-GUARD">init <a href="guard.html">GUARD</a></h3>
 
 <p>If no Guardfile is present in the current directory, creates an empty Guardfile.</p>
 
@@ -167,7 +172,7 @@ https://github.com/guard/guard/blob/master/CHANGELOG.md</p>
 
   <ol class='man-decor man-foot man foot'>
     <li class='tl'></li>
-    <li class='tc'>September 2011</li>
+    <li class='tc'>October 2011</li>
     <li class='tr'>guard(1)</li>
   </ol>
 
