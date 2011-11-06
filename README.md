@@ -597,6 +597,28 @@ guard :shell do
 end
 ```
 
+Advanced Linux system configuration
+-----------------------------------
+
+It is not uncommon to encounter a system limit on the number of files you can monitor.  
+Example: Ubuntu Lucid's (64bit) inotify limit is/can be 8192 (`$ cat /proc/sys/fs/inotify/max_user_watches`)
+
+Temporary change
+
+```bash
+sudo sysctl fs.inotify.max_user_watches=524288
+sudo sysctl -p
+```
+
+Permanent change   
+
+```bash
+echo fs.inotify.max_user_watches=524288 |sudo tee -a /etc/sysctl.conf
+sudo sysctl -p
+```
+
+You may also need to pay attention to the values of `max_queued_events` and `max_user_instances`.
+
 Create a Guard
 --------------
 
