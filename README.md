@@ -1,7 +1,7 @@
 Guard [![Build Status](https://secure.travis-ci.org/guard/guard.png?branch=master)](http://travis-ci.org/guard/guard)
 =====
 
-Guard is a command line tool that easily handle events on files modifications.
+Guard is a command line tool to easily handle events on file modifications.
 
 If you have any questions please join us on our [Google group](http://groups.google.com/group/guard-dev) or on `#guard` (irc.freenode.net).
 
@@ -12,7 +12,7 @@ Features
 * [Inotify](http://en.wikipedia.org/wiki/Inotify) support on Linux ([rb-inotify gem, >= 0.5.1](https://rubygems.org/gems/rb-inotify) required).
 * [Directory Change Notification](http://msdn.microsoft.com/en-us/library/aa365261\(VS.85\).aspx) support on Windows ([rb-fchange, >= 0.0.2](https://rubygems.org/gems/rb-fchange) required).
 * Polling on the other operating systems (help us to support more OS).
-* Automatic & Super fast (when polling is not used) files modifications detection (even new files are detected).
+* Automatic & Super fast (when polling is not used) file modifications detection (even new files are detected).
 * Visual notifications on Mac OSX ([Growl](http://growl.info)), Linux ([Libnotify](http://developer.gnome.org/libnotify)) and Windows ([Notifu](http://www.paralint.com/projects/notifu)).
 * Tested against Ruby 1.8.7, 1.9.2, REE and the latest versions of JRuby & Rubinius.
 
@@ -217,7 +217,7 @@ When Guard do nothing you can interact with by entering a command + hitting retu
 
 * `stop`:    `stop|quit|exit|s|q|e + return` - Calls each guard's `#stop` method, in the same order they are declared in the Guardfile, and then quits Guard itself.
 * `reload`:  `reload|r|z + return` - Calls each guard's `#reload` method, in the same order they are declared in the Guardfile.
-* `pause`:   `pause|p + return` - Toggle files modification listening. Useful when switching git branches.
+* `pause`:   `pause|p + return` - Toggle file modification listening. Useful when switching git branches.
 * `run_all`: `just return (no commands)` - Calls each guard's `#run_all` method, in the same order they are declared in the Guardfile.
 
 `reload` and `run_all` actions can be scoped to only run on a certain guard or group. Examples:
