@@ -40,6 +40,7 @@ describe Guard::Linux do
         start
         @listener.unstub!(:stop)
         stop
+        sleep 1
         @listener.should_not be_watch_change
       end
     end
