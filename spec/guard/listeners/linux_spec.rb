@@ -24,6 +24,7 @@ describe Guard::Linux do
     describe "#start", :long_running => true do
       before(:each) do
         @listener = Guard::Linux.new
+        @listener.instance_variable_get(:@inotify).stub(:process)
       end
 
       it "calls watch_change on the first start" do
@@ -40,7 +41,6 @@ describe Guard::Linux do
         start
         @listener.unstub!(:stop)
         stop
-        sleep 1
         @listener.should_not be_watch_change
       end
     end
