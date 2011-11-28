@@ -2,7 +2,7 @@ class FSEvent
   class << self
     class_eval <<-END
       def root_path
-        "#{File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))}"
+        "#{File.expand_path(File.join(File.dirname(__FILE__), '..', '..', '..', '..', '..'))}"
       end
     END
     class_eval <<-END

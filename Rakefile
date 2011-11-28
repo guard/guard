@@ -33,6 +33,8 @@ task :build_vendor do
   fsevent_path = File.expand_path("../lib/vendor/darwin/lib/rb-fsevent/fsevent.rb", __FILE__)
   fsevent_contents = File.read(fsevent_path)
   fsevent_contents.sub!(/fsevent_watch/, 'fsevent_watch_guard')
+  fsevent_contents.sub!(/'\.\.'/, "'..', '..', '..', '..'")
+
   File.open(fsevent_path, 'w') { |f| f << fsevent_contents }
 end
 
