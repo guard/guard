@@ -33,7 +33,7 @@ module Guard
     # @return [Boolean] whether usable or not
     #
     def self.usable?
-      $LOAD_PATH << File.expand_path('../../../vendor/linux', __FILE__)
+      $LOAD_PATH << File.expand_path('../../../vendor/linux/lib', __FILE__)
       require 'rb-inotify'
       true
     rescue LoadError

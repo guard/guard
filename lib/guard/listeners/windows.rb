@@ -30,7 +30,7 @@ module Guard
     # @return [Boolean] whether usable or not
     #
     def self.usable?
-      $LOAD_PATH << File.expand_path('../../../vendor/windows', __FILE__)
+      $LOAD_PATH << File.expand_path('../../../vendor/windows/lib', __FILE__)
       require 'rb-fchange'
       true
     rescue LoadError
