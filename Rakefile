@@ -1,9 +1,33 @@
-require 'bundler'
-Bundler::GemHelper.install_tasks
+require 'bundler/gem_tasks'
 
 require 'rspec/core/rake_task'
 RSpec::Core::RakeTask.new(:spec)
 task :default => :spec
+
+desc "Vendor gems"
+task :build_vendor do
+  raise unless File.exist?('Rakefile')
+  # Destroy vendor
+  sh "rm -rf lib/vendor && mkdir lib/vendor"
+
+  # Clone the correct gems
+  sh "git clone https://github.com/thibaudgg/rb-fsevent.git lib/vendor/darwin"
+  sh "git clone https://github.com/nex3/rb-inotify.git lib/vendor/linux"
+  sh "git clone https://github.com/stereobooster/rb-fchange.git lib/vendor/windows"
+
+  # Strip out the .git directories
+  %w[darwin linux windows].each {|platform| sh "rm -rf lib/vendor/#{platform}/.git"}
+
+  # Move ext directory of darwin to root
+  sh "mkdir -p ext"
+  sh "cp -r lib/vendor/darwin/ext/* ext/"
+
+  extconf_path = File.expand_path("../ext/extconf.rb", __FILE__)
+  extconf_contents = File.read(extconf_path)
+  extconf_contents.sub!(/puts "Warning/, '#\0')
+  raise("Could not remove warning.") unless extconf_contents != File.read(extconf_path)
+  File.open(extconf_path, 'w') { |f| f << extconf_contents }
+end
 
 require 'rbconfig'
 namespace(:spec) do
