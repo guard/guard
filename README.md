@@ -28,9 +28,6 @@ Add Guard to your `Gemfile`:
 
     group :development do
       gem 'guard'
-      gem 'rb-inotify', :require => false
-      gem 'rb-fsevent', :require => false
-      gem 'rb-fchange', :require => false
     end
 
 and install it via Bundler:

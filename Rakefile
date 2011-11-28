@@ -4,7 +4,7 @@ require 'rspec/core/rake_task'
 RSpec::Core::RakeTask.new(:spec)
 task :default => :spec
 
-desc "Vendor gems"
+desc "Build vendored gems"
 task :build_vendor do
   raise unless File.exist?('Rakefile')
   # Destroy vendor
@@ -22,11 +22,25 @@ task :build_vendor do
   sh "mkdir -p ext"
   sh "cp -r lib/vendor/darwin/ext/* ext/"
 
+  # Alter darwin extconf.rb
   extconf_path = File.expand_path("../ext/extconf.rb", __FILE__)
   extconf_contents = File.read(extconf_path)
   extconf_contents.sub!(/puts "Warning/, '#\0')
-  raise("Could not remove warning.") unless extconf_contents != File.read(extconf_path)
+  extconf_contents.gsub!(/bin\/fsevent_watch/, 'bin/fsevent_watch_guard')
   File.open(extconf_path, 'w') { |f| f << extconf_contents }
+
+  # Alter lib/vendor/darwin/lib/rb-fsevent/fsevent.rb
+  fsevent_path = File.expand_path("../lib/vendor/darwin/lib/rb-fsevent/fsevent.rb", __FILE__)
+  fsevent_contents = File.read(fsevent_path)
+  fsevent_contents.sub!(/fsevent_watch/, 'fsevent_watch_guard')
+  File.open(fsevent_path, 'w') { |f| f << fsevent_contents }
+end
+
+desc "Compile mac executable"
+task :build_mac_exec do
+  Dir.chdir(File.expand_path("../ext", __FILE__)) do
+    system("ruby extconf.rb") or raise
+  end
 end
 
 require 'rbconfig'

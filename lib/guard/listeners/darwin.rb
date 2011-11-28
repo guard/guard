@@ -30,16 +30,9 @@ module Guard
     # @return [Boolean] whether usable or not
     #
     def self.usable?
+      $LOAD_PATH << File.expand_path('../../../vendor/darwin', __FILE__)
       require 'rb-fsevent'
-      if !defined?(FSEvent::VERSION) || (defined?(Gem::Version) &&
-          Gem::Version.new(FSEvent::VERSION) < Gem::Version.new('0.4.0'))
-        UI.info 'Please update rb-fsevent (>= 0.4.0)'
-        false
-      else
-        true
-      end
     rescue LoadError
-      UI.info 'Please install rb-fsevent gem for Mac OSX FSEvents support'
       false
     end
 

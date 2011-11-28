@@ -30,10 +30,10 @@ module Guard
     # @return [Boolean] whether usable or not
     #
     def self.usable?
+      $LOAD_PATH << File.expand_path('../../../vendor/windows', __FILE__)
       require 'rb-fchange'
       true
     rescue LoadError
-      UI.info 'Please install rb-fchange gem for Windows file events support'
       false
     end
 
