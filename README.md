@@ -447,6 +447,7 @@ Development
 
 Pull requests are very welcome! Please try to follow these simple "rules", though:
 
+- Use the `dev` branch for developing new features.
 - Please create a topic branch for every separate change you make;
 - Make sure your patches are well tested;
 - Update the README (if applicable);
