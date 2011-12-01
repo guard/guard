@@ -29,8 +29,8 @@ module Guard
     #
     # @return [Boolean] whether usable or not
     #
-    def self.usable?
-      $LOAD_PATH << File.expand_path('../../../vendor/darwin/lib', __FILE__)
+    def self.usable?(use_vendor = true)
+      $LOAD_PATH << File.expand_path('../../../vendor/darwin/lib', __FILE__) if use_vendor
       require 'rb-fsevent'
       true
     rescue LoadError

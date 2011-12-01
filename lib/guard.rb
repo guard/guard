@@ -59,8 +59,8 @@ module Guard
       @options    = options
       @guards     = []
       self.reset_groups
-      @interactor = Interactor.new unless @options[:no_interactions]
-      @listener   = Listener.select_and_init(@options[:watchdir] ? File.expand_path(@options[:watchdir]) : Dir.pwd, options)
+      @interactor = Interactor.new unless options[:no_interactions]
+      @listener   = Listener.select_and_init(options[:watchdir] && File.expand_path(options[:watchdir]), options)
 
       @options[:notify] && ENV['GUARD_NOTIFY'] != 'false' ? Notifier.turn_on : Notifier.turn_off
 
