@@ -337,7 +337,6 @@ You can show the structure of the groups and their Guards with the `show` task:
 ```bash
 $ guard show
 
-<<<<<<< HEAD
 (global):
   shell
 Group backend:
@@ -347,12 +346,6 @@ Group frontend:
   coffeescript: output => "public/javascripts/compiled"
   livereload
 ```
-=======
-* `stop`:    `stop|quit|exit|s|q|e + return` - Calls each guard's `#stop` method, in the same order they are declared in the Guardfile, and then quits Guard itself.
-* `reload`:  `reload|r|z + return` - Calls each guard's `#reload` method, in the same order they are declared in the Guardfile.
-* `pause`:   `pause|p + return` - Toggle file modification listening. Useful when switching git branches.
-* `run_all`: `just return (no commands)` - Calls each guard's `#run_all` method, in the same order they are declared in the Guardfile.
->>>>>>> master
 
 This shows the internal structure of the evaluated `Guardfile` or `.Guardfile`, with the `.guard.rb` file. You can
 read more about these files in the shared configuration section below.
