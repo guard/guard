@@ -199,6 +199,13 @@ Turn off completely any Guard terminal [interactions](#interactions) with:
     $ guard start -i
     $ guard start --no-interactions
 
+### `-I`/`--no-vendor` option
+
+Ignore the use of vendored gems with:
+
+    $ guard start -I
+    $ guard start --no-vendor
+
 An exhaustive list of options is available with:
 
     $ guard help [TASK]

@@ -9,10 +9,10 @@ namespace(:spec) do
   desc "Run all specs on multiple ruby versions (requires pik)"
   task(:portability) do
     %w[187 192 161].each do |version|
-       system "cmd /c echo -----------#{version}------------ & " +
-         "pik use #{version} & " +
-         "bundle install & " +
-         "rake spec"
+       system("echo -----------#{version}------------")
+       system("pik use #{version}")
+       system("bundle install")
+       system("rake spec")
     end
   end
 end

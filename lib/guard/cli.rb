@@ -47,7 +47,7 @@ module Guard
                   :aliases => '-G',
                   :banner  => 'Specify a Guardfile'
 
-    method_option :ignore_vendor,
+    method_option :no_vendor,
                   :type    => :boolean,
                   :default => false,
                   :aliases => '-I',

@@ -6,7 +6,7 @@ describe FChange do
   before(:each) do
     @results = []
     @notifier = FChange::Notifier.new
-    @notifier.watch(@fixture_path.to_s, :recursive) do |event|
+    @notifier.watch(@fixture_path.to_s) do |event|
       @results += [event.watcher.path]
     end
   end
@@ -14,34 +14,22 @@ describe FChange do
   it "should work with path with an apostrophe" do
     custom_path = @fixture_path.join("custom 'path")
     file = custom_path.join("newfile.rb").to_s
-    begin
-      File.delete file
-    rescue
-    end
+    File.delete file if File.exists? file
     run
     FileUtils.touch file
     stop
-    begin
-      File.delete file
-    rescue
-    end
-    @results.include?(@fixture_path.to_s).should be_true
+    File.delete file
+    @results.should == [@fixture_path.to_s, @fixture_path.to_s]
   end
 
   it "should catch new file" do
     file = @fixture_path.join("newfile.rb")
-    begin
-      File.delete file
-    rescue
-    end
+    File.delete file if File.exists? file
     run
     FileUtils.touch file
     stop
-    begin
-      File.delete file
-    rescue
-    end
-    @results.include?(@fixture_path.to_s).should be_true
+    File.delete file
+    @results.should == [@fixture_path.to_s]
   end
 
   it "should catch file update" do
@@ -50,7 +38,7 @@ describe FChange do
     run
     FileUtils.touch file
     stop
-    @results.include?(@fixture_path.to_s).should be_true
+    @results.should == [@fixture_path.to_s]
   end
 
   it "should catch files update" do
@@ -62,44 +50,30 @@ describe FChange do
     FileUtils.touch file1
     FileUtils.touch file2
     stop
-    @results.include?(@fixture_path.to_s).should be_true
+    @results.should == [@fixture_path.to_s, @fixture_path.to_s]
   end
 
   it "should catch new directory" do
     dir = @fixture_path.join("new_dir")
-    begin
-      Dir.delete dir
-    rescue
-    end
+    Dir.delete dir if Dir.exists? dir
+    Dir.exists?(dir).should be_false
     run
     Dir.mkdir dir
     stop
-    begin
-      Dir.delete dir
-    rescue
-    end
-    @results.include?(@fixture_path.to_s).should be_true
+    Dir.delete dir
+    @results.should == [@fixture_path.to_s]
   end
 
   it "should catch directory rename" do
     dir = @fixture_path.join("new_dir")
     dir_new = @fixture_path.join("new_dir1")
-    begin
-      Dir.mkdir dir
-    rescue
-    end
-    begin
-      Dir.delete dir_new
-    rescue
-    end
+    Dir.mkdir dir unless Dir.exists? dir
+    Dir.delete dir_new if Dir.exists? dir_new
     run
     File.rename(dir, dir_new)
     stop
-    begin
-      Dir.delete dir_new
-    rescue
-    end
-    @results.include?(@fixture_path.to_s).should be_true
+    Dir.delete(dir_new)
+    @results.should == [@fixture_path.to_s, @fixture_path.to_s]
   end
 
   it "should catch file rename" do
@@ -111,7 +85,7 @@ describe FChange do
     File.rename(file, file_new)
     stop
     File.rename(file_new, file)
-    @results.include?(@fixture_path.to_s).should be_true
+    @results.should == [@fixture_path.to_s, @fixture_path.to_s]
   end
 
 #  it "should work with none-ANSI path" do

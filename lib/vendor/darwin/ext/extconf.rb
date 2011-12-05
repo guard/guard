@@ -21,7 +21,7 @@ else
   raise "Only Darwin systems greater than 8 (Mac OS X 10.5+) are supported" unless sdk_version
 
   core_flags = %W{
-    -isysroot "#{xcode_path}/SDKs/MacOSX#{sdk_version}.sdk"
+    -isysroot #{xcode_path}/SDKs/MacOSX#{sdk_version}.sdk
     -mmacosx-version-min=#{sdk_version} -mdynamic-no-pic -std=gnu99
   }
 

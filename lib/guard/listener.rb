@@ -32,12 +32,12 @@ module Guard
     # @return [Guard::Listener] the chosen listener
     #
     def self.select_and_init(watchdir = Dir.pwd, options = nil)
-      ignore_vendor = options && options.key?(:ignore_vendor) ? options[:ignore_vendor] : false
-      if mac? && Darwin.usable?(ignore_vendor)
+      no_vendor = options && options.key?(:no_vendor) ? options[:no_vendor] : false
+      if mac? && Darwin.usable?(no_vendor)
         Darwin.new(watchdir, options)
-      elsif linux? && Linux.usable?(ignore_vendor)
+      elsif linux? && Linux.usable?(no_vendor)
         Linux.new(watchdir, options)
-      elsif windows? && Windows.usable?(ignore_vendor)
+      elsif windows? && Windows.usable?(no_vendor)
         Windows.new(watchdir, options)
       else
         UI.info 'Using polling (Please help us to support your system better than that).'
