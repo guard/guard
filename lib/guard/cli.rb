@@ -65,7 +65,6 @@ module Guard
     # @see Guard.start
     #
     def start
-      puts options.inspect
       ::Guard.start(options)
     end
 
