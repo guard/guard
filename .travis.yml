@@ -4,6 +4,7 @@ rvm:
   - 1.9.3
   - ree
   - jruby
+  - rbx-1.2.4
   - rbx
 branches:
   only:
