@@ -41,6 +41,10 @@ module Guard
     # Initialize the interactor.
     #
     def initialize
+      unless defined?(RbReadline) || defined?(JRUBY_VERSION)
+        ::Guard::UI.info 'Please add rb-readline for proper Readline support.'
+      end
+      
       Readline.completion_proc = proc { |word| auto_complete(word) }
 
       begin
