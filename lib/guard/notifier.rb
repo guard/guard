@@ -58,7 +58,7 @@ module Guard
 
     # Set the available notifications.
     #
-    # @param [Hash] notifications the notifications
+    # @param [Array<Hash>] notifications the notifications
     #
     def notifications=(notifications)
       @notifications = notifications
@@ -69,16 +69,16 @@ module Guard
     # library.
     #
     def turn_on
-      auto_detect_notification if notifications.empty? &&  ::Guard.options[:notify]
+      auto_detect_notification if notifications.empty? && (!::Guard.options || ::Guard.options[:notify])
 
-      unless notifications.empty?
+      if notifications.empty?
+        ENV['GUARD_NOTIFY'] = 'false'
+      else
         notifications.each do |notification|
           ::Guard::UI.info "Guard uses #{ NOTIFIERS[notification[:name]].to_s.split('::').last } to send notifications."
         end
 
         ENV['GUARD_NOTIFY'] = 'true'
-      else
-        ENV['GUARD_NOTIFY'] = 'false'
       end
     end
 
