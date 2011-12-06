@@ -116,7 +116,7 @@ module Guard
 
     # Show a system notification with all configured notifiers.
     #
-    # @param [String] the message to show
+    # @param [String] message the message to show
     # @option options [Symbol, String] image the image symbol or path to an image
     # @option options [String] title the notification title
     #

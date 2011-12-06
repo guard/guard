@@ -139,7 +139,7 @@ module Guard
 
       # Read the current `Guardfile` content.
       #
-      # @param [String] the path to the Guardfile
+      # @param [String] guardfile_path the path to the Guardfile
       #
       def read_guardfile(guardfile_path)
         @@options[:guardfile_path]     = guardfile_path
@@ -232,7 +232,7 @@ module Guard
       # The path to the `Guardfile` that is located at
       # the directory, where Guard has been started from.
       #
-      # @param [String] the path to the local Guardfile
+      # @return [String] the path to the local Guardfile
       #
       def local_guardfile_path
         File.join(Dir.pwd, 'Guardfile')
@@ -241,7 +241,7 @@ module Guard
       # The path to the `.Guardfile` that is located at
       # the users home directory.
       #
-      # @param [String] the path to ~/.Guardfile
+      # @return [String] the path to ~/.Guardfile
       #
       def home_guardfile_path
         File.expand_path(File.join('~', '.Guardfile'))
@@ -250,7 +250,7 @@ module Guard
       # The path to the user configuration `.guard.rb`
       # that is located at the users home directory.
       #
-      # @param [String] the path to ~/.guard.rb
+      # @return [String] the path to ~/.guard.rb
       #
       def user_config_path
         File.expand_path(File.join('~', '.guard.rb'))

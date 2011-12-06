@@ -119,7 +119,7 @@ module Guard
       #
       #   color('Hello World', :red, :bright)
       #
-      # @param [String] the text to colorize
+      # @param [String] text the text to colorize
       # @param [Array] color_options the color options
       #
       def color(text, *color_options)

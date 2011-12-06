@@ -99,7 +99,7 @@ module Guard
 
     # Executes a watcher action.
     #
-    # @param [String, MatchData] the matched path or the match from the Regex
+    # @param [String, MatchData] matches the matched path or the match from the Regex
     # @return [String] the final paths
     #
     def call_action(matches)
