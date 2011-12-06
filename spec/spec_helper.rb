@@ -19,4 +19,16 @@ RSpec.configure do |config|
     @fixture_path = Pathname.new(File.expand_path('../fixtures/', __FILE__))
   end
 
+  config.before(:all) do
+    ::Guard::Notifier.send(:auto_detect_notification)
+
+    @guard_notify = ENV['GUARD_NOTIFY']
+    @guard_notifications = ::Guard::Notifier.notifications
+  end
+
+  config.after(:all) do
+    ENV['GUARD_NOTIFY'] = @guard_notify
+    ::Guard::Notifier.notifications = @guard_notifications
+  end
+
 end
