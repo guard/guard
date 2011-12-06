@@ -73,13 +73,20 @@ module Guard
 
     # Smart accessor for retrieving a specific guard or several guards at once.
     #
-    # @param [String, Symbol] filter return the guard with the given name, or nil if not found
-    # @param [Regexp] filter returns all guards matching the Regexp, or [] if no guard found
-    # @param [Hash] filter returns all guards matching the given Hash.
-    #   Example: `{ :name => 'rspec', :group => 'backend' }`, or [] if no guard found
-    # @param [NilClass] filter returns all guards
-    #
     # @see Guard.groups
+    #
+    # @example Filter Guards by String or Symbol
+    #   Guard.guards('rspec')
+    #   Guard.guards(:rspec)
+    #
+    # @example Filter Guards by Regexp
+    #   Guard.guards(/rsp.+/)
+    #
+    # @example Filter Guards by Hash
+    #   Guard.guards({ :name => 'rspec', :group => 'backend' })
+    #
+    # @param [String, Symbol, Regexp, Hash] filter the filter to apply to the Guards
+    # @return [Array<Guard>] the filtered Guards
     #
     def guards(filter = nil)
       @guards ||= []
@@ -104,11 +111,17 @@ module Guard
 
     # Smart accessor for retrieving a specific group or several groups at once.
     #
-    # @param [NilClass] filter returns all groups
-    # @param [String, Symbol] filter return the group with the given name, or nil if not found
-    # @param [Regexp] filter returns all groups matching the Regexp, or [] if no group found
-    #
     # @see Guard.guards
+    #
+    # @example Filter groups by String or Symbol
+    #   Guard.groups('backend')
+    #   Guard.groups(:backend)
+    #
+    # @example Filter groups by Regexp
+    #   Guard.groups(/(back|front)end/)
+    #
+    # @param [String, Symbol, Regexp] filter the filter to apply to the Groups
+    # @return [Array<Group>] the filtered groups
     #
     def groups(filter = nil)
       case filter
@@ -183,7 +196,7 @@ module Guard
 
     # Reload all Guards currently enabled.
     #
-    # @param [Hash] An hash with a guard or a group scope
+    # @param [Hash] scopes an hash with a guard or a group scope
     #
     def reload(scopes)
       run do
@@ -195,7 +208,7 @@ module Guard
 
     # Trigger `run_all` on all Guards currently enabled.
     #
-    # @param [Hash] An hash with a guard or a group scope
+    # @param [Hash] scopes an hash with a guard or a group scope
     #
     def run_all(scopes)
       run do
@@ -252,7 +265,7 @@ module Guard
     # Stop the task run for the all Guards within a group if one Guard
     # throws `:task_has_failed`.
     #
-    # @param [Hash] An hash with a guard or a group scope
+    # @param [Hash] scopes an hash with a guard or a group scope
     # @yield the task to run
     #
     def run_on_guards(scopes = {})
