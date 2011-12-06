@@ -25,11 +25,11 @@ module Guard
                   :aliases => '-n',
                   :banner  => 'Notifications feature (growl/libnotify)'
 
-    method_option :debug,
+    method_option :verbose,
                   :type    => :boolean,
                   :default => false,
-                  :aliases => '-d',
-                  :banner  => 'Print debug messages'
+                  :aliases => '-v',
+                  :banner  => 'Show verbose messages'
 
     method_option :group,
                   :type    => :array,
@@ -65,6 +65,7 @@ module Guard
     # @see Guard.start
     #
     def start
+      puts options.inspect
       ::Guard.start(options)
     end
 

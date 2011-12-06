@@ -51,7 +51,7 @@ module Guard
     #
     # @option options [Boolean] clear if auto clear the UI should be done
     # @option options [Boolean] notify if system notifications should be shown
-    # @option options [Boolean] debug if debug output should be shown
+    # @option options [Boolean] verbose if verbose output should be shown
     # @option options [Array<String>] group the list of groups to start
     # @option options [String] watchdir the director to watch
     # @option options [String] guardfile the path to the Guardfile
@@ -66,7 +66,7 @@ module Guard
       @listener   = Listener.select_and_init(@options[:watchdir] ? File.expand_path(@options[:watchdir]) : Dir.pwd, options)
 
       UI.clear if @options[:clear]
-      debug_command_execution if @options[:debug]
+      debug_command_execution if @options[:verbose]
 
       self
     end

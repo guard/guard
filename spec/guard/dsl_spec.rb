@@ -10,7 +10,7 @@ describe Guard::Dsl do
     @home_guardfile_path  = File.expand_path(File.join("~", ".Guardfile"))
     @user_config_path     = File.expand_path(File.join("~", ".guard.rb"))
     ::Guard.setup
-    ::Guard.stub!(:options).and_return(:debug => true)
+    ::Guard.stub!(:options).and_return(:verbose => true)
     ::Guard.stub!(:guards).and_return([mock('Guard')])
   end
 

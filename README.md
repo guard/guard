@@ -265,13 +265,13 @@ $ guard -g group_name another_group_name # shortcut
 
 See the Guardfile DSL below for creating groups.
 
-#### `-d`/`--debug` option
+#### `-v`/`--verbose` option
 
-Guard can be run in debug mode:
+Guard can be run in verbose mode:
 
 ```bash
-$ guard --debug
-$ guard -d # shortcut
+$ guard --verbose
+$ guard -v # shortcut
 ```
 
 #### `-w`/`--watchdir` option
@@ -788,7 +788,7 @@ ask question in the issue tracker, instead join us in our [Google group](http://
 When you file an issue, please try to follow to these simple rules if applicable:
 
 * Make sure you run Guard with `bundle exec` first.
-* Add debug information to the issue by running Guard with the `--debug` option.
+* Add verbose information to the issue by running Guard with the `--verbose` option.
 * Add your `Guardfile` and `Gemfile` to the issue.
 * Make sure that the issue is reproducible with your description.
 

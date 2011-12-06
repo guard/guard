@@ -90,7 +90,7 @@ describe Guard do
 
     it "logs command execution if the debug option is true" do
       ::Guard.should_receive(:debug_command_execution)
-      ::Guard.setup(:debug => true)
+      ::Guard.setup(:verbose => true)
     end
 
     it "initializes the interactor" do
@@ -776,13 +776,13 @@ describe Guard do
     end
 
     it "outputs Kernel.#system method parameters" do
-      ::Guard.setup(:debug => true)
+      ::Guard.setup(:verbose => true)
       ::Guard::UI.should_receive(:debug).with("Command execution: exit 0")
       system("exit", "0").should be_false
     end
 
     it "outputs Kernel.#` method parameters" do
-      ::Guard.setup(:debug => true)
+      ::Guard.setup(:verbose => true)
       ::Guard::UI.should_receive(:debug).twice.with("Command execution: echo test")
       `echo test`.should eql "test\n"
       %x{echo test}.should eql "test\n"
