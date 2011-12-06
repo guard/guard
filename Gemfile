@@ -4,6 +4,10 @@ gemspec
 
 gem 'rake'
 
+platform :ruby do
+  gem 'rb-readline'
+end
+
 group :guard do
   gem 'guard-ronn'
 end
