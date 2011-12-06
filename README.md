@@ -16,7 +16,7 @@ Features
 * Automatic and super fast file modification detection when polling is not used.
   Even new and deleted files are detected.
 * Support for visual system notifications.
-* Tested against Ruby 1.8.7, 1.9.2, 1.9.3, REE, Rubinius 1.2.4 and the latest versions of JRuby & Rubinius.
+* Tested against Ruby 1.8.7, 1.9.2, 1.9.3, REE and the latest versions of JRuby & Rubinius.
 
 Screencast
 ----------
