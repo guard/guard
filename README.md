@@ -28,9 +28,6 @@ Add Guard to your `Gemfile`:
 
     group :development do
       gem 'guard'
-      gem 'rb-inotify', :require => false
-      gem 'rb-fsevent', :require => false
-      gem 'rb-fchange', :require => false
     end
 
 and install it via Bundler:
@@ -201,6 +198,13 @@ Turn off completely any Guard terminal [interactions](#interactions) with:
 
     $ guard start -i
     $ guard start --no-interactions
+
+### `-I`/`--no-vendor` option
+
+Ignore the use of vendored gems with:
+
+    $ guard start -I
+    $ guard start --no-vendor
 
 An exhaustive list of options is available with:
 

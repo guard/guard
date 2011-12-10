@@ -1,0 +1,6 @@
+*.gem
+.bundle
+.project
+.loadpath
+Gemfile.lock
+pkg/*

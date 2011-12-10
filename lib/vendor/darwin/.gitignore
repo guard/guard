@@ -1,16 +1,7 @@
 pkg/*
-doc/*
 *.gem
-*.rbc
-.*.swp
-*.bak
 .bundle
-.yardoc
-.rbx
-.rvmrc
 Gemfile.lock
-bin/fsevent_watch_guard
-Makefile
 
 ## MAC OS
 .DS_Store
@@ -19,3 +10,9 @@ Makefile
 .fseventsd
 Desktop DB
 Desktop DF
+/bin/fsevent_watch
+/ext/Makefile
+
+## editor/IDE
+.idea
+
