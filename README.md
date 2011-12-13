@@ -34,9 +34,6 @@ Add Guard to your `Gemfile`:
 ```ruby
 group :development do
   gem 'guard'
-  gem 'rb-inotify', :require => false   # Linux
-  gem 'rb-fsevent', :require => false   # Mac OS X
-  gem 'rb-fchange', :require => false   # Windows
   
   platforms :ruby do
     gem 'rb-readline'
@@ -308,6 +305,15 @@ Turn off completely any Guard terminal interactions with:
 ```bash
 $ guard start -i
 $ guard start --no-interactions
+```
+
+### `-I`/`--no-vendor` option
+
+Ignore the use of vendored gems with:
+
+```bash
+$ guard start -I
+$ guard start --no-vendor
 ```
 
 ### List

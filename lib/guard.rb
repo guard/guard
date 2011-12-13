@@ -62,8 +62,8 @@ module Guard
       @options    = options
       @guards     = []
       self.reset_groups
-      @interactor = Interactor.new unless @options[:no_interactions]
-      @listener   = Listener.select_and_init(@options[:watchdir] ? File.expand_path(@options[:watchdir]) : Dir.pwd, options)
+      @interactor = Interactor.new unless options[:no_interactions]
+      @listener   = Listener.select_and_init(options[:watchdir] && File.expand_path(options[:watchdir]), options)
 
       UI.clear if @options[:clear]
       debug_command_execution if @options[:verbose]
