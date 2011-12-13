@@ -60,7 +60,7 @@ module Guard
           false
         end
 
-      rescue LoadError
+      rescue LoadError, NameError
         ::Guard::UI.error "Please add \"gem 'growl'\" to your Gemfile and run Guard with \"bundle exec\"." unless silent
         false
       end
