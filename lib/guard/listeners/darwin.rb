@@ -30,6 +30,8 @@ module Guard
     # @return [Boolean] whether usable or not
     #
     def self.usable?(no_vendor = false)
+      return false unless RbConfig::CONFIG['target_os'] =~ /darwin/i
+
       $LOAD_PATH << File.expand_path('../../../vendor/darwin/lib', __FILE__) unless no_vendor
       require 'rb-fsevent'
       true

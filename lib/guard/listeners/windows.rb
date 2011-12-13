@@ -30,6 +30,8 @@ module Guard
     # @return [Boolean] whether usable or not
     #
     def self.usable?(no_vendor = false)
+      return false unless RbConfig::CONFIG['target_os'] =~ /mswin|mingw/i
+
       $LOAD_PATH << File.expand_path('../../../vendor/windows/lib', __FILE__) unless no_vendor
       require 'rb-fchange'
       true

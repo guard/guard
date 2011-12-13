@@ -33,6 +33,8 @@ module Guard
     # @return [Boolean] whether usable or not
     #
     def self.usable?(no_vendor = false)
+      return false unless RbConfig::CONFIG['target_os'] =~ /linux/i
+
       $LOAD_PATH << File.expand_path('../../../vendor/linux/lib', __FILE__) unless no_vendor
       require 'rb-inotify'
       true
