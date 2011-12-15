@@ -54,6 +54,9 @@ module Guard
           end
           
           ::Guard::UI.info "#{ guard_name } template added to Guardfile, feel free to edit it"
+        else
+          const_name  = guard_name.downcase.gsub('-', '')
+          UI.error "Could not load 'guard/#{ guard_name.downcase }' or '~/.guard/templates/#{ guard_name.downcase }' or find class Guard::#{ const_name.capitalize }"
         end
       end
     end
