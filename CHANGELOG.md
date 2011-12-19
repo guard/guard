@@ -1,3 +1,16 @@
+## Dev
+
+### Bug fix
+
+- [#173](https://github.com/guard/guard/issues/173): Cannot set the watch_all_modifications option. (reported by [@sutherland][], fixed by [@netzpirat][]
+- Fix `guard init` when a guard name is given. ([@rymai][])
+
+### Improvements
+
+- [#165](https://github.com/guard/guard/issues/175): Allow underscores in Guard name. ([@benolee][])
+- Add readline support to the interactor. ([@netzpirat][])
+- Add support for notification configuration. ([@netzpirat][])
+
 ## 0.8.8 - October 21, 2011
 
 ### Bug fix
@@ -8,7 +21,7 @@
 
 ### Bug fix
 
-- [#166](https://github.com/guard/guard/issues/166): Fix silent failure after re-evaluating Guardfile. (reported by [@dgutov][], fixed by [@rymai][], special thanks to [@dyfrgi][] for the [reproductible test case](https://github.com/dyfrgi/Guard-Broken))
+- [#166](https://github.com/guard/guard/issues/166): Fix silent failure after re-evaluating Guardfile. (reported by [@dgutov][], fixed by [@rymai][], special thanks to [@dyfrgi][] for the [reproducible test case](https://github.com/dyfrgi/Guard-Broken))
 
 ## 0.8.6 - October 17, 2011
 
@@ -316,6 +329,7 @@
 - Added polling listening fallback. ([@thibaudgg][])
 
 [@anithri]: https://github.com/anithri
+[@benolee]: https://github.com/benolee
 [@brainopia]: https://github.com/brainopia
 [@bronson]: https://github.com/bronson
 [@capotej]: https://github.com/capotej
@@ -359,6 +373,7 @@
 [@stereobooster]: https://github.com/stereobooster
 [@stouset]: https://github.com/stouset
 [@sunaku]: https://github.com/sunaku
+[@sutherland]: https://github.com/sutherland
 [@thibaudgg]: https://github.com/thibaudgg
 [@thierryhenrio]: https://github.com/thierryhenrio
 [@tinogomes]: https://github.com/tinogomes

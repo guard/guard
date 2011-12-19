@@ -21,7 +21,7 @@ module Guard
   class << self
     attr_accessor :options, :interactor, :listener, :lock
 
-    # Creates the initial Guardfile template or add a Guard implementation
+    # Creates the initial Guardfile template and/or add a Guard implementation
     # Guardfile template to an existing Guardfile.
     #
     # @see Guard::Guard.init
@@ -43,45 +43,54 @@ module Guard
       end
     end
 
-    # Initialize the Guard singleton.
+    # Initialize the Guard singleton:
+    #
+    # - Initialize the internal Guard state.
+    # - Create the interactor when necessary for user interaction.
+    # - Select and initialize the file change listener.
     #
     # @option options [Boolean] clear if auto clear the UI should be done
     # @option options [Boolean] notify if system notifications should be shown
-    # @option options [Boolean] debug if debug output should be shown
+    # @option options [Boolean] verbose if verbose output should be shown
     # @option options [Array<String>] group the list of groups to start
     # @option options [String] watchdir the director to watch
     # @option options [String] guardfile the path to the Guardfile
     # @option options [Boolean] watch_all_modifications watches all file modifications if true
     #
     def setup(options = {})
-      @lock = Mutex.new
-
+      @lock       = Mutex.new
       @options    = options
       @guards     = []
       self.reset_groups
-      @interactor = Interactor.new unless @options[:no_interactions]
-      @listener   = Listener.select_and_init(@options[:watchdir] ? File.expand_path(@options[:watchdir]) : Dir.pwd, options)
-
-      @options[:notify] && ENV['GUARD_NOTIFY'] != 'false' ? Notifier.turn_on : Notifier.turn_off
+      @interactor = Interactor.new unless options[:no_interactions]
+      @listener   = Listener.select_and_init(options[:watchdir] && File.expand_path(options[:watchdir]), options)
 
       UI.clear if @options[:clear]
-
-      debug_command_execution if @options[:debug]
+      debug_command_execution if @options[:verbose]
 
       self
     end
 
     # Smart accessor for retrieving a specific guard or several guards at once.
     #
-    # @param [String, Symbol] filter return the guard with the given name, or nil if not found
-    # @param [Regexp] filter returns all guards matching the Regexp, or [] if no guard found
-    # @param [Hash] filter returns all guards matching the given Hash.
-    #   Example: `{ :name => 'rspec', :group => 'backend' }`, or [] if no guard found
-    # @param [NilClass] filter returns all guards
-    #
     # @see Guard.groups
     #
+    # @example Filter Guards by String or Symbol
+    #   Guard.guards('rspec')
+    #   Guard.guards(:rspec)
+    #
+    # @example Filter Guards by Regexp
+    #   Guard.guards(/rsp.+/)
+    #
+    # @example Filter Guards by Hash
+    #   Guard.guards({ :name => 'rspec', :group => 'backend' })
+    #
+    # @param [String, Symbol, Regexp, Hash] filter the filter to apply to the Guards
+    # @return [Array<Guard>] the filtered Guards
+    #
     def guards(filter = nil)
+      @guards ||= []
+
       case filter
       when String, Symbol
         @guards.find { |guard| guard.class.to_s.downcase.sub('guard::', '') == filter.to_s.downcase.gsub('-', '') }
@@ -102,11 +111,17 @@ module Guard
 
     # Smart accessor for retrieving a specific group or several groups at once.
     #
-    # @param [NilClass] filter returns all groups
-    # @param [String, Symbol] filter return the group with the given name, or nil if not found
-    # @param [Regexp] filter returns all groups matching the Regexp, or [] if no group found
-    #
     # @see Guard.guards
+    #
+    # @example Filter groups by String or Symbol
+    #   Guard.groups('backend')
+    #   Guard.groups(:backend)
+    #
+    # @example Filter groups by Regexp
+    #   Guard.groups(/(back|front)end/)
+    #
+    # @param [String, Symbol, Regexp] filter the filter to apply to the Groups
+    # @return [Array<Group>] the filtered groups
     #
     def groups(filter = nil)
       case filter
@@ -129,6 +144,13 @@ module Guard
 
     # Start Guard by evaluate the `Guardfile`, initialize the declared Guards
     # and start the available file change listener.
+    # Main method for Guard that is called from the CLI when guard starts.
+    #
+    # - Setup Guard internals
+    # - Evaluate the `Guardfile`
+    # - Configure Notifiers
+    # - Initialize the declared Guards
+    # - Start the available file change listener
     #
     # @option options [Boolean] clear if auto clear the UI should be done
     # @option options [Boolean] notify if system notifications should be shown
@@ -141,6 +163,8 @@ module Guard
       setup(options)
 
       Dsl.evaluate_guardfile(options)
+
+      options[:notify] && ENV['GUARD_NOTIFY'] != 'false' ? Notifier.turn_on : Notifier.turn_off
 
       listener.on_change do |files|
         Dsl.reevaluate_guardfile        if Watcher.match_guardfile?(files)
@@ -172,7 +196,7 @@ module Guard
 
     # Reload all Guards currently enabled.
     #
-    # @param [Hash] An hash with a guard or a group scope
+    # @param [Hash] scopes an hash with a guard or a group scope
     #
     def reload(scopes)
       run do
@@ -184,7 +208,7 @@ module Guard
 
     # Trigger `run_all` on all Guards currently enabled.
     #
-    # @param [Hash] An hash with a guard or a group scope
+    # @param [Hash] scopes an hash with a guard or a group scope
     #
     def run_all(scopes)
       run do
@@ -236,16 +260,17 @@ module Guard
       end
     end
 
-    # Loop through all groups and run the given task (as block) for each Guard.
+    # Loop through all groups and run the given task for each Guard.
     #
     # Stop the task run for the all Guards within a group if one Guard
     # throws `:task_has_failed`.
     #
-    # @param [Hash] An hash with a guard or a group scope
+    # @param [Hash] scopes an hash with a guard or a group scope
+    # @yield the task to run
     #
     def run_on_guards(scopes = {})
-      if guard = scopes[:guard]
-        yield(guard)
+      if scope_guard = scopes[:guard]
+        yield(scope_guard)
       else
         groups = scopes[:group] ? [scopes[:group]] : @groups
         groups.each do |group|
@@ -390,7 +415,17 @@ module Guard
       group
     end
 
-    # Tries to load the Guard main class.
+    # Tries to load the Guard main class. This transforms the supplied Guard
+    # name into a class name:
+    #
+    # * `guardname` will become `Guard::Guardname`
+    # * `dashed-guard-name` will become `Guard::DashedGuardName`
+    # * `underscore_guard_name` will become `Guard::UnderscoreGuardName`
+    #
+    # When no class is found with the strict case sensitive rules, another
+    # try is made to locate the class without matching case:
+    #
+    # * `rspec` will find a class `Guard::RSpec`
     #
     # @param [String] name the name of the Guard
     # @return [Class, nil] the loaded class
@@ -398,10 +433,10 @@ module Guard
     def get_guard_class(name)
       name        = name.to_s
       try_require = false
-      const_name  = name.downcase.gsub('-', '')
+      const_name  = name.gsub(/\/(.?)/) { "::#{ $1.upcase }" }.gsub(/(?:^|[_-])(.)/) { $1.upcase }
       begin
         require "guard/#{ name.downcase }" if try_require
-        self.const_get(self.constants.find { |c| c.to_s.downcase == const_name })
+        self.const_get(self.constants.find { |c| c.to_s == const_name } || self.constants.find { |c| c.to_s.downcase == const_name.downcase })
       rescue TypeError
         unless try_require
           try_require = true
@@ -439,7 +474,7 @@ module Guard
         Gem::Specification.find_all.select { |x| x.name =~ /^guard-/ }
       else
         Gem.source_index.find_name(/^guard-/)
-      end.map { |x| x.name.sub /^guard-/, '' }
+      end.map { |x| x.name.sub(/^guard-/, '') }
     end
 
     # Adds a command logger in debug mode. This wraps common command

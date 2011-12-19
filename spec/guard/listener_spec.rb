@@ -37,6 +37,74 @@ describe Guard::Listener do
     end
   end
 
+  describe '#initialize' do
+    context 'with a directory parameter' do
+      it 'ensures the directory is a String' do
+        listener = described_class.new(Pathname.new('/tmp'))
+        listener.directory.should eql '/tmp'
+      end
+    end
+
+    context 'without a directory parameter' do
+      it 'takes the current working directory' do
+        listener = described_class.new()
+        listener.directory.should eql Dir.pwd.to_s
+      end
+    end
+
+    context 'with the relativize_paths option' do
+      it 'takes the passed option value from a string key' do
+        listener = described_class.new('/tmp', { 'relativize_paths' => false })
+        listener.relativize_paths?.should be_false
+      end
+
+      it 'takes the passed option value from a symbol key' do
+        listener = described_class.new('/tmp', { :relativize_paths => false })
+        listener.relativize_paths?.should be_false
+      end
+    end
+
+    context 'without the relativize_paths option' do
+      it 'sets it to true as default' do
+        listener = described_class.new
+        listener.relativize_paths?.should be_true
+      end
+    end
+
+    context 'with the watch_all_modifications option' do
+      it 'takes the passed option value from a string key' do
+        listener = described_class.new('/tmp', { 'watch_all_modifications' => true })
+        listener.watch_all_modifications?.should be_true
+      end
+
+      it 'takes the passed option value from a symbol key' do
+        listener = described_class.new('/tmp', { :watch_all_modifications => true })
+        listener.watch_all_modifications?.should be_true
+      end
+    end
+
+    context 'without the watch_all_modifications option' do
+      it 'sets it to false as default' do
+        listener = described_class.new
+        listener.watch_all_modifications?.should be_false
+      end
+    end
+
+    context 'without the ignored_paths options' do
+      it 'sets the default ignore paths' do
+        listener = described_class.new
+        listener.ignore_paths.should =~ %w[. .. .bundle .git log tmp vendor]
+      end
+    end
+
+    context 'with the ignored_paths options' do
+      it 'adds the paths to the default ignore paths' do
+        listener = described_class.new('/tmp', { :ignore_paths => %w[.idea coverage] })
+        listener.ignore_paths.should =~ %w[. .. .bundle .git log tmp vendor .idea coverage]
+      end
+    end
+  end
+
   describe '#all_files' do
     subject { described_class.new(@fixture_path) }
 
@@ -145,7 +213,7 @@ describe Guard::Listener do
       after { FileUtils.touch(file3) }
 
       it 'defaults to false' do
-        subject.instance_variable_get(:@watch_all_modifications).should eql false
+        subject.watch_all_modifications?.should eql false
       end
 
       context 'for a deleted file' do
@@ -187,7 +255,7 @@ describe Guard::Listener do
       end
 
       it 'should be true when set' do
-        subject.instance_variable_get(:@watch_all_modifications).should eql true
+        subject.watch_all_modifications?.should eql true
       end
 
       context 'for a deleted file' do
@@ -228,7 +296,7 @@ describe Guard::Listener do
       subject { described_class.new }
 
       it 'defaults to Dir.pwd' do
-        subject.instance_variable_get(:@directory).should eql Dir.pwd
+        subject.directory.should eql Dir.pwd
       end
 
       it 'can be not changed' do

@@ -10,7 +10,7 @@ describe Guard::Dsl do
     @home_guardfile_path  = File.expand_path(File.join("~", ".Guardfile"))
     @user_config_path     = File.expand_path(File.join("~", ".guard.rb"))
     ::Guard.setup
-    ::Guard.stub!(:options).and_return(:debug => true)
+    ::Guard.stub!(:options).and_return(:verbose => true)
     ::Guard.stub!(:guards).and_return([mock('Guard')])
   end
 
@@ -180,6 +180,19 @@ describe Guard::Dsl do
       ::Guard.groups[0].name.should eql :default
       ::Guard.groups[0].options.should == {}
     end
+
+    it "resets notifications before calling evaluate_guardfile" do
+      Guard::Notifier.turn_off
+      Guard::Notifier.notifications = [{ :name => :growl }]
+      described_class.evaluate_guardfile(:guardfile_contents => invalid_guardfile_string)
+
+      ::Guard::Notifier.notifications.should_not be_empty
+      ::Guard::Dsl.should_receive(:evaluate_guardfile)
+
+      described_class.reevaluate_guardfile
+
+      ::Guard::Notifier.notifications.should be_empty
+    end
   end
 
   describe ".guardfile_default_path" do
@@ -245,6 +258,21 @@ describe Guard::Dsl do
 
       described_class.evaluate_guardfile(:guardfile_contents => "ignore_paths 'foo', 'bar'")
       ignore_paths.should == ['faz', 'foo', 'bar']
+    end
+  end
+
+  describe "#notification" do
+    disable_user_config
+
+    it 'adds a notification to the notifier' do
+      ::Guard::Notifier.should_receive(:add_notification).with(:growl, {}, false)
+      described_class.evaluate_guardfile(:guardfile_contents => 'notification :growl')
+    end
+
+    it 'adds multiple notification to the notifier' do
+      ::Guard::Notifier.should_receive(:add_notification).with(:growl, {}, false)
+      ::Guard::Notifier.should_receive(:add_notification).with(:ruby_gntp, { :host => '192.168.1.5' }, false)
+      described_class.evaluate_guardfile(:guardfile_contents => "notification :growl\nnotification :ruby_gntp, :host => '192.168.1.5'")
     end
   end
 
@@ -331,11 +359,11 @@ describe Guard::Dsl do
 
     it "should receive watchers when specified" do
       ::Guard.should_receive(:add_guard).with('dummy', anything, anything, { :group => :default }) do |name, watchers, callbacks, options|
-        watchers.size.should == 2
-        watchers[0].pattern.should     == 'a'
-        watchers[0].action.call.should == proc { 'b' }.call
-        watchers[1].pattern.should     == 'c'
-        watchers[1].action.should == nil
+        watchers.size.should eq 2
+        watchers[0].pattern.should        eq 'a'
+        watchers[0].action.call.should    eq proc { 'b' }.call
+        watchers[1].pattern.should        eq 'c'
+        watchers[1].action.should be_nil
       end
       described_class.evaluate_guardfile(:guardfile_contents => "
       guard :dummy do
@@ -355,10 +383,10 @@ describe Guard::Dsl do
 
       ::Guard.should_receive(:add_guard).with('dummy', anything, anything, { :group => :default }) do |name, watchers, callbacks, options|
         callbacks.should have(2).items
-        callbacks[0][:events].should   == :start_end
-        callbacks[0][:listener].call(Guard::Dummy, :start_end, 'foo').should == "Guard::Dummy executed 'start_end' hook with foo!"
-        callbacks[1][:events].should   == [:start_begin, :run_all_begin]
-        callbacks[1][:listener].should == MyCustomCallback
+        callbacks[0][:events].should    eq :start_end
+        callbacks[0][:listener].call(Guard::Dummy, :start_end, 'foo').should eq "Guard::Dummy executed 'start_end' hook with foo!"
+        callbacks[1][:events].should eq [:start_begin, :run_all_begin]
+        callbacks[1][:listener].should eq MyCustomCallback
       end
       described_class.evaluate_guardfile(:guardfile_contents => '
         guard :dummy do
@@ -377,6 +405,8 @@ private
 
   def valid_guardfile_string
     "
+    notification :growl
+
     guard :pow
 
     group :w do

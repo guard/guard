@@ -32,17 +32,13 @@ module Guard
     #
     # @return [Boolean] whether usable or not
     #
-    def self.usable?
+    def self.usable?(no_vendor = false)
+      return false unless RbConfig::CONFIG['target_os'] =~ /linux/i
+
+      $LOAD_PATH << File.expand_path('../../../vendor/linux/lib', __FILE__) unless no_vendor
       require 'rb-inotify'
-      if !defined?(INotify::VERSION) || (defined?(Gem::Version) &&
-          Gem::Version.new(INotify::VERSION.join('.')) < Gem::Version.new('0.8.5'))
-        UI.info 'Please update rb-inotify (>= 0.8.5)'
-        false
-      else
-        true
-      end
+      true
     rescue LoadError
-      UI.info 'Please install rb-inotify gem for Linux inotify support'
       false
     end
 
@@ -72,7 +68,7 @@ module Guard
     # @return [Boolean] whether inotify is active or not
     #
     def watch_change?
-      !!@watch_change
+      !!(defined? @watch_change and @watch_change)
     end
 
     # Watch for file system changes.

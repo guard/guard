@@ -56,7 +56,7 @@ module Guard
       def debug(message, options = { })
         unless ENV['GUARD_ENV'] == 'test'
           reset_line if options[:reset]
-          STDERR.puts color("DEBUG (#{Time.now.strftime('%T')}): ", :yellow) + message if ::Guard.options && ::Guard.options[:debug]
+          STDERR.puts color("DEBUG (#{Time.now.strftime('%T')}): ", :yellow) + message if ::Guard.options && ::Guard.options[:verbose]
         end
       end
 
@@ -119,7 +119,7 @@ module Guard
       #
       #   color('Hello World', :red, :bright)
       #
-      # @param [String] the text to colorize
+      # @param [String] text the text to colorize
       # @param [Array] color_options the color options
       #
       def color(text, *color_options)

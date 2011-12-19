@@ -42,8 +42,8 @@ module Guard
     #
     # @param [Array<Guard::Watcher>] watchers the Guard file watchers
     # @param [Hash] options the custom Guard options
-    # @options [Symbol] group the group this Guard belongs to
-    # @options [Boolean] any_return allow any object to be returned from a watcher
+    # @option options [Symbol] group the group this Guard belongs to
+    # @option options [Boolean] any_return allow any object to be returned from a watcher
     #
     def initialize(watchers = [], options = {})
       @group = options[:group] ? options.delete(:group).to_sym : :default
