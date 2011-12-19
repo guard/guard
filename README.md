@@ -91,25 +91,6 @@ group :development do
 end
 ```
 
-#### GrowlNotify
-
-* Runs on Mac OS X
-* Supports [Growl](http://growl.info/) version >= 1.3
-
-The [growl_notify](https://rubygems.org/gems/growl_notify) gem uses AppleScript to send Growl notifications.
-The gem needs a native C extension to make use of AppleScript and does not run on JRuby and MacRuby.
-
-Guard supports multiple notification channels for customizing each notification type and you need to have at least
-Growl version 1.3 installed.
-
-To use `growl_notify` you have to add it to your `Gemfile` and run bundler:
-
-```ruby
-group :development do
-  gem 'growl_notify'
-end
-```
-
 #### Growl
 
 * Runs on Mac OS X
@@ -164,6 +145,27 @@ To use `rb-notifu` you have to add it to your `Gemfile` and run bundler:
 ```ruby
 group :development do
   gem 'rb-notifu'
+end
+```
+
+#### GrowlNotify
+
+* Runs on Mac OS X
+* Supports [Growl](http://growl.info/) version >= 1.3
+* Doesn't support JRuby and MacRuby.
+* Doesn't work when forking, e.g. with [Spork](https://github.com/sporkrb/spork).
+
+The [growl_notify](https://rubygems.org/gems/growl_notify) gem uses AppleScript to send Growl notifications.
+The gem needs a native C extension to make use of AppleScript and does not run on JRuby and MacRuby.
+
+Guard supports multiple notification channels for customizing each notification type and you need to have at least
+Growl version 1.3 installed.
+
+To use `growl_notify` you have to add it to your `Gemfile` and run bundler:
+
+```ruby
+group :development do
+  gem 'growl_notify'
 end
 ```
 
