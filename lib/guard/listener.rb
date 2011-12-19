@@ -33,10 +33,10 @@ module Guard
     # @return [Guard::Listener] the chosen listener
     #
     def self.select_and_init(options = nil)
-      watchdir = options && options.key?(:watchdir) && File.expand_path(options[:watchdir])
+      watchdir = options && options[:watchdir] && File.expand_path(options[:watchdir])
       watchdir = Dir.pwd unless watchdir
 
-      no_vendor = options && options.key?(:no_vendor) ? options[:no_vendor] : false
+      no_vendor = options && options[:no_vendor] ? options[:no_vendor] : false
 
       if mac? && Darwin.usable?(no_vendor)
         Darwin.new(watchdir, options)
