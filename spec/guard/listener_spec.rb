@@ -27,13 +27,31 @@ describe Guard::Listener do
       described_class.select_and_init
     end
 
-    it 'forwards its arguments to the constructor' do
+    it 'forwards its options to the constructor' do
       described_class.stub!(:mac?).and_return(true)
       Guard::Darwin.stub!(:usable?).and_return(true)
 
-      path, opts = 'path', { :foo => 23 }
-      Guard::Darwin.should_receive(:new).with(path, opts).and_return(true)
-      described_class.select_and_init(path, opts)
+      opts = { :foo => 23 }
+      Guard::Darwin.should_receive(:new).with(anything(), opts).and_return(true)
+      described_class.select_and_init(opts)
+    end
+
+    context 'with an explicit watch directory' do
+      it 'uses the given working directory' do
+        RbConfig::CONFIG['target_os'] = 'darwin10.4.0'
+        Guard::Darwin.stub(:usable?).and_return(true)
+        Guard::Darwin.should_receive(:new).with('/Users/mrx/projects/secret', { :watchdir => '/Users/mrx/projects/secret' })
+        described_class.select_and_init({ :watchdir => '/Users/mrx/projects/secret' })
+      end
+    end
+
+    context 'without an explicit watch directory' do
+      it 'uses the current working directory' do
+        RbConfig::CONFIG['target_os'] = 'darwin10.4.0'
+        Guard::Darwin.stub(:usable?).and_return(true)
+        Guard::Darwin.should_receive(:new).with(Dir.pwd, nil)
+        described_class.select_and_init
+      end
     end
   end
 

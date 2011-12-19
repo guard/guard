@@ -28,11 +28,16 @@ module Guard
     # Select the appropriate listener implementation for the
     # current OS and initializes it.
     #
-    # @param [Array] args the arguments for the listener
+    # @param [Hash] options the options for the listener
+    # @option options [String] watchdir the directory to watch
     # @return [Guard::Listener] the chosen listener
     #
-    def self.select_and_init(watchdir = Dir.pwd, options = nil)
+    def self.select_and_init(options = nil)
+      watchdir = options && options.key?(:watchdir) && File.expand_path(options[:watchdir])
+      watchdir = Dir.pwd unless watchdir
+
       no_vendor = options && options.key?(:no_vendor) ? options[:no_vendor] : false
+
       if mac? && Darwin.usable?(no_vendor)
         Darwin.new(watchdir, options)
       elsif linux? && Linux.usable?(no_vendor)
