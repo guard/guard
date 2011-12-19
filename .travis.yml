@@ -8,7 +8,6 @@ rvm:
 branches:
   only:
     - master
-    - dev
 env:
   - GUARD_SLEEP=1
 notifications:
