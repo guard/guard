@@ -34,7 +34,7 @@ Add Guard to your `Gemfile`:
 ```ruby
 group :development do
   gem 'guard'
-  
+
   platforms :ruby do
     gem 'rb-readline'
   end
@@ -800,8 +800,6 @@ When you file an issue, please try to follow to these simple rules if applicable
 
 Development
 -----------
-
-The development of Guard takes place on the [dev branch](https://github.com/guard/guard/tree/dev).
 
 * Documentation hosted at [RubyDoc](http://rubydoc.info/github/guard/guard/master/frames).
 * Source hosted at [GitHub](https://github.com/guard/guard).
