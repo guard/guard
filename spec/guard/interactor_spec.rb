@@ -219,6 +219,13 @@ describe Guard::Interactor do
       subject.extract_scopes_and_action('x x').should eql([{ }, nil])
     end
 
+    describe 'extracting actions' do
+      it "returns :stop action for exit or quit entrie and for their shortcuts" do
+        %w{exit e quit q}.each do |e|
+          subject.extract_scopes_and_action(e).should eql([{ }, :stop])
+        end
+      end
+    end
   end
 
 end
