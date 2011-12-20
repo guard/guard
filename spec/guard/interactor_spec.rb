@@ -220,9 +220,33 @@ describe Guard::Interactor do
     end
 
     describe 'extracting actions' do
+      it "returns :help action for the help entrie and for its shortcut" do
+        %w{help h}.each do |e|
+          subject.extract_scopes_and_action(e).should eql([{ }, :help])
+        end
+      end
+
+      it "returns :reload action for the reload entrie and for its shortcut" do
+        %w{reload r}.each do |e|
+          subject.extract_scopes_and_action(e).should eql([{ }, :reload])
+        end
+      end
+
       it "returns :stop action for exit or quit entrie and for their shortcuts" do
         %w{exit e quit q}.each do |e|
           subject.extract_scopes_and_action(e).should eql([{ }, :stop])
+        end
+      end
+
+      it "returns :pause action for the pause entrie and for its shortcut" do
+        %w{pause p}.each do |e|
+          subject.extract_scopes_and_action(e).should eql([{ }, :pause])
+        end
+      end
+
+      it "returns :notification action for the notification entrie and for its shortcut" do
+        %w{notification n}.each do |e|
+          subject.extract_scopes_and_action(e).should eql([{ }, :notification])
         end
       end
     end
