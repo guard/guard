@@ -10,12 +10,13 @@ module Guard
   #
   # Currently the following actions are implemented:
   #
-  # - h, help         => Show help
-  # - e, exit         => Exit Guard
-  # - r, reload       => Reload Guard
-  # - p, pause        => Toggle file modification listener
-  # - n, notification => Toggle notifications
-  # - <enter>         => Run all
+  # - h, help          => Show help
+  # - e, exit,
+  #   q. quit          => Exit Guard
+  # - r, reload        => Reload Guard
+  # - p, pause         => Toggle file modification listener
+  # - n, notification  => Toggle notifications
+  # - <enter>          => Run all
   #
   # It's also possible to scope `reload` and `run all` actions to only a specified group or a guard.
   #
@@ -32,7 +33,7 @@ module Guard
 
     HELP_ENTRIES         = %w[help h]
     RELOAD_ENTRIES       = %w[reload r]
-    STOP_ENTRIES         = %w[exit e]
+    STOP_ENTRIES         = %w[exit e quit q]
     PAUSE_ENTRIES        = %w[pause p]
     NOTIFICATION_ENTRIES = %w[notification n]
 
@@ -44,7 +45,7 @@ module Guard
       unless defined?(RbReadline) || defined?(JRUBY_VERSION)
         ::Guard::UI.info 'Please add rb-readline for proper Readline support.'
       end
-      
+
       Readline.completion_proc = proc { |word| auto_complete(word) }
 
       begin
@@ -159,10 +160,10 @@ module Guard
     #
     def help
       puts ''
-      puts 'e, exit          Exit Guard'
-      puts 'p, pause         Toggle file modification listener'
-      puts 'r, reload        Reload Guard'
-      puts 'n, notification  Toggle notifications'
+      puts '[e]xit, [q]uit   Exit Guard'
+      puts '[p]ause          Toggle file modification listener'
+      puts '[r]eload         Reload Guard'
+      puts '[n]otification   Toggle notifications'
       puts '<enter>          Run all Guards'
       puts ''
       puts 'You can scope the reload action to a specific guard or group:'
