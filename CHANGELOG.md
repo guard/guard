@@ -1,3 +1,17 @@
+## Master
+
+### Improvements
+
+- Add `interactor` to DSL to allow switching Guard interaction implementation. ([@netzpirat][])
+- Add quit action to the interactor. ([@Maher4Ever][])
+
+## 0.9.1 - December 19, 2011
+
+### Bug fix
+
+- Fix wrong `--no-vendor` option. ([@netzpirat][])
+- [#195](https://github.com/guard/guard/issues/195): Empty watch directory prohibit Guard from running. (reported by [@madtrick][], fixed by [@netzpirat][]
+
 ## 0.9.0 - December 19, 2011
 
 ### Bug fix
@@ -383,3 +397,6 @@
 [@wereHamster]: https://github.com/wereHamster
 [@yannlugrin]: https://github.com/yannlugrin
 [@zonque]: https://github.com/zonque
+
+[@Maher4Ever]: https://github.com/Maher4Ever
+[@madtrick]: https://github.com/madtrick

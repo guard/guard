@@ -276,6 +276,21 @@ module Guard
       ::Guard::Notifier.add_notification(notifier.to_sym, options, false)
     end
 
+    # Sets the interactor to use.
+    #
+    # @example Use the readline interactor
+    #   interactor :readline
+    #
+    # @example Use the gets interactor
+    #   interactor :gets
+    #
+    # @example Turn off interactions
+    #   interactor :off
+    #
+    def interactor(interactor)
+      ::Guard::Interactor.interactor = interactor.to_sym
+    end
+
     # Declares a group of guards to be run with `guard start --group group_name`.
     #
     # @example Declare two groups of Guards

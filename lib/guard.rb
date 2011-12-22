@@ -62,7 +62,6 @@ module Guard
       @options    = options
       @guards     = []
       self.reset_groups
-      @interactor = Interactor.new unless options[:no_interactions]
       @listener   = Listener.select_and_init(options)
 
       UI.clear if @options[:clear]
@@ -177,7 +176,11 @@ module Guard
         run_supervised_task(guard, :start)
       end
 
-      interactor.start if interactor
+      unless options[:no_interactions]
+        @interactor = Interactor.fabricate
+        @interactor.start if @interactor
+      end
+
       listener.start
     end
 

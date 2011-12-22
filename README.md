@@ -34,10 +34,6 @@ Add Guard to your `Gemfile`:
 ```ruby
 group :development do
   gem 'guard'
-
-  platforms :ruby do
-    gem 'rb-readline'
-  end
 end
 ```
 
@@ -361,11 +357,7 @@ read more about these files in the shared configuration section below.
 Interactions
 ------------
 
-You can interact with Guard and enter commands when Guard has nothing to do. You'll see a command prompt `>` when Guard
-is ready to accept a command. The command line supports history navigation with the `↑` and `↓` arrow keys, and
-command auto-completion with the `⇥` key.
-
-You can execute the following commands:
+You can interact with Guard and enter commands when Guard has nothing to do. Guard understands the following commands:
 
 * `↩`:                 Run all Guards.
 * `h`, `help`:         Show a help of the available interactor commands.
@@ -398,6 +390,23 @@ This will reload only the Ronn Guard. You can also reload all Guards within a gr
 ```bash
 > backend reload
 ```
+
+### Readline support
+
+With Readline enabled, you'll see a command prompt `>` when Guard is ready to accept a command. The command line
+supports history navigation with the `↑` and `↓` arrow keys, and command auto-completion with the `⇥` key.
+
+Unfortunately Readline [does not work on MRI](http://bugs.ruby-lang.org/issues/5539) on Mac OS X by default. You can
+work around the issue by installing a pure Ruby implementation:
+
+```ruby
+platforms :ruby do
+  gem 'rb-readline'
+end
+```
+
+Guard will automatically enable Readline support if your environment supports it, but you can disable Readline with the
+`interactor` DSL method or turn off completely with the `--no-interactions` option.
 
 Guardfile DSL
 -------------
@@ -527,6 +536,26 @@ or using the cli switch `-n`:
 
 ```ruby
 notification :off
+```
+
+### interactor
+
+You can disable the interactor auto detection and for a specific implementation:
+
+```ruby
+interactor :readline
+```
+
+will select Readline interactor. You can also force the simple interactor without Readline support with:
+
+```ruby
+interactor :simple
+```
+
+If you do not need the keyboard interactions with Guard at all, you can turn them off:
+
+```ruby
+interactor :off
 ```
 
 ### callback

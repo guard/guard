@@ -1,12 +1,10 @@
-require 'readline'
-
 module Guard
 
-  # The interactor reads user input and triggers
-  # specific action upon them unless its locked.
-  #
-  # It used the readline library for history and
-  # completion support.
+  autoload :ReadlineInteractor, 'guard/interactors/readline'
+  autoload :SimpleInteractor,   'guard/interactors/simple'
+
+  # The interactor triggers specific action from input
+  # read by a interactor implementation.
   #
   # Currently the following actions are implemented:
   #
@@ -29,6 +27,8 @@ module Guard
   # @example Run all jasmine specs
   #   jasmine
   #
+  # @abstract
+  #
   class Interactor
 
     HELP_ENTRIES         = %w[help h]
@@ -37,21 +37,52 @@ module Guard
     PAUSE_ENTRIES        = %w[pause p]
     NOTIFICATION_ENTRIES = %w[notification n]
 
-    COMPLETION_ACTIONS   = %w[help reload exit pause notification]
-
-    # Initialize the interactor.
+    # Set the interactor implementation
     #
-    def initialize
-      unless defined?(RbReadline) || defined?(JRUBY_VERSION)
-        ::Guard::UI.info 'Please add rb-readline for proper Readline support.'
+    # @param [Symbol] interactor the name of the interactor
+    #
+    def self.interactor=(interactor)
+      @interactor = interactor
+    end
+
+    # Get an instance of the currently configured
+    # interactor implementation.
+    #
+    # @return [Interactor] an interactor implementation
+    #
+    def self.fabricate
+      case @interactor
+      when :readline
+        ReadlineInteractor.new
+      when :simple
+        SimpleInteractor.new
+      when :off
+        nil
+      else
+        auto_detect
       end
+    end
 
-      Readline.completion_proc = proc { |word| auto_complete(word) }
+    # Tries to detect an optimal interactor for the
+    # current environment.
+    #
+    # It returns the Readline implementation when:
+    #
+    # * rb-readline is installed
+    # * The Ruby implementation is JRuby
+    # * The current OS is not Mac OS X
+    #
+    # Otherwise the plain gets interactor is returned.
+    #
+    # @return [Interactor] an interactor implementation
+    #
+    def self.auto_detect
+      require 'readline'
 
-      begin
-        Readline.completion_append_character = ' '
-      rescue NotImplementedError
-        # Ignore, we just don't support it then
+      if defined?(RbReadline) || defined?(JRUBY_VERSION) || !RbConfig::CONFIG['target_os'] =~ /darwin/i
+        ReadlineInteractor.new
+      else
+        SimpleInteractor.new
       end
     end
 
@@ -70,40 +101,13 @@ module Guard
       end
     end
 
-    # Read a line from stdin with Readline.
+    # Read the user input. This method must be implemented
+    # by each interactor implementation.
+    #
+    # @abstract
     #
     def read_line
-      while line = Readline.readline(prompt, true)
-        process_input(line)
-      end
-    end
-
-    # Auto complete the given word.
-    #
-    # @param [String] word the partial word
-    # @return [Array<String>] the matching words
-    #
-    def auto_complete(word)
-      completion_list.grep(/^#{ Regexp.escape(word) }/)
-    end
-
-    # Get the auto completion list.
-    #
-    # @return [Array<String>] the list of words
-    #
-    def completion_list
-      groups = ::Guard.groups.map { |group| group.name.to_s }
-      guards = ::Guard.guards.map { |guard| guard.class.to_s.downcase.sub('guard::', '') }
-
-      COMPLETION_ACTIONS + groups + guards - ['default']
-    end
-
-    # The current interactor prompt
-    #
-    # @return [String] the prompt to show
-    #
-    def prompt
-      ::Guard.listener.paused? ? 'p> ' : '> '
+      raise NotImplementedError
     end
 
     # Process the input from readline.
@@ -111,10 +115,6 @@ module Guard
     # @param [String] line the input line
     #
     def process_input(line)
-      if line =~ /^\s*$/ or Readline::HISTORY.to_a[-2] == line
-        Readline::HISTORY.pop
-      end
-
       scopes, action = extract_scopes_and_action(line)
 
       case action

@@ -92,17 +92,6 @@ describe Guard do
       ::Guard.should_receive(:debug_command_execution)
       ::Guard.setup(:verbose => true)
     end
-
-    it "initializes the interactor" do
-      ::Guard.setup
-      ::Guard.interactor.should be_kind_of(Guard::Interactor)
-    end
-
-    it "skips the interactor initalization if no-interactions is true" do
-      ::Guard.interactor = nil
-      ::Guard.setup(:no_interactions => true)
-      ::Guard.interactor.should be_nil
-    end
   end
 
   describe ".guards" do
@@ -260,6 +249,27 @@ describe Guard do
     it "starts the listeners" do
       ::Guard.listener.should_receive(:start)
       ::Guard.start(options)
+    end
+
+    context "with interactions enabled" do
+      it "fabricates the interactor" do
+        ::Guard::Interactor.should_receive(:fabricate)
+        ::Guard.start(:no_interactions => false)
+      end
+
+      it "starts the interactor" do
+        interactor = mock('interactor')
+        interactor.should_receive(:start)
+        ::Guard::Interactor.should_receive(:fabricate).and_return interactor
+        ::Guard.start(:no_interactions => false)
+      end
+    end
+
+    context "with interactions disabled" do
+      it "fabricates the interactor" do
+        ::Guard::Interactor.should_not_receive(:fabricate)
+        ::Guard.start(:no_interactions => true)
+      end
     end
 
     context "with the notify option enabled" do

@@ -276,6 +276,20 @@ describe Guard::Dsl do
     end
   end
 
+  describe "#interactor" do
+    disable_user_config
+
+    it 'sets the interactor implementation' do
+      ::Guard::Interactor.should_receive(:interactor=).with(:readline)
+      described_class.evaluate_guardfile(:guardfile_contents => 'interactor :readline')
+    end
+
+    it 'converts the interactor to a symbol' do
+      ::Guard::Interactor.should_receive(:interactor=).with(:readline)
+      described_class.evaluate_guardfile(:guardfile_contents => 'interactor "readline"')
+    end
+  end
+
   describe "#group" do
     disable_user_config
 
