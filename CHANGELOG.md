@@ -1,4 +1,4 @@
-## Master
+## 0.9.2 - December 22, 2011
 
 ### Improvements
 
@@ -370,6 +370,8 @@
 [@jrsacks]: https://github.com/jrsacks
 [@koshigoe]: https://github.com/koshigoe
 [@limeyd]: https://github.com/limeyd
+[@madtrick]: https://github.com/madtrick
+[@Maher4Ever]: https://github.com/Maher4Ever
 [@mcmire]: https://github.com/mcmire
 [@mislav]: https://github.com/mislav
 [@monocle]: https://github.com/monocle
@@ -397,6 +399,3 @@
 [@wereHamster]: https://github.com/wereHamster
 [@yannlugrin]: https://github.com/yannlugrin
 [@zonque]: https://github.com/zonque
-
-[@Maher4Ever]: https://github.com/Maher4Ever
-[@madtrick]: https://github.com/madtrick

@@ -1,6 +1,6 @@
 module Guard
   unless defined? Guard::VERSION
     # The current gem version of Guard
-    VERSION = '0.9.1'
+    VERSION = '0.9.2'
   end
 end
