@@ -1,3 +1,9 @@
+## 0.9.3 - December 23, 2011
+
+### Improvements
+
+- Fix terminal status after interrupting the Readline interactor. ([@Maher4Ever][])
+
 ## 0.9.2 - December 22, 2011
 
 ### Improvements
@@ -10,13 +16,13 @@
 ### Bug fix
 
 - Fix wrong `--no-vendor` option. ([@netzpirat][])
-- [#195](https://github.com/guard/guard/issues/195): Empty watch directory prohibit Guard from running. (reported by [@madtrick][], fixed by [@netzpirat][]
+- [#195](https://github.com/guard/guard/issues/195): Empty watch directory prohibit Guard from running. (reported by [@madtrick][], fixed by [@netzpirat][])
 
 ## 0.9.0 - December 19, 2011
 
 ### Bug fix
 
-- [#173](https://github.com/guard/guard/issues/173): Cannot set the watch_all_modifications option. (reported by [@sutherland][], fixed by [@netzpirat][]
+- [#173](https://github.com/guard/guard/issues/173): Cannot set the watch_all_modifications option. (reported by [@sutherland][], fixed by [@netzpirat][])
 - Fix `guard init` when a guard name is given. ([@rymai][])
 
 ### Improvements
