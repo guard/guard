@@ -193,6 +193,7 @@ module Guard
         run_supervised_task(guard, :stop)
       end
 
+      interactor.stop if interactor
       listener.stop
       abort
     end

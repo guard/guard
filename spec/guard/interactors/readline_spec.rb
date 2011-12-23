@@ -15,6 +15,22 @@ describe Guard::ReadlineInteractor do
     end
   end
 
+  describe '#start' do
+    it 'stores the terminal settings' do
+      subject.should_receive(:store_terminal_settings)
+      subject.start
+    end
+  end
+
+  describe '#stop' do
+    before { Thread.stub(:current).and_return(nil) }
+
+    it 'restores the terminal settings' do
+      subject.should_receive(:restore_terminal_settings)
+      subject.stop
+    end
+  end
+
   describe '#readline' do
     before do
       Guard.listener = mock('listener')
