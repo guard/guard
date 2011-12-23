@@ -28,6 +28,20 @@ module Guard
       end
     end
 
+    # Start the interactor.
+    #
+    def start
+      store_terminal_settings
+      super
+    end
+
+    # Stop the interactor.
+    #
+    def stop
+      super
+      restore_terminal_settings
+    end
+
     # Read a line from stdin with Readline.
     #
     def read_line
@@ -68,5 +82,19 @@ module Guard
       ::Guard.listener.paused? ? 'p> ' : '> '
     end
 
+    private
+
+    # Stores the terminal settings so we can resore them
+    # when stopping.
+    #
+    def store_terminal_settings
+      @stty_save = `stty -g`.chomp
+    end
+
+    # Restore terminal settings
+    #
+    def restore_terminal_settings
+      system('stty', @stty_save)
+    end
   end
 end
