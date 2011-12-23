@@ -218,6 +218,13 @@ In addition, the `init` task can be used to append a supplied Guard template fro
 $ guard init <guard-name>
 ```
 
+You can also define your own templates in `~/.guard/templates/` which can be appended in the same way to your existing 
+`Guardfile`:
+
+```bash
+$ guard init <template-name>
+```
+
 ### Start
 
 Just launch Guard inside your Ruby or Rails project with:
