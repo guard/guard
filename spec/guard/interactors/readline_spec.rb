@@ -23,7 +23,7 @@ describe Guard::ReadlineInteractor do
   end
 
   describe '#stop' do
-    before { Thread.stub(:current).and_return(nil) }
+    before { subject.instance_variable_set(:@thread, Thread.current) }
 
     it 'restores the terminal settings' do
       subject.should_receive(:restore_terminal_settings)
