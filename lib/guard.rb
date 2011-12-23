@@ -28,7 +28,7 @@ module Guard
     #
     # @see Guard::Guard.init
     #
-    # @param [String] guard_name the name of the Guard to initialize
+    # @param [String] guard_name the name of the Guard or template to initialize
     #
     def initialize_template(guard_name = nil)
       if !File.exist?('Guardfile')
@@ -411,6 +411,7 @@ module Guard
     # Tries to load the Guard main class.
     #
     # @param [String] name the name of the Guard
+    # @param [Boolean] fail_gracefully whether error messages should not be printed
     # @return [Class, nil] the loaded class
     #
     def get_guard_class(name, fail_gracefully=false)
