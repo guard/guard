@@ -47,7 +47,7 @@ module Guard
       def list(options)
         evaluate_guardfile(options)
 
-        installed = guardfile_structure.inject([]) do |installed, group|
+        installed_guards = guardfile_structure.inject([]) do |installed, group|
           group[:guards].each { |guard| installed << guard[:name] } if group[:guards]
           installed
         end
@@ -55,7 +55,7 @@ module Guard
         UI.info 'Available guards:'
 
         ::Guard.guard_gem_names.sort.uniq.each do |name|
-          UI.info "   #{ name }#{ installed.include?(name) ? '*' : '' }"
+          UI.info "   #{ name }#{ installed_guards.include?(name) ? '*' : '' }"
         end
 
         UI.info ''
@@ -141,6 +141,7 @@ module Guard
     # @see Guard::Dsl#guard
     #
     def guard(name, options = { })
+      @group ||= false
       node = (@group ? @@guardfile_structure.last : @@guardfile_structure.first)
 
       node[:guards] << { :name => name, :options => options }

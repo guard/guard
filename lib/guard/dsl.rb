@@ -9,6 +9,11 @@ module Guard
   # You can optionally group the Guards with the `group` keyword and ignore certain paths
   # with the `ignore_paths` keyword.
   #
+  # You can set your preferred system notification library with `notification` and pass
+  # some optional configuration options for the library. If you don't configure a library,
+  # Guard will automatically pick one with default options (if you don't want notifications,
+  # specify `:off` as library). @see ::Guard::Notifier for more information about the supported libraries.
+  #
   # A more advanced DSL use is the `callback` keyword that allows you to execute arbitrary
   # code before or after any of the `start`, `stop`, `reload`, `run_all` and `run_on_change`
   # Guards' method. You can even insert more hooks inside these methods.
@@ -24,6 +29,8 @@ module Guard
   # be appended to the current project `Guardfile`.
   #
   # @example A sample of a complex Guardfile
+  #
+  #   notification :growl
   #
   #   group 'frontend' do
   #     guard 'passenger', :ping => true do
@@ -102,6 +109,7 @@ module Guard
       def reevaluate_guardfile
         ::Guard.guards.clear
         ::Guard.reset_groups
+        ::Guard::Notifier.notifications.clear
         @@options.delete(:guardfile_contents)
         Dsl.evaluate_guardfile(@@options)
         msg = 'Guardfile has been re-evaluated.'
@@ -131,7 +139,7 @@ module Guard
 
       # Read the current `Guardfile` content.
       #
-      # @param [String] the path to the Guardfile
+      # @param [String] guardfile_path the path to the Guardfile
       #
       def read_guardfile(guardfile_path)
         @@options[:guardfile_path]     = guardfile_path
@@ -224,7 +232,7 @@ module Guard
       # The path to the `Guardfile` that is located at
       # the directory, where Guard has been started from.
       #
-      # @param [String] the path to the local Guardfile
+      # @return [String] the path to the local Guardfile
       #
       def local_guardfile_path
         File.join(Dir.pwd, 'Guardfile')
@@ -233,7 +241,7 @@ module Guard
       # The path to the `.Guardfile` that is located at
       # the users home directory.
       #
-      # @param [String] the path to ~/.Guardfile
+      # @return [String] the path to ~/.Guardfile
       #
       def home_guardfile_path
         File.expand_path(File.join('~', '.Guardfile'))
@@ -242,12 +250,45 @@ module Guard
       # The path to the user configuration `.guard.rb`
       # that is located at the users home directory.
       #
-      # @param [String] the path to ~/.guard.rb
+      # @return [String] the path to ~/.guard.rb
       #
       def user_config_path
         File.expand_path(File.join('~', '.guard.rb'))
       end
 
+    end
+
+    # Set notification options for the system notifications.
+    # You can set multiple notification, which allows you to show local
+    # system notifications and remote notifications with separate libraries.
+    # You can also pass `:off` as library to turn off notifications.
+    #
+    # @example Define multiple notifications
+    #   notification :growl_notify
+    #   notification :ruby_gntp, :host => '192.168.1.5'
+    #
+    # @see Guard::Notifier for available notifier and its options.
+    #
+    # @param [Symbol, String] notifier the name of the notifier to use
+    # @param [Hash] options the notification library options
+    #
+    def notification(notifier, options = {})
+      ::Guard::Notifier.add_notification(notifier.to_sym, options, false)
+    end
+
+    # Sets the interactor to use.
+    #
+    # @example Use the readline interactor
+    #   interactor :readline
+    #
+    # @example Use the gets interactor
+    #   interactor :gets
+    #
+    # @example Turn off interactions
+    #   interactor :off
+    #
+    def interactor(interactor)
+      ::Guard::Interactor.interactor = interactor.to_sym
     end
 
     # Declares a group of guards to be run with `guard start --group group_name`.
@@ -310,10 +351,11 @@ module Guard
     def guard(name, options = {})
       @watchers  = []
       @callbacks = []
+      @current_group ||= :default
 
       yield if block_given?
 
-      options.update(:group => (@current_group || :default))
+      options.update(:group => @current_group)
       ::Guard.add_guard(name.to_s.downcase, @watchers, @callbacks, options)
     end
 

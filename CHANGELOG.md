@@ -1,3 +1,36 @@
+## 0.9.3 - December 23, 2011
+
+### Improvements
+
+- Fix terminal status after interrupting the Readline interactor. ([@Maher4Ever][])
+
+## 0.9.2 - December 22, 2011
+
+### Improvements
+
+- Add `interactor` to DSL to allow switching Guard interaction implementation. ([@netzpirat][])
+- Add quit action to the interactor. ([@Maher4Ever][])
+
+## 0.9.1 - December 19, 2011
+
+### Bug fix
+
+- Fix wrong `--no-vendor` option. ([@netzpirat][])
+- [#195](https://github.com/guard/guard/issues/195): Empty watch directory prohibit Guard from running. (reported by [@madtrick][], fixed by [@netzpirat][])
+
+## 0.9.0 - December 19, 2011
+
+### Bug fix
+
+- [#173](https://github.com/guard/guard/issues/173): Cannot set the watch_all_modifications option. (reported by [@sutherland][], fixed by [@netzpirat][])
+- Fix `guard init` when a guard name is given. ([@rymai][])
+
+### Improvements
+
+- [#165](https://github.com/guard/guard/issues/175): Allow underscores in Guard name. ([@benolee][])
+- Add readline support to the interactor. ([@netzpirat][])
+- Add support for notification configuration. ([@netzpirat][])
+
 ## 0.8.8 - October 21, 2011
 
 ### Bug fix
@@ -8,7 +41,7 @@
 
 ### Bug fix
 
-- [#166](https://github.com/guard/guard/issues/166): Fix silent failure after re-evaluating Guardfile. (reported by [@dgutov][], fixed by [@rymai][], special thanks to [@dyfrgi][] for the [reproductible test case](https://github.com/dyfrgi/Guard-Broken))
+- [#166](https://github.com/guard/guard/issues/166): Fix silent failure after re-evaluating Guardfile. (reported by [@dgutov][], fixed by [@rymai][], special thanks to [@dyfrgi][] for the [reproducible test case](https://github.com/dyfrgi/Guard-Broken))
 
 ## 0.8.6 - October 17, 2011
 
@@ -316,6 +349,7 @@
 - Added polling listening fallback. ([@thibaudgg][])
 
 [@anithri]: https://github.com/anithri
+[@benolee]: https://github.com/benolee
 [@brainopia]: https://github.com/brainopia
 [@bronson]: https://github.com/bronson
 [@capotej]: https://github.com/capotej
@@ -342,6 +376,8 @@
 [@jrsacks]: https://github.com/jrsacks
 [@koshigoe]: https://github.com/koshigoe
 [@limeyd]: https://github.com/limeyd
+[@madtrick]: https://github.com/madtrick
+[@Maher4Ever]: https://github.com/Maher4Ever
 [@mcmire]: https://github.com/mcmire
 [@mislav]: https://github.com/mislav
 [@monocle]: https://github.com/monocle
@@ -359,6 +395,7 @@
 [@stereobooster]: https://github.com/stereobooster
 [@stouset]: https://github.com/stouset
 [@sunaku]: https://github.com/sunaku
+[@sutherland]: https://github.com/sutherland
 [@thibaudgg]: https://github.com/thibaudgg
 [@thierryhenrio]: https://github.com/thierryhenrio
 [@tinogomes]: https://github.com/tinogomes

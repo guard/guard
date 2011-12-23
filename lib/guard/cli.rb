@@ -25,11 +25,11 @@ module Guard
                   :aliases => '-n',
                   :banner  => 'Notifications feature (growl/libnotify)'
 
-    method_option :debug,
+    method_option :verbose,
                   :type    => :boolean,
                   :default => false,
-                  :aliases => '-d',
-                  :banner  => 'Print debug messages'
+                  :aliases => '-v',
+                  :banner  => 'Show verbose messages'
 
     method_option :group,
                   :type    => :array,
@@ -46,6 +46,12 @@ module Guard
                   :type    => :string,
                   :aliases => '-G',
                   :banner  => 'Specify a Guardfile'
+
+    method_option :no_vendor,
+                  :type    => :boolean,
+                  :default => false,
+                  :aliases => '-I',
+                  :banner  => 'Ignore vendored dependencies'
 
     method_option :watch_all_modifications,
                   :type => :boolean,
@@ -66,6 +72,8 @@ module Guard
     #
     def start
       ::Guard.start(options)
+    rescue Interrupt
+      ::Guard.stop
     end
 
     desc 'list', 'Lists guards that can be used with init'

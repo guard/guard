@@ -107,37 +107,9 @@ describe Guard do
       ::Guard.listener.directory.should eql "/foo/bar"
     end
 
-    it "turns on the notifier by default" do
-      ENV["GUARD_NOTIFY"] = nil
-      ::Guard::Notifier.should_receive(:turn_on)
-      ::Guard.setup(:notify => true)
-    end
-
-    it "turns off the notifier if the notify option is false" do
-      ::Guard::Notifier.should_receive(:turn_off)
-      ::Guard.setup(:notify => false)
-    end
-
-    it "turns off the notifier if environment variable GUARD_NOTIFY is false" do
-      ENV["GUARD_NOTIFY"] = 'false'
-      ::Guard::Notifier.should_receive(:turn_off)
-      ::Guard.setup(:notify => true)
-    end
-
     it "logs command execution if the debug option is true" do
       ::Guard.should_receive(:debug_command_execution)
-      ::Guard.setup(:debug => true)
-    end
-
-    it "initializes the interactor" do
-      ::Guard.setup
-      ::Guard.interactor.should be_kind_of(Guard::Interactor)
-    end
-
-    it "skips the interactor initalization if no-interactions is true" do
-      ::Guard.interactor = nil
-      ::Guard.setup(:no_interactions => true)
-      ::Guard.interactor.should be_nil
+      ::Guard.setup(:verbose => true)
     end
   end
 
@@ -273,13 +245,108 @@ describe Guard do
   end
 
   describe ".start" do
-    it "basic check that core methods are called" do
-      opts = { :my_opts => true, :guardfile => File.join(@fixture_path, "Guardfile") }
-      ::Guard.should_receive(:setup).with(opts)
-      ::Guard::Dsl.should_receive(:evaluate_guardfile).with(opts)
-      ::Guard.listener.should_receive(:start)
+    let(:options) { { :my_opts => true, :guardfile => File.join(@fixture_path, "Guardfile") } }
 
-      ::Guard.start(opts)
+    before do
+      Guard.stub(:setup)
+      Guard.listener.stub(:start)
+      Guard::Dsl.stub(:evaluate_guardfile)
+      Guard::Notifier.stub(:turn_on)
+      Guard::Notifier.stub(:turn_off)
+    end
+
+    it "setup Guard" do
+      ::Guard.should_receive(:setup).with(options)
+      ::Guard.start(options)
+    end
+
+    it "evaluates the DSL" do
+      ::Guard::Dsl.should_receive(:evaluate_guardfile).with(options)
+      ::Guard.start(options)
+    end
+
+    it "starts the listeners" do
+      ::Guard.listener.should_receive(:start)
+      ::Guard.start(options)
+    end
+
+    context "with interactions enabled" do
+      it "fabricates the interactor" do
+        ::Guard::Interactor.should_receive(:fabricate)
+        ::Guard.start(:no_interactions => false)
+      end
+
+      it "starts the interactor" do
+        interactor = mock('interactor')
+        interactor.should_receive(:start)
+        ::Guard::Interactor.should_receive(:fabricate).and_return interactor
+        ::Guard.start(:no_interactions => false)
+      end
+    end
+
+    context "with interactions disabled" do
+      it "fabricates the interactor" do
+        ::Guard::Interactor.should_not_receive(:fabricate)
+        ::Guard.start(:no_interactions => true)
+      end
+    end
+
+    context "with the notify option enabled" do
+      context 'without the environment variable GUARD_NOTIFY set' do
+        before { ENV["GUARD_NOTIFY"] = nil }
+
+        it "turns on the notifier on" do
+          ::Guard::Notifier.should_receive(:turn_on)
+          ::Guard.start(:notify => true)
+        end
+      end
+
+      context 'with the environment variable GUARD_NOTIFY set to true' do
+        before { ENV["GUARD_NOTIFY"] = 'true' }
+
+        it "turns on the notifier on" do
+          ::Guard::Notifier.should_receive(:turn_on)
+          ::Guard.start(:notify => true)
+        end
+      end
+
+      context 'with the environment variable GUARD_NOTIFY set to false' do
+        before { ENV["GUARD_NOTIFY"] = 'false' }
+
+        it "turns on the notifier off" do
+          ::Guard::Notifier.should_receive(:turn_off)
+          ::Guard.start(:notify => true)
+        end
+      end
+    end
+
+    context "with the notify option disable" do
+      context 'without the environment variable GUARD_NOTIFY set' do
+        before { ENV["GUARD_NOTIFY"] = nil }
+
+        it "turns on the notifier off" do
+          ::Guard::Notifier.should_receive(:turn_off)
+          ::Guard.start(:notify => false)
+        end
+      end
+
+      context 'with the environment variable GUARD_NOTIFY set to true' do
+        before { ENV["GUARD_NOTIFY"] = 'true' }
+
+        it "turns on the notifier on" do
+          ::Guard::Notifier.should_receive(:turn_off)
+          ::Guard.start(:notify => false)
+        end
+      end
+
+      context 'with the environment variable GUARD_NOTIFY set to false' do
+        before { ENV["GUARD_NOTIFY"] = 'false' }
+
+        it "turns on the notifier off" do
+          ::Guard::Notifier.should_receive(:turn_off)
+          ::Guard.start(:notify => false)
+        end
+      end
     end
   end
 
@@ -366,14 +433,14 @@ describe Guard do
     it "accepts options" do
       subject.add_group(:backend, { :halt_on_fail => true })
 
-      subject.groups[0].options.should == {}
-      subject.groups[1].options.should == { :halt_on_fail => true }
+      subject.groups[0].options.should eq({})
+      subject.groups[1].options.should eq({ :halt_on_fail => true })
     end
   end
 
   describe ".get_guard_class" do
     after do
-      [:Classname, :DashedClassName, :Inline].each do |const|
+      [:Classname, :DashedClassName, :UnderscoreClassName, :VSpec, :Inline].each do |const|
         Guard.send(:remove_const, const) rescue nil
       end
     end
@@ -386,7 +453,7 @@ describe Guard do
     context 'with a nested Guard class' do
       it "resolves the Guard class from string" do
         Guard.should_receive(:require) { |classname|
-          classname.should == 'guard/classname'
+          classname.should eq 'guard/classname'
           class Guard::Classname
           end
         }
@@ -395,7 +462,7 @@ describe Guard do
 
       it "resolves the Guard class from symbol" do
         Guard.should_receive(:require) { |classname|
-          classname.should == 'guard/classname'
+          classname.should eq 'guard/classname'
           class Guard::Classname
           end
         }
@@ -406,11 +473,33 @@ describe Guard do
     context 'with a name with dashes' do
       it "returns the Guard class" do
         Guard.should_receive(:require) { |classname|
-          classname.should == 'guard/dashed-class-name'
+          classname.should eq 'guard/dashed-class-name'
           class Guard::DashedClassName
           end
         }
         Guard.get_guard_class('dashed-class-name').should == Guard::DashedClassName
+      end
+    end
+
+    context 'with a name with underscores' do
+      it "returns the Guard class" do
+        Guard.should_receive(:require) { |classname|
+          classname.should eq 'guard/underscore_class_name'
+          class Guard::UnderscoreClassName
+          end
+        }
+        Guard.get_guard_class('underscore_class_name').should == Guard::UnderscoreClassName
+      end
+    end
+
+    context 'with a name where its class does not follow the strict case rules' do
+      it "returns the Guard class" do
+        Guard.should_receive(:require) { |classname|
+          classname.should eq 'guard/vspec'
+          class Guard::VSpec
+          end
+        }
+        Guard.get_guard_class('vspec').should == Guard::VSpec
       end
     end
 
@@ -487,8 +576,8 @@ describe Guard do
           guard.task
         end
 
-        @sum[:foo].should == 2
-        @sum[:bar].should == 0
+        @sum[:foo].should eq 2
+        @sum[:bar].should eq 0
       end
 
       it "executes the task for dumby guard only" do
@@ -496,8 +585,8 @@ describe Guard do
           guard.task
         end
 
-        @sum[:foo].should == 0
-        @sum[:bar].should == 1
+        @sum[:foo].should eq 0
+        @sum[:bar].should eq 1
       end
     end
 
@@ -528,13 +617,10 @@ describe Guard do
 
   describe ".run_on_change_task" do
     let(:guard) do
-      class Guard::Dummy < Guard::Guard
-        def watchers
-          [Guard::Watcher.new(/.+\.rb/)]
-        end
-      end
+      guard = mock(Guard::Guard).as_null_object
+      guard.stub!(:watchers) { [Guard::Watcher.new(/.+\.rb/)] }
 
-      Guard::Dummy.new
+      guard
     end
 
     it 'runs the :run_on_change task with the watched file changes' do
@@ -720,18 +806,19 @@ describe Guard do
     end
 
     after do
-      Kernel.send(:define_method, :system, @original_system.to_proc )
-      Kernel.send(:define_method, :"`", @original_command.to_proc )
+      Kernel.send(:remove_method, :system, :'`')
+      Kernel.send(:define_method, :system, @original_system.to_proc)
+      Kernel.send(:define_method, :"`", @original_command.to_proc)
     end
 
     it "outputs Kernel.#system method parameters" do
-      ::Guard.setup(:debug => true)
-      ::Guard::UI.should_receive(:debug).with("Command execution: echo test")
-      system("echo", "test").should be_true
+      ::Guard.setup(:verbose => true)
+      ::Guard::UI.should_receive(:debug).with("Command execution: exit 0")
+      system("exit", "0").should be_false
     end
 
     it "outputs Kernel.#` method parameters" do
-      ::Guard.setup(:debug => true)
+      ::Guard.setup(:verbose => true)
       ::Guard::UI.should_receive(:debug).twice.with("Command execution: echo test")
       `echo test`.should eql "test\n"
       %x{echo test}.should eql "test\n"

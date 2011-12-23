@@ -1,290 +1,203 @@
 require 'rbconfig'
 require 'pathname'
 require 'guard/ui'
+require 'guard/notifiers/gntp'
+require 'guard/notifiers/growl'
+require 'guard/notifiers/growl_notify'
+require 'guard/notifiers/libnotify'
+require 'guard/notifiers/rb_notifu'
 
 module Guard
 
-  # The notifier class handles cross-platform system notifications that supports:
+  # The notifier handles sending messages to different notifiers. Currently the following
+  # libraries are supported:
   #
-  # - Growl on Mac OS X
-  # - Libnotify on Linux
-  # - Notifu on Windows
+  # * Ruby GNTP
+  # * Growl
+  # * GrowlNotify
+  # * Libnotify
+  # * rb-notifu
+  #
+  # Please see the documentation of each notifier for more information about the requirements
+  # and configuration possibilities.
+  #
+  # Guard knows four different notification types:
+  #
+  # * success
+  # * pending
+  # * failed
+  # * notify
+  #
+  # The notification type selection is based on the image option that is
+  # sent to {#notify}. Each image type has its own notification type, and
+  # notifications with custom images goes all sent as type `notify`. The
+  # `gntp` and `growl_notify` notifiers are able to register these types
+  # at Growl and allows customization of each notification type.
+  #
+  # Guard can be configured to make use of more than one notifier at once, @see Guard::Dsl
   #
   module Notifier
+    extend self
 
-    # Application name as shown in the specific notification settings
-    APPLICATION_NAME = "Guard"
+    # List of available notifiers.
+    NOTIFIERS = {
+        :gntp         => ::Guard::Notifier::GNTP,
+        :growl        => ::Guard::Notifier::Growl,
+        :growl_notify => ::Guard::Notifier::GrowlNotify,
+        :libnotify    => ::Guard::Notifier::Libnotify,
+        :notifu       => ::Guard::Notifier::Notifu
+    }
 
-    class << self
+    # Get the available notifications.
+    #
+    # @return [Hash] the notifications
+    #
+    def notifications
+      @notifications ||= []
+    end
 
-      attr_accessor :growl_library, :gntp
+    # Set the available notifications.
+    #
+    # @param [Array<Hash>] notifications the notifications
+    #
+    def notifications=(notifications)
+      @notifications = notifications
+    end
 
-      # Turn notifications off.
-      #
-      def turn_off
-        ENV["GUARD_NOTIFY"] = 'false'
-      end
+    # Turn notifications on. If no notifications are defined
+    # in the `Guardfile` Guard auto detects the first available
+    # library.
+    #
+    def turn_on
+      auto_detect_notification if notifications.empty? && (!::Guard.options || ::Guard.options[:notify])
 
-      # Turn notifications on. This tries to load the platform
-      # specific notification library.
-      #
-      # @return [Boolean] whether the notification could be enabled.
-      #
-      def turn_on
-        ENV["GUARD_NOTIFY"] = 'true'
-        case RbConfig::CONFIG['target_os']
-        when /darwin/i
-          require_growl
-        when /linux/i
-          require_libnotify
-        when /mswin|mingw/i
-          require_rbnotifu
+      if notifications.empty?
+        ENV['GUARD_NOTIFY'] = 'false'
+      else
+        notifications.each do |notification|
+          ::Guard::UI.info "Guard uses #{ NOTIFIERS[notification[:name]].to_s.split('::').last } to send notifications."
         end
+
+        ENV['GUARD_NOTIFY'] = 'true'
       end
+    end
 
-      # Show a message with the system notification.
-      #
-      # @see .image_path
-      #
-      # @param [String] the message to show
-      # @option options [Symbol, String] image the image symbol or path to an image
-      # @option options [String] title the notification title
-      #
-      def notify(message, options = { })
-        if enabled?
-          image = options.delete(:image) || :success
-          title = options.delete(:title) || "Guard"
+    # Turn notifications off.
+    #
+    def turn_off
+      ENV['GUARD_NOTIFY'] = 'false'
+    end
 
-          case RbConfig::CONFIG['target_os']
-          when /darwin/i
-            notify_mac(title, message, image, options)
-          when /linux/i
-            notify_linux(title, message, image, options)
-          when /mswin|mingw/i
-            notify_windows(title, message, image, options)
+    # Test if the notifications are on.
+    #
+    # @return [Boolean] whether the notifications are on
+    #
+    def enabled?
+      ENV['GUARD_NOTIFY'] == 'true'
+    end
+
+    # Add a notification library to be used.
+    #
+    # @param [Symbol] name the name of the notifier to use
+    # @param [Boolean] silent disable any error message
+    # @param [Hash] options the notifier options
+    # @return [Boolean] if the notification could be added
+    #
+    def add_notification(name, options = { }, silent = false)
+      return turn_off if name == :off
+
+      if NOTIFIERS.has_key?(name) && NOTIFIERS[name].available?(silent)
+        notifications << { :name => name, :options => options }
+        true
+      else
+        false
+      end
+    end
+
+    # Show a system notification with all configured notifiers.
+    #
+    # @param [String] message the message to show
+    # @option options [Symbol, String] image the image symbol or path to an image
+    # @option options [String] title the notification title
+    #
+    def notify(message, options = { })
+      if enabled?
+        type  = notification_type(options[:image] || :success)
+        image = image_path(options.delete(:image) || :success)
+        title = options.delete(:title) || 'Guard'
+
+        notifications.each do |notification|
+          begin
+            NOTIFIERS[notification[:name]].notify(type, title, message, image, options.merge(notification[:options]))
+          rescue Exception => e
+            ::Guard::UI.error "Error sending notification with #{ notification[:name] }: #{ e.message }"
           end
         end
       end
+    end
 
-      # Test if the notifications are enabled and available.
-      #
-      # @return [Boolean] whether the notifications are available
-      #
-      def enabled?
-        ENV["GUARD_NOTIFY"] == 'true'
+    private
+
+    # Auto detect the available notification library. This goes through
+    # the list of supported notification gems and picks the first that
+    # is available.
+    #
+    def auto_detect_notification
+      available = [:growl_notify, :gntp, :growl, :libnotify, :notifu].any? { |notifier| add_notification(notifier, { }, true) }
+      ::Guard::UI.info('Guard could not detect any of the supported notification libraries.') unless available
+    end
+
+    # Get the image path for an image symbol for the following
+    # known image types:
+    #
+    # - failed
+    # - pending
+    # - success
+    #
+    # If the image is not a known symbol, it will be returned unmodified.
+    #
+    # @param [Symbol, String] image the image symbol or path to an image
+    # @return [String] the image path
+    #
+    def image_path(image)
+      case image
+      when :failed
+        images_path.join('failed.png').to_s
+      when :pending
+        images_path.join('pending.png').to_s
+      when :success
+        images_path.join('success.png').to_s
+      else
+        image
       end
+    end
 
-      private
+    # Paths where all Guard images are located
+    #
+    # @return [Pathname] the path to the images directory
+    #
+    def images_path
+      @images_path ||= Pathname.new(File.dirname(__FILE__)).join('../../images')
+    end
 
-      # Send a message to Growl either with the `growl` gem or the `growl_notify` gem.
-      #
-      # @param [String] title the notification title
-      # @param [String] message the message to show
-      # @param [Symbol, String] the image to user
-      # @param [Hash] options the growl options
-      #
-      def notify_mac(title, message, image, options = { })
-        require_growl # need for guard-rspec formatter that is called out of guard scope
-
-        notification = { :title => title, :icon => image_path(image) }.merge(options)
-
-        case self.growl_library
-        when :growl_notify
-          notification.delete(:name)
-
-          GrowlNotify.send_notification({
-              :description      => message,
-              :application_name => APPLICATION_NAME
-          }.merge(notification))
-
-        when :ruby_gntp
-          icon = "file://#{ notification.delete(:icon) }"
-
-          self.gntp.notify({
-              :name  => [:pending, :success, :failed].include?(image) ? image.to_s : 'notify',
-              :text  => message,
-              :icon => icon
-          }.merge(notification))
-
-        when :growl
-          Growl.notify(message, {
-              :name => APPLICATION_NAME
-          }.merge(notification))
-        end
+    # Get the notification type depending on the
+    # image that has been selected for the notification.
+    #
+    # @param [Symbol, String] image the image symbol or path to an image
+    # @return [String] the notification type
+    #
+    def notification_type(image)
+      case image
+      when :failed
+        'failed'
+      when :pending
+        'pending'
+      when :success
+        'success'
+      else
+        'notify'
       end
-
-      # Send a message to libnotify.
-      #
-      # @param [String] title the notification title
-      # @param [String] message the message to show
-      # @param [Symbol, String] the image to user
-      # @param [Hash] options the libnotify options
-      #
-      def notify_linux(title, message, image, options = { })
-        require_libnotify # need for guard-rspec formatter that is called out of guard scope
-
-        notification = { :body => message, :summary => title, :icon_path => image_path(image), :transient => true }
-        Libnotify.show notification.merge(options)
-      end
-
-      # Send a message to notifu.
-      #
-      # @param [String] title the notification title
-      # @param [String] message the message to show
-      # @param [Symbol, String] the image to user
-      # @param [Hash] options the notifu options
-      #
-      def notify_windows(title, message, image, options = { })
-        require_rbnotifu # need for guard-rspec formatter that is called out of guard scope
-
-        notification = { :message => message, :title => title, :type => image_level(image), :time => 3 }
-        Notifu.show notification.merge(options)
-      end
-
-      # Get the image path for an image symbol.
-      #
-      # Known symbols are:
-      #
-      # - failed
-      # - pending
-      # - success
-      #
-      # @param [Symbol] image the image name
-      # @return [String] the image path
-      #
-      def image_path(image)
-        images_path = Pathname.new(File.dirname(__FILE__)).join('../../images')
-        case image
-        when :failed
-          images_path.join("failed.png").to_s
-        when :pending
-          images_path.join("pending.png").to_s
-        when :success
-          images_path.join("success.png").to_s
-        else
-          # path given
-          image
-        end
-      end
-
-      # The notification level type for the given image.
-      #
-      # @param [Symbol] image the image
-      # @return [Symbol] the level
-      #
-      def image_level(image)
-        case image
-        when :failed
-          :error
-        when :pending
-          :warn
-        when :success
-          :info
-        else
-          :info
-        end
-      end
-
-      # Try to safely load growl and turns notifications off on load failure.
-      # The Guard notifier knows three different library to handle sending
-      # Growl messages and tries to loading them in the given order:
-      #
-      # - [Growl Notify](https://github.com/scottdavis/growl_notify)
-      # - [Ruby GNTP](https://github.com/snaka/ruby_gntp)
-      # - [Growl](https://github.com/visionmedia/growl)
-      #
-      # On successful loading of any of the libraries, the active library name is
-      # accessible through `.growl_library`.
-      #
-      def require_growl
-        self.growl_library = try_growl_notify || try_ruby_gntp || try_growl
-
-        unless self.growl_library
-          turn_off
-          UI.info "Please install growl_notify or growl gem for Mac OS X notification support and add it to your Gemfile"
-        end
-      end
-
-      # Try to load the `growl_notify` gem.
-      #
-      # @return [Symbol, nil] A symbol with the name of the loaded library
-      #
-      def try_growl_notify
-        require 'growl_notify'
-
-        begin
-          if GrowlNotify.application_name != APPLICATION_NAME
-            GrowlNotify.config do |c|
-              c.notifications    = c.default_notifications = [APPLICATION_NAME]
-              c.application_name = c.notifications.first
-            end
-          end
-
-        rescue ::GrowlNotify::GrowlNotFound
-          turn_off
-          UI.info "Please install Growl from http://growl.info"
-        end
-
-        :growl_notify
-
-      rescue LoadError
-      end
-
-      # Try to load the `ruby_gntp` gem and register the available
-      # notification channels.
-      #
-      # @return [Symbol, nil] A symbol with the name of the loaded library
-      #
-      def try_ruby_gntp
-        require 'ruby_gntp'
-
-        self.gntp = GNTP.new(APPLICATION_NAME)
-        self.gntp.register(:notifications => [
-            { :name => 'notify', :enabled => true },
-            { :name => 'failed', :enabled => true },
-            { :name => 'pending', :enabled => true },
-            { :name => 'success', :enabled => true }
-        ])
-
-        :ruby_gntp
-
-      rescue LoadError
-      end
-
-      # Try to load the `growl_notify` gem.
-      #
-      # @return [Symbol, nil] A symbol with the name of the loaded library
-      #
-      def try_growl
-        require 'growl'
-
-        :growl
-
-      rescue LoadError
-      end
-
-      # Try to safely load libnotify and turns notifications
-      # off on load failure.
-      #
-      def require_libnotify
-        require 'libnotify'
-
-      rescue LoadError
-        turn_off
-        UI.info "Please install libnotify gem for Linux notification support and add it to your Gemfile"
-      end
-
-      # Try to safely load rb-notifu and turns notifications
-      # off on load failure.
-      #
-      def require_rbnotifu
-        require 'rb-notifu'
-
-      rescue LoadError
-        turn_off
-        UI.info "Please install rb-notifu gem for Windows notification support and add it to your Gemfile"
-      end
-
     end
   end
+
 end
