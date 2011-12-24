@@ -31,7 +31,7 @@ module Guard
     # Start the interactor.
     #
     def start
-      store_terminal_settings
+      store_terminal_settings if stty_exists?
       super
     end
 
@@ -39,7 +39,7 @@ module Guard
     #
     def stop
       super
-      restore_terminal_settings
+      restore_terminal_settings if stty_exists?
     end
 
     # Read a line from stdin with Readline.
@@ -83,6 +83,15 @@ module Guard
     end
 
     private
+
+    # Detects whether or not the stty command exists
+    # on the user machine.
+    #
+    # @return [Boolean] the status of stty
+    #
+    def stty_exists?
+      system('hash', 'stty')
+    end
 
     # Stores the terminal settings so we can resore them
     # when stopping.
