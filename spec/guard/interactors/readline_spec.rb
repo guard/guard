@@ -16,18 +16,44 @@ describe Guard::ReadlineInteractor do
   end
 
   describe '#start' do
-    it 'stores the terminal settings' do
-      subject.should_receive(:store_terminal_settings)
-      subject.start
+    context 'when running on a system that has stty' do
+      before { subject.should_receive(:stty_exists?).and_return(true) }
+
+      it 'stores the terminal settings' do
+        subject.should_receive(:store_terminal_settings)
+        subject.start
+      end
+    end
+
+    context 'when running on a system without stty' do
+      before { subject.should_receive(:stty_exists?).and_return(false) }
+
+      it 'does not store the terminal settings' do
+        subject.should_not_receive(:store_terminal_settings)
+        subject.start
+      end
     end
   end
 
   describe '#stop' do
     before { subject.instance_variable_set(:@thread, Thread.current) }
 
-    it 'restores the terminal settings' do
-      subject.should_receive(:restore_terminal_settings)
-      subject.stop
+    context 'when running on a system that has stty' do
+      before { subject.should_receive(:stty_exists?).and_return(true) }
+
+      it 'restores the terminal settings' do
+        subject.should_receive(:restore_terminal_settings)
+        subject.stop
+      end
+    end
+
+    context 'when running on a system without stty' do
+      before { subject.should_receive(:stty_exists?).and_return(false) }
+
+      it 'does not store the terminal settings' do
+        subject.should_not_receive(:restore_terminal_settings)
+        subject.stop
+      end
     end
   end
 
