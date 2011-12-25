@@ -846,6 +846,7 @@ Pull requests are very welcome! Please try to follow these simple rules if appli
 
 * Please create a topic branch for every separate change you make.
 * Make sure your patches are well tested. All specs run with `rake spec:portability` must pass.
+  * On OS X you need to compile once rb-fsevent executable with `rake build_mac_exec`.
 * Update the [Yard](http://yardoc.org/) documentation.
 * Update the README.
 * Update the CHANGELOG for noteworthy changes.
