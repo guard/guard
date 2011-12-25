@@ -17,6 +17,8 @@ module Guard
 
   # The Guardfile template for `guard init`
   GUARDFILE_TEMPLATE = File.expand_path('../guard/templates/Guardfile', __FILE__)
+  # The location of user defined templates
+  HOME_TEMPLATES = File.expand_path('~/.guard/templates')
 
   class << self
     attr_accessor :options, :interactor, :listener, :lock
@@ -26,7 +28,7 @@ module Guard
     #
     # @see Guard::Guard.init
     #
-    # @param [String] guard_name the name of the Guard to initialize
+    # @param [String] guard_name the name of the Guard or template to initialize
     #
     def initialize_template(guard_name = nil)
       if !File.exist?('Guardfile')
@@ -38,8 +40,24 @@ module Guard
       end
 
       if guard_name
-        guard_class = ::Guard.get_guard_class(guard_name)
-        guard_class.init(guard_name)
+        guard_class = ::Guard.get_guard_class(guard_name, true)
+        if guard_class
+          guard_class.init(guard_name)
+        elsif File.exist?(File.join(HOME_TEMPLATES, guard_name))
+          content  = File.read('Guardfile')
+          template = File.read(File.join(HOME_TEMPLATES, guard_name))
+          
+          File.open('Guardfile', 'wb') do |f|
+            f.puts(content)
+            f.puts("")
+            f.puts(template)
+          end
+          
+          ::Guard::UI.info "#{ guard_name } template added to Guardfile, feel free to edit it"
+        else
+          const_name  = guard_name.downcase.gsub('-', '')
+          UI.error "Could not load 'guard/#{ guard_name.downcase }' or '~/.guard/templates/#{ guard_name.downcase }' or find class Guard::#{ const_name.capitalize }"
+        end
       end
     end
 
@@ -432,9 +450,10 @@ module Guard
     # * `rspec` will find a class `Guard::RSpec`
     #
     # @param [String] name the name of the Guard
+    # @param [Boolean] fail_gracefully whether error messages should not be printed
     # @return [Class, nil] the loaded class
     #
-    def get_guard_class(name)
+    def get_guard_class(name, fail_gracefully=false)
       name        = name.to_s
       try_require = false
       const_name  = name.gsub(/\/(.?)/) { "::#{ $1.upcase }" }.gsub(/(?:^|[_-])(.)/) { $1.upcase }
@@ -449,8 +468,10 @@ module Guard
           UI.error "Could not find class Guard::#{ const_name.capitalize }"
         end
       rescue LoadError => loadError
-        UI.error "Could not load 'guard/#{ name.downcase }' or find class Guard::#{ const_name.capitalize }"
-        UI.error loadError.to_s
+        unless fail_gracefully
+          UI.error "Could not load 'guard/#{ name.downcase }' or find class Guard::#{ const_name.capitalize }"
+          UI.error loadError.to_s
+        end
       end
     end
 
