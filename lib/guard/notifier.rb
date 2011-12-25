@@ -1,3 +1,5 @@
+require 'yaml'
+
 require 'rbconfig'
 require 'pathname'
 require 'guard/ui'
@@ -53,7 +55,7 @@ module Guard
     # @return [Hash] the notifications
     #
     def notifications
-      @notifications ||= []
+      ENV['GUARD_NOTIFICATIONS'] ? YAML::load(ENV['GUARD_NOTIFICATIONS']) : []
     end
 
     # Set the available notifications.
@@ -61,7 +63,13 @@ module Guard
     # @param [Array<Hash>] notifications the notifications
     #
     def notifications=(notifications)
-      @notifications = notifications
+      ENV['GUARD_NOTIFICATIONS'] = YAML::dump(notifications)
+    end
+
+    # Clear available notifications.
+    #
+    def clear_notifications
+      ENV['GUARD_NOTIFICATIONS'] = nil
     end
 
     # Turn notifications on. If no notifications are defined
@@ -107,7 +115,7 @@ module Guard
       return turn_off if name == :off
 
       if NOTIFIERS.has_key?(name) && NOTIFIERS[name].available?(silent)
-        notifications << { :name => name, :options => options }
+        self.notifications = notifications << { :name => name, :options => options }
         true
       else
         false
