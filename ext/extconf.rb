@@ -27,6 +27,9 @@ else
 
   cflags = core_flags + %w{-Os -pipe}
 
+  arch_sig = `uname -m`
+  cflags << '-arch i386'  if arch_sig =~ /i386$/i
+
   wflags = %w{
     -Wmissing-prototypes -Wreturn-type -Wmissing-braces -Wparentheses -Wswitch
     -Wunused-function -Wunused-label -Wunused-parameter -Wunused-variable
@@ -44,7 +47,7 @@ else
   cc_opts += %w{
     -D DEBUG=true
   } if ENV['FWDEBUG'] == "true"
-  
+
   cc_bin = `which clang || which gcc`.to_s.strip!
 
   compile_command = "CFLAGS='#{cflags.join(' ')} #{wflags.join(' ')}' #{cc_bin} #{cc_opts.join(' ')} -o '#{gem_root}/bin/fsevent_watch_guard' fsevent/fsevent_watch.c"
