@@ -108,7 +108,7 @@ module Guard
       #
       def reevaluate_guardfile
         ::Guard.run do
-          # Stop each guards
+          # Stop each old guards
           ::Guard.run_on_guards do |guard|
             ::Guard.run_supervised_task(guard, :stop)
           end
@@ -120,7 +120,7 @@ module Guard
           msg = 'Guardfile has been re-evaluated.'
           UI.info(msg)
           Notifier.notify(msg)
-          # Start each guards
+          # Start each new guards
           ::Guard.run_on_guards do |guard|
             ::Guard.run_supervised_task(guard, :start)
           end
