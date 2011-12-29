@@ -46,6 +46,7 @@ module Guard
     #
     def read_line
       while line = Readline.readline(prompt, true)
+        line.gsub!(/^\W*/, '')
         if line =~ /^\s*$/ or Readline::HISTORY.to_a[-2] == line
           Readline::HISTORY.pop
         end
