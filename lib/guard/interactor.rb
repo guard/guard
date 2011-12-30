@@ -79,7 +79,7 @@ module Guard
     def self.auto_detect
       require 'readline'
 
-      if defined?(RbReadline) || defined?(JRUBY_VERSION) || !RbConfig::CONFIG['target_os'] =~ /darwin/i
+      if defined?(RbReadline) || defined?(JRUBY_VERSION) || RbConfig::CONFIG['target_os'] =~ /linux/i
         ReadlineInteractor.new
       else
         SimpleInteractor.new

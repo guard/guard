@@ -15,7 +15,7 @@ module Guard
     def initialize
       require 'readline'
 
-      unless defined?(RbReadline) || defined?(JRUBY_VERSION)
+      unless defined?(RbReadline) || defined?(JRUBY_VERSION) || RbConfig::CONFIG['target_os'] =~ /linux/i
         ::Guard::UI.info 'Please add rb-readline for proper Readline support.'
       end
 
