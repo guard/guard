@@ -107,14 +107,24 @@ module Guard
       # Re-evaluate the `Guardfile` to update the current Guard configuration.
       #
       def reevaluate_guardfile
-        ::Guard.guards.clear
-        ::Guard.reset_groups
-        ::Guard::Notifier.clear_notifications
-        @@options.delete(:guardfile_contents)
-        Dsl.evaluate_guardfile(@@options)
-        msg = 'Guardfile has been re-evaluated.'
-        UI.info(msg)
-        Notifier.notify(msg)
+        ::Guard.run do
+          # Stop each old guards
+          ::Guard.run_on_guards do |guard|
+            ::Guard.run_supervised_task(guard, :stop)
+          end
+          ::Guard.guards.clear
+          ::Guard.reset_groups
+          ::Guard::Notifier.clear_notifications
+          @@options.delete(:guardfile_contents)
+          Dsl.evaluate_guardfile(@@options)
+          msg = 'Guardfile has been re-evaluated.'
+          UI.info(msg)
+          Notifier.notify(msg)
+          # Start each new guards
+          ::Guard.run_on_guards do |guard|
+            ::Guard.run_supervised_task(guard, :start)
+          end
+        end
       end
 
       # Evaluate the content of the `Guardfile`.
