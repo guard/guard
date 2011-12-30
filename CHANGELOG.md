@@ -1,3 +1,13 @@
+## Master
+
+### Improvement
+
+- Improved Readline constraints. ([@netzpirat][])
+
+### Bug fix
+
+- Terminal keep-alive causing ERROR: Unknown command. ([@waldo][])
+
 ## 0.9.4 - December 25, 2011
 
 ### Improvement
@@ -413,6 +423,7 @@
 [@tpope]: https://github.com/tpope
 [@uk-ar]: https://github.com/uk-ar
 [@veged]: https://github.com/veged
+[@waldo]: https://github.com/waldo
 [@wereHamster]: https://github.com/wereHamster
 [@yannlugrin]: https://github.com/yannlugrin
 [@zonque]: https://github.com/zonque
