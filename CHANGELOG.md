@@ -1,8 +1,9 @@
-## Master
+## 0.10.0 - 1 January, 2012
 
 ### Improvement
 
 - Improved Readline constraints. ([@netzpirat][])
+- Stop & start all guards on Guardfile reevaluation. ([@thibaudgg][])
 
 ### Bug fix
 
