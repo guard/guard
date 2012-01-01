@@ -96,6 +96,7 @@ module Guard
     # Kill interactor thread if not current
     #
     def stop
+      return if ENV['GUARD_ENV'] == 'test'
       unless Thread.current == @thread
         @thread.kill
       end

@@ -46,13 +46,13 @@ module Guard
         elsif File.exist?(File.join(HOME_TEMPLATES, guard_name))
           content  = File.read('Guardfile')
           template = File.read(File.join(HOME_TEMPLATES, guard_name))
-          
+
           File.open('Guardfile', 'wb') do |f|
             f.puts(content)
             f.puts("")
             f.puts(template)
           end
-          
+
           ::Guard::UI.info "#{ guard_name } template added to Guardfile, feel free to edit it"
         else
           const_name  = guard_name.downcase.gsub('-', '')
