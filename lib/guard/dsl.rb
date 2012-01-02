@@ -101,7 +101,7 @@ module Guard
         fetch_guardfile_contents
         instance_eval_guardfile(guardfile_contents_with_user_config)
 
-        UI.error 'No guards found in Guardfile, please add at least one.' if !::Guard.guards.nil? && ::Guard.guards.empty?
+        UI.error 'No guards found in Guardfile, please add at least one.' if ::Guard.guards.nil? && ::Guard.guards.empty?
       end
 
       # Re-evaluate the `Guardfile` to update the current Guard configuration.
