@@ -180,6 +180,7 @@ module Guard
       setup(options)
 
       Dsl.evaluate_guardfile(options)
+      UI.error 'No guards found in Guardfile, please add at least one.' if ::Guard.guards.empty?
 
       options[:notify] && ENV['GUARD_NOTIFY'] != 'false' ? Notifier.turn_on : Notifier.turn_off
 

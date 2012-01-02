@@ -100,8 +100,6 @@ module Guard
 
         fetch_guardfile_contents
         instance_eval_guardfile(guardfile_contents_with_user_config)
-
-        UI.error 'No guards found in Guardfile, please add at least one.' if ::Guard.guards.nil? && ::Guard.guards.empty?
       end
 
       # Re-evaluate the `Guardfile` to update the current Guard configuration.
@@ -117,6 +115,7 @@ module Guard
           ::Guard::Notifier.clear_notifications
           @@options.delete(:guardfile_contents)
           Dsl.evaluate_guardfile(@@options)
+          UI.error 'No guards found in Guardfile, please add at least one.' if ::Guard.guards.empty?
           msg = 'Guardfile has been re-evaluated.'
           UI.info(msg)
           Notifier.notify(msg)

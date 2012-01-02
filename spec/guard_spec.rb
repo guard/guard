@@ -265,6 +265,12 @@ describe Guard do
       ::Guard.start(options)
     end
 
+    it "displays an error message when no guard are defined in Guardfile" do
+      ::Guard::Dsl.should_receive(:evaluate_guardfile).with(options)
+      ::Guard::UI.should_receive(:error)
+      ::Guard.start(options)
+    end
+
     it "starts the listeners" do
       ::Guard.listener.should_receive(:start)
       ::Guard.start(options)

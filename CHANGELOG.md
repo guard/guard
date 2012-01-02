@@ -1,3 +1,9 @@
+## Master
+
+### Bug fix
+
+- [#213 & 214](https://github.com/guard/guard/issues/214): Fixes the "ERROR: No guards found in Guardfile" message wrongly displayed when running `guard list`. ([@pirukire][])
+
 ## 0.10.0 - 1 January, 2012
 
 ### Improvement
@@ -410,6 +416,7 @@
 [@niklas]: https://github.com/niklas
 [@oliamb]: https://github.com/oliamb
 [@pcreux]: https://github.com/pcreux
+[@pirukire]: https://github.com/pirukire
 [@rmm5t]: https://github.com/rmm5t
 [@rymai]: https://github.com/rymai
 [@scottdavis]: https://github.com/scottdavis

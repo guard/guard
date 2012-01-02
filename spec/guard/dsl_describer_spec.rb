@@ -6,7 +6,7 @@ describe Guard::DslDescriber do
 
   let(:guardfile) do
     <<-GUARD
-      guard 'test', :a => :b do
+      guard :test, :a => :b do
         watch('c')
       end
 
@@ -17,7 +17,7 @@ describe Guard::DslDescriber do
       end
 
       group "b" do
-        guard 'another' do
+        guard :another do
           watch('c')
         end
       end
@@ -34,7 +34,7 @@ describe Guard::DslDescriber do
   end
 
   describe '.list' do
-    it 'lists the available Guards' do
+    it "lists the available Guards when they're declared as strings or symbols" do
       Guard.stub(:guard_gem_names).and_return ['test', 'another', 'even', 'more']
       describer.list(:guardfile_contents => guardfile)
       @output.should eql <<OUTPUT

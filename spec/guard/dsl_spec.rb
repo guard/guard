@@ -78,10 +78,10 @@ describe Guard::Dsl do
     lambda { described_class.evaluate_guardfile }.should raise_error
   end
 
-  it "displays an error message when no guard are defined in Guardfile" do
+  it "doesn't display an error message when no guard are defined in Guardfile" do
     ::Guard::Dsl.stub!(:instance_eval_guardfile)
     ::Guard.stub!(:guards).and_return([])
-    Guard::UI.should_receive(:error)
+    Guard::UI.should_not_receive(:error)
     described_class.evaluate_guardfile(:guardfile_contents => valid_guardfile_string)
   end
 
@@ -190,7 +190,7 @@ describe Guard::Dsl do
       described_class.reevaluate_guardfile
 
       ::Guard.groups.should_not be_empty
-      ::Guard.groups[0].name.should eql :default
+      ::Guard.groups[0].name.should eq :default
       ::Guard.groups[0].options.should == {}
     end
 
