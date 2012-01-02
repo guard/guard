@@ -48,7 +48,7 @@ module Guard
         evaluate_guardfile(options)
 
         installed_guards = guardfile_structure.inject([]) do |installed, group|
-          group[:guards].each { |guard| installed << guard[:name] } if group[:guards]
+          group[:guards].each { |guard| installed << guard[:name].to_s } if group[:guards]
           installed
         end
 
