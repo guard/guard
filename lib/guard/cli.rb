@@ -74,6 +74,7 @@ module Guard
       ::Guard.start(options)
     rescue Interrupt
       ::Guard.stop
+      abort
     end
 
     desc 'list', 'Lists guards that can be used with init'

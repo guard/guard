@@ -123,6 +123,7 @@ module Guard
         help
       when :stop
         ::Guard.stop
+        exit
       when :pause
         ::Guard.pause
       when :reload
