@@ -40,10 +40,16 @@ describe Guard::Interactor do
       subject.process_input 'help'
     end
 
-    it 'stops Guard on stop action' do
+    it 'stops Guard on stop action and exit' do
       subject.should_receive(:extract_scopes_and_action).with('stop').and_return [{ }, :stop]
       ::Guard.should_receive(:stop)
-      subject.process_input 'stop'
+
+      begin
+        subject.process_input 'stop'
+        raise 'Guard did not exit!'
+      rescue SystemExit => e
+        e.status.should eq(0)
+      end
     end
 
     it 'pauses Guard on pause action' do
