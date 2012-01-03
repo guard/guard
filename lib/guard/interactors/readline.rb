@@ -15,7 +15,7 @@ module Guard
     def initialize
       require 'readline'
 
-      unless defined?(RbReadline) || defined?(JRUBY_VERSION)
+      unless defined?(RbReadline) || defined?(JRUBY_VERSION) || RbConfig::CONFIG['target_os'] =~ /linux/i
         ::Guard::UI.info 'Please add rb-readline for proper Readline support.'
       end
 
@@ -46,6 +46,7 @@ module Guard
     #
     def read_line
       while line = Readline.readline(prompt, true)
+        line.gsub!(/^\W*/, '')
         if line =~ /^\s*$/ or Readline::HISTORY.to_a[-2] == line
           Readline::HISTORY.pop
         end

@@ -1,3 +1,36 @@
+## Master
+
+### Bug fix
+
+- [#213 & 214](https://github.com/guard/guard/issues/214): Fixes the "ERROR: No guards found in Guardfile" message wrongly displayed when running `guard list`. ([@pirukire][])
+
+## 0.10.0 - 1 January, 2012
+
+### Improvement
+
+- Improved Readline constraints. ([@netzpirat][])
+- Stop & start all guards on Guardfile reevaluation. ([@thibaudgg][])
+
+### Bug fix
+
+- Terminal keep-alive causing ERROR: Unknown command. ([@waldo][])
+
+## 0.9.4 - December 25, 2011
+
+### Improvement
+
+- Add the ability to load user defined templates. ([@hawx][])
+
+### Bug fix
+
+- Fix guard-rspec notifications by using ENV variable to store Notifier.notifications. ([@thibaudgg][])
+
+## 0.9.3 - December 23, 2011
+
+### Improvement
+
+- Fix terminal status after interrupting the Readline interactor. ([@Maher4Ever][])
+
 ## 0.9.2 - December 22, 2011
 
 ### Improvements
@@ -7,16 +40,16 @@
 
 ## 0.9.1 - December 19, 2011
 
-### Bug fix
+### Bug fixes
 
 - Fix wrong `--no-vendor` option. ([@netzpirat][])
-- [#195](https://github.com/guard/guard/issues/195): Empty watch directory prohibit Guard from running. (reported by [@madtrick][], fixed by [@netzpirat][]
+- [#195](https://github.com/guard/guard/issues/195): Empty watch directory prohibit Guard from running. (reported by [@madtrick][], fixed by [@netzpirat][])
 
 ## 0.9.0 - December 19, 2011
 
-### Bug fix
+### Bug fixes
 
-- [#173](https://github.com/guard/guard/issues/173): Cannot set the watch_all_modifications option. (reported by [@sutherland][], fixed by [@netzpirat][]
+- [#173](https://github.com/guard/guard/issues/173): Cannot set the watch_all_modifications option. (reported by [@sutherland][], fixed by [@netzpirat][])
 - Fix `guard init` when a guard name is given. ([@rymai][])
 
 ### Improvements
@@ -360,6 +393,7 @@
 [@fnichol]: https://github.com/fnichol
 [@Gazer]: https://github.com/Gazer
 [@gix]: https://github.com/gix
+[@hawx]: https://github.com/hawx
 [@hron]: https://github.com/hron
 [@hardipe]: https://github.com/hardipe
 [@hashrocketeer]: https://github.com/hashrocketeer
@@ -382,6 +416,7 @@
 [@niklas]: https://github.com/niklas
 [@oliamb]: https://github.com/oliamb
 [@pcreux]: https://github.com/pcreux
+[@pirukire]: https://github.com/pirukire
 [@rmm5t]: https://github.com/rmm5t
 [@rymai]: https://github.com/rymai
 [@scottdavis]: https://github.com/scottdavis
@@ -396,6 +431,7 @@
 [@tpope]: https://github.com/tpope
 [@uk-ar]: https://github.com/uk-ar
 [@veged]: https://github.com/veged
+[@waldo]: https://github.com/waldo
 [@wereHamster]: https://github.com/wereHamster
 [@yannlugrin]: https://github.com/yannlugrin
 [@zonque]: https://github.com/zonque

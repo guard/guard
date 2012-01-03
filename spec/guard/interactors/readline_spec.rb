@@ -66,9 +66,11 @@ describe Guard::ReadlineInteractor do
     it 'reads all lines for processing' do
       Readline.should_receive(:readline).and_return 'First line'
       Readline.should_receive(:readline).and_return 'Second line'
+      Readline.should_receive(:readline).and_return "\x00 \tControl line"
       Readline.should_receive(:readline).and_return nil
       subject.should_receive(:process_input).with('First line').and_return
       subject.should_receive(:process_input).with('Second line').and_return
+      subject.should_receive(:process_input).with('Control line').and_return
       subject.read_line
     end
   end

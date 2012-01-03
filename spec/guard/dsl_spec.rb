@@ -78,10 +78,10 @@ describe Guard::Dsl do
     lambda { described_class.evaluate_guardfile }.should raise_error
   end
 
-  it "displays an error message when no guard are defined in Guardfile" do
+  it "doesn't display an error message when no guard are defined in Guardfile" do
     ::Guard::Dsl.stub!(:instance_eval_guardfile)
     ::Guard.stub!(:guards).and_return([])
-    Guard::UI.should_receive(:error)
+    Guard::UI.should_not_receive(:error)
     described_class.evaluate_guardfile(:guardfile_contents => valid_guardfile_string)
   end
 
@@ -155,6 +155,19 @@ describe Guard::Dsl do
   describe ".reevaluate_guardfile" do
     before(:each) { ::Guard::Dsl.stub!(:instance_eval_guardfile) }
 
+    it "stops already defined guard before calling evaluate_guardfile" do
+      Guard::Notifier.turn_off
+      described_class.evaluate_guardfile(:guardfile_contents => invalid_guardfile_string)
+
+      ::Guard.guards.should_not be_empty
+      ::Guard.guards.each do |guard|
+        ::Guard.should_receive(:run_supervised_task).with(guard, :stop)
+      end
+      ::Guard::Dsl.should_receive(:evaluate_guardfile)
+
+      described_class.reevaluate_guardfile
+    end
+
     it "resets already defined guards before calling evaluate_guardfile" do
       Guard::Notifier.turn_off
       described_class.evaluate_guardfile(:guardfile_contents => invalid_guardfile_string)
@@ -177,7 +190,7 @@ describe Guard::Dsl do
       described_class.reevaluate_guardfile
 
       ::Guard.groups.should_not be_empty
-      ::Guard.groups[0].name.should eql :default
+      ::Guard.groups[0].name.should eq :default
       ::Guard.groups[0].options.should == {}
     end
 
@@ -192,6 +205,21 @@ describe Guard::Dsl do
       described_class.reevaluate_guardfile
 
       ::Guard::Notifier.notifications.should be_empty
+    end
+
+    # Tricky because ::Guard.guards is reset during reevaluate_guardfile so we can't mocking it. Any idea?
+    pending "starts new defined guard after calling evaluate_guardfile" do
+      Guard::Notifier.turn_off
+      described_class.evaluate_guardfile(:guardfile_contents => invalid_guardfile_string)
+
+      ::Guard::Dsl.should_receive(:evaluate_guardfile)
+      ::Guard.guards.should_not be_empty
+      ::Guard.guards.each do |guard|
+        ::Guard.should_receive(:run_supervised_task).with(guard, :stop)
+        ::Guard.should_receive(:run_supervised_task).with(any_args(), :start)
+      end
+
+      described_class.reevaluate_guardfile
     end
   end
 

@@ -79,7 +79,7 @@ module Guard
     def self.auto_detect
       require 'readline'
 
-      if defined?(RbReadline) || defined?(JRUBY_VERSION) || !RbConfig::CONFIG['target_os'] =~ /darwin/i
+      if defined?(RbReadline) || defined?(JRUBY_VERSION) || RbConfig::CONFIG['target_os'] =~ /linux/i
         ReadlineInteractor.new
       else
         SimpleInteractor.new
@@ -96,6 +96,7 @@ module Guard
     # Kill interactor thread if not current
     #
     def stop
+      return if ENV['GUARD_ENV'] == 'test'
       unless Thread.current == @thread
         @thread.kill
       end

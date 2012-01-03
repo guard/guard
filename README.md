@@ -63,7 +63,8 @@ the time, try the [Rubygems Bundler](https://github.com/mpapis/rubygems-bundler)
 
 ### System notifications
 
-You can configure Guard to make use of the following system notification libraries:
+You can configure Guard to make use of the following system notification libraries, but it's strongly recommended
+to use either Ruby GNTP, Libnotify or Notifu:
 
 #### Ruby GNTP
 
@@ -84,31 +85,6 @@ To use `ruby_gntp` you have to add it to your `Gemfile` and run bundler:
 ```ruby
 group :development do
   gem 'ruby_gntp'
-end
-```
-
-#### Growl
-
-* Runs on Mac OS X
-* Supports all [Growl](http://growl.info/) versions
-
-The [growl](https://rubygems.org/gems/growl) gem is compatible with all versions of Growl and uses a command line tool
-[growlnotify](http://growl.info/extras.php#growlnotify) that must be separately downloaded and installed. The version of
-the command line tool must match your Growl version. The `growl` gem does **not** support multiple notification
-channels.
-
-You can download an installer for `growlnotify` from the [Growl download section](http://growl.info/downloads) or
-install it with HomeBrew:
-
-```bash
-$ brew install growlnotify
-```
-
-To use `growl` you have to add it to your `Gemfile` and run bundler:
-
-```ruby
-group :development do
-  gem 'growl'
 end
 ```
 
@@ -141,6 +117,26 @@ To use `rb-notifu` you have to add it to your `Gemfile` and run bundler:
 ```ruby
 group :development do
   gem 'rb-notifu'
+end
+```
+
+#### Growl
+
+* Runs on Mac OS X
+* Supports all [Growl](http://growl.info/) versions
+
+The [growl](https://rubygems.org/gems/growl) gem is compatible with all versions of Growl and uses a command line tool
+[growlnotify](http://growl.info/extras.php#growlnotify) that must be separately downloaded and installed. The version of
+the command line tool must match your Growl version. The `growl` gem does **not** support multiple notification
+channels.
+
+You have to download the installer for `growlnotify` from the [Growl download section](http://growl.info/downloads).
+
+To use `growl` you have to add it to your `Gemfile` and run bundler:
+
+```ruby
+group :development do
+  gem 'growl'
 end
 ```
 
@@ -216,6 +212,13 @@ In addition, the `init` task can be used to append a supplied Guard template fro
 
 ```bash
 $ guard init <guard-name>
+```
+
+You can also define your own templates in `~/.guard/templates/` which can be appended in the same way to your existing 
+`Guardfile`:
+
+```bash
+$ guard init <template-name>
 ```
 
 ### Start
@@ -839,6 +842,7 @@ Pull requests are very welcome! Please try to follow these simple rules if appli
 
 * Please create a topic branch for every separate change you make.
 * Make sure your patches are well tested. All specs run with `rake spec:portability` must pass.
+  * On OS X you need to compile once rb-fsevent executable with `rake build_mac_exec`.
 * Update the [Yard](http://yardoc.org/) documentation.
 * Update the README.
 * Update the CHANGELOG for noteworthy changes.

@@ -9,7 +9,7 @@ module Guard
     #
     def read_line
       while line = $stdin.gets
-        process_input(line.chomp)
+        process_input(line.gsub(/^\W*/, '').chomp)
       end
     end
 
