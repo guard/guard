@@ -33,17 +33,17 @@ describe Guard do
           Guard.initialize_template('foo')
         end
       end
-      
+
       context "with a user defined template" do
         let(:template) { File.join(Guard::HOME_TEMPLATES, '/bar') }
-      
+
         before {
-          File.should_receive(:exist?).with('Guardfile').and_return false 
+          File.should_receive(:exist?).with('Guardfile').and_return false
           File.should_receive(:exist?).with(template).and_return true
         }
-      
+
         it "copies the Guardfile template and initializes the Guard" do
-          FileUtils.should_receive(:cp).with(an_instance_of(String), 'Guardfile')    
+          FileUtils.should_receive(:cp).with(an_instance_of(String), 'Guardfile')
           File.should_receive(:read).with('Guardfile').and_return 'Guardfile content'
           File.should_receive(:read).with(template).and_return 'Template content'
           io = StringIO.new
@@ -520,7 +520,7 @@ describe Guard do
         Guard.get_guard_class('inline').should == Guard::Inline
       end
     end
-    
+
     context 'when set to fail gracefully' do
       it 'does not print error messages on fail' do
         ::Guard::UI.should_not_receive(:error)

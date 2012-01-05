@@ -312,7 +312,7 @@ module Guard
     # @param [Integer] file_timestamp the files modified timestamp
     #
     def set_file_timestamp_hash(path, file_timestamp)
-        @file_timestamp_hash[path] = file_timestamp
+      @file_timestamp_hash[path] = file_timestamp
     end
 
     # Set the current checksum of a file.
