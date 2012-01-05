@@ -214,7 +214,6 @@ module Guard
 
       interactor.stop if interactor
       listener.stop
-      abort
     end
 
     # Reload all Guards currently enabled.
