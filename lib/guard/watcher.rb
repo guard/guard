@@ -43,11 +43,11 @@ module Guard
     def self.match_files(guard, files)
       guard.watchers.inject([]) do |paths, watcher|
         files.each do |file|
-          if matches = watcher.match_file?(file)
+          if matches = watcher.match(file)
             if watcher.action
               result = watcher.call_action(matches)
               if guard.options[:any_return]
-                paths << result 
+                paths << result
               elsif result.respond_to?(:empty?) && !result.empty?
                 paths << Array(result)
               end
@@ -70,21 +70,35 @@ module Guard
     def self.match_files?(guards, files)
       guards.any? do |guard|
         guard.watchers.any? do |watcher|
-          files.any? { |file| watcher.match_file?(file) }
+          files.any? { |file| watcher.match(file) }
         end
       end
+    end
+
+    # @deprecated Use .match instead
+    #
+    def match_file?(file)
+      UI.info "Guard::Watcher.match_file? is deprecated, please use Guard::Watcher.match instead."
+      match(file)
     end
 
     # Test the watchers pattern against a file.
     #
     # @param [String] file the file to test
-    # @return [Boolean] whether the given file is matched
+    # @return [Array<String>] an array of matches (or containing a single path if the pattern is a string)
     #
-    def match_file?(file)
+    def match(file)
+      f = file
+      deleted = file.start_with?('!')
+      f = deleted ? f[1..-1] : f
       if @pattern.is_a?(Regexp)
-        file.match(@pattern)
+        if m = f.match(@pattern)
+          m = m.to_a
+          m[0] = file
+          m
+        end
       else
-        file == @pattern ? [file] : nil
+        f == @pattern ? [file] : nil
       end
     end
 

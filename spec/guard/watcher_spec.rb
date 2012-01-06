@@ -254,42 +254,68 @@ describe Guard::Watcher do
     end
   end
 
-  describe "#match_file?" do
+  describe ".match" do
     context "with a string pattern" do
       context "that is a normal string" do
         subject { described_class.new('guard_rocks_spec.rb') }
 
         context "with a watcher that matches a file" do
-          specify { subject.match_file?('guard_rocks_spec.rb').should be_true }
+          specify { subject.match('guard_rocks_spec.rb').should eq ['guard_rocks_spec.rb'] }
         end
 
         context "with no watcher that matches a file" do
-          specify { subject.match_file?('lib/my_wonderful_lib.rb').should be_false }
+          specify { subject.match('lib/my_wonderful_lib.rb').should be_nil }
         end
       end
 
       context "that is a string representing a regexp (deprecated)" do
-        subject { described_class.new('^guard_rocks_spec\.rb$') }
+        subject { described_class.new('^guard_(rocks)_spec\.rb$') }
 
         context "with a watcher that matches a file" do
-          specify { subject.match_file?('guard_rocks_spec.rb').should be_true }
+          specify { subject.match('guard_rocks_spec.rb').should eq ['guard_rocks_spec.rb', 'rocks'] }
         end
 
         context "with no watcher that matches a file" do
-          specify { subject.match_file?('lib/my_wonderful_lib.rb').should be_false }
+          specify { subject.match('lib/my_wonderful_lib.rb').should be_nil }
         end
       end
     end
 
-    context "that is a regexp pattern" do
-      subject { described_class.new(/.*_spec\.rb/) }
+    context "with a regexp pattern" do
+      subject { described_class.new(/(.*)_spec\.rb/) }
 
       context "with a watcher that matches a file" do
-        specify { subject.match_file?('guard_rocks_spec.rb').should be_true }
+        specify { subject.match('guard_rocks_spec.rb').should eq ['guard_rocks_spec.rb', 'guard_rocks'] }
       end
 
       context "with no watcher that matches a file" do
-        specify { subject.match_file?('lib/my_wonderful_lib.rb').should be_false }
+        specify { subject.match('lib/my_wonderful_lib.rb').should be_nil }
+      end
+    end
+
+    context "path start with a !" do
+      context "with a string pattern" do
+        subject { described_class.new('guard_rocks_spec.rb') }
+
+        context "with a watcher that matches a file" do
+          specify { subject.match('!guard_rocks_spec.rb').should eq ['!guard_rocks_spec.rb'] }
+        end
+
+        context "with no watcher that matches a file" do
+          specify { subject.match('!lib/my_wonderful_lib.rb').should be_nil }
+        end
+      end
+
+      context "with a regexp pattern" do
+        subject { described_class.new(/(.*)_spec\.rb/) }
+
+        context "with a watcher that matches a file" do
+          specify { subject.match('!guard_rocks_spec.rb').should eq ['!guard_rocks_spec.rb', 'guard_rocks'] }
+        end
+
+        context "with no watcher that matches a file" do
+          specify { subject.match('!lib/my_wonderful_lib.rb').should be_nil }
+        end
       end
     end
   end
