@@ -56,7 +56,7 @@ module Guard
             end
           end
         end
-        
+
         guard.options[:any_return] ? paths : paths.flatten.map { |p| p.to_s }
       end
     end

@@ -98,7 +98,7 @@ module Guard
     #
     def start
       watch(@directory)
-      timestamp_files
+      timestamp_files if watch_all_modifications?
     end
 
     # Stop listening for events.
@@ -154,6 +154,7 @@ module Guard
     def modified_files(dirs, options = {})
       last_event = @last_event
       files = []
+
       if watch_all_modifications?
         deleted_files = @file_timestamp_hash.collect do |path, ts|
           unless File.exists?(path)
@@ -165,7 +166,10 @@ module Guard
         files.concat(deleted_files.compact)
       end
       update_last_event
-      files.concat(potentially_modified_files(dirs, options).select { |path| file_modified?(path, last_event) })
+      updated_files = potentially_modified_files(dirs, options).select do |path|
+        file_modified?(path, last_event)
+      end
+      files.concat(updated_files)
 
       relativize_paths(files)
     end
@@ -195,7 +199,7 @@ module Guard
     def relativize_paths(paths)
       return paths unless relativize_paths?
       paths.map do |path|
-      path.gsub(%r{^(!)?#{ @directory }/},'\1')
+        path.gsub(%r{^(!)?#{ @directory }/},'\1')
       end
     end
 
@@ -219,7 +223,7 @@ module Guard
     # Populate initial timestamp file hash to watch for deleted or moved files.
     #
     def timestamp_files
-      all_files.each {|path| set_file_timestamp_hash(path, file_timestamp(path)) } if watch_all_modifications?
+      all_files.each { |path| set_file_timestamp_hash(path, file_timestamp(path)) }
     end
 
     # Removes the ignored paths from the directory list.
