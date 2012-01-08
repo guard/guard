@@ -223,7 +223,7 @@ module Guard
     # Populate initial timestamp file hash to watch for deleted or moved files.
     #
     def timestamp_files
-      all_files.each { |path| set_file_timestamp_hash(path, file_timestamp(path)) }
+      all_files.each { |path| set_file_timestamp_hash(path) }
     end
 
     # Removes the ignored paths from the directory list.
@@ -277,10 +277,11 @@ module Guard
     def file_modified?(path, last_event)
       ctime = File.ctime(path).to_i
       mtime = File.mtime(path).to_i
+
       if [mtime, ctime].max == last_event.to_i
-        file_content_modified?(path, sha1_checksum(path))
+        file_content_modified?(path)
       elsif mtime > last_event.to_i
-        set_sha1_checksums_hash(path, sha1_checksum(path))
+        set_sha1_checksums_hash(path)
         set_file_timestamp_hash(path) if watch_all_modifications?
         true
       elsif watch_all_modifications?
@@ -300,11 +301,11 @@ module Guard
     # comparing the SHA1 checksum.
     #
     # @param [String] path the file path
-    # @param [String] sha1_checksum the checksum of the file
     #
-    def file_content_modified?(path, sha1_checksum)
-      if @sha1_checksums_hash[path] != sha1_checksum
-        set_sha1_checksums_hash(path, sha1_checksum)
+    def file_content_modified?(path)
+      checksum = sha1_checksum(path)
+      if @sha1_checksums_hash[path] != checksum
+        set_sha1_checksums_hash(path, checksum)
         true
       else
         false
@@ -316,8 +317,8 @@ module Guard
     # @param [String] path the file path
     # @param [Integer] file_timestamp the files modified timestamp
     #
-    def set_file_timestamp_hash(path, file_timestamp)
-      @file_timestamp_hash[path] = file_timestamp
+    def set_file_timestamp_hash(path, timestamp = nil)
+      @file_timestamp_hash[path] = timestamp ? timestamp : file_timestamp(path)
     end
 
     # Set the current checksum of a file.
@@ -325,8 +326,8 @@ module Guard
     # @param [String] path the file path
     # @param [String] sha1_checksum the checksum of the file
     #
-    def set_sha1_checksums_hash(path, sha1_checksum)
-      @sha1_checksums_hash[path] = sha1_checksum
+    def set_sha1_checksums_hash(path, checksum = nil)
+      @sha1_checksums_hash[path] = checksum ? checksum : sha1_checksum(path)
     end
 
     # Gets a files modified timestamp
