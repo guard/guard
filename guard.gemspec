@@ -18,11 +18,11 @@ Gem::Specification.new do |s|
   s.add_dependency 'ffi',      '>= 0.5.0'
 
   s.add_development_dependency 'bundler'
-  s.add_development_dependency 'rspec',       '~> 2.7.0'
-  s.add_development_dependency 'guard-rspec', '~> 0.5.0'
-  s.add_development_dependency 'yard',        '~> 0.7.3'
-  s.add_development_dependency 'redcarpet',   '~> 1.17.2'
-  s.add_development_dependency 'pry',         '~> 0.9.6.2'
+  s.add_development_dependency 'rspec',       '~> 2.8.0'
+  s.add_development_dependency 'guard-rspec', '~> 0.6.0'
+  s.add_development_dependency 'yard'
+  s.add_development_dependency 'redcarpet'
+  s.add_development_dependency 'pry'
 
   s.files        = Dir.glob('{bin,images,lib}/**/*') + %w[CHANGELOG.md LICENSE man/guard.1 man/guard.1.html README.md]
   s.executable   = 'guard'
