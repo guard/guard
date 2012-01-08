@@ -171,13 +171,28 @@ describe Guard::Listener do
 
     before { listen_to subject }
 
+    context 'for a new file' do
+      it 'catches the creation' do
+        FileUtils.rm(file1) if File.exists?(file1)
+        File.exists?(file1).should be_false
+
+        watch do
+          FileUtils.touch(file1)
+        end
+
+        subject.modified_files([fixture('folder1')], {}).should =~
+          ['spec/fixtures/folder1/file1.txt']
+      end
+    end
+
     context 'without the :all option' do
       it 'finds modified files only in the directory supplied' do
         watch do
           FileUtils.touch([file1, file2, file3])
-          subject.modified_files([fixture('folder1')], {}).should =~
-              ['spec/fixtures/folder1/deletedfile1.txt', 'spec/fixtures/folder1/file1.txt']
         end
+
+        subject.modified_files([fixture('folder1')], {}).should =~
+          ['spec/fixtures/folder1/deletedfile1.txt', 'spec/fixtures/folder1/file1.txt']
       end
     end
 
@@ -185,11 +200,12 @@ describe Guard::Listener do
       it 'finds modified files within subdirectories' do
         watch do
           FileUtils.touch([file1, file2, file3])
-          subject.modified_files([fixture('folder1')], { :all => true }).should =~
-              ['spec/fixtures/folder1/deletedfile1.txt',
-               'spec/fixtures/folder1/file1.txt',
-               'spec/fixtures/folder1/folder2/file2.txt']
         end
+
+        subject.modified_files([fixture('folder1')], { :all => true }).should =~
+          ['spec/fixtures/folder1/deletedfile1.txt',
+           'spec/fixtures/folder1/file1.txt',
+           'spec/fixtures/folder1/folder2/file2.txt']
       end
     end
 
@@ -198,7 +214,7 @@ describe Guard::Listener do
         watch do
           FileUtils.touch([file1, file2, file3])
           subject.modified_files([fixture('folder1')], {}).should =~
-              ['spec/fixtures/folder1/deletedfile1.txt', 'spec/fixtures/folder1/file1.txt']
+            ['spec/fixtures/folder1/deletedfile1.txt', 'spec/fixtures/folder1/file1.txt']
 
           subject.update_last_event
 
@@ -215,23 +231,21 @@ describe Guard::Listener do
         watch do
           FileUtils.touch([file1, file2, file3])
           subject.modified_files([fixture('folder1')], {}).should =~
-              ['spec/fixtures/folder1/deletedfile1.txt', 'spec/fixtures/folder1/file1.txt']
+            ['spec/fixtures/folder1/deletedfile1.txt', 'spec/fixtures/folder1/file1.txt']
 
           subject.update_last_event
 
           FileUtils.touch([file2, file3])
           File.open(file1, 'w') { |f| f.write('changed content') }
           subject.modified_files([fixture('folder1')], {}).should =~
-              ['spec/fixtures/folder1/file1.txt']
+            ['spec/fixtures/folder1/file1.txt']
         end
       end
     end
 
     context 'without the :watch_all_modifications option' do
-      after { FileUtils.touch(file3) }
-
       it 'defaults to false' do
-        subject.watch_all_modifications?.should eql false
+        subject.watch_all_modifications?.should be_false
       end
 
       context 'for a deleted file' do
@@ -241,25 +255,26 @@ describe Guard::Listener do
           File.exists?(file3).should be_true
 
           watch do
-            FileUtils.remove_file(file3)
+            FileUtils.rm(file3)
           end
 
-          subject.modified_files([fixture('folder1')], {}).should =~ []
+          subject.modified_files([fixture('folder1')], {}).should eq []
         end
       end
 
       context 'for a moved file' do
-        after { FileUtils.move(file4, file1) }
+        after { FileUtils.rm(file4) }
 
         it 'does not catch the move' do
+          FileUtils.touch(file1)
           File.exists?(file1).should be_true
           File.exists?(file4).should be_false
 
           watch do
-            FileUtils.move(file1, file4)
+            FileUtils.mv(file1, file4)
           end
 
-          subject.modified_files([@fixture_path.join('folder1')], {}).should =~ []
+          subject.modified_files([fixture('folder1')], {}).should eq []
         end
       end
     end
@@ -268,12 +283,50 @@ describe Guard::Listener do
       subject { described_class.new(Dir.pwd, :watch_all_modifications => true) }
 
       before do
+        FileUtils.touch(file1)
         subject.timestamp_files
         subject.update_last_event
       end
 
       it 'should be true when set' do
-        subject.watch_all_modifications?.should eql true
+        subject.watch_all_modifications?.should be_true
+      end
+
+      context 'for a new file then deleted then re-created and re-deleted' do
+        it 'catches all the events' do
+          FileUtils.rm(file1) if File.exists?(file1)
+          File.exists?(file1).should be_false
+
+          watch do
+            FileUtils.touch(file1)
+            File.exists?(file1).should be_true
+            subject.modified_files([fixture('folder1')], {}).should =~
+              ['spec/fixtures/folder1/file1.txt']
+
+            subject.update_last_event
+
+            FileUtils.rm(file1)
+            File.exists?(file1).should be_false
+            subject.modified_files([fixture('folder1')], {}).should =~
+              ['!spec/fixtures/folder1/file1.txt']
+
+            subject.update_last_event
+            sleep(sleep_time)
+
+            FileUtils.touch(file1)
+            File.exists?(file1).should be_true
+            subject.modified_files([fixture('folder1')], {}).should =~
+              ['spec/fixtures/folder1/file1.txt']
+
+            subject.update_last_event
+
+            FileUtils.rm(file1)
+            File.exists?(file1).should be_false
+            subject.modified_files([fixture('folder1')], {}).should =~
+              ['!spec/fixtures/folder1/file1.txt']
+          end
+
+        end
       end
 
       context 'for a deleted file' do
@@ -283,27 +336,26 @@ describe Guard::Listener do
           File.exists?(file3).should be_true
 
           watch do
-            FileUtils.remove_file(file3)
+            FileUtils.rm(file3)
           end
 
           subject.modified_files([fixture('folder1')], {}).should =~
-              ['!spec/fixtures/folder1/deletedfile1.txt']
+            ['!spec/fixtures/folder1/deletedfile1.txt']
         end
       end
 
       context 'for a moved file' do
-        after { FileUtils.move(file4, file1) }
-
+        after { FileUtils.rm(file4) }
         it 'catches the move' do
           File.exists?(file1).should be_true
           File.exists?(file4).should be_false
 
           watch do
-            FileUtils.move(file1, file4)
+            FileUtils.mv(file1, file4)
           end
 
-          subject.modified_files([@fixture_path.join('folder1')], {}).should =~
-              ['!spec/fixtures/folder1/file1.txt', 'spec/fixtures/folder1/movedfile1.txt']
+          subject.modified_files([fixture('folder1')], {}).should =~
+            ['!spec/fixtures/folder1/file1.txt', 'spec/fixtures/folder1/movedfile1.txt']
         end
       end
     end

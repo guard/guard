@@ -281,6 +281,7 @@ module Guard
         file_content_modified?(path, sha1_checksum(path))
       elsif mtime > last_event.to_i
         set_sha1_checksums_hash(path, sha1_checksum(path))
+        set_file_timestamp_hash(path) if watch_all_modifications?
         true
       elsif watch_all_modifications?
         ts = file_timestamp(path)
