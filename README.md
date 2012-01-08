@@ -1,4 +1,4 @@
-Guard [![Build Status](https://secure.travis-ci.org/guard/guard.png?branch=master)](http://travis-ci.org/guard/guard) [![Dependency Status](https://gemnasium.com/guard/guard.png?branch=master)](https://gemnasium.com/guard/guard)
+Guard [![Build Status](https://secure.travis-ci.org/guard/guard.png?branch=master)](http://travis-ci.org/guard/guard)
 =====
 
 Guard is a command line tool to easily handle events on file system modifications.
@@ -832,7 +832,7 @@ When you file an issue, please try to follow to these simple rules if applicable
 * Add your `Guardfile` and `Gemfile` to the issue.
 * Make sure that the issue is reproducible with your description.
 
-Development
+Development [![Dependency Status](https://gemnasium.com/guard/guard.png?branch=master)](https://gemnasium.com/guard/guard) 
 -----------
 
 * Documentation hosted at [RubyDoc](http://rubydoc.info/github/guard/guard/master/frames).
