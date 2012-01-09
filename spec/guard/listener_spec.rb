@@ -163,25 +163,29 @@ describe Guard::Listener do
   describe '#modified_files' do
     subject { described_class.new }
 
-    let(:file1) { fixture('folder1', 'file1.txt') }
-    let(:file2) { fixture('folder1', 'folder2', 'file2.txt') }
-    let(:file3) { fixture('folder1', 'deletedfile1.txt') }
-    let(:file4) { fixture('folder1', 'movedfile1.txt') }
-    let(:file5) { fixture('folder1', 'folder2', 'movedfile1.txt') }
+    let(:file) { fixture('folder1/newfile.rb') }
+    let(:file1) { fixture('folder1/file1.txt') }
+    let(:file2) { fixture('folder1/folder2/file2.txt') }
+    let(:file3) { fixture('folder1/deletedfile1.txt') }
+    let(:file4) { fixture('folder1/movedfile1.txt') }
+    let(:file5) { fixture('folder1/folder2/movedfile1.txt') }
 
     before { listen_to subject }
 
     context 'for a new file' do
+      before { FileUtils.rm(file) if File.exists?(file) }
+      after  { FileUtils.rm(file) }
+
       it 'catches the creation' do
-        FileUtils.rm(file1) if File.exists?(file1)
-        File.exists?(file1).should be_false
+        FileUtils.rm(file) if File.exists?(file)
+        File.exists?(file).should be_false
 
         watch do
-          FileUtils.touch(file1)
+          FileUtils.touch(file)
         end
 
         subject.modified_files([fixture('folder1')], {}).should =~
-          ['spec/fixtures/folder1/file1.txt']
+          ['spec/fixtures/folder1/newfile.rb']
       end
     end
 
@@ -263,10 +267,9 @@ describe Guard::Listener do
       end
 
       context 'for a moved file' do
-        after { FileUtils.rm(file4) }
+        after { FileUtils.mv(file4, file1) }
 
         it 'does not catch the move' do
-          FileUtils.touch(file1)
           File.exists?(file1).should be_true
           File.exists?(file4).should be_false
 
@@ -283,7 +286,6 @@ describe Guard::Listener do
       subject { described_class.new(Dir.pwd, :watch_all_modifications => true) }
 
       before do
-        FileUtils.touch(file1)
         subject.timestamp_files
         subject.update_last_event
       end
@@ -293,6 +295,8 @@ describe Guard::Listener do
       end
 
       context 'for a new file then deleted then re-created and re-deleted' do
+        after { FileUtils.touch(file1) }
+
         it 'catches all the events' do
           FileUtils.rm(file1) if File.exists?(file1)
           File.exists?(file1).should be_false
@@ -345,7 +349,8 @@ describe Guard::Listener do
       end
 
       context 'for a moved file' do
-        after { FileUtils.rm(file4) }
+        after { FileUtils.mv(file4, file1) }
+
         it 'catches the move' do
           File.exists?(file1).should be_true
           File.exists?(file4).should be_false

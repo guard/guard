@@ -93,8 +93,8 @@ shared_examples_for 'a listener that reacts to #on_change' do
   context 'for a new file' do
     let(:file) { fixture('newfile.rb') }
 
-    before { File.delete(file) if File.exists?(file) }
-    after  { File.delete file }
+    before { FileUtils.rm(file) if File.exists?(file) }
+    after  { FileUtils.rm(file) }
 
     it 'catches the new file' do
       File.exists?(file).should be_false
@@ -108,7 +108,7 @@ shared_examples_for 'a listener that reacts to #on_change' do
   end
 
   context 'for a single file update' do
-    let(:file) { fixture('folder1', 'file1.txt') }
+    let(:file) { fixture('folder1/file1.txt') }
 
     it 'catches the update' do
       File.exists?(file).should be_true
@@ -150,8 +150,8 @@ shared_examples_for 'a listener that reacts to #on_change' do
   end
 
   context 'for multiple file updates' do
-    let(:file1) { fixture('folder1', 'file1.txt') }
-    let(:file2) { fixture('folder1', 'folder2', 'file2.txt') }
+    let(:file1) { fixture('folder1/file1.txt') }
+    let(:file2) { fixture('folder1/folder2/file2.txt') }
 
     it 'catches the updates' do
       File.exists?(file1).should be_true
@@ -167,9 +167,9 @@ shared_examples_for 'a listener that reacts to #on_change' do
   end
 
   context 'for a deleted file' do
-    let(:file) { fixture('folder1', 'file1.txt') }
+    let(:file) { fixture('folder1/file1.txt') }
 
-    after  { FileUtils.touch file }
+    after { FileUtils.touch(file) }
 
     it 'does not catch the deletion' do
       File.exists?(file).should be_true
@@ -183,17 +183,17 @@ shared_examples_for 'a listener that reacts to #on_change' do
   end
 
   context 'for a moved file' do
-    let(:file1) { fixture('folder1', 'file1.txt') }
-    let(:file2) { fixture('folder1', 'movedfile1.txt') }
+    let(:file1) { fixture('folder1/file1.txt') }
+    let(:file2) { fixture('folder1/movedfile1.txt') }
 
-    after { FileUtils.mv file2, file1 }
+    after { FileUtils.mv(file2, file1) }
 
     it 'does not catch the move' do
       File.exists?(file1).should be_true
       File.exists?(file2).should be_false
 
       watch do
-        FileUtils.mv file1, file2
+        FileUtils.mv(file1, file2)
       end
 
       results.should =~ []
@@ -209,7 +209,7 @@ shared_examples_for "a listener scoped to a specific directory" do
   let(:modified) { work_directory.join('file1.txt') }
 
   before { listen_to described_class.new(work_directory) }
-  after  { File.delete new_file }
+  after { FileUtils.rm(new_file) }
 
   it 'should base paths within this directory' do
     File.exists?(modified).should be_true
