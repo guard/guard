@@ -7,7 +7,6 @@
 
 ### Bug fixes
 
-- [#226](https://github.com/guard/guard/issues/226): Use a direct file descriptor with stty. ([@netzpirat][])
 - [#218](https://github.com/guard/guard/issues/174): Watching directory with `-A` option only reports a deleted file the first time around. ([@rymai][])
 - [#174](https://github.com/guard/guard/issues/174): Not creating timestamps for new files with `-A` option. ([@rymai][])
 - [#216](https://github.com/guard/guard/issues/216): Fix exit-status codes for Guard. ([@Maher4Ever][])
