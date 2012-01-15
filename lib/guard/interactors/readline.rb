@@ -98,13 +98,13 @@ module Guard
     # when stopping.
     #
     def store_terminal_settings
-      @stty_save = `stty -g -f /dev/tty`.chomp
+      @stty_save = `stty -g 2>/dev/null`.chomp
     end
 
     # Restore terminal settings
     #
     def restore_terminal_settings
-      system('stty -f /dev/tty', @stty_save)
+      system('stty', @stty_save, '2>/dev/null')
     end
   end
 end
