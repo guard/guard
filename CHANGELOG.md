@@ -1,12 +1,21 @@
 ## Master
 
-### Bug fix
+### Improvements
 
+- Add Gemnasium dependency status image to README. ([@laserlemon][])
+- Update vendor/darwin. ([@thibaudgg][])
+
+### Bug fixes
+
+- [#226](https://github.com/guard/guard/issues/226): Use a direct file descriptor with stty. ([@netzpirat][])
+- [#218](https://github.com/guard/guard/issues/174): Watching directory with `-A` option only reports a deleted file the first time around. ([@rymai][])
+- [#174](https://github.com/guard/guard/issues/174): Not creating timestamps for new files with `-A` option. ([@rymai][])
+- [#216](https://github.com/guard/guard/issues/216): Fix exit-status codes for Guard. ([@Maher4Ever][])
 - [#213 & 214](https://github.com/guard/guard/issues/214): Fixes the "ERROR: No guards found in Guardfile" message wrongly displayed when running `guard list`. ([@pirukire][])
 
 ## 0.10.0 - 1 January, 2012
 
-### Improvement
+### Improvements
 
 - Improved Readline constraints. ([@netzpirat][])
 - Stop & start all guards on Guardfile reevaluation. ([@thibaudgg][])
@@ -403,6 +412,7 @@
 [@johnbintz]: https://github.com/johnbintz
 [@jrsacks]: https://github.com/jrsacks
 [@koshigoe]: https://github.com/koshigoe
+[@laserlemon]: https://github.com/laserlemon
 [@limeyd]: https://github.com/limeyd
 [@madtrick]: https://github.com/madtrick
 [@Maher4Ever]: https://github.com/Maher4Ever
