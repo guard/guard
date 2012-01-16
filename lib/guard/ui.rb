@@ -24,6 +24,18 @@ module Guard
         end
       end
 
+      # Show a yellow warning message that is prefixed with WARNING.
+      #
+      # @param [String] message the message to show
+      # @option options [Boolean] reset whether to clean the output before
+      #
+      def warning(message, options = { })
+        unless ENV['GUARD_ENV'] == 'test'
+          reset_line if options[:reset]
+          STDERR.puts color('WARNING: ', :yellow) + message
+        end
+      end
+
       # Show a red error message that is prefixed with ERROR.
       #
       # @param [String] message the message to show
