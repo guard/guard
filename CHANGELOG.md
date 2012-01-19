@@ -1,9 +1,10 @@
-## Master
+## 1.0.0 - 19 January, 2012
 
 ### Improvements
 
 - Add Gemnasium dependency status image to README. ([@laserlemon][])
 - Update vendor/darwin. ([@thibaudgg][])
+- [#223](https://github.com/guard/guard/issues/223): Warn if Guard isn't launched with `bundle exec`. (Proposed by [@thibaudgg][], done by [@netzpirat][])
 
 ### Bug fixes
 
