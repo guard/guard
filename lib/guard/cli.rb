@@ -135,7 +135,7 @@ module Guard
     # shows a hint to do so if not.
     #
     def verify_bundler_presence
-      ::Guard::UI.warning "You are using Guard outside of Bundler, this is dangerous and could not work. Using `bundle exec guard` is safer." unless ENV['BUNDLE_GEMFILE']
+      ::Guard::UI.warning "You are using Guard outside of Bundler, this is dangerous and may not work. Using `bundle exec guard` is safer." unless ENV['BUNDLE_GEMFILE']
     end
 
   end
