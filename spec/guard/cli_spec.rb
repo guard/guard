@@ -22,7 +22,7 @@ describe Guard::CLI do
       after { ENV['BUNDLE_GEMFILE'] = @bundler_env }
 
       it 'does not show the Bundler warning' do
-        ui.should_not_receive(:warning).with("You are using Guard outside of Bundler, this is dangerous and could not work. Using `bundle exec guard` is safer.")
+        ui.should_not_receive(:warning).with("You are using Guard outside of Bundler, this is dangerous and may not work. Using `bundle exec guard` is safer.")
         subject.start
       end
     end
@@ -36,7 +36,7 @@ describe Guard::CLI do
       after { ENV['BUNDLE_GEMFILE'] = @bundler_env }
 
       it 'does not show the Bundler warning' do
-        ui.should_receive(:warning).with("You are using Guard outside of Bundler, this is dangerous and could not work. Using `bundle exec guard` is safer.")
+        ui.should_receive(:warning).with("You are using Guard outside of Bundler, this is dangerous and may not work. Using `bundle exec guard` is safer.")
         subject.start
       end
     end
@@ -82,7 +82,7 @@ describe Guard::CLI do
       after { ENV['BUNDLE_GEMFILE'] = @bundler_env }
 
       it 'does not show the Bundler warning' do
-        ui.should_not_receive(:warning).with("You are using Guard outside of Bundler, this is dangerous and could not work. Using `bundle exec guard` is safer.")
+        ui.should_not_receive(:warning).with("You are using Guard outside of Bundler, this is dangerous and may not work. Using `bundle exec guard` is safer.")
         subject.list
       end
     end
@@ -96,7 +96,7 @@ describe Guard::CLI do
       after { ENV['BUNDLE_GEMFILE'] = @bundler_env }
 
       it 'does not show the Bundler warning' do
-        ui.should_receive(:warning).with("You are using Guard outside of Bundler, this is dangerous and could not work. Using `bundle exec guard` is safer.")
+        ui.should_receive(:warning).with("You are using Guard outside of Bundler, this is dangerous and may not work. Using `bundle exec guard` is safer.")
         subject.list
       end
     end
@@ -117,7 +117,7 @@ describe Guard::CLI do
       after { ENV['BUNDLE_GEMFILE'] = @bundler_env }
 
       it 'does not show the Bundler warning' do
-        ui.should_not_receive(:warning).with("You are using Guard outside of Bundler, this is dangerous and could not work. Using `bundle exec guard` is safer.")
+        ui.should_not_receive(:warning).with("You are using Guard outside of Bundler, this is dangerous and may not work. Using `bundle exec guard` is safer.")
         subject.version
       end
     end
@@ -131,7 +131,7 @@ describe Guard::CLI do
       after { ENV['BUNDLE_GEMFILE'] = @bundler_env }
 
       it 'does not show the Bundler warning' do
-        ui.should_receive(:warning).with("You are using Guard outside of Bundler, this is dangerous and could not work. Using `bundle exec guard` is safer.")
+        ui.should_receive(:warning).with("You are using Guard outside of Bundler, this is dangerous and may not work. Using `bundle exec guard` is safer.")
         subject.version
       end
     end
@@ -154,7 +154,7 @@ describe Guard::CLI do
       after { ENV['BUNDLE_GEMFILE'] = @bundler_env }
 
       it 'does not show the Bundler warning' do
-        ui.should_not_receive(:warning).with("You are using Guard outside of Bundler, this is dangerous and could not work. Using `bundle exec guard` is safer.")
+        ui.should_not_receive(:warning).with("You are using Guard outside of Bundler, this is dangerous and may not work. Using `bundle exec guard` is safer.")
         subject.init
       end
     end
@@ -168,7 +168,7 @@ describe Guard::CLI do
       after { ENV['BUNDLE_GEMFILE'] = @bundler_env }
 
       it 'does not show the Bundler warning' do
-        ui.should_receive(:warning).with("You are using Guard outside of Bundler, this is dangerous and could not work. Using `bundle exec guard` is safer.")
+        ui.should_receive(:warning).with("You are using Guard outside of Bundler, this is dangerous and may not work. Using `bundle exec guard` is safer.")
         subject.init
       end
     end
@@ -191,7 +191,7 @@ describe Guard::CLI do
       after { ENV['BUNDLE_GEMFILE'] = @bundler_env }
 
       it 'does not show the Bundler warning' do
-        ui.should_not_receive(:warning).with("You are using Guard outside of Bundler, this is dangerous and could not work. Using `bundle exec guard` is safer.")
+        ui.should_not_receive(:warning).with("You are using Guard outside of Bundler, this is dangerous and may not work. Using `bundle exec guard` is safer.")
         subject.show
       end
     end
@@ -205,7 +205,7 @@ describe Guard::CLI do
       after { ENV['BUNDLE_GEMFILE'] = @bundler_env }
 
       it 'does not show the Bundler warning' do
-        ui.should_receive(:warning).with("You are using Guard outside of Bundler, this is dangerous and could not work. Using `bundle exec guard` is safer.")
+        ui.should_receive(:warning).with("You are using Guard outside of Bundler, this is dangerous and may not work. Using `bundle exec guard` is safer.")
         subject.show
       end
     end
