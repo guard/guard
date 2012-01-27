@@ -137,7 +137,7 @@ describe Guard::CLI do
     end
   end
 
-  describe '#init', :focus do
+  describe '#init' do
     before do
       ::Guard.stub(:create_guardfile)
       ::Guard.stub(:initialize_all_templates)
@@ -157,6 +157,18 @@ describe Guard::CLI do
       it 'initializes the template of the passed Guard by delegating to Guard.initialize_template' do
         ::Guard.should_receive(:initialize_template).with('rspec')
         subject.init 'rspec'
+      end
+    end
+
+    context 'with the bare option' do
+      before { subject.should_receive(:options).and_return({:bare => true}) }
+
+      it 'Only creates the Guardfile and does not initialize any Guard template' do
+        ::Guard.should_receive(:create_guardfile)
+        ::Guard.should_not_receive(:initialize_template)
+        ::Guard.should_not_receive(:initialize_all_templates)
+
+        subject.init
       end
     end
 
