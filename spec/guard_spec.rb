@@ -7,73 +7,82 @@ describe Guard do
     File.exists?(Guard::GUARDFILE_TEMPLATE).should be_true
   end
 
-  describe ".initialize_template" do
+  describe ".create_guardfile" do
     before { Dir.stub(:pwd).and_return "/home/user" }
 
-    context "with a Guard name" do
-      class Guard::Foo < Guard::Guard
-      end
+    context "with an existing Guardfile" do
+      before { File.should_receive(:exist?).and_return true }
 
-      context "with an existing Guardfile" do
-        before { File.should_receive(:exist?).and_return true }
+      it "does not copy the Guardfile template or notify the user" do
+        ::Guard::UI.should_not_receive(:info).with('Writing new Guardfile to /home/user/Guardfile')
+        FileUtils.should_not_receive(:cp).with(an_instance_of(String), 'Guardfile')
 
-        it "initializes the Guard" do
-          Guard::Foo.should_receive(:init)
-          Guard.initialize_template('foo')
-        end
-      end
-
-      context "without an existing Guardfile" do
-        before { File.should_receive(:exist?).and_return false }
-
-        it "copies the Guardfile template and initializes the Guard" do
-          ::Guard::UI.should_receive(:info).with("Writing new Guardfile to /home/user/Guardfile")
-          FileUtils.should_receive(:cp).with(an_instance_of(String), 'Guardfile')
-          Guard::Foo.should_receive(:init)
-          Guard.initialize_template('foo')
-        end
-      end
-
-      context "with a user defined template" do
-        let(:template) { File.join(Guard::HOME_TEMPLATES, '/bar') }
-
-        before {
-          File.should_receive(:exist?).with('Guardfile').and_return false
-          File.should_receive(:exist?).with(template).and_return true
-        }
-
-        it "copies the Guardfile template and initializes the Guard" do
-          FileUtils.should_receive(:cp).with(an_instance_of(String), 'Guardfile')
-          File.should_receive(:read).with('Guardfile').and_return 'Guardfile content'
-          File.should_receive(:read).with(template).and_return 'Template content'
-          io = StringIO.new
-          File.should_receive(:open).with('Guardfile', 'wb').and_yield io
-          Guard.initialize_template('bar')
-          io.string.should eql "Guardfile content\n\nTemplate content\n"
-        end
+        subject.create_guardfile
       end
     end
 
-    context "without a Guard name" do
-      context "with an existing Guardfile" do
-        before { File.should_receive(:exist?).and_return true }
+    context "without an existing Guardfile" do
+      before { File.should_receive(:exist?).and_return false }
 
-        it "shows an error" do
-          Guard.should_receive(:exit).with 1
-          ::Guard::UI.should_receive(:error).with("Guardfile already exists at /home/user/Guardfile")
-          Guard.initialize_template
-        end
+      it "copies the Guardfile template and notifies the user" do
+        ::Guard::UI.should_receive(:info)
+        FileUtils.should_receive(:cp)
+
+        subject.create_guardfile
+      end
+    end
+  end
+
+  describe ".initialize_template" do
+    context 'with an installed Guard implementation' do
+      let(:foo_guard) { double('Guard::Foo').as_null_object }
+
+      before { ::Guard.should_receive(:get_guard_class).and_return(foo_guard) }
+
+      it "initializes the Guard" do
+        foo_guard.should_receive(:init)
+        subject.initialize_template('foo')
+      end
+    end
+
+    context "with a user defined template" do
+      let(:template) { File.join(Guard::HOME_TEMPLATES, '/bar') }
+
+      before { File.should_receive(:exist?).with(template).and_return true }
+
+      it "copies the Guardfile template and initializes the Guard" do
+        File.should_receive(:read).with('Guardfile').and_return 'Guardfile content'
+        File.should_receive(:read).with(template).and_return 'Template content'
+        io = StringIO.new
+        File.should_receive(:open).with('Guardfile', 'wb').and_yield io
+        subject.initialize_template('bar')
+        io.string.should eql "Guardfile content\n\nTemplate content\n"
+      end
+    end
+
+    context "when the passed guard can't be found" do
+      before { File.should_receive(:exist?).and_return false }
+
+      it "notifies the user about the problem" do
+        ::Guard::UI.should_receive(:error).with(
+          "Could not load 'guard/foo' or '~/.guard/templates/foo' or find class Guard::Foo"
+        )
+        subject.initialize_template('foo')
+      end
+    end
+  end
+
+  describe ".initialize_all_templates" do
+    let(:guards) { ['rspec', 'spork', 'phpunit'] }
+
+    before { subject.should_receive(:guard_gem_names).and_return(guards) }
+
+    it "calls Guard.initialize_template on all installed guards" do
+      guards.each do |g|
+        subject.should_receive(:initialize_template).with(g)
       end
 
-      context "without an existing Guardfile" do
-        before { File.should_receive(:exist?).and_return false }
-
-        it "copies the Guardfile template" do
-          ::Guard::UI.should_receive(:info).with("Writing new Guardfile to /home/user/Guardfile")
-          FileUtils.should_receive(:cp).with(an_instance_of(String), 'Guardfile')
-          Guard.initialize_template
-        end
-      end
+      subject.initialize_all_templates
     end
   end
 
