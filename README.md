@@ -201,24 +201,39 @@ $ guard help start
 
 ### Init
 
-You can generate an empty `Guardfile` by running the `init` task:
+You can generate a Guardfile and have all installed guards be automatically added into
+it by running the `init` task without any option:
 
 ```bash
 $ guard init
 ```
 
-In addition, the `init` task can be used to append a supplied Guard template from an installed Guard to your existing
-`Guardfile`:
+You can also specify the name of an installed Guard to only get that Guard
+in the generated Guardfile:
 
 ```bash
 $ guard init <guard-name>
 ```
 
-You can also define your own templates in `~/.guard/templates/` which can be appended in the same way to your existing 
+You can also define your own templates in `~/.guard/templates/` which can be appended in the same way to your existing
 `Guardfile`:
 
 ```bash
 $ guard init <template-name>
+```
+
+**Note**: If you already have a `Guardfile` in the current directory, the `init` task can be used
+to append a supplied Guard template from an installed Guard to your existing
+`Guardfile`.
+
+#### `-b`/`--bare` option
+
+You can generate an empty `Guardfile` by running the `init` task with the bare
+option:
+
+```bash
+$ guard init --bare
+$ guard init -b # shortcut
 ```
 
 ### Start
@@ -832,7 +847,7 @@ When you file an issue, please try to follow to these simple rules if applicable
 * Add your `Guardfile` and `Gemfile` to the issue.
 * Make sure that the issue is reproducible with your description.
 
-Development [![Dependency Status](https://gemnasium.com/guard/guard.png?branch=master)](https://gemnasium.com/guard/guard) 
+Development [![Dependency Status](https://gemnasium.com/guard/guard.png?branch=master)](https://gemnasium.com/guard/guard)
 -----------
 
 * Documentation hosted at [RubyDoc](http://rubydoc.info/github/guard/guard/master/frames).
