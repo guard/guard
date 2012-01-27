@@ -138,13 +138,16 @@ describe Guard::CLI do
   end
 
   describe '#init' do
+    let(:options) { {:bare => false} }
+
     before do
+      subject.stub(:options => options)
       ::Guard.stub(:create_guardfile)
       ::Guard.stub(:initialize_all_templates)
     end
 
     it 'creates a Guardfile by delegating to Guard.create_guardfile' do
-      ::Guard.should_receive(:create_guardfile)
+      ::Guard.should_receive(:create_guardfile).with(:abort_on_existence => options[:bare])
       subject.init
     end
 
@@ -161,7 +164,7 @@ describe Guard::CLI do
     end
 
     context 'with the bare option' do
-      before { subject.should_receive(:options).and_return({:bare => true}) }
+      let(:options) { {:bare => true} }
 
       it 'Only creates the Guardfile and does not initialize any Guard template' do
         ::Guard.should_receive(:create_guardfile)

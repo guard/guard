@@ -122,7 +122,7 @@ module Guard
     def init(guard_name = nil)
       verify_bundler_presence
 
-      ::Guard.create_guardfile
+      ::Guard.create_guardfile(:abort_on_existence => options[:bare])
 
       return if options[:bare]
 

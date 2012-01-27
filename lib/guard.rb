@@ -28,10 +28,16 @@ module Guard
     #
     # @see Guard::CLI.init
     #
-    def create_guardfile
+    # @param [Hash] options The options for creating a Guardfile
+    # @option options [Boolean] :abort_on_existence Whether to abort or not when a Guardfile already exists
+    #
+    def create_guardfile(options = {})
       if !File.exist?('Guardfile')
         ::Guard::UI.info "Writing new Guardfile to #{ Dir.pwd }/Guardfile"
         FileUtils.cp(GUARDFILE_TEMPLATE, 'Guardfile')
+      elsif options[:abort_on_existence]
+        ::Guard::UI.error "Guardfile already exists at #{ Dir.pwd }/Guardfile"
+        abort
       end
     end
 

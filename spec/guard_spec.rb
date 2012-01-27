@@ -14,10 +14,24 @@ describe Guard do
       before { File.should_receive(:exist?).and_return true }
 
       it "does not copy the Guardfile template or notify the user" do
-        ::Guard::UI.should_not_receive(:info).with('Writing new Guardfile to /home/user/Guardfile')
-        FileUtils.should_not_receive(:cp).with(an_instance_of(String), 'Guardfile')
+        ::Guard::UI.should_not_receive(:info)
+        FileUtils.should_not_receive(:cp)
 
         subject.create_guardfile
+      end
+
+      it "does not display any kind of error or abort" do
+        ::Guard::UI.should_not_receive(:error)
+        subject.should_not_receive(:abort)
+        subject.create_guardfile
+      end
+
+      context "with the :abort_on_existence option set to true" do
+        it "displays an error message and aborts the process" do
+          ::Guard::UI.should_receive(:error).with("Guardfile already exists at /home/user/Guardfile")
+          subject.should_receive(:abort)
+          subject.create_guardfile(:abort_on_existence => true)
+        end
       end
     end
 
