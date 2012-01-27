@@ -61,7 +61,10 @@ describe Guard do
     end
 
     context "when the passed guard can't be found" do
-      before { File.should_receive(:exist?).and_return false }
+      before do
+        ::Guard.should_receive(:get_guard_class).and_return nil
+        File.should_receive(:exist?).and_return false
+      end
 
       it "notifies the user about the problem" do
         ::Guard::UI.should_receive(:error).with(
