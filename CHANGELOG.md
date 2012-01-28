@@ -1,3 +1,9 @@
+## Master
+
+### Improvement
+
+- [#223](https://github.com/guard/guard/issues/227) Add the ability to initialize all guards at once. (Proposed by [@rupert654][], done by [@Maher4Ever][])
+
 ## 1.0.0 - 19 January, 2012
 
 ### Improvements
@@ -429,6 +435,7 @@
 [@pcreux]: https://github.com/pcreux
 [@pirukire]: https://github.com/pirukire
 [@rmm5t]: https://github.com/rmm5t
+[@rupert654]: https://github.com/rupert654
 [@rymai]: https://github.com/rymai
 [@scottdavis]: https://github.com/scottdavis
 [@semperos]: https://github.com/semperos
