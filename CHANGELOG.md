@@ -2,6 +2,8 @@
 
 ### Improvement
 
+- Update vendor/darwin to rb-fsevent 0.9.0. ([@thibaudgg][])
+- [#233](https://github.com/guard/guard/issues/233) Guard::Listener.select_and_init requires hash. (reported by [@sunaku][], fixed by [@thibaudgg][])
 - [#223](https://github.com/guard/guard/issues/227) Add the ability to initialize all guards at once. (Proposed by [@rupert654][], done by [@Maher4Ever][])
 
 ## 1.0.0 - 19 January, 2012
