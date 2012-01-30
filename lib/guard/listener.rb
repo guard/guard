@@ -32,7 +32,7 @@ module Guard
     # @option options [String] watchdir the directory to watch
     # @return [Guard::Listener] the chosen listener
     #
-    def self.select_and_init(options = nil)
+    def self.select_and_init(options = {})
       watchdir = options && options[:watchdir] && File.expand_path(options[:watchdir])
       watchdir = Dir.pwd unless watchdir
 

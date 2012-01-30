@@ -49,7 +49,7 @@ describe Guard::Listener do
       it 'uses the current working directory' do
         RbConfig::CONFIG['target_os'] = 'darwin10.4.0'
         Guard::Darwin.stub(:usable?).and_return(true)
-        Guard::Darwin.should_receive(:new).with(Dir.pwd, nil)
+        Guard::Darwin.should_receive(:new).with(Dir.pwd, {})
         described_class.select_and_init
       end
     end
