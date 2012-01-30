@@ -1,0 +1,23 @@
+#include "Common.xcconfig"
+
+
+// build options
+VALIDATE_PRODUCT = YES
+
+
+// code signing
+CODE_SIGN_IDENTITY = 3rd Party Mac Developer Application: Travis Tilley
+
+
+// deployment
+COPY_PHASE_STRIP = YES
+STRIP_INSTALLED_PRODUCT = YES
+
+
+// code generation
+GCC_OPTIMIZATION_LEVEL = 4
+GCC_UNROLL_LOOPS = YES
+
+
+// preprocessing
+GCC_PREPROCESSOR_DEFINITIONS = $(COMMON_GCC_PREPROCESSOR_DEFINITIONS) NDEBUG

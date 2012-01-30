@@ -1,0 +1,17 @@
+// linking
+MACH_O_TYPE = mh_execute
+OTHER_LDFLAGS = -sectcreate __TEXT __info_plist "$(DERIVED_FILE_DIR)/Info.plist"
+GENERATE_MASTER_OBJECT_FILE = YES
+
+
+// packaging
+INFOPLIST_FILE = Info.plist
+PRODUCT_NAME = $(TARGET_NAME)
+
+
+// versioning
+CURRENT_PROJECT_VERSION = 0.1.1
+
+
+// preprocessing
+GCC_PREPROCESSOR_DEFINITIONS = $(inherited) PROJECT_VERSION="$(CURRENT_PROJECT_VERSION)"
