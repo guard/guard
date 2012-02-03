@@ -138,11 +138,41 @@ describe Guard::CLI do
   end
 
   describe '#init' do
-    before { ::Guard.stub(:initialize_template) }
+    let(:options) { {:bare => false} }
 
-    it 'delegates to Guard::DslDescriber.list' do
-      ::Guard.should_receive(:initialize_template)
+    before do
+      subject.stub(:options => options)
+      ::Guard.stub(:create_guardfile)
+      ::Guard.stub(:initialize_all_templates)
+    end
+
+    it 'creates a Guardfile by delegating to Guard.create_guardfile' do
+      ::Guard.should_receive(:create_guardfile).with(:abort_on_existence => options[:bare])
       subject.init
+    end
+
+    it 'initializes the templates of all installed Guards by delegating to Guard.initialize_all_templates' do
+      ::Guard.should_receive(:initialize_all_templates)
+      subject.init
+    end
+
+    context 'when passed a guard name' do
+      it 'initializes the template of the passed Guard by delegating to Guard.initialize_template' do
+        ::Guard.should_receive(:initialize_template).with('rspec')
+        subject.init 'rspec'
+      end
+    end
+
+    context 'with the bare option' do
+      let(:options) { {:bare => true} }
+
+      it 'Only creates the Guardfile and does not initialize any Guard template' do
+        ::Guard.should_receive(:create_guardfile)
+        ::Guard.should_not_receive(:initialize_template)
+        ::Guard.should_not_receive(:initialize_all_templates)
+
+        subject.init
+      end
     end
 
     context 'when running with Bundler' do

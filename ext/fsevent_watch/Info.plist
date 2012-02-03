@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleIdentifier</key>
+	<string>com.teaspoonofinsanity.fsevent_watch</string>
+	<key>CFBundleExecutable</key>
+	<string>fsevent_watch</string>
+	<key>CFBundleName</key>
+	<string>fsevent_watch</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>MACOSX_DEPLOYMENT_TARGET</string>
+	<key>CFBundleVersion</key>
+	<string>CURRENT_PROJECT_VERSION</string>
+	<key>FSEWOptimizationLevel</key>
+	<string>OPTIMIZATION_LEVEL</string>
+	<key>FSEWVersionInfoBuilder</key>
+	<string>VERSION_INFO_BUILDER</string>
+	<key>FSEWVersionInfoString</key>
+	<string>VERSION_INFO_STRING</string>
+	<key>BuildMachineOSBuild</key>
+	<string>MAC_OS_X_PRODUCT_BUILD_VERSION</string>
+	<key>BuildMachineOSVersion</key>
+	<string>MAC_OS_X_VERSION_ACTUAL</string>
+	<key>DTCompiler</key>
+	<string>GCC_VERSION</string>
+	<key>DTPlatformBuild</key>
+	<string>PLATFORM_PRODUCT_BUILD_VERSION</string>
+	<key>DTSDKBuild</key>
+	<string>SDK_PRODUCT_BUILD_VERSION</string>
+	<key>DTSDKName</key>
+	<string>SDK_NAME</string>
+	<key>DTXcode</key>
+	<string>XCODE_VERSION_ACTUAL</string>
+	<key>DTXcodeBuild</key>
+	<string>XCODE_PRODUCT_BUILD_VERSION</string>
+</dict>
+</plist>

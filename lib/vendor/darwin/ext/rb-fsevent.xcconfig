@@ -1,0 +1,33 @@
+// settings in this file will override those defined in the xcode project
+
+// - deployment -
+INSTALL_MODE_FLAG = u+w,go-w,a+rX
+MACOSX_DEPLOYMENT_TARGET = 10.5
+DSTROOT = ../../
+INSTALL_PATH = /bin
+SKIP_INSTALL = NO
+
+// - build locations -
+SYMROOT = build
+OBJROOT = $(SYMROOT)
+
+// - architectures -
+ARCHS = $(NATIVE_ARCH_ACTUAL)
+SDKROOT = 
+
+// - build options -
+GCC_VERSION = com.apple.compilers.llvm.clang.1_0
+
+// etc
+RUN_CLANG_STATIC_ANALYZER = YES
+DEAD_CODE_STRIPPING = YES
+PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES
+LD_NO_PIE = NO
+GCC_GENERATE_DEBUGGING_SYMBOLS = YES
+LLVM_LTO = NO
+LLVM_LTO[arch=x86_64] = YES
+GCC_C_LANGUAGE_STANDARD = gnu99
+GCC_ENABLE_OBJC_EXCEPTIONS = YES
+GCC_ENABLE_OBJC_GC = unsupported
+GCC_ENABLE_EXCEPTIONS = YES
+

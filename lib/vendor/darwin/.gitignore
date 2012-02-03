@@ -10,7 +10,8 @@ Gemfile.lock
 .fseventsd
 Desktop DB
 Desktop DF
-/bin/fsevent_watch
+
+# /bin/fsevent_watch
 /ext/Makefile
 
 ## editor/IDE
