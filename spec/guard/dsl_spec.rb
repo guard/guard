@@ -78,7 +78,7 @@ describe Guard::Dsl do
     lambda { described_class.evaluate_guardfile }.should raise_error
   end
 
-  it "doesn't display an error message when no guard are defined in Guardfile" do
+  it "doesn't display an error message when no Guards are defined in Guardfile" do
     ::Guard::Dsl.stub!(:instance_eval_guardfile)
     ::Guard.stub!(:guards).and_return([])
     Guard::UI.should_not_receive(:error)
@@ -136,8 +136,8 @@ describe Guard::Dsl do
     end
 
     it "raises error when guardfile_content ends up empty or nil" do
-      Guard::UI.should_receive(:error).with(/The command file/)
-      lambda { described_class.evaluate_guardfile(:guardfile_contents => "") }.should raise_error
+      Guard::UI.should_receive(:error).with("No Guards found in Guardfile, please add at least one.")
+      described_class.evaluate_guardfile(:guardfile_contents => "")
     end
 
     it "doesn't raise error when guardfile_content is nil (skipped)" do
@@ -149,77 +149,123 @@ describe Guard::Dsl do
   it "displays an error message when Guardfile is not valid" do
     Guard::UI.should_receive(:error).with(/Invalid Guardfile, original error is:/)
 
-    lambda { described_class.evaluate_guardfile(:guardfile_contents => invalid_guardfile_string ) }.should raise_error
+    described_class.evaluate_guardfile(:guardfile_contents => invalid_guardfile_string )
   end
 
   describe ".reevaluate_guardfile" do
     before(:each) { ::Guard::Dsl.stub!(:instance_eval_guardfile) }
 
-    it "stops already defined guard before calling evaluate_guardfile" do
-      Guard::Notifier.turn_off
-      described_class.evaluate_guardfile(:guardfile_contents => invalid_guardfile_string)
+    it "executes the before hook" do
+      ::Guard::Dsl.should_receive(:evaluate_guardfile)
+      described_class.reevaluate_guardfile
+    end
 
+    it "evaluates the Guardfile" do
+      ::Guard::Dsl.should_receive(:before_reevaluate_guardfile)
+      described_class.reevaluate_guardfile
+    end
+
+    it "executes the after hook" do
+      ::Guard::Dsl.should_receive(:after_reevaluate_guardfile)
+      described_class.reevaluate_guardfile
+    end
+  end
+
+  describe ".before_reevaluate_guardfile" do
+    it "stops all Guards" do
       ::Guard.guards.should_not be_empty
       ::Guard.guards.each do |guard|
         ::Guard.should_receive(:run_supervised_task).with(guard, :stop)
       end
-      ::Guard::Dsl.should_receive(:evaluate_guardfile)
 
-      described_class.reevaluate_guardfile
+      described_class.before_reevaluate_guardfile
     end
 
-    it "resets already defined guards before calling evaluate_guardfile" do
-      Guard::Notifier.turn_off
-      described_class.evaluate_guardfile(:guardfile_contents => invalid_guardfile_string)
-
+    it "clears all Guards" do
       ::Guard.guards.should_not be_empty
-      ::Guard::Dsl.should_receive(:evaluate_guardfile)
 
       described_class.reevaluate_guardfile
 
       ::Guard.guards.should be_empty
     end
 
-    it "resets groups before calling evaluate_guardfile" do
-      Guard::Notifier.turn_off
-      described_class.evaluate_guardfile(:guardfile_contents => invalid_guardfile_string)
-
+    it "resets all groups" do
       ::Guard.groups.should_not be_empty
-      ::Guard::Dsl.should_receive(:evaluate_guardfile)
 
-      described_class.reevaluate_guardfile
+      described_class.before_reevaluate_guardfile
 
       ::Guard.groups.should_not be_empty
       ::Guard.groups[0].name.should eq :default
       ::Guard.groups[0].options.should == {}
     end
 
-    it "resets notifications before calling evaluate_guardfile" do
-      Guard::Notifier.turn_off
-      Guard::Notifier.notifications = [{ :name => :growl }]
-      described_class.evaluate_guardfile(:guardfile_contents => invalid_guardfile_string)
+    it "clears the notifications" do
+       ::Guard::Notifier.turn_off
+       ::Guard::Notifier.notifications = [{ :name => :growl }]
+       ::Guard::Notifier.notifications.should_not be_empty
 
-      ::Guard::Notifier.notifications.should_not be_empty
-      ::Guard::Dsl.should_receive(:evaluate_guardfile)
+       described_class.before_reevaluate_guardfile
 
-      described_class.reevaluate_guardfile
-
-      ::Guard::Notifier.notifications.should be_empty
+       ::Guard::Notifier.notifications.should be_empty
     end
 
-    # Tricky because ::Guard.guards is reset during reevaluate_guardfile so we can't mocking it. Any idea?
-    pending "starts new defined guard after calling evaluate_guardfile" do
-      Guard::Notifier.turn_off
-      described_class.evaluate_guardfile(:guardfile_contents => invalid_guardfile_string)
+    it "removes the cached Guardfile content" do
+      ::Guard::Dsl.should_receive(:after_reevaluate_guardfile)
 
-      ::Guard::Dsl.should_receive(:evaluate_guardfile)
-      ::Guard.guards.should_not be_empty
-      ::Guard.guards.each do |guard|
-        ::Guard.should_receive(:run_supervised_task).with(guard, :stop)
-        ::Guard.should_receive(:run_supervised_task).with(any_args(), :start)
+      described_class.after_reevaluate_guardfile
+    end
+  end
+
+  describe ".after_reevaluate_guardfile" do
+    context "with notifications enabled" do
+      before { ::Guard::Notifier.stub(:enabled?).and_return true }
+
+      it "enables the notifications again" do
+        ::Guard::Notifier.should_receive(:turn_on)
+        described_class.after_reevaluate_guardfile
+      end
+    end
+
+    context "with notifications disabled" do
+      before { ::Guard::Notifier.stub(:enabled?).and_return false }
+
+      it "does not enable the notifications again" do
+        ::Guard::Notifier.should_not_receive(:turn_on)
+        described_class.after_reevaluate_guardfile
+      end
+    end
+
+    context "with Guards afterwards" do
+      before { ::Guard.stub(:guards).and_return([:a]) }
+
+      it "shows a success message" do
+        ::Guard.stub(:run_on_guards)
+        ::Guard::UI.should_receive(:info).with('Guardfile has been re-evaluated.')
+        described_class.after_reevaluate_guardfile
       end
 
-      described_class.reevaluate_guardfile
+      it "shows a success notification" do
+        ::Guard::Notifier.should_receive(:notify).with('Guardfile has been re-evaluated.', :title => 'Guard re-evaluate')
+        described_class.after_reevaluate_guardfile
+      end
+
+      it "starts all Guards" do
+        ::Guard.guards.should_not be_empty
+        ::Guard.guards.each do |guard|
+          ::Guard.should_receive(:run_supervised_task).with(guard, :start)
+        end
+
+        described_class.after_reevaluate_guardfile
+      end
+    end
+
+    context "without Guards afterwards" do
+      before { ::Guard.stub(:guards).and_return([]) }
+
+      it "shows a failure notification" do
+        ::Guard::Notifier.should_receive(:notify).with('No guards found in Guardfile, please add at least one.', :title => 'Guard re-evaluate', :image => :failed)
+        described_class.after_reevaluate_guardfile
+      end
     end
   end
 

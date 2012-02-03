@@ -106,20 +106,40 @@ module Guard
       #
       def reevaluate_guardfile
         ::Guard.run do
-          # Stop each old guards
-          ::Guard.run_on_guards do |guard|
-            ::Guard.run_supervised_task(guard, :stop)
-          end
-          ::Guard.guards.clear
-          ::Guard.reset_groups
-          ::Guard::Notifier.clear_notifications
-          @@options.delete(:guardfile_contents)
+          before_reevaluate_guardfile
           Dsl.evaluate_guardfile(@@options)
-          UI.error 'No guards found in Guardfile, please add at least one.' if ::Guard.guards.empty?
+          after_reevaluate_guardfile
+        end
+      end
+
+      # Stop Guards and clear internal state
+      # before the Guardfile will be re-evaluated.
+      #
+      def before_reevaluate_guardfile
+        ::Guard.run_on_guards do |guard|
+          ::Guard.run_supervised_task(guard, :stop)
+        end
+
+        ::Guard.guards.clear
+        ::Guard.reset_groups
+        ::Guard::Notifier.clear_notifications
+
+        @@options.delete(:guardfile_contents)
+      end
+
+      # Start Guards and notification and show a message
+      # after the Guardfile has been re-evaluated.
+      #
+      def after_reevaluate_guardfile
+        ::Guard::Notifier.turn_on if ::Guard::Notifier.enabled?
+
+        if ::Guard.guards.empty?
+          ::Guard::Notifier.notify('No guards found in Guardfile, please add at least one.', :title => 'Guard re-evaluate', :image => :failed)
+        else
           msg = 'Guardfile has been re-evaluated.'
-          UI.info(msg)
-          Notifier.notify(msg)
-          # Start each new guards
+          ::Guard::UI.info(msg)
+          ::Guard::Notifier.notify(msg, :title => 'Guard re-evaluate')
+
           ::Guard.run_on_guards do |guard|
             ::Guard.run_supervised_task(guard, :start)
           end
@@ -134,7 +154,6 @@ module Guard
         new.instance_eval(contents, @@options[:guardfile_path], 1)
       rescue
         UI.error "Invalid Guardfile, original error is:\n#{ $! }"
-        exit 1
       end
 
       # Test if the current `Guardfile` contains a specific Guard.
@@ -185,8 +204,7 @@ module Guard
         end
 
         unless guardfile_contents_usable?
-          UI.error "The command file(#{ @@options[:guardfile] }) seems to be empty."
-          exit 1
+          UI.error 'No Guards found in Guardfile, please add at least one.'
         end
       end
 
