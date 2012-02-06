@@ -39,8 +39,8 @@ module Guard
       # @return [Boolean] the availability status
       #
       def available?(silent = false)
-        if RbConfig::CONFIG['host_os'] =~ /linux|freebsd|openbsd|sunos|solaris/
-          not `which notify-send`.empty?
+        if (RbConfig::CONFIG['host_os'] =~ /linux|freebsd|openbsd|sunos|solaris/) and (not `which notify-send`.empty?)
+          true
         else
           ::Guard::UI.error 'The :notifysend notifier runs only on Linux, FreeBSD, OpenBSD and Solaris with the libnotify-bin package installed.' unless silent
           false
