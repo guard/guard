@@ -17,14 +17,20 @@ module Guard
         :t   => 3000 # Default timeout is 3000ms
       }
 
+      # Full list of options supported by notify-send
+      SUPPORTED = [:u, :t, :i, :c, :h]
+
       # Build a shell command out of a command string and option hash.
       #
       # @param [String] command the command execute
+      # @param [Array] supported list of supported option flags
       # @param [Hash] options additional command options
       # @return [String] the command and its options converted to a shell command.
       # 
-      def to_command_string(command, options = {})
-        options.reduce(command) do |cmd, (flag, value)|
+      def to_command_string(command, supported, options = {})
+        options
+          .keep_if{|k| supported.include?(k)}
+          .reduce(command) do |cmd, (flag, value)|
           cmd + " -#{flag} '#{value}'"
         end
       end
@@ -55,7 +61,7 @@ module Guard
       #
       def notify(type, title, message, image, options = { })
         command = "notify-send '#{title}' '#{message}'"
-        system(to_command_string(command, DEFAULTS.merge(options).merge({
+       system(to_command_string(command, SUPPORTED, DEFAULTS.merge(options).merge({
           :u => notifysend_urgency(type),
           :i => image
         })))
