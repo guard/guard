@@ -28,10 +28,8 @@ module Guard
       # @return [String] the command and its options converted to a shell command.
       # 
       def to_command_string(command, supported, options = {})
-        options
-          .keep_if{|k| supported.include?(k)}
-          .reduce(command) do |cmd, (flag, value)|
-          cmd + " -#{flag} '#{value}'"
+        options.reduce(command) do |cmd, (flag, value)|
+          supported.include?(flag) ? cmd + " -#{flag} '#{value}'" : cmd
         end
       end
 
