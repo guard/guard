@@ -105,6 +105,10 @@ group :development do
 end
 ```
 
+If you are unable to build the `libnotify` gem on your system, Guard
+also has a built in notifier - `notifysend` - that shells out to the
+`notify-send` utility that comes with `libnotify-bin`.
+
 #### Notifu
 
 * Runs on Windows
