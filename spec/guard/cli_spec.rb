@@ -40,6 +40,20 @@ describe Guard::CLI do
         subject.start
       end
     end
+    
+    context 'when running with RVM' do
+      before do
+        @rvm_env = ENV['rvm_ruby_string']
+        ENV['rvm_ruby_string'] = nil
+      end
+      
+      after { ENV['rvm_ruby_string'] = @rvm_env }
+      
+      it 'does not show the Bundler warning' do
+        ui.should_receive(:warning).with("You are using Guard outside of Bundler, this is dangerous and may not work. Using `bundle exec guard` is safer.")
+        subject.start
+      end
+    end
 
     context 'with an interrupt signal' do
       before do
