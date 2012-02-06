@@ -152,7 +152,7 @@ module Guard
     # shows a hint to do so if not.
     #
     def verify_bundler_or_rvm_presence
-      ::Guard::UI.warning "You're using Guard outside of Bundler, this is dangerous and may not work. Using `bundle exec guard` is safer." unless ENV['BUNDLE_GEMFILE'] or ENV['rvm_ruby_string']
+      ::Guard::UI.warning "You are using Guard outside of Bundler, this is dangerous and may not work. Using `bundle exec guard` is safer." unless ENV['BUNDLE_GEMFILE'] or ENV['rvm_ruby_string']
     end
 
   end
