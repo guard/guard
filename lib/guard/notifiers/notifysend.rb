@@ -20,19 +20,6 @@ module Guard
       # Full list of options supported by notify-send
       SUPPORTED = [:u, :t, :i, :c, :h]
 
-      # Build a shell command out of a command string and option hash.
-      #
-      # @param [String] command the command execute
-      # @param [Array] supported list of supported option flags
-      # @param [Hash] options additional command options
-      # @return [String] the command and its options converted to a shell command.
-      #
-      def to_command_string(command, supported, options = {})
-        options.reduce(command) do |cmd, (flag, value)|
-          supported.include?(flag) ? cmd + " -#{flag} '#{value}'" : cmd
-        end
-      end
-
       # Test if the notification program is available.
       #
       # @param [Boolean] silent true if no error messages should be shown
@@ -75,6 +62,19 @@ module Guard
       #
       def notifysend_urgency(type)
         {'failed' => 'critical', 'pending' => 'normal'}.fetch(type, 'low')
+      end
+
+      # Build a shell command out of a command string and option hash.
+      #
+      # @param [String] command the command execute
+      # @param [Array] supported list of supported option flags
+      # @param [Hash] options additional command options
+      # @return [String] the command and its options converted to a shell command.
+      #
+      def to_command_string(command, supported, options = {})
+        options.reduce(command) do |cmd, (flag, value)|
+          supported.include?(flag) ? cmd + " -#{flag} '#{value}'" : cmd
+        end
       end
     end
   end
