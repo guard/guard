@@ -26,7 +26,7 @@ module Guard
       # @param [Array] supported list of supported option flags
       # @param [Hash] options additional command options
       # @return [String] the command and its options converted to a shell command.
-      # 
+      #
       def to_command_string(command, supported, options = {})
         options.reduce(command) do |cmd, (flag, value)|
           supported.include?(flag) ? cmd + " -#{flag} '#{value}'" : cmd
@@ -59,7 +59,7 @@ module Guard
       #
       def notify(type, title, message, image, options = { })
         command = "notify-send '#{title}' '#{message}'"
-       system(to_command_string(command, SUPPORTED, DEFAULTS.merge(options).merge({
+        system(to_command_string(command, SUPPORTED, DEFAULTS.merge(options).merge({
           :u => notifysend_urgency(type),
           :i => image
         })))
