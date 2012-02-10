@@ -7,6 +7,7 @@ require 'guard/notifiers/gntp'
 require 'guard/notifiers/growl'
 require 'guard/notifiers/growl_notify'
 require 'guard/notifiers/libnotify'
+require 'guard/notifiers/notifysend'
 require 'guard/notifiers/rb_notifu'
 
 module Guard
@@ -47,6 +48,7 @@ module Guard
         :growl        => ::Guard::Notifier::Growl,
         :growl_notify => ::Guard::Notifier::GrowlNotify,
         :libnotify    => ::Guard::Notifier::Libnotify,
+        :notifysend   => ::Guard::Notifier::NotifySend,
         :notifu       => ::Guard::Notifier::Notifu
     }
 
@@ -151,7 +153,7 @@ module Guard
     # is available.
     #
     def auto_detect_notification
-      available = [:growl_notify, :gntp, :growl, :libnotify, :notifu].any? { |notifier| add_notification(notifier, { }, true) }
+      available = [:growl_notify, :gntp, :growl, :libnotify, :notifysend, :notifu].any? { |notifier| add_notification(notifier, { }, true) }
       ::Guard::UI.info('Guard could not detect any of the supported notification libraries.') unless available
     end
 

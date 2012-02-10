@@ -35,6 +35,7 @@ describe Guard::Notifier do
           Guard::Notifier.should_receive(:add_notification).with(:gntp, { }, true).and_return false
           Guard::Notifier.should_receive(:add_notification).with(:growl, { }, true).and_return false
           Guard::Notifier.should_receive(:add_notification).with(:libnotify, { }, true).and_return false
+          Guard::Notifier.should_receive(:add_notification).with(:notifysend, { }, true).and_return false
           Guard::Notifier.should_receive(:add_notification).with(:notifu, { }, true).and_return false
           Guard::Notifier.turn_on
         end
