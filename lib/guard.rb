@@ -224,14 +224,14 @@ module Guard
     # Stop Guard listening to file changes
     #
     def stop
-      UI.info 'Bye bye...', :reset => true
-
       run_on_guards do |guard|
         run_supervised_task(guard, :stop)
       end
 
       interactor.stop if interactor
       listener.stop
+
+      UI.info 'Bye bye...', :reset => true
     end
 
     # Reload all Guards currently enabled.
