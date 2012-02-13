@@ -71,7 +71,7 @@ module Guard
     # @see Guard.start
     #
     def start
-      verify_bundler_presence
+      verify_bundler_or_rvm_presence
       ::Guard.start(options)
     rescue Interrupt
       ::Guard.stop
@@ -86,7 +86,7 @@ module Guard
     # @see Guard::DslDescriber.list
     #
     def list
-      verify_bundler_presence
+      verify_bundler_or_rvm_presence
       ::Guard::DslDescriber.list(options)
     end
 
@@ -98,7 +98,7 @@ module Guard
     # @see Guard::VERSION
     #
     def version
-      verify_bundler_presence
+      verify_bundler_or_rvm_presence
       ::Guard::UI.info "Guard version #{ ::Guard::VERSION }"
     end
 
@@ -120,7 +120,7 @@ module Guard
     # @param [String] guard_name the name of the Guard to initialize
     #
     def init(guard_name = nil)
-      verify_bundler_presence
+      verify_bundler_or_rvm_presence
 
       ::Guard.create_guardfile(:abort_on_existence => options[:bare])
 
@@ -142,7 +142,7 @@ module Guard
     # @see Guard::DslDescriber.show
     #
     def show
-      verify_bundler_presence
+      verify_bundler_or_rvm_presence
       ::Guard::DslDescriber.show(options)
     end
 
@@ -151,8 +151,8 @@ module Guard
     # Verifies if Guard is run with `bundle exec` and
     # shows a hint to do so if not.
     #
-    def verify_bundler_presence
-      ::Guard::UI.warning "You are using Guard outside of Bundler, this is dangerous and may not work. Using `bundle exec guard` is safer." unless ENV['BUNDLE_GEMFILE']
+    def verify_bundler_or_rvm_presence
+      ::Guard::UI.warning "You are using Guard outside of Bundler, this is dangerous and may not work. Using `bundle exec guard` is safer." unless ENV['BUNDLE_GEMFILE'] or ENV['rvm_ruby_string']
     end
 
   end
