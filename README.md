@@ -66,7 +66,30 @@ the time, try the [Rubygems Bundler](https://github.com/mpapis/rubygems-bundler)
 You can configure Guard to make use of the following system notification libraries, but it's strongly recommended
 to use either Ruby GNTP, Libnotify or Notifu:
 
+#### Growl
+
+* Runs on Mac OS X
+* Supports all [Growl](http://growl.info/) versions
+
+The [growl](https://rubygems.org/gems/growl) gem is compatible with all versions of Growl and uses a command line tool
+[growlnotify](http://growl.info/extras.php#growlnotify) that must be separately downloaded and installed. The version of
+the command line tool must match your Growl version. The `growl` gem does **not** support multiple notification
+channels.
+
+You have to download the installer for `growlnotify` from the [Growl download section](http://growl.info/downloads).
+
+To use `growl` you have to add it to your `Gemfile` and run bundler:
+
+```ruby
+group :development do
+  gem 'growl'
+end
+```
+
 #### Ruby GNTP
+
+**There's currently a bug in Growl that prevents displaying the icons through GNTP, see
+[issue #231](https://github.com/guard/guard/issues/231). Use the growl gem until fixed.**
 
 * Runs on Mac OS X, Linux and Windows
 * Supports [Growl](http://growl.info/) version >= 1.3, [Growl for Linux](http://mattn.github.com/growl-for-linux/),
@@ -121,26 +144,6 @@ To use `rb-notifu` you have to add it to your `Gemfile` and run bundler:
 ```ruby
 group :development do
   gem 'rb-notifu'
-end
-```
-
-#### Growl
-
-* Runs on Mac OS X
-* Supports all [Growl](http://growl.info/) versions
-
-The [growl](https://rubygems.org/gems/growl) gem is compatible with all versions of Growl and uses a command line tool
-[growlnotify](http://growl.info/extras.php#growlnotify) that must be separately downloaded and installed. The version of
-the command line tool must match your Growl version. The `growl` gem does **not** support multiple notification
-channels.
-
-You have to download the installer for `growlnotify` from the [Growl download section](http://growl.info/downloads).
-
-To use `growl` you have to add it to your `Gemfile` and run bundler:
-
-```ruby
-group :development do
-  gem 'growl'
 end
 ```
 
