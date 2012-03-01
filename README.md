@@ -811,8 +811,7 @@ Evaluate a `Guardfile`:
 require 'guard'
 
 Guard.setup
-Guard::Dsl.evaluate_guardfile(:guardfile => '/path/to/Guardfile')
-Guard.start
+Guard.start(:guardfile => '/path/to/Guardfile')
 ```
 
 Evaluate a string as `Guardfile`:
@@ -828,8 +827,7 @@ guardfile = <<-EOF
   end
 EOF
 
-Guard::Dsl.evaluate_guardfile(:guardfile_contents => guardfile)
-Guard.start
+Guard.start(:guardfile_contents => guardfile)
 ```
 
 Issues
