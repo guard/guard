@@ -82,6 +82,7 @@ module Guard
       return if ENV["GUARD_ENV"] == 'test'
 
       Thread.new do
+        add_signal_handlers unless self.windows?
         loop do
           if @changed_files != [] && !@paused
             changed_files = @changed_files.dup
@@ -136,6 +137,19 @@ module Guard
     #
     def update_last_event
       @last_event = Time.now
+    end
+
+    # Add signals handlers (works only on posix-compatible systems).
+    # (Yes, they're not atomic.  Be nice to them. :)
+    def add_signal_handlers
+      Signal.trap("USR1") do
+        UI.info "Paused Guard on signal USR1" unless @paused
+        pause
+      end
+      Signal.trap("USR2") do
+        UI.info "Continued Guard on signal USR2" if @paused
+        run
+      end
     end
 
     # Get the modified files.
