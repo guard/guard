@@ -1,11 +1,15 @@
 ## Master
 
-### Improvement
+## 1.0.1 - 7 March, 2012
 
-- Add support for `notifysend` ([@alandipert][])
+### Improvements
+
+- [#236](https://github.com/guard/guard/pull/236) Add support for `notifysend`. ([@alandipert][])
 - Update vendor/darwin to rb-fsevent 0.9.0. ([@thibaudgg][])
+- [#249 & #250](https://github.com/guard/guard/issues/250) Fix programmatic examples that didn't work. ([@oreoshake][])
+- [#238](https://github.com/guard/guard/issues/238) Don't try to load the FSEvents listener on older versions of OSX. ([@philomory][])
 - [#233](https://github.com/guard/guard/issues/233) Guard::Listener.select_and_init requires hash. (reported by [@sunaku][], fixed by [@thibaudgg][])
-- [#223](https://github.com/guard/guard/issues/227) Add the ability to initialize all guards at once. (Proposed by [@rupert654][], done by [@Maher4Ever][])
+- [#227 & #232](https://github.com/guard/guard/issues/232) Add the ability to initialize all guards at once. (proposed by [@rupert654][], done by [@Maher4Ever][])
 
 ## 1.0.0 - 19 January, 2012
 
@@ -436,7 +440,9 @@
 [@nicksieger]: https://github.com/nicksieger
 [@niklas]: https://github.com/niklas
 [@oliamb]: https://github.com/oliamb
+[@oreoshake]: https://github.com/oreoshake
 [@pcreux]: https://github.com/pcreux
+[@philomory]: https://github.com/philomory
 [@pirukire]: https://github.com/pirukire
 [@rmm5t]: https://github.com/rmm5t
 [@rupert654]: https://github.com/rupert654
