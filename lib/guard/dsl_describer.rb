@@ -91,7 +91,7 @@ module Guard
               line = "  #{ guard[:name] }"
 
               unless guard[:options].empty?
-                line += ": #{ guard[:options].sort.collect { |k, v| "#{ k } => #{ v.inspect }" }.join(', ') }"
+                line += ": #{ guard[:options].inject({}) { |options, (k, v)| options[k.to_s] = v; options }.sort.collect { |k, v| "#{ k } => #{ v.inspect }" }.join(', ') }"
               end
 
               UI.info line
