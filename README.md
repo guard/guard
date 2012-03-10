@@ -389,7 +389,7 @@ You can interact with Guard and enter commands when Guard has nothing to do. Gua
 * `r`, `reload`:       Reload all Guards.
 * `n`, `notification`: Toggle system notifications on and off.
 * `p`, `pause`:        Toggles the file modification listener. The prompt will change to `p>` when paused.
-                       This is useful when switching Git branches.
+                       This is useful when switching Git branches, rebase Git or change whitespace.
 * `e`, `exit`:         Stop all Guards and quit Guard.
 
 Instead of running all Guards with the `↩` key, you can also run a single Guard by entering its name:
