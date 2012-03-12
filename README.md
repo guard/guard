@@ -7,7 +7,7 @@ This document contains a lot of information, please take your time and read thes
 any questions, ask them in our [Google group](http://groups.google.com/group/guard-dev) or on `#guard`
 (irc.freenode.net).
 
-Before you file an issue, make sure you have read the [file an issue](#reporting-issues) section that contains some
+Before you file an issue, make sure you have read the [file an issue](#file-an-issue) section that contains some
 important information.
 
 Contents
@@ -39,7 +39,7 @@ Contents
 * [Advanced Linux system configuration](#advanced-linux-system-configuration)
 * [Create a Guard](#create-a-guard)
 * [Programmatic use of Guard](#programmatic-use-of-guard)
-* [File an issues](#file-an-issues)
+* [File an issue](#file-an-issue)
 * [Development](#development)
 
 <a name="features" />
