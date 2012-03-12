@@ -339,6 +339,15 @@ $ guard start -I
 $ guard start --no-vendor
 ```
 
+### `-B`/`--no-bundler-warning` option
+
+Skip Bundler warning when a Gemfile exists in the project directory but Guard is not run with Bundler.
+
+```bash
+$ guard start -B
+$ guard start --no-bundler-warning
+```
+
 ### List
 
 You can list the available Guards with the `list` task:
