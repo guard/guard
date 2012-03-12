@@ -29,7 +29,7 @@ Contents
 * [Guardfile DSL](#guardfile-dsl)
   * [guard](#guardfile-dsl-guard)
   * [watch](#guardfile-dsl-watch)
-  * [group](#guardfile-dsl-group)1
+  * [group](#guardfile-dsl-group)
   * [notification](#guardfile-dsl-notification)
   * [interactor](#guardfile-dsl-interactor)
   * [callback](#guardfile-dsl-callback)
