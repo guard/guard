@@ -955,9 +955,9 @@ For questions please join us in our [Google group](http://groups.google.com/grou
 
 ### Core Team
 
-* [Michael Kessler](https://github.com/netzpirat) ([@netzpirat](http://twitter.com/netzpirat)), sponsored by [mksoft.ch](https://mksoft.ch)
-* [Rémy Coutable](https://github.com/rymai) ([@rymai](http://twitter.com/rymai))
-* [Thibaud Guillaume-Gentil](https://github.com/thibaudgg) ([@thibaudgg](http://twitter.com/thibaudgg))
+* [Michael Kessler](https://github.com/netzpirat) ([@netzpirat](http://twitter.com/netzpirat), [mksoft.ch](https://mksoft.ch))
+* [Rémy Coutable](https://github.com/rymai) ([@rymai](http://twitter.com/rymai), [rymai.me](http://rymai.me/))
+* [Thibaud Guillaume-Gentil](https://github.com/thibaudgg) ([@thibaudgg](http://twitter.com/thibaudgg), [thibaud.me](http://thibaud.me/))
 
 ### Contributors
 
