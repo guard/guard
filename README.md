@@ -927,7 +927,7 @@ When you file a bug, please try to follow to these simple rules if applicable:
 * Add your `Guardfile` and `Gemfile` to the issue.
 * Make sure that the issue is reproducible with your description.
 
-**It's most likely that your bug gets resolved faster if you provide as much information as possible!***
+**It's most likely that your bug gets resolved faster if you provide as much information as possible!**
 
 <a name="development" />
 Development [![Dependency Status](https://gemnasium.com/guard/guard.png?branch=master)](https://gemnasium.com/guard/guard)
