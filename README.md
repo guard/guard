@@ -339,6 +339,18 @@ $ guard start -I
 $ guard start --no-vendor
 ```
 
+### Pause watching (all but Windows)
+
+```bash
+$ kill -USR1 <guard_pid>
+```
+
+### Continue watching (all but Windows)
+
+```bash
+$ kill -USR2 <guard_pid>
+```
+
 ### List
 
 You can list the available Guards with the `list` task:
