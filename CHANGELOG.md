@@ -1,5 +1,14 @@
 ## Master
 
+### Improvements
+
+- Add a `--no-bundler-warning` option to Guard start. ([@netzpirat][])
+
+### Bug fixes
+
+- [#260](https://github.com/guard/guard/pull/260) Don't show Bundler warning when no Gemfile present. ([@netzpirat][])
+- [#259](https://github.com/guard/guard/pull/259) Fix `guard show` on Ruby 1.8.7. ([@netzpirat][] and [@rymai][])
+
 ## 1.0.1 - 7 March, 2012
 
 ### Improvements
