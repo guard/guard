@@ -16,6 +16,9 @@
 
 - [#236](https://github.com/guard/guard/pull/236) Add support for `notifysend`. ([@alandipert][])
 - Update vendor/darwin to rb-fsevent 0.9.0. ([@thibaudgg][])
+
+### Bug fixes
+
 - [#249 & #250](https://github.com/guard/guard/issues/250) Fix programmatic examples that didn't work. ([@oreoshake][])
 - [#238](https://github.com/guard/guard/issues/238) Don't try to load the FSEvents listener on older versions of OSX. ([@philomory][])
 - [#233](https://github.com/guard/guard/issues/233) Guard::Listener.select_and_init requires hash. (reported by [@sunaku][], fixed by [@thibaudgg][])
