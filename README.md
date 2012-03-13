@@ -791,14 +791,14 @@ Your Guard main class `Guard::Yoyo` in `lib/guard/guard-yoyo.rb` must inherit fr
 [Guard::Guard](http://rubydoc.info/github/guard/guard/master/Guard/Guard) and should overwrite at least the
 `#run_on_change` task methods.
 
-Here is an example scaffold for `lib/guard/name.rb`:
+Here is an example scaffold for `lib/guard/yoyo.rb`:
 
 ```ruby
 require 'guard'
 require 'guard/guard'
 
 module Guard
-  class GuardName < Guard
+  class Yoyo < Guard
 
     # Initialize a Guard.
     # @param [Array<Guard::Watcher>] watchers the Guard file watchers
