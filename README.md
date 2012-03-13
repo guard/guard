@@ -760,13 +760,12 @@ You may also need to pay attention to the values of `max_queued_events` and `max
 Create a Guard
 --------------
 
-Creating a new Guard is very easy, just create a new gem by running `bundle gem guard-name`, where `name` is
-the name of your Guard. Please make your Guard start with `guard-`, so that it can easily be found on RubyGems.
+Creating a new Guard is very easy. For example, to create a Guard named `yoyo` just create a new gem by running `bundle gem guard-yoyo`. Please make your Guard start with `guard-`, so that it can easily be found on RubyGems.
 
 ```bash
-$ mkdir guard-name
-$ cd guard-name
-$ bundle gem guard-name
+$ mkdir guard-yoyo
+$ cd guard-yoyo
+$ bundle gem guard-yoyo
 ```
 
 Now extend the project structure to have an initial Guard:
@@ -775,24 +774,24 @@ Now extend the project structure to have an initial Guard:
 .travis.yml  # bonus point!
 CHANGELOG.md # bonus point!
 Gemfile
-guard-name.gemspec
+guard-yoyo.gemspec
 Guardfile
 lib/
   guard/
-    guard-name/
+    yoyo/
       templates/
         Guardfile # needed for `guard init <guard-name>`
       version.rb
-    guard-name.rb
+    yoyo.rb
 test/ # or spec/
 README.md
 ```
 
-Your Guard main class `Guard::GuardName` in `lib/guard/guard-name.rb` must inherit from
+Your Guard main class `Guard::Yoyo` in `lib/guard/guard-yoyo.rb` must inherit from
 [Guard::Guard](http://rubydoc.info/github/guard/guard/master/Guard/Guard) and should overwrite at least the
 `#run_on_change` task methods.
 
-Here is an example scaffold for `lib/guard/guard-name.rb`:
+Here is an example scaffold for `lib/guard/name.rb`:
 
 ```ruby
 require 'guard'
