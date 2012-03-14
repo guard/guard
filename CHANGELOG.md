@@ -2,6 +2,7 @@
 
 ### Improvements
 
+- [#254](https://github.com/guard/guard/pull/254) Add the possibility to pause/unpause by sending OS signal. ([@steakknife][])
 - [#261](https://github.com/guard/guard/pull/261) Clarify the usage of the term `guard-name` in the README. ([@spadin][])
 - Add a `--no-bundler-warning` option to Guard start. ([@netzpirat][])
 
@@ -463,6 +464,7 @@
 [@scottdavis]: https://github.com/scottdavis
 [@semperos]: https://github.com/semperos
 [@spadin]: https://github.com/spadin
+[@steakknife]: https://github.com/steakknife
 [@stereobooster]: https://github.com/stereobooster
 [@stouset]: https://github.com/stouset
 [@sunaku]: https://github.com/sunaku

@@ -76,25 +76,6 @@ module Guard
       start_reactor
     end
 
-    # Start the listener thread.
-    #
-    def start_reactor
-      return if ENV["GUARD_ENV"] == 'test'
-
-      Thread.new do
-        add_signal_handlers unless self.windows?
-        loop do
-          if @changed_files != [] && !@paused
-            changed_files = @changed_files.dup
-            clear_changed_files
-            ::Guard.run_on_change(changed_files)
-          else
-            sleep 0.1
-          end
-        end
-      end
-    end
-
     # Start watching the root directory.
     #
     def start
@@ -137,19 +118,6 @@ module Guard
     #
     def update_last_event
       @last_event = Time.now
-    end
-
-    # Add signals handlers (works only on posix-compatible systems).
-    # (Yes, they're not atomic.  Be nice to them. :)
-    def add_signal_handlers
-      Signal.trap("USR1") do
-        UI.info "Paused Guard on signal USR1" unless @paused
-        pause
-      end
-      Signal.trap("USR2") do
-        UI.info "Continued Guard on signal USR2" if @paused
-        run
-      end
     end
 
     # Get the modified files.
@@ -253,6 +221,43 @@ module Guard
     end
 
     private
+
+    # Start the listener thread.
+    #
+    def start_reactor
+      add_signal_handlers unless self.class.windows?
+
+      return if ENV["GUARD_ENV"] == 'test'
+
+      Thread.new do
+        loop do
+          if @changed_files != [] && !@paused
+            changed_files = @changed_files.dup
+            clear_changed_files
+            ::Guard.run_on_change(changed_files)
+          else
+            sleep 0.1
+          end
+        end
+      end
+    end
+
+    # Add POSIX signals handlers.
+    #
+    def add_signal_handlers
+      Signal.trap('USR1') do
+        unless paused?
+          UI.info 'Paused Guard on signal USR1'
+          pause
+        end
+      end
+      Signal.trap('USR2') do
+        if paused?
+          UI.info 'Continued Guard on signal USR2'
+          run
+        end
+      end
+    end
 
     # Gets a list of files that are in the modified directories.
     #
