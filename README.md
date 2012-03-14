@@ -26,6 +26,7 @@ Contents
   * [Show](#usage-show)
 * [Interactions](#interactions)
   * [Readline support](#interactions-readline-support)
+  * [Signals](#interactions-signal)
 * [Guardfile DSL](#guardfile-dsl)
   * [guard](#guardfile-dsl-guard)
   * [watch](#guardfile-dsl-watch)
@@ -490,6 +491,23 @@ end
 
 Guard will automatically enable Readline support if your environment supports it, but you can disable Readline with the
 `interactor` DSL method or turn off completely with the `--no-interactions` option.
+
+<a name="interactions-signal" />
+### Signals
+
+You can also interact with Guard by sending POSIX signals to the Guard process (all but Windows).
+
+#### Pause watching
+
+```bash
+$ kill -USR1 <guard_pid>
+```
+
+#### Continue watching
+
+```bash
+$ kill -USR2 <guard_pid>
+```
 
 <a name="guardfile-dsl" />
 Guardfile DSL
