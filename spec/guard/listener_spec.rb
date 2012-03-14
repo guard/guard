@@ -133,13 +133,13 @@ describe Guard::Listener do
             it 'pauses the listener' do
               listener.should_receive(:pause)
               Process.kill :USR1, Process.pid
-              sleep 0.1
+              sleep 0.5
             end
 
             it 'shows a pause info message' do
               Guard::UI.should_receive(:info).with('Paused Guard on signal USR1')
               Process.kill :USR1, Process.pid
-              sleep 0.1
+              sleep 0.5
             end
           end
 
@@ -149,13 +149,13 @@ describe Guard::Listener do
             it 'does not pauses the listener' do
               listener.should_not_receive(:pause)
               Process.kill :USR1, Process.pid
-              sleep 0.1
+              sleep 0.5
             end
 
             it 'does not show a pause info message' do
               Guard::UI.should_not_receive(:info)
               Process.kill :USR1, Process.pid
-              sleep 0.1
+              sleep 0.5
             end
           end
         end
@@ -167,13 +167,13 @@ describe Guard::Listener do
             it 'runs the listener' do
               listener.should_receive(:run)
               Process.kill :USR2, Process.pid
-              sleep 0.1
+              sleep 0.5
             end
 
             it 'shows a continue info message' do
               Guard::UI.should_receive(:info).with('Continued Guard on signal USR2')
               Process.kill :USR2, Process.pid
-              sleep 0.1
+              sleep 0.5
             end
           end
 
@@ -183,13 +183,13 @@ describe Guard::Listener do
             it 'does not run the listener' do
               listener.should_not_receive(:run)
               Process.kill :USR2, Process.pid
-              sleep 0.1
+              sleep 0.5
             end
 
             it 'does not show a continue info message' do
               Guard::UI.should_not_receive(:info)
               Process.kill :USR2, Process.pid
-              sleep 0.1
+              sleep 0.5
             end
           end
         end
