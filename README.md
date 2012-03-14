@@ -907,7 +907,7 @@ EOF
 Guard.start(:guardfile_contents => guardfile)
 ```
 
-<a name="file-an-issues" />
+<a name="file-an-issue" />
 File an issue
 -------------
 
@@ -919,7 +919,7 @@ You can report bugs and feature requests to [GitHub Issues](https://github.com/g
 Try to figure out where the issue belongs to: Is it an issue with Guard itself or with a Guard implementation you're
 using?
 
-When you file a bug, please try to follow to these simple rules if applicable:
+When you file a bug, please try to follow these simple rules if applicable:
 
 * Make sure you run Guard with `bundle exec` first.
 * Add verbose information to the issue by running Guard with the `--verbose` option.
