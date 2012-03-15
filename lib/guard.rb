@@ -218,6 +218,9 @@ module Guard
         @interactor.start if @interactor
       end
 
+      Signal.trap('USR1') { ::Guard.pause unless listener.paused? }
+      Signal.trap('USR2') { ::Guard.pause if listener.paused? }
+
       listener.start
     end
 

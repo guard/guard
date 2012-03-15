@@ -225,8 +225,6 @@ module Guard
     # Start the listener thread.
     #
     def start_reactor
-      add_signal_handlers unless self.class.windows?
-
       return if ENV["GUARD_ENV"] == 'test'
 
       Thread.new do
@@ -238,23 +236,6 @@ module Guard
           else
             sleep 0.1
           end
-        end
-      end
-    end
-
-    # Add POSIX signals handlers.
-    #
-    def add_signal_handlers
-      Signal.trap('USR1') do
-        unless paused?
-          UI.info 'Paused Guard on signal USR1'
-          pause
-        end
-      end
-      Signal.trap('USR2') do
-        if paused?
-          UI.info 'Continued Guard on signal USR2'
-          run
         end
       end
     end
