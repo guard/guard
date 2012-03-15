@@ -419,7 +419,7 @@ describe Guard do
           context 'when Guard is already running' do
             before { ::Guard.listener.should_receive(:paused?).and_return false }
 
-            it 'does not run the listener' do
+            it 'does not un-pause Guard' do
               ::Guard.should_not_receive(:pause)
               Process.kill :USR2, Process.pid
             end
