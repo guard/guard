@@ -92,12 +92,14 @@ module Guard
     #
     def pause
       @paused = true
+      UI.debug "paused guard"
     end
 
     # Unpause the listener to listen again to change events.
     #
     def run
       @paused = false
+      UI.debug "unpaused guard"
     end
 
     # Clear the list of changed files.
@@ -225,6 +227,12 @@ module Guard
     # Start the listener thread.
     #
     def start_reactor
+      unless Listener.windows?
+        Signal.trap('USR1') { ::Guard.pause unless listener.paused? }
+        Signal.trap('USR2') { ::Guard.run   if     listener.paused? }
+        UI.debug "Added signal handlers, PID #{$$}"
+      end
+
       return if ENV["GUARD_ENV"] == 'test'
 
       Thread.new do
