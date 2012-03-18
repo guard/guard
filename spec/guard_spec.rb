@@ -139,47 +139,46 @@ describe Guard do
     end
 
     unless windows?
-      context 'with signal handlers' do
-        subject { Thread.new { ::Guard.setup } }
-        after { subject.join }
+      context 'when receiving SIGUSR1' do
+        context 'when Guard is running' do
+          before { ::Guard.listener.should_receive(:paused?).and_return false }
 
-        context 'when receiving SIGUSR1' do
-          context 'when Guard is running' do
-            before { ::Guard.listener.should_receive(:paused?).and_return false }
-
-            it 'pauses Guard' do
-              ::Guard.should_receive(:pause)
-              Process.kill :USR1, Process.pid
-            end
-          end
-
-          context 'when Guard is already paused' do
-            before { ::Guard.listener.should_receive(:paused?).and_return true }
-
-            it 'does not pauses Guard' do
-              ::Guard.should_not_receive(:pause)
-              Process.kill :USR1, Process.pid
-            end
+          it 'pauses Guard' do
+            ::Guard.should_receive(:pause)
+            Process.kill :USR1, Process.pid
+            sleep 1
           end
         end
 
-        context 'when receiving SIGUSR2' do
-          context 'when Guard is paused' do
-            before { ::Guard.listener.should_receive(:paused?).and_return true }
+        context 'when Guard is already paused' do
+          before { ::Guard.listener.should_receive(:paused?).and_return true }
 
-            it 'un-pause Guard' do
-              ::Guard.should_receive(:pause)
-              Process.kill :USR2, Process.pid
-            end
+          it 'does not pauses Guard' do
+            ::Guard.should_not_receive(:pause)
+            Process.kill :USR1, Process.pid
+            sleep 1
           end
+        end
+      end
 
-          context 'when Guard is already running' do
-            before { ::Guard.listener.should_receive(:paused?).and_return false }
+      context 'when receiving SIGUSR2' do
+        context 'when Guard is paused' do
+          before { ::Guard.listener.should_receive(:paused?).and_return true }
 
-            it 'does not un-pause Guard' do
-              ::Guard.should_not_receive(:pause)
-              Process.kill :USR2, Process.pid
-            end
+          it 'un-pause Guard' do
+            ::Guard.should_receive(:pause)
+            Process.kill :USR2, Process.pid
+            sleep 1
+          end
+        end
+
+        context 'when Guard is already running' do
+          before { ::Guard.listener.should_receive(:paused?).and_return false }
+
+          it 'does not un-pause Guard' do
+            ::Guard.should_not_receive(:pause)
+            Process.kill :USR2, Process.pid
+            sleep 1
           end
         end
       end
