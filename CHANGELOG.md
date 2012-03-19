@@ -1,11 +1,29 @@
 ## Master
 
-### Improvement
+### Improvements
 
-- Add support for `notifysend` ([@alandipert][])
+- [#254](https://github.com/guard/guard/pull/254) Add the possibility to pause/unpause by sending OS signal. ([@steakknife][])
+- [#261](https://github.com/guard/guard/pull/261) Clarify the usage of the term `guard-name` in the README. ([@spadin][])
+- Add a `--no-bundler-warning` option to Guard start. ([@netzpirat][])
+
+### Bug fixes
+
+- [#260](https://github.com/guard/guard/pull/260) Don't show Bundler warning when no Gemfile present. ([@netzpirat][])
+- [#259](https://github.com/guard/guard/pull/259) Fix `guard show` on Ruby 1.8.7. ([@netzpirat][] and [@rymai][])
+
+## 1.0.1 - 7 March, 2012
+
+### Improvements
+
+- [#236](https://github.com/guard/guard/pull/236) Add support for `notifysend`. ([@alandipert][])
 - Update vendor/darwin to rb-fsevent 0.9.0. ([@thibaudgg][])
+
+### Bug fixes
+
+- [#249 & #250](https://github.com/guard/guard/issues/250) Fix programmatic examples that didn't work. ([@oreoshake][])
+- [#238](https://github.com/guard/guard/issues/238) Don't try to load the FSEvents listener on older versions of OSX. ([@philomory][])
 - [#233](https://github.com/guard/guard/issues/233) Guard::Listener.select_and_init requires hash. (reported by [@sunaku][], fixed by [@thibaudgg][])
-- [#223](https://github.com/guard/guard/issues/227) Add the ability to initialize all guards at once. (Proposed by [@rupert654][], done by [@Maher4Ever][])
+- [#227 & #232](https://github.com/guard/guard/issues/232) Add the ability to initialize all guards at once. (proposed by [@rupert654][], done by [@Maher4Ever][])
 
 ## 1.0.0 - 19 January, 2012
 
@@ -436,13 +454,17 @@
 [@nicksieger]: https://github.com/nicksieger
 [@niklas]: https://github.com/niklas
 [@oliamb]: https://github.com/oliamb
+[@oreoshake]: https://github.com/oreoshake
 [@pcreux]: https://github.com/pcreux
+[@philomory]: https://github.com/philomory
 [@pirukire]: https://github.com/pirukire
 [@rmm5t]: https://github.com/rmm5t
 [@rupert654]: https://github.com/rupert654
 [@rymai]: https://github.com/rymai
 [@scottdavis]: https://github.com/scottdavis
 [@semperos]: https://github.com/semperos
+[@spadin]: https://github.com/spadin
+[@steakknife]: https://github.com/steakknife
 [@stereobooster]: https://github.com/stereobooster
 [@stouset]: https://github.com/stouset
 [@sunaku]: https://github.com/sunaku

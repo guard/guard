@@ -174,6 +174,14 @@ module Guard
 
       @listener   = Listen.to(@watchdir, Hash.new(options))
 
+      if Signal.list.keys.include?('USR1')
+        Signal.trap('USR1') { ::Guard.pause unless @listener.paused? }
+      end
+
+      if Signal.list.keys.include?('USR2')
+        Signal.trap('USR2') { ::Guard.pause if @listener.paused? }
+      end
+
       UI.clear if @options[:clear]
       debug_command_execution if @options[:verbose]
 

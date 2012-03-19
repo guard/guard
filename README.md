@@ -3,9 +3,47 @@ Guard [![Build Status](https://secure.travis-ci.org/guard/guard.png?branch=maste
 
 Guard is a command line tool to easily handle events on file system modifications.
 
-If you have any questions please join us in our [Google group](http://groups.google.com/group/guard-dev) or on
-`#guard` (irc.freenode.net).
+This document contains a lot of information, please take your time and read these instructions carefully. If you have
+any questions, ask them in our [Google group](http://groups.google.com/group/guard-dev) or on `#guard`
+(irc.freenode.net).
 
+Before you file an issue, make sure you have read the [file an issue](#file-an-issue) section that contains some
+important information.
+
+Contents
+--------
+
+* [Features](#features)
+* [Screencast](#screencast)
+* [Installation](#installation)
+  * [System notifications](#installation-system-notifications)
+* [Add more Guards](#add-more-guards)
+* [Usage](#usage)
+  * [Help](#usage-help)
+  * [Init](#usage-init)
+  * [Start](#usage-start)
+  * [List](#usage-list)
+  * [Show](#usage-show)
+* [Interactions](#interactions)
+  * [Readline support](#interactions-readline-support)
+  * [Signals](#interactions-signal)
+* [Guardfile DSL](#guardfile-dsl)
+  * [guard](#guardfile-dsl-guard)
+  * [watch](#guardfile-dsl-watch)
+  * [group](#guardfile-dsl-group)
+  * [notification](#guardfile-dsl-notification)
+  * [interactor](#guardfile-dsl-interactor)
+  * [callback](#guardfile-dsl-callback)
+  * [ignore_paths](#guardfile-dsl-ignore-paths)
+  * [Example](#guardfile-dsl-example)
+* [Shared configurations](#shared-configuration)
+* [Advanced Linux system configuration](#advanced-linux-system-configuration)
+* [Create a Guard](#create-a-guard)
+* [Programmatic use of Guard](#programmatic-use-of-guard)
+* [File an issue](#file-an-issue)
+* [Development](#development)
+
+<a name="features" />
 Features
 --------
 
@@ -18,12 +56,14 @@ Features
 * Support for visual system notifications.
 * Tested against Ruby 1.8.7, 1.9.2, 1.9.3, REE and the latest versions of JRuby & Rubinius.
 
+<a name="screencast" />
 Screencast
 ----------
 
 Ryan Bates made an excellent [RailsCast about Guard](http://railscasts.com/episodes/264-guard) and you should definitely
 watch it for a nice introduction to Guard.
 
+<a name="installation" />
 Installation
 ------------
 
@@ -61,6 +101,7 @@ end
 **It's important that you always run Guard through Bundler to avoid errors.** If you're getting sick of typing `bundle exec` all
 the time, try the [Rubygems Bundler](https://github.com/mpapis/rubygems-bundler).
 
+<a name="installation-system-notifications" />
 ### System notifications
 
 You can configure Guard to make use of the following system notification libraries, but it's strongly recommended
@@ -168,6 +209,7 @@ group :development do
 end
 ```
 
+<a name="add-more-guards" />
 Add more Guards
 ---------------
 
@@ -186,11 +228,13 @@ end
 See the init section of the Guard usage below to see how to install the supplied Guard template that you can install and
 to suit your needs.
 
+<a name="usage" />
 Usage
 -----
 
 Guard is run from the command line. Please open your terminal and go to your project work directory.
 
+<a name="usage-help" />
 ### Help
 
 You can always get help on the available tasks with the `help` task:
@@ -206,6 +250,7 @@ For example, to get help for the `start` task, simply run:
 $ guard help start
 ```
 
+<a name="usage-init" />
 ### Init
 
 You can generate a Guardfile and have all installed guards be automatically added into
@@ -243,6 +288,7 @@ $ guard init --bare
 $ guard init -b # shortcut
 ```
 
+<a name="usage-start" />
 ### Start
 
 Just launch Guard inside your Ruby or Rails project with:
@@ -339,6 +385,16 @@ $ guard start -I
 $ guard start --no-vendor
 ```
 
+### `-B`/`--no-bundler-warning` option
+
+Skip Bundler warning when a Gemfile exists in the project directory but Guard is not run with Bundler.
+
+```bash
+$ guard start -B
+$ guard start --no-bundler-warning
+```
+
+<a name="usage-list" />
 ### List
 
 You can list the available Guards with the `list` task:
@@ -359,6 +415,7 @@ See also https://github.com/guard/guard/wiki/List-of-available-Guards
 * denotes ones already in your Guardfile
 ```
 
+<a name="usage-show" />
 ### Show
 
 You can show the structure of the groups and their Guards with the `show` task:
@@ -379,6 +436,7 @@ Group frontend:
 This shows the internal structure of the evaluated `Guardfile` or `.Guardfile`, with the `.guard.rb` file. You can
 read more about these files in the shared configuration section below.
 
+<a name="interactions" />
 Interactions
 ------------
 
@@ -389,7 +447,7 @@ You can interact with Guard and enter commands when Guard has nothing to do. Gua
 * `r`, `reload`:       Reload all Guards.
 * `n`, `notification`: Toggle system notifications on and off.
 * `p`, `pause`:        Toggles the file modification listener. The prompt will change to `p>` when paused.
-                       This is useful when switching Git branches.
+                       This is useful when switching Git branches, rebase Git or change whitespace.
 * `e`, `exit`:         Stop all Guards and quit Guard.
 
 Instead of running all Guards with the `↩` key, you can also run a single Guard by entering its name:
@@ -416,6 +474,7 @@ This will reload only the Ronn Guard. You can also reload all Guards within a gr
 > backend reload
 ```
 
+<a name="interactions-readline-support" />
 ### Readline support
 
 With Readline enabled, you'll see a command prompt `>` when Guard is ready to accept a command. The command line
@@ -433,12 +492,31 @@ end
 Guard will automatically enable Readline support if your environment supports it, but you can disable Readline with the
 `interactor` DSL method or turn off completely with the `--no-interactions` option.
 
+<a name="interactions-signal" />
+### Signals
+
+You can also interact with Guard by sending POSIX signals to the Guard process (all but Windows).
+
+#### Pause watching
+
+```bash
+$ kill -USR1 <guard_pid>
+```
+
+#### Continue watching
+
+```bash
+$ kill -USR2 <guard_pid>
+```
+
+<a name="guardfile-dsl" />
 Guardfile DSL
 -------------
 
 The Guardfile DSL is evaluated as plain Ruby, so you can use normal Ruby code in your `Guardfile`.
 Guard itself provides the following DSL methods that can be used for configuration:
 
+<a name="guardfile-dsl-guard" />
 ### guard
 
 The `guard` method allows you to add a Guard to your toolchain and configure it by passing the
@@ -455,6 +533,7 @@ guard :coffeescript, :input => 'coffeescripts', :output => 'javascripts'
 guard :coffeescript, :input => 'specs', :output => 'specs'
 ```
 
+<a name="guardfile-dsl-watch" />
 ### watch
 
 The `watch` method allows you to define which files are watched by a Guard:
@@ -500,6 +579,7 @@ guard :shell do
 end
 ```
 
+<a name="guardfile-dsl-group" />
 ### group
 
 The `group` method allows you to group several Guards together. This comes in handy especially when you
@@ -527,6 +607,7 @@ $ guard -g specs
 
 Guards that don't belong to a group are considered global and are always run.
 
+<a name="guardfile-dsl-notification" />
 ### notification
 
 If you don't specify any notification configuration in your `Guardfile`, Guard goes through the list of available
@@ -563,6 +644,7 @@ or using the cli switch `-n`:
 notification :off
 ```
 
+<a name="guardfile-dsl-interactor" />
 ### interactor
 
 You can disable the interactor auto detection and for a specific implementation:
@@ -583,6 +665,7 @@ If you do not need the keyboard interactions with Guard at all, you can turn the
 interactor :off
 ```
 
+<a name="guardfile-dsl-callback" />
 ### callback
 
 The `callback` method allows you to execute arbitrary code before or after any of the `start`, `stop`, `reload`,
@@ -599,6 +682,7 @@ end
 Please see the [hooks and callbacks](https://github.com/guard/guard/wiki/Hooks-and-callbacks) page in the Guard wiki for
 more details.
 
+<a name="guardfile-dsl-ignore-paths" />
 ### ignore_paths
 
 The `ignore_paths` method allows you to ignore top level directories altogether. This comes is handy when you have large
@@ -609,6 +693,7 @@ Currently it is only possible to ignore the immediate descendants of the watched
 ignore_paths 'public'
 ```
 
+<a name="guardfile-dsl-example" />
 ### Example
 
 ```ruby
@@ -642,6 +727,7 @@ group :frontend do
 end
 ```
 
+<a name="shared-configurations" />
 Shared configurations
 ---------------------
 
@@ -659,6 +745,7 @@ guard :shell do
 end
 ```
 
+<a name="advanced-linux-system-configuration" />
 Advanced Linux system configuration
 -----------------------------------
 
@@ -687,16 +774,16 @@ sudo sysctl -p
 
 You may also need to pay attention to the values of `max_queued_events` and `max_user_instances`.
 
+<a name="create-a-guard" />
 Create a Guard
 --------------
 
-Creating a new Guard is very easy, just create a new gem by running `bundle gem guard-name`, where `name` is
-the name of your Guard. Please make your Guard start with `guard-`, so that it can easily be found on RubyGems.
+Creating a new Guard is very easy. For example, to create a Guard named `yoyo` just create a new gem by running `bundle gem guard-yoyo`. Please make your Guard start with `guard-`, so that it can easily be found on RubyGems.
 
 ```bash
-$ mkdir guard-name
-$ cd guard-name
-$ bundle gem guard-name
+$ mkdir guard-yoyo
+$ cd guard-yoyo
+$ bundle gem guard-yoyo
 ```
 
 Now extend the project structure to have an initial Guard:
@@ -705,31 +792,31 @@ Now extend the project structure to have an initial Guard:
 .travis.yml  # bonus point!
 CHANGELOG.md # bonus point!
 Gemfile
-guard-name.gemspec
+guard-yoyo.gemspec
 Guardfile
 lib/
   guard/
-    guard-name/
+    yoyo/
       templates/
         Guardfile # needed for `guard init <guard-name>`
       version.rb
-    guard-name.rb
+    yoyo.rb
 test/ # or spec/
 README.md
 ```
 
-Your Guard main class `Guard::GuardName` in `lib/guard/guard-name.rb` must inherit from
+Your Guard main class `Guard::Yoyo` in `lib/guard/guard-yoyo.rb` must inherit from
 [Guard::Guard](http://rubydoc.info/github/guard/guard/master/Guard/Guard) and should overwrite at least the
 `#run_on_change` task methods.
 
-Here is an example scaffold for `lib/guard/guard-name.rb`:
+Here is an example scaffold for `lib/guard/yoyo.rb`:
 
 ```ruby
 require 'guard'
 require 'guard/guard'
 
 module Guard
-  class GuardName < Guard
+  class Yoyo < Guard
 
     # Initialize a Guard.
     # @param [Array<Guard::Watcher>] watchers the Guard file watchers
@@ -798,6 +885,7 @@ end
 [@avdi](https://github.com/avdi) has a very cool inline Guard example in his blog post
 [A Guardfile for Redis](http://avdi.org/devblog/2011/06/15/a-guardfile-for-redis).
 
+<a name="programmatic-use-of-guard" />
 Programmatic use of Guard
 -------------------------
 
@@ -837,21 +925,28 @@ EOF
 Guard.start(:guardfile_contents => guardfile)
 ```
 
-Issues
-------
+<a name="file-an-issue" />
+File an issue
+-------------
 
-You can report issues and feature requests to [GitHub Issues](https://github.com/guard/guard/issues). Try to figure out
-where the issue belongs to: Is it an issue with Guard itself or with a Guard implementation you're using? Please don't
-ask question in the issue tracker, instead join us in our [Google group](http://groups.google.com/group/guard-dev) or on
-`#guard` (irc.freenode.net).
+You can report bugs and feature requests to [GitHub Issues](https://github.com/guard/guard/issues).
 
-When you file an issue, please try to follow to these simple rules if applicable:
+**Please don't ask question in the issue tracker**, instead ask them in our
+[Google group](http://groups.google.com/group/guard-dev) or on `#guard` (irc.freenode.net).
+
+Try to figure out where the issue belongs to: Is it an issue with Guard itself or with a Guard implementation you're
+using?
+
+When you file a bug, please try to follow these simple rules if applicable:
 
 * Make sure you run Guard with `bundle exec` first.
 * Add verbose information to the issue by running Guard with the `--verbose` option.
 * Add your `Guardfile` and `Gemfile` to the issue.
 * Make sure that the issue is reproducible with your description.
 
+**It's most likely that your bug gets resolved faster if you provide as much information as possible!**
+
+<a name="development" />
 Development [![Dependency Status](https://gemnasium.com/guard/guard.png?branch=master)](https://gemnasium.com/guard/guard)
 -----------
 
@@ -871,19 +966,16 @@ Pull requests are very welcome! Please try to follow these simple rules if appli
 For questions please join us in our [Google group](http://groups.google.com/group/guard-dev) or on
 `#guard` (irc.freenode.net).
 
-Core Team
----------
-
-* [Michael Kessler](https://github.com/netzpirat) ([@netzpirat](http://twitter.com/netzpirat)), sponsored by [mksoft.ch](https://mksoft.ch)
-* [Rémy Coutable](https://github.com/rymai) ([@rymai](http://twitter.com/rymai))
-* [Thibaud Guillaume-Gentil](https://github.com/thibaudgg) ([@thibaudgg](http://twitter.com/thibaudgg))
-
-Author
-------
+### Author
 
 [Thibaud Guillaume-Gentil](https://github.com/thibaudgg) ([@thibaudgg](http://twitter.com/thibaudgg))
 
-Contributors
-------------
+### Core Team
+
+* [Michael Kessler](https://github.com/netzpirat) ([@netzpirat](http://twitter.com/netzpirat), [mksoft.ch](https://mksoft.ch))
+* [Rémy Coutable](https://github.com/rymai) ([@rymai](http://twitter.com/rymai), [rymai.me](http://rymai.me/))
+* [Thibaud Guillaume-Gentil](https://github.com/thibaudgg) ([@thibaudgg](http://twitter.com/thibaudgg), [thibaud.me](http://thibaud.me/))
+
+### Contributors
 
 [https://github.com/guard/guard/contributors](https://github.com/guard/guard/contributors)

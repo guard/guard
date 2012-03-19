@@ -65,13 +65,19 @@ module Guard
                   :aliases => '-i',
                   :banner => 'Turn off completely any guard terminal interactions'
 
+    method_option :no_bundler_warning,
+                  :type => :boolean,
+                  :default => false,
+                  :aliases => '-B',
+                  :banner => 'Turn off warning when Bundler is not present'
+
     # Start Guard by initialize the defined Guards and watch the file system.
     # This is the default task, so calling `guard` is the same as calling `guard start`.
     #
     # @see Guard.start
     #
     def start
-      verify_bundler_presence
+      verify_bundler_presence unless options[:no_bundler_warning]
       ::Guard.start(options)
     rescue Interrupt
       ::Guard.stop
@@ -152,7 +158,9 @@ module Guard
     # shows a hint to do so if not.
     #
     def verify_bundler_presence
-      ::Guard::UI.warning "You are using Guard outside of Bundler, this is dangerous and may not work. Using `bundle exec guard` is safer." unless ENV['BUNDLE_GEMFILE']
+      if File.exists?('Gemfile') && !ENV['BUNDLE_GEMFILE']
+        ::Guard::UI.warning 'You are using Guard outside of Bundler, this is dangerous and may not work. Using `bundle exec guard` is safer.'
+      end
     end
 
   end

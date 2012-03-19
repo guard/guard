@@ -13,22 +13,49 @@ describe Guard::CLI do
       subject.start
     end
 
-    context 'when running with Bundler' do
+    context 'with a Gemfile in the project dir' do
       before do
-        @bundler_env = ENV['BUNDLE_GEMFILE']
-        ENV['BUNDLE_GEMFILE'] = 'Gemfile'
+        File.stub(:exists?).with('Gemfile').and_return true
       end
 
-      after { ENV['BUNDLE_GEMFILE'] = @bundler_env }
+      context 'when running with Bundler' do
+        before do
+          @bundler_env = ENV['BUNDLE_GEMFILE']
+          ENV['BUNDLE_GEMFILE'] = 'Gemfile'
+        end
 
-      it 'does not show the Bundler warning' do
-        ui.should_not_receive(:warning).with("You are using Guard outside of Bundler, this is dangerous and may not work. Using `bundle exec guard` is safer.")
-        subject.start
+        after { ENV['BUNDLE_GEMFILE'] = @bundler_env }
+
+        it 'does not show the Bundler warning' do
+          ui.should_not_receive(:warning).with("You are using Guard outside of Bundler, this is dangerous and may not work. Using `bundle exec guard` is safer.")
+          subject.start
+        end
+      end
+
+      context 'when running without Bundler' do
+        before do
+          @bundler_env = ENV['BUNDLE_GEMFILE']
+          ENV['BUNDLE_GEMFILE'] = nil
+        end
+
+        after { ENV['BUNDLE_GEMFILE'] = @bundler_env }
+
+        it 'does show the Bundler warning' do
+          ui.should_receive(:warning).with("You are using Guard outside of Bundler, this is dangerous and may not work. Using `bundle exec guard` is safer.")
+          subject.start
+        end
+
+        it 'does not show the Bundler warning with the :no_bundler_warning flag' do
+          ui.should_not_receive(:warning).with("You are using Guard outside of Bundler, this is dangerous and may not work. Using `bundle exec guard` is safer.")
+          subject.options = { :no_bundler_warning => true }
+          subject.start
+        end
       end
     end
 
-    context 'when running without Bundler' do
+    context 'without a Gemfile in the project dir' do
       before do
+      File.should_receive(:exists?).with('Gemfile').and_return false
         @bundler_env = ENV['BUNDLE_GEMFILE']
         ENV['BUNDLE_GEMFILE'] = nil
       end
@@ -36,7 +63,7 @@ describe Guard::CLI do
       after { ENV['BUNDLE_GEMFILE'] = @bundler_env }
 
       it 'does not show the Bundler warning' do
-        ui.should_receive(:warning).with("You are using Guard outside of Bundler, this is dangerous and may not work. Using `bundle exec guard` is safer.")
+        ui.should_not_receive(:warning).with("You are using Guard outside of Bundler, this is dangerous and may not work. Using `bundle exec guard` is safer.")
         subject.start
       end
     end

@@ -2,16 +2,14 @@ require 'spec_helper'
 
 describe Guard::DslDescriber do
 
-  let(:describer) { ::Guard::DslDescriber }
-
   let(:guardfile) do
     <<-GUARD
-      guard :test, :a => :b do
+      guard :test, :a => :b, :c => :d do
         watch('c')
       end
 
       group :a do
-        guard 'test', :x => 1 do
+        guard 'test', :x => 1, :y => 2 do
           watch('c')
         end
       end
@@ -36,7 +34,7 @@ describe Guard::DslDescriber do
   describe '.list' do
     it "lists the available Guards when they're declared as strings or symbols" do
       Guard.stub(:guard_gem_names).and_return ['test', 'another', 'even', 'more']
-      describer.list(:guardfile_contents => guardfile)
+      described_class.list(:guardfile_contents => guardfile)
       @output.should eql <<OUTPUT
 Using inline Guardfile.
 Available guards:
@@ -53,13 +51,13 @@ OUTPUT
 
   describe '.show' do
     it 'shows the Guards and their options' do
-      describer.show(:guardfile_contents => guardfile)
+      described_class.show(:guardfile_contents => guardfile)
       @output.should eql <<OUTPUT
 Using inline Guardfile.
 (global):
-  test: a => :b
+  test: a => :b, c => :d
 Group a:
-  test: x => 1
+  test: x => 1, y => 2
 Group b:
   another
 
