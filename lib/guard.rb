@@ -1,4 +1,5 @@
 require 'thread'
+require 'listen'
 
 # Guard is the main module for all Guard related modules and classes.
 # Also other Guard implementation should use this namespace.
@@ -10,7 +11,6 @@ module Guard
   autoload :DslDescriber, 'guard/dsl_describer'
   autoload :Group,        'guard/group'
   autoload :Interactor,   'guard/interactor'
-  autoload :Listener,     'guard/listener'
   autoload :Watcher,      'guard/watcher'
   autoload :Notifier,     'guard/notifier'
   autoload :Hook,         'guard/hook'
@@ -79,32 +79,6 @@ module Guard
       guard_gem_names.each {|g| initialize_template(g) }
     end
 
-    # Initialize the Guard singleton:
-    #
-    # - Initialize the internal Guard state.
-    # - Create the interactor when necessary for user interaction.
-    # - Select and initialize the file change listener.
-    #
-    # @option options [Boolean] clear if auto clear the UI should be done
-    # @option options [Boolean] notify if system notifications should be shown
-    # @option options [Boolean] verbose if verbose output should be shown
-    # @option options [Array<String>] group the list of groups to start
-    # @option options [String] watchdir the director to watch
-    # @option options [String] guardfile the path to the Guardfile
-    # @option options [Boolean] watch_all_modifications watches all file modifications if true
-    #
-    def setup(options = {})
-      @lock       = Mutex.new
-      @options    = options
-      @guards     = []
-      self.reset_groups
-      @listener   = Listener.select_and_init(options)
-
-      UI.clear if @options[:clear]
-      debug_command_execution if @options[:verbose]
-
-      self
-    end
 
     # Smart accessor for retrieving a specific guard or several guards at once.
     #
@@ -177,6 +151,35 @@ module Guard
       @groups = [Group.new(:default)]
     end
 
+    # Initialize the Guard singleton:
+    #
+    # - Initialize the internal Guard state.
+    # - Create the interactor when necessary for user interaction.
+    # - Select and initialize the file change listener.
+    #
+    # @option options [Boolean] clear if auto clear the UI should be done
+    # @option options [Boolean] notify if system notifications should be shown
+    # @option options [Boolean] verbose if verbose output should be shown
+    # @option options [Array<String>] group the list of groups to start
+    # @option options [String] watchdir the director to watch
+    # @option options [String] guardfile the path to the Guardfile
+    # @option options [Boolean] watch_all_modifications watches all file modifications if true
+    #
+    def setup(options = {})
+      @lock       = Mutex.new
+      @options    = options
+      @watchdir   = (options[:watchdir] && File.expand_path(options[:watchdir])) || Dir.pwd
+      @guards     = []
+      self.reset_groups
+
+      @listener   = Listen.to(@watchdir, Hash.new(options))
+
+      UI.clear if @options[:clear]
+      debug_command_execution if @options[:verbose]
+
+      self
+    end
+
     # Start Guard by evaluate the `Guardfile`, initialize the declared Guards
     # and start the available file change listener.
     # Main method for Guard that is called from the CLI when guard starts.
@@ -202,12 +205,13 @@ module Guard
 
       options[:notify] && ENV['GUARD_NOTIFY'] != 'false' ? Notifier.turn_on : Notifier.turn_off
 
-      listener.on_change do |files|
-        Dsl.reevaluate_guardfile        if Watcher.match_guardfile?(files)
-        listener.changed_files += files if Watcher.match_files?(guards, files)
+      callback = lambda do |modified, added, removed|
+        Dsl.reevaluate_guardfile if Watcher.match_guardfile?(modified)
+        run_on_change(modified)  if Watcher.match_files?(guards, modified)
       end
+      @listener = listener.change(&callback)
 
-      UI.info "Guard is now watching at '#{ listener.directory }'"
+      UI.info "Guard is now watching at '#{ @watchdir }'"
 
       run_on_guards do |guard|
         run_supervised_task(guard, :start)
@@ -263,8 +267,7 @@ module Guard
     def pause
       if listener.paused?
         UI.info 'Un-paused files modification listening', :reset => true
-        listener.clear_changed_files
-        listener.run
+        listener.unpause
       else
         UI.info 'Paused files modification listening', :reset => true
         listener.pause

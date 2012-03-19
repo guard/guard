@@ -125,7 +125,7 @@ describe Guard do
     end
 
     it "initializes the listener" do
-      ::Guard.listener.should be_kind_of(Guard::Listener)
+      ::Guard.listener.should be_kind_of(Listen::Listener)
     end
 
     it "respect the watchdir option" do
