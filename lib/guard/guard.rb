@@ -106,22 +106,56 @@ module Guard
     def run_all
     end
 
+    # Default behavious on file(s) changes that the Guard watches.
+    #
+    # @param [Array<String>] paths the changes files or paths
+    # @raise [:task_has_failed] when run_on_change has failed
+    # @return [Object] the task result
+    #
+    def run_on_changes(paths)
+      raise NotImplementedError
+    end
+
+    # Called on file(s) additions that the Guard watches.
+    #
+    # @param [Array<String>] paths the changes files or paths
+    # @raise [:task_has_failed] when run_on_change has failed
+    # @return [Object] the task result
+    #
+    def run_on_addtions(paths)
+      run_on_changes(paths)
+    end
+
     # Called on file(s) modifications that the Guard watches.
     #
     # @param [Array<String>] paths the changes files or paths
     # @raise [:task_has_failed] when run_on_change has failed
     # @return [Object] the task result
     #
-    def run_on_change(paths)
+    def run_on_modifications(paths)
+      run_on_changes(paths)
     end
 
-    # Called on file(s) deletions that the Guard watches.
+    # Called on file(s) removals that the Guard watches.
     #
-    # @param [Array<String>] paths the deleted files or paths
+    # @param [Array<String>] paths the changes files or paths
     # @raise [:task_has_failed] when run_on_change has failed
     # @return [Object] the task result
     #
+    def run_on_removals(paths)
+      run_on_changes(paths)
+    end
+
+    # @deprecated Use #run_on_modifications or #run_on_addtions instead
+    #
+    def run_on_change(paths)
+      raise NotImplementedError
+    end
+
+    # @deprecated Use #run_on_removals instead
+    #
     def run_on_deletion(paths)
+      raise NotImplementedError
     end
 
   end
