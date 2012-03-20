@@ -36,7 +36,7 @@ Contents
   * [callback](#guardfile-dsl-callback)
   * [ignore_paths](#guardfile-dsl-ignore-paths)
   * [Example](#guardfile-dsl-example)
-* [Shared configurations](#shared-configuration)
+* [Shared configurations](#shared-configurations)
 * [Advanced Linux system configuration](#advanced-linux-system-configuration)
 * [Create a Guard](#create-a-guard)
 * [Programmatic use of Guard](#programmatic-use-of-guard)
