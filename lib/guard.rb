@@ -13,6 +13,7 @@ module Guard
   autoload :Interactor,   'guard/interactor'
   autoload :Watcher,      'guard/watcher'
   autoload :Notifier,     'guard/notifier'
+  autoload :Runner,       'guard/runner'
   autoload :Hook,         'guard/hook'
 
   # The Guardfile template for `guard init`
@@ -171,32 +172,24 @@ module Guard
       @guards     = []
       self.reset_groups
       @runner     = Runner.new
-      @listener   = Listen.to(@watchdir, Hash.new(options))
 
-      if Signal.list.keys.include?('USR1')
-        Signal.trap('USR1') { ::Guard.pause unless @listener.paused? }
+      listener_callback = lambda do |modified, added, removed|
+        Dsl.reevaluate_guardfile if Watcher.match_guardfile?(modified)
+        runner.run_on_changes(modified, added, removed)
       end
+      @listener = Listen.to(@watchdir, Hash.new(options)).change(&listener_callback)
 
-      if Signal.list.keys.include?('USR2')
-        Signal.trap('USR2') { ::Guard.pause if @listener.paused? }
-      end
+      self.setup_signal_traps
 
       UI.clear if @options[:clear]
       debug_command_execution if @options[:verbose]
 
       Dsl.evaluate_guardfile(options)
       UI.error 'No guards found in Guardfile, please add at least one.' if ::Guard.guards.empty?
-        
-      runner.depraction_warning # Guard deprecation go here
 
-      options[:notify] && ENV['GUARD_NOTIFY'] != 'false' ? Notifier.turn_on : Notifier.turn_off
+      runner.deprecation_warning # Guard deprecation go here
 
-      callback = lambda do |modified, added, removed|
-        Dsl.reevaluate_guardfile if Watcher.match_guardfile?(modified)
-        runner.run_on_changes(modified, added, removed)
-        # run_on_change(modified)  if Watcher.match_files?(guards, modified)
-      end
-      @listener = listener.change(&callback)
+      self.setup_notifier
 
       unless options[:no_interactions]
         @interactor = Interactor.fabricate
@@ -204,6 +197,20 @@ module Guard
       end
 
       self
+    end
+
+    def setup_signal_traps
+      if Signal.list.keys.include?('USR1')
+        Signal.trap('USR1') { ::Guard.pause unless @listener.paused? }
+      end
+
+      if Signal.list.keys.include?('USR2')
+        Signal.trap('USR2') { ::Guard.pause if @listener.paused? }
+      end
+    end
+
+    def setup_notifier
+      @options[:notify] && ENV['GUARD_NOTIFY'] != 'false' ? Notifier.turn_on : Notifier.turn_off
     end
 
     # Start Guard by evaluate the `Guardfile`, initialize the declared Guards
@@ -229,9 +236,6 @@ module Guard
       UI.info "Guard is now watching at '#{ @watchdir }'"
 
       runner.run(:start)
-      # run_on_guards do |guard|
-      #   run_supervised_task(guard, :start)
-      # end
 
       listener.start
     end
@@ -242,12 +246,7 @@ module Guard
       interactor.stop if interactor
       listener.stop
 
-
       runner.run(:stop)
-      # run_on_guards do |guard|
-      #   run_supervised_task(guard, :stop)
-      # end
-
 
       UI.info 'Bye bye...', :reset => true
     end
@@ -258,11 +257,6 @@ module Guard
     #
     def reload(scopes)
       runner.run_with_scopes(:reload, scopes)
-      # run do
-      #   run_on_guards(scopes) do |guard|
-      #     run_supervised_task(guard, :reload)
-      #   end
-      # end
     end
 
     # Trigger `run_all` on all Guards currently enabled.
@@ -270,12 +264,7 @@ module Guard
     # @param [Hash] scopes an hash with a guard or a group scope
     #
     def run_all(scopes)
-      runner.run_with_scopes(:reload, scopes)
-      # run do
-      #   run_on_guards(scopes) do |guard|
-      #     run_supervised_task(guard, :run_all)
-      #   end
-      # end
+      runner.run_with_scopes(:run_all, scopes)
     end
 
     # Pause Guard listening to file changes.
@@ -287,25 +276,6 @@ module Guard
       else
         UI.info 'Paused files modification listening', :reset => true
         listener.pause
-      end
-    end
-
-    # Get the symbol we have to catch when running a supervised task.
-    # If we are within a Guard group that has the `:halt_on_fail`
-    # option set, we do NOT catch it here, it will be catched at the
-    # group level.
-    #
-    # @see .run_on_guards
-    #
-    # @param [Guard::Guard] guard the Guard to execute
-    # @return [Symbol] the symbol to catch
-    #
-    def guard_symbol(guard)
-      if guard.group.class == Symbol
-        group = groups(guard.group)
-        group.options[:halt_on_fail] ? :no_catch : :task_has_failed
-      else
-        :task_has_failed
       end
     end
 
