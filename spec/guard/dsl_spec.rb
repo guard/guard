@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'guard/guard'
 
 describe Guard::Dsl do
 
@@ -173,10 +172,7 @@ describe Guard::Dsl do
 
   describe ".before_reevaluate_guardfile" do
     it "stops all Guards" do
-      ::Guard.guards.should_not be_empty
-      ::Guard.guards.each do |guard|
-        ::Guard.should_receive(:run_supervised_task).with(guard, :stop)
-      end
+      ::Guard.runner.should_receive(:run).with(:stop)
 
       described_class.before_reevaluate_guardfile
     end
@@ -236,10 +232,9 @@ describe Guard::Dsl do
     end
 
     context "with Guards afterwards" do
-      before { ::Guard.stub(:guards).and_return([:a]) }
-
       it "shows a success message" do
-        ::Guard.stub(:run_on_guards)
+        ::Guard.runner.stub(:run)
+
         ::Guard::UI.should_receive(:info).with('Guardfile has been re-evaluated.')
         described_class.after_reevaluate_guardfile
       end
@@ -250,10 +245,7 @@ describe Guard::Dsl do
       end
 
       it "starts all Guards" do
-        ::Guard.guards.should_not be_empty
-        ::Guard.guards.each do |guard|
-          ::Guard.should_receive(:run_supervised_task).with(guard, :start)
-        end
+        ::Guard.runner.should_receive(:run).with(:start)
 
         described_class.after_reevaluate_guardfile
       end

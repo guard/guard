@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'guard/guard'
 
 describe Guard::Hook do
 

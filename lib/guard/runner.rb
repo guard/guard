@@ -5,13 +5,13 @@ module Guard
   class Runner
 
     def deprecation_warning
-      
+
     end
 
     def run(task)
-      # scoped_guards do |guard|
-      #   run_supervised_task(guard, :start)
-      # end
+      scoped_guards do |guard|
+        run_supervised_task(guard, task)
+      end
     end
 
     def run_with_scopes(task, scopes)
@@ -34,10 +34,10 @@ module Guard
       if guard = scopes[:guard]
         yield(guard)
       else
-        groups = scopes[:group] ? [scopes[:group]] : @groups
+        groups = scopes[:group] ? [scopes[:group]] : ::Guard.groups
         groups.each do |group|
           catch :task_has_failed do
-            guards(:group => group.name).each do |guard|
+            ::Guard.guards(:group => group.name).each do |guard|
               yield(guard)
             end
           end
@@ -50,31 +50,55 @@ module Guard
         scoped_guards do |guard|
           unless modified.empty?
             UI.debug "#{ guard.class.name }#run_on_modifications with #{ modified.inspect }"
+            modified_paths = Watcher.match_files(guard, modified)
             begin
-              run_supervised_task(guard, :run_on_modifications, modified)
+              run_supervised_task(guard, :run_on_modifications, modified_paths)
             rescue NotImplementedError => ex
-              run_supervised_task(guard, :run_on_change, modified)
+              run_supervised_task(guard, :run_on_change, modified_paths)
+            rescue NotImplementedError => ex
             end
           end
 
           unless added.empty?
             UI.debug "#{ guard.class.name }#run_on_addtions with #{ added.inspect }"
+            added_paths = Watcher.match_files(guard, added)
             begin
-              run_supervised_task(guard, :run_on_addtions, added)
+              run_supervised_task(guard, :run_on_addtions, added_paths)
             rescue NotImplementedError => ex
-              run_supervised_task(guard, :run_on_change, added)
+              run_supervised_task(guard, :run_on_change, added_paths)
             end
           end
 
           unless removed.empty?
             UI.debug "#{ guard.class.name }#run_on_removals with #{ removed.inspect }"
+            removed_paths = Watcher.match_files(guard, added)
             begin
-              run_supervised_task(guard, :run_on_removals, removed)
+              run_supervised_task(guard, :run_on_removals, removed_paths)
             rescue NotImplementedError => ex
-              run_supervised_task(guard, :run_on_deletion, removed)
+              run_supervised_task(guard, :run_on_deletion, removed_paths)
+            rescue NotImplementedError => ex
             end
           end
         end
+      end
+    end
+
+    # Run a block where the listener and the interactor is
+    # blocked.
+    #
+    # @yield the block to run
+    #
+    def with_blocked_interactor
+      UI.clear if ::Guard.options[:clear]
+
+      ::Guard.lock.synchronize do
+        begin
+          ::Guard.interactor.stop if ::Guard.interactor
+          yield
+        rescue Interrupt
+        end
+
+        ::Guard.interactor.start if ::Guard.interactor
       end
     end
 
@@ -99,7 +123,7 @@ module Guard
       end
 
     rescue NotImplementedError => ex
-      ex
+      raise ex
     rescue Exception => ex
       UI.error("#{ guard.class.name } failed to achieve its <#{ task.to_s }>, exception was:" +
                "\n#{ ex.class }: #{ ex.message }\n#{ ex.backtrace.join("\n") }")
@@ -129,24 +153,6 @@ module Guard
       end
     end
 
-    # Run a block where the listener and the interactor is
-    # blocked.
-    #
-    # @yield the block to run
-    #
-    def with_blocked_interactor
-      UI.clear if options[:clear]
-    
-      lock.synchronize do
-        begin
-          interactor.stop if interactor
-          yield
-        rescue Interrupt
-        end
-    
-        interactor.start if interactor
-      end
-    end
 
     # # Trigger `run_on_change` on all Guards currently enabled.
     # #
@@ -157,7 +163,7 @@ module Guard
     #     end
     #   end
     # end
-    
+
     # # Run the `:run_on_change` task. When the option `:watch_all_modifications` is set,
     # # the task is split to run changed paths on {Guard::Guard#run_on_change}, whereas
     # # deleted paths run on {Guard::Guard#run_on_deletion}.
@@ -170,18 +176,18 @@ module Guard
     #   paths = Watcher.match_files(guard, files)
     #   changes = changed_paths(paths)
     #   deletions = deleted_paths(paths)
-    # 
+    #
     #   unless changes.empty?
     #     UI.debug "#{ guard.class.name }#run_on_change with #{ changes.inspect }"
     #     run_supervised_task(guard, :run_on_change, changes)
     #   end
-    # 
+    #
     #   unless deletions.empty?
     #     UI.debug "#{ guard.class.name }#run_on_deletion with #{ deletions.inspect }"
     #     run_supervised_task(guard, :run_on_deletion, deletions)
     #   end
     # end
-    # 
+    #
     # # Detects the paths that have changed.
     # #
     # # Deleted paths are prefixed by an exclamation point.
@@ -193,7 +199,7 @@ module Guard
     # def changed_paths(paths)
     #   paths.select { |f| !f.respond_to?(:start_with?) || !f.start_with?('!') }
     # end
-    # 
+    #
     # # Detects the paths that have been deleted.
     # #
     # # Deleted paths are prefixed by an exclamation point.
@@ -205,8 +211,8 @@ module Guard
     # def deleted_paths(paths)
     #   paths.select { |f| f.respond_to?(:start_with?) && f.start_with?('!') }.map { |f| f.slice(1..-1) }
     # end
-    # 
-    
+    #
+
   end
-  
+
 end

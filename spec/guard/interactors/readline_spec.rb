@@ -92,7 +92,9 @@ describe Guard::ReadlineInteractor do
     end
 
     before(:each) do
-      guard           = ::Guard.setup
+      guard = ::Guard
+      guard.guards = []
+      guard.reset_groups
       @backend_group  = guard.add_group(:backend)
       @frontend_group = guard.add_group(:frontend)
       @foo_guard      = guard.add_guard(:foo, [], [], { :group => :backend })

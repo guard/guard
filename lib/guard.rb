@@ -22,7 +22,7 @@ module Guard
   HOME_TEMPLATES = File.expand_path('~/.guard/templates')
 
   class << self
-    attr_accessor :options, :interactor, :runner, :listener, :lock
+    attr_accessor :options, :interactor, :runner, :listener, :lock, :guards
 
     # Creates the initial Guardfile template when it does not
     # already exist.
@@ -170,16 +170,11 @@ module Guard
       @options    = options
       @watchdir   = (options[:watchdir] && File.expand_path(options[:watchdir])) || Dir.pwd
       @guards     = []
-      self.reset_groups
+      reset_groups
       @runner     = Runner.new
 
-      listener_callback = lambda do |modified, added, removed|
-        Dsl.reevaluate_guardfile if Watcher.match_guardfile?(modified)
-        runner.run_on_changes(modified, added, removed)
-      end
-      @listener = Listen.to(@watchdir, Hash.new(options)).change(&listener_callback)
-
-      self.setup_signal_traps
+      setup_listener
+      setup_signal_traps
 
       UI.clear if @options[:clear]
       debug_command_execution if @options[:verbose]
@@ -189,12 +184,8 @@ module Guard
 
       runner.deprecation_warning # Guard deprecation go here
 
-      self.setup_notifier
-
-      unless options[:no_interactions]
-        @interactor = Interactor.fabricate
-        @interactor.start if @interactor
-      end
+      setup_notifier
+      setup_interactor
 
       self
     end
@@ -209,8 +200,23 @@ module Guard
       end
     end
 
+    def setup_listener
+      listener_callback = lambda do |modified, added, removed|
+        Dsl.reevaluate_guardfile if Watcher.match_guardfile?(modified)
+        runner.run_on_changes(modified, added, removed)
+      end
+      @listener = Listen.to(@watchdir, Hash.new(options)).change(&listener_callback)
+    end
+
     def setup_notifier
       @options[:notify] && ENV['GUARD_NOTIFY'] != 'false' ? Notifier.turn_on : Notifier.turn_off
+    end
+
+    def setup_interactor
+      unless options[:no_interactions]
+        @interactor = Interactor.fabricate
+        @interactor.start if @interactor
+      end
     end
 
     # Start Guard by evaluate the `Guardfile`, initialize the declared Guards
@@ -232,11 +238,9 @@ module Guard
     #
     def start(options = {})
       setup(options)
-
       UI.info "Guard is now watching at '#{ @watchdir }'"
 
       runner.run(:start)
-
       listener.start
     end
 
@@ -245,7 +249,6 @@ module Guard
     def stop
       interactor.stop if interactor
       listener.stop
-
       runner.run(:stop)
 
       UI.info 'Bye bye...', :reset => true
