@@ -14,7 +14,7 @@ module Guard
 
       # Default options for the notify-send program
       DEFAULTS = {
-        :t   => 3000 # Default timeout is 3000ms
+        :t => 3000 # Default timeout is 3000ms
       }
 
       # Full list of options supported by notify-send
@@ -61,7 +61,7 @@ module Guard
       # @return [String] the notify-send urgency
       #
       def notifysend_urgency(type)
-        {'failed' => 'critical', 'pending' => 'normal'}.fetch(type, 'low')
+        { 'failed' => 'normal', 'pending' => 'low' }.fetch(type, 'low')
       end
 
       # Build a shell command out of a command string and option hash.
