@@ -46,10 +46,11 @@ module Guard
       #
       def notify(type, title, message, image, options = { })
         command = "notify-send '#{title}' '#{message}'"
-        system(to_command_string(command, SUPPORTED, DEFAULTS.merge(options).merge({
-          :u => notifysend_urgency(type),
+        options = DEFAULTS.merge(options).merge({
           :i => image
-        })))
+        })
+        options[:u] ||= notifysend_urgency(type)
+        system(to_command_string(command, SUPPORTED, options))
       end
 
       private
