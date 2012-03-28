@@ -17,7 +17,7 @@ module Guard
     #   notification :libnotify
     #
     # @example Add the `:libnotify` notifier with configuration options to your `Guardfile`
-    #   notification :libnotify, :timeout => 5, :transient => true, :append => false
+    #   notification :libnotify, :timeout => 5, :transient => true, :append => false, :urgency => :critical
     #
     module Libnotify
       extend self
@@ -64,12 +64,13 @@ module Guard
       def notify(type, title, message, image, options = { })
         require 'libnotify'
 
-        ::Libnotify.show(DEFAULTS.merge(options).merge({
-          :urgency   => libnotify_urgency(type),
+        options = DEFAULTS.merge(options).merge({
           :summary   => title,
           :body      => message,
           :icon_path => image
-        }))
+        })
+        options[:urgency] ||= libnotify_urgency(type)
+        ::Libnotify.show(options)
       end
 
       private
@@ -83,8 +84,6 @@ module Guard
       def libnotify_urgency(type)
         case type
         when 'failed'
-          :critical
-        when 'pending'
           :normal
         else
           :low

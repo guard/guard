@@ -45,7 +45,7 @@ describe Guard::Notifier::Libnotify do
     end
   end
 
-  describe '.nofify' do
+  describe '.notify' do
     it 'requires the library again' do
       subject.should_receive(:require).with('libnotify').and_return true
       subject.notify('success', 'Welcome', 'Welcome to Guard', '/tmp/welcome.png', { })
@@ -72,7 +72,7 @@ describe Guard::Notifier::Libnotify do
             :transient => true,
             :append    => false,
             :timeout   => 5,
-            :urgency   => :normal,
+            :urgency   => :critical,
             :summary   => 'Waiting',
             :body      => 'Waiting for something',
             :icon_path => '/tmp/wait.png'
@@ -80,7 +80,8 @@ describe Guard::Notifier::Libnotify do
         subject.notify('pending', 'Waiting', 'Waiting for something', '/tmp/wait.png', {
             :transient => true,
             :append    => false,
-            :timeout   => 5
+            :timeout   => 5,
+            :urgency   => :critical
         })
       end
 
@@ -89,13 +90,12 @@ describe Guard::Notifier::Libnotify do
             :transient => false,
             :append    => true,
             :timeout   => 3,
-            :urgency   => :critical,
+            :urgency   => :normal,
             :summary   => 'Failed',
             :body      => 'Something failed',
             :icon_path => '/tmp/fail.png'
         })
         subject.notify('failed', 'Failed', 'Something failed', '/tmp/fail.png', {
-            :urgency   => :extreme,
             :summary   => 'Duplicate title',
             :body      => 'Duplicate body',
             :icon_path => 'Duplicate icon'
