@@ -205,7 +205,7 @@ module Guard
         Dsl.reevaluate_guardfile if Watcher.match_guardfile?(modified)
         runner.run_on_changes(modified, added, removed)
       end
-      @listener = Listen.to(@watchdir, Hash.new(options)).change(&listener_callback)
+      @listener = Listen.to(@watchdir, {:relative_paths => true}).change(&listener_callback)
     end
 
     def setup_notifier

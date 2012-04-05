@@ -7,11 +7,11 @@ group :specs do
   end
 end
 
-group :docs do
-  guard :ronn do
-    watch(%r{^man/.+\.ronn?$})
-  end
-end
+# group :docs do
+#   guard :ronn do
+#     watch(%r{^man/.+\.ronn?$})
+#   end
+# end
 
 # require 'guard/guard'
 #

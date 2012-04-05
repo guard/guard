@@ -131,8 +131,8 @@ describe Guard do
     end
 
     it "respect the watchdir option" do
-      ::Guard.setup(:watchdir => "/foo/bar")
-      ::Guard.listener.directory.should eql "/foo/bar"
+      ::Guard.setup(:watchdir => "/usr")
+      ::Guard.listener.directory.should eql "/usr"
     end
 
     it "logs command execution if the debug option is true" do
@@ -398,7 +398,7 @@ describe Guard do
     end
 
     it "return @groups without any argument" do
-      subject.groups.should have(5).items
+      subject.groups.should have(4).items
 
       subject.reset_groups
 

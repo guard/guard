@@ -22,3 +22,6 @@ elsif RbConfig::CONFIG['target_os'] =~ /mswin|mingw/i
   gem 'win32console', :require => false
   gem 'rb-notifu', '>= 0.0.4', :require => false
 end
+
+gem 'rb-fsevent', :git => 'git://github.com/thibaudgg/rb-fsevent.git'
+gem 'listen', :git => 'git://github.com/guard/listen.git', :branch => 'fix_block'
