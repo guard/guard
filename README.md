@@ -376,7 +376,7 @@ $ guard start -i
 $ guard start --no-interactions
 ```
 
-### `-I`/`--no-vendor` option
+#### `-I`/`--no-vendor` option
 
 Ignore the use of vendored gems with:
 
@@ -385,7 +385,7 @@ $ guard start -I
 $ guard start --no-vendor
 ```
 
-### `-B`/`--no-bundler-warning` option
+#### `-B`/`--no-bundler-warning` option
 
 Skip Bundler warning when a Gemfile exists in the project directory but Guard is not run with Bundler.
 
