@@ -159,7 +159,14 @@ module Guard
     #
     def verify_bundler_presence
       if File.exists?('Gemfile') && !ENV['BUNDLE_GEMFILE']
-        ::Guard::UI.warning 'You are using Guard outside of Bundler, this is dangerous and may not work. Using `bundle exec guard` is safer.'
+        ::Guard::UI.info <<EOT
+
+Guard here! It looks like your project has a Gemfile, yet you are running
+`guard` outside of Bundler. If this is your intent, feel free to ignore this
+message. Otherwise, consider using `bundle exec guard` to ensure your
+dependencies are loaded correctly.
+(You can run `guard` with --no-bundler-warning to get rid of this message.)
+EOT
       end
     end
 
