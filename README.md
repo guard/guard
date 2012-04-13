@@ -36,7 +36,7 @@ Contents
   * [callback](#guardfile-dsl-callback)
   * [ignore_paths](#guardfile-dsl-ignore-paths)
   * [Example](#guardfile-dsl-example)
-* [Shared configurations](#shared-configuration)
+* [Shared configurations](#shared-configurations)
 * [Advanced Linux system configuration](#advanced-linux-system-configuration)
 * [Create a Guard](#create-a-guard)
 * [Programmatic use of Guard](#programmatic-use-of-guard)
@@ -376,7 +376,7 @@ $ guard start -i
 $ guard start --no-interactions
 ```
 
-### `-I`/`--no-vendor` option
+#### `-I`/`--no-vendor` option
 
 Ignore the use of vendored gems with:
 
@@ -385,7 +385,7 @@ $ guard start -I
 $ guard start --no-vendor
 ```
 
-### `-B`/`--no-bundler-warning` option
+#### `-B`/`--no-bundler-warning` option
 
 Skip Bundler warning when a Gemfile exists in the project directory but Guard is not run with Bundler.
 
@@ -630,7 +630,7 @@ Each notifier has a slightly different set of supported options:
 notification :growl, :sticky => true, :host => '192.168.1.5', :password => 'secret'
 notification :gntp, :sticky => true, :host => '192.168.1.5', :password => 'secret'
 notification :growl_notify, :sticky => true, :priority => 0
-notification :libnotify, :timeout => 5, :transient => true, :append => false
+notification :libnotify, :timeout => 5, :transient => true, :append => false, :urgency => :critical
 notification :notifu, :time => 5, :nosound => true, :xp => true
 ```
 
@@ -972,6 +972,7 @@ For questions please join us in our [Google group](http://groups.google.com/grou
 
 ### Core Team
 
+* [Maher Sallam](https://github.com/Maher4Ever) ([@mahersalam](http://twitter.com/mahersalam))
 * [Michael Kessler](https://github.com/netzpirat) ([@netzpirat](http://twitter.com/netzpirat), [mksoft.ch](https://mksoft.ch))
 * [Rémy Coutable](https://github.com/rymai) ([@rymai](http://twitter.com/rymai), [rymai.me](http://rymai.me/))
 * [Thibaud Guillaume-Gentil](https://github.com/thibaudgg) ([@thibaudgg](http://twitter.com/thibaudgg), [thibaud.me](http://thibaud.me/))

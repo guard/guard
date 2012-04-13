@@ -2,6 +2,8 @@
 
 ### Improvements
 
+- [#274 & #275](https://github.com/guard/guard/issues/274) Make the Bundler warning less scary and more friendly. ([@mcmire][])
+- [#270](https://github.com/guard/guard/pull/270) Make urgency configurable for libnotify/notifysend. ([@viking][])
 - [#254](https://github.com/guard/guard/pull/254) Add the possibility to pause/unpause by sending OS signal. ([@steakknife][])
 - [#261](https://github.com/guard/guard/pull/261) Clarify the usage of the term `guard-name` in the README. ([@spadin][])
 - Add a `--no-bundler-warning` option to Guard start. ([@netzpirat][])
@@ -475,6 +477,7 @@
 [@tpope]: https://github.com/tpope
 [@uk-ar]: https://github.com/uk-ar
 [@veged]: https://github.com/veged
+[@viking]: https://github.com/viking
 [@waldo]: https://github.com/waldo
 [@wereHamster]: https://github.com/wereHamster
 [@yannlugrin]: https://github.com/yannlugrin
