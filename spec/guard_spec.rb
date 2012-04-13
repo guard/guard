@@ -519,6 +519,27 @@ describe Guard do
     end
   end
 
+  describe '.within_preserved_state' do
+    subject { ::Guard.setup }
+
+    it 'disables the interactor before running the block and then re-enables it when done' do
+      subject.interactor.should_receive(:stop)
+      subject.interactor.should_receive(:start)
+      subject.within_preserved_state &Proc.new {}
+    end
+
+    it 'disallows running the block concurrently to avoid inconsistent states' do
+      subject.lock.should_receive(:synchronize)
+      subject.within_preserved_state &Proc.new {}
+    end
+
+    it 'runs the passed block' do
+      @called = false
+      subject.within_preserved_state { @called = true }
+      @called.should be_true
+    end
+  end
+
   describe ".get_guard_class" do
     after do
       [:Classname, :DashedClassName, :UnderscoreClassName, :VSpec, :Inline].each do |const|

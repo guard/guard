@@ -190,6 +190,12 @@ module Guard
       self
     end
 
+    # Sets up traps to catch signlas used to control Guard.
+    #
+    # Currently two signals are cought:
+    # - `USR1` which pauses listening to changes.
+    # - `USR2` which resumes listening to changes.
+    #
     def setup_signal_traps
       if Signal.list.keys.include?('USR1')
         Signal.trap('USR1') { ::Guard.pause unless @listener.paused? }
@@ -200,6 +206,8 @@ module Guard
       end
     end
 
+    # Initializes the listener and registers a callback for changes.
+    #
     def setup_listener
       listener_callback = lambda do |modified, added, removed|
         Dsl.reevaluate_guardfile if Watcher.match_guardfile?(modified)
@@ -208,10 +216,14 @@ module Guard
       @listener = Listen.to(@watchdir, {:relative_paths => true}).change(&listener_callback)
     end
 
+    # Enables or disables the notifier based on user's configurations.
+    #
     def setup_notifier
       @options[:notify] && ENV['GUARD_NOTIFY'] != 'false' ? Notifier.turn_on : Notifier.turn_off
     end
 
+    # Initializes the interactor unless the user has specified not to.
+    #
     def setup_interactor
       unless options[:no_interactions]
         @interactor = Interactor.fabricate
@@ -316,6 +328,26 @@ module Guard
         @groups << group
       end
       group
+    end
+
+    # Runs a block where the interactor is
+    # blocked and execution is synchronized
+    # to avoid state inconsistency.
+    #
+    # @yield the block to run
+    #
+    def within_preserved_state
+      UI.clear if @options[:clear]
+
+      lock.synchronize do
+        begin
+          interactor.stop if interactor
+          yield
+        rescue Interrupt
+        end
+
+        interactor.start if interactor
+      end
     end
 
     # Tries to load the Guard main class. This transforms the supplied Guard

@@ -105,7 +105,7 @@ module Guard
       # Re-evaluate the `Guardfile` to update the current Guard configuration.
       #
       def reevaluate_guardfile
-        ::Guard.runner.with_blocked_interactor do
+        ::Guard.within_preserved_state do
           before_reevaluate_guardfile
           Dsl.evaluate_guardfile(@@options)
           after_reevaluate_guardfile
