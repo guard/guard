@@ -12,6 +12,7 @@ rvm:
 branches:
   only:
     - master
+    - listen
 env:
   - GUARD_SLEEP=1
 notifications:
@@ -20,4 +21,5 @@ notifications:
     - rymai@rymai.me
     - michi@netzpiraten.ch
     - yann.lugrin@sans-savoir.net
+    - maher@sallam.me
   irc: "irc.freenode.org#guard"
