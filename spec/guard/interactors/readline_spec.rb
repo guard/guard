@@ -86,9 +86,9 @@ describe Guard::ReadlineInteractor do
   end
 
   describe "#completion_list" do
-    class Guard::Foo < Guard::Guard;
-    end
-    class Guard::FooBar < Guard::Guard;
+    before(:all) do
+      class Guard::Foo < Guard::Guard; end
+      class Guard::FooBar < Guard::Guard; end
     end
 
     before(:each) do
@@ -99,6 +99,13 @@ describe Guard::ReadlineInteractor do
       @frontend_group = guard.add_group(:frontend)
       @foo_guard      = guard.add_guard(:foo, [], [], { :group => :backend })
       @foo_bar_guard  = guard.add_guard('foo-bar', [], [], { :group => :frontend })
+    end
+
+    after(:all) do
+      ::Guard.instance_eval do
+        remove_const(:Foo)
+        remove_const(:FooBar)
+      end
     end
 
     it 'creates the list of string to auto complete' do

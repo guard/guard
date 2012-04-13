@@ -1,8 +1,7 @@
 require 'spec_helper'
 
 describe Guard::Dsl do
-
-  class Guard::Dummy < Guard::Guard; end
+  before(:all) { class Guard::Dummy < Guard::Guard; end }
 
   before(:each) do
     @local_guardfile_path = File.join(Dir.pwd, 'Guardfile')
@@ -12,6 +11,8 @@ describe Guard::Dsl do
     ::Guard.stub!(:options).and_return(:verbose => true)
     ::Guard.stub!(:guards).and_return([mock('Guard')])
   end
+
+  after(:all) { ::Guard.instance_eval { remove_const(:Dummy) } }
 
   def self.disable_user_config
     before(:each) { File.stub(:exist?).with(@user_config_path) { false } }

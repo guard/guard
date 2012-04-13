@@ -131,10 +131,9 @@ describe Guard::Interactor do
   end
 
   describe '#extract_scopes_and_action' do
-
-    class Guard::Foo < Guard::Guard;
-    end
-    class Guard::FooBar < Guard::Guard;
+    before(:all) do
+      class Guard::Foo < Guard::Guard; end
+      class Guard::FooBar < Guard::Guard; end
     end
 
     before(:each) do
@@ -143,6 +142,13 @@ describe Guard::Interactor do
       @frontend_group = guard.add_group(:frontend)
       @foo_guard      = guard.add_guard(:foo, [], [], { :group => :backend })
       @foo_bar_guard  = guard.add_guard('foo-bar', [], [], { :group => :frontend })
+    end
+
+    after(:all) do
+      ::Guard.instance_eval do
+        remove_const(:Foo)
+        remove_const(:FooBar)
+      end
     end
 
     it 'returns :run_all action if entry is blank' do

@@ -278,9 +278,17 @@ describe Guard do
   end
 
   describe ".guards" do
+    before(:all) do
+      class Guard::FooBar < Guard::Guard; end
+      class Guard::FooBaz < Guard::Guard; end
+    end
 
-    class Guard::FooBar < Guard::Guard; end
-    class Guard::FooBaz < Guard::Guard; end
+    after(:all) do
+      ::Guard.instance_eval do
+        remove_const(:FooBar)
+        remove_const(:FooBaz)
+      end
+    end
 
     subject do
       guard = ::Guard.setup
@@ -553,11 +561,12 @@ describe Guard do
     end
 
     context 'with a nested Guard class' do
+      after(:all) { Guard.instance_eval { remove_const(:Classname) } rescue nil }
+
       it "resolves the Guard class from string" do
         Guard.should_receive(:require) { |classname|
           classname.should eq 'guard/classname'
-          class Guard::Classname
-          end
+          class Guard::Classname; end
         }
         Guard.get_guard_class('classname').should == Guard::Classname
       end
@@ -565,47 +574,51 @@ describe Guard do
       it "resolves the Guard class from symbol" do
         Guard.should_receive(:require) { |classname|
           classname.should eq 'guard/classname'
-          class Guard::Classname
-          end
+          class Guard::Classname; end
         }
         Guard.get_guard_class(:classname).should == Guard::Classname
       end
     end
 
     context 'with a name with dashes' do
+      after(:all) { Guard.instance_eval { remove_const(:DashedClassName) } rescue nil }
+
       it "returns the Guard class" do
         Guard.should_receive(:require) { |classname|
           classname.should eq 'guard/dashed-class-name'
-          class Guard::DashedClassName
-          end
+          class Guard::DashedClassName; end
         }
         Guard.get_guard_class('dashed-class-name').should == Guard::DashedClassName
       end
     end
 
     context 'with a name with underscores' do
+      after(:all) { Guard.instance_eval { remove_const(:UnderscoreClassName) } rescue nil }
+
       it "returns the Guard class" do
         Guard.should_receive(:require) { |classname|
           classname.should eq 'guard/underscore_class_name'
-          class Guard::UnderscoreClassName
-          end
+          class Guard::UnderscoreClassName; end
         }
         Guard.get_guard_class('underscore_class_name').should == Guard::UnderscoreClassName
       end
     end
 
     context 'with a name where its class does not follow the strict case rules' do
+      after(:all) { Guard.instance_eval { remove_const(:VSpec) } rescue nil }
+
       it "returns the Guard class" do
         Guard.should_receive(:require) { |classname|
           classname.should eq 'guard/vspec'
-          class Guard::VSpec
-          end
+          class Guard::VSpec; end
         }
         Guard.get_guard_class('vspec').should == Guard::VSpec
       end
     end
 
     context 'with an inline Guard class' do
+      after(:all) { Guard.instance_eval { remove_const(:Inline) } rescue nil }
+
       it 'returns the Guard class' do
         module Guard
           class Inline < Guard
