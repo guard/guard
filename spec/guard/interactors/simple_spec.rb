@@ -1,3 +1,4 @@
+require 'spec_helper'
 require 'guard/interactors/simple'
 
 describe Guard::SimpleInteractor do
