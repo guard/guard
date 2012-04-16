@@ -88,11 +88,19 @@ module Guard
       end
     end
 
+    # Initialize the guards array to an empty array.
+    #
+    # @see Guard.guards
+    #
+    def setup_guards
+      @guards = []
+    end
+
     # Initialize the groups array with the `:default` group.
     #
     # @see Guard.groups
     #
-    def reset_groups
+    def setup_groups
       @groups = [Group.new(:default)]
     end
 
@@ -114,8 +122,8 @@ module Guard
       @lock       = Mutex.new
       @options    = options
       @watchdir   = (options[:watchdir] && File.expand_path(options[:watchdir])) || Dir.pwd
-      @guards     = []
-      self.reset_groups
+      self.setup_guards
+      self.setup_groups
       @runner     = Runner.new
 
       listener_callback = lambda do |modified, added, removed|
@@ -130,7 +138,7 @@ module Guard
       debug_command_execution if @options[:verbose]
 
       Dsl.evaluate_guardfile(options)
-      UI.error 'No guards found in Guardfile, please add at least one.' if ::Guard.guards.empty?
+      UI.error 'No guards found in Guardfile, please add at least one.' if @guards.empty?
 
       runner.deprecation_warning # Guard deprecation go here
 
@@ -179,6 +187,8 @@ module Guard
       setup(options)
 
       UI.info "Guard is now watching at '#{ @watchdir }'"
+
+      interactor.start if interactor
 
       runner.run(:start)
 

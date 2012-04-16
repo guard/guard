@@ -3,158 +3,95 @@ require 'guard/guard'
 
 describe Guard do
 
-  it "has a valid Guardfile template" do
-    File.exists?(Guard::GUARDFILE_TEMPLATE).should be_true
-  end
-
-  describe ".create_guardfile" do
-    before { Dir.stub(:pwd).and_return "/home/user" }
-
-    context "with an existing Guardfile" do
-      before { File.should_receive(:exist?).and_return true }
-
-      it "does not copy the Guardfile template or notify the user" do
-        ::Guard::UI.should_not_receive(:info)
-        FileUtils.should_not_receive(:cp)
-
-        subject.create_guardfile
-      end
-
-      it "does not display any kind of error or abort" do
-        ::Guard::UI.should_not_receive(:error)
-        subject.should_not_receive(:abort)
-        subject.create_guardfile
-      end
-
-      context "with the :abort_on_existence option set to true" do
-        it "displays an error message and aborts the process" do
-          ::Guard::UI.should_receive(:error).with("Guardfile already exists at /home/user/Guardfile")
-          subject.should_receive(:abort)
-          subject.create_guardfile(:abort_on_existence => true)
-        end
-      end
-    end
-
-    context "without an existing Guardfile" do
-      before { File.should_receive(:exist?).and_return false }
-
-      it "copies the Guardfile template and notifies the user" do
-        ::Guard::UI.should_receive(:info)
-        FileUtils.should_receive(:cp)
-
-        subject.create_guardfile
-      end
-    end
-  end
-
-  describe ".initialize_template" do
-    context 'with an installed Guard implementation' do
-      let(:foo_guard) { double('Guard::Foo').as_null_object }
-
-      before { ::Guard.should_receive(:get_guard_class).and_return(foo_guard) }
-
-      it "initializes the Guard" do
-        foo_guard.should_receive(:init)
-        subject.initialize_template('foo')
-      end
-    end
-
-    context "with a user defined template" do
-      let(:template) { File.join(Guard::HOME_TEMPLATES, '/bar') }
-
-      before { File.should_receive(:exist?).with(template).and_return true }
-
-      it "copies the Guardfile template and initializes the Guard" do
-        File.should_receive(:read).with('Guardfile').and_return 'Guardfile content'
-        File.should_receive(:read).with(template).and_return 'Template content'
-        io = StringIO.new
-        File.should_receive(:open).with('Guardfile', 'wb').and_yield io
-        subject.initialize_template('bar')
-        io.string.should eql "Guardfile content\n\nTemplate content\n"
-      end
-    end
-
-    context "when the passed guard can't be found" do
-      before do
-        ::Guard.should_receive(:get_guard_class).and_return nil
-        File.should_receive(:exist?).and_return false
-      end
-
-      it "notifies the user about the problem" do
-        ::Guard::UI.should_receive(:error).with(
-          "Could not load 'guard/foo' or '~/.guard/templates/foo' or find class Guard::Foo"
-        )
-        subject.initialize_template('foo')
-      end
-    end
-  end
-
-  describe ".initialize_all_templates" do
-    let(:guards) { ['rspec', 'spork', 'phpunit'] }
-
-    before { subject.should_receive(:guard_gem_names).and_return(guards) }
-
-    it "calls Guard.initialize_template on all installed guards" do
-      guards.each do |g|
-        subject.should_receive(:initialize_template).with(g)
-      end
-
-      subject.initialize_all_templates
-    end
-  end
+  class Guard::FooBar < Guard::Guard; end
+  class Guard::FooBaz < Guard::Guard; end
 
   describe ".setup" do
-    subject { ::Guard.setup }
+    let(:options) { { :my_opts => true, :guardfile => File.join(@fixture_path, "Guardfile") } }
+    subject { described_class.setup }
 
     it "returns itself for chaining" do
       subject.should be ::Guard
     end
 
-    it "initializes @guards" do
-      subject.guards.should eql []
+    pending "initializes @guards" do
+      subject.guards.should eq []
     end
 
     it "initializes @groups" do
-      subject.groups[0].name.should eql :default
+      subject.groups[0].name.should eq :default
       subject.groups[0].options.should == {}
     end
 
     it "initializes the options" do
-      opts = { :my_opts => true }
-      Guard.setup(opts).options.should include(:my_opts)
+      described_class.setup(options).options.should include(:my_opts)
     end
 
     it "initializes the listener" do
-      ::Guard.listener.should be_kind_of(Listen::Listener)
+      subject.listener.should be_kind_of(Listen::Listener)
     end
 
     it "respect the watchdir option" do
-      ::Guard.setup(:watchdir => "/foo/bar")
-      ::Guard.listener.directory.should eql "/foo/bar"
+      described_class.setup(:watchdir => '/foo/bar')
+
+      described_class.listener.directory.should eq '/foo/bar'
     end
 
     it "logs command execution if the debug option is true" do
-      ::Guard.should_receive(:debug_command_execution)
-      ::Guard.setup(:verbose => true)
+      described_class.should_receive(:debug_command_execution)
+
+      described_class.setup(:verbose => true)
     end
 
+    it "call setup_signal_traps" do
+      described_class.should_receive(:setup_signal_traps)
+
+      described_class.setup(options)
+    end
+
+    it "evaluates the DSL" do
+      described_class::Dsl.should_receive(:evaluate_guardfile).with(options)
+
+      described_class.setup(options)
+    end
+
+    it "displays an error message when no guard are defined in Guardfile" do
+      described_class::UI.should_receive(:error)
+
+      described_class.setup(options)
+    end
+
+    it "call setup_notifier" do
+      described_class.should_receive(:setup_notifier)
+
+      described_class.setup(options)
+    end
+
+    it "call setup_interactor" do
+      described_class.should_receive(:setup_interactor)
+
+      subject
+    end
+  end
+
+  describe ".setup_signal_traps" do
     unless windows?
       context 'when receiving SIGUSR1' do
         context 'when Guard is running' do
-          before { ::Guard.listener.should_receive(:paused?).and_return false }
+          before { described_class.listener.should_receive(:paused?).and_return false }
 
           it 'pauses Guard' do
-            ::Guard.should_receive(:pause)
+            described_class.should_receive(:pause)
             Process.kill :USR1, Process.pid
             sleep 1
           end
         end
 
         context 'when Guard is already paused' do
-          before { ::Guard.listener.should_receive(:paused?).and_return true }
+          before { described_class.listener.should_receive(:paused?).and_return true }
 
           it 'does not pauses Guard' do
-            ::Guard.should_not_receive(:pause)
+            described_class.should_not_receive(:pause)
             Process.kill :USR1, Process.pid
             sleep 1
           end
@@ -163,20 +100,20 @@ describe Guard do
 
       context 'when receiving SIGUSR2' do
         context 'when Guard is paused' do
-          before { ::Guard.listener.should_receive(:paused?).and_return true }
+          before { described_class.listener.should_receive(:paused?).and_return true }
 
           it 'un-pause Guard' do
-            ::Guard.should_receive(:pause)
+            described_class.should_receive(:pause)
             Process.kill :USR2, Process.pid
             sleep 1
           end
         end
 
         context 'when Guard is already running' do
-          before { ::Guard.listener.should_receive(:paused?).and_return false }
+          before { described_class.listener.should_receive(:paused?).and_return false }
 
           it 'does not un-pause Guard' do
-            ::Guard.should_not_receive(:pause)
+            described_class.should_not_receive(:pause)
             Process.kill :USR2, Process.pid
             sleep 1
           end
@@ -185,11 +122,69 @@ describe Guard do
     end
   end
 
+  describe ".setup_notifier" do
+    context "with the notify option enabled" do
+      before { described_class.stub(:options).and_return(:notify => true) }
+
+      context 'without the environment variable GUARD_NOTIFY set' do
+        before { ENV["GUARD_NOTIFY"] = nil }
+
+        it_should_behave_like 'notifier enabled'
+      end
+
+      context 'with the environment variable GUARD_NOTIFY set to true' do
+        before { ENV["GUARD_NOTIFY"] = 'true' }
+
+        it_should_behave_like 'notifier enabled'
+      end
+
+      context 'with the environment variable GUARD_NOTIFY set to false' do
+        before { ENV["GUARD_NOTIFY"] = 'false' }
+
+        it_should_behave_like 'notifier disabled'
+      end
+    end
+
+    context "with the notify option disabled" do
+      before do
+        described_class.stub(:options).and_return(:notify => false)
+      end
+
+      context 'without the environment variable GUARD_NOTIFY set' do
+        before { ENV["GUARD_NOTIFY"] = nil }
+
+        it_should_behave_like 'notifier disabled'
+      end
+
+      context 'with the environment variable GUARD_NOTIFY set to true' do
+        before { ENV["GUARD_NOTIFY"] = 'true' }
+
+        it_should_behave_like 'notifier disabled'
+      end
+
+      context 'with the environment variable GUARD_NOTIFY set to false' do
+        before { ENV["GUARD_NOTIFY"] = 'false' }
+
+        it_should_behave_like 'notifier disabled'
+      end
+    end
+  end
+
+  describe ".setup_interactor" do
+    context "with interactions enabled" do
+      before { described_class.setup(:no_interactions => false) }
+
+      it_should_behave_like 'interactor enabled'
+    end
+
+    context "with interactions disabled" do
+      before { described_class.setup(:no_interactions => true) }
+
+      it_should_behave_like 'interactor disabled'
+    end
+  end
+
   describe ".guards" do
-
-    class Guard::FooBar < Guard::Guard; end
-    class Guard::FooBaz < Guard::Guard; end
-
     subject do
       guard = ::Guard.setup
       @guard_foo_bar_backend  = Guard::FooBar.new([], { :group => 'backend' })
@@ -297,9 +292,9 @@ describe Guard do
     end
   end
 
-  describe ".reset_groups" do
+  describe ".setup_groups" do
     subject do
-      guard = ::Guard.setup
+      guard = ::Guard.setup(:guardfile => File.join(@fixture_path, "Guardfile"))
       @group_backend  = guard.add_group(:backend)
       @group_backflip = guard.add_group(:backflip)
       guard
@@ -308,161 +303,110 @@ describe Guard do
     it "return @groups without any argument" do
       subject.groups.should have(3).items
 
-      subject.reset_groups
+      subject.setup_groups
 
       subject.groups.should have(1).item
-      subject.groups[0].name.should eql :default
+      subject.groups[0].name.should eq :default
       subject.groups[0].options.should == {}
     end
   end
 
-  describe ".start" do
-    let(:options) { { :my_opts => true, :guardfile => File.join(@fixture_path, "Guardfile") } }
 
+    end
+
+    end
+
+    end
+
+    end
+
+  describe ".start" do
     before do
-      Guard.stub(:setup)
-      Guard.listener.stub(:start)
-      Guard::Dsl.stub(:evaluate_guardfile)
-      Guard::Notifier.stub(:turn_on)
-      Guard::Notifier.stub(:turn_off)
+      described_class.stub(:setup)
+      described_class.stub(:interactor => mock('interactor', :start => true))
+      described_class.stub(:listener => mock('listener', :start => true))
+      described_class.stub(:runner => mock('runner', :run => true))
     end
 
     it "setup Guard" do
-      ::Guard.should_receive(:setup).with(options)
-      ::Guard.start(options)
+      described_class.should_receive(:setup).with(:foo => 'bar')
+
+      described_class.start(:foo => 'bar')
     end
 
-    it "evaluates the DSL" do
-      ::Guard::Dsl.should_receive(:evaluate_guardfile).with(options)
-      ::Guard.start(options)
+    it "displays an info message" do
+      described_class.instance_variable_set('@watchdir', '/foo/bar')
+      described_class::UI.should_receive(:info).with("Guard is now watching at '/foo/bar'")
+
+      described_class.start
     end
 
-    it "displays an error message when no guard are defined in Guardfile" do
-      ::Guard::Dsl.should_receive(:evaluate_guardfile).with(options)
-      ::Guard::UI.should_receive(:error)
-      ::Guard.start(options)
+    it "tells the interactor to start" do
+      described_class.interactor.should_receive(:start)
+
+      described_class.start
     end
 
-    it "starts the listeners" do
-      ::Guard.listener.should_receive(:start)
-      ::Guard.start(options)
-    end
+    context 'without an interactor' do
+      before { described_class.stub(:interactor => nil) }
 
-    context "with interactions enabled" do
-      it "fabricates the interactor" do
-        ::Guard::Interactor.should_receive(:fabricate)
-        ::Guard.start(:no_interactions => false)
-      end
+      it "doesn't tell the interactor to start" do
+        described_class.interactor.should_not_receive(:start)
 
-      it "starts the interactor" do
-        interactor = mock('interactor')
-        interactor.should_receive(:start)
-        ::Guard::Interactor.should_receive(:fabricate).and_return interactor
-        ::Guard.start(:no_interactions => false)
+        described_class.start
       end
     end
 
-    context "with interactions disabled" do
-      it "fabricates the interactor" do
-        ::Guard::Interactor.should_not_receive(:fabricate)
-        ::Guard.start(:no_interactions => true)
-      end
+    it "tell the runner to run the :start task" do
+      described_class.runner.should_receive(:run).with(:start)
+
+      described_class.start
     end
 
-    context "with the notify option enabled" do
-      context 'without the environment variable GUARD_NOTIFY set' do
-        before { ENV["GUARD_NOTIFY"] = nil }
+    it "start the listener" do
+      described_class.listener.should_receive(:start)
 
-        it "turns on the notifier on" do
-          ::Guard::Notifier.should_receive(:turn_on)
-          ::Guard.start(:notify => true)
-        end
-      end
-
-      context 'with the environment variable GUARD_NOTIFY set to true' do
-        before { ENV["GUARD_NOTIFY"] = 'true' }
-
-        it "turns on the notifier on" do
-          ::Guard::Notifier.should_receive(:turn_on)
-          ::Guard.start(:notify => true)
-        end
-      end
-
-      context 'with the environment variable GUARD_NOTIFY set to false' do
-        before { ENV["GUARD_NOTIFY"] = 'false' }
-
-        it "turns on the notifier off" do
-          ::Guard::Notifier.should_receive(:turn_off)
-          ::Guard.start(:notify => true)
-        end
-      end
-    end
-
-    context "with the notify option disable" do
-      context 'without the environment variable GUARD_NOTIFY set' do
-        before { ENV["GUARD_NOTIFY"] = nil }
-
-        it "turns on the notifier off" do
-          ::Guard::Notifier.should_receive(:turn_off)
-          ::Guard.start(:notify => false)
-        end
-      end
-
-      context 'with the environment variable GUARD_NOTIFY set to true' do
-        before { ENV["GUARD_NOTIFY"] = 'true' }
-
-        it "turns on the notifier on" do
-          ::Guard::Notifier.should_receive(:turn_off)
-          ::Guard.start(:notify => false)
-        end
-      end
-
-      context 'with the environment variable GUARD_NOTIFY set to false' do
-        before { ENV["GUARD_NOTIFY"] = 'false' }
-
-        it "turns on the notifier off" do
-          ::Guard::Notifier.should_receive(:turn_off)
-          ::Guard.start(:notify => false)
-        end
-      end
+      described_class.start
     end
   end
 
   describe ".add_guard" do
-    before(:each) do
+    before do
       @guard_rspec_class = double('Guard::RSpec')
-      @guard_rspec = double('Guard::RSpec')
+      @guard_rspec = double('Guard::RSpec', :is_a? => true)
 
-      Guard.stub!(:get_guard_class) { @guard_rspec_class }
+      described_class.stub!(:get_guard_class) { @guard_rspec_class }
 
-      Guard.setup
+      described_class.setup_guards
+      described_class.setup_groups
+      described_class.add_group(:backend)
     end
 
     it "accepts guard name as string" do
       @guard_rspec_class.should_receive(:new).and_return(@guard_rspec)
 
-      Guard.add_guard('rspec')
+      described_class.add_guard('rspec')
     end
 
     it "accepts guard name as symbol" do
       @guard_rspec_class.should_receive(:new).and_return(@guard_rspec)
 
-      Guard.add_guard(:rspec)
+      described_class.add_guard(:rspec)
     end
 
     it "adds guard to the @guards array" do
       @guard_rspec_class.should_receive(:new).and_return(@guard_rspec)
 
-      Guard.add_guard(:rspec)
+      described_class.add_guard(:rspec)
 
-      Guard.guards.should eql [@guard_rspec]
+      described_class.guards.should eq [@guard_rspec]
     end
 
     context "with no watchers given" do
       it "gives an empty array of watchers" do
         @guard_rspec_class.should_receive(:new).with([], {}).and_return(@guard_rspec)
 
-        Guard.add_guard(:rspec, [])
+        described_class.add_guard(:rspec, [])
       end
     end
 
@@ -470,7 +414,7 @@ describe Guard do
       it "give the watchers array" do
         @guard_rspec_class.should_receive(:new).with([:foo], {}).and_return(@guard_rspec)
 
-        Guard.add_guard(:rspec, [:foo])
+        described_class.add_guard(:rspec, [:foo])
       end
     end
 
@@ -478,7 +422,7 @@ describe Guard do
       it "gives an empty hash of options" do
         @guard_rspec_class.should_receive(:new).with([], {}).and_return(@guard_rspec)
 
-        Guard.add_guard(:rspec, [], [], {})
+        described_class.add_guard(:rspec, [], [], {})
       end
     end
 
@@ -486,33 +430,33 @@ describe Guard do
       it "give the options hash" do
         @guard_rspec_class.should_receive(:new).with([], { :foo => true, :group => :backend }).and_return(@guard_rspec)
 
-        Guard.add_guard(:rspec, [], [], { :foo => true, :group => :backend })
+        described_class.add_guard(:rspec, [], [], { :foo => true, :group => :backend })
       end
     end
   end
 
   describe ".add_group" do
-    subject { ::Guard.setup }
+    before { described_class.setup_groups }
 
     it "accepts group name as string" do
-      subject.add_group('backend')
+      described_class.add_group('backend')
 
-      subject.groups[0].name.should eql :default
-      subject.groups[1].name.should eql :backend
+      described_class.groups[0].name.should eql :default
+      described_class.groups[1].name.should eql :backend
     end
 
     it "accepts group name as symbol" do
-      subject.add_group(:backend)
+      described_class.add_group(:backend)
 
-      subject.groups[0].name.should eql :default
-      subject.groups[1].name.should eql :backend
+      described_class.groups[0].name.should eql :default
+      described_class.groups[1].name.should eql :backend
     end
 
     it "accepts options" do
-      subject.add_group(:backend, { :halt_on_fail => true })
+      described_class.add_group(:backend, { :halt_on_fail => true })
 
-      subject.groups[0].options.should eq({})
-      subject.groups[1].options.should eq({ :halt_on_fail => true })
+      described_class.groups[0].options.should eq({})
+      described_class.groups[1].options.should eq({ :halt_on_fail => true })
     end
   end
 
