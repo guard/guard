@@ -1,6 +1,6 @@
 module Guard
 
-  # The runner defines is responsable to run all methods defined on each guards.
+  # The runner is responsible for running all methods defined on each guards.
   #
   class Runner
 
