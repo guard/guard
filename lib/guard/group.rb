@@ -20,7 +20,7 @@ module Guard
 
     attr_accessor :name, :options
 
-    # Initialize a Group.
+    # Initializes a Group.
     #
     # @param [String] name the name of the group
     # @param [Hash] options the group options

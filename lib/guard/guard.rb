@@ -38,7 +38,7 @@ module Guard
 
     attr_accessor :watchers, :options, :group
 
-    # Initialize a Guard.
+    # Initializes a Guard.
     #
     # @param [Array<Guard::Watcher>] watchers the Guard file watchers
     # @param [Hash] options the custom Guard options

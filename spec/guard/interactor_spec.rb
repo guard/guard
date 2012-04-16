@@ -142,7 +142,8 @@ describe Guard::Interactor do
       guard           = ::Guard.setup
       @backend_group  = guard.add_group(:backend)
       @frontend_group = guard.add_group(:frontend)
-      @foo_guard      = guard.add_guard(:foo, [], [], { :group => :backend })
+      @foo_guard1     = guard.add_guard(:foo, [], [], { :group => :backend })
+      @foo_guard2     = guard.add_guard(:foo, [], [], { :group => :backend })
       @foo_bar_guard  = guard.add_guard('foo-bar', [], [], { :group => :frontend })
     end
 
@@ -167,7 +168,7 @@ describe Guard::Interactor do
     end
 
     it 'returns guard scope and action if entry is a guard scope and a action' do
-      subject.extract_scopes_and_action('foo r').should eql([{ :guard => @foo_guard }, :reload])
+      subject.extract_scopes_and_action('foo r').should eql([{ :guard => @foo_guard1 }, :reload])
     end
 
     it 'returns group scope and action if entry is a group scope and a action' do

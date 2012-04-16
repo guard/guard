@@ -2,7 +2,7 @@ require 'guard/dsl'
 
 module Guard
 
-  autoload :UI,    'guard/ui'
+  autoload :UI, 'guard/ui'
 
   # The DslDescriber overrides methods to create an internal structure
   # of the Guardfile that is used in some inspection utility methods
