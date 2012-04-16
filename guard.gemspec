@@ -15,11 +15,11 @@ Gem::Specification.new do |s|
   s.rubyforge_project = 'guard'
 
   s.add_dependency 'thor',     '~> 0.14.6'
-  s.add_dependency 'listen',   '>= 0.3.3'
+  s.add_dependency 'listen',   '>= 0.4.0'
 
   s.add_development_dependency 'bundler'
-  s.add_development_dependency 'rspec',       '~> 2.8.0'
-  s.add_development_dependency 'guard-rspec', '~> 0.6.0'
+  s.add_development_dependency 'rspec',       '~> 2.9.0'
+  s.add_development_dependency 'guard-rspec', '~> 0.7.0'
   s.add_development_dependency 'yard'
   s.add_development_dependency 'redcarpet'
   s.add_development_dependency 'pry'

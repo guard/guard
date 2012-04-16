@@ -1,10 +1,6 @@
 require 'spec_helper'
-require 'guard/guard'
 
 describe Guard do
-
-  class Guard::FooBar < Guard::Guard; end
-  class Guard::FooBaz < Guard::Guard; end
 
   describe ".setup" do
     let(:options) { { :my_opts => true, :guardfile => File.join(@fixture_path, "Guardfile") } }
@@ -14,7 +10,7 @@ describe Guard do
       subject.should be ::Guard
     end
 
-    pending "initializes @guards" do
+    it "initializes @guards" do
       subject.guards.should eq []
     end
 
@@ -32,9 +28,9 @@ describe Guard do
     end
 
     it "respect the watchdir option" do
-      described_class.setup(:watchdir => '/foo/bar')
+      described_class.setup(:watchdir => '/usr')
 
-      described_class.listener.directory.should eq '/foo/bar'
+      described_class.listener.directory.should eq '/usr'
     end
 
     it "logs command execution if the debug option is true" do
@@ -120,6 +116,64 @@ describe Guard do
         end
       end
     end
+
+    context "with the notify option enabled" do
+      context 'without the environment variable GUARD_NOTIFY set' do
+        before { ENV["GUARD_NOTIFY"] = nil }
+
+        it "turns on the notifier on" do
+          ::Guard::Notifier.should_receive(:turn_on)
+          ::Guard.setup(:notify => true)
+        end
+      end
+
+      context 'with the environment variable GUARD_NOTIFY set to true' do
+        before { ENV["GUARD_NOTIFY"] = 'true' }
+
+        it "turns on the notifier on" do
+          ::Guard::Notifier.should_receive(:turn_on)
+          ::Guard.setup(:notify => true)
+        end
+      end
+
+      context 'with the environment variable GUARD_NOTIFY set to false' do
+        before { ENV["GUARD_NOTIFY"] = 'false' }
+
+        it "turns on the notifier off" do
+          ::Guard::Notifier.should_receive(:turn_off)
+          ::Guard.setup(:notify => true)
+        end
+      end
+    end
+
+    context "with the notify option disable" do
+      context 'without the environment variable GUARD_NOTIFY set' do
+        before { ENV["GUARD_NOTIFY"] = nil }
+
+        it "turns on the notifier off" do
+          ::Guard::Notifier.should_receive(:turn_off)
+          ::Guard.setup(:notify => false)
+        end
+      end
+
+      context 'with the environment variable GUARD_NOTIFY set to true' do
+        before { ENV["GUARD_NOTIFY"] = 'true' }
+
+        it "turns on the notifier on" do
+          ::Guard::Notifier.should_receive(:turn_off)
+          ::Guard.setup(:notify => false)
+        end
+      end
+
+      context 'with the environment variable GUARD_NOTIFY set to false' do
+        before { ENV["GUARD_NOTIFY"] = 'false' }
+
+        it "turns on the notifier off" do
+          ::Guard::Notifier.should_receive(:turn_off)
+          ::Guard.setup(:notify => false)
+        end
+      end
+    end
   end
 
   describe ".setup_notifier" do
@@ -185,6 +239,18 @@ describe Guard do
   end
 
   describe ".guards" do
+    before(:all) do
+      class Guard::FooBar < Guard::Guard; end
+      class Guard::FooBaz < Guard::Guard; end
+    end
+
+    after(:all) do
+      ::Guard.instance_eval do
+        remove_const(:FooBar)
+        remove_const(:FooBaz)
+      end
+    end
+
     subject do
       guard = ::Guard.setup
       @guard_foo_bar_backend  = Guard::FooBar.new([], { :group => 'backend' })
@@ -311,14 +377,27 @@ describe Guard do
     end
   end
 
+  describe ".setup_guards" do
+    before(:all) { class Guard::FooBar < Guard::Guard; end }
 
+    after(:all) do
+      ::Guard.instance_eval { remove_const(:FooBar) }
     end
 
+    subject do
+      guard = ::Guard.setup(:guardfile => File.join(@fixture_path, "Guardfile"))
+      @group_backend = guard.add_guard(:foo_bar)
+      guard
     end
 
-    end
+    it "return @guards without any argument" do
+      subject.guards.should have(1).item
 
+      subject.setup_guards
+
+      subject.guards.should be_empty
     end
+  end
 
   describe ".start" do
     before do
@@ -345,16 +424,6 @@ describe Guard do
       described_class.interactor.should_receive(:start)
 
       described_class.start
-    end
-
-    context 'without an interactor' do
-      before { described_class.stub(:interactor => nil) }
-
-      it "doesn't tell the interactor to start" do
-        described_class.interactor.should_not_receive(:start)
-
-        described_class.start
-      end
     end
 
     it "tell the runner to run the :start task" do
@@ -460,6 +529,27 @@ describe Guard do
     end
   end
 
+  describe '.within_preserved_state' do
+    subject { ::Guard.setup }
+
+    it 'disables the interactor before running the block and then re-enables it when done' do
+      subject.interactor.should_receive(:stop)
+      subject.interactor.should_receive(:start)
+      subject.within_preserved_state &Proc.new {}
+    end
+
+    it 'disallows running the block concurrently to avoid inconsistent states' do
+      subject.lock.should_receive(:synchronize)
+      subject.within_preserved_state &Proc.new {}
+    end
+
+    it 'runs the passed block' do
+      @called = false
+      subject.within_preserved_state { @called = true }
+      @called.should be_true
+    end
+  end
+
   describe ".get_guard_class" do
     after do
       [:Classname, :DashedClassName, :UnderscoreClassName, :VSpec, :Inline].each do |const|
@@ -473,11 +563,12 @@ describe Guard do
     end
 
     context 'with a nested Guard class' do
+      after(:all) { Guard.instance_eval { remove_const(:Classname) } rescue nil }
+
       it "resolves the Guard class from string" do
         Guard.should_receive(:require) { |classname|
           classname.should eq 'guard/classname'
-          class Guard::Classname
-          end
+          class Guard::Classname; end
         }
         Guard.get_guard_class('classname').should == Guard::Classname
       end
@@ -485,47 +576,51 @@ describe Guard do
       it "resolves the Guard class from symbol" do
         Guard.should_receive(:require) { |classname|
           classname.should eq 'guard/classname'
-          class Guard::Classname
-          end
+          class Guard::Classname; end
         }
         Guard.get_guard_class(:classname).should == Guard::Classname
       end
     end
 
     context 'with a name with dashes' do
+      after(:all) { Guard.instance_eval { remove_const(:DashedClassName) } rescue nil }
+
       it "returns the Guard class" do
         Guard.should_receive(:require) { |classname|
           classname.should eq 'guard/dashed-class-name'
-          class Guard::DashedClassName
-          end
+          class Guard::DashedClassName; end
         }
         Guard.get_guard_class('dashed-class-name').should == Guard::DashedClassName
       end
     end
 
     context 'with a name with underscores' do
+      after(:all) { Guard.instance_eval { remove_const(:UnderscoreClassName) } rescue nil }
+
       it "returns the Guard class" do
         Guard.should_receive(:require) { |classname|
           classname.should eq 'guard/underscore_class_name'
-          class Guard::UnderscoreClassName
-          end
+          class Guard::UnderscoreClassName; end
         }
         Guard.get_guard_class('underscore_class_name').should == Guard::UnderscoreClassName
       end
     end
 
     context 'with a name where its class does not follow the strict case rules' do
+      after(:all) { Guard.instance_eval { remove_const(:VSpec) } rescue nil }
+
       it "returns the Guard class" do
         Guard.should_receive(:require) { |classname|
           classname.should eq 'guard/vspec'
-          class Guard::VSpec
-          end
+          class Guard::VSpec; end
         }
         Guard.get_guard_class('vspec').should == Guard::VSpec
       end
     end
 
     context 'with an inline Guard class' do
+      after(:all) { Guard.instance_eval { remove_const(:Inline) } rescue nil }
+
       it 'returns the Guard class' do
         module Guard
           class Inline < Guard
@@ -561,169 +656,6 @@ describe Guard do
     it "returns the list of guard gems" do
       gems = Guard.guard_gem_names
       gems.should include("rspec")
-    end
-  end
-
-  describe ".changed_paths" do
-    context 'for an array with string paths' do
-      let(:paths) { ['a.rb', 'b.rb', '!c.rb', 'templates/d.haml', '!templates/e.haml'] }
-
-      it 'returns the changed paths' do
-        Guard.changed_paths(paths).should =~ ['a.rb', 'b.rb', 'templates/d.haml']
-      end
-    end
-
-    context 'for an array with objects that do not respond to .start_with (any_return option)' do
-      let(:paths) { [42, 'a.rb', [1], '!c.rb', 'templates/d.haml', '!templates/e.haml', { :a => 1 }] }
-
-      it 'returns the changed paths and the objects' do
-        Guard.changed_paths(paths).should =~ [42, 'a.rb', [1], 'templates/d.haml', { :a => 1 }]
-      end
-    end
-  end
-
-  describe ".deleted_paths" do
-    context 'for an array with string' do
-      let(:paths) { ['a.rb', 'b.rb', '!c.rb', 'templates/d.haml', '!templates/e.haml'] }
-
-      it 'returns the deleted paths' do
-        Guard.deleted_paths(paths).should =~ ['c.rb', 'templates/e.haml']
-      end
-    end
-
-    context 'for an array with objects that do not respond to .start_with (any_return option)' do
-      let(:paths) { [42, 'a.rb', [1], '!c.rb', 'templates/d.haml', '!templates/e.haml', { :a => 1 }] }
-
-      it 'returns the deleted paths' do
-        Guard.deleted_paths(paths).should =~ ['c.rb', 'templates/e.haml']
-      end
-    end
-  end
-
-  describe ".run_supervised_task" do
-    subject { ::Guard.setup }
-
-    before do
-      @g = mock(Guard::Guard).as_null_object
-      subject.guards.push(@g)
-      subject.add_group(:foo, { :halt_on_fail => true })
-      subject.add_group(:bar, { :halt_on_fail => false })
-    end
-
-    context "with a task that succeed" do
-      context 'without any arguments' do
-        before(:each) do
-          @g.stub!(:regular_without_arg) { true }
-        end
-
-        it "doesn't fire the Guard" do
-          lambda { subject.run_supervised_task(@g, :regular_without_arg) }.should_not change(subject.guards, :size)
-        end
-
-        it "returns the result of the task" do
-          ::Guard.run_supervised_task(@g, :regular_without_arg).should be_true
-        end
-
-        it "passes the args to the :begin hook" do
-          @g.should_receive(:hook).with("regular_without_arg_begin", "given_path")
-          ::Guard.run_supervised_task(@g, :regular_without_arg, "given_path")
-        end
-
-        it "passes the result of the supervised method to the :end hook" do
-          @g.should_receive(:hook).with("regular_without_arg_begin", "given_path")
-          @g.should_receive(:hook).with("regular_without_arg_end", true)
-          ::Guard.run_supervised_task(@g, :regular_without_arg, "given_path")
-        end
-      end
-
-      context 'with arguments' do
-        before(:each) do
-          @g.stub!(:regular_with_arg).with("given_path") { "I'm a success" }
-        end
-
-        it "doesn't fire the Guard" do
-          lambda { subject.run_supervised_task(@g, :regular_with_arg, "given_path") }.should_not change(subject.guards, :size)
-        end
-
-        it "returns the result of the task" do
-          ::Guard.run_supervised_task(@g, :regular_with_arg, "given_path").should eql "I'm a success"
-        end
-
-        it "calls the default begin hook but not the default end hook" do
-          @g.should_receive(:hook).with("failing_begin")
-          @g.should_not_receive(:hook).with("failing_end")
-          ::Guard.run_supervised_task(@g, :failing)
-        end
-      end
-    end
-
-    context "with a task that throw :task_has_failed" do
-      context "for a guard's group has the :halt_on_fail option == true" do
-        before(:each) { @g.stub!(:group) { :foo }; @g.stub!(:failing) { throw :task_has_failed } }
-
-        it "throws :task_has_failed" do
-          expect { subject.run_supervised_task(@g, :failing) }.to throw_symbol(:task_has_failed)
-        end
-      end
-
-      context "for a guard's group has the :halt_on_fail option == false" do
-        before(:each) { @g.stub!(:group) { :bar }; @g.stub!(:failing) { throw :task_has_failed } }
-
-        it "catches :task_has_failed" do
-          expect { subject.run_supervised_task(@g, :failing) }.to_not throw_symbol(:task_has_failed)
-        end
-      end
-    end
-
-    context "with a task that raises an exception" do
-      before(:each) { @g.stub!(:group) { :foo }; @g.stub!(:failing) { raise "I break your system" } }
-
-      it "fires the Guard" do
-        lambda { subject.run_supervised_task(@g, :failing) }.should change(subject.guards, :size).by(-1)
-        subject.guards.should_not include(@g)
-      end
-
-      it "returns the exception" do
-        failing_result = ::Guard.run_supervised_task(@g, :failing)
-        failing_result.should be_kind_of(Exception)
-        failing_result.message.should == 'I break your system'
-      end
-    end
-  end
-
-  describe '.guard_symbol' do
-    let(:guard) { mock(Guard::Guard).as_null_object }
-
-    it 'returns :task_has_failed when the group is missing' do
-      subject.guard_symbol(guard).should eql :task_has_failed
-    end
-
-    context 'for a group with :halt_on_fail' do
-      let(:group) { mock(Guard::Group) }
-
-      before do
-        guard.stub(:group).and_return :foo
-        group.stub(:options).and_return({ :halt_on_fail => true })
-      end
-
-      it 'returns :no_catch' do
-        subject.should_receive(:groups).with(:foo).and_return group
-        subject.guard_symbol(guard).should eql :no_catch
-      end
-    end
-
-    context 'for a group without :halt_on_fail' do
-      let(:group) { mock(Guard::Group) }
-
-      before do
-        guard.stub(:group).and_return :foo
-        group.stub(:options).and_return({ :halt_on_fail => false })
-      end
-
-      it 'returns :task_has_failed' do
-        subject.should_receive(:groups).with(:foo).and_return group
-        subject.guard_symbol(guard).should eql :task_has_failed
-      end
     end
   end
 

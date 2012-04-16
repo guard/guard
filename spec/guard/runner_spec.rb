@@ -1,160 +1,377 @@
 require 'spec_helper'
 
 describe Guard::Runner do
-  before do
-    class Guard::Dummy < Guard::Guard
-      def start
-        throw :task_has_failed
-      end
-    end
-    class Guard::Dumby < Guard::Guard
-      def start
-        throw :task_has_failed
-      end
-    end
-
-    @guard = ::Guard.setup
-    @frontend_group = @guard.add_group(:frontend)
-    @backend_group  = @guard.add_group(:backend, { :halt_on_fail => true })
-
-    @dummy_guard = @guard.add_guard(:dummy, [], [], { :group => :frontend })
-    @guard.add_guard(:dummy, [], [], { :group => :frontend })
-
-    @dumby_guard = @guard.add_guard(:dumby, [], [], { :group => :backend })
-    @guard.add_guard(:dummy, [], [], { :group => :backend })
-
-    @sum = { :foo => 0, :bar => 0 }
+  before(:all) do
+    # Define two guard implementations
+    class ::Guard::Foo < ::Guard::Guard; end
+    class ::Guard::Bar1 < ::Guard::Guard; end
+    class ::Guard::Bar2 < ::Guard::Guard; end
   end
 
-  describe ".run_on_guards" do
-    subject { ::Guard.setup }
+  let(:guard_module) { ::Guard }
+  let!(:guard_singleton) { guard_module.setup }
 
-    before do
-      class Guard::Dummy < Guard::Guard; end
-      class Guard::Dumby < Guard::Guard; end
+  # One guard in one group
+  let!(:foo_group)  { guard_singleton.add_group(:foo) }
+  let!(:foo_guard)  { guard_singleton.add_guard(:foo, [], [], :group => :foo) }
 
-      @foo_group = subject.add_group(:foo, { :halt_on_fail => true })
-      subject.add_group(:bar)
-      subject.add_guard(:dummy, [], [], { :group => :foo })
-      subject.add_guard(:dummy, [], [], { :group => :foo })
-      @dumby_guard = subject.add_guard(:dumby, [], [], { :group => :bar })
-      subject.add_guard(:dummy, [], [], { :group => :bar })
-      @sum = { :foo => 0, :bar => 0 }
+  # Two guards in one group
+  let!(:bar_group)  { guard_singleton.add_group(:bar) }
+  let!(:bar1_guard) { guard_singleton.add_guard(:bar1, [], [], :group => :bar) }
+  let!(:bar2_guard) { guard_singleton.add_guard(:bar2, [], [], :group => :bar) }
+
+  before do
+    # Stub the groups to avoid using the real ones from Guardfile (ex.: Guard::Rspec)
+    guard_module.stub(:groups) { [foo_group, bar_group] }
+  end
+
+  after(:all) do
+    # Be nice and don't clutter the namespace
+    ::Guard.instance_eval do
+      remove_const(:Foo)
+      remove_const(:Bar1)
+      remove_const(:Bar2)
+    end
+  end
+
+  describe '#run' do
+    it 'executes a supervised task on all registered guards' do
+      [foo_guard, bar1_guard, bar2_guard].each do |g|
+        subject.should_receive(:run_supervised_task).with(g, :my_task)
+      end
+      subject.run(:my_task)
     end
 
-    context "all tasks succeed" do
-      before do
-        subject.guards.each { |guard| guard.stub!(:task) { @sum[guard.group] += 1; true } }
+    context 'with a failing task' do
+      before { subject.stub(:run_supervised_task) { throw :task_has_failed } }
+
+      it 'catches the thrown symbol' do
+        expect {
+          subject.run(:failing)
+        }.to_not throw_symbol(:task_has_failed)
       end
+    end
+  end
 
-      it "executes the task for each guard in each group" do
-        subject.run_on_guards do |guard|
-          guard.task
-        end
+  describe '#run_with_scope' do
+    let(:scope) { { :group => foo_group } }
 
-        @sum.all? { |k, v| v == 2 }.should be_true
-      end
+    it 'runs the task within a preserved state' do
+      guard_module.should_receive(:within_preserved_state)
+      foo_guard.stub(:my_task)
+      subject.run_with_scope(:my_task, scope)
+    end
 
-      it "executes the task for each guard in foo group only" do
-        subject.run_on_guards(:group => @foo_group) do |guard|
-          guard.task
-        end
+    context 'within the scope of a specified guard' do
+      let(:scope) { { :guard => bar1_guard } }
 
-        @sum[:foo].should eq 2
-        @sum[:bar].should eq 0
-      end
+      it 'executes the supervised task on the specified guard only' do
+        subject.should_receive(:run_supervised_task).with(bar1_guard, :my_task)
 
-      it "executes the task for dumby guard only" do
-        subject.run_on_guards(:guard => @dumby_guard) do |guard|
-          guard.task
-        end
+        subject.should_not_receive(:run_supervised_task).with(foo_guard, :my_task)
+        subject.should_not_receive(:run_supervised_task).with(bar2_guard, :my_task)
 
-        @sum[:foo].should eq 0
-        @sum[:bar].should eq 1
+        subject.run_with_scope(:my_task, scope)
       end
     end
 
-    context "one guard fails" do
+    context 'within the scope of a specified group' do
+      let(:scope) { { :group => foo_group } }
+
+      it 'executes the task on each guard in the specified group only' do
+        subject.should_receive(:run_supervised_task).with(foo_guard, :my_task)
+
+        subject.should_not_receive(:run_supervised_task).with(bar1_guard, :my_task)
+        subject.should_not_receive(:run_supervised_task).with(bar2_guard, :my_task)
+
+        subject.run_with_scope(:my_task, scope)
+      end
+    end
+
+    context 'with a failing task' do
+      before { subject.stub(:run_supervised_task) { throw :task_has_failed } }
+
+      it 'catches the thrown symbol' do
+        expect {
+          subject.run_with_scope(:failing, scope)
+        }.to_not throw_symbol(:task_has_failed)
+      end
+    end
+  end
+
+  describe '#run_on_changes' do
+    let(:changes) { [ [], [], [] ] }
+    let(:watcher_module) { ::Guard::Watcher }
+
+    before { subject.stub(:scoped_guards).and_yield(foo_guard) }
+
+    it 'runs the task within a preserved state' do
+      guard_module.should_receive(:within_preserved_state)
+      subject.run_on_changes(*changes)
+    end
+
+    context 'with no changes' do
+      it 'does not run any task' do
+        %w[run_on_modifications run_on_change run_on_addtions run_on_removals run_on_deletion].each do |task|
+          foo_guard.should_not_receive(task.to_sym)
+        end
+        subject.run_on_changes(*changes)
+      end
+    end
+
+    context 'with modified paths' do
+      let(:modified) { %w[file.txt image.png] }
+
       before do
-        subject.guards.each_with_index do |guard, i|
-          guard.stub!(:task) do
-            @sum[guard.group] += i+1
-            if i % 2 == 0
-              throw :task_has_failed
-            else
-              true
-            end
+        changes[0] = modified
+        watcher_module.should_receive(:match_files).with(foo_guard, modified).and_return(modified)
+      end
+
+      it 'executes the :run_on_modifications task' do
+        subject.should_receive(:run_supervised_task).with(foo_guard, :run_on_modifications, modified)
+        subject.run_on_changes(*changes)
+      end
+
+      context 'when :run_on_modifications is not implemented' do
+        before { subject.should_receive(:run_supervised_task).with(foo_guard, :run_on_modifications, modified).and_raise(NotImplementedError) }
+
+        it 'executes the :run_on_change task' do
+          subject.should_receive(:run_supervised_task).with(foo_guard, :run_on_change, modified)
+          subject.run_on_changes(*changes)
+        end
+      end
+
+      context 'when neither :run_on_modifications nor :run_on_change is implemented' do
+        before do
+          %w[run_on_modifications run_on_change].each do |task|
+            subject.should_receive(:run_supervised_task).with(foo_guard, task.to_sym, modified).and_raise(NotImplementedError)
           end
         end
+
+        it 'ignores the error' do
+          expect {
+            subject.run_on_changes(*changes)
+          }.to_not raise_error(NotImplementedError)
+        end
+      end
+    end
+
+    context 'with added paths' do
+      let(:added) { %w[file.txt image.png] }
+
+      before do
+        changes[1] = added
+        watcher_module.should_receive(:match_files).with(foo_guard, added).and_return(added)
       end
 
-      it "executes the task only for guards that didn't fail for group with :halt_on_fail == true" do
-        subject.run_on_guards do |guard|
-          subject.run_supervised_task(guard, :task)
+      it 'executes the :run_on_addtions task' do
+        subject.should_receive(:run_supervised_task).with(foo_guard, :run_on_addtions, added)
+        subject.run_on_changes(*changes)
+      end
+
+      context 'when :run_on_addtions is not implemented' do
+        before { subject.should_receive(:run_supervised_task).with(foo_guard, :run_on_addtions, added).and_raise(NotImplementedError) }
+
+        it 'executes the :run_on_change task' do
+          subject.should_receive(:run_supervised_task).with(foo_guard, :run_on_change, added)
+          subject.run_on_changes(*changes)
+        end
+      end
+
+      context 'when neither :run_on_addtions nor :run_on_change is implemented' do
+        before do
+          %w[run_on_addtions run_on_change].each do |task|
+            subject.should_receive(:run_supervised_task).with(foo_guard, task.to_sym, added).and_raise(NotImplementedError)
+          end
         end
 
-        @sum[:foo].should eql 1
-        @sum[:bar].should eql 7
+        it 'ignores the error' do
+          expect {
+            subject.run_on_changes(*changes)
+          }.to_not raise_error(NotImplementedError)
+        end
+      end
+    end
+
+    context 'with removed paths' do
+      let(:removed) { %w[file.txt image.png] }
+
+      before do
+        changes[2] = removed
+        watcher_module.should_receive(:match_files).with(foo_guard, removed).and_return(removed)
+      end
+
+      it 'executes the :run_on_removals task' do
+        subject.should_receive(:run_supervised_task).with(foo_guard, :run_on_removals, removed)
+        subject.run_on_changes(*changes)
+      end
+
+      context 'when :run_on_removals is not implemented' do
+        before { subject.should_receive(:run_supervised_task).with(foo_guard, :run_on_removals, removed).and_raise(NotImplementedError) }
+
+        it 'executes the :run_on_deletion task' do
+          subject.should_receive(:run_supervised_task).with(foo_guard, :run_on_deletion, removed)
+          subject.run_on_changes(*changes)
+        end
+      end
+
+      context 'when neither :run_on_removals nor :run_on_deletion is implemented' do
+        before do
+          %w[run_on_removals run_on_deletion].each do |task|
+            subject.should_receive(:run_supervised_task).with(foo_guard, task.to_sym, removed).and_raise(NotImplementedError)
+          end
+        end
+
+        it 'ignores the error' do
+          expect {
+            subject.run_on_changes(*changes)
+          }.to_not raise_error(NotImplementedError)
+        end
       end
     end
   end
 
-  describe ".run_on_change_task" do
-    let(:guard) do
-      guard = mock(Guard::Guard).as_null_object
-      guard.stub!(:watchers) { [Guard::Watcher.new(/.+\.rb/)] }
+  describe '#run_supervised_task' do
+    before { guard_module.unstub(:groups) }
 
-      guard
+    it 'executes the task on the passed guard' do
+      foo_guard.should_receive(:my_task)
+      subject.run_supervised_task(foo_guard, :my_task)
     end
 
-    it 'runs the :run_on_change task with the watched file changes' do
-      Guard.should_receive(:run_supervised_task).with(guard, :run_on_change, ['a.rb', 'b.rb'])
-      Guard.run_on_change_task(['a.rb', 'b.rb', 'templates/d.haml'], guard)
+    context 'with a task that succeeds' do
+      context 'without any arguments' do
+        before do
+          foo_guard.stub(:regular_without_arg) { true }
+        end
+
+        it 'does not remove the Guard' do
+          expect {
+            subject.run_supervised_task(foo_guard, :regular_without_arg)
+          }.to_not change(guard_singleton.guards, :size)
+        end
+
+        it 'returns the result of the task' do
+          subject.run_supervised_task(foo_guard, :regular_without_arg).should be_true
+        end
+
+        it 'passes the args to the :begin hook' do
+          foo_guard.should_receive(:hook).with('regular_without_arg_begin', 'given_path')
+          subject.run_supervised_task(foo_guard, :regular_without_arg, 'given_path')
+        end
+
+        it 'passes the result of the supervised method to the :end hook'  do
+          foo_guard.should_receive(:hook).with('regular_without_arg_begin', 'given_path')
+          foo_guard.should_receive(:hook).with('regular_without_arg_end', true)
+          subject.run_supervised_task(foo_guard, :regular_without_arg, 'given_path')
+        end
+      end
+
+      context 'with arguments' do
+        before do
+          foo_guard.stub(:regular_with_arg).with('given_path') { "I'm a success" }
+        end
+
+        it 'does not remove the Guard' do
+          expect {
+            subject.run_supervised_task(foo_guard, :regular_with_arg, 'given_path')
+          }.to_not change(guard_module.guards, :size)
+        end
+
+        it 'returns the result of the task' do
+          subject.run_supervised_task(foo_guard, :regular_with_arg, "given_path").should eql "I'm a success"
+        end
+
+        it 'calls the default begin hook but not the default end hook' do
+          foo_guard.should_receive(:hook).with('failing_begin')
+          foo_guard.should_not_receive(:hook).with('failing_end')
+          subject.run_supervised_task(foo_guard, :failing)
+        end
+      end
     end
 
-    it 'runs the :run_on_deletion task with the watched file deletions' do
-      Guard.should_receive(:run_supervised_task).with(guard, :run_on_deletion, ['c.rb'])
-      Guard.run_on_change_task(['!c.rb', '!templates/e.haml'], guard)
+    context 'with a task that throws :task_has_failed' do
+      before { foo_guard.stub(:failing) { throw :task_has_failed } }
+
+      context 'for a guard in group that has the :halt_on_fail option set to true' do
+        before { foo_group.options[:halt_on_fail] = true }
+
+        it 'throws :task_has_failed' do
+          expect {
+            subject.run_supervised_task(foo_guard, :failing)
+          }.to throw_symbol(:task_has_failed)
+        end
+      end
+
+      context 'for a guard in a group that has the :halt_on_fail option set to false' do
+        before { foo_group.options[:halt_on_fail] = false }
+
+        it 'catches :task_has_failed' do
+          expect {
+            subject.run_supervised_task(foo_guard, :failing)
+          }.to_not throw_symbol(:task_has_failed)
+        end
+      end
+    end
+
+    context 'with a task that raises an exception' do
+      before { foo_guard.stub(:failing) { raise 'I break your system' } }
+
+      it 'removes the Guard' do
+        expect {
+          subject.run_supervised_task(foo_guard, :failing)
+        }.to change(guard_module.guards, :size).by(-1)
+
+        guard_module.guards.should_not include(foo_guard)
+      end
+
+      it 'display an error to the user' do
+        guard_module::UI.should_receive :error
+        guard_module::UI.should_receive :info
+
+        subject.run_supervised_task(foo_guard, :failing)
+      end
+
+      it 'returns the exception' do
+        failing_result = subject.run_supervised_task(foo_guard, :failing)
+        failing_result.should be_kind_of(Exception)
+        failing_result.message.should == 'I break your system'
+      end
     end
   end
 
-  describe "#run_supervised_task(guard, task, *args)" do
-    subject { described_class.new }
+  describe '.stopping_symbol_for' do
+    let(:guard_implmentation) { mock(Guard::Guard).as_null_object }
 
-    %w[start stop reload run_all
-      run_on_changes run_on_addtions run_on_modifications run_on_removals
-      run_on_change run_on_deletion].each do |method_name|
-      it "calls :#{method_name} on given guard" do
-        @dummy_guard.should_receive(:send).with(method_name)
+    it 'returns :task_has_failed when the group is missing' do
+      described_class.stopping_symbol_for(guard_implmentation).should eql :task_has_failed
+    end
 
-        subject.send :run_supervised_task, @dummy_guard, method_name
+    context 'for a group with :halt_on_fail' do
+      let(:group) { mock(Guard::Group) }
+
+      before do
+        guard_implmentation.stub(:group).and_return :foo
+        group.stub(:options).and_return({ :halt_on_fail => true })
+      end
+
+      it 'returns :no_catch' do
+        guard_module.should_receive(:groups).with(:foo).and_return group
+        described_class.stopping_symbol_for(guard_implmentation).should eql :no_catch
       end
     end
 
-    context "task throw a :task_has_failed error and guard's group has :halt_on_fail to false" do
-      it "catches the error" do
-        expect { subject.send :run_supervised_task, @dummy_guard, :start }.to_not raise_error
-      end
-    end
+    context 'for a group without :halt_on_fail' do
+      let(:group) { mock(Guard::Group) }
 
-    context "task throw a :task_has_failed error and guard's group has :halt_on_fail to true" do
-
-      it "throws the error" do
-        expect { subject.send :run_supervised_task, @dumby_guard, :start }.to throw_symbol(:task_has_failed)
+      before do
+        guard_implmentation.stub(:group).and_return :foo
+        group.stub(:options).and_return({ :halt_on_fail => false })
       end
 
-      it "calls UI.error" do
-        Guard::UI.should_receive :error
-
-        subject.send :run_supervised_task, @dumby_guard, :start
-      end
-
-      it "remove the failing guard from the current guards" do
-        @guard.guards.should include(@dumby_guard)
-
-        subject.send :run_supervised_task, @dumby_guard, :start
-
-        @guard.guards.should_not include(@dumby_guard)
+      it 'returns :task_has_failed' do
+        guard_module.should_receive(:groups).with(:foo).and_return group
+        described_class.stopping_symbol_for(guard_implmentation).should eql :task_has_failed
       end
     end
   end

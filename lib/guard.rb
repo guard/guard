@@ -25,6 +25,167 @@ module Guard
   class << self
     attr_accessor :options, :interactor, :runner, :listener, :lock
 
+    # Initialize the Guard singleton:
+    #
+    # - Initialize the internal Guard state.
+    # - Create the interactor when necessary for user interaction.
+    # - Select and initialize the file change listener.
+    #
+    # @option options [Boolean] clear if auto clear the UI should be done
+    # @option options [Boolean] notify if system notifications should be shown
+    # @option options [Boolean] verbose if verbose output should be shown
+    # @option options [Array<String>] group the list of groups to start
+    # @option options [String] watchdir the director to watch
+    # @option options [String] guardfile the path to the Guardfile
+    # @option options [Boolean] watch_all_modifications watches all file modifications if true
+    #
+    def setup(options = {})
+      @lock       = Mutex.new
+      @options    = options
+      @watchdir   = (options[:watchdir] && File.expand_path(options[:watchdir])) || Dir.pwd
+      @runner     = Runner.new
+      setup_groups
+      setup_guards
+
+      setup_listener
+      setup_signal_traps
+
+      UI.clear if @options[:clear]
+      debug_command_execution if @options[:verbose]
+
+      Dsl.evaluate_guardfile(options)
+      UI.error 'No guards found in Guardfile, please add at least one.' if @guards.empty?
+
+      runner.deprecation_warning # Guard deprecation go here
+
+      setup_notifier
+      setup_interactor
+
+      self
+    end
+
+    # Initialize the groups array with the `:default` group.
+    #
+    # @see Guard.groups
+    #
+    def setup_groups
+      @groups = [Group.new(:default)]
+    end
+
+    # Initialize the guards array to an empty array.
+    #
+    # @see Guard.guards
+    #
+    def setup_guards
+      @guards = []
+    end
+
+    # Sets up traps to catch signlas used to control Guard.
+    #
+    # Currently two signals are cought:
+    # - `USR1` which pauses listening to changes.
+    # - `USR2` which resumes listening to changes.
+    #
+    def setup_signal_traps
+      if Signal.list.keys.include?('USR1')
+        Signal.trap('USR1') { ::Guard.pause unless @listener.paused? }
+      end
+
+      if Signal.list.keys.include?('USR2')
+        Signal.trap('USR2') { ::Guard.pause if @listener.paused? }
+      end
+    end
+
+    # Initializes the listener and registers a callback for changes.
+    #
+    def setup_listener
+      listener_callback = lambda do |modified, added, removed|
+        Dsl.reevaluate_guardfile if Watcher.match_guardfile?(modified)
+        runner.run_on_changes(modified, added, removed)
+      end
+      @listener = Listen.to(@watchdir, {:relative_paths => true}).change(&listener_callback)
+    end
+
+    # Enables or disables the notifier based on user's configurations.
+    #
+    def setup_notifier
+      options[:notify] && ENV['GUARD_NOTIFY'] != 'false' ? Notifier.turn_on : Notifier.turn_off
+    end
+
+    # Initializes the interactor unless the user has specified not to.
+    #
+    def setup_interactor
+      unless options[:no_interactions]
+        @interactor = Interactor.fabricate
+        @interactor.start if @interactor
+      end
+    end
+
+    # Start Guard by evaluate the `Guardfile`, initialize the declared Guards
+    # and start the available file change listener.
+    # Main method for Guard that is called from the CLI when guard starts.
+    #
+    # - Setup Guard internals
+    # - Evaluate the `Guardfile`
+    # - Configure Notifiers
+    # - Initialize the declared Guards
+    # - Start the available file change listener
+    #
+    # @option options [Boolean] clear if auto clear the UI should be done
+    # @option options [Boolean] notify if system notifications should be shown
+    # @option options [Boolean] debug if debug output should be shown
+    # @option options [Array<String>] group the list of groups to start
+    # @option options [String] watchdir the director to watch
+    # @option options [String] guardfile the path to the Guardfile
+    #
+    def start(options = {})
+      setup(options)
+      UI.info "Guard is now watching at '#{ @watchdir }'"
+
+      interactor.start if interactor
+
+      runner.run(:start)
+      listener.start
+    end
+
+    # Stop Guard listening to file changes
+    #
+    def stop
+      interactor.stop if interactor
+      listener.stop
+      runner.run(:stop)
+
+      UI.info 'Bye bye...', :reset => true
+    end
+
+    # Reload all Guards currently enabled.
+    #
+    # @param [Hash] scopes an hash with a guard or a group scope
+    #
+    def reload(scopes)
+      runner.run_with_scopes(:reload, scopes)
+    end
+
+    # Trigger `run_all` on all Guards currently enabled.
+    #
+    # @param [Hash] scopes an hash with a guard or a group scope
+    #
+    def run_all(scopes)
+      runner.run_with_scopes(:run_all, scopes)
+    end
+
+    # Pause Guard listening to file changes.
+    #
+    def pause
+      if listener.paused?
+        UI.info 'Un-paused files modification listening', :reset => true
+        listener.unpause
+      else
+        UI.info 'Paused files modification listening', :reset => true
+        listener.pause
+      end
+    end
+
     # Smart accessor for retrieving a specific guard or several guards at once.
     #
     # @see Guard.groups
@@ -88,152 +249,6 @@ module Guard
       end
     end
 
-    # Initialize the guards array to an empty array.
-    #
-    # @see Guard.guards
-    #
-    def setup_guards
-      @guards = []
-    end
-
-    # Initialize the groups array with the `:default` group.
-    #
-    # @see Guard.groups
-    #
-    def setup_groups
-      @groups = [Group.new(:default)]
-    end
-
-    # Initialize the Guard singleton:
-    #
-    # - Initialize the internal Guard state.
-    # - Create the interactor when necessary for user interaction.
-    # - Select and initialize the file change listener.
-    #
-    # @option options [Boolean] clear if auto clear the UI should be done
-    # @option options [Boolean] notify if system notifications should be shown
-    # @option options [Boolean] verbose if verbose output should be shown
-    # @option options [Array<String>] group the list of groups to start
-    # @option options [String] watchdir the director to watch
-    # @option options [String] guardfile the path to the Guardfile
-    # @option options [Boolean] watch_all_modifications watches all file modifications if true
-    #
-    def setup(options = {})
-      @lock       = Mutex.new
-      @options    = options
-      @watchdir   = (options[:watchdir] && File.expand_path(options[:watchdir])) || Dir.pwd
-      self.setup_guards
-      self.setup_groups
-      @runner     = Runner.new
-
-      listener_callback = lambda do |modified, added, removed|
-        Dsl.reevaluate_guardfile if Watcher.match_guardfile?(modified)
-        runner.run_on_changes(modified, added, removed)
-      end
-      @listener = Listen.to(@watchdir, Hash.new(options)).change(&listener_callback)
-
-      self.setup_signal_traps
-
-      UI.clear if @options[:clear]
-      debug_command_execution if @options[:verbose]
-
-      Dsl.evaluate_guardfile(options)
-      UI.error 'No guards found in Guardfile, please add at least one.' if @guards.empty?
-
-      runner.deprecation_warning # Guard deprecation go here
-
-      self.setup_notifier
-
-      unless options[:no_interactions]
-        @interactor = Interactor.fabricate
-        @interactor.start if @interactor
-      end
-
-      self
-    end
-
-    def setup_signal_traps
-      if Signal.list.keys.include?('USR1')
-        Signal.trap('USR1') { ::Guard.pause unless @listener.paused? }
-      end
-
-      if Signal.list.keys.include?('USR2')
-        Signal.trap('USR2') { ::Guard.pause if @listener.paused? }
-      end
-    end
-
-    def setup_notifier
-      @options[:notify] && ENV['GUARD_NOTIFY'] != 'false' ? Notifier.turn_on : Notifier.turn_off
-    end
-
-    # Start Guard by evaluate the `Guardfile`, initialize the declared Guards
-    # and start the available file change listener.
-    # Main method for Guard that is called from the CLI when guard starts.
-    #
-    # - Setup Guard internals
-    # - Evaluate the `Guardfile`
-    # - Configure Notifiers
-    # - Initialize the declared Guards
-    # - Start the available file change listener
-    #
-    # @option options [Boolean] clear if auto clear the UI should be done
-    # @option options [Boolean] notify if system notifications should be shown
-    # @option options [Boolean] debug if debug output should be shown
-    # @option options [Array<String>] group the list of groups to start
-    # @option options [String] watchdir the director to watch
-    # @option options [String] guardfile the path to the Guardfile
-    #
-    def start(options = {})
-      setup(options)
-
-      UI.info "Guard is now watching at '#{ @watchdir }'"
-
-      interactor.start if interactor
-
-      runner.run(:start)
-
-      listener.start
-    end
-
-    # Stop Guard listening to file changes
-    #
-    def stop
-      interactor.stop if interactor
-      listener.stop
-
-      runner.run(:stop)
-
-      UI.info 'Bye bye...', :reset => true
-    end
-
-    # Reload all Guards currently enabled.
-    #
-    # @param [Hash] scopes an hash with a guard or a group scope
-    #
-    def reload(scopes)
-      runner.run_with_scopes(:reload, scopes)
-    end
-
-    # Trigger `run_all` on all Guards currently enabled.
-    #
-    # @param [Hash] scopes an hash with a guard or a group scope
-    #
-    def run_all(scopes)
-      runner.run_with_scopes(:run_all, scopes)
-    end
-
-    # Pause Guard listening to file changes.
-    #
-    def pause
-      if listener.paused?
-        UI.info 'Un-paused files modification listening', :reset => true
-        listener.unpause
-      else
-        UI.info 'Paused files modification listening', :reset => true
-        listener.pause
-      end
-    end
-
     # Add a Guard to use.
     #
     # @param [String] name the Guard name
@@ -268,6 +283,26 @@ module Guard
         @groups << group
       end
       group
+    end
+
+    # Runs a block where the interactor is
+    # blocked and execution is synchronized
+    # to avoid state inconsistency.
+    #
+    # @yield the block to run
+    #
+    def within_preserved_state
+      UI.clear if @options[:clear]
+
+      lock.synchronize do
+        begin
+          interactor.stop if interactor
+          yield
+        rescue Interrupt
+        end
+
+        interactor.start if interactor
+      end
     end
 
     # Tries to load the Guard main class. This transforms the supplied Guard

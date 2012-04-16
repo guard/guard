@@ -105,7 +105,7 @@ module Guard
       # Re-evaluate the `Guardfile` to update the current Guard configuration.
       #
       def reevaluate_guardfile
-        ::Guard.run do
+        ::Guard.within_preserved_state do
           before_reevaluate_guardfile
           Dsl.evaluate_guardfile(@@options)
           after_reevaluate_guardfile
@@ -116,12 +116,9 @@ module Guard
       # before the Guardfile will be re-evaluated.
       #
       def before_reevaluate_guardfile
-        ::Guard.run_on_guards do |guard|
-          ::Guard.run_supervised_task(guard, :stop)
-        end
-
+        ::Guard.runner.run(:stop)
         ::Guard.guards.clear
-        ::Guard.reset_groups
+        ::Guard.setup_groups
         ::Guard::Notifier.clear_notifications
 
         @@options.delete(:guardfile_contents)
@@ -140,9 +137,7 @@ module Guard
           ::Guard::UI.info(msg)
           ::Guard::Notifier.notify(msg, :title => 'Guard re-evaluate')
 
-          ::Guard.run_on_guards do |guard|
-            ::Guard.run_supervised_task(guard, :start)
-          end
+          ::Guard.runner.run(:start)
         end
       end
 

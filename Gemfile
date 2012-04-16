@@ -22,3 +22,4 @@ elsif RbConfig::CONFIG['target_os'] =~ /mswin|mingw/i
   gem 'win32console', :require => false
   gem 'rb-notifu', '>= 0.0.4', :require => false
 end
+
