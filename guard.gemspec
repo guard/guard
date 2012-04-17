@@ -1,5 +1,6 @@
 # -*- encoding: utf-8 -*-
-Kernel.load File.expand_path('../lib/guard/version.rb', __FILE__)
+$:.unshift File.expand_path("../lib", __FILE__)
+require "guard/version"
 
 Gem::Specification.new do |s|
   s.name        = 'guard'
