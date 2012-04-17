@@ -148,15 +148,15 @@ module Guard
 
     # @deprecated Use #run_on_modifications or #run_on_addtions instead
     #
-    def run_on_change(paths)
-      raise NotImplementedError
-    end
+    # def run_on_change(paths)
+    #   raise NotImplementedError
+    # end
 
     # @deprecated Use #run_on_removals instead
     #
-    def run_on_deletion(paths)
-      raise NotImplementedError
-    end
+    # def run_on_deletion(paths)
+    #   raise NotImplementedError
+    # end
 
   end
 

@@ -4,8 +4,28 @@ module Guard
   #
   class Runner
 
-    def deprecation_warning
+    # Deprecation message for the `run_on_change` method
+    RUN_ON_CHANGE_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
+      Starting with Guard v1.1 the use of the 'run_on_change' method in the '%s' guard is deprecated.
 
+      Please consider replacing that method-call with 'run_on_changes' if the type of change
+      is not important for your usecase or using either 'run_on_modifications' or 'run_on_addtions'
+      based on the type of the changes you want to handle.
+    EOS
+
+    # Deprecation message for the `run_on_deletion` method
+    RUN_ON_DELETION_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
+      Starting with Guard v1.1 the use of the 'run_on_deletion' method in the '%s' guard is deprecated.
+      Please consider replacing that method-call with 'run_on_removals' for future proofing your code.
+    EOS
+
+    # Displays a warning for each deprecated-method used is any registered guard.
+    #
+    def deprecation_warning
+      ::Guard.guards.each do |guard|
+        UI.deprecation(RUN_ON_CHANGE_DEPRECATION % guard.class.name)   if guard.respond_to?(:run_on_change)
+        UI.deprecation(RUN_ON_DELETION_DEPRECATION % guard.class.name) if guard.respond_to?(:run_on_deletion)
+      end
     end
 
     # Runs a Guard-task on all registered guards.

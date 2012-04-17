@@ -9,6 +9,7 @@ describe Guard::Runner do
   end
 
   let(:guard_module) { ::Guard }
+  let(:ui_module)    { guard_module::UI }
   let!(:guard_singleton) { guard_module.setup }
 
   # One guard in one group
@@ -31,6 +32,39 @@ describe Guard::Runner do
       remove_const(:Foo)
       remove_const(:Bar1)
       remove_const(:Bar2)
+    end
+  end
+
+  describe '#deprecation_warning' do
+    before { guard_module.stub(:guards) { [foo_guard] } }
+
+    context 'when neither run_on_change nor run_on_deletion is implemented in a guard' do
+      it 'does not display a deprecation warning to the user' do
+        ui_module.should_not_receive(:deprecation)
+        subject.deprecation_warning
+      end
+    end
+
+    context 'when run_on_change is implemented in a guard' do
+      before { foo_guard.stub(:run_on_change) }
+
+      it 'displays a deprecation warning to the user' do
+        ui_module.should_receive(:deprecation).with(
+          described_class::RUN_ON_CHANGE_DEPRECATION % foo_guard.class.name
+        )
+        subject.deprecation_warning
+      end
+    end
+
+    context 'when run_on_deletion is implemented in a guard' do
+      before { foo_guard.stub(:run_on_deletion) }
+
+      it 'displays a deprecation warning to the user' do
+        ui_module.should_receive(:deprecation).with(
+          described_class::RUN_ON_DELETION_DEPRECATION % foo_guard.class.name
+        )
+        subject.deprecation_warning
+      end
     end
   end
 
@@ -326,8 +360,8 @@ describe Guard::Runner do
       end
 
       it 'display an error to the user' do
-        guard_module::UI.should_receive :error
-        guard_module::UI.should_receive :info
+        ui_module.should_receive :error
+        ui_module.should_receive :info
 
         subject.run_supervised_task(foo_guard, :failing)
       end
