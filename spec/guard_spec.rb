@@ -260,16 +260,16 @@ describe Guard do
     end
 
     it "return @guards without any argument" do
-      subject.guards.should eql subject.instance_variable_get("@guards")
+      subject.guards.should == subject.instance_variable_get("@guards")
     end
 
     describe "find a guard by as string/symbol" do
       it "find a guard by a string" do
-        subject.guards('foo-bar').should eql @guard_foo_bar_backend
+        subject.guards('foo-bar').should == @guard_foo_bar_backend
       end
 
       it "find a guard by a symbol" do
-        subject.guards(:'foo-bar').should eql @guard_foo_bar_backend
+        subject.guards(:'foo-bar').should == @guard_foo_bar_backend
       end
 
       it "returns nil if guard is not found" do
@@ -279,39 +279,39 @@ describe Guard do
 
     describe "find guards matching a regexp" do
       it "with matches" do
-        subject.guards(/^foobar/).should eql [@guard_foo_bar_backend, @guard_foo_bar_frontend]
+        subject.guards(/^foobar/).should == [@guard_foo_bar_backend, @guard_foo_bar_frontend]
       end
 
       it "without matches" do
-        subject.guards(/foo$/).should eql []
+        subject.guards(/foo$/).should == []
       end
     end
 
     describe "find guards by their group" do
       it "group name is a string" do
-        subject.guards(:group => 'backend').should eql [@guard_foo_bar_backend, @guard_foo_baz_backend]
+        subject.guards(:group => 'backend').should == [@guard_foo_bar_backend, @guard_foo_baz_backend]
       end
 
       it "group name is a symbol" do
-        subject.guards(:group => :frontend).should eql [@guard_foo_bar_frontend, @guard_foo_baz_frontend]
+        subject.guards(:group => :frontend).should == [@guard_foo_bar_frontend, @guard_foo_baz_frontend]
       end
 
       it "returns [] if guard is not found" do
-        subject.guards(:group => :unknown).should eql []
+        subject.guards(:group => :unknown).should == []
       end
     end
 
     describe "find guards by their group & name" do
       it "group name is a string" do
-        subject.guards(:group => 'backend', :name => 'foo-bar').should eql [@guard_foo_bar_backend]
+        subject.guards(:group => 'backend', :name => 'foo-bar').should == [@guard_foo_bar_backend]
       end
 
       it "group name is a symbol" do
-        subject.guards(:group => :frontend, :name => :'foo-baz').should eql [@guard_foo_baz_frontend]
+        subject.guards(:group => :frontend, :name => :'foo-baz').should == [@guard_foo_baz_frontend]
       end
 
       it "returns [] if guard is not found" do
-        subject.guards(:group => :unknown, :name => :'foo-baz').should eql []
+        subject.guards(:group => :unknown, :name => :'foo-baz').should == []
       end
     end
   end
@@ -325,16 +325,16 @@ describe Guard do
     end
 
     it "return @groups without any argument" do
-      subject.groups.should eql subject.instance_variable_get("@groups")
+      subject.groups.should == subject.instance_variable_get("@groups")
     end
 
     describe "find a group by as string/symbol" do
       it "find a group by a string" do
-        subject.groups('backend').should eql @group_backend
+        subject.groups('backend').should == @group_backend
       end
 
       it "find a group by a symbol" do
-        subject.groups(:backend).should eql @group_backend
+        subject.groups(:backend).should == @group_backend
       end
 
       it "returns nil if group is not found" do
@@ -344,11 +344,11 @@ describe Guard do
 
     describe "find groups matching a regexp" do
       it "with matches" do
-        subject.groups(/^back/).should eql [@group_backend, @group_backflip]
+        subject.groups(/^back/).should == [@group_backend, @group_backflip]
       end
 
       it "without matches" do
-        subject.groups(/back$/).should eql []
+        subject.groups(/back$/).should == []
       end
     end
   end
@@ -505,15 +505,15 @@ describe Guard do
     it "accepts group name as string" do
       described_class.add_group('backend')
 
-      described_class.groups[0].name.should eql :default
-      described_class.groups[1].name.should eql :backend
+      described_class.groups[0].name.should == :default
+      described_class.groups[1].name.should == :backend
     end
 
     it "accepts group name as symbol" do
       described_class.add_group(:backend)
 
-      described_class.groups[0].name.should eql :default
-      described_class.groups[1].name.should eql :backend
+      described_class.groups[0].name.should == :default
+      described_class.groups[1].name.should == :backend
     end
 
     it "accepts options" do
@@ -677,8 +677,8 @@ describe Guard do
     it "outputs Kernel.#` method parameters" do
       ::Guard.setup(:verbose => true)
       ::Guard::UI.should_receive(:debug).twice.with("Command execution: echo test")
-      `echo test`.should eql "test\n"
-      %x{echo test}.should eql "test\n"
+      `echo test`.should == "test\n"
+      %x{echo test}.should == "test\n"
     end
 
   end

@@ -69,7 +69,7 @@ describe Guard::Guardfile do
         io = StringIO.new
         File.should_receive(:open).with('Guardfile', 'wb').and_yield io
         described_class.initialize_template('bar')
-        io.string.should eql "Guardfile content\n\nTemplate content\n"
+        io.string.should == "Guardfile content\n\nTemplate content\n"
       end
     end
 

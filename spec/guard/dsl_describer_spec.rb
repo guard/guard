@@ -35,7 +35,7 @@ describe Guard::DslDescriber do
     it "lists the available Guards when they're declared as strings or symbols" do
       Guard.stub(:guard_gem_names).and_return ['test', 'another', 'even', 'more']
       described_class.list(:guardfile_contents => guardfile)
-      @output.should eql <<OUTPUT
+      @output.should == <<OUTPUT
 Using inline Guardfile.
 Available guards:
    another*
@@ -52,7 +52,7 @@ OUTPUT
   describe '.show' do
     it 'shows the Guards and their options' do
       described_class.show(:guardfile_contents => guardfile)
-      @output.should eql <<OUTPUT
+      @output.should == <<OUTPUT
 Using inline Guardfile.
 (global):
   test: a => :b, c => :d

@@ -313,7 +313,7 @@ describe Guard::Runner do
         end
 
         it 'returns the result of the task' do
-          subject.run_supervised_task(foo_guard, :regular_with_arg, "given_path").should eql "I'm a success"
+          subject.run_supervised_task(foo_guard, :regular_with_arg, "given_path").should == "I'm a success"
         end
 
         it 'calls the default begin hook but not the default end hook' do
@@ -378,7 +378,7 @@ describe Guard::Runner do
     let(:guard_implmentation) { mock(Guard::Guard).as_null_object }
 
     it 'returns :task_has_failed when the group is missing' do
-      described_class.stopping_symbol_for(guard_implmentation).should eql :task_has_failed
+      described_class.stopping_symbol_for(guard_implmentation).should == :task_has_failed
     end
 
     context 'for a group with :halt_on_fail' do
@@ -391,7 +391,7 @@ describe Guard::Runner do
 
       it 'returns :no_catch' do
         guard_module.should_receive(:groups).with(:foo).and_return group
-        described_class.stopping_symbol_for(guard_implmentation).should eql :no_catch
+        described_class.stopping_symbol_for(guard_implmentation).should == :no_catch
       end
     end
 
@@ -405,7 +405,7 @@ describe Guard::Runner do
 
       it 'returns :task_has_failed' do
         guard_module.should_receive(:groups).with(:foo).and_return group
-        described_class.stopping_symbol_for(guard_implmentation).should eql :task_has_failed
+        described_class.stopping_symbol_for(guard_implmentation).should == :task_has_failed
       end
     end
   end

@@ -7,20 +7,20 @@ describe Guard::Guard do
     it 'assigns the defined watchers' do
       watchers = [ Guard::Watcher.new('*') ]
       guard = Guard::Guard.new(watchers)
-      guard.watchers.should eql watchers
+      guard.watchers.should == watchers
     end
 
     it 'assigns the defined options' do
       options = { :a => 1, :b => 2 }
       guard = Guard::Guard.new([], options)
-      guard.options.should eql options
+      guard.options.should == options
     end
 
     context 'with a group in the options' do
       it 'assigns the given group' do
         options = { :group => :test }
         guard = Guard::Guard.new([], options)
-        guard.group.should eql :test
+        guard.group.should == :test
       end
     end
 
@@ -28,7 +28,7 @@ describe Guard::Guard do
       it 'assigns a default group' do
         options = { }
         guard = Guard::Guard.new([], options)
-        guard.group.should eql :default
+        guard.group.should == :default
       end
     end
   end
@@ -53,7 +53,7 @@ describe Guard::Guard do
         io = StringIO.new
         File.should_receive(:open).with('Guardfile', 'wb').and_yield io
         Guard::Guard.init('myguard')
-        io.string.should eql "Guardfile content\n\nTemplate content\n"
+        io.string.should == "Guardfile content\n\nTemplate content\n"
       end
     end
   end

@@ -76,7 +76,7 @@ describe Guard::Notifier do
 
     it 'disables the notifications' do
       subject.turn_off
-      ENV['GUARD_NOTIFY'].should eql 'false'
+      ENV['GUARD_NOTIFY'].should == 'false'
     end
   end
 

@@ -120,12 +120,12 @@ describe Guard::ReadlineInteractor do
   describe "#prompt" do
     it 'returns > when listener is active' do
       ::Guard.listener.should_receive(:paused?).and_return false
-      subject.prompt.should eql '> '
+      subject.prompt.should == '> '
     end
 
     it 'returns p> when listener is paused' do
       ::Guard.listener.should_receive(:paused?).and_return true
-      subject.prompt.should eql 'p> '
+      subject.prompt.should == 'p> '
     end
   end
 
