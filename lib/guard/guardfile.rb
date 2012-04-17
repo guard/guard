@@ -1,8 +1,4 @@
-require 'guard/dsl'
-
 module Guard
-
-  autoload :UI, 'guard/ui'
 
   # The Guardfile is responsible for generating the Guardfile
   # and adding guards' template into it.

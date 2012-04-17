@@ -4,7 +4,7 @@ describe Guard do
 
   describe ".setup" do
     let(:options) { { :my_opts => true, :guardfile => File.join(@fixture_path, "Guardfile") } }
-    subject { described_class.setup }
+    subject { described_class.setup(options) }
 
     it "returns itself for chaining" do
       subject.should be ::Guard
@@ -20,7 +20,7 @@ describe Guard do
     end
 
     it "initializes the options" do
-      described_class.setup(options).options.should include(:my_opts)
+      subject.options.should include(:my_opts)
     end
 
     it "initializes the listener" do
@@ -41,31 +41,26 @@ describe Guard do
 
     it "call setup_signal_traps" do
       described_class.should_receive(:setup_signal_traps)
-
-      described_class.setup(options)
+      subject
     end
 
     it "evaluates the DSL" do
       described_class::Dsl.should_receive(:evaluate_guardfile).with(options)
-
-      described_class.setup(options)
+      subject
     end
 
     it "displays an error message when no guard are defined in Guardfile" do
       described_class::UI.should_receive(:error)
-
-      described_class.setup(options)
+      subject
     end
 
     it "call setup_notifier" do
       described_class.should_receive(:setup_notifier)
-
-      described_class.setup(options)
+      subject
     end
 
     it "call setup_interactor" do
       described_class.should_receive(:setup_interactor)
-
       subject
     end
   end
