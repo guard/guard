@@ -51,13 +51,13 @@ module Guard
                   :type    => :boolean,
                   :default => false,
                   :aliases => '-I',
-                  :banner  => 'Ignore vendored dependencies'
+                  :banner  => 'DEPRECATED: Ignore vendored dependencies'
 
     method_option :watch_all_modifications,
                   :type => :boolean,
                   :default => false,
                   :aliases => '-A',
-                  :banner => 'Watch for all file modifications including moves and deletions'
+                  :banner => 'DEPRECATED: Watch for all file modifications including moves and deletions'
 
     method_option :no_interactions,
                   :type => :boolean,

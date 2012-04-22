@@ -16,6 +16,7 @@ module Guard
     # Deprecation message for the `run_on_deletion` method
     RUN_ON_DELETION_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
       Starting with Guard v1.1 the use of the 'run_on_deletion' method in the '%s' guard is deprecated.
+      
       Please consider replacing that method-call with 'run_on_removals' for future proofing your code.
     EOS
 

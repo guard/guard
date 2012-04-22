@@ -37,16 +37,19 @@ module Guard
     # @option options [Array<String>] group the list of groups to start
     # @option options [String] watchdir the director to watch
     # @option options [String] guardfile the path to the Guardfile
-    # @option options [Boolean] watch_all_modifications watches all file modifications if true
+    # @deprecated @option options [Boolean] watch_all_modifications watches all file modifications if true
+    # @deprecated @option options [Boolean] no_vendor ignore vendored dependencies
     #
     def setup(options = {})
       @lock       = Mutex.new
       @options    = options
       @watchdir   = (options[:watchdir] && File.expand_path(options[:watchdir])) || Dir.pwd
       @runner     = Runner.new
+
+      deprecated_options_warning
+
       setup_groups
       setup_guards
-
       setup_listener
       setup_signal_traps
 
@@ -385,6 +388,25 @@ module Guard
         ::Guard::UI.debug "Command execution: #{ command }"
         original_backtick command
       end
+    end
+
+    # Deprecation message for the `watch_all_modifications` start option
+    WATCH_ALL_MODIFICATIONS_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
+      Starting with Guard v1.1 the 'watch_all_modifications' option is removed and is now always on.
+    EOS
+
+    # Deprecation message for the `no_vendor` start option
+    NO_VENDOR_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
+      Starting with Guard v1.1 the 'no_vendor' option is removed because listening gems are now more vendored.
+      
+      Please to overwrite Listen listening gems dependencies specify custom version directly in your Gemfile.
+    EOS
+
+    # Displays a warning for each deprecated options used.
+    #
+    def deprecated_options_warning
+      ::Guard::UI.deprecation(WATCH_ALL_MODIFICATIONS_DEPRECATION) if options[:watch_all_modifications]
+      ::Guard::UI.deprecation(NO_VENDOR_DEPRECATION) if options[:no_vendor]
     end
 
   end
