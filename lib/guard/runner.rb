@@ -66,18 +66,18 @@ module Guard
     def run_on_changes(modified, added, removed)
       ::Guard.within_preserved_state do
         scoped_guards do |guard|
-          unless modified.empty?
-            modified_paths = Watcher.match_files(guard, modified)
+          modified_paths = Watcher.match_files(guard, modified)
+          unless modified_paths.empty?
             run_first_task_found(guard, [:run_on_modifications, :run_on_change], modified_paths)
           end
 
-          unless added.empty?
-            added_paths = Watcher.match_files(guard, added)
+          added_paths = Watcher.match_files(guard, added)
+          unless added_paths.empty?
             run_first_task_found(guard, [:run_on_addtions, :run_on_change], added_paths)
           end
 
-          unless removed.empty?
-            removed_paths = Watcher.match_files(guard, removed)
+          removed_paths = Watcher.match_files(guard, removed)
+          unless removed_paths.empty?
             run_first_task_found(guard, [:run_on_removals, :run_on_deletion], removed_paths)
           end
         end

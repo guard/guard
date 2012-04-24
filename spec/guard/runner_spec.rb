@@ -137,7 +137,10 @@ describe Guard::Runner do
     let(:changes) { [ [], [], [] ] }
     let(:watcher_module) { ::Guard::Watcher }
 
-    before { subject.stub(:scoped_guards).and_yield(foo_guard) }
+    before {
+      subject.stub(:scoped_guards).and_yield(foo_guard)
+      watcher_module.stub(:match_files) { [] }
+    }
 
     it 'runs the task within a preserved state' do
       guard_module.should_receive(:within_preserved_state)
@@ -149,6 +152,20 @@ describe Guard::Runner do
         %w[run_on_modifications run_on_change run_on_addtions run_on_removals run_on_deletion].each do |task|
           foo_guard.should_not_receive(task.to_sym)
         end
+        subject.run_on_changes(*changes)
+      end
+    end
+
+    context "with modified files but modified paths is empty" do
+      let(:modified) { %w[file.txt image.png] }
+
+      before do
+        changes[0] = modified
+        watcher_module.should_receive(:match_files).once.with(foo_guard, modified).and_return([])
+      end
+
+      it 'does not call run_first_task_found' do
+        subject.should_not_receive(:run_first_task_found)
         subject.run_on_changes(*changes)
       end
     end
@@ -190,6 +207,20 @@ describe Guard::Runner do
       end
     end
 
+    context "with added files but added paths is empty" do
+      let(:added) { %w[file.txt image.png] }
+
+      before do
+        changes[0] = added
+        watcher_module.should_receive(:match_files).once.with(foo_guard, added).and_return([])
+      end
+
+      it 'does not call run_first_task_found' do
+        subject.should_not_receive(:run_first_task_found)
+        subject.run_on_changes(*changes)
+      end
+    end
+
     context 'with added paths' do
       let(:added) { %w[file.txt image.png] }
 
@@ -224,6 +255,20 @@ describe Guard::Runner do
             subject.run_on_changes(*changes)
           }.to_not raise_error(NotImplementedError)
         end
+      end
+    end
+
+    context "with added files but added paths is empty" do
+      let(:removed) { %w[file.txt image.png] }
+
+      before do
+        changes[0] = removed
+        watcher_module.should_receive(:match_files).once.with(foo_guard, removed).and_return([])
+      end
+
+      it 'does not call run_first_task_found' do
+        subject.should_not_receive(:run_first_task_found)
+        subject.run_on_changes(*changes)
       end
     end
 
