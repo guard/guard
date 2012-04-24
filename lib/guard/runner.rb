@@ -48,9 +48,9 @@ module Guard
     #
     # @see self.run_supervised_task
     #
-    def run_with_scope(task, scope)
+    def run_with_scopes(task, scopes)
       ::Guard.within_preserved_state do
-        scoped_guards(scope) do |guard|
+        scoped_guards(scopes) do |guard|
           run_supervised_task(guard, task)
         end
       end
@@ -163,11 +163,11 @@ module Guard
     # @param [Hash] scope an hash with a guard or a group scope
     # @yield the task to run
     #
-    def scoped_guards(scope = {})
-      if guard = scope[:guard]
+    def scoped_guards(scopes = {})
+      if guard = scopes[:guard]
         yield(guard)
       else
-        groups = scope[:group] ? [scope[:group]] : ::Guard.groups
+        groups = scopes[:group] ? [scopes[:group]] : ::Guard.groups
         groups.each do |group|
           catch :task_has_failed do
             ::Guard.guards(:group => group.name).each do |guard|

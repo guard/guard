@@ -88,16 +88,16 @@ describe Guard::Runner do
   end
 
   describe '#run_with_scope' do
-    let(:scope) { { :group => foo_group } }
+    let(:scopes) { { :group => foo_group } }
 
     it 'runs the task within a preserved state' do
       guard_module.should_receive(:within_preserved_state)
       foo_guard.stub(:my_task)
-      subject.run_with_scope(:my_task, scope)
+      subject.run_with_scopes(:my_task, scopes)
     end
 
     context 'within the scope of a specified guard' do
-      let(:scope) { { :guard => bar1_guard } }
+      let(:scopes) { { :guard => bar1_guard } }
 
       it 'executes the supervised task on the specified guard only' do
         subject.should_receive(:run_supervised_task).with(bar1_guard, :my_task)
@@ -105,12 +105,12 @@ describe Guard::Runner do
         subject.should_not_receive(:run_supervised_task).with(foo_guard, :my_task)
         subject.should_not_receive(:run_supervised_task).with(bar2_guard, :my_task)
 
-        subject.run_with_scope(:my_task, scope)
+        subject.run_with_scopes(:my_task, scopes)
       end
     end
 
     context 'within the scope of a specified group' do
-      let(:scope) { { :group => foo_group } }
+      let(:scopes) { { :group => foo_group } }
 
       it 'executes the task on each guard in the specified group only' do
         subject.should_receive(:run_supervised_task).with(foo_guard, :my_task)
@@ -118,7 +118,7 @@ describe Guard::Runner do
         subject.should_not_receive(:run_supervised_task).with(bar1_guard, :my_task)
         subject.should_not_receive(:run_supervised_task).with(bar2_guard, :my_task)
 
-        subject.run_with_scope(:my_task, scope)
+        subject.run_with_scopes(:my_task, scopes)
       end
     end
 
@@ -127,7 +127,7 @@ describe Guard::Runner do
 
       it 'catches the thrown symbol' do
         expect {
-          subject.run_with_scope(:failing, scope)
+          subject.run_with_scopes(:failing, scopes)
         }.to_not throw_symbol(:task_has_failed)
       end
     end
