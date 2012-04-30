@@ -9,7 +9,6 @@ doc/*
 .rbx
 .rvmrc
 Gemfile.lock
-bin/fsevent_watch_guard
 Makefile
 
 ## MAC OS

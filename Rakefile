@@ -28,8 +28,7 @@ task :build_vendor do
   # Alter darwin extconf.rb
   extconf_path = File.expand_path("../ext/extconf.rb", __FILE__)
   extconf_contents = File.read(extconf_path)
-  extconf_contents.sub!(/puts "Warning/, '#\0')
-  extconf_contents.gsub!(/bin\/fsevent_watch/, 'bin/fsevent_watch_guard')
+  extconf_contents.gsub!(/bin\/fsevent_watch\w+/, 'bin/fsevent_watch_guard')
   File.open(extconf_path, 'w') { |f| f << extconf_contents }
 
   # Alter lib/vendor/darwin/lib/rb-fsevent/fsevent.rb

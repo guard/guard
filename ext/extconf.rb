@@ -50,7 +50,7 @@ else
   
   cc_bin = `which clang || which gcc`.to_s.strip!
 
-  compile_command = "CFLAGS='#{cflags.join(' ')} #{wflags.join(' ')}' #{cc_bin} #{cc_opts.join(' ')} -o '#{gem_root}/bin/fsevent_watch_guard_guard' fsevent/fsevent_watch.c"
+  compile_command = "CFLAGS='#{cflags.join(' ')} #{wflags.join(' ')}' #{cc_bin} #{cc_opts.join(' ')} -o '#{gem_root}/bin/fsevent_watch_guard' fsevent/fsevent_watch.c"
 
   STDERR.puts(compile_command)
 
@@ -58,7 +58,7 @@ else
   system "mkdir -p #{File.join(gem_root, 'bin')}"
   system compile_command
 
-  unless File.executable?("#{gem_root}/bin/fsevent_watch_guard_guard")
+  unless File.executable?("#{gem_root}/bin/fsevent_watch_guard")
     raise "Compilation of fsevent_watch failed (see README)"
   end
 end
