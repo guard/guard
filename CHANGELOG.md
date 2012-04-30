@@ -1,4 +1,4 @@
-## Master
+## 1.0.2 - 30 April, 2012
 
 ### Improvements
 
@@ -7,6 +7,7 @@
 - [#254](https://github.com/guard/guard/issues/254) Add the possibility to pause/unpause by sending OS signal. ([@steakknife][])
 - [#261](https://github.com/guard/guard/issues/261) Clarify the usage of the term `guard-name` in the README. ([@spadin][])
 - Add a `--no-bundler-warning` option to Guard start. ([@netzpirat][])
+- Update vendor/darwin. ([@thibaudgg][])
 
 ### Bug fixes
 
