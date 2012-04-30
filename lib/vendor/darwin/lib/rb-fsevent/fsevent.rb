@@ -14,6 +14,10 @@ class FSEvent
 
   attr_reader :paths, :callback
 
+  def initialize args = nil, &block
+    watch(args, &block) unless args.nil?
+  end
+
   def watch(watch_paths, options=nil, &block)
     @paths      = watch_paths.kind_of?(Array) ? watch_paths : [watch_paths]
     @callback   = block
@@ -28,12 +32,14 @@ class FSEvent
   end
 
   def run
+    @pipe    = open_pipe
     @running = true
+
     # please note the use of IO::select() here, as it is used specifically to
     # preserve correct signal handling behavior in ruby 1.8.
-    while @running && IO::select([pipe], nil, nil, nil)
-      if line = pipe.readline
-        modified_dir_paths = line.split(":").select { |dir| dir != "\n" }
+    while @running && IO::select([@pipe], nil, nil, nil)
+      if line = @pipe.readline
+        modified_dir_paths = line.split(':').select { |dir| dir != "\n" }
         callback.call(modified_dir_paths)
       end
     end
@@ -43,18 +49,18 @@ class FSEvent
   end
 
   def stop
-    if pipe
-      Process.kill("KILL", pipe.pid)
-      pipe.close
+    unless @pipe.nil?
+      Process.kill('KILL', @pipe.pid)
+      @pipe.close
     end
   rescue IOError
   ensure
-    @pipe = @running = nil
+    @running = false
   end
 
   if RUBY_VERSION < '1.9'
-    def pipe
-      @pipe ||= IO.popen("#{self.class.watcher_path} #{options_string} #{shellescaped_paths}")
+    def open_pipe
+      IO.popen("#{self.class.watcher_path} #{options_string} #{shellescaped_paths}")
     end
 
     private
@@ -85,8 +91,8 @@ class FSEvent
       return str
     end
   else
-    def pipe
-      @pipe ||= IO.popen([self.class.watcher_path] + @options + @paths)
+    def open_pipe
+      IO.popen([self.class.watcher_path] + @options + @paths)
     end
   end
 

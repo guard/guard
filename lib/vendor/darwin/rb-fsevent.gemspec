@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
 
   s.rubyforge_project = "rb-fsevent"
 
-  s.add_development_dependency  'bundler',     '~> 1.0.10'
+  s.add_development_dependency  'bundler',     '~> 1.0'
   s.add_development_dependency  'rspec',       '~> 2.5.0'
   s.add_development_dependency  'guard-rspec', '~> 0.1.9'
 

@@ -5,7 +5,7 @@ create_makefile('none')
 # TODO: determine whether we really need to be working around instead of with mkmf
 
 if `uname -s`.chomp != 'Darwin'
-  ##puts "Warning! Only Darwin (Mac OS X) systems are supported, nothing will be compiled"
+  ###puts "Warning! Only Darwin (Mac OS X) systems are supported, nothing will be compiled"
 else
   begin
     xcode_path = %x[xcode-select -print-path].to_s.strip!
@@ -50,7 +50,7 @@ else
   
   cc_bin = `which clang || which gcc`.to_s.strip!
 
-  compile_command = "CFLAGS='#{cflags.join(' ')} #{wflags.join(' ')}' #{cc_bin} #{cc_opts.join(' ')} -o '#{gem_root}/bin/fsevent_watch_guard_guard' fsevent/fsevent_watch.c"
+  compile_command = "CFLAGS='#{cflags.join(' ')} #{wflags.join(' ')}' #{cc_bin} #{cc_opts.join(' ')} -o '#{gem_root}/bin/fsevent_watch_guard_guard_guard' fsevent/fsevent_watch.c"
 
   STDERR.puts(compile_command)
 
@@ -58,7 +58,7 @@ else
   system "mkdir -p #{File.join(gem_root, 'bin')}"
   system compile_command
 
-  unless File.executable?("#{gem_root}/bin/fsevent_watch_guard_guard")
+  unless File.executable?("#{gem_root}/bin/fsevent_watch_guard_guard_guard")
     raise "Compilation of fsevent_watch failed (see README)"
   end
 end

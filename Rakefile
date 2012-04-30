@@ -12,7 +12,7 @@ task :build_vendor do
 
   # Clone the correct gems
   sh "git clone https://github.com/thibaudgg/rb-fsevent.git lib/vendor/darwin"
-  sh "cd lib/vendor/darwin && git checkout 10c7980fa7b9678f787b7f4671f3b67f3a7571f1"
+  sh "cd lib/vendor/darwin && git checkout 63c552f0af8ac5a0bd025d34a49f60e6bcffb099"
   sh "git clone https://github.com/nex3/rb-inotify.git lib/vendor/linux"
   sh "cd lib/vendor/linux && git checkout 01e7487e7a8d8f26b13c6835a321390c6618ccb7"
   sh "git clone https://github.com/stereobooster/rb-fchange.git lib/vendor/windows"

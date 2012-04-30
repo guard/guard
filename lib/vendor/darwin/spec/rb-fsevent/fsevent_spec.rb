@@ -10,6 +10,19 @@ describe FSEvent do
     end
   end
 
+  it "shouldn't pass anything to watch when instantiated without a path" do
+    fsevent = FSEvent.new
+    fsevent.paths.should be_nil
+    fsevent.callback.should be_nil
+  end
+
+  it "should pass path and block to watch when instantiated with them" do
+    blk = proc { }
+    fsevent = FSEvent.new(@fixture_path, &blk)
+    fsevent.paths.should == [@fixture_path]
+    fsevent.callback.should == blk
+  end
+
   it "should have a watcher_path that resolves to an executable file" do
     File.exists?(FSEvent.watcher_path).should be_true
     File.executable?(FSEvent.watcher_path).should be_true
