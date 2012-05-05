@@ -47,12 +47,14 @@ module Guard
                   :aliases => '-G',
                   :banner  => 'Specify a Guardfile'
 
+    # DEPRECATED
     method_option :no_vendor,
                   :type    => :boolean,
                   :default => false,
                   :aliases => '-I',
                   :banner  => 'DEPRECATED: Ignore vendored dependencies'
 
+    # DEPRECATED
     method_option :watch_all_modifications,
                   :type => :boolean,
                   :default => false,
