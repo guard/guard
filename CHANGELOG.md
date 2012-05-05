@@ -1,23 +1,24 @@
-## Master
+## 1.0.2 - 30 April, 2012
 
 ### Improvements
 
 - [#274 & #275](https://github.com/guard/guard/issues/274) Make the Bundler warning less scary and more friendly. ([@mcmire][])
-- [#270](https://github.com/guard/guard/pull/270) Make urgency configurable for libnotify/notifysend. ([@viking][])
-- [#254](https://github.com/guard/guard/pull/254) Add the possibility to pause/unpause by sending OS signal. ([@steakknife][])
-- [#261](https://github.com/guard/guard/pull/261) Clarify the usage of the term `guard-name` in the README. ([@spadin][])
+- [#270](https://github.com/guard/guard/issues/270) Make urgency configurable for libnotify/notifysend. ([@viking][])
+- [#254](https://github.com/guard/guard/issues/254) Add the possibility to pause/unpause by sending OS signal. ([@steakknife][])
+- [#261](https://github.com/guard/guard/issues/261) Clarify the usage of the term `guard-name` in the README. ([@spadin][])
 - Add a `--no-bundler-warning` option to Guard start. ([@netzpirat][])
+- Update vendor/darwin. ([@thibaudgg][])
 
 ### Bug fixes
 
-- [#260](https://github.com/guard/guard/pull/260) Don't show Bundler warning when no Gemfile present. ([@netzpirat][])
-- [#259](https://github.com/guard/guard/pull/259) Fix `guard show` on Ruby 1.8.7. ([@netzpirat][] and [@rymai][])
+- [#260](https://github.com/guard/guard/issues/260) Don't show Bundler warning when no Gemfile present. ([@netzpirat][])
+- [#259](https://github.com/guard/guard/issues/259) Fix `guard show` on Ruby 1.8.7. ([@netzpirat][] and [@rymai][])
 
 ## 1.0.1 - 7 March, 2012
 
 ### Improvements
 
-- [#236](https://github.com/guard/guard/pull/236) Add support for `notifysend`. ([@alandipert][])
+- [#236](https://github.com/guard/guard/issues/236) Add support for `notifysend`. ([@alandipert][])
 - Update vendor/darwin to rb-fsevent 0.9.0. ([@thibaudgg][])
 
 ### Bug fixes
