@@ -34,7 +34,8 @@ Contents
   * [notification](#guardfile-dsl-notification)
   * [interactor](#guardfile-dsl-interactor)
   * [callback](#guardfile-dsl-callback)
-  * [ignore_paths](#guardfile-dsl-ignore-paths)
+  * [ignore](#guardfile-dsl-ignore)
+  * [filter](#guardfile-dsl-filter)
   * [Example](#guardfile-dsl-example)
 * [Shared configurations](#shared-configurations)
 * [Advanced Linux system configuration](#advanced-linux-system-configuration)
@@ -682,22 +683,33 @@ end
 Please see the [hooks and callbacks](https://github.com/guard/guard/wiki/Hooks-and-callbacks) page in the Guard wiki for
 more details.
 
-<a name="guardfile-dsl-ignore-paths" />
-### ignore_paths
+<a name="guardfile-dsl-ignore" />
+### ignore
 
-The `ignore_paths` method allows you to ignore top level directories altogether. This comes is handy when you have large
-amounts of non-source data in you project. By default `.bundle`, `.git`, `log`, `tmp`, and `vendor` are ignored.
-Currently it is only possible to ignore the immediate descendants of the watched directory.
+The `ignore` method allows you to ignore specific paths. This comes is handy when you have large
+amounts of non-source data in you project. By default [`.rbx`, `.bundle`, `.git`, `.svn`, `log`, `tmp`, `vendor`](https://github.com/guard/listen/blob/master/lib/listen/directory_record.rb#L14) are ignored.
+Please note that method only accept regexps. More on the [Listen README](https://github.com/guard/listen#the-patterns-for-filtering-and-ignoring-paths).
 
 ```ruby
-ignore_paths 'public'
+ignore %r{^ignored/path/}, /public/
+```
+
+<a name="guardfile-dsl-filter" />
+### filter
+
+The `filter` method allows you to filter specific paths.
+Please note that method only accept regexps. More on the [Listen README](https://github.com/guard/listen#the-patterns-for-filtering-and-ignoring-paths).
+
+```ruby
+filter /\.txt$/, /.*\.zip/
 ```
 
 <a name="guardfile-dsl-example" />
 ### Example
 
 ```ruby
-ignore_paths 'foo', 'bar'
+ignore %r{^ignored/path/}, /public/
+filter /\.txt$/, /.*\.zip/
 
 notification :growl_notify
 notification :gntp, :host => '192.168.1.5'

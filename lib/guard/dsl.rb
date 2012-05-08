@@ -6,8 +6,8 @@ module Guard
   # The main keywords of the DSL are `guard` and `watch`. These are necessary to define
   # the used Guards and the file changes they are watching.
   #
-  # You can optionally group the Guards with the `group` keyword and ignore certain paths
-  # with the `ignore_paths` keyword.
+  # You can optionally group the Guards with the `group` keyword and ignore and filter certain paths
+  # with the `ignore` and `filter` keywords.
   #
   # You can set your preferred system notification library with `notification` and pass
   # some optional configuration options for the library. If you don't configure a library,
@@ -82,6 +82,15 @@ module Guard
   #   end
   #
   class Dsl
+
+    # Deprecation message for the `ignore_paths` method
+    IGNORE_PATHS_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
+      Starting with Guard v1.1 the use of the 'ignore_paths' Guardfile dsl method is deprecated.
+
+      Please replace that method with the better 'ignore' or/and 'filter' methods.
+      Documentation on the README: https://github.com/guard/guard#guardfile-dsl-ignore
+    EOS
+
     class << self
 
       @@options = nil
@@ -416,18 +425,37 @@ module Guard
       @callbacks << { :events => events, :listener => listener }
     end
 
-    # Ignore certain paths globally.
+    # @deprecated Ignore certain paths globally.
     #
     # @example Ignore some paths
     #   ignore_paths ".git", ".svn"
     #
     # @param [Array] paths the list of paths to ignore
     #
-    # @see Guard::Listener
-    #
     def ignore_paths(*paths)
-      UI.info "Ignoring paths: #{ paths.join(', ') }"
-      ::Guard.listener.ignore_paths.push(*paths)
+      UI.deprecation(IGNORE_PATHS_DEPRECATION)
+    end
+
+    # Ignore certain patterns paths globally.
+    #
+    # @example Ignore some paths
+    #   ignore %r{^ignored/path/}, /man/
+    #
+    # @param [Regexp] regexp a pattern for ignoring paths
+    #
+    def ignore(*regexps)
+      ::Guard.listener = ::Guard.listener.ignore(*regexps)
+    end
+
+    # Filter certain patterns paths globally.
+    #
+    # @example Filter some files
+    #   ignore /\.txt$/, /.*\.zip/
+    #
+    # @param [Regexp] regexp a pattern for filtering paths
+    #
+    def filter(*regexps)
+      ::Guard.listener = ::Guard.listener.filter(*regexps)
     end
 
   end

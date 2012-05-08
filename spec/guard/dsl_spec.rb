@@ -320,11 +320,35 @@ describe Guard::Dsl do
     disable_user_config
 
     it "adds the paths to the listener's ignore_paths" do
-      ::Guard.stub!(:listener).and_return(mock('Listener'))
-      ::Guard.listener.should_receive(:ignore_paths).and_return(ignore_paths = ['faz'])
+      ::Guard::UI.should_receive(:deprecation).with(described_class::IGNORE_PATHS_DEPRECATION)
 
       described_class.evaluate_guardfile(:guardfile_contents => "ignore_paths 'foo', 'bar'")
-      ignore_paths.should == ['faz', 'foo', 'bar']
+    end
+  end
+
+  describe "#ignore" do
+    disable_user_config
+    let(:listener) { stub }
+
+    it "add ignored regexps to the listener" do
+      ::Guard.stub(:listener) { listener }
+      ::Guard.listener.should_receive(:ignore).with(/^foo/,/bar/) { listener }
+      ::Guard.should_receive(:listener=).with(listener)
+
+      described_class.evaluate_guardfile(:guardfile_contents => "ignore %r{^foo}, /bar/")
+    end
+  end
+
+  describe "#filter" do
+    disable_user_config
+    let(:listener) { stub }
+
+    it "add ignored regexps to the listener" do
+      ::Guard.stub(:listener) { listener }
+      ::Guard.listener.should_receive(:filter).with(/.txt$/, /.*.zip/) { listener }
+      ::Guard.should_receive(:listener=).with(listener)
+
+      described_class.evaluate_guardfile(:guardfile_contents => "filter %r{.txt$}, /.*\.zip/")
     end
   end
 
