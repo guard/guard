@@ -48,13 +48,9 @@ Contents
 Features
 --------
 
-* [FSEvent](http://en.wikipedia.org/wiki/FSEvents) support on Mac OS X.
-* [Inotify](http://en.wikipedia.org/wiki/Inotify) support on Linux.
-* [Directory Change Notification](http://msdn.microsoft.com/en-us/library/aa365261\(VS.85\).aspx) support on Windows.
-* Polling on the other operating systems.
-* Automatic and super fast file modification detection when polling is not used.
-  Even new and deleted files are detected.
+* File system changes handled by our awesome [Listen](https://github.com/guard/listen) gem.
 * Support for visual system notifications.
+* Huge ([more than 120](https://rubygems.org/search?query=guard-)) guard extensions eco-system.
 * Tested against Ruby 1.8.7, 1.9.2, 1.9.3, REE and the latest versions of JRuby & Rubinius.
 
 <a name="screencast" />
@@ -359,15 +355,6 @@ $ guard --guardfile ~/.your_global_guardfile
 $ guard -G ~/.your_global_guardfile # shortcut
 ```
 
-#### `-A`/`--watch-all-modifications` option
-
-Guard can optionally watch all file modifications like moves or deletions with:
-
-```bash
-$ guard start -A
-$ guard start --watch-all-modifications
-```
-
 #### `-i`/`--no-interactions` option
 
 Turn off completely any Guard terminal interactions with:
@@ -375,15 +362,6 @@ Turn off completely any Guard terminal interactions with:
 ```bash
 $ guard start -i
 $ guard start --no-interactions
-```
-
-#### `-I`/`--no-vendor` option
-
-Ignore the use of vendored gems with:
-
-```bash
-$ guard start -I
-$ guard start --no-vendor
 ```
 
 #### `-B`/`--no-bundler-warning` option
