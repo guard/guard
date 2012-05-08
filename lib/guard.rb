@@ -106,7 +106,13 @@ module Guard
         Dsl.reevaluate_guardfile if Watcher.match_guardfile?(modified)
         runner.run_on_changes(modified, added, removed)
       end
-      @listener = Listen.to(@watchdir, {:relative_paths => true}).change(&listener_callback)
+
+      listener_options = { :relative_paths => true }
+      %w[latency force_polling].each do |option|
+        listener_options[option.to_sym] = options[option] if options.key?(option)
+      end
+
+      @listener = Listen.to(@watchdir, listener_options).change(&listener_callback)
     end
 
     # Enables or disables the notifier based on user's configurations.
@@ -398,7 +404,7 @@ module Guard
     # Deprecation message for the `no_vendor` start option
     NO_VENDOR_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
       Starting with Guard v1.1 the 'no_vendor' option is removed because listening gems are now more vendored.
-      
+
       Please to overwrite Listen listening gems dependencies specify custom version directly in your Gemfile.
     EOS
 

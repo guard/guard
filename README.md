@@ -373,6 +373,24 @@ $ guard start -B
 $ guard start --no-bundler-warning
 ```
 
+#### `-l`/`--latency` option
+
+Overwrite Listen default latency, usefull when your harddrive/system is slow.
+
+```bash
+$ guard start -l 1.5
+$ guard start --latency 1.5
+```
+
+#### `-p`/`--force-polling` option
+
+Force Listen polling listener usage.
+
+```bash
+$ guard start -p
+$ guard start --force-polling
+```
+
 <a name="usage-list" />
 ### List
 

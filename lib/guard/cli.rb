@@ -73,6 +73,18 @@ module Guard
                   :aliases => '-B',
                   :banner => 'Turn off warning when Bundler is not present'
 
+    # Listen options
+    method_option :latency,
+                  :type    => :numeric,
+                  :aliases => '-l',
+                  :banner  => 'Overwrite Listen default latency'
+    
+    method_option :force_polling,
+                  :type    => :boolean,
+                  :default => false,
+                  :aliases => '-p',
+                  :banner  => 'Force Listen polling listener usage'
+
     # Start Guard by initialize the defined Guards and watch the file system.
     # This is the default task, so calling `guard` is the same as calling `guard start`.
     #
