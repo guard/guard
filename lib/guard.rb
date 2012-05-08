@@ -406,7 +406,7 @@ module Guard
       Starting with Guard v1.1 the 'no_vendor' option is removed because the monitoring gems are now
       a part of a new gem called Listen.
 
-      You can specify specify a custom version of any monitoring gem directly in your Gemfile
+      You can specify a custom version of any monitoring gem directly in your Gemfile
       if you want to overwrite Listen's default monitoring gems.
     EOS
 
