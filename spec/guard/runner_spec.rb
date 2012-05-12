@@ -69,6 +69,8 @@ describe Guard::Runner do
   end
 
   describe '#run' do
+    let(:scopes) { { :group => foo_group } }
+
     it 'executes a supervised task on all registered guards' do
       [foo_guard, bar1_guard, bar2_guard].each do |g|
         subject.should_receive(:run_supervised_task).with(g, :my_task)
@@ -85,16 +87,6 @@ describe Guard::Runner do
         }.to_not throw_symbol(:task_has_failed)
       end
     end
-  end
-
-  describe '#run_with_scope' do
-    let(:scopes) { { :group => foo_group } }
-
-    it 'runs the task within a preserved state' do
-      guard_module.should_receive(:within_preserved_state)
-      foo_guard.stub(:my_task)
-      subject.run_with_scopes(:my_task, scopes)
-    end
 
     context 'within the scope of a specified guard' do
       let(:scopes) { { :guard => bar1_guard } }
@@ -105,7 +97,7 @@ describe Guard::Runner do
         subject.should_not_receive(:run_supervised_task).with(foo_guard, :my_task)
         subject.should_not_receive(:run_supervised_task).with(bar2_guard, :my_task)
 
-        subject.run_with_scopes(:my_task, scopes)
+        subject.run(:my_task, scopes)
       end
     end
 
@@ -118,17 +110,7 @@ describe Guard::Runner do
         subject.should_not_receive(:run_supervised_task).with(bar1_guard, :my_task)
         subject.should_not_receive(:run_supervised_task).with(bar2_guard, :my_task)
 
-        subject.run_with_scopes(:my_task, scopes)
-      end
-    end
-
-    context 'with a failing task' do
-      before { subject.stub(:run_supervised_task) { throw :task_has_failed } }
-
-      it 'catches the thrown symbol' do
-        expect {
-          subject.run_with_scopes(:failing, scopes)
-        }.to_not throw_symbol(:task_has_failed)
+        subject.run(:my_task, scopes)
       end
     end
   end
@@ -142,16 +124,16 @@ describe Guard::Runner do
       watcher_module.stub(:match_files) { [] }
     }
 
-    it 'runs the task within a preserved state' do
-      guard_module.should_receive(:within_preserved_state)
-      subject.run_on_changes(*changes)
-    end
-
     context 'with no changes' do
       it 'does not run any task' do
         %w[run_on_modifications run_on_change run_on_addtions run_on_removals run_on_deletion].each do |task|
           foo_guard.should_not_receive(task.to_sym)
         end
+        subject.run_on_changes(*changes)
+      end
+
+      it 'does not clear UI' do
+        Guard::UI.should_not_receive(:clear)
         subject.run_on_changes(*changes)
       end
     end
@@ -168,6 +150,11 @@ describe Guard::Runner do
         subject.should_not_receive(:run_first_task_found)
         subject.run_on_changes(*changes)
       end
+
+      it 'does not clear UI' do
+        Guard::UI.should_not_receive(:clear)
+        subject.run_on_changes(*changes)
+      end
     end
 
     context 'with modified paths' do
@@ -180,6 +167,11 @@ describe Guard::Runner do
 
       it 'executes the :run_on_modifications task' do
         subject.should_receive(:run_supervised_task).with(foo_guard, :run_on_modifications, modified)
+        subject.run_on_changes(*changes)
+      end
+
+      it 'clear UI' do
+        Guard::UI.should_receive(:clear)
         subject.run_on_changes(*changes)
       end
 
@@ -219,6 +211,11 @@ describe Guard::Runner do
         subject.should_not_receive(:run_first_task_found)
         subject.run_on_changes(*changes)
       end
+
+      it 'does not clear UI' do
+        Guard::UI.should_not_receive(:clear)
+        subject.run_on_changes(*changes)
+      end
     end
 
     context 'with added paths' do
@@ -231,6 +228,11 @@ describe Guard::Runner do
 
       it 'executes the :run_on_addtions task' do
         subject.should_receive(:run_supervised_task).with(foo_guard, :run_on_addtions, added)
+        subject.run_on_changes(*changes)
+      end
+
+      it 'clear UI' do
+        Guard::UI.should_receive(:clear)
         subject.run_on_changes(*changes)
       end
 
@@ -270,6 +272,11 @@ describe Guard::Runner do
         subject.should_not_receive(:run_first_task_found)
         subject.run_on_changes(*changes)
       end
+
+      it 'does not clear UI' do
+        Guard::UI.should_not_receive(:clear)
+        subject.run_on_changes(*changes)
+      end
     end
 
     context 'with removed paths' do
@@ -282,6 +289,11 @@ describe Guard::Runner do
 
       it 'executes the :run_on_removals task' do
         subject.should_receive(:run_supervised_task).with(foo_guard, :run_on_removals, removed)
+        subject.run_on_changes(*changes)
+      end
+
+      it 'clear UI' do
+        Guard::UI.should_receive(:clear)
         subject.run_on_changes(*changes)
       end
 
@@ -315,6 +327,11 @@ describe Guard::Runner do
 
     it 'executes the task on the passed guard' do
       foo_guard.should_receive(:my_task)
+      subject.run_supervised_task(foo_guard, :my_task)
+    end
+
+    it 'runs the task within a preserved state' do
+      guard_module.should_receive(:within_preserved_state)
       subject.run_supervised_task(foo_guard, :my_task)
     end
 

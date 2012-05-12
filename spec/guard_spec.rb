@@ -171,14 +171,14 @@ describe Guard do
     end
   end
 
-  describe ".setup_listener", :focus do
+  describe ".setup_listener" do
     let(:listener) { stub.as_null_object }
 
     context "with latency option" do
       before { described_class.stub(:options).and_return("latency" => 1.5) }
 
       it "pass option to listener" do
-        Listen.should_receive(:to).with(@watchdir, { :relative_paths => true, :latency => 1.5 }) { listener }
+        Listen.should_receive(:to).with(an_instance_of(String), { :relative_paths => true, :latency => 1.5 }) { listener }
         ::Guard.setup_listener
       end
     end
@@ -187,7 +187,7 @@ describe Guard do
       before { described_class.stub(:options).and_return("force_polling" => true) }
 
       it "pass option to listener" do
-        Listen.should_receive(:to).with(@watchdir, { :relative_paths => true, :force_polling => true }) { listener }
+        Listen.should_receive(:to).with(an_instance_of(String), { :relative_paths => true, :force_polling => true }) { listener }
         ::Guard.setup_listener
       end
     end

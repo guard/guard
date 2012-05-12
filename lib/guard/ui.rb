@@ -81,7 +81,7 @@ module Guard
       # Clear the output.
       #
       def clear
-        system('clear;')
+        system('clear;') if ::Guard.options[:clear]
       end
 
       private

@@ -46,6 +46,7 @@ module Guard
       @watchdir   = (options[:watchdir] && File.expand_path(options[:watchdir])) || Dir.pwd
       @runner     = Runner.new
 
+      UI.clear
       deprecated_options_warning
 
       setup_groups
@@ -53,7 +54,6 @@ module Guard
       setup_listener
       setup_signal_traps
 
-      UI.clear if @options[:clear]
       debug_command_execution if @options[:verbose]
 
       Dsl.evaluate_guardfile(options)
@@ -172,7 +172,8 @@ module Guard
     # @param [Hash] scopes an hash with a guard or a group scope
     #
     def reload(scopes)
-      runner.run_with_scopes(:reload, scopes)
+      UI.clear
+      runner.run(:reload, scopes)
     end
 
     # Trigger `run_all` on all Guards currently enabled.
@@ -180,7 +181,8 @@ module Guard
     # @param [Hash] scopes an hash with a guard or a group scope
     #
     def run_all(scopes)
-      runner.run_with_scopes(:run_all, scopes)
+      UI.clear
+      runner.run(:run_all, scopes)
     end
 
     # Pause Guard listening to file changes.
@@ -301,17 +303,16 @@ module Guard
     # @yield the block to run
     #
     def within_preserved_state
-      UI.clear if @options[:clear]
-
       lock.synchronize do
         begin
           interactor.stop if interactor
-          yield
+          @result = yield
         rescue Interrupt
         end
 
         interactor.start if interactor
       end
+      @result
     end
 
     # Tries to load the Guard main class. This transforms the supplied Guard

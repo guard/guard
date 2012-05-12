@@ -114,11 +114,9 @@ module Guard
       # Re-evaluate the `Guardfile` to update the current Guard configuration.
       #
       def reevaluate_guardfile
-        ::Guard.within_preserved_state do
-          before_reevaluate_guardfile
-          Dsl.evaluate_guardfile(@@options)
-          after_reevaluate_guardfile
-        end
+        before_reevaluate_guardfile
+        Dsl.evaluate_guardfile(@@options)
+        after_reevaluate_guardfile
       end
 
       # Stop Guards and clear internal state

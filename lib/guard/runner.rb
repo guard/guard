@@ -38,27 +38,13 @@ module Guard
     # Runs a Guard-task on all registered guards.
     #
     # @param [Symbol] task the task to run
-    #
-    # @see self.run_supervised_task
-    #
-    def run(task)
-      scoped_guards do |guard|
-        run_supervised_task(guard, task)
-      end
-    end
-
-    # Runs a Guard-task on all registered guards in a specified scope.
-    #
-    # @param [Symbol] task the task to run
     # @param [Hash] scope either the guard or the group to run the task on
     #
     # @see self.run_supervised_task
     #
-    def run_with_scopes(task, scopes)
-      ::Guard.within_preserved_state do
-        scoped_guards(scopes) do |guard|
-          run_supervised_task(guard, task)
-        end
+    def run(task, scopes = {})
+      scoped_guards(scopes) do |guard|
+        run_supervised_task(guard, task)
       end
     end
 
@@ -70,19 +56,20 @@ module Guard
     # @param [Array<String>] removed the removed paths.
     #
     def run_on_changes(modified, added, removed)
-      ::Guard.within_preserved_state do
-        scoped_guards do |guard|
-          modified_paths = Watcher.match_files(guard, modified)
+      scoped_guards do |guard|
+        modified_paths = Watcher.match_files(guard, modified)
+        added_paths    = Watcher.match_files(guard, added)
+        removed_paths  = Watcher.match_files(guard, removed)
+
+        if !modified_paths.empty? || !added_paths.empty? || !removed_paths.empty?
+          UI.clear
+
           unless modified_paths.empty?
             run_first_task_found(guard, [:run_on_modifications, :run_on_change], modified_paths)
           end
-
-          added_paths = Watcher.match_files(guard, added)
           unless added_paths.empty?
             run_first_task_found(guard, [:run_on_addtions, :run_on_change], added_paths)
           end
-
-          removed_paths = Watcher.match_files(guard, removed)
           unless removed_paths.empty?
             run_first_task_found(guard, [:run_on_removals, :run_on_deletion], removed_paths)
           end
@@ -101,23 +88,27 @@ module Guard
     # @raise [:task_has_failed] when task has failed
     #
     def run_supervised_task(guard, task, *args)
-      catch Runner.stopping_symbol_for(guard) do
-        guard.hook("#{ task }_begin", *args)
-        result = guard.send(task, *args)
-        guard.hook("#{ task }_end", result)
-        result
+      ::Guard.within_preserved_state do
+        begin
+          catch Runner.stopping_symbol_for(guard) do
+            guard.hook("#{ task }_begin", *args)
+            result = guard.send(task, *args)
+            guard.hook("#{ task }_end", result)
+            result
+          end
+
+        rescue NotImplementedError => ex
+          raise ex
+        rescue Exception => ex
+          UI.error("#{ guard.class.name } failed to achieve its <#{ task.to_s }>, exception was:" +
+                   "\n#{ ex.class }: #{ ex.message }\n#{ ex.backtrace.join("\n") }")
+
+          ::Guard.guards.delete guard
+          UI.info("\n#{ guard.class.name } has just been fired")
+
+          ex
+        end
       end
-
-    rescue NotImplementedError => ex
-      raise ex
-    rescue Exception => ex
-      UI.error("#{ guard.class.name } failed to achieve its <#{ task.to_s }>, exception was:" +
-               "\n#{ ex.class }: #{ ex.message }\n#{ ex.backtrace.join("\n") }")
-
-      ::Guard.guards.delete guard
-      UI.info("\n#{ guard.class.name } has just been fired")
-
-      ex
     end
 
     # Returns the symbol that has to be caught when running a supervised task.
