@@ -160,19 +160,20 @@ module Guard
     # Stop Guard listening to file changes
     #
     def stop
+      UI.info 'Bye bye...', :reset => true
       interactor.stop if interactor
       listener.stop
       runner.run(:stop)
-
-      UI.info 'Bye bye...', :reset => true
     end
 
-    # Reload all Guards currently enabled.
+    # Reload Guardfile and all Guards currently enabled.
     #
     # @param [Hash] scopes an hash with a guard or a group scope
     #
     def reload(scopes)
       UI.clear
+      UI.action_with_scopes('Reload', scopes)
+      Dsl.reevaluate_guardfile if scopes.empty?
       runner.run(:reload, scopes)
     end
 
@@ -182,6 +183,7 @@ module Guard
     #
     def run_all(scopes)
       UI.clear
+      UI.action_with_scopes('Run', scopes)
       runner.run(:run_all, scopes)
     end
 

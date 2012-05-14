@@ -83,6 +83,19 @@ module Guard
       def clear
         system('clear;') if ::Guard.options[:clear]
       end
+      
+      # Show a scoped action message.
+      #
+      # @param [String] action the action to show
+      # @param [Hash] scopes an hash with a guard or a group scope
+      #
+      def action_with_scopes(action, scopes)
+        scope_message ||= scopes[:guard]
+        scope_message ||= scopes[:group]
+        scope_message ||= 'all'
+        
+        info "#{action} #{scope_message}"
+      end
 
       private
 

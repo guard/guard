@@ -32,6 +32,10 @@ module Guard
       @options = options
     end
 
+    def to_s
+      "#{@name} group"
+    end
+
   end
 
 end

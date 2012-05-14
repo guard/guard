@@ -127,7 +127,7 @@ module Guard
       when :pause
         ::Guard.pause
       when :reload
-        reload(scopes)
+        ::Guard.reload(scopes)
       when :run_all
         ::Guard.run_all(scopes)
       when :notification
@@ -135,16 +135,6 @@ module Guard
       else
         ::Guard::UI.error "Unknown command #{ line }"
       end
-    end
-
-    # Execute the reload action.
-    #
-    # @param [Hash] scopes the reload scopes
-    #
-    def reload(scopes)
-      ::Guard::UI.info 'Reload'
-      ::Guard::Dsl.reevaluate_guardfile if scopes.empty?
-      ::Guard.reload(scopes)
     end
 
     # Toggle the system notifications on/off

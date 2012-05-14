@@ -16,4 +16,11 @@ describe Guard::Group do
     end
   end
 
+  describe '#to_s' do
+    it "output Group properly" do
+      group = described_class.new(:foo)
+      group.to_s.should eq "foo group"
+    end
+  end
+
 end

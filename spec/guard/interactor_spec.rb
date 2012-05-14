@@ -59,7 +59,7 @@ describe Guard::Interactor do
 
     it 'reloads Guard on reload action' do
       subject.should_receive(:extract_scopes_and_action).with('reload').and_return [{ }, :reload]
-      subject.should_receive(:reload).with({ })
+      ::Guard.should_receive(:reload).with({ })
       subject.process_input 'reload'
     end
 
@@ -79,38 +79,6 @@ describe Guard::Interactor do
       subject.should_receive(:extract_scopes_and_action).with('foo').and_return [{ }, :unknown]
       ::Guard::UI.should_receive(:error).with 'Unknown command foo'
       subject.process_input 'foo'
-    end
-  end
-
-  describe '#reload' do
-    before do
-      ::Guard.stub(:reload)
-      ::Guard::Dsl.stub(:reevaluate_guardfile)
-      ::Guard::UI.stub(:info)
-    end
-
-    context 'with a scope' do
-      it 'does not re-evaluate the Guardfile' do
-        ::Guard::Dsl.should_not_receive(:reevaluate_guardfile)
-        subject.reload({ :group => :frontend })
-      end
-
-      it 'reloads Guard' do
-        ::Guard.should_receive(:reload).with({ :group => :frontend })
-        subject.reload({ :group => :frontend })
-      end
-    end
-
-    context 'with an empty scope' do
-      it 'does re-evaluate the Guardfile' do
-        ::Guard::Dsl.should_receive(:reevaluate_guardfile)
-        subject.reload({ })
-      end
-
-      it 'reloads Guard' do
-        ::Guard.should_receive(:reload).with({ })
-        subject.reload({ })
-      end
     end
   end
 

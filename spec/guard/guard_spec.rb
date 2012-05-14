@@ -57,4 +57,14 @@ describe Guard::Guard do
       end
     end
   end
+
+  describe '#to_s' do
+    before(:all) { class Guard::Dummy < Guard::Guard; end }
+
+    it "output Guard properly" do
+      guard = Guard::Dummy.new
+      guard.to_s.should eq "Guard::Dummy"
+    end
+  end
+
 end

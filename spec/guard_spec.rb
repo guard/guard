@@ -255,6 +255,46 @@ describe Guard do
     end
   end
 
+  describe '#reload' do
+    let(:runner) { stub(:run => true) }
+
+    before do
+      ::Guard.stub(:runner) { runner }
+      ::Guard::Dsl.stub(:reevaluate_guardfile)
+      ::Guard::UI.stub(:info)
+      ::Guard::UI.stub(:clear)
+    end
+
+    it "clear UI" do
+      ::Guard::UI.should_receive(:clear)
+      subject.reload({ })
+    end
+
+    context 'with a scope' do
+      it 'does not re-evaluate the Guardfile' do
+        ::Guard::Dsl.should_not_receive(:reevaluate_guardfile)
+        subject.reload({ :group => :frontend })
+      end
+
+      it 'reloads Guard' do
+        ::Guard.should_receive(:reload).with({ :group => :frontend })
+        subject.reload({ :group => :frontend })
+      end
+    end
+
+    context 'with an empty scope' do
+      it 'does re-evaluate the Guardfile' do
+        ::Guard::Dsl.should_receive(:reevaluate_guardfile)
+        subject.reload({ })
+      end
+
+      it 'reloads Guard' do
+        ::Guard.should_receive(:reload).with({ })
+        subject.reload({ })
+      end
+    end
+  end
+
   describe ".guards" do
     before(:all) do
       class Guard::FooBar < Guard::Guard; end

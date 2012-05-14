@@ -72,6 +72,10 @@ module Guard
       end
     end
 
+    def to_s
+      self.class.to_s
+    end
+
     # Call once when Guard starts. Please override initialize method to init stuff.
     #
     # @raise [:task_has_failed] when start has failed
