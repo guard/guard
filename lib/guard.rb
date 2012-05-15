@@ -406,8 +406,8 @@ module Guard
 
     # Deprecation message for the `no_vendor` start option
     NO_VENDOR_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
-      Starting with Guard v1.1 the 'no_vendor' option is removed because the monitoring gems are now
-      a part of a new gem called Listen.
+      Starting with Guard v1.1 the 'no_vendor' option is removed because the monitoring
+      gems are now part of a new gem called Listen. (https://github.com/guard/listen)
 
       You can specify a custom version of any monitoring gem directly in your Gemfile
       if you want to overwrite Listen's default monitoring gems.

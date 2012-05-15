@@ -77,13 +77,13 @@ module Guard
     method_option :latency,
                   :type    => :numeric,
                   :aliases => '-l',
-                  :banner  => 'Overwrite Listen default latency'
+                  :banner  => 'Overwrite Listen\'s default latency'
     
     method_option :force_polling,
                   :type    => :boolean,
                   :default => false,
                   :aliases => '-p',
-                  :banner  => 'Force Listen polling listener usage'
+                  :banner  => 'Force usage of the Listen polling listener'
 
     # Start Guard by initialize the defined Guards and watch the file system.
     # This is the default task, so calling `guard` is the same as calling `guard start`.

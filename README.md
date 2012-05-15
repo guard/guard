@@ -375,7 +375,7 @@ $ guard start --no-bundler-warning
 
 #### `-l`/`--latency` option
 
-Overwrite Listen default latency, usefull when your harddrive/system is slow.
+Overwrite Listen's default latency, useful when your hard-drive / system is slow.
 
 ```bash
 $ guard start -l 1.5
