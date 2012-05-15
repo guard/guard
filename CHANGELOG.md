@@ -1,3 +1,16 @@
+## 1.1.0 - Unreleased
+
+### Improvements
+
+- Listening is now handled by the [Listen gem](https://github.com/guard/listen).
+- New `--latency`/`-l` option to overwrite Listen's default latency.
+- New `--force-polling`/`-p` option to force usage of the Listen polling listener.
+- `--watch-all-modifications`/`-A` option is removed and is now always on.
+- `--no-vendor`/`-I` option is removed because the monitoring gems are now part of the [Listen gem](https://github.com/guard/listen). You can specify a custom version of any monitoring gem directly in your Gemfile if you want to overwrite Listen's default monitoring gems.
+- Guards implementations must now implement `run_on_additions`, `run_on_modifications`, `run_on_removals` and / or `run_on_changes`. The `run_on_change` and `run_on_deletion` methods are deprecated and should be removed as soon as possible. See the [Upgrade guide for existing guards to Guard v1.1](https://github.com/guard/guard/wiki/Upgrade-guide-for-existing-guards-to-Guard-v1.1) for more info.
+
+The Listen integration has been supervised by [@thibaudgg][] and executed by [@Maher4Ever][], [@rymai][] and [@thibaudgg][].
+
 ## 1.0.3 - 14 May, 2012
 
 ### Improvement
