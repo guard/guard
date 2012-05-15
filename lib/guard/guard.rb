@@ -126,7 +126,7 @@ module Guard
     # @raise [:task_has_failed] when run_on_change has failed
     # @return [Object] the task result
     #
-    def run_on_addtions(paths)
+    def run_on_additions(paths)
       run_on_changes(paths)
     end
 
@@ -150,7 +150,7 @@ module Guard
       run_on_changes(paths)
     end
 
-    # @deprecated Use #run_on_modifications or #run_on_addtions instead
+    # @deprecated Use #run_on_modifications or #run_on_additions instead
     #
     # def run_on_change(paths)
     #   raise NotImplementedError

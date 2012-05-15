@@ -126,7 +126,7 @@ describe Guard::Runner do
 
     context 'with no changes' do
       it 'does not run any task' do
-        %w[run_on_modifications run_on_change run_on_addtions run_on_removals run_on_deletion].each do |task|
+        %w[run_on_modifications run_on_change run_on_additions run_on_removals run_on_deletion].each do |task|
           foo_guard.should_not_receive(task.to_sym)
         end
         subject.run_on_changes(*changes)
@@ -226,8 +226,8 @@ describe Guard::Runner do
         watcher_module.should_receive(:match_files).with(foo_guard, added).and_return(added)
       end
 
-      it 'executes the :run_on_addtions task' do
-        subject.should_receive(:run_supervised_task).with(foo_guard, :run_on_addtions, added)
+      it 'executes the :run_on_additions task' do
+        subject.should_receive(:run_supervised_task).with(foo_guard, :run_on_additions, added)
         subject.run_on_changes(*changes)
       end
 
@@ -236,8 +236,8 @@ describe Guard::Runner do
         subject.run_on_changes(*changes)
       end
 
-      context 'when :run_on_addtions is not implemented' do
-        before { subject.should_receive(:run_supervised_task).with(foo_guard, :run_on_addtions, added).and_raise(NotImplementedError) }
+      context 'when :run_on_additions is not implemented' do
+        before { subject.should_receive(:run_supervised_task).with(foo_guard, :run_on_additions, added).and_raise(NotImplementedError) }
 
         it 'executes the :run_on_change task' do
           subject.should_receive(:run_supervised_task).with(foo_guard, :run_on_change, added)
@@ -245,9 +245,9 @@ describe Guard::Runner do
         end
       end
 
-      context 'when neither :run_on_addtions nor :run_on_change is implemented' do
+      context 'when neither :run_on_additions nor :run_on_change is implemented' do
         before do
-          %w[run_on_addtions run_on_change].each do |task|
+          %w[run_on_additions run_on_change].each do |task|
             subject.should_receive(:run_supervised_task).with(foo_guard, task.to_sym, added).and_raise(NotImplementedError)
           end
         end

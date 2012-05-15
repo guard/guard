@@ -9,7 +9,7 @@ module Guard
       Starting with Guard v1.1 the use of the 'run_on_change' method in the '%s' guard is deprecated.
 
       Please consider replacing that method-call with 'run_on_changes' if the type of change
-      is not important for your usecase or using either 'run_on_modifications' or 'run_on_addtions'
+      is not important for your usecase or using either 'run_on_modifications' or 'run_on_additions'
       based on the type of the changes you want to handle.
 
       For more information on how to update existing guards, please head over to:
@@ -68,7 +68,7 @@ module Guard
             run_first_task_found(guard, [:run_on_modifications, :run_on_change], modified_paths)
           end
           unless added_paths.empty?
-            run_first_task_found(guard, [:run_on_addtions, :run_on_change], added_paths)
+            run_first_task_found(guard, [:run_on_additions, :run_on_change], added_paths)
           end
           unless removed_paths.empty?
             run_first_task_found(guard, [:run_on_removals, :run_on_deletion], removed_paths)
