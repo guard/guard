@@ -1,3 +1,9 @@
+## 1.0.3 - 14 May, 2012
+
+### Improvement
+
+- Improve Thor dependency '~> 0.14.6' => '>= 0.14.6'. ([@thibaudgg][])
+
 ## 1.0.2 - 30 April, 2012
 
 ### Improvements
