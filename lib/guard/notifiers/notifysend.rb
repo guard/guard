@@ -14,7 +14,8 @@ module Guard
 
       # Default options for the notify-send program
       DEFAULTS = {
-        :t => 3000 # Default timeout is 3000ms
+        :t => 3000, # Default timeout is 3000ms
+        :h => 'int:transient:1' # Automatically close the notification
       }
 
       # Full list of options supported by notify-send
