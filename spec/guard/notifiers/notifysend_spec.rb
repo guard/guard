@@ -37,6 +37,7 @@ describe Guard::Notifier::NotifySend do
           command.should include("-i '/tmp/welcome.png'")
           command.should include("-u 'low'")
           command.should include("-t '3000'")
+          command.should include("-h 'int:transient:1'")
         end
         subject.notify('success', 'Welcome', 'Welcome to Guard', '/tmp/welcome.png', { })
       end
