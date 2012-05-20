@@ -19,7 +19,6 @@ namespace(:spec) do
   else
     desc "Run all specs on multiple ruby versions (requires rvm)"
     task(:portability) do
-      Rake::Task[:build_mac_exec].invoke if RbConfig::CONFIG['host_os'] =~ /darwin(9|1\d)/i
       travis_config_file = File.expand_path("../.travis.yml", __FILE__)
       begin
         travis_options ||= YAML::load_file(travis_config_file)
