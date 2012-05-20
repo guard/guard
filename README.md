@@ -753,8 +753,9 @@ README.md
 ```
 
 Your Guard main class `Guard::Yoyo` in `lib/guard/guard-yoyo.rb` must inherit from
-[Guard::Guard](http://rubydoc.info/github/guard/guard/master/Guard/Guard) and should overwrite at least the
-`#run_on_change` task methods.
+[Guard::Guard](http://rubydoc.info/github/guard/guard/master/Guard/Guard) and should implement at least the
+`#run_on_changes` task method. `#run_on_additions`, `#run_on_modifications` and `#run_on_removals` task methods
+could be use instead of `#run_on_changes` task method for more control about how changes are handled.
 
 Here is an example scaffold for `lib/guard/yoyo.rb`:
 
@@ -794,18 +795,11 @@ module Guard
     def run_all
     end
 
-    # Called on file(s) modifications that the Guard watches.
+    # Default behaviour on file(s) changes that the Guard watches.
     # @param [Array<String>] paths the changes files or paths
     # @raise [:task_has_failed] when run_on_change has failed
-    def run_on_change(paths)
+    def run_on_changes(paths)
     end
-
-    # Called on file(s) deletions that the Guard watches.
-    # @param [Array<String>] paths the deleted files or paths
-    # @raise [:task_has_failed] when run_on_change has failed
-    def run_on_deletion(paths)
-    end
-
   end
 end
 ```
@@ -823,7 +817,7 @@ module ::Guard
     def run_all
     end
 
-    def run_on_change(paths)
+    def run_on_changes(paths)
     end
   end
 end

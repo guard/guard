@@ -115,7 +115,7 @@ module Guard
     # def run_all
     # end
 
-    # Default behavious on file(s) changes that the Guard watches.
+    # Default behaviour on file(s) changes that the Guard watches.
     #
     # @param [Array<String>] paths the changes files or paths
     # @raise [:task_has_failed] when run_on_change has failed
