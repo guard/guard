@@ -4,9 +4,9 @@ gemspec
 
 gem 'rake'
 
-platform :ruby do
-  gem 'rb-readline'
-end
+# platform :ruby do
+#   gem 'rb-readline'
+# end
 
 group :guard do
   gem 'guard-ronn'
@@ -25,4 +25,5 @@ end
 
 
 gem 'listen', :github => 'guard/listen'
+gem 'guard-rspec', :github => 'guard/guard-rspec', :branch => 'guard_1_1'
 
