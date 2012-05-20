@@ -121,19 +121,24 @@ describe Guard::Runner do
 
     before {
       subject.stub(:scoped_guards).and_yield(foo_guard)
+      subject.stub(:clearable?) { false }
       watcher_module.stub(:match_files) { [] }
     }
+
+    context 'when clearable' do
+      before { subject.stub(:clearable?) { true } }
+
+      it "clear UI" do
+        Guard::UI.should_receive(:clear)
+        subject.run_on_changes(*changes)
+      end
+    end
 
     context 'with no changes' do
       it 'does not run any task' do
         %w[run_on_modifications run_on_change run_on_additions run_on_removals run_on_deletion].each do |task|
           foo_guard.should_not_receive(task.to_sym)
         end
-        subject.run_on_changes(*changes)
-      end
-
-      it 'does not clear UI' do
-        Guard::UI.should_not_receive(:clear)
         subject.run_on_changes(*changes)
       end
     end
@@ -150,11 +155,6 @@ describe Guard::Runner do
         subject.should_not_receive(:run_first_task_found)
         subject.run_on_changes(*changes)
       end
-
-      it 'does not clear UI' do
-        Guard::UI.should_not_receive(:clear)
-        subject.run_on_changes(*changes)
-      end
     end
 
     context 'with modified paths' do
@@ -165,37 +165,9 @@ describe Guard::Runner do
         watcher_module.should_receive(:match_files).with(foo_guard, modified).and_return(modified)
       end
 
-      it 'executes the :run_on_modifications task' do
-        subject.should_receive(:run_supervised_task).with(foo_guard, :run_on_modifications, modified)
+      it 'executes the :run_first_task_found task' do
+        subject.should_receive(:run_first_task_found).with(foo_guard, [:run_on_modifications, :run_on_changes, :run_on_change], modified)
         subject.run_on_changes(*changes)
-      end
-
-      it 'clear UI' do
-        Guard::UI.should_receive(:clear)
-        subject.run_on_changes(*changes)
-      end
-
-      context 'when :run_on_modifications is not implemented' do
-        before { subject.should_receive(:run_supervised_task).with(foo_guard, :run_on_modifications, modified).and_raise(NotImplementedError) }
-
-        it 'executes the :run_on_change task' do
-          subject.should_receive(:run_supervised_task).with(foo_guard, :run_on_change, modified)
-          subject.run_on_changes(*changes)
-        end
-      end
-
-      context 'when neither :run_on_modifications nor :run_on_change is implemented' do
-        before do
-          %w[run_on_modifications run_on_change].each do |task|
-            subject.should_receive(:run_supervised_task).with(foo_guard, task.to_sym, modified).and_raise(NotImplementedError)
-          end
-        end
-
-        it 'ignores the error' do
-          expect {
-            subject.run_on_changes(*changes)
-          }.to_not raise_error(NotImplementedError)
-        end
       end
     end
 
@@ -211,11 +183,6 @@ describe Guard::Runner do
         subject.should_not_receive(:run_first_task_found)
         subject.run_on_changes(*changes)
       end
-
-      it 'does not clear UI' do
-        Guard::UI.should_not_receive(:clear)
-        subject.run_on_changes(*changes)
-      end
     end
 
     context 'with added paths' do
@@ -227,40 +194,12 @@ describe Guard::Runner do
       end
 
       it 'executes the :run_on_additions task' do
-        subject.should_receive(:run_supervised_task).with(foo_guard, :run_on_additions, added)
+        subject.should_receive(:run_first_task_found).with(foo_guard, [:run_on_additions, :run_on_changes, :run_on_change], added)
         subject.run_on_changes(*changes)
-      end
-
-      it 'clear UI' do
-        Guard::UI.should_receive(:clear)
-        subject.run_on_changes(*changes)
-      end
-
-      context 'when :run_on_additions is not implemented' do
-        before { subject.should_receive(:run_supervised_task).with(foo_guard, :run_on_additions, added).and_raise(NotImplementedError) }
-
-        it 'executes the :run_on_change task' do
-          subject.should_receive(:run_supervised_task).with(foo_guard, :run_on_change, added)
-          subject.run_on_changes(*changes)
-        end
-      end
-
-      context 'when neither :run_on_additions nor :run_on_change is implemented' do
-        before do
-          %w[run_on_additions run_on_change].each do |task|
-            subject.should_receive(:run_supervised_task).with(foo_guard, task.to_sym, added).and_raise(NotImplementedError)
-          end
-        end
-
-        it 'ignores the error' do
-          expect {
-            subject.run_on_changes(*changes)
-          }.to_not raise_error(NotImplementedError)
-        end
       end
     end
 
-    context "with added files but added paths is empty" do
+    context "with removed files but removed paths is empty" do
       let(:removed) { %w[file.txt image.png] }
 
       before do
@@ -270,11 +209,6 @@ describe Guard::Runner do
 
       it 'does not call run_first_task_found' do
         subject.should_not_receive(:run_first_task_found)
-        subject.run_on_changes(*changes)
-      end
-
-      it 'does not clear UI' do
-        Guard::UI.should_not_receive(:clear)
         subject.run_on_changes(*changes)
       end
     end
@@ -288,36 +222,8 @@ describe Guard::Runner do
       end
 
       it 'executes the :run_on_removals task' do
-        subject.should_receive(:run_supervised_task).with(foo_guard, :run_on_removals, removed)
+        subject.should_receive(:run_first_task_found).with(foo_guard, [:run_on_removals, :run_on_changes, :run_on_deletion], removed)
         subject.run_on_changes(*changes)
-      end
-
-      it 'clear UI' do
-        Guard::UI.should_receive(:clear)
-        subject.run_on_changes(*changes)
-      end
-
-      context 'when :run_on_removals is not implemented' do
-        before { subject.should_receive(:run_supervised_task).with(foo_guard, :run_on_removals, removed).and_raise(NotImplementedError) }
-
-        it 'executes the :run_on_deletion task' do
-          subject.should_receive(:run_supervised_task).with(foo_guard, :run_on_deletion, removed)
-          subject.run_on_changes(*changes)
-        end
-      end
-
-      context 'when neither :run_on_removals nor :run_on_deletion is implemented' do
-        before do
-          %w[run_on_removals run_on_deletion].each do |task|
-            subject.should_receive(:run_supervised_task).with(foo_guard, task.to_sym, removed).and_raise(NotImplementedError)
-          end
-        end
-
-        it 'ignores the error' do
-          expect {
-            subject.run_on_changes(*changes)
-          }.to_not raise_error(NotImplementedError)
-        end
       end
     end
   end

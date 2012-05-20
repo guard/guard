@@ -48,6 +48,10 @@ module Guard
       end
     end
 
+    MODIFICATION_TASKS = [:run_on_modifications, :run_on_changes, :run_on_change]
+    ADDITION_TASKS     = [:run_on_additions, :run_on_changes, :run_on_change]
+    REMOVAL_TASKS      = [:run_on_removals, :run_on_changes, :run_on_deletion]
+
     # Runs the appropriate tasks on all registered guards
     # based on the passed changes.
     #
@@ -61,19 +65,11 @@ module Guard
         added_paths    = Watcher.match_files(guard, added)
         removed_paths  = Watcher.match_files(guard, removed)
 
-        if !modified_paths.empty? || !added_paths.empty? || !removed_paths.empty?
-          UI.clear
+        UI.clear if clearable?(guard, modified_paths, added_paths, removed_paths)
 
-          unless modified_paths.empty?
-            run_first_task_found(guard, [:run_on_modifications, :run_on_change], modified_paths)
-          end
-          unless added_paths.empty?
-            run_first_task_found(guard, [:run_on_additions, :run_on_change], added_paths)
-          end
-          unless removed_paths.empty?
-            run_first_task_found(guard, [:run_on_removals, :run_on_deletion], removed_paths)
-          end
-        end
+        run_first_task_found(guard, MODIFICATION_TASKS, modified_paths) unless modified_paths.empty?
+        run_first_task_found(guard, ADDITION_TASKS, added_paths) unless added_paths.empty?
+        run_first_task_found(guard, REMOVAL_TASKS, removed_paths) unless removed_paths.empty?
       end
     end
 
@@ -97,8 +93,8 @@ module Guard
             result
           end
 
-        rescue NotImplementedError => ex
-          raise ex
+        rescue NoMethodError
+          # Do nothing
         rescue Exception => ex
           UI.error("#{ guard.class.name } failed to achieve its <#{ task.to_s }>, exception was:" +
                    "\n#{ ex.class }: #{ ex.message }\n#{ ex.backtrace.join("\n") }")
@@ -129,7 +125,7 @@ module Guard
       group.options[:halt_on_fail] ? :no_catch : :task_has_failed
     end
 
-    private
+  private
 
     # Tries to run the first implemented task by a given guard
     # from a collection of tasks.
@@ -139,16 +135,13 @@ module Guard
     # @param [Object] task_param the param to pass to each task
     #
     def run_first_task_found(guard, tasks, task_param)
-      enum = tasks.to_enum
-
-      begin
-        task = enum.next
-        UI.debug "Trying to run #{ guard.class.name }##{ task.to_s } with #{ task_param.inspect }"
-        run_supervised_task(guard, task, task_param)
-      rescue StopIteration
-        # Do nothing
-      rescue NotImplementedError
-        retry
+      tasks.each do |task|
+        if guard.respond_to?(task)
+          run_supervised_task(guard, task, task_param)
+          break
+        else
+          UI.debug "Trying to run #{ guard.class.name }##{ task.to_s } with #{ task_param.inspect }"
+        end
       end
     end
 
@@ -173,6 +166,20 @@ module Guard
           end
         end
       end
+    end
+
+    # Logic to know if the UI can be cleared or not in the run_on_changes method
+    # based on the guard and the changes.
+    #
+    # @param [Guard::Guard] guard the guard where run_on_changes is called
+    # @param [Array<String>] modified_paths the modified paths.
+    # @param [Array<String>] added_paths the added paths.
+    # @param [Array<String>] removed_paths the removed paths.
+    #
+    def clearable?(guard, modified_paths, added_paths, removed_paths)
+      (MODIFICATION_TASKS.any? { |task| guard.respond_to?(task) } && !modified_paths.empty?) ||
+      (ADDITION_TASKS.any? { |task| guard.respond_to?(task) } && !added_paths.empty?) ||
+      (REMOVAL_TASKS.any? { |task| guard.respond_to?(task) } && !removed_paths.empty?)
     end
 
   end

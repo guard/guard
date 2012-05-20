@@ -2,8 +2,13 @@ module Guard
 
   # Base class that every Guard implementation must inherit from.
   #
-  # Guard will trigger the `start`, `stop`, `reload`, `run_all`, `run_on_change` and
-  # `run_on_deletion` task methods depending on user interaction and file modification.
+  # Guard will trigger the `start`, `stop`, `reload`, `run_all` and `run_on_changes`
+  # (`run_on_additions`, `run_on_modifications` and `run_on_removals`) task methods
+  # depending on user interaction and file modification.
+  #
+  # `run_on_changes` could be implemented to handle all the changes task case (additions,
+  # modifications, removals) in once, or each task can be implemented separatly with a
+  # specific behavior.
   #
   # In each of these Guard task methods you have to implement some work when you want to
   # support this kind of task. The return value of each Guard task method is not evaluated
@@ -81,16 +86,16 @@ module Guard
     # @raise [:task_has_failed] when start has failed
     # @return [Object] the task result
     #
-    def start
-    end
+    # def start
+    # end
 
     # Called when `stop|quit|exit|s|q|e + enter` is pressed (when Guard quits).
     #
     # @raise [:task_has_failed] when stop has failed
     # @return [Object] the task result
     #
-    def stop
-    end
+    # def stop
+    # end
 
     # Called when `reload|r|z + enter` is pressed.
     # This method should be mainly used for "reload" (really!) actions like reloading passenger/spork/bundler/...
@@ -98,8 +103,8 @@ module Guard
     # @raise [:task_has_failed] when reload has failed
     # @return [Object] the task result
     #
-    def reload
-    end
+    # def reload
+    # end
 
     # Called when just `enter` is pressed
     # This method should be principally used for long action like running all specs/tests/...
@@ -107,8 +112,8 @@ module Guard
     # @raise [:task_has_failed] when run_all has failed
     # @return [Object] the task result
     #
-    def run_all
-    end
+    # def run_all
+    # end
 
     # Default behavious on file(s) changes that the Guard watches.
     #
@@ -116,9 +121,8 @@ module Guard
     # @raise [:task_has_failed] when run_on_change has failed
     # @return [Object] the task result
     #
-    def run_on_changes(paths)
-      raise NotImplementedError
-    end
+    # def run_on_changes(paths)
+    # end
 
     # Called on file(s) additions that the Guard watches.
     #
@@ -126,9 +130,8 @@ module Guard
     # @raise [:task_has_failed] when run_on_change has failed
     # @return [Object] the task result
     #
-    def run_on_additions(paths)
-      run_on_changes(paths)
-    end
+    # def run_on_additions(paths)
+    # end
 
     # Called on file(s) modifications that the Guard watches.
     #
@@ -136,9 +139,8 @@ module Guard
     # @raise [:task_has_failed] when run_on_change has failed
     # @return [Object] the task result
     #
-    def run_on_modifications(paths)
-      run_on_changes(paths)
-    end
+    # def run_on_modifications(paths)
+    # end
 
     # Called on file(s) removals that the Guard watches.
     #
@@ -146,20 +148,7 @@ module Guard
     # @raise [:task_has_failed] when run_on_change has failed
     # @return [Object] the task result
     #
-    def run_on_removals(paths)
-      run_on_changes(paths)
-    end
-
-    # @deprecated Use #run_on_modifications or #run_on_additions instead
-    #
-    # def run_on_change(paths)
-    #   raise NotImplementedError
-    # end
-
-    # @deprecated Use #run_on_removals instead
-    #
-    # def run_on_deletion(paths)
-    #   raise NotImplementedError
+    # def run_on_removals(paths)
     # end
 
   end
