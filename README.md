@@ -7,7 +7,7 @@ This document contains a lot of information, please take your time and read thes
 any questions, ask them in our [Google group](http://groups.google.com/group/guard-dev) or on `#guard`
 (irc.freenode.net).
 
-Before you file an issue, make sure you have read the file an issue section that contains some
+Before you file an issue, make sure you have read the _[file an issue](#file-an-issue)_ section that contains some
 important information.
 
 Features
@@ -895,10 +895,9 @@ Pull requests are very welcome! Please try to follow these simple rules if appli
 
 * Please create a topic branch for every separate change you make.
 * Make sure your patches are well tested. All specs run with `rake spec:portability` must pass.
-  * On OS X you need to compile once rb-fsevent executable with `rake build_mac_exec`.
 * Update the [Yard](http://yardoc.org/) documentation.
-* Update the README.
-* Update the CHANGELOG for noteworthy changes.
+* Update the [README](https://github.com/guard/guard/blob/master/README.md).
+* Update the [CHANGELOG](https://github.com/guard/guard/blob/master/CHANGELOG.md) for noteworthy changes.
 * Please **do not change** the version number.
 
 For questions please join us in our [Google group](http://groups.google.com/group/guard-dev) or on
@@ -912,7 +911,7 @@ For questions please join us in our [Google group](http://groups.google.com/grou
 
 * [Maher Sallam](https://github.com/Maher4Ever) ([@mahersalam](http://twitter.com/mahersalam))
 * [Michael Kessler](https://github.com/netzpirat) ([@netzpirat](http://twitter.com/netzpirat), [mksoft.ch](https://mksoft.ch))
-* [Rémy Coutable](https://github.com/rymai) ([@rymai](http://twitter.com/rymai), [rymai.me](http://rymai.me/))
+* [Rémy Coutable](https://github.com/rymai) ([@rymai](http://twitter.com/rymai), [rymai.me](http://rymai.me))
 * [Thibaud Guillaume-Gentil](https://github.com/thibaudgg) ([@thibaudgg](http://twitter.com/thibaudgg), [thibaud.me](http://thibaud.me/))
 
 ### Contributors
