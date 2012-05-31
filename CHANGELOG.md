@@ -3,6 +3,7 @@
 ### Improvements
 
 - Listening is now handled by the [Listen gem](https://github.com/guard/listen).
+- Replace the `--verbose` option with the `--debug` option.
 - New `--latency`/`-l` option to overwrite Listen's default latency.
 - New `--force-polling`/`-p` option to force usage of the Listen polling listener.
 - `--watch-all-modifications`/`-A` option is removed and is now always on.

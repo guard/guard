@@ -36,7 +36,7 @@ describe Guard do
     it "logs command execution if the debug option is true" do
       described_class.should_receive(:debug_command_execution)
 
-      described_class.setup(:verbose => true)
+      described_class.setup(:debug => true)
     end
 
     it "call setup_signal_traps" do
@@ -731,13 +731,13 @@ describe Guard do
     end
 
     it "outputs Kernel.#system method parameters" do
-      ::Guard.setup(:verbose => true)
+      ::Guard.setup(:debug => true)
       ::Guard::UI.should_receive(:debug).with("Command execution: exit 0")
       system("exit", "0").should be_false
     end
 
     it "outputs Kernel.#` method parameters" do
-      ::Guard.setup(:verbose => true)
+      ::Guard.setup(:debug => true)
       ::Guard::UI.should_receive(:debug).twice.with("Command execution: echo test")
       `echo test`.should == "test\n"
       %x{echo test}.should == "test\n"

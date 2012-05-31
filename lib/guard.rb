@@ -33,7 +33,7 @@ module Guard
     #
     # @option options [Boolean] clear if auto clear the UI should be done
     # @option options [Boolean] notify if system notifications should be shown
-    # @option options [Boolean] verbose if verbose output should be shown
+    # @option options [Boolean] debug if debug output should be shown
     # @option options [Array<String>] group the list of groups to start
     # @option options [String] watchdir the director to watch
     # @option options [String] guardfile the path to the Guardfile
@@ -54,7 +54,7 @@ module Guard
       setup_listener
       setup_signal_traps
 
-      debug_command_execution if @options[:verbose]
+      debug_command_execution if @options[:debug]
 
       Dsl.evaluate_guardfile(options)
       UI.error 'No guards found in Guardfile, please add at least one.' if @guards.empty?

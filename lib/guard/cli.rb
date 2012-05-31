@@ -25,11 +25,11 @@ module Guard
                   :aliases => '-n',
                   :banner  => 'Notifications feature (growl/libnotify)'
 
-    method_option :verbose,
+    method_option :debug,
                   :type    => :boolean,
                   :default => false,
-                  :aliases => '-v',
-                  :banner  => 'Show verbose messages'
+                  :aliases => '-d',
+                  :banner  => 'Show debug information'
 
     method_option :group,
                   :type    => :array,
@@ -78,7 +78,7 @@ module Guard
                   :type    => :numeric,
                   :aliases => '-l',
                   :banner  => 'Overwrite Listen\'s default latency'
-    
+
     method_option :force_polling,
                   :type    => :boolean,
                   :default => false,

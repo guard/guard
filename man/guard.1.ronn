@@ -25,8 +25,8 @@ The following options are available:
   Notifications can be disabled globally by setting a GUARD_NOTIFY environment variable to false.
   FLAG can be `true`/`false` or `t`/`f`.
 
-`-v`, `--verbose`
-  Runs Guard in verbose mode.
+`-d`, `--debug`
+  Runs Guard in debug mode.
 
 `-g`, `--group` <GROUP1> <GROUP2>...
   Runs only the groups specified by GROUP1, GROUP2 etc.

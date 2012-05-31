@@ -68,7 +68,7 @@ module Guard
       def debug(message, options = { })
         unless ENV['GUARD_ENV'] == 'test'
           reset_line if options[:reset]
-          STDERR.puts color("DEBUG (#{Time.now.strftime('%T')}): ", :yellow) + message if ::Guard.options && ::Guard.options[:verbose]
+          STDERR.puts color("DEBUG (#{Time.now.strftime('%T')}): ", :yellow) + message if ::Guard.options && ::Guard.options[:debug]
         end
       end
 
@@ -83,7 +83,7 @@ module Guard
       def clear
         system('clear;') if ::Guard.options[:clear]
       end
-      
+
       # Show a scoped action message.
       #
       # @param [String] action the action to show
@@ -93,7 +93,7 @@ module Guard
         scope_message ||= scopes[:guard]
         scope_message ||= scopes[:group]
         scope_message ||= 'all'
-        
+
         info "#{action} #{scope_message}"
       end
 
