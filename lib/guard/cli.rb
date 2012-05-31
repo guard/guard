@@ -25,11 +25,11 @@ module Guard
                   :aliases => '-n',
                   :banner  => 'Notifications feature (growl/libnotify)'
 
-    method_option :verbose,
+    method_option :debug,
                   :type    => :boolean,
                   :default => false,
-                  :aliases => '-v',
-                  :banner  => 'Show verbose messages'
+                  :aliases => '-d',
+                  :banner  => 'Show debug information'
 
     method_option :group,
                   :type    => :array,
@@ -47,17 +47,19 @@ module Guard
                   :aliases => '-G',
                   :banner  => 'Specify a Guardfile'
 
+    # DEPRECATED
     method_option :no_vendor,
                   :type    => :boolean,
                   :default => false,
                   :aliases => '-I',
-                  :banner  => 'Ignore vendored dependencies'
+                  :banner  => 'DEPRECATED: Ignore vendored dependencies'
 
+    # DEPRECATED
     method_option :watch_all_modifications,
                   :type => :boolean,
                   :default => false,
                   :aliases => '-A',
-                  :banner => 'Watch for all file modifications including moves and deletions'
+                  :banner => 'DEPRECATED: Watch for all file modifications including moves and deletions'
 
     method_option :no_interactions,
                   :type => :boolean,
@@ -70,6 +72,18 @@ module Guard
                   :default => false,
                   :aliases => '-B',
                   :banner => 'Turn off warning when Bundler is not present'
+
+    # Listen options
+    method_option :latency,
+                  :type    => :numeric,
+                  :aliases => '-l',
+                  :banner  => 'Overwrite Listen\'s default latency'
+
+    method_option :force_polling,
+                  :type    => :boolean,
+                  :default => false,
+                  :aliases => '-p',
+                  :banner  => 'Force usage of the Listen polling listener'
 
     # Start Guard by initialize the defined Guards and watch the file system.
     # This is the default task, so calling `guard` is the same as calling `guard start`.

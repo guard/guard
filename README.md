@@ -7,19 +7,15 @@ This document contains a lot of information, please take your time and read thes
 any questions, ask them in our [Google group](http://groups.google.com/group/guard-dev) or on `#guard`
 (irc.freenode.net).
 
-Before you file an issue, make sure you have read the file an issue section that contains some
+Before you file an issue, make sure you have read the _[file an issue](#file-an-issue)_ section that contains some
 important information.
 
 Features
 --------
 
-* [FSEvent](http://en.wikipedia.org/wiki/FSEvents) support on Mac OS X.
-* [Inotify](http://en.wikipedia.org/wiki/Inotify) support on Linux.
-* [Directory Change Notification](http://msdn.microsoft.com/en-us/library/aa365261\(VS.85\).aspx) support on Windows.
-* Polling on the other operating systems.
-* Automatic and super fast file modification detection when polling is not used.
-  Even new and deleted files are detected.
+* File system changes handled by our awesome [Listen](https://github.com/guard/listen) gem.
 * Support for visual system notifications.
+* Huge ([more than 120](https://rubygems.org/search?query=guard-)) guard extensions eco-system.
 * Tested against Ruby 1.8.7, 1.9.2, 1.9.3, REE and the latest versions of JRuby & Rubinius.
 
 Screencast
@@ -289,13 +285,14 @@ $ guard -g group_name another_group_name # shortcut
 
 See the Guardfile DSL below for creating groups.
 
-#### `-v`/`--verbose` option
+#### `-d`/`--debug` option
 
-Guard can be run in verbose mode:
+Guard can display debug information which can be very usefull for plugins
+developers with:
 
 ```bash
-$ guard --verbose
-$ guard -v # shortcut
+$ guard --debug
+$ guard -d # shortcut
 ```
 
 #### `-w`/`--watchdir` option
@@ -316,15 +313,6 @@ $ guard --guardfile ~/.your_global_guardfile
 $ guard -G ~/.your_global_guardfile # shortcut
 ```
 
-#### `-A`/`--watch-all-modifications` option
-
-Guard can optionally watch all file modifications like moves or deletions with:
-
-```bash
-$ guard start -A
-$ guard start --watch-all-modifications
-```
-
 #### `-i`/`--no-interactions` option
 
 Turn off completely any Guard terminal interactions with:
@@ -334,15 +322,6 @@ $ guard start -i
 $ guard start --no-interactions
 ```
 
-#### `-I`/`--no-vendor` option
-
-Ignore the use of vendored gems with:
-
-```bash
-$ guard start -I
-$ guard start --no-vendor
-```
-
 #### `-B`/`--no-bundler-warning` option
 
 Skip Bundler warning when a Gemfile exists in the project directory but Guard is not run with Bundler.
@@ -350,6 +329,24 @@ Skip Bundler warning when a Gemfile exists in the project directory but Guard is
 ```bash
 $ guard start -B
 $ guard start --no-bundler-warning
+```
+
+#### `-l`/`--latency` option
+
+Overwrite Listen's default latency, useful when your hard-drive / system is slow.
+
+```bash
+$ guard start -l 1.5
+$ guard start --latency 1.5
+```
+
+#### `-p`/`--force-polling` option
+
+Force Listen polling listener usage.
+
+```bash
+$ guard start -p
+$ guard start --force-polling
 ```
 
 ### List
@@ -628,20 +625,30 @@ end
 Please see the [hooks and callbacks](https://github.com/guard/guard/wiki/Hooks-and-callbacks) page in the Guard wiki for
 more details.
 
-### ignore_paths
+### ignore
 
-The `ignore_paths` method allows you to ignore top level directories altogether. This comes is handy when you have large
-amounts of non-source data in you project. By default `.bundle`, `.git`, `log`, `tmp`, and `vendor` are ignored.
-Currently it is only possible to ignore the immediate descendants of the watched directory.
+The `ignore` method allows you to ignore specific paths. This comes is handy when you have large
+amounts of non-source data in you project. By default [`.rbx`, `.bundle`, `.git`, `.svn`, `log`, `tmp`, `vendor`](https://github.com/guard/listen/blob/master/lib/listen/directory_record.rb#L14) are ignored.
+Please note that method only accept regexps. More on the [Listen README](https://github.com/guard/listen#the-patterns-for-filtering-and-ignoring-paths).
 
 ```ruby
-ignore_paths 'public'
+ignore %r{^ignored/path/}, /public/
+```
+
+### filter
+
+The `filter` method allows you to filter specific paths.
+Please note that method only accept regexps. More on the [Listen README](https://github.com/guard/listen#the-patterns-for-filtering-and-ignoring-paths).
+
+```ruby
+filter /\.txt$/, /.*\.zip/
 ```
 
 ### Example
 
 ```ruby
-ignore_paths 'foo', 'bar'
+ignore %r{^ignored/path/}, /public/
+filter /\.txt$/, /.*\.zip/
 
 notification :growl_notify
 notification :gntp, :host => '192.168.1.5'
@@ -688,183 +695,6 @@ guard :shell do
 end
 ```
 
-Advanced Linux system configuration
------------------------------------
-
-It's not uncommon to encounter a system limit on the number of files you can monitor.
-For example, Ubuntu Lucid's (64bit) inotify limit is set to 8192.
-
-You can get your current inotify file watch limit by executing:
-
-```bash
-$ cat /proc/sys/fs/inotify/max_user_watches
-```
-
-And set a new limit temporary with:
-
-```bash
-sudo sysctl fs.inotify.max_user_watches=524288
-sudo sysctl -p
-```
-
-If you like to make your limit permanent, use:
-
-```bash
-echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf
-sudo sysctl -p
-```
-
-You may also need to pay attention to the values of `max_queued_events` and `max_user_instances`.
-
-Create a Guard
---------------
-
-Creating a new Guard is very easy. For example, to create a Guard named `yoyo` just create a new gem by running `bundle gem guard-yoyo`. Please make your Guard start with `guard-`, so that it can easily be found on RubyGems.
-
-```bash
-$ mkdir guard-yoyo
-$ cd guard-yoyo
-$ bundle gem guard-yoyo
-```
-
-Now extend the project structure to have an initial Guard:
-
-```bash
-.travis.yml  # bonus point!
-CHANGELOG.md # bonus point!
-Gemfile
-guard-yoyo.gemspec
-Guardfile
-lib/
-  guard/
-    yoyo/
-      templates/
-        Guardfile # needed for `guard init <guard-name>`
-      version.rb
-    yoyo.rb
-test/ # or spec/
-README.md
-```
-
-Your Guard main class `Guard::Yoyo` in `lib/guard/guard-yoyo.rb` must inherit from
-[Guard::Guard](http://rubydoc.info/github/guard/guard/master/Guard/Guard) and should overwrite at least the
-`#run_on_change` task methods.
-
-Here is an example scaffold for `lib/guard/yoyo.rb`:
-
-```ruby
-require 'guard'
-require 'guard/guard'
-
-module Guard
-  class Yoyo < Guard
-
-    # Initialize a Guard.
-    # @param [Array<Guard::Watcher>] watchers the Guard file watchers
-    # @param [Hash] options the custom Guard options
-    def initialize(watchers = [], options = {})
-      super
-    end
-
-    # Call once when Guard starts. Please override initialize method to init stuff.
-    # @raise [:task_has_failed] when start has failed
-    def start
-    end
-
-    # Called when `stop|quit|exit|s|q|e + enter` is pressed (when Guard quits).
-    # @raise [:task_has_failed] when stop has failed
-    def stop
-    end
-
-    # Called when `reload|r|z + enter` is pressed.
-    # This method should be mainly used for "reload" (really!) actions like reloading passenger/spork/bundler/...
-    # @raise [:task_has_failed] when reload has failed
-    def reload
-    end
-
-    # Called when just `enter` is pressed
-    # This method should be principally used for long action like running all specs/tests/...
-    # @raise [:task_has_failed] when run_all has failed
-    def run_all
-    end
-
-    # Called on file(s) modifications that the Guard watches.
-    # @param [Array<String>] paths the changes files or paths
-    # @raise [:task_has_failed] when run_on_change has failed
-    def run_on_change(paths)
-    end
-
-    # Called on file(s) deletions that the Guard watches.
-    # @param [Array<String>] paths the deleted files or paths
-    # @raise [:task_has_failed] when run_on_change has failed
-    def run_on_deletion(paths)
-    end
-
-  end
-end
-```
-
-Please take a look at the source code of some of the [existing Guards](https://github.com/guard)
-for more concrete example and inspiration.
-
-Alternatively, a new Guard can be added inline to a `Guardfile` with this basic structure:
-
-```ruby
-require 'guard/guard'
-
-module ::Guard
-  class InlineGuard < ::Guard::Guard
-    def run_all
-    end
-
-    def run_on_change(paths)
-    end
-  end
-end
-```
-
-[@avdi](https://github.com/avdi) has a very cool inline Guard example in his blog post
-[A Guardfile for Redis](http://avdi.org/devblog/2011/06/15/a-guardfile-for-redis).
-
-Programmatic use of Guard
--------------------------
-
-The Guardfile DSL can also be used in a programmatic fashion by calling
-[Guard::Dsl.evaluate_guardfile](http://rubydoc.info/github/guard/guard/master/Guard/Dsl#evaluate_guardfile-class_method).
-
-Available options are as follow:
-
-* `:guardfile`          - The path to a valid `Guardfile`.
-* `:guardfile_contents` - A string representing the content of a valid `Guardfile`.
-
-Remember, without any options given, Guard will look for a `Guardfile` in your current directory and if it does not find
-one, it will look for it in your `$HOME` directory.
-
-Evaluate a `Guardfile`:
-
-```ruby
-require 'guard'
-
-Guard.setup
-Guard.start(:guardfile => '/path/to/Guardfile')
-```
-
-Evaluate a string as `Guardfile`:
-
-```ruby
-require 'guard'
-
-Guard.setup
-
-guardfile = <<-EOF
-  guard 'rspec' do
-    watch(%r{^spec/.+_spec\.rb$})
-  end
-EOF
-
-Guard.start(:guardfile_contents => guardfile)
-```
-
 File an issue
 -------------
 
@@ -879,7 +709,7 @@ using?
 When you file a bug, please try to follow these simple rules if applicable:
 
 * Make sure you run Guard with `bundle exec` first.
-* Add verbose information to the issue by running Guard with the `--verbose` option.
+* Add debug information to the issue by running Guard with the `--debug` option.
 * Add your `Guardfile` and `Gemfile` to the issue.
 * Make sure that the issue is reproducible with your description.
 
@@ -895,10 +725,9 @@ Pull requests are very welcome! Please try to follow these simple rules if appli
 
 * Please create a topic branch for every separate change you make.
 * Make sure your patches are well tested. All specs run with `rake spec:portability` must pass.
-  * On OS X you need to compile once rb-fsevent executable with `rake build_mac_exec`.
 * Update the [Yard](http://yardoc.org/) documentation.
-* Update the README.
-* Update the CHANGELOG for noteworthy changes.
+* Update the [README](https://github.com/guard/guard/blob/master/README.md).
+* Update the [CHANGELOG](https://github.com/guard/guard/blob/master/CHANGELOG.md) for noteworthy changes.
 * Please **do not change** the version number.
 
 For questions please join us in our [Google group](http://groups.google.com/group/guard-dev) or on
@@ -912,7 +741,7 @@ For questions please join us in our [Google group](http://groups.google.com/grou
 
 * [Maher Sallam](https://github.com/Maher4Ever) ([@mahersalam](http://twitter.com/mahersalam))
 * [Michael Kessler](https://github.com/netzpirat) ([@netzpirat](http://twitter.com/netzpirat), [mksoft.ch](https://mksoft.ch))
-* [Rémy Coutable](https://github.com/rymai) ([@rymai](http://twitter.com/rymai), [rymai.me](http://rymai.me/))
+* [Rémy Coutable](https://github.com/rymai) ([@rymai](http://twitter.com/rymai), [rymai.me](http://rymai.me))
 * [Thibaud Guillaume-Gentil](https://github.com/thibaudgg) ([@thibaudgg](http://twitter.com/thibaudgg), [thibaud.me](http://thibaud.me/))
 
 ### Contributors

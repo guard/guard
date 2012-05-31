@@ -86,17 +86,26 @@ describe Guard::ReadlineInteractor do
   end
 
   describe "#completion_list" do
-    class Guard::Foo < Guard::Guard;
-    end
-    class Guard::FooBar < Guard::Guard;
+    before(:all) do
+      class Guard::Foo < Guard::Guard; end
+      class Guard::FooBar < Guard::Guard; end
     end
 
     before(:each) do
-      guard           = ::Guard.setup
+      guard = ::Guard
+      guard.setup_guards
+      guard.setup_groups
       @backend_group  = guard.add_group(:backend)
       @frontend_group = guard.add_group(:frontend)
       @foo_guard      = guard.add_guard(:foo, [], [], { :group => :backend })
       @foo_bar_guard  = guard.add_guard('foo-bar', [], [], { :group => :frontend })
+    end
+
+    after(:all) do
+      ::Guard.instance_eval do
+        remove_const(:Foo)
+        remove_const(:FooBar)
+      end
     end
 
     it 'creates the list of string to auto complete' do
@@ -111,12 +120,12 @@ describe Guard::ReadlineInteractor do
   describe "#prompt" do
     it 'returns > when listener is active' do
       ::Guard.listener.should_receive(:paused?).and_return false
-      subject.prompt.should eql '> '
+      subject.prompt.should == '> '
     end
 
     it 'returns p> when listener is paused' do
       ::Guard.listener.should_receive(:paused?).and_return true
-      subject.prompt.should eql 'p> '
+      subject.prompt.should == 'p> '
     end
   end
 

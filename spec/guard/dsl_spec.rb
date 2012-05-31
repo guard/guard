@@ -1,18 +1,18 @@
 require 'spec_helper'
-require 'guard/guard'
 
 describe Guard::Dsl do
-
-  class Guard::Dummy < Guard::Guard; end
+  before(:all) { class Guard::Dummy < Guard::Guard; end }
 
   before(:each) do
     @local_guardfile_path = File.join(Dir.pwd, 'Guardfile')
     @home_guardfile_path  = File.expand_path(File.join("~", ".Guardfile"))
     @user_config_path     = File.expand_path(File.join("~", ".guard.rb"))
     ::Guard.setup
-    ::Guard.stub!(:options).and_return(:verbose => true)
+    ::Guard.stub!(:options).and_return(:debug => true)
     ::Guard.stub!(:guards).and_return([mock('Guard')])
   end
+
+  after(:all) { ::Guard.instance_eval { remove_const(:Dummy) } }
 
   def self.disable_user_config
     before(:each) { File.stub(:exist?).with(@user_config_path) { false } }
@@ -173,10 +173,7 @@ describe Guard::Dsl do
 
   describe ".before_reevaluate_guardfile" do
     it "stops all Guards" do
-      ::Guard.guards.should_not be_empty
-      ::Guard.guards.each do |guard|
-        ::Guard.should_receive(:run_supervised_task).with(guard, :stop)
-      end
+      ::Guard.runner.should_receive(:run).with(:stop)
 
       described_class.before_reevaluate_guardfile
     end
@@ -236,10 +233,9 @@ describe Guard::Dsl do
     end
 
     context "with Guards afterwards" do
-      before { ::Guard.stub(:guards).and_return([:a]) }
-
       it "shows a success message" do
-        ::Guard.stub(:run_on_guards)
+        ::Guard.runner.stub(:run)
+
         ::Guard::UI.should_receive(:info).with('Guardfile has been re-evaluated.')
         described_class.after_reevaluate_guardfile
       end
@@ -250,10 +246,7 @@ describe Guard::Dsl do
       end
 
       it "starts all Guards" do
-        ::Guard.guards.should_not be_empty
-        ::Guard.guards.each do |guard|
-          ::Guard.should_receive(:run_supervised_task).with(guard, :start)
-        end
+        ::Guard.runner.should_receive(:run).with(:start)
 
         described_class.after_reevaluate_guardfile
       end
@@ -327,11 +320,35 @@ describe Guard::Dsl do
     disable_user_config
 
     it "adds the paths to the listener's ignore_paths" do
-      ::Guard.stub!(:listener).and_return(mock('Listener'))
-      ::Guard.listener.should_receive(:ignore_paths).and_return(ignore_paths = ['faz'])
+      ::Guard::UI.should_receive(:deprecation).with(described_class::IGNORE_PATHS_DEPRECATION)
 
       described_class.evaluate_guardfile(:guardfile_contents => "ignore_paths 'foo', 'bar'")
-      ignore_paths.should == ['faz', 'foo', 'bar']
+    end
+  end
+
+  describe "#ignore" do
+    disable_user_config
+    let(:listener) { stub }
+
+    it "add ignored regexps to the listener" do
+      ::Guard.stub(:listener) { listener }
+      ::Guard.listener.should_receive(:ignore).with(/^foo/,/bar/) { listener }
+      ::Guard.should_receive(:listener=).with(listener)
+
+      described_class.evaluate_guardfile(:guardfile_contents => "ignore %r{^foo}, /bar/")
+    end
+  end
+
+  describe "#filter" do
+    disable_user_config
+    let(:listener) { stub }
+
+    it "add ignored regexps to the listener" do
+      ::Guard.stub(:listener) { listener }
+      ::Guard.listener.should_receive(:filter).with(/.txt$/, /.*.zip/) { listener }
+      ::Guard.should_receive(:listener=).with(listener)
+
+      described_class.evaluate_guardfile(:guardfile_contents => "filter %r{.txt$}, /.*\.zip/")
     end
   end
 

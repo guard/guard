@@ -41,6 +41,7 @@ module Guard
     # @return [Array<Object>] the matched watcher response
     #
     def self.match_files(guard, files)
+      return [] if files.empty?
       guard.watchers.inject([]) do |paths, watcher|
         files.each do |file|
           if matches = watcher.match(file)

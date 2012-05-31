@@ -5,6 +5,7 @@ doc/*
 .*.swp
 *.bak
 .bundle
+bundle
 .yardoc
 .rbx
 .rvmrc

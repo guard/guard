@@ -4,17 +4,15 @@ rvm:
   - 1.9.3
   - ruby-head
   - ree
-  #- jruby-18mode
-  #- jruby-19mode
-  #- jruby-head
+  # - jruby-18mode
+  # - jruby-19mode
+  # - jruby-head
   - rbx-18mode
   - rbx-19mode
 branches:
   only:
     - master
     - listen
-env:
-  - GUARD_SLEEP=1
 notifications:
   recipients:
     - thibaud@thibaud.me

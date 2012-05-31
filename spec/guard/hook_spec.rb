@@ -1,14 +1,14 @@
 require 'spec_helper'
-require 'guard/guard'
 
 describe Guard::Hook do
-
-  class Guard::Dummy < Guard::Guard; end
+  before(:all) { class Guard::Dummy < Guard::Guard; end }
 
   let(:guard_class) { ::Guard::Dummy }
   let(:listener) { double('listener').as_null_object }
 
   after { described_class.reset_callbacks! }
+
+  after(:all) { ::Guard.instance_eval { remove_const(:Dummy) } }
 
   describe "--module methods--" do
     before { described_class.add_callback(listener, guard_class, :start_begin) }

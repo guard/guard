@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'guard/guard'
 
 describe Guard::Interactor do
   subject { Guard::Interactor.new }
@@ -60,7 +59,7 @@ describe Guard::Interactor do
 
     it 'reloads Guard on reload action' do
       subject.should_receive(:extract_scopes_and_action).with('reload').and_return [{ }, :reload]
-      subject.should_receive(:reload).with({ })
+      ::Guard.should_receive(:reload).with({ })
       subject.process_input 'reload'
     end
 
@@ -83,38 +82,6 @@ describe Guard::Interactor do
     end
   end
 
-  describe '#reload' do
-    before do
-      ::Guard.stub(:reload)
-      ::Guard::Dsl.stub(:reevaluate_guardfile)
-      ::Guard::UI.stub(:info)
-    end
-
-    context 'with a scope' do
-      it 'does not re-evaluate the Guardfile' do
-        ::Guard::Dsl.should_not_receive(:reevaluate_guardfile)
-        subject.reload({ :group => :frontend })
-      end
-
-      it 'reloads Guard' do
-        ::Guard.should_receive(:reload).with({ :group => :frontend })
-        subject.reload({ :group => :frontend })
-      end
-    end
-
-    context 'with an empty scope' do
-      it 'does re-evaluate the Guardfile' do
-        ::Guard::Dsl.should_receive(:reevaluate_guardfile)
-        subject.reload({ })
-      end
-
-      it 'reloads Guard' do
-        ::Guard.should_receive(:reload).with({ })
-        subject.reload({ })
-      end
-    end
-  end
-
   describe 'toggle_notification' do
     before { ::Guard::UI.stub(:info) }
 
@@ -132,84 +99,91 @@ describe Guard::Interactor do
   end
 
   describe '#extract_scopes_and_action' do
-
-    class Guard::Foo < Guard::Guard;
-    end
-    class Guard::FooBar < Guard::Guard;
+    before(:all) do
+      class Guard::Foo < Guard::Guard; end
+      class Guard::FooBar < Guard::Guard; end
     end
 
     before(:each) do
       guard           = ::Guard.setup
       @backend_group  = guard.add_group(:backend)
       @frontend_group = guard.add_group(:frontend)
-      @foo_guard      = guard.add_guard(:foo, [], [], { :group => :backend })
+      @foo_guard1     = guard.add_guard(:foo, [], [], { :group => :backend })
+      @foo_guard2     = guard.add_guard(:foo, [], [], { :group => :backend })
       @foo_bar_guard  = guard.add_guard('foo-bar', [], [], { :group => :frontend })
     end
 
+    after(:all) do
+      ::Guard.instance_eval do
+        remove_const(:Foo)
+        remove_const(:FooBar)
+      end
+    end
+
     it 'returns :run_all action if entry is blank' do
-      subject.extract_scopes_and_action('').should eql([{ }, :run_all])
+      subject.extract_scopes_and_action('').should == [{ }, :run_all]
     end
 
     it 'returns action if entry is only a action' do
-      subject.extract_scopes_and_action('exit').should eql([{ }, :stop])
+      subject.extract_scopes_and_action('exit').should == [{ }, :stop]
     end
 
     it 'returns guard scope and run_all action if entry is only a guard scope' do
-      subject.extract_scopes_and_action('foo-bar').should eql([{ :guard => @foo_bar_guard }, :run_all])
+      subject.extract_scopes_and_action('foo-bar').should == [{ :guard => @foo_bar_guard }, :run_all]
     end
 
     it 'returns group scope and run_all action if entry is only a group scope' do
-      subject.extract_scopes_and_action('backend').should eql([{ :group => @backend_group }, :run_all])
+      subject.extract_scopes_and_action('backend').should == [{ :group => @backend_group }, :run_all]
     end
 
     it 'returns no action if entry is not a scope or action' do
-      subject.extract_scopes_and_action('x').should eql([{ }, nil])
+      subject.extract_scopes_and_action('x').should == [{ }, nil]
     end
 
     it 'returns guard scope and action if entry is a guard scope and a action' do
-      subject.extract_scopes_and_action('foo r').should eql([{ :guard => @foo_guard }, :reload])
+      subject.extract_scopes_and_action('foo r').should == [{ :guard => @foo_guard1 }, :reload]
     end
 
     it 'returns group scope and action if entry is a group scope and a action' do
-      subject.extract_scopes_and_action('frontend r').should eql([{ :group => @frontend_group }, :reload])
+      subject.extract_scopes_and_action('frontend r').should == [{ :group => @frontend_group }, :reload]
     end
 
     it 'returns group scope and run_all action if entry is a group scope and not a action' do
-      subject.extract_scopes_and_action('frontend x').should eql([{ :group => @frontend_group }, :run_all])
+      subject.extract_scopes_and_action('frontend x').should == [{ :group => @frontend_group }, :run_all]
     end
 
     it 'returns no action if entry is not a scope and not a action' do
-      subject.extract_scopes_and_action('x x').should eql([{ }, nil])
+      subject.extract_scopes_and_action('x x').should == [{ }, nil]
     end
 
     describe 'extracting actions' do
       it 'returns :help action for the help entry and for its shortcut' do
         %w{help h}.each do |e|
-          subject.extract_scopes_and_action(e).should eql([{ }, :help])
+          subject.extract_scopes_and_action(e).should == [{ }, :help]
         end
       end
 
       it 'returns :reload action for the reload entry and for its shortcut' do
         %w{reload r}.each do |e|
-          subject.extract_scopes_and_action(e).should eql([{ }, :reload])
+          subject.extract_scopes_and_action(e).should == [{ }, :reload]
         end
       end
 
       it 'returns :stop action for exit or quit entry and for their shortcuts' do
         %w{exit e quit q}.each do |e|
-          subject.extract_scopes_and_action(e).should eql([{ }, :stop])
+          subject.extract_scopes_and_action(e).should == [{ }, :stop]
         end
       end
 
       it 'returns :pause action for the pause entry and for its shortcut' do
         %w{pause p}.each do |e|
-          subject.extract_scopes_and_action(e).should eql([{ }, :pause])
+          subject.extract_scopes_and_action(e).should == [{ }, :pause]
         end
       end
 
       it 'returns :notification action for the notification entry and for its shortcut' do
         %w{notification n}.each do |e|
-          subject.extract_scopes_and_action(e).should eql([{ }, :notification])
+          subject.extract_scopes_and_action(e).should == [{ }, :notification]
         end
       end
     end

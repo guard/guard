@@ -1,4 +1,5 @@
 require 'thread'
+require 'listen'
 
 # Guard is the main module for all Guard related modules and classes.
 # Also other Guard implementation should use this namespace.
@@ -6,13 +7,14 @@ require 'thread'
 module Guard
 
   autoload :UI,           'guard/ui'
+  autoload :Guardfile,    'guard/guardfile'
   autoload :Dsl,          'guard/dsl'
   autoload :DslDescriber, 'guard/dsl_describer'
   autoload :Group,        'guard/group'
   autoload :Interactor,   'guard/interactor'
-  autoload :Listener,     'guard/listener'
   autoload :Watcher,      'guard/watcher'
   autoload :Notifier,     'guard/notifier'
+  autoload :Runner,       'guard/runner'
   autoload :Hook,         'guard/hook'
 
   # The Guardfile template for `guard init`
@@ -21,63 +23,7 @@ module Guard
   HOME_TEMPLATES = File.expand_path('~/.guard/templates')
 
   class << self
-    attr_accessor :options, :interactor, :listener, :lock
-
-    # Creates the initial Guardfile template when it does not
-    # already exist.
-    #
-    # @see Guard::CLI.init
-    #
-    # @param [Hash] options The options for creating a Guardfile
-    # @option options [Boolean] :abort_on_existence Whether to abort or not when a Guardfile already exists
-    #
-    def create_guardfile(options = {})
-      if !File.exist?('Guardfile')
-        ::Guard::UI.info "Writing new Guardfile to #{ Dir.pwd }/Guardfile"
-        FileUtils.cp(GUARDFILE_TEMPLATE, 'Guardfile')
-      elsif options[:abort_on_existence]
-        ::Guard::UI.error "Guardfile already exists at #{ Dir.pwd }/Guardfile"
-        abort
-      end
-    end
-
-    # Adds the Guardfile template of a Guard implementation
-    # to an existing Guardfile.
-    #
-    # @see Guard::CLI.init
-    #
-    # @param [String] guard_name the name of the Guard or template to initialize
-    #
-    def initialize_template(guard_name)
-      guard_class = ::Guard.get_guard_class(guard_name, true)
-
-      if guard_class
-        guard_class.init(guard_name)
-      elsif File.exist?(File.join(HOME_TEMPLATES, guard_name))
-        content  = File.read('Guardfile')
-        template = File.read(File.join(HOME_TEMPLATES, guard_name))
-
-        File.open('Guardfile', 'wb') do |f|
-          f.puts(content)
-          f.puts("")
-          f.puts(template)
-        end
-
-        ::Guard::UI.info "#{ guard_name } template added to Guardfile, feel free to edit it"
-      else
-        const_name  = guard_name.downcase.gsub('-', '')
-        UI.error "Could not load 'guard/#{ guard_name.downcase }' or '~/.guard/templates/#{ guard_name.downcase }' or find class Guard::#{ const_name.capitalize }"
-      end
-    end
-
-    # Adds the templates of all installed Guard implementations
-    # to an existing Guardfile.
-    #
-    # @see Guard::CLI.init
-    #
-    def initialize_all_templates
-      guard_gem_names.each {|g| initialize_template(g) }
-    end
+    attr_accessor :options, :interactor, :runner, :listener, :lock
 
     # Initialize the Guard singleton:
     #
@@ -87,19 +33,63 @@ module Guard
     #
     # @option options [Boolean] clear if auto clear the UI should be done
     # @option options [Boolean] notify if system notifications should be shown
-    # @option options [Boolean] verbose if verbose output should be shown
+    # @option options [Boolean] debug if debug output should be shown
     # @option options [Array<String>] group the list of groups to start
     # @option options [String] watchdir the director to watch
     # @option options [String] guardfile the path to the Guardfile
-    # @option options [Boolean] watch_all_modifications watches all file modifications if true
+    # @deprecated @option options [Boolean] watch_all_modifications watches all file modifications if true
+    # @deprecated @option options [Boolean] no_vendor ignore vendored dependencies
     #
     def setup(options = {})
       @lock       = Mutex.new
       @options    = options
-      @guards     = []
-      self.reset_groups
-      @listener   = Listener.select_and_init(options)
+      @watchdir   = (options[:watchdir] && File.expand_path(options[:watchdir])) || Dir.pwd
+      @runner     = Runner.new
 
+      UI.clear
+      deprecated_options_warning
+
+      setup_groups
+      setup_guards
+      setup_listener
+      setup_signal_traps
+
+      debug_command_execution if @options[:debug]
+
+      Dsl.evaluate_guardfile(options)
+      UI.error 'No guards found in Guardfile, please add at least one.' if @guards.empty?
+
+      runner.deprecation_warning # Guard deprecation go here
+
+      setup_notifier
+      setup_interactor
+
+      self
+    end
+
+    # Initialize the groups array with the `:default` group.
+    #
+    # @see Guard.groups
+    #
+    def setup_groups
+      @groups = [Group.new(:default)]
+    end
+
+    # Initialize the guards array to an empty array.
+    #
+    # @see Guard.guards
+    #
+    def setup_guards
+      @guards = []
+    end
+
+    # Sets up traps to catch signlas used to control Guard.
+    #
+    # Currently two signals are cought:
+    # - `USR1` which pauses listening to changes.
+    # - `USR2` which resumes listening to changes.
+    #
+    def setup_signal_traps
       if Signal.list.keys.include?('USR1')
         Signal.trap('USR1') { ::Guard.pause unless @listener.paused? }
       end
@@ -107,11 +97,106 @@ module Guard
       if Signal.list.keys.include?('USR2')
         Signal.trap('USR2') { ::Guard.pause if @listener.paused? }
       end
+    end
 
-      UI.clear if @options[:clear]
-      debug_command_execution if @options[:verbose]
+    # Initializes the listener and registers a callback for changes.
+    #
+    def setup_listener
+      listener_callback = lambda do |modified, added, removed|
+        Dsl.reevaluate_guardfile if Watcher.match_guardfile?(modified)
+        runner.run_on_changes(modified, added, removed)
+      end
 
-      self
+      listener_options = { :relative_paths => true }
+      %w[latency force_polling].each do |option|
+        listener_options[option.to_sym] = options[option] if options.key?(option)
+      end
+
+      @listener = Listen.to(@watchdir, listener_options).change(&listener_callback)
+    end
+
+    # Enables or disables the notifier based on user's configurations.
+    #
+    def setup_notifier
+      options[:notify] && ENV['GUARD_NOTIFY'] != 'false' ? Notifier.turn_on : Notifier.turn_off
+    end
+
+    # Initializes the interactor unless the user has specified not to.
+    #
+    def setup_interactor
+      unless options[:no_interactions]
+        @interactor = Interactor.fabricate
+        @interactor.start if @interactor
+      end
+    end
+
+    # Start Guard by evaluate the `Guardfile`, initialize the declared Guards
+    # and start the available file change listener.
+    # Main method for Guard that is called from the CLI when guard starts.
+    #
+    # - Setup Guard internals
+    # - Evaluate the `Guardfile`
+    # - Configure Notifiers
+    # - Initialize the declared Guards
+    # - Start the available file change listener
+    #
+    # @option options [Boolean] clear if auto clear the UI should be done
+    # @option options [Boolean] notify if system notifications should be shown
+    # @option options [Boolean] debug if debug output should be shown
+    # @option options [Array<String>] group the list of groups to start
+    # @option options [String] watchdir the director to watch
+    # @option options [String] guardfile the path to the Guardfile
+    #
+    def start(options = {})
+      setup(options)
+      UI.info "Guard is now watching at '#{ @watchdir }'"
+
+      interactor.start if interactor
+
+      runner.run(:start)
+      listener.start
+    end
+
+    # Stop Guard listening to file changes
+    #
+    def stop
+      UI.info 'Bye bye...', :reset => true
+      interactor.stop if interactor
+      listener.stop
+      runner.run(:stop)
+    end
+
+    # Reload Guardfile and all Guards currently enabled.
+    #
+    # @param [Hash] scopes an hash with a guard or a group scope
+    #
+    def reload(scopes)
+      UI.clear
+      UI.action_with_scopes('Reload', scopes)
+      Dsl.reevaluate_guardfile if scopes.empty?
+      runner.run(:reload, scopes)
+    end
+
+    # Trigger `run_all` on all Guards currently enabled.
+    #
+    # @param [Hash] scopes an hash with a guard or a group scope
+    #
+    def run_all(scopes)
+      UI.clear
+      UI.action_with_scopes('Run', scopes)
+      runner.run(:run_all, scopes)
+    end
+
+    # Pause Guard listening to file changes.
+    #
+    def pause
+      if listener.paused?
+        UI.info 'Un-paused files modification listening', :reset => true
+        listener.unpause
+      else
+        UI.info 'Paused files modification listening', :reset => true
+        listener.pause
+      end
     end
 
     # Smart accessor for retrieving a specific guard or several guards at once.
@@ -177,256 +262,6 @@ module Guard
       end
     end
 
-    # Initialize the groups array with the `:default` group.
-    #
-    # @see Guard.groups
-    #
-    def reset_groups
-      @groups = [Group.new(:default)]
-    end
-
-    # Start Guard by evaluate the `Guardfile`, initialize the declared Guards
-    # and start the available file change listener.
-    # Main method for Guard that is called from the CLI when guard starts.
-    #
-    # - Setup Guard internals
-    # - Evaluate the `Guardfile`
-    # - Configure Notifiers
-    # - Initialize the declared Guards
-    # - Start the available file change listener
-    #
-    # @option options [Boolean] clear if auto clear the UI should be done
-    # @option options [Boolean] notify if system notifications should be shown
-    # @option options [Boolean] debug if debug output should be shown
-    # @option options [Array<String>] group the list of groups to start
-    # @option options [String] watchdir the director to watch
-    # @option options [String] guardfile the path to the Guardfile
-    #
-    def start(options = {})
-      setup(options)
-
-      Dsl.evaluate_guardfile(options)
-      UI.error 'No guards found in Guardfile, please add at least one.' if ::Guard.guards.empty?
-
-      options[:notify] && ENV['GUARD_NOTIFY'] != 'false' ? Notifier.turn_on : Notifier.turn_off
-
-      listener.on_change do |files|
-        Dsl.reevaluate_guardfile        if Watcher.match_guardfile?(files)
-        listener.changed_files += files if Watcher.match_files?(guards, files)
-      end
-
-      UI.info "Guard is now watching at '#{ listener.directory }'"
-
-      run_on_guards do |guard|
-        run_supervised_task(guard, :start)
-      end
-
-      unless options[:no_interactions]
-        @interactor = Interactor.fabricate
-        @interactor.start if @interactor
-      end
-
-      listener.start
-    end
-
-    # Stop Guard listening to file changes
-    #
-    def stop
-      run_on_guards do |guard|
-        run_supervised_task(guard, :stop)
-      end
-
-      interactor.stop if interactor
-      listener.stop
-
-      UI.info 'Bye bye...', :reset => true
-    end
-
-    # Reload all Guards currently enabled.
-    #
-    # @param [Hash] scopes an hash with a guard or a group scope
-    #
-    def reload(scopes)
-      run do
-        run_on_guards(scopes) do |guard|
-          run_supervised_task(guard, :reload)
-        end
-      end
-    end
-
-    # Trigger `run_all` on all Guards currently enabled.
-    #
-    # @param [Hash] scopes an hash with a guard or a group scope
-    #
-    def run_all(scopes)
-      run do
-        run_on_guards(scopes) do |guard|
-          run_supervised_task(guard, :run_all)
-        end
-      end
-    end
-
-    # Pause Guard listening to file changes.
-    #
-    def pause
-      if listener.paused?
-        UI.info 'Un-paused files modification listening', :reset => true
-        listener.clear_changed_files
-        listener.run
-      else
-        UI.info 'Paused files modification listening', :reset => true
-        listener.pause
-      end
-    end
-
-    # Trigger `run_on_change` on all Guards currently enabled.
-    #
-    def run_on_change(files)
-      run do
-        run_on_guards do |guard|
-          run_on_change_task(files, guard)
-        end
-      end
-    end
-
-    # Run a block where the listener and the interactor is
-    # blocked.
-    #
-    # @yield the block to run
-    #
-    def run
-      UI.clear if options[:clear]
-
-      lock.synchronize do
-        begin
-          interactor.stop if interactor
-          yield
-        rescue Interrupt
-        end
-
-        interactor.start if interactor
-      end
-    end
-
-    # Loop through all groups and run the given task for each Guard.
-    #
-    # Stop the task run for the all Guards within a group if one Guard
-    # throws `:task_has_failed`.
-    #
-    # @param [Hash] scopes an hash with a guard or a group scope
-    # @yield the task to run
-    #
-    def run_on_guards(scopes = {})
-      if scope_guard = scopes[:guard]
-        yield(scope_guard)
-      else
-        groups = scopes[:group] ? [scopes[:group]] : @groups
-        groups.each do |group|
-          catch :task_has_failed do
-            guards(:group => group.name).each do |guard|
-              yield(guard)
-            end
-          end
-        end
-      end
-    end
-
-    # Run the `:run_on_change` task. When the option `:watch_all_modifications` is set,
-    # the task is split to run changed paths on {Guard::Guard#run_on_change}, whereas
-    # deleted paths run on {Guard::Guard#run_on_deletion}.
-    #
-    # @param [Array<String>] files the list of files to pass to the task
-    # @param [Guard::Guard] guard the guard to run
-    # @raise [:task_has_failed] when task has failed
-    #
-    def run_on_change_task(files, guard)
-      paths = Watcher.match_files(guard, files)
-      changes = changed_paths(paths)
-      deletions = deleted_paths(paths)
-
-      unless changes.empty?
-        UI.debug "#{ guard.class.name }#run_on_change with #{ changes.inspect }"
-        run_supervised_task(guard, :run_on_change, changes)
-      end
-
-      unless deletions.empty?
-        UI.debug "#{ guard.class.name }#run_on_deletion with #{ deletions.inspect }"
-        run_supervised_task(guard, :run_on_deletion, deletions)
-      end
-    end
-
-    # Detects the paths that have changed.
-    #
-    # Deleted paths are prefixed by an exclamation point.
-    # @see Guard::Listener#modified_files
-    #
-    # @param [Array<String>] paths the watched paths
-    # @return [Array<String>] the changed paths
-    #
-    def changed_paths(paths)
-      paths.select { |f| !f.respond_to?(:start_with?) || !f.start_with?('!') }
-    end
-
-    # Detects the paths that have been deleted.
-    #
-    # Deleted paths are prefixed by an exclamation point.
-    # @see Guard::Listener#modified_files
-    #
-    # @param [Array<String>] paths the watched paths
-    # @return [Array<String>] the deleted paths
-    #
-    def deleted_paths(paths)
-      paths.select { |f| f.respond_to?(:start_with?) && f.start_with?('!') }.map { |f| f.slice(1..-1) }
-    end
-
-    # Run a Guard task, but remove the Guard when his work leads to a system failure.
-    #
-    # When the Group has `:halt_on_fail` disabled, we've to catch `:task_has_failed`
-    # here in order to avoid an uncaught throw error.
-    #
-    # @param [Guard::Guard] guard the Guard to execute
-    # @param [Symbol] task the task to run
-    # @param [Array] args the arguments for the task
-    # @raise [:task_has_failed] when task has failed
-    #
-    def run_supervised_task(guard, task, *args)
-      catch guard_symbol(guard) do
-        guard.hook("#{ task }_begin", *args)
-        result = guard.send(task, *args)
-        guard.hook("#{ task }_end", result)
-
-        result
-      end
-
-    rescue Exception => ex
-      UI.error("#{ guard.class.name } failed to achieve its <#{ task.to_s }>, exception was:" +
-               "\n#{ ex.class }: #{ ex.message }\n#{ ex.backtrace.join("\n") }")
-
-      guards.delete guard
-      UI.info("\n#{ guard.class.name } has just been fired")
-
-      ex
-    end
-
-    # Get the symbol we have to catch when running a supervised task.
-    # If we are within a Guard group that has the `:halt_on_fail`
-    # option set, we do NOT catch it here, it will be catched at the
-    # group level.
-    #
-    # @see .run_on_guards
-    #
-    # @param [Guard::Guard] guard the Guard to execute
-    # @return [Symbol] the symbol to catch
-    #
-    def guard_symbol(guard)
-      if guard.group.class == Symbol
-        group = groups(guard.group)
-        group.options[:halt_on_fail] ? :no_catch : :task_has_failed
-      else
-        :task_has_failed
-      end
-    end
-
     # Add a Guard to use.
     #
     # @param [String] name the Guard name
@@ -461,6 +296,25 @@ module Guard
         @groups << group
       end
       group
+    end
+
+    # Runs a block where the interactor is
+    # blocked and execution is synchronized
+    # to avoid state inconsistency.
+    #
+    # @yield the block to run
+    #
+    def within_preserved_state
+      lock.synchronize do
+        begin
+          interactor.stop if interactor
+          @result = yield
+        rescue Interrupt
+        end
+
+        interactor.start if interactor
+      end
+      @result
     end
 
     # Tries to load the Guard main class. This transforms the supplied Guard
@@ -543,6 +397,27 @@ module Guard
         ::Guard::UI.debug "Command execution: #{ command }"
         original_backtick command
       end
+    end
+
+    # Deprecation message for the `watch_all_modifications` start option
+    WATCH_ALL_MODIFICATIONS_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
+      Starting with Guard v1.1 the 'watch_all_modifications' option is removed and is now always on.
+    EOS
+
+    # Deprecation message for the `no_vendor` start option
+    NO_VENDOR_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
+      Starting with Guard v1.1 the 'no_vendor' option is removed because the monitoring
+      gems are now part of a new gem called Listen. (https://github.com/guard/listen)
+
+      You can specify a custom version of any monitoring gem directly in your Gemfile
+      if you want to overwrite Listen's default monitoring gems.
+    EOS
+
+    # Displays a warning for each deprecated options used.
+    #
+    def deprecated_options_warning
+      ::Guard::UI.deprecation(WATCH_ALL_MODIFICATIONS_DEPRECATION) if options[:watch_all_modifications]
+      ::Guard::UI.deprecation(NO_VENDOR_DEPRECATION) if options[:no_vendor]
     end
 
   end

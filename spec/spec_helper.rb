@@ -1,5 +1,6 @@
 require 'rubygems'
 require 'guard'
+require 'guard/guard'
 require 'rspec'
 
 ENV["GUARD_ENV"] = 'test'
