@@ -423,7 +423,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 
 ### Bug fixes
 
-- [#7][] Fixe for Linux support. ([@yannlugrin][])
+- [#7][] Fix for Linux support. ([@yannlugrin][])
 - [#6][] Locate guard now chomp newline in result path. ([@yannlugrin][])
 
 ## 0.2.0 - October 21, 2010
