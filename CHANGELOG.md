@@ -1,10 +1,10 @@
-## Master
+## 1.1.1 - 3 June, 2012
 
 ### Bug fix
 
 - [#283][] Fix `guard init`. (reported by [@ashleyconnor][], fixed by [@rymai][])
 
-## 1.1.0 - 2. June, 2012
+## 1.1.0 - 2 June, 2012
 
 ### Improvements
 
