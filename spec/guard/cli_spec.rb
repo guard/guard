@@ -3,7 +3,7 @@ require 'guard/cli'
 
 describe Guard::CLI do
   let(:guard) { Guard }
-  let(:ui) { Guard::UI }
+  let(:ui)    { Guard::UI }
 
   describe '#start' do
     before { Guard.stub(:start) }
@@ -166,27 +166,27 @@ describe Guard::CLI do
   end
 
   describe '#init' do
-    let(:options) { {:bare => false} }
+    let(:options) { { :bare => false } }
 
     before do
       subject.stub(:options => options)
-      ::Guard.stub(:create_guardfile)
-      ::Guard.stub(:initialize_all_templates)
+      Guard::Guardfile.stub(:create_guardfile)
+      Guard::Guardfile.stub(:initialize_all_templates)
     end
 
-    it 'creates a Guardfile by delegating to Guard.create_guardfile' do
-      ::Guard.should_receive(:create_guardfile).with(:abort_on_existence => options[:bare])
+    it 'creates a Guardfile by delegating to Guardfile.create_guardfile' do
+      Guard::Guardfile.should_receive(:create_guardfile).with(:abort_on_existence => options[:bare])
       subject.init
     end
 
-    it 'initializes the templates of all installed Guards by delegating to Guard.initialize_all_templates' do
-      ::Guard.should_receive(:initialize_all_templates)
+    it 'initializes the templates of all installed Guards by delegating to Guardfile.initialize_all_templates' do
+      Guard::Guardfile.should_receive(:initialize_all_templates)
       subject.init
     end
 
     context 'when passed a guard name' do
-      it 'initializes the template of the passed Guard by delegating to Guard.initialize_template' do
-        ::Guard.should_receive(:initialize_template).with('rspec')
+      it 'initializes the template of the passed Guard by delegating to Guardfile.initialize_template' do
+        Guard::Guardfile.should_receive(:initialize_template).with('rspec')
         subject.init 'rspec'
       end
     end
@@ -195,9 +195,9 @@ describe Guard::CLI do
       let(:options) { {:bare => true} }
 
       it 'Only creates the Guardfile and does not initialize any Guard template' do
-        ::Guard.should_receive(:create_guardfile)
-        ::Guard.should_not_receive(:initialize_template)
-        ::Guard.should_not_receive(:initialize_all_templates)
+        Guard::Guardfile.should_receive(:create_guardfile)
+        Guard::Guardfile.should_not_receive(:initialize_template)
+        Guard::Guardfile.should_not_receive(:initialize_all_templates)
 
         subject.init
       end

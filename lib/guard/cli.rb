@@ -142,14 +142,14 @@ module Guard
     def init(guard_name = nil)
       verify_bundler_presence
 
-      ::Guard.create_guardfile(:abort_on_existence => options[:bare])
+      ::Guard::Guardfile.create_guardfile(:abort_on_existence => options[:bare])
 
       return if options[:bare]
 
       if guard_name.nil?
-        ::Guard::initialize_all_templates
+        ::Guard::Guardfile::initialize_all_templates
       else
-        ::Guard.initialize_template(guard_name)
+        ::Guard::Guardfile.initialize_template(guard_name)
       end
     end
 
