@@ -262,6 +262,12 @@ describe Guard::Watcher do
           specify { subject.match('guard_rocks_spec.rb').should eq ['guard_rocks_spec.rb'] }
         end
 
+        context "with a file containing a $" do
+          subject { described_class.new('lib$/guard_rocks_spec.rb') }
+
+          specify { subject.match('lib$/guard_rocks_spec.rb').should eq ['lib$/guard_rocks_spec.rb'] }
+        end
+
         context "with no watcher that matches a file" do
           specify { subject.match('lib/my_wonderful_lib.rb').should be_nil }
         end
@@ -285,6 +291,10 @@ describe Guard::Watcher do
 
       context "with a watcher that matches a file" do
         specify { subject.match('guard_rocks_spec.rb').should eq ['guard_rocks_spec.rb', 'guard_rocks'] }
+      end
+
+      context "with a file containing a $" do
+        specify { subject.match('lib$/guard_rocks_spec.rb').should eq ['lib$/guard_rocks_spec.rb', 'lib$/guard_rocks'] }
       end
 
       context "with no watcher that matches a file" do
