@@ -160,10 +160,10 @@ module Guard
     # Stop Guard listening to file changes
     #
     def stop
-      UI.info 'Bye bye...', :reset => true
       interactor.stop if interactor
-      listener.stop
       runner.run(:stop)
+      UI.info 'Bye bye...', :reset => true
+      listener.stop
     end
 
     # Reload Guardfile and all Guards currently enabled.
