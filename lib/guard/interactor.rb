@@ -143,8 +143,6 @@ module Guard
         ::Guard.run_all(scopes)
       when :notification
         toggle_notification
-      when :show
-          
       else
         ::Guard::UI.error "Unknown command #{ line }"
       end
@@ -169,7 +167,7 @@ module Guard
       puts '[p]ause          Toggle file modification listener'
       puts '[r]eload         Reload Guard'
       puts '[n]otification   Toggle notifications'
-      puts '[s]show          Show available Guard plugins'
+      puts '[s]how          Show available Guard plugins'
       puts '<enter>          Run all Guards'
       puts ''
       puts 'You can scope the reload action to a specific guard or group:'
