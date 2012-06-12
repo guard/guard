@@ -3,6 +3,7 @@ module Guard
   autoload :ReadlineInteractor, 'guard/interactors/readline'
   autoload :CoollineInteractor, 'guard/interactors/coolline'
   autoload :SimpleInteractor,   'guard/interactors/simple'
+  autoload :DslDescriber,       'guard/dsl_describer'
 
   # The interactor triggers specific action from input
   # read by a interactor implementation.
@@ -37,6 +38,7 @@ module Guard
     STOP_ENTRIES         = %w[exit e quit q]
     PAUSE_ENTRIES        = %w[pause p]
     NOTIFICATION_ENTRIES = %w[notification n]
+    SHOW_ENTRIES         = %w[show s]
 
     # Set the interactor implementation
     #
@@ -128,6 +130,8 @@ module Guard
       case action
       when :help
         help
+      when :show
+        DslDescriber.show(::Guard.options)
       when :stop
         ::Guard.stop
         exit
@@ -139,6 +143,8 @@ module Guard
         ::Guard.run_all(scopes)
       when :notification
         toggle_notification
+      when :show
+          
       else
         ::Guard::UI.error "Unknown command #{ line }"
       end
@@ -163,6 +169,7 @@ module Guard
       puts '[p]ause          Toggle file modification listener'
       puts '[r]eload         Reload Guard'
       puts '[n]otification   Toggle notifications'
+      puts '[s]show          Show available Guard plugins'
       puts '<enter>          Run all Guards'
       puts ''
       puts 'You can scope the reload action to a specific guard or group:'
@@ -240,6 +247,8 @@ module Guard
         :help
       elsif NOTIFICATION_ENTRIES.include?(entry)
         :notification
+      elsif SHOW_ENTRIES.include?(entry)
+        :show
       end
     end
 

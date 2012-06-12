@@ -4,7 +4,7 @@ module Guard
   #
   module Completion
 
-    COMPLETION_ACTIONS = %w[help reload exit pause notification]
+    COMPLETION_ACTIONS = %w[help reload exit pause notification show]
     
     # Auto complete the given word.
     #

@@ -105,6 +105,12 @@ describe Guard::Interactor do
       subject.process_input 'help'
     end
 
+    it 'describes the DSL on show action' do
+      subject.should_receive(:extract_scopes_and_action).with('show').and_return [{ }, :show]
+      ::Guard::DslDescriber.should_receive(:show)
+      subject.process_input 'show'
+    end
+
     it 'stops Guard on stop action and exit' do
       subject.should_receive(:extract_scopes_and_action).with('stop').and_return [{ }, :stop]
       ::Guard.should_receive(:stop)
