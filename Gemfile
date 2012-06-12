@@ -4,9 +4,9 @@ gemspec
 
 gem 'rake'
 
-# platform :ruby do
-#   gem 'rb-readline'
-# end
+platform :ruby do
+  gem 'coolline'
+end
 
 group :guard do
   gem 'guard-ronn'

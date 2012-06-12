@@ -1,3 +1,5 @@
+require 'guard/interactors/completion'
+
 module Guard
 
   # Interactor that used readline for getting the user input.
@@ -7,17 +9,29 @@ module Guard
   # @see http://bugs.ruby-lang.org/issues/5539
   #
   class ReadlineInteractor < Interactor
+    include ::Guard::Completion
 
-    COMPLETION_ACTIONS   = %w[help reload exit pause notification]
+    # Template method for checking if the Interactor is
+    # available in the current environment?
+    #
+    # @param [Boolean] silent true if no error messages should be shown
+    # @return [Boolean] the availability status
+    #
+    def self.available?(silent = false)
+      require 'readline'
 
+      if defined?(RbReadline) || defined?(JRUBY_VERSION) || RbConfig::CONFIG['target_os'] =~ /linux/i
+        true
+      else
+        ::Guard::UI.error 'The :readline interactor runs only fine on JRuby, Linux or with the gem \'rb-readline\' installed.' unless silent
+        false
+      end
+    end
+    
     # Initialize the interactor.
     #
     def initialize
       require 'readline'
-
-      unless defined?(RbReadline) || defined?(JRUBY_VERSION) || RbConfig::CONFIG['target_os'] =~ /linux/i
-        ::Guard::UI.info 'Please add rb-readline for proper Readline support.'
-      end
 
       Readline.completion_proc = proc { |word| auto_complete(word) }
 
@@ -45,6 +59,8 @@ module Guard
     # Read a line from stdin with Readline.
     #
     def read_line
+      require 'readline'
+      
       while line = Readline.readline(prompt, true)
         line.gsub!(/^\W*/, '')
         if line =~ /^\s*$/ or Readline::HISTORY.to_a[-2] == line
@@ -53,26 +69,6 @@ module Guard
 
         process_input(line)
       end
-    end
-
-    # Auto complete the given word.
-    #
-    # @param [String] word the partial word
-    # @return [Array<String>] the matching words
-    #
-    def auto_complete(word)
-      completion_list.grep(/^#{ Regexp.escape(word) }/)
-    end
-
-    # Get the auto completion list.
-    #
-    # @return [Array<String>] the list of words
-    #
-    def completion_list
-      groups = ::Guard.groups.map { |group| group.name.to_s }
-      guards = ::Guard.guards.map { |guard| guard.class.to_s.downcase.sub('guard::', '') }
-
-      COMPLETION_ACTIONS + groups + guards - ['default']
     end
 
     # The current interactor prompt

@@ -1,6 +1,7 @@
 module Guard
 
   autoload :ReadlineInteractor, 'guard/interactors/readline'
+  autoload :CoollineInteractor, 'guard/interactors/coolline'
   autoload :SimpleInteractor,   'guard/interactors/simple'
 
   # The interactor triggers specific action from input
@@ -52,8 +53,10 @@ module Guard
     #
     def self.fabricate
       case @interactor
+      when :coolline
+        CoollineInteractor.new if CoollineInteractor.available?
       when :readline
-        ReadlineInteractor.new
+        ReadlineInteractor.new if ReadlineInteractor.available?
       when :simple
         SimpleInteractor.new
       when :off
@@ -77,15 +80,19 @@ module Guard
     # @return [Interactor] an interactor implementation
     #
     def self.auto_detect
-      require 'readline'
-
-      if defined?(RbReadline) || defined?(JRUBY_VERSION) || RbConfig::CONFIG['target_os'] =~ /linux/i
-        ReadlineInteractor.new
-      else
-        SimpleInteractor.new
-      end
+      [CoollineInteractor, ReadlineInteractor, SimpleInteractor].detect { |interactor| interactor.available?(true) }.new
     end
 
+    # Template method for checking if the Interactor is
+    # available in the current environment?
+    #
+    # @param [Boolean] silent true if no error messages should be shown
+    # @return [Boolean] the availability status
+    #
+    def self.available?(silent = false)
+      true
+    end
+    
     # Start the line reader in its own thread.
     #
     def start

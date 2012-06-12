@@ -10,9 +10,40 @@ describe Guard::Interactor do
   end
 
   describe '.fabricate' do
-    it 'returns the Readline interactor for a :readline symbol' do
-      Guard::Interactor.interactor = :readline
-      Guard::Interactor.fabricate.should be_an_instance_of(Guard::ReadlineInteractor)
+    context 'with coolline available' do
+      before { Guard::CoollineInteractor.stub(:available?).and_return true }
+      
+      it 'returns the Coolline interactor for a :coolline symbol' do
+        Guard::Interactor.interactor = :coolline
+        Guard::Interactor.fabricate.should be_an_instance_of(Guard::CoollineInteractor)
+      end
+    end
+    
+    context 'with coolline unavailable' do
+      before { Guard::CoollineInteractor.stub(:available?).and_return false }
+
+      it 'returns nil' do
+        Guard::Interactor.interactor = :coolline
+        Guard::Interactor.fabricate.should be_nil
+      end
+    end
+
+    context 'with readline available' do
+      before { Guard::ReadlineInteractor.stub(:available?).and_return true }
+
+      it 'returns the Readline interactor for a :readline symbol' do
+        Guard::Interactor.interactor = :readline
+        Guard::Interactor.fabricate.should be_an_instance_of(Guard::ReadlineInteractor)
+      end
+    end
+
+    context 'with readline unavailable' do
+      before { Guard::ReadlineInteractor.stub(:available?).and_return false }
+
+      it 'returns nil' do
+        Guard::Interactor.interactor = :readline
+        Guard::Interactor.fabricate.should be_nil
+      end
     end
 
     it 'returns the Gets interactor for a :simple symbol' do
@@ -29,6 +60,41 @@ describe Guard::Interactor do
       Guard::Interactor.interactor = nil
       Guard::Interactor.should_receive(:auto_detect)
       Guard::Interactor.fabricate
+    end
+  end
+
+  describe '.auto_detect' do
+    context 'when all interactors are available' do
+      before do
+        Guard::CoollineInteractor.stub(:available?).and_return true
+        Guard::ReadlineInteractor.stub(:available?).and_return true
+      end
+
+      it 'chooses the coolline interactor ' do
+        Guard::Interactor.auto_detect.should be_an_instance_of(Guard::CoollineInteractor)
+      end
+    end
+
+    context 'when only the coolline interactor is unavailable available' do
+      before do
+        Guard::CoollineInteractor.stub(:available?).and_return false
+        Guard::ReadlineInteractor.stub(:available?).and_return true
+      end
+
+      it 'chooses the readline interactor ' do
+        Guard::Interactor.auto_detect.should be_an_instance_of(Guard::ReadlineInteractor)
+      end
+    end
+
+    context 'when coolline and readline interactors are unavailable available' do
+      before do
+        Guard::CoollineInteractor.stub(:available?).and_return false
+        Guard::ReadlineInteractor.stub(:available?).and_return false
+      end
+
+      it 'chooses the simple interactor ' do
+        Guard::Interactor.auto_detect.should be_an_instance_of(Guard::SimpleInteractor)
+      end
     end
   end
 
