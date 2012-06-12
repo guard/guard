@@ -38,7 +38,7 @@ describe Guard::Completion do
     end
 
     it 'creates the list of string to auto complete' do
-      subject.completion_list.should =~ %w[help reload exit pause notification backend frontend foo foobar]
+      subject.completion_list.should =~ %w[help reload exit pause notification backend frontend foo foobar show]
     end
 
     it 'does not include the default scope' do
