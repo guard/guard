@@ -132,8 +132,6 @@ module Guard
     # @param [String] line the input line
     #
     def process_input(line)
-      Thread.abort_on_exception = true
-      
       scopes, action, rest = extract_scopes_and_action(line)
 
       case action
