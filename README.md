@@ -397,6 +397,8 @@ You can interact with Guard and enter commands when Guard has nothing to do. Gua
 * `↩`:                 Run all Guards.
 * `h`, `help`:         Show a help of the available interactor commands.
 * `r`, `reload`:       Reload all Guards.
+* `c`, `change`:       Show a help of the available interactor commands.
+* `s`, `show`:         Show Guard plugin configuration.
 * `n`, `notification`: Toggle system notifications on and off.
 * `p`, `pause`:        Toggles the file modification listener. The prompt will change to `p>` when paused.
                        This is useful when switching Git branches, rebase Git or change whitespace.
@@ -426,6 +428,18 @@ This will reload only the Ronn Guard. You can also reload all Guards within a gr
 > backend reload
 ```
 
+The action and plugin or group name can have any order, so you can also write:
+
+```bash
+> reload backend
+```
+
+You can pass a list of filenames to the `change` command to trigger manually a file modification:
+
+```bash
+> change spec/guard_spec.rb
+```
+
 ### Readline support
 
 With Readline enabled, you'll see a command prompt `>` when Guard is ready to accept a command. The command line
@@ -441,6 +455,18 @@ end
 ```
 
 Guard will automatically enable Readline support if your environment supports it, but you can disable Readline with the
+`interactor` DSL method or turn off completely with the `--no-interactions` option.
+
+### Coolline support
+
+With Ruby 1.9.3 you can use a [Coolline](https://github.com/Mon-Ouie/coolline) based interactor, which uses the new
+`io/console` from stdlib. Just add it to your `Gemfile`
+
+```ruby
+gem 'coolline'
+```
+
+Guard will automatically enable Coolline support if your environment supports it, but you can disable Coolline with the
 `interactor` DSL method or turn off completely with the `--no-interactions` option.
 
 ### Signals
@@ -591,15 +617,11 @@ notification :off
 
 ### interactor
 
-You can disable the interactor auto detection and for a specific implementation:
+You can disable the interactor auto detection and select a specific implementation:
 
 ```ruby
+interactor :coolline
 interactor :readline
-```
-
-will select Readline interactor. You can also force the simple interactor without Readline support with:
-
-```ruby
 interactor :simple
 ```
 

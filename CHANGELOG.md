@@ -1,3 +1,12 @@
+## Master
+
+### Improvements
+
+- Add a [Coolline](https://github.com/Mon-Ouie/coolline) based interactor (Ruby 1.9.3 only).  ([@netzpirat][])
+- More flexible command parser for all interactors. ([@netzpirat][])
+- Add 'show' command to describe all plugins in the interactor. ([@netzpirat][])
+- Add 'change' command to trigger a file change event in the interactor. ([@netzpirat][])
+
 ## 1.1.1 - 3 June, 2012
 
 ### Bug fix
