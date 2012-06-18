@@ -584,7 +584,7 @@ describe Guard do
 
   describe '.within_preserved_state' do
     subject { ::Guard.setup }
-    before { Guard.interactor =  ::Guard::Interactor.new }
+    before { subject.interactor =  stub('interactor') }
     
     it 'disables the interactor before running the block and then re-enables it when done' do
       subject.interactor.should_receive(:stop)
