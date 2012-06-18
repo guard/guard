@@ -1,10 +1,11 @@
 require 'spec_helper'
 
 describe Guard do
-
+  before { ::Guard::Interactor.stub(:fabricate) }
+  
   describe ".setup" do
     let(:options) { { :my_opts => true, :guardfile => File.join(@fixture_path, "Guardfile") } }
-    subject { described_class.setup(options) }
+    subject { ::Guard.setup(options) }
 
     it "returns itself for chaining" do
       subject.should be ::Guard
@@ -28,39 +29,39 @@ describe Guard do
     end
 
     it "respect the watchdir option" do
-      described_class.setup(:watchdir => '/usr')
+      ::Guard.setup(:watchdir => '/usr')
 
-      described_class.listener.directory.should eq '/usr'
+      ::Guard.listener.directory.should eq '/usr'
     end
 
     it "logs command execution if the debug option is true" do
-      described_class.should_receive(:debug_command_execution)
+      ::Guard.should_receive(:debug_command_execution)
 
-      described_class.setup(:debug => true)
+      ::Guard.setup(:debug => true)
     end
 
     it "call setup_signal_traps" do
-      described_class.should_receive(:setup_signal_traps)
+      ::Guard.should_receive(:setup_signal_traps)
       subject
     end
 
     it "evaluates the DSL" do
-      described_class::Dsl.should_receive(:evaluate_guardfile).with(options)
+      ::Guard::Dsl.should_receive(:evaluate_guardfile).with(options)
       subject
     end
 
     it "displays an error message when no guard are defined in Guardfile" do
-      described_class::UI.should_receive(:error).with('No guards found in Guardfile, please add at least one.')
+      ::Guard::UI.should_receive(:error).with('No guards found in Guardfile, please add at least one.')
       subject
     end
 
     it "call setup_notifier" do
-      described_class.should_receive(:setup_notifier)
+      ::Guard.should_receive(:setup_notifier)
       subject
     end
 
     it "call setup_interactor" do
-      described_class.should_receive(:setup_interactor)
+      ::Guard.should_receive(:setup_interactor)
       subject
     end
   end
@@ -71,20 +72,20 @@ describe Guard do
     unless windows?
       context 'when receiving SIGUSR1' do
         context 'when Guard is running' do
-          before { described_class.listener.should_receive(:paused?).and_return false }
+          before { ::Guard.listener.should_receive(:paused?).and_return false }
 
           it 'pauses Guard' do
-            described_class.should_receive(:pause)
+            ::Guard.should_receive(:pause)
             Process.kill :USR1, Process.pid
             sleep 1
           end
         end
 
         context 'when Guard is already paused' do
-          before { described_class.listener.should_receive(:paused?).and_return true }
+          before { ::Guard.listener.should_receive(:paused?).and_return true }
 
           it 'does not pauses Guard' do
-            described_class.should_not_receive(:pause)
+            ::Guard.should_not_receive(:pause)
             Process.kill :USR1, Process.pid
             sleep 1
           end
@@ -93,20 +94,20 @@ describe Guard do
 
       context 'when receiving SIGUSR2' do
         context 'when Guard is paused' do
-          before { described_class.listener.should_receive(:paused?).and_return true }
+          before { ::Guard.listener.should_receive(:paused?).and_return true }
 
           it 'un-pause Guard' do
-            described_class.should_receive(:pause)
+            ::Guard.should_receive(:pause)
             Process.kill :USR2, Process.pid
             sleep 1
           end
         end
 
         context 'when Guard is already running' do
-          before { described_class.listener.should_receive(:paused?).and_return false }
+          before { ::Guard.listener.should_receive(:paused?).and_return false }
 
           it 'does not un-pause Guard' do
-            described_class.should_not_receive(:pause)
+            ::Guard.should_not_receive(:pause)
             Process.kill :USR2, Process.pid
             sleep 1
           end
@@ -177,7 +178,7 @@ describe Guard do
     let(:listener) { stub.as_null_object }
 
     context "with latency option" do
-      before { described_class.stub(:options).and_return("latency" => 1.5) }
+      before { ::Guard.stub(:options).and_return("latency" => 1.5) }
 
       it "pass option to listener" do
         Listen.should_receive(:to).with(an_instance_of(String), { :relative_paths => true, :latency => 1.5 }) { listener }
@@ -186,7 +187,7 @@ describe Guard do
     end
 
     context "with force_polling option" do
-      before { described_class.stub(:options).and_return("force_polling" => true) }
+      before { ::Guard.stub(:options).and_return("force_polling" => true) }
 
       it "pass option to listener" do
         Listen.should_receive(:to).with(an_instance_of(String), { :relative_paths => true, :force_polling => true }) { listener }
@@ -197,7 +198,7 @@ describe Guard do
 
   describe ".setup_notifier" do
     context "with the notify option enabled" do
-      before { described_class.stub(:options).and_return(:notify => true) }
+      before { ::Guard.stub(:options).and_return(:notify => true) }
 
       context 'without the environment variable GUARD_NOTIFY set' do
         before { ENV["GUARD_NOTIFY"] = nil }
@@ -220,7 +221,7 @@ describe Guard do
 
     context "with the notify option disabled" do
       before do
-        described_class.stub(:options).and_return(:notify => false)
+        ::Guard.stub(:options).and_return(:notify => false)
       end
 
       context 'without the environment variable GUARD_NOTIFY set' do
@@ -245,13 +246,13 @@ describe Guard do
 
   describe ".setup_interactor" do
     context "with interactions enabled" do
-      before { described_class.setup(:no_interactions => false) }
+      before { ::Guard.setup(:no_interactions => false) }
 
       it_should_behave_like 'interactor enabled'
     end
 
     context "with interactions disabled" do
-      before { described_class.setup(:no_interactions => true) }
+      before { ::Guard.setup(:no_interactions => true) }
 
       it_should_behave_like 'interactor disabled'
     end
@@ -460,35 +461,35 @@ describe Guard do
 
   describe ".start" do
     before do
-      described_class.stub(:setup)
-      described_class.stub(:listener => mock('listener', :start => true))
-      described_class.stub(:runner => mock('runner', :run => true))
-      described_class.stub(:within_preserved_state).and_yield
+      ::Guard.stub(:setup)
+      ::Guard.stub(:listener => mock('listener', :start => true))
+      ::Guard.stub(:runner => mock('runner', :run => true))
+      ::Guard.stub(:within_preserved_state).and_yield
     end
 
     it "setup Guard" do
-      described_class.should_receive(:setup).with(:foo => 'bar')
+      ::Guard.should_receive(:setup).with(:foo => 'bar')
 
-      described_class.start(:foo => 'bar')
+      ::Guard.start(:foo => 'bar')
     end
 
     it "displays an info message" do
-      described_class.instance_variable_set('@watchdir', '/foo/bar')
-      described_class::UI.should_receive(:info).with("Guard is now watching at '/foo/bar'")
+      ::Guard.instance_variable_set('@watchdir', '/foo/bar')
+      ::Guard::UI.should_receive(:info).with("Guard is now watching at '/foo/bar'")
 
-      described_class.start
+      ::Guard.start
     end
 
     it "tell the runner to run the :start task" do
-      described_class.runner.should_receive(:run).with(:start)
+      ::Guard.runner.should_receive(:run).with(:start)
 
-      described_class.start
+      ::Guard.start
     end
 
     it "start the listener" do
-      described_class.listener.should_receive(:start)
+      ::Guard.listener.should_receive(:start)
 
-      described_class.start
+      ::Guard.start
     end
   end
 
@@ -497,38 +498,38 @@ describe Guard do
       @guard_rspec_class = double('Guard::RSpec')
       @guard_rspec = double('Guard::RSpec', :is_a? => true)
 
-      described_class.stub!(:get_guard_class) { @guard_rspec_class }
+      ::Guard.stub!(:get_guard_class) { @guard_rspec_class }
 
-      described_class.setup_guards
-      described_class.setup_groups
-      described_class.add_group(:backend)
+      ::Guard.setup_guards
+      ::Guard.setup_groups
+      ::Guard.add_group(:backend)
     end
 
     it "accepts guard name as string" do
       @guard_rspec_class.should_receive(:new).and_return(@guard_rspec)
 
-      described_class.add_guard('rspec')
+      ::Guard.add_guard('rspec')
     end
 
     it "accepts guard name as symbol" do
       @guard_rspec_class.should_receive(:new).and_return(@guard_rspec)
 
-      described_class.add_guard(:rspec)
+      ::Guard.add_guard(:rspec)
     end
 
     it "adds guard to the @guards array" do
       @guard_rspec_class.should_receive(:new).and_return(@guard_rspec)
 
-      described_class.add_guard(:rspec)
+      ::Guard.add_guard(:rspec)
 
-      described_class.guards.should eq [@guard_rspec]
+      ::Guard.guards.should eq [@guard_rspec]
     end
 
     context "with no watchers given" do
       it "gives an empty array of watchers" do
         @guard_rspec_class.should_receive(:new).with([], {}).and_return(@guard_rspec)
 
-        described_class.add_guard(:rspec, [])
+        ::Guard.add_guard(:rspec, [])
       end
     end
 
@@ -536,7 +537,7 @@ describe Guard do
       it "give the watchers array" do
         @guard_rspec_class.should_receive(:new).with([:foo], {}).and_return(@guard_rspec)
 
-        described_class.add_guard(:rspec, [:foo])
+        ::Guard.add_guard(:rspec, [:foo])
       end
     end
 
@@ -544,7 +545,7 @@ describe Guard do
       it "gives an empty hash of options" do
         @guard_rspec_class.should_receive(:new).with([], {}).and_return(@guard_rspec)
 
-        described_class.add_guard(:rspec, [], [], {})
+        ::Guard.add_guard(:rspec, [], [], {})
       end
     end
 
@@ -552,39 +553,39 @@ describe Guard do
       it "give the options hash" do
         @guard_rspec_class.should_receive(:new).with([], { :foo => true, :group => :backend }).and_return(@guard_rspec)
 
-        described_class.add_guard(:rspec, [], [], { :foo => true, :group => :backend })
+        ::Guard.add_guard(:rspec, [], [], { :foo => true, :group => :backend })
       end
     end
   end
 
   describe ".add_group" do
-    before { described_class.setup_groups }
+    before { ::Guard.setup_groups }
 
     it "accepts group name as string" do
-      described_class.add_group('backend')
+      ::Guard.add_group('backend')
 
-      described_class.groups[0].name.should == :default
-      described_class.groups[1].name.should == :backend
+      ::Guard.groups[0].name.should == :default
+      ::Guard.groups[1].name.should == :backend
     end
 
     it "accepts group name as symbol" do
-      described_class.add_group(:backend)
+      ::Guard.add_group(:backend)
 
-      described_class.groups[0].name.should == :default
-      described_class.groups[1].name.should == :backend
+      ::Guard.groups[0].name.should == :default
+      ::Guard.groups[1].name.should == :backend
     end
 
     it "accepts options" do
-      described_class.add_group(:backend, { :halt_on_fail => true })
+      ::Guard.add_group(:backend, { :halt_on_fail => true })
 
-      described_class.groups[0].options.should eq({})
-      described_class.groups[1].options.should eq({ :halt_on_fail => true })
+      ::Guard.groups[0].options.should eq({})
+      ::Guard.groups[1].options.should eq({ :halt_on_fail => true })
     end
   end
 
   describe '.within_preserved_state' do
     subject { ::Guard.setup }
-    before { subject.interactor =  stub('interactor') }
+    before { subject.interactor =  stub('interactor').as_null_object }
     
     it 'disables the interactor before running the block and then re-enables it when done' do
       subject.interactor.should_receive(:stop)

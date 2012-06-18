@@ -101,6 +101,7 @@ describe Guard::Interactor do
   describe '#process_input' do
     before do
       ::Guard.stub(:within_preserved_state).and_yield
+      ::Guard.runner = stub('runner')
     end
     
     it 'shows the help on help action' do

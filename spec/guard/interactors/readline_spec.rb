@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'guard/interactors/readline'
+require 'readline'
 
 describe Guard::ReadlineInteractor do
   subject { Guard::ReadlineInteractor.new }
@@ -15,7 +16,7 @@ describe Guard::ReadlineInteractor do
     end
   end
 
-  describe '#readline' do
+  describe '#readline' do   
     before do
       Guard.listener = mock('listener')
       Guard.listener.stub(:paused?).and_return false
