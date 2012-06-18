@@ -31,6 +31,10 @@ describe Guard::CoollineInteractor do
   end
 
   describe "#prompt" do
+    before do
+      ::Guard.listener = stub('Listener')
+    end
+    
     it 'returns >> when listener is active' do
       ::Guard.listener.should_receive(:paused?).and_return false
       subject.prompt.should == '>> '
