@@ -1,7 +1,9 @@
-require 'guard/interactors/completion'
-
 module Guard
 
+  autoload :TerminalHelper,   'guard/interactors/helpers/terminal'
+  autoload :CompletionHelper, 'guard/interactors/helpers/completion'
+  autoload :UI,               'guard/ui'
+  
   # Interactor that used readline for getting the user input.
   # This enables history support and auto-completion, but is
   # broken on OS X without installing `rb-readline` or using JRuby.
@@ -9,7 +11,8 @@ module Guard
   # @see http://bugs.ruby-lang.org/issues/5539
   #
   class ReadlineInteractor < Interactor
-    include ::Guard::Completion
+    include ::Guard::CompletionHelper
+    include ::Guard::TerminalHelper
 
     # Template method for checking if the Interactor is
     # available in the current environment?
@@ -42,20 +45,6 @@ module Guard
       end
     end
 
-    # Start the interactor.
-    #
-    def start
-      store_terminal_settings if stty_exists?
-      super
-    end
-
-    # Stop the interactor.
-    #
-    def stop
-      super
-      restore_terminal_settings if stty_exists?
-    end
-
     # Read a line from stdin with Readline.
     #
     def read_line
@@ -79,28 +68,5 @@ module Guard
       ::Guard.listener.paused? ? 'p> ' : '> '
     end
 
-    private
-
-    # Detects whether or not the stty command exists
-    # on the user machine.
-    #
-    # @return [Boolean] the status of stty
-    #
-    def stty_exists?
-      system('hash', 'stty')
-    end
-
-    # Stores the terminal settings so we can resore them
-    # when stopping.
-    #
-    def store_terminal_settings
-      @stty_save = `stty -g 2>/dev/null`.chomp
-    end
-
-    # Restore terminal settings
-    #
-    def restore_terminal_settings
-      system('stty', @stty_save, '2>/dev/null')
-    end
   end
 end

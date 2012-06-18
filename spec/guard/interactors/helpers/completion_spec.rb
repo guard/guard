@@ -1,8 +1,11 @@
 require 'spec_helper'
-require 'guard/interactors/completion'
+require 'guard/interactors/helpers/completion'
 
-describe Guard::Completion do
-  subject { Guard::ReadlineInteractor.new }
+describe Guard::CompletionHelper do
+  subject do
+    Class.new(::Guard::Interactor) { include Guard::CompletionHelper }.new
+  end
+
   
   describe '#auto_complete' do
     it 'returns the matching list of words' do

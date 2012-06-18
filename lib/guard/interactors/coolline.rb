@@ -1,12 +1,15 @@
-require 'guard/interactors/completion'
-
 module Guard
+
+  autoload :TerminalHelper,   'guard/interactors/helpers/terminal'
+  autoload :CompletionHelper, 'guard/interactors/helpers/completion'
+  autoload :UI,               'guard/ui'
 
   # Interactor that uses coolline for getting the user input.
   # This enables history support and auto-completion,
   #
   class CoollineInteractor < Interactor
-    include ::Guard::Completion
+    include ::Guard::CompletionHelper
+    include ::Guard::TerminalHelper
 
     # Template method for checking if the Interactor is
     # available in the current environment?
@@ -27,7 +30,7 @@ module Guard
       ::Guard::UI.error "Please add \"gem 'coolline'\" to your Gemfile and run Guard with \"bundle exec\"." unless silent
       false
     end
-
+    
     # Read a line from stdin with Readline.
     #
     def read_line
@@ -54,6 +57,6 @@ module Guard
     def prompt
       ::Guard.listener.paused? ? 'p> ' : '>> '
     end
-
+    
   end
 end

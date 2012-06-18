@@ -2,7 +2,7 @@ module Guard
   
   # Module for providing word completion to an interactor.
   #
-  module Completion
+  module CompletionHelper
 
     COMPLETION_ACTIONS = %w[help reload exit pause notification show]
     
