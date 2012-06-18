@@ -236,11 +236,6 @@ describe Guard::Runner do
       subject.run_supervised_task(foo_guard, :my_task)
     end
 
-    it 'runs the task within a preserved state' do
-      guard_module.should_receive(:within_preserved_state)
-      subject.run_supervised_task(foo_guard, :my_task)
-    end
-
     context 'with a task that succeeds' do
       context 'without any arguments' do
         before do

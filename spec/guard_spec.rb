@@ -50,7 +50,7 @@ describe Guard do
     end
 
     it "displays an error message when no guard are defined in Guardfile" do
-      described_class::UI.should_receive(:error)
+      described_class::UI.should_receive(:error).with('No guards found in Guardfile, please add at least one.')
       subject
     end
 
@@ -66,6 +66,8 @@ describe Guard do
   end
 
   describe ".setup_signal_traps" do
+    before { ::Guard::Dsl.stub(:evaluate_guardfile) }
+
     unless windows?
       context 'when receiving SIGUSR1' do
         context 'when Guard is running' do
@@ -459,9 +461,9 @@ describe Guard do
   describe ".start" do
     before do
       described_class.stub(:setup)
-      described_class.stub(:interactor => mock('interactor', :start => true))
       described_class.stub(:listener => mock('listener', :start => true))
       described_class.stub(:runner => mock('runner', :run => true))
+      described_class.stub(:within_preserved_state).and_yield
     end
 
     it "setup Guard" do
@@ -473,12 +475,6 @@ describe Guard do
     it "displays an info message" do
       described_class.instance_variable_set('@watchdir', '/foo/bar')
       described_class::UI.should_receive(:info).with("Guard is now watching at '/foo/bar'")
-
-      described_class.start
-    end
-
-    it "tells the interactor to start" do
-      described_class.interactor.should_receive(:start)
 
       described_class.start
     end
@@ -588,7 +584,8 @@ describe Guard do
 
   describe '.within_preserved_state' do
     subject { ::Guard.setup }
-
+    before { Guard.interactor =  ::Guard::Interactor.new }
+    
     it 'disables the interactor before running the block and then re-enables it when done' do
       subject.interactor.should_receive(:stop)
       subject.interactor.should_receive(:start)

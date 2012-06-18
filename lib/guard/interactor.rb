@@ -4,7 +4,8 @@ module Guard
   autoload :CoollineInteractor, 'guard/interactors/coolline'
   autoload :SimpleInteractor,   'guard/interactors/simple'
   autoload :DslDescriber,       'guard/dsl_describer'
-
+  autoload :UI,                 'guard/ui'
+  
   # The interactor triggers specific action from input
   # read by a interactor implementation.
   #
@@ -106,13 +107,17 @@ module Guard
     #
     def start
       return if ENV['GUARD_ENV'] == 'test'
+
+      ::Guard::UI.debug 'Start interactor'
       @thread = Thread.new { read_line } if !@thread || !@thread.alive?
     end
 
     # Kill interactor thread if not current
     #
     def stop
-      return if ENV['GUARD_ENV'] == 'test'
+      return if !@thread || ENV['GUARD_ENV'] == 'test'
+
+      ::Guard::UI.debug 'Stop interactor'
       unless Thread.current == @thread
         @thread.kill
       end
@@ -147,7 +152,9 @@ module Guard
       when :reload
         ::Guard.reload(scopes)
       when :change
-        ::Guard.runner.run_on_changes(rest, [], [])
+        ::Guard.within_preserved_state do
+          ::Guard.runner.run_on_changes(rest, [], [])
+        end
       when :run_all
         ::Guard.run_all(scopes)
       when :notification

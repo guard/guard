@@ -84,26 +84,24 @@ module Guard
     # @raise [:task_has_failed] when task has failed
     #
     def run_supervised_task(guard, task, *args)
-      ::Guard.within_preserved_state do
-        begin
-          catch Runner.stopping_symbol_for(guard) do
-            guard.hook("#{ task }_begin", *args)
-            result = guard.send(task, *args)
-            guard.hook("#{ task }_end", result)
-            result
-          end
-
-        rescue NoMethodError
-          # Do nothing
-        rescue Exception => ex
-          UI.error("#{ guard.class.name } failed to achieve its <#{ task.to_s }>, exception was:" +
-                   "\n#{ ex.class }: #{ ex.message }\n#{ ex.backtrace.join("\n") }")
-
-          ::Guard.guards.delete guard
-          UI.info("\n#{ guard.class.name } has just been fired")
-
-          ex
+      begin
+        catch Runner.stopping_symbol_for(guard) do
+          guard.hook("#{ task }_begin", *args)
+          result = guard.send(task, *args)
+          guard.hook("#{ task }_end", result)
+          result
         end
+
+      rescue NoMethodError
+        # Do nothing
+      rescue Exception => ex
+        UI.error("#{ guard.class.name } failed to achieve its <#{ task.to_s }>, exception was:" +
+                 "\n#{ ex.class }: #{ ex.message }\n#{ ex.backtrace.join("\n") }")
+
+        ::Guard.guards.delete guard
+        UI.info("\n#{ guard.class.name } has just been fired")
+
+        ex
       end
     end
 

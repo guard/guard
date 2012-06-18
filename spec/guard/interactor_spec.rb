@@ -99,6 +99,10 @@ describe Guard::Interactor do
   end
 
   describe '#process_input' do
+    before do
+      ::Guard.stub(:within_preserved_state).and_yield
+    end
+    
     it 'shows the help on help action' do
       subject.should_receive(:extract_scopes_and_action).with('help').and_return [{ }, :help, []]
       subject.should_receive(:help)
