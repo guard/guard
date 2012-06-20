@@ -5,7 +5,7 @@ module Guard
   autoload :SimpleInteractor,   'guard/interactors/simple'
   autoload :DslDescriber,       'guard/dsl_describer'
   autoload :UI,                 'guard/ui'
-  
+
   # The interactor triggers specific action from input
   # read by a interactor implementation.
   #
@@ -102,7 +102,7 @@ module Guard
     def self.available?(silent = false)
       true
     end
-    
+
     # Start the line reader in its own thread.
     #
     def start
@@ -211,7 +211,7 @@ module Guard
     #
     def extract_scopes_and_action(line)
       entries = line.split(' ')
-    
+
       scopes = extract_scopes(entries)
       action = extract_action(entries)
 
@@ -230,21 +230,21 @@ module Guard
     #
     def extract_scopes(entries)
       scopes = { }
-      
+
       entries.delete_if do |entry|
         if guard = ::Guard.guards(entry)
           scopes[:guard] ||= guard
           true
-          
+
         elsif group = ::Guard.groups(entry)
           scopes[:group] ||= group
           true
-          
+
         else
           false
         end
       end
-    
+
       scopes
     end
 
@@ -265,7 +265,7 @@ module Guard
           false
         end
       end
-      
+
       action
     end
 
