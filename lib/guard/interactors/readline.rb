@@ -45,6 +45,22 @@ module Guard
       end
     end
 
+    # Stop the interactor.
+    #
+    def stop
+      # Erase the current line for Ruby Readline
+      if Readline.respond_to?(:refresh_line)
+        Readline.refresh_line
+      end
+      
+      # Erase the current line for Rb-Readline
+      if defined?(RbReadline) && RbReadline.rl_outstream
+        RbReadline._rl_erase_entire_line
+      end
+
+      super
+    end
+    
     # Read a line from stdin with Readline.
     #
     def read_line
