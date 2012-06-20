@@ -1,6 +1,6 @@
 ## Master
 
-### Master
+### 1.2.1 - 20 June, 2012
 
 ### Bug fix
 
