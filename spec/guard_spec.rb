@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Guard do
   before { ::Guard::Interactor.stub(:fabricate) }
-  
+
   describe ".setup" do
     let(:options) { { :my_opts => true, :guardfile => File.join(@fixture_path, "Guardfile") } }
     subject { ::Guard.setup(options) }
@@ -465,6 +465,7 @@ describe Guard do
       ::Guard.stub(:listener => mock('listener', :start => true))
       ::Guard.stub(:runner => mock('runner', :run => true))
       ::Guard.stub(:within_preserved_state).and_yield
+      ::Guard.instance_variable_set('@allow_stop', mock('turnstile', :wait => true, :signal => true))
     end
 
     it "setup Guard" do
@@ -586,7 +587,7 @@ describe Guard do
   describe '.within_preserved_state' do
     subject { ::Guard.setup }
     before { subject.interactor =  stub('interactor').as_null_object }
-    
+
     it 'disables the interactor before running the block and then re-enables it when done' do
       subject.interactor.should_receive(:stop)
       subject.interactor.should_receive(:start)

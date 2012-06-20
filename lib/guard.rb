@@ -45,6 +45,7 @@ module Guard
       @options    = options
       @watchdir   = (options[:watchdir] && File.expand_path(options[:watchdir])) || Dir.pwd
       @runner     = Runner.new
+      @allow_stop = Listen::Turnstile.new
 
       UI.clear
       deprecated_options_warning
@@ -104,7 +105,7 @@ module Guard
     def setup_listener
       listener_callback = lambda do |modified, added, removed|
         Dsl.reevaluate_guardfile if Watcher.match_guardfile?(modified)
-        
+
         ::Guard.within_preserved_state do
           runner.run_on_changes(modified, added, removed)
         end
@@ -156,18 +157,21 @@ module Guard
       within_preserved_state do
         runner.run(:start)
       end
-      
-      listener.start
+
+      listener.start(false)
+
+      @allow_stop.wait if @allow_stop
     end
 
     # Stop Guard listening to file changes
     #
     def stop
+      listener.stop
       interactor.stop if interactor
       runner.run(:stop)
       UI.info 'Bye bye...', :reset => true
-      #TODO: Move to top when https://github.com/guard/listen/issues/46 is resolved
-      listener.stop
+
+      @allow_stop.signal if @allow_stop
     end
 
     # Reload Guardfile and all Guards currently enabled.
