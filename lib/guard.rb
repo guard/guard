@@ -104,7 +104,10 @@ module Guard
     def setup_listener
       listener_callback = lambda do |modified, added, removed|
         Dsl.reevaluate_guardfile if Watcher.match_guardfile?(modified)
-        runner.run_on_changes(modified, added, removed)
+        
+        ::Guard.within_preserved_state do
+          runner.run_on_changes(modified, added, removed)
+        end
       end
 
       listener_options = { :relative_paths => true }
@@ -126,7 +129,6 @@ module Guard
     def setup_interactor
       unless options[:no_interactions]
         @interactor = Interactor.fabricate
-        @interactor.start if @interactor
       end
     end
 
@@ -151,19 +153,20 @@ module Guard
       setup(options)
       UI.info "Guard is now watching at '#{ @watchdir }'"
 
-      interactor.start if interactor
-
-      runner.run(:start)
+      within_preserved_state do
+        runner.run(:start)
+      end
+      
       listener.start
     end
 
     # Stop Guard listening to file changes
     #
     def stop
+      listener.stop
       interactor.stop if interactor
       runner.run(:stop)
       UI.info 'Bye bye...', :reset => true
-      listener.stop
     end
 
     # Reload Guardfile and all Guards currently enabled.
@@ -171,10 +174,12 @@ module Guard
     # @param [Hash] scopes an hash with a guard or a group scope
     #
     def reload(scopes)
-      UI.clear
-      UI.action_with_scopes('Reload', scopes)
-      Dsl.reevaluate_guardfile if scopes.empty?
-      runner.run(:reload, scopes)
+      within_preserved_state do
+        UI.clear
+        UI.action_with_scopes('Reload', scopes)
+        Dsl.reevaluate_guardfile if scopes.empty?
+        runner.run(:reload, scopes)
+      end
     end
 
     # Trigger `run_all` on all Guards currently enabled.
@@ -182,9 +187,11 @@ module Guard
     # @param [Hash] scopes an hash with a guard or a group scope
     #
     def run_all(scopes)
-      UI.clear
-      UI.action_with_scopes('Run', scopes)
-      runner.run(:run_all, scopes)
+      within_preserved_state do
+        UI.clear
+        UI.action_with_scopes('Run', scopes)
+        runner.run(:run_all, scopes)
+      end
     end
 
     # Pause Guard listening to file changes.

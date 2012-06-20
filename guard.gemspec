@@ -20,7 +20,7 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency 'bundler'
   s.add_development_dependency 'rspec',       '~> 2.10.0'
-  s.add_development_dependency 'guard-rspec', '~> 0.7.0'
+  s.add_development_dependency 'guard-rspec', '~> 1.1.0'
   s.add_development_dependency 'yard'
   s.add_development_dependency 'redcarpet'
   s.add_development_dependency 'pry'

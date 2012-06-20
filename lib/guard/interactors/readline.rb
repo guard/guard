@@ -1,5 +1,9 @@
 module Guard
 
+  autoload :TerminalHelper,   'guard/interactors/helpers/terminal'
+  autoload :CompletionHelper, 'guard/interactors/helpers/completion'
+  autoload :UI,               'guard/ui'
+
   # Interactor that used readline for getting the user input.
   # This enables history support and auto-completion, but is
   # broken on OS X without installing `rb-readline` or using JRuby.
@@ -7,17 +11,30 @@ module Guard
   # @see http://bugs.ruby-lang.org/issues/5539
   #
   class ReadlineInteractor < Interactor
+    include ::Guard::CompletionHelper
+    include ::Guard::TerminalHelper
 
-    COMPLETION_ACTIONS   = %w[help reload exit pause notification]
+    # Test if the Interactor is
+    # available in the current environment?
+    #
+    # @param [Boolean] silent true if no error messages should be shown
+    # @return [Boolean] the availability status
+    #
+    def self.available?(silent = false)
+      require 'readline'
+
+      if defined?(RbReadline) || defined?(JRUBY_VERSION) || RbConfig::CONFIG['target_os'] =~ /linux/i
+        true
+      else
+        ::Guard::UI.error 'The :readline interactor runs only fine on JRuby, Linux or with the gem \'rb-readline\' installed.' unless silent
+        false
+      end
+    end
 
     # Initialize the interactor.
     #
     def initialize
       require 'readline'
-
-      unless defined?(RbReadline) || defined?(JRUBY_VERSION) || RbConfig::CONFIG['target_os'] =~ /linux/i
-        ::Guard::UI.info 'Please add rb-readline for proper Readline support.'
-      end
 
       Readline.completion_proc = proc { |word| auto_complete(word) }
 
@@ -28,23 +45,27 @@ module Guard
       end
     end
 
-    # Start the interactor.
-    #
-    def start
-      store_terminal_settings if stty_exists?
-      super
-    end
-
     # Stop the interactor.
     #
     def stop
-      super
-      restore_terminal_settings if stty_exists?
-    end
+      # Erase the current line for Ruby Readline
+      if Readline.respond_to?(:refresh_line)
+        Readline.refresh_line
+      end
+      
+      # Erase the current line for Rb-Readline
+      if defined?(RbReadline) && RbReadline.rl_outstream
+        RbReadline._rl_erase_entire_line
+      end
 
+      super
+    end
+    
     # Read a line from stdin with Readline.
     #
     def read_line
+      require 'readline'
+
       while line = Readline.readline(prompt, true)
         line.gsub!(/^\W*/, '')
         if line =~ /^\s*$/ or Readline::HISTORY.to_a[-2] == line
@@ -55,26 +76,6 @@ module Guard
       end
     end
 
-    # Auto complete the given word.
-    #
-    # @param [String] word the partial word
-    # @return [Array<String>] the matching words
-    #
-    def auto_complete(word)
-      completion_list.grep(/^#{ Regexp.escape(word) }/)
-    end
-
-    # Get the auto completion list.
-    #
-    # @return [Array<String>] the list of words
-    #
-    def completion_list
-      groups = ::Guard.groups.map { |group| group.name.to_s }
-      guards = ::Guard.guards.map { |guard| guard.class.to_s.downcase.sub('guard::', '') }
-
-      COMPLETION_ACTIONS + groups + guards - ['default']
-    end
-
     # The current interactor prompt
     #
     # @return [String] the prompt to show
@@ -83,28 +84,5 @@ module Guard
       ::Guard.listener.paused? ? 'p> ' : '> '
     end
 
-    private
-
-    # Detects whether or not the stty command exists
-    # on the user machine.
-    #
-    # @return [Boolean] the status of stty
-    #
-    def stty_exists?
-      system('hash', 'stty')
-    end
-
-    # Stores the terminal settings so we can resore them
-    # when stopping.
-    #
-    def store_terminal_settings
-      @stty_save = `stty -g 2>/dev/null`.chomp
-    end
-
-    # Restore terminal settings
-    #
-    def restore_terminal_settings
-      system('stty', @stty_save, '2>/dev/null')
-    end
   end
 end

@@ -1,7 +1,10 @@
 module Guard
 
   autoload :ReadlineInteractor, 'guard/interactors/readline'
+  autoload :CoollineInteractor, 'guard/interactors/coolline'
   autoload :SimpleInteractor,   'guard/interactors/simple'
+  autoload :DslDescriber,       'guard/dsl_describer'
+  autoload :UI,                 'guard/ui'
 
   # The interactor triggers specific action from input
   # read by a interactor implementation.
@@ -14,15 +17,19 @@ module Guard
   # - r, reload        => Reload Guard
   # - p, pause         => Toggle file modification listener
   # - n, notification  => Toggle notifications
+  # - s, show          => Show Guard plugin configuration
+  # - c, change        => Trigger a file change
   # - <enter>          => Run all
   #
   # It's also possible to scope `reload` and `run all` actions to only a specified group or a guard.
   #
   # @example Reload backend group
   #   backend reload
+  #   reload backend
   #
   # @example Reload rspec guard
   #   spork reload
+  #   reload spork
   #
   # @example Run all jasmine specs
   #   jasmine
@@ -31,11 +38,15 @@ module Guard
   #
   class Interactor
 
-    HELP_ENTRIES         = %w[help h]
-    RELOAD_ENTRIES       = %w[reload r]
-    STOP_ENTRIES         = %w[exit e quit q]
-    PAUSE_ENTRIES        = %w[pause p]
-    NOTIFICATION_ENTRIES = %w[notification n]
+    ACTIONS = {
+      :help         => %w[help h],
+      :reload       => %w[reload r],
+      :stop         => %w[exit e quit q],
+      :pause        => %w[pause p],
+      :notification => %w[notification n],
+      :show         => %w[show s],
+      :change       => %w[change c]
+    }
 
     # Set the interactor implementation
     #
@@ -52,8 +63,10 @@ module Guard
     #
     def self.fabricate
       case @interactor
+      when :coolline
+        CoollineInteractor.new if CoollineInteractor.available?
       when :readline
-        ReadlineInteractor.new
+        ReadlineInteractor.new if ReadlineInteractor.available?
       when :simple
         SimpleInteractor.new
       when :off
@@ -77,26 +90,34 @@ module Guard
     # @return [Interactor] an interactor implementation
     #
     def self.auto_detect
-      require 'readline'
+      [CoollineInteractor, ReadlineInteractor, SimpleInteractor].detect { |interactor| interactor.available?(true) }.new
+    end
 
-      if defined?(RbReadline) || defined?(JRUBY_VERSION) || RbConfig::CONFIG['target_os'] =~ /linux/i
-        ReadlineInteractor.new
-      else
-        SimpleInteractor.new
-      end
+    # Template method for checking if the Interactor is
+    # available in the current environment?
+    #
+    # @param [Boolean] silent true if no error messages should be shown
+    # @return [Boolean] the availability status
+    #
+    def self.available?(silent = false)
+      true
     end
 
     # Start the line reader in its own thread.
     #
     def start
       return if ENV['GUARD_ENV'] == 'test'
+
+      ::Guard::UI.debug 'Start interactor'
       @thread = Thread.new { read_line } if !@thread || !@thread.alive?
     end
 
     # Kill interactor thread if not current
     #
     def stop
-      return if ENV['GUARD_ENV'] == 'test'
+      return if !@thread || ENV['GUARD_ENV'] == 'test'
+
+      ::Guard::UI.debug 'Stop interactor'
       unless Thread.current == @thread
         @thread.kill
       end
@@ -116,11 +137,13 @@ module Guard
     # @param [String] line the input line
     #
     def process_input(line)
-      scopes, action = extract_scopes_and_action(line)
+      scopes, action, rest = extract_scopes_and_action(line)
 
       case action
       when :help
         help
+      when :show
+        DslDescriber.show(::Guard.options)
       when :stop
         ::Guard.stop
         exit
@@ -128,6 +151,10 @@ module Guard
         ::Guard.pause
       when :reload
         ::Guard.reload(scopes)
+      when :change
+        ::Guard.within_preserved_state do
+          ::Guard.runner.run_on_changes(rest, [], [])
+        end
       when :run_all
         ::Guard.run_all(scopes)
       when :notification
@@ -156,6 +183,8 @@ module Guard
       puts '[p]ause          Toggle file modification listener'
       puts '[r]eload         Reload Guard'
       puts '[n]otification   Toggle notifications'
+      puts '[s]how           Show available Guard plugins'
+      puts '[c]hange <file>  Trigger a file change'
       puts '<enter>          Run all Guards'
       puts ''
       puts 'You can scope the reload action to a specific guard or group:'
@@ -171,69 +200,73 @@ module Guard
     end
 
     # Extract the Guard or group scope and action from the
-    # input line.
+    # input line. There's no strict order for scopes and
+    # actions.
     #
     # @example `spork reload` will only reload rspec
     # @example `jasmine` will only run all jasmine specs
     #
     # @param [String] line the readline input
-    # @return [Array] the group or guard scope and the action
+    # @return [Array] the group or guard scope, the action and the rest
     #
     def extract_scopes_and_action(line)
-      scopes  = { }
       entries = line.split(' ')
 
-      case entries.length
-      when 1
-        unless action = action_from_entry(entries[0])
-          scopes = scopes_from_entry(entries[0])
-        end
-      when 2
-        scopes = scopes_from_entry(entries[0])
-        action = action_from_entry(entries[1])
-      end
+      scopes = extract_scopes(entries)
+      action = extract_action(entries)
 
       action = :run_all if !action && (!scopes.empty? || entries.empty?)
 
-      [scopes, action]
+      [scopes, action, entries]
     end
 
     private
 
-    # Extract guard or group scope from entry if valid
+    # Extract a guard or group scope from entry if valid.
+    # Any entry found will be removed from the entries.
     #
-    # @param [String] entry the possible scope entry
+    # @param [Array<String>] entries the user entries
     # @return [Hash] a hash with a Guard or a group scope
     #
-    def scopes_from_entry(entry)
+    def extract_scopes(entries)
       scopes = { }
-      if guard = ::Guard.guards(entry)
-        scopes[:guard] = guard
-      end
-      if group = ::Guard.groups(entry)
-        scopes[:group] = group
+
+      entries.delete_if do |entry|
+        if guard = ::Guard.guards(entry)
+          scopes[:guard] ||= guard
+          true
+
+        elsif group = ::Guard.groups(entry)
+          scopes[:group] ||= group
+          true
+
+        else
+          false
+        end
       end
 
       scopes
     end
 
     # Find the action for the given input entry.
+    # Any action found will be removed from the entries.
     #
-    # @param [String] entry the possible action entry
+    # @param [Array<String>] entries the user entries
     # @return [Symbol] a Guard action
     #
-    def action_from_entry(entry)
-      if STOP_ENTRIES.include?(entry)
-        :stop
-      elsif RELOAD_ENTRIES.include?(entry)
-        :reload
-      elsif PAUSE_ENTRIES.include?(entry)
-        :pause
-      elsif HELP_ENTRIES.include?(entry)
-        :help
-      elsif NOTIFICATION_ENTRIES.include?(entry)
-        :notification
+    def extract_action(entries)
+      action = nil
+
+      entries.delete_if do |entry|
+        if command = ACTIONS.detect { |k, list| list.include?(entry) }
+          action ||= command.first
+          true
+        else
+          false
+        end
       end
+
+      action
     end
 
   end
