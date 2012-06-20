@@ -3,7 +3,7 @@ module Guard
   autoload :TerminalHelper,   'guard/interactors/helpers/terminal'
   autoload :CompletionHelper, 'guard/interactors/helpers/completion'
   autoload :UI,               'guard/ui'
-  
+
   # Interactor that used readline for getting the user input.
   # This enables history support and auto-completion, but is
   # broken on OS X without installing `rb-readline` or using JRuby.
@@ -30,7 +30,7 @@ module Guard
         false
       end
     end
-    
+
     # Initialize the interactor.
     #
     def initialize
@@ -49,7 +49,7 @@ module Guard
     #
     def read_line
       require 'readline'
-      
+
       while line = Readline.readline(prompt, true)
         line.gsub!(/^\W*/, '')
         if line =~ /^\s*$/ or Readline::HISTORY.to_a[-2] == line
