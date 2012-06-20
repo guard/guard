@@ -26,11 +26,11 @@ module Guard
         false
       end
 
-    rescue
+    rescue LoadError => e
       ::Guard::UI.error "Please add \"gem 'coolline'\" to your Gemfile and run Guard with \"bundle exec\"." unless silent
       false
     end
-    
+
     # Read a line from stdin with Readline.
     #
     def read_line
@@ -57,6 +57,6 @@ module Guard
     def prompt
       ::Guard.listener.paused? ? 'p> ' : '>> '
     end
-    
+
   end
 end
