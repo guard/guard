@@ -11,7 +11,7 @@ module Guard
     include ::Guard::CompletionHelper
     include ::Guard::TerminalHelper
 
-    # Template method for checking if the Interactor is
+    # Test if the Interactor is
     # available in the current environment?
     #
     # @param [Boolean] silent true if no error messages should be shown
