@@ -1,8 +1,16 @@
 ## Master
 
+### Master
+
+### Bug fix
+
+- Work around a Listen issue where the stop task isn't executed. ([@netzpirat][])
+
 ### 1.2.0 - 20 June, 2012
 
-- Add a [Coolline](https://github.com/Mon-Ouie/coolline) based interactor (Ruby 1.9.3 only).  ([@netzpirat][])
+### Improvements
+
+- Add a [Coolline](https://github.com/Mon-Ouie/coolline) based interactor (Ruby 1.9.3 only). ([@netzpirat][])
 - More flexible command parser for all interactors. ([@netzpirat][])
 - Add 'show' command to describe all plugins in the interactor. ([@netzpirat][])
 - Add 'change' command to trigger a file change event in the interactor. ([@netzpirat][])

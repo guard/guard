@@ -163,10 +163,11 @@ module Guard
     # Stop Guard listening to file changes
     #
     def stop
-      listener.stop
       interactor.stop if interactor
       runner.run(:stop)
       UI.info 'Bye bye...', :reset => true
+      #TODO: Move to top when https://github.com/guard/listen/issues/46 is resolved
+      listener.stop
     end
 
     # Reload Guardfile and all Guards currently enabled.
