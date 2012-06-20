@@ -1,6 +1,6 @@
 ## Master
 
-### Improvements
+### 1.2.0 - 20 June, 2012
 
 - Add a [Coolline](https://github.com/Mon-Ouie/coolline) based interactor (Ruby 1.9.3 only).  ([@netzpirat][])
 - More flexible command parser for all interactors. ([@netzpirat][])
