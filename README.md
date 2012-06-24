@@ -7,6 +7,9 @@ This document contains a lot of information, please take your time and read thes
 any questions, ask them in our [Google group](http://groups.google.com/group/guard-dev) or on `#guard`
 (irc.freenode.net).
 
+Information on advanced topics like create your own Guard plugin, programatic use of Guard, hooks and callbacks and
+more can be found in the [Guard wiki](https://github.com/guard/guard/wiki).
+
 Before you file an issue, make sure you have read the _[file an issue](#file-an-issue)_ section that contains some
 important information.
 
