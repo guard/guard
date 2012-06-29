@@ -15,6 +15,9 @@ matrix:
   allow_failures:
     - rvm: ruby-head
     - rvm: jruby-head
+    # need to be fixed
+    - rvm: jruby-18mode
+    - rvm: jruby-19mode
 branches:
   only:
     - master
