@@ -3,32 +3,30 @@ source :rubygems
 gemspec
 
 gem 'rake'
-
-platform :ruby_19 do
-  gem 'coolline'
-end
-
-unless defined?(JRUBY_VERSION)
-  gem 'redcarpet'
-end
-
-group :guard do
-  gem 'guard-ronn'
-end
-
-
-require 'rbconfig'
-
-if RbConfig::CONFIG['target_os'] =~ /darwin/i
-  gem 'growl', :require => false
-elsif RbConfig::CONFIG['target_os'] =~ /linux/i
-  gem 'libnotify',  '~> 0.7.1', :require => false
-elsif RbConfig::CONFIG['target_os'] =~ /mswin|mingw/i
-  gem 'win32console', :require => false
-  gem 'rb-notifu', '>= 0.0.4', :require => false
-end
-
-
 gem 'listen', :github => 'guard/listen'
-gem 'guard-rspec'
 
+# The development group will no be
+# installed on Travis CI.
+#
+group :development do
+
+  gem 'pry'
+  gem 'yard'
+  gem 'redcarpet'
+  gem 'guard-ronn'
+
+  platform :ruby_19 do
+    gem 'coolline'
+  end
+
+  require 'rbconfig'
+
+  if RbConfig::CONFIG['target_os'] =~ /darwin/i
+    gem 'growl', :require => false
+  elsif RbConfig::CONFIG['target_os'] =~ /linux/i
+    gem 'libnotify',  '~> 0.7.1', :require => false
+  elsif RbConfig::CONFIG['target_os'] =~ /mswin|mingw/i
+    gem 'win32console', :require => false
+    gem 'rb-notifu', '>= 0.0.4', :require => false
+  end
+end
