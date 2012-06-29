@@ -12,7 +12,6 @@ group :development do
 
   gem 'pry'
 
-  gem 'guard-rspec'
   gem 'guard-ronn'
 
   gem 'yard'
@@ -41,4 +40,5 @@ end
 #
 group :test do
   gem 'rspec'
+  gem 'guard-rspec'
 end
