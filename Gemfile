@@ -4,13 +4,18 @@ gemspec
 
 gem 'rake'
 
-platform :ruby do
+platform :ruby_19 do
   gem 'coolline'
+end
+
+platform :ruby do
+  gem 'redcarpet'
 end
 
 group :guard do
   gem 'guard-ronn'
 end
+
 
 require 'rbconfig'
 
