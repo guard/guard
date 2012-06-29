@@ -6,9 +6,13 @@ rvm:
   - ree
   # - jruby-18mode
   # - jruby-19mode
-  # - jruby-head
+  - jruby-head
   - rbx-18mode
   - rbx-19mode
+matrix:
+  allow_failures:
+    - rvm: ruby-head
+    - rvm: jruby-head
 branches:
   only:
     - master
