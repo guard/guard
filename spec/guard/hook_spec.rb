@@ -8,7 +8,7 @@ describe Guard::Hook do
 
   after { described_class.reset_callbacks! }
 
-  after(:all) { ::Guard.instance_eval { remove_const(:Dummy) } }
+  after(:all) { ::Guard.instance_eval { remove_const(:Dummy) if defined?(::Dummy) } }
 
   describe "--module methods--" do
     before { described_class.add_callback(listener, guard_class, :start_begin) }
