@@ -22,6 +22,5 @@ notifications:
     - thibaud@thibaud.me
     - rymai@rymai.me
     - michi@netzpiraten.ch
-    - yann.lugrin@sans-savoir.net
     - maher@sallam.me
   irc: "irc.freenode.org#guard"
