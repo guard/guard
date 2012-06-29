@@ -30,5 +30,5 @@ end
 
 
 gem 'listen', :github => 'guard/listen'
-gem 'guard-rspec', :github => 'guard/guard-rspec', :branch => 'guard_1_1'
+gem 'guard-rspec'
 
