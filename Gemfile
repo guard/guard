@@ -8,7 +8,7 @@ platform :ruby_19 do
   gem 'coolline'
 end
 
-platform :ruby do
+unless defined?(JRUBY_VERSION)
   gem 'redcarpet'
 end
 
