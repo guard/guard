@@ -18,7 +18,7 @@ Features
 
 * File system changes handled by our awesome [Listen](https://github.com/guard/listen) gem.
 * Support for visual system notifications.
-* Huge ([more than 120](https://rubygems.org/search?query=guard-)) guard extensions eco-system.
+* Huge eco-system with [more than 130](https://rubygems.org/search?query=guard-)) guard plugins.
 * Tested against Ruby 1.8.7, 1.9.2, 1.9.3, REE and the latest versions of JRuby & Rubinius.
 
 Screencast
@@ -171,22 +171,22 @@ group :development do
 end
 ```
 
-Add more Guards
----------------
+Add Guard plugins
+-----------------
 
-Guard is now ready to use and you should add some Guards for your specific use. Start exploring the many Guards
+Guard is now ready to use and you should add some Guard plugins for your specific use. Start exploring the many Guards
 available by browsing the [Guard organization](https://github.com/guard) on GitHub or by searching for `guard-` on
 [RubyGems](https://rubygems.org/search?utf8=%E2%9C%93&query=guard-).
 
-When you have found a Guard of your interest, add it to your `Gemfile`:
+When you have found a Guard plugin of your interest, add it to your `Gemfile`:
 
 ```ruby
 group :development do
-  gem '<guard-name>'
+  gem '<guard-plugin-name>'
 end
 ```
 
-See the init section of the Guard usage below to see how to install the supplied Guard template that you can install and
+See the init section of the Guard usage below to see how to install the supplied plugin template that you can install and
 to suit your needs.
 
 Usage
@@ -211,14 +211,14 @@ $ guard help start
 
 ### Init
 
-You can generate a Guardfile and have all installed guards be automatically added into
+You can generate a Guardfile and have all installed plugins be automatically added into
 it by running the `init` task without any option:
 
 ```bash
 $ guard init
 ```
 
-You can also specify the name of an installed Guard to only get that Guard
+You can also specify the name of an installed plugin to only get that plugin template
 in the generated Guardfile:
 
 ```bash
@@ -233,8 +233,7 @@ $ guard init <template-name>
 ```
 
 **Note**: If you already have a `Guardfile` in the current directory, the `init` task can be used
-to append a supplied Guard template from an installed Guard to your existing
-`Guardfile`.
+to append a supplied template from an installed plugin to your existing `Guardfile`.
 
 #### `-b`/`--bare` option
 
@@ -279,7 +278,7 @@ Notifications can also be disabled globally by setting a `GUARD_NOTIFY` environm
 
 #### `-g`/`--group` option
 
-Only certain Guard groups can be run:
+Only certain plugin groups can be run:
 
 ```bash
 $ guard --group group_name another_group_name
@@ -300,7 +299,7 @@ $ guard -d # shortcut
 
 #### `-w`/`--watchdir` option
 
-Guard can watch in any directory instead of the current directory:
+Guard can watch any directory instead of the current directory:
 
 ```bash
 $ guard --watchdir ~/your/fancy/project
@@ -354,7 +353,7 @@ $ guard start --force-polling
 
 ### List
 
-You can list the available Guards with the `list` task:
+You can list the available plugins with the `list` task:
 
 ```bash
 $ guard list
@@ -374,7 +373,7 @@ See also https://github.com/guard/guard/wiki/List-of-available-Guards
 
 ### Show
 
-You can show the structure of the groups and their Guards with the `show` task:
+You can show the structure of the groups and their plugins with the `show` task:
 
 ```bash
 $ guard show
@@ -397,41 +396,41 @@ Interactions
 
 You can interact with Guard and enter commands when Guard has nothing to do. Guard understands the following commands:
 
-* `↩`:                 Run all Guards.
+* `↩`:                 Run all plugins.
 * `h`, `help`:         Show a help of the available interactor commands.
-* `r`, `reload`:       Reload all Guards.
+* `r`, `reload`:       Reload all plugins.
 * `c`, `change`:       Show a help of the available interactor commands.
-* `s`, `show`:         Show Guard plugin configuration.
+* `s`, `show`:         Show the plugin configurations.
 * `n`, `notification`: Toggle system notifications on and off.
 * `p`, `pause`:        Toggles the file modification listener. The prompt will change to `p>` when paused.
                        This is useful when switching Git branches, rebase Git or change whitespace.
-* `e`, `exit`:         Stop all Guards and quit Guard.
+* `e`, `exit`:         Stop all plugins and quit Guard.
 
-Instead of running all Guards with the `↩` key, you can also run a single Guard by entering its name:
+Instead of running all plugins with the `↩` key, you can also run a single plugin by entering its name:
 
 ```bash
 > rspec
 ```
 
-It's also possible to run all Guards within a group by entering the group name:
+It's also possible to run all plugins within a group by entering the group name:
 
 ```bash
 > frontend
 ```
 
-The same applies to Guard reloading. You can reload a Guard with the following command:
+The same applies to reloading. You can reload a plugin with the following command:
 
 ```bash
 > ronn reload
 ```
 
-This will reload only the Ronn Guard. You can also reload all Guards within a group:
+This will reload only the Ronn plugin. You can also reload all plugins within a group:
 
 ```bash
 > backend reload
 ```
 
-The action and plugin or group name can have any order, so you can also write:
+The action and plugin/group name can have any order, so you can also write:
 
 ```bash
 > reload backend
@@ -496,14 +495,14 @@ Guard itself provides the following DSL methods that can be used for configurati
 
 ### guard
 
-The `guard` method allows you to add a Guard to your toolchain and configure it by passing the
-options after the name of the Guard:
+The `guard` method allows you to add a Guard plugin to your toolchain and configure it by passing the
+options after the name of the plugin:
 
 ```ruby
 guard :coffeescript, :input => 'coffeescripts', :output => 'javascripts'
 ```
 
-You can define the same Guard more than once:
+You can define the same plugin more than once:
 
 ```ruby
 guard :coffeescript, :input => 'coffeescripts', :output => 'javascripts'
@@ -529,13 +528,13 @@ guard :jessie do
 end
 ```
 
-This instructs the jessie Guard to watch for file changes in the `spec` folder,
+This instructs the jessie plugin to watch for file changes in the `spec` folder,
 but only for file names that ends with `_spec` or `Spec` and have a file type of `js` or `coffee`.
 
 You can easily test your watcher regular expressions with [Rubular](http://rubular.com/).
 
 When you add a block to the watch expression, you can modify the file name that has been
-detected before sending it to the Guard for processing:
+detected before sending it to the plugin for processing:
 
 ```ruby
 guard :rspec do
@@ -557,7 +556,7 @@ end
 
 ### group
 
-The `group` method allows you to group several Guards together. This comes in handy especially when you
+The `group` method allows you to group several plugins together. This comes in handy especially when you
 have a huge `Guardfile` and want to focus your development on a certain part.
 
 ```ruby
@@ -580,7 +579,7 @@ Groups to be run can be specified with the Guard DSL option `--group` (or `-g`):
 $ guard -g specs
 ```
 
-Guards that don't belong to a group are considered global and are always run.
+Guard plugins that don't belong to a group are considered global and are always run.
 
 ### notification
 
@@ -728,7 +727,7 @@ You can report bugs and feature requests to [GitHub Issues](https://github.com/g
 **Please don't ask question in the issue tracker**, instead ask them in our
 [Google group](http://groups.google.com/group/guard-dev) or on `#guard` (irc.freenode.net).
 
-Try to figure out where the issue belongs to: Is it an issue with Guard itself or with a Guard implementation you're
+Try to figure out where the issue belongs to: Is it an issue with Guard itself or with a Guard plugin you're
 using?
 
 When you file a bug, please try to follow these simple rules if applicable:
