@@ -174,9 +174,9 @@ end
 Add Guard plugins
 -----------------
 
-Guard is now ready to use and you should add some Guard plugins for your specific use. Start exploring the many Guards
-available by browsing the [Guard organization](https://github.com/guard) on GitHub or by searching for `guard-` on
-[RubyGems](https://rubygems.org/search?utf8=%E2%9C%93&query=guard-).
+Guard is now ready to use and you should add some Guard plugins for your specific use. Start exploring the many Guard
+plugins available by browsing the [Guard organization](https://github.com/guard) on GitHub or by searching for `guard-`
+on [RubyGems](https://rubygems.org/search?utf8=%E2%9C%93&query=guard-).
 
 When you have found a Guard plugin of your interest, add it to your `Gemfile`:
 
@@ -636,7 +636,8 @@ interactor :off
 ### callback
 
 The `callback` method allows you to execute arbitrary code before or after any of the `start`, `stop`, `reload`,
-`run_all` and `run_on_change` Guards' method. You can even insert more hooks inside these methods.
+`run_all`, `run_on_changes`, `run_on_additions`, `run_on_modifications` and `run_on_removals` Guard plugins method.
+You can even insert more hooks inside these methods.
 
 ```ruby
 guard :rspec do

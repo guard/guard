@@ -27,7 +27,7 @@ module Guard
         super options
       end
 
-      # List the Guards that are available for use in your system and marks
+      # List the Guard plugins that are available for use in your system and marks
       # those that are currently used in your `Guardfile`.
       #
       # @example Guard list output
@@ -63,7 +63,7 @@ module Guard
         UI.info '* denotes ones already in your Guardfile'
       end
 
-      # Shows all Guards and their options that are defined in
+      # Shows all Guard plugins and their options that are defined in
       # the `Guardfile`.
       #
       # @example guard show output

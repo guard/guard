@@ -1,6 +1,6 @@
 module Guard
 
-  # A group of Guards. There are two reasons why you want to group your guards:
+  # A group of Guard plugins. There are two reasons why you want to group your guards:
   #
   # - You can start only certain Groups from the command line by passing the `--group` option.
   # - Abort task execution chain on failure within a group.
@@ -25,7 +25,7 @@ module Guard
     # @param [String] name the name of the group
     # @param [Hash] options the group options
     # @option options [Boolean] halt_on_fail if a task execution
-    #   should be halted for all Guards in this group if one Guard throws `:task_has_failed`
+    #   should be halted for all Guard plugins in this group if a Guard plugin throws `:task_has_failed`
     #
     def initialize(name, options = {})
       @name    = name.to_sym

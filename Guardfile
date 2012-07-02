@@ -8,22 +8,8 @@ group :specs do
   end
 end
 
-# group :docs do
-#   guard :ronn do
-#     watch(%r{^man/.+\.ronn?$})
-#   end
-# end
-
-# require 'guard/guard'
-#
-# module ::Guard
-#   class Breaking < ::Guard::Guard
-#     def run_all
-#       raise "Fool !"
-#     end
-#   end
-# end
-#
-# group "exceptional" do
-#   guard :breaking
-# end
+group :docs do
+  guard :ronn do
+    watch(%r{^man/.+\.ronn?$})
+  end
+end

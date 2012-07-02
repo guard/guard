@@ -78,7 +78,7 @@ describe Guard::Dsl do
     lambda { described_class.evaluate_guardfile }.should raise_error
   end
 
-  it "doesn't display an error message when no Guards are defined in Guardfile" do
+  it "doesn't display an error message when no Guard plugins are defined in Guardfile" do
     ::Guard::Dsl.stub!(:instance_eval_guardfile)
     ::Guard.stub!(:guards).and_return([])
     Guard::UI.should_not_receive(:error)
@@ -136,7 +136,7 @@ describe Guard::Dsl do
     end
 
     it "raises error when guardfile_content ends up empty or nil" do
-      Guard::UI.should_receive(:error).with("No Guards found in Guardfile, please add at least one.")
+      Guard::UI.should_receive(:error).with("No Guard plugins found in Guardfile, please add at least one.")
       described_class.evaluate_guardfile(:guardfile_contents => "")
     end
 

@@ -1,7 +1,7 @@
 module Guard
 
-  # Guard has a hook mechanism that allows you to insert callbacks for individual Guards.
-  # By default, each of the Guard instance methods has a "_begin" and an "_end" hook.
+  # Guard has a hook mechanism that allows you to insert callbacks for individual Guard plugins.
+  # By default, each of the Guard plugin instance methods has a "_begin" and an "_end" hook.
   # For example, the Guard::Guard#start method has a :start_begin hook that is runs immediately
   # before Guard::Guard#start, and a :start_end hook that runs immediately after Guard::Guard#start.
   #

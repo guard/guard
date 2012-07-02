@@ -10,8 +10,8 @@ module Guard
 
     # Initialize a file watcher.
     #
-    # @param [String, Regexp] pattern the pattern to be watched by the guard
-    # @param [Block] action the action to execute before passing the result to the Guard
+    # @param [String, Regexp] pattern the pattern to be watched by the Guard plugin
+    # @param [Block] action the action to execute before passing the result to the Guard plugin
     #
     def initialize(pattern, action = nil)
       @pattern, @action = pattern, action
@@ -36,7 +36,7 @@ module Guard
 
     # Finds the files that matches a Guard.
     #
-    # @param [Guard::Guard] guard the guard which watchers are used
+    # @param [Guard::Guard] guard the Guard plugin which watchers are used
     # @param [Array<String>] files the changed files
     # @return [Array<Object>] the matched watcher response
     #
@@ -62,9 +62,9 @@ module Guard
       end
     end
 
-    # Test if a file would be matched by any of the Guards watchers.
+    # Test if a file would be matched by any of the Guard plugin watchers.
     #
-    # @param [Array<Guard::Guard>] guards the guards to use the watchers from
+    # @param [Array<Guard::Guard>] guards the Guard plugins to use the watchers from
     # @param [Array<String>] files the files to test
     # @return [Boolean] Whether a file matches
     #

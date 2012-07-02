@@ -85,7 +85,7 @@ module Guard
                   :aliases => '-p',
                   :banner  => 'Force usage of the Listen polling listener'
 
-    # Start Guard by initialize the defined Guards and watch the file system.
+    # Start Guard by initialize the defined Guard plugins and watch the file system.
     # This is the default task, so calling `guard` is the same as calling `guard start`.
     #
     # @see Guard.start
@@ -100,7 +100,7 @@ module Guard
 
     desc 'list', 'Lists guards that can be used with init'
 
-    # List the Guards that are available for use in your system and marks
+    # List the Guard plugins that are available for use in your system and marks
     # those that are currently used in your `Guardfile`.
     #
     # @see Guard::DslDescriber.list
@@ -130,14 +130,14 @@ module Guard
                   :aliases => '-b',
                   :banner => 'Generate a bare Guardfile without adding any installed guard into it'
 
-    # Initializes the templates of all installed Guards and adds them
-    # to the `Guardfile` when no Guard name is passed. When passed
-    # a guard name is does the same but only for that Guard.
+    # Initializes the templates of all installed Guard pluginss and adds them
+    # to the `Guardfile` when no Guard name is passed. When passing
+    # a Guard plugin name it does the same but only for that Guard plugin.
     #
     # @see Guard::Guard.initialize_template
     # @see Guard::Guard.initialize_all_templates
     #
-    # @param [String] guard_name the name of the Guard to initialize
+    # @param [String] guard_name the name of the Guard plugin to initialize
     #
     def init(guard_name = nil)
       verify_bundler_presence
@@ -153,10 +153,10 @@ module Guard
       end
     end
 
-    desc 'show', 'Show all defined Guards and their options'
+    desc 'show', 'Show all defined Guard plugins and their options'
     map %w(-T) => :show
 
-    # Shows all Guards and their options that are defined in
+    # Shows all Guard plugins and their options that are defined in
     # the `Guardfile`
     #
     # @see Guard::DslDescriber.show

@@ -75,7 +75,7 @@
 
 <h2 id="DESCRIPTION">DESCRIPTION</h2>
 
-<p>Guard is a command line tool that easily handle events on files modifications.</p>
+<p>Guard is a command line tool to easily handle events on file system modifications.</p>
 
 <h2 id="SYNOPSIS">SYNOPSIS</h2>
 
@@ -111,27 +111,33 @@
 <p><code>-G</code>, <code>--guardfile</code> <var>FILE</var>
   Tells Guard to use FILE as its Guardfile instead of <code>./Guardfile</code> or <code>~/.Guardfile</code>.</p>
 
-<p><code>-A</code>, <code>--watch-all-modifications</code>
-  Watch all file modifications like moves or deletions with.</p>
-
 <p><code>-i</code>, <code>--no-interactions</code>
   Turn off completely any Guard terminal interactions.</p>
 
-<h3 id="init-GUARD-">init [GUARD]</h3>
+<p><code>-B</code>, <code>--no-bundler-warning</code>
+  Turn off warning when Bundler is not present.</p>
+
+<p><code>-l</code>, <code>--latency</code>
+  Overwrite Listen's default latency.</p>
+
+<p><code>-p</code>, <code>--force-pollingg</code>
+  Force usage of the Listen polling listener.</p>
+
+<h3 id="init-GUARD">init <a href="guard.html">GUARD</a></h3>
 
 <p>If no Guardfile is present in the current directory, creates an empty Guardfile.</p>
 
 <p>If <var>GUARD</var> is present, add its default Guardfile configuration to the current Guardfile.
-Note that <var>GUARD</var> is the guard's name without the <code>guard-</code> prefix.
+Note that <var>GUARD</var> is the Guard plugin name without the <code>guard-</code> prefix.
 For instance to initialize guard-rspec, run <code>guard init rspec</code>.</p>
 
 <h3 id="list">list</h3>
 
-<p>Lists guards that can be used with the <code>init</code> command.</p>
+<p>Lists Guard plugins that can be used with the <code>init</code> command.</p>
 
 <h3 id="-T-show">-T, show</h3>
 
-<p>List defined groups and guards for the current Guardfile.</p>
+<p>List defined groups and Guard plugins for the current Guardfile.</p>
 
 <h3 id="-h-help-COMMAND-">-h, help [COMMAND]</h3>
 
@@ -141,7 +147,7 @@ For instance to initialize guard-rspec, run <code>guard init rspec</code>.</p>
 
 <h2 id="EXAMPLES">EXAMPLES</h2>
 
-<p>Initialize Guard and a specific guard at the same time:</p>
+<p>Initialize Guard and a specific Guard plugin at the same time:</p>
 
 <p><code>[bundle exec] guard init [rspec]</code></p>
 
@@ -172,7 +178,7 @@ https://github.com/guard/guard/blob/master/CHANGELOG.md</p>
 
   <ol class='man-decor man-foot man foot'>
     <li class='tl'></li>
-    <li class='tc'>December 2011</li>
+    <li class='tc'>July 2012</li>
     <li class='tr'>guard(1)</li>
   </ol>
 

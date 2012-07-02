@@ -3,7 +3,7 @@ guard(1) -- Guard keeps an eye on your file modifications.
 
 ## DESCRIPTION
 
-Guard is a command line tool that easily handle events on files modifications.
+Guard is a command line tool to easily handle events on file system modifications.
 
 ## SYNOPSIS
 
@@ -39,27 +39,33 @@ The following options are available:
 `-G`, `--guardfile` <FILE>
   Tells Guard to use FILE as its Guardfile instead of `./Guardfile` or `~/.Guardfile`.
 
-`-A`, `--watch-all-modifications`
-  Watch all file modifications like moves or deletions with.
-
 `-i`, `--no-interactions`
   Turn off completely any Guard terminal interactions.
+
+`-B`, `--no-bundler-warning`
+  Turn off warning when Bundler is not present.
+
+`-l`, `--latency`
+  Overwrite Listen's default latency.
+
+`-p`, `--force-pollingg`
+  Force usage of the Listen polling listener.
 
 ### init [GUARD]
 
 If no Guardfile is present in the current directory, creates an empty Guardfile.
 
 If <GUARD> is present, add its default Guardfile configuration to the current Guardfile.
-Note that <GUARD> is the guard's name without the `guard-` prefix.
+Note that <GUARD> is the Guard plugin name without the `guard-` prefix.
 For instance to initialize guard-rspec, run `guard init rspec`.
 
 ### list
 
-Lists guards that can be used with the `init` command.
+Lists Guard plugins that can be used with the `init` command.
 
 ### -T, show
 
-List defined groups and guards for the current Guardfile.
+List defined groups and Guard plugins for the current Guardfile.
 
 ### -h, help [COMMAND]
 
@@ -69,7 +75,7 @@ If <COMMAND> is given, displays a specific help for <TASK>.
 
 ## EXAMPLES
 
-Initialize Guard and a specific guard at the same time:
+Initialize Guard and a specific Guard plugin at the same time:
 
 `[bundle exec] guard init [rspec]`
 

@@ -2,7 +2,7 @@ require 'thread'
 require 'listen'
 
 # Guard is the main module for all Guard related modules and classes.
-# Also other Guard implementation should use this namespace.
+# Also Guard plugins should use this namespace.
 #
 module Guard
 
@@ -133,14 +133,14 @@ module Guard
       end
     end
 
-    # Start Guard by evaluate the `Guardfile`, initialize the declared Guards
+    # Start Guard by evaluate the `Guardfile`, initialize the declared Guard plugins
     # and start the available file change listener.
-    # Main method for Guard that is called from the CLI when guard starts.
+    # Main method for Guard that is called from the CLI when Guard starts.
     #
     # - Setup Guard internals
     # - Evaluate the `Guardfile`
     # - Configure Notifiers
-    # - Initialize the declared Guards
+    # - Initialize the declared Guard plugins
     # - Start the available file change listener
     #
     # @option options [Boolean] clear if auto clear the UI should be done
@@ -174,9 +174,9 @@ module Guard
       @allow_stop.signal if @allow_stop
     end
 
-    # Reload Guardfile and all Guards currently enabled.
+    # Reload Guardfile and all Guard plugins currently enabled.
     #
-    # @param [Hash] scopes an hash with a guard or a group scope
+    # @param [Hash] scopes an hash with a Guard plugin or a group scope
     #
     def reload(scopes)
       within_preserved_state do
@@ -187,9 +187,9 @@ module Guard
       end
     end
 
-    # Trigger `run_all` on all Guards currently enabled.
+    # Trigger `run_all` on all Guard plugins currently enabled.
     #
-    # @param [Hash] scopes an hash with a guard or a group scope
+    # @param [Hash] scopes an hash with a Guard plugin or a group scope
     #
     def run_all(scopes)
       within_preserved_state do
@@ -211,22 +211,22 @@ module Guard
       end
     end
 
-    # Smart accessor for retrieving a specific guard or several guards at once.
+    # Smart accessor for retrieving a specific Guard plugin or several Guard plugins at once.
     #
     # @see Guard.groups
     #
-    # @example Filter Guards by String or Symbol
+    # @example Filter Guard plugins by String or Symbol
     #   Guard.guards('rspec')
     #   Guard.guards(:rspec)
     #
-    # @example Filter Guards by Regexp
+    # @example Filter Guard plugins by Regexp
     #   Guard.guards(/rsp.+/)
     #
-    # @example Filter Guards by Hash
+    # @example Filter Guard plugins by Hash
     #   Guard.guards({ :name => 'rspec', :group => 'backend' })
     #
-    # @param [String, Symbol, Regexp, Hash] filter the filter to apply to the Guards
-    # @return [Array<Guard>] the filtered Guards
+    # @param [String, Symbol, Regexp, Hash] filter the filter to apply to the Guard plugins
+    # @return [Array<Guard>] the filtered Guard plugins
     #
     def guards(filter = nil)
       @guards ||= []
@@ -249,7 +249,7 @@ module Guard
       end
     end
 
-    # Smart accessor for retrieving a specific group or several groups at once.
+    # Smart accessor for retrieving a specific plugin group or several plugin groups at once.
     #
     # @see Guard.guards
     #
@@ -274,13 +274,13 @@ module Guard
       end
     end
 
-    # Add a Guard to use.
+    # Add a Guard plugin to use.
     #
     # @param [String] name the Guard name
     # @param [Array<Watcher>] watchers the list of declared watchers
     # @param [Array<Hash>] callbacks the list of callbacks
-    # @param [Hash] options the Guard options (see the given Guard documentation)
-    # @return [Guard::Guard] the guard added
+    # @param [Hash] options the plugin options (see the given Guard documentation)
+    # @return [Guard::Guard] the added Guard plugin
     #
     def add_guard(name, watchers = [], callbacks = [], options = {})
       if name.to_sym == :ego
@@ -294,11 +294,11 @@ module Guard
       end
     end
 
-    # Add a Guard group.
+    # Add a Guard plugin group.
     #
     # @param [String] name the group name
     # @option options [Boolean] halt_on_fail if a task execution
-    #   should be halted for all Guards in this group if one Guard throws `:task_has_failed`
+    #   should be halted for all Guard plugins in this group if one Guard throws `:task_has_failed`
     # @return [Guard::Group] the group added (or retrieved from the `@groups` variable if already present)
     #
     def add_group(name, options = {})
@@ -329,7 +329,7 @@ module Guard
       @result
     end
 
-    # Tries to load the Guard main class. This transforms the supplied Guard
+    # Tries to load the Guard plugin main class. This transforms the supplied Guard plugin
     # name into a class name:
     #
     # * `guardname` will become `Guard::Guardname`
@@ -367,9 +367,9 @@ module Guard
       end
     end
 
-    # Locate a path to a Guard gem.
+    # Locate a path to a Guard plugin gem.
     #
-    # @param [String] name the name of the Guard without the prefix `guard-`
+    # @param [String] name the name of the Guard plugin without the prefix `guard-`
     # @return [String] the full path to the Guard gem
     #
     def locate_guard(name)
@@ -382,9 +382,9 @@ module Guard
       UI.error "Could not find 'guard-#{ name }' gem path."
     end
 
-    # Returns a list of guard Gem names installed locally.
+    # Returns a list of Guard plugin Gem names installed locally.
     #
-    # @return [Array<String>] a list of guard gem names
+    # @return [Array<String>] a list of Guard plugin gem names
     #
     def guard_gem_names
       if Gem::Version.create(Gem::VERSION) >= Gem::Version.create('1.8.0')

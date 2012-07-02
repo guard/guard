@@ -31,7 +31,7 @@
 - New `--force-polling`/`-p` option to force usage of the Listen polling listener.
 - `--watch-all-modifications`/`-A` option is removed and is now always on.
 - `--no-vendor`/`-I` option is removed because the monitoring gems are now part of the [Listen gem](https://github.com/guard/listen). You can specify a custom version of any monitoring gem directly in your Gemfile if you want to overwrite Listen's default monitoring gems.
-- Guards implementations must now implement `run_on_additions`, `run_on_modifications`, `run_on_removals` and / or `run_on_changes`. The `run_on_change` and `run_on_deletion` methods are deprecated and should be removed as soon as possible. See the [Upgrade guide for existing guards to Guard v1.1](https://github.com/guard/guard/wiki/Upgrade-guide-for-existing-guards-to-Guard-v1.1) for more info.
+- Guard plugins must now implement `run_on_additions`, `run_on_modifications`, `run_on_removals` and / or `run_on_changes`. The `run_on_change` and `run_on_deletion` methods are deprecated and should be removed as soon as possible. See the [Upgrade guide for existing guards to Guard v1.1](https://github.com/guard/guard/wiki/Upgrade-guide-for-existing-guards-to-Guard-v1.1) for more info.
 
 The Listen integration has been supervised by [@thibaudgg][] and executed by [@Maher4Ever][], [@rymai][] and [@thibaudgg][].
 
@@ -219,7 +219,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 
 - [#136][] New CLI `:watch_all_modifications`/`-A` option to watch for deleted and moved files too. ([@limeyd][] and [@netzpirat][])
 - [#97][] Guard dependencies. Task execution can now be halted if a Guard throws `:task_has_failed` and `Guard::Dsl#group` options include `:halt_on_fail => true`. ([@rymai][])
-- [#121][] `Guard.guards` and `Guard.groups` are now smart accessors. Filters can be passed to find a specific Guard/group or several Guards/groups that match (see YARDoc). ([@rymai][] and [@ches][])
+- [#121][] `Guard.guards` and `Guard.groups` are now smart accessors. Filters can be passed to find a specific Guard/group or several Guard plugins/groups that match (see YARDoc). ([@rymai][] and [@ches][])
 - New `Guard::Group` class to store groups defined in Guardfile (with `Guard::Dsl#group`). ([@rymai][])
 
 ### Improvements
@@ -262,7 +262,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 ### New features
 
 - Groups are now stored in a `groups` instance variable (will be used for future features). ([@rymai][])
-- Guards will now receive their group in the options hash at initialization (will be used for future features). ([@rymai][])
+- Guard plugins will now receive their group in the options hash at initialization (will be used for future features). ([@rymai][])
 
 ### Improvement
 
@@ -308,7 +308,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 ### New features
 
 - Guard::Ego is now part of Guard, so Guardfile is automagically re-evaluated when modified. ([@thibaudgg][])
-- [#91][] Show Guards in Guardfile with the `guard -T`. ([@johnbintz][])
+- [#91][] Show Guard plugins in Guardfile with the `guard -T`. ([@johnbintz][])
 
 ### Improvements
 

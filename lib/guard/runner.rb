@@ -38,7 +38,7 @@ module Guard
     # Runs a Guard-task on all registered guards.
     #
     # @param [Symbol] task the task to run
-    # @param [Hash] scope either the guard or the group to run the task on
+    # @param [Hash] scope either the Guard plugin or the group to run the task on
     #
     # @see self.run_supervised_task
     #
@@ -73,7 +73,7 @@ module Guard
       end
     end
 
-    # Run a Guard task, but remove the Guard when his work leads to a system failure.
+    # Run a Guard plugin task, but remove the Guard plugin when his work leads to a system failure.
     #
     # When the Group has `:halt_on_fail` disabled, we've to catch `:task_has_failed`
     # here in order to avoid an uncaught throw error.
@@ -112,8 +112,7 @@ module Guard
     #   group level.
     # @see .scoped_guards
     #
-    # @param [Guard::Guard] guard the Guard to execute
-    #
+    # @param [Guard::Guard] guard the Guard plugin to execute
     # @return [Symbol] the symbol to catch
     #
     def self.stopping_symbol_for(guard)
@@ -128,7 +127,7 @@ module Guard
     # Tries to run the first implemented task by a given guard
     # from a collection of tasks.
     #
-    # @param [Guard::Guard] guard the guard to run the found task on
+    # @param [Guard::Guard] guard the Guard plugin to run the first found task on
     # @param [Array<Symbol>] tasks the tasks to run the first among
     # @param [Object] task_param the param to pass to each task
     #
@@ -143,12 +142,12 @@ module Guard
       end
     end
 
-    # Loop through all groups and run the given task for each Guard.
+    # Loop through all groups and run the given task for each Guard plugin.
     #
-    # Stop the task run for the all Guards within a group if one Guard
+    # Stop the task run for the all Guard plugins within a group if one Guard
     # throws `:task_has_failed`.
     #
-    # @param [Hash] scope an hash with a guard or a group scope
+    # @param [Hash] scope an hash with a Guard plugin or a group scope
     # @yield the task to run
     #
     def scoped_guards(scopes = {})
@@ -169,7 +168,7 @@ module Guard
     # Logic to know if the UI can be cleared or not in the run_on_changes method
     # based on the guard and the changes.
     #
-    # @param [Guard::Guard] guard the guard where run_on_changes is called
+    # @param [Guard::Guard] guard the Guard plugin where run_on_changes is called
     # @param [Array<String>] modified_paths the modified paths.
     # @param [Array<String>] added_paths the added paths.
     # @param [Array<String>] removed_paths the removed paths.
