@@ -60,7 +60,7 @@ module Guard
       Dsl.evaluate_guardfile(options)
       UI.error 'No guards found in Guardfile, please add at least one.' if @guards.empty?
 
-      runner.deprecation_warning # Guard deprecation go here
+      runner.deprecation_warning if @options[:show_deprecations]
 
       setup_notifier
       setup_interactor

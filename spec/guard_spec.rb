@@ -64,6 +64,18 @@ describe Guard do
       ::Guard.should_receive(:setup_interactor)
       subject
     end
+    
+    context 'when deprecations should be shown' do
+      let(:options) { { :show_deprecations => true, :guardfile => File.join(@fixture_path, "Guardfile") } }
+      subject { ::Guard.setup(options) }
+      let(:runner) { mock('runner') }
+      
+      it 'calls the runner show deprecations' do
+        ::Guard::Runner.should_receive(:new).and_return runner
+        runner.should_receive(:deprecation_warning)
+        subject
+      end
+    end
   end
 
   describe ".setup_signal_traps" do

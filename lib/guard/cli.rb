@@ -73,6 +73,11 @@ module Guard
                   :aliases => '-B',
                   :banner => 'Turn off warning when Bundler is not present'
 
+    method_option :show_deprecations,
+                  :type => :boolean,
+                  :default => false,
+                  :banner => 'Turn on deprecation warnings'
+
     # Listen options
     method_option :latency,
                   :type    => :numeric,
