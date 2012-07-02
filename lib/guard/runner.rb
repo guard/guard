@@ -38,7 +38,7 @@ module Guard
     # Runs a Guard-task on all registered guards.
     #
     # @param [Symbol] task the task to run
-    # @param [Hash] scope either the Guard plugin or the group to run the task on
+    # @param [Hash] scopes either the Guard plugin or the group to run the task on
     #
     # @see self.run_supervised_task
     #
@@ -147,7 +147,7 @@ module Guard
     # Stop the task run for the all Guard plugins within a group if one Guard
     # throws `:task_has_failed`.
     #
-    # @param [Hash] scope an hash with a Guard plugin or a group scope
+    # @param [Hash] scopes an hash with a Guard plugin or a group scope
     # @yield the task to run
     #
     def scoped_guards(scopes = {})

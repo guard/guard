@@ -441,7 +441,7 @@ module Guard
     # @example Ignore some paths
     #   ignore %r{^ignored/path/}, /man/
     #
-    # @param [Regexp] regexp a pattern for ignoring paths
+    # @param [Regexp] regexps a pattern for ignoring paths
     #
     def ignore(*regexps)
       ::Guard.listener = ::Guard.listener.ignore(*regexps)
@@ -452,7 +452,7 @@ module Guard
     # @example Filter some files
     #   ignore /\.txt$/, /.*\.zip/
     #
-    # @param [Regexp] regexp a pattern for filtering paths
+    # @param [Regexp] regexps a pattern for filtering paths
     #
     def filter(*regexps)
       ::Guard.listener = ::Guard.listener.filter(*regexps)

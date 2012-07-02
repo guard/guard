@@ -105,7 +105,7 @@ module Guard
 
     # Test if any of the files is the Guardfile.
     #
-    # @param [Array<String>] the files to test
+    # @param [Array<String>] files the files to test
     # @return [Boolean] whether one of these files is the Guardfile
     #
     def self.match_guardfile?(files)
