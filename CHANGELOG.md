@@ -1,5 +1,11 @@
 ## Master
 
+### 1.2.2 - 2 Juli, 2012
+
+### Bug fix
+
+- [#298][] Deprecations must be explicit enabled. ([@netzpirat][])
+
 ### 1.2.1 - 20 June, 2012
 
 ### Bug fix
