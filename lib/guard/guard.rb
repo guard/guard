@@ -77,25 +77,19 @@ module Guard
       end
     end
 
-    def to_s
-      self.class.to_s
-    end
-
     # Call once when Guard starts. Please override initialize method to init stuff.
     #
     # @raise [:task_has_failed] when start has failed
     # @return [Object] the task result
     #
-    def start
-    end
+    # @!method start
 
     # Called when `stop|quit|exit|s|q|e + enter` is pressed (when Guard quits).
     #
     # @raise [:task_has_failed] when stop has failed
     # @return [Object] the task result
     #
-    def stop
-    end
+    # @!method stop
 
     # Called when `reload|r|z + enter` is pressed.
     # This method should be mainly used for "reload" (really!) actions like reloading passenger/spork/bundler/...
@@ -103,8 +97,7 @@ module Guard
     # @raise [:task_has_failed] when reload has failed
     # @return [Object] the task result
     #
-    def reload
-    end
+    # @!method  reload
 
     # Called when just `enter` is pressed
     # This method should be principally used for long action like running all specs/tests/...
@@ -112,8 +105,7 @@ module Guard
     # @raise [:task_has_failed] when run_all has failed
     # @return [Object] the task result
     #
-    def run_all
-    end
+    # @!method run_all
 
     # Default behaviour on file(s) changes that the Guard plugin watches.
     #
@@ -121,8 +113,7 @@ module Guard
     # @raise [:task_has_failed] when run_on_changes has failed
     # @return [Object] the task result
     #
-    def run_on_changes(paths)
-    end
+    # @!method run_on_changes(paths)
 
     # Called on file(s) additions that the Guard plugin watches.
     #
@@ -130,8 +121,7 @@ module Guard
     # @raise [:task_has_failed] when run_on_additions has failed
     # @return [Object] the task result
     #
-    def run_on_additions(paths)
-    end
+    # @!method run_on_additions(paths)
 
     # Called on file(s) modifications that the Guard plugin watches.
     #
@@ -139,8 +129,7 @@ module Guard
     # @raise [:task_has_failed] when run_on_modifications has failed
     # @return [Object] the task result
     #
-    def run_on_modifications(paths)
-    end
+    # @!method run_on_modifications(paths)
 
     # Called on file(s) removals that the Guard plugin watches.
     #
@@ -148,7 +137,15 @@ module Guard
     # @raise [:task_has_failed] when run_on_removals has failed
     # @return [Object] the task result
     #
-    def run_on_removals(paths)
+    # @!method run_on_removals(paths)
+
+    # Convert plugin to string representation. The
+    # default just uses the plugin class name.
+    # 
+    # @return [String] the string representation
+    #
+    def to_s
+      self.class.to_s
     end
 
   end
