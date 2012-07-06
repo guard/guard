@@ -1,5 +1,7 @@
 ## Master
 
+- Add support for multiple guards being passed to `guard init`. ([@jredville][])
+
 ### 1.2.1 - 2 Juli, 2012
 
 ### Bug fix

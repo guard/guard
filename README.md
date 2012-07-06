@@ -225,6 +225,13 @@ in the generated Guardfile:
 $ guard init <guard-name>
 ```
 
+You can also specify the names of multiple plugins to only get those plugin templates
+in the generated Guardfile:
+
+```bash
+$ guard init <guard1-name> <guard2-name>
+```
+
 You can also define your own templates in `~/.guard/templates/` which can be appended in the same way to your existing
 `Guardfile`:
 
