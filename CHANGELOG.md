@@ -1,5 +1,7 @@
 ## Master
 
+- Add support for multiple guards being passed to `guard init`. ([@jredville][])
+
 ### 1.2.1 - 2 Juli, 2012
 
 ### Bug fix
@@ -630,3 +632,4 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [@wereHamster]: https://github.com/wereHamster
 [@yannlugrin]: https://github.com/yannlugrin
 [@zonque]: https://github.com/zonque
+[@jredville]: https://github.com/jredville

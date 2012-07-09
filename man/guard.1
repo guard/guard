@@ -53,11 +53,11 @@ The following options are available:
 .P
 \fB\-p\fR, \fB\-\-force\-polling\fR Force usage of the Listen polling listener\.
 .
-.SS "init [GUARD]"
+.SS "init [GUARDS]"
 If no Guardfile is present in the current directory, creates an empty Guardfile\.
 .
 .P
-If \fIGUARD\fR is present, add its default Guardfile configuration to the current Guardfile\. Note that \fIGUARD\fR is the Guard plugin name without the \fBguard\-\fR prefix\. For instance to initialize guard\-rspec, run \fBguard init rspec\fR\.
+If \fIGUARDS\fR are present, add their default Guardfile configuration to the current Guardfile\. Note that \fIGUARDS\fR is a list of the Guard plugin names without the \fBguard\-\fR prefix\. For instance to initialize guard\-rspec, run \fBguard init rspec\fR\.
 .
 .SS "list"
 Lists Guard plugins that can be used with the \fBinit\fR command\.

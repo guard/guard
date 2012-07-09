@@ -126,12 +126,12 @@
 <p><code>-p</code>, <code>--force-polling</code>
   Force usage of the Listen polling listener.</p>
 
-<h3 id="init-GUARD-">init [GUARD]</h3>
+<h3 id="init-GUARDS-">init [GUARDS]</h3>
 
 <p>If no Guardfile is present in the current directory, creates an empty Guardfile.</p>
 
-<p>If <var>GUARD</var> is present, add its default Guardfile configuration to the current Guardfile.
-Note that <var>GUARD</var> is the Guard plugin name without the <code>guard-</code> prefix.
+<p>If <var>GUARDS</var> are present, add their default Guardfile configuration to the current Guardfile.
+Note that <var>GUARDS</var> is a list of the Guard plugin names without the <code>guard-</code> prefix.
 For instance to initialize guard-rspec, run <code>guard init rspec</code>.</p>
 
 <h3 id="list">list</h3>
