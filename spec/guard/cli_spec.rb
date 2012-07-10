@@ -184,6 +184,13 @@ describe Guard::CLI do
       subject.init
     end
 
+    it 'initializes each passed template by delegating to Guardfile.initialize_template' do
+      Guard::Guardfile.should_receive(:initialize_template).with('rspec')
+      Guard::Guardfile.should_receive(:initialize_template).with('pow')
+
+      subject.init 'rspec','pow'
+    end
+
     context 'when passed a guard name' do
       it 'initializes the template of the passed Guard by delegating to Guardfile.initialize_template' do
         Guard::Guardfile.should_receive(:initialize_template).with('rspec')

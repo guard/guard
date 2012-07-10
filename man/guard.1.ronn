@@ -47,19 +47,19 @@ The following options are available:
 
 `--show-deprecations`
   Turn on deprecation warnings.
-  
+
 `-l`, `--latency`
   Overwrite Listen's default latency.
 
 `-p`, `--force-polling`
   Force usage of the Listen polling listener.
 
-### init [GUARD]
+### init [GUARDS]
 
 If no Guardfile is present in the current directory, creates an empty Guardfile.
 
-If <GUARD> is present, add its default Guardfile configuration to the current Guardfile.
-Note that <GUARD> is the Guard plugin name without the `guard-` prefix.
+If <GUARDS> are present, add their default Guardfile configuration to the current Guardfile.
+Note that <GUARDS> is a list of the Guard plugin names without the `guard-` prefix.
 For instance to initialize guard-rspec, run `guard init rspec`.
 
 ### list

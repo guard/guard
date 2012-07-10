@@ -127,7 +127,7 @@ module Guard
       ::Guard::UI.info "Guard version #{ ::Guard::VERSION }"
     end
 
-    desc 'init [GUARD]', 'Generates a Guardfile at the current directory (if it is not already there) and adds all installed guards or the given GUARD into it'
+    desc 'init [GUARDS]', 'Generates a Guardfile at the current directory (if it is not already there) and adds all installed guards or the given GUARDS into it'
 
     method_option :bare,
                   :type => :boolean,
@@ -137,24 +137,26 @@ module Guard
 
     # Initializes the templates of all installed Guard pluginss and adds them
     # to the `Guardfile` when no Guard name is passed. When passing
-    # a Guard plugin name it does the same but only for that Guard plugin.
+    # Guard plugin names it does the same but only for those Guard plugins.
     #
     # @see Guard::Guard.initialize_template
     # @see Guard::Guard.initialize_all_templates
     #
-    # @param [String] guard_name the name of the Guard plugin to initialize
+    # @param [Array<String>] guard_names the name of the Guard plugins to initialize
     #
-    def init(guard_name = nil)
+    def init(*guard_names)
       verify_bundler_presence
 
       ::Guard::Guardfile.create_guardfile(:abort_on_existence => options[:bare])
 
       return if options[:bare]
 
-      if guard_name.nil?
+      if guard_names.empty?
         ::Guard::Guardfile::initialize_all_templates
       else
-        ::Guard::Guardfile.initialize_template(guard_name)
+        guard_names.each do |guard_name|
+          ::Guard::Guardfile.initialize_template(guard_name)
+        end
       end
     end
 
