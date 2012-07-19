@@ -49,10 +49,10 @@ module Guard
     #
     def stop
       # Erase the current line for Ruby Readline
-      if Readline.respond_to?(:refresh_line)
+      if Readline.respond_to?(:refresh_line) && !defined(JRUBY_VERSION)
         Readline.refresh_line
       end
-      
+
       # Erase the current line for Rb-Readline
       if defined?(RbReadline) && RbReadline.rl_outstream
         RbReadline._rl_erase_entire_line
@@ -60,7 +60,7 @@ module Guard
 
       super
     end
-    
+
     # Read a line from stdin with Readline.
     #
     def read_line
