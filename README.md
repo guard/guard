@@ -171,6 +171,10 @@ group :development do
 end
 ```
 
+#### Emacs
+
+* Runs on any platform with Emacs + emacsclient (http://www.emacswiki.org/emacs/EmacsClient)
+
 Add Guard plugins
 -----------------
 
@@ -612,6 +616,7 @@ notification :gntp, :sticky => true, :host => '192.168.1.5', :password => 'secre
 notification :growl_notify, :sticky => true, :priority => 0
 notification :libnotify, :timeout => 5, :transient => true, :append => false, :urgency => :critical
 notification :notifu, :time => 5, :nosound => true, :xp => true
+notification :emacs
 ```
 
 It's possible to use more than one notifier. This allows you to configure different notifiers for different OS if your
