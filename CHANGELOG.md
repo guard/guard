@@ -1,5 +1,12 @@
 ## Master
 
+### Bug fix
+
+- [#299][] Fix Readline interactor on JRruby. ([@netzpirat][])
+
+### Improvements
+
+- Add support for Emacs notifications ([@maio][])
 - Add support for multiple guards being passed to `guard init`. ([@jredville][])
 
 ### 1.2.1 - 2 Juli, 2012
@@ -597,6 +604,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [@laserlemon]: https://github.com/laserlemon
 [@limeyd]: https://github.com/limeyd
 [@madtrick]: https://github.com/madtrick
+[@maio]: https://github.com/maio
 [@mcmire]: https://github.com/mcmire
 [@mislav]: https://github.com/mislav
 [@monocle]: https://github.com/monocle
