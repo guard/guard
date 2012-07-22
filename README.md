@@ -410,7 +410,7 @@ You can interact with Guard and enter commands when Guard has nothing to do. Gua
 * `↩`:                 Run all plugins.
 * `h`, `help`:         Show a help of the available interactor commands.
 * `r`, `reload`:       Reload all plugins.
-* `c`, `change`:       Show a help of the available interactor commands.
+* `c`, `change`:       Trigger a file change to the plugins.
 * `s`, `show`:         Show the plugin configurations.
 * `n`, `notification`: Toggle system notifications on and off.
 * `p`, `pause`:        Toggles the file modification listener. The prompt will change to `p>` when paused.
