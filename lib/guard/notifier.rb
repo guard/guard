@@ -155,6 +155,7 @@ module Guard
     # is available.
     #
     def auto_detect_notification
+      # This is a duplication of `NOTIFIER.keys`, but keeps the preferred order on Ruby 1.8.7 also
       available = [:growl_notify, :gntp, :growl, :libnotify, :notifysend, :notifu, :emacs].any? { |notifier| add_notification(notifier, { }, true) }
       ::Guard::UI.info('Guard could not detect any of the supported notification libraries.') unless available
     end
