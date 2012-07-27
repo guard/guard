@@ -49,7 +49,7 @@ module Guard
     #
     def stop
       # Erase the current line for Ruby Readline
-      if Readline.respond_to?(:refresh_line) && !defined(JRUBY_VERSION)
+      if Readline.respond_to?(:refresh_line) && !defined(::JRUBY_VERSION)
         Readline.refresh_line
       end
 
