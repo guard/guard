@@ -31,6 +31,7 @@ describe Guard::Notifier do
         end
 
         it 'tries to add each available notification silently' do
+          Guard::Notifier.should_receive(:add_notification).with(:nsnotify, { }, true).and_return false
           Guard::Notifier.should_receive(:add_notification).with(:growl_notify, { }, true).and_return false
           Guard::Notifier.should_receive(:add_notification).with(:gntp, { }, true).and_return false
           Guard::Notifier.should_receive(:add_notification).with(:growl, { }, true).and_return false
