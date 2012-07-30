@@ -664,7 +664,7 @@ more details.
 
 ### ignore
 
-The `ignore` method allows you to ignore specific paths. This comes is handy when you have large
+The `ignore` method allows you to ignore specific paths. This comes in handy when you have large
 amounts of non-source data in you project. By default [`.rbx`, `.bundle`, `.git`, `.svn`, `log`, `tmp`, `vendor`](https://github.com/guard/listen/blob/master/lib/listen/directory_record.rb#L14) are ignored.
 Please note that method only accept regexps. More on the [Listen README](https://github.com/guard/listen#the-patterns-for-filtering-and-ignoring-paths).
 
