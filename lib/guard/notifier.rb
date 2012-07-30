@@ -10,6 +10,7 @@ require 'guard/notifiers/libnotify'
 require 'guard/notifiers/notifysend'
 require 'guard/notifiers/rb_notifu'
 require 'guard/notifiers/emacs'
+require 'guard/notifiers/nsnotify'
 
 module Guard
 
@@ -51,7 +52,8 @@ module Guard
         :libnotify    => ::Guard::Notifier::Libnotify,
         :notifysend   => ::Guard::Notifier::NotifySend,
         :notifu       => ::Guard::Notifier::Notifu,
-        :emacs        => ::Guard::Notifier::Emacs
+        :emacs        => ::Guard::Notifier::Emacs,
+        :nsnotify     => ::Guard::Notifier::Nsnotify
     }
 
     # Get the available notifications.
@@ -156,7 +158,7 @@ module Guard
     #
     def auto_detect_notification
       # This is a duplication of `NOTIFIER.keys`, but keeps the preferred order on Ruby 1.8.7 also
-      available = [:growl_notify, :gntp, :growl, :libnotify, :notifysend, :notifu, :emacs].any? { |notifier| add_notification(notifier, { }, true) }
+      available = [:nsnotify, :growl_notify, :gntp, :growl, :libnotify, :notifysend, :notifu, :emacs].any? { |notifier| add_notification(notifier, { }, true) }
       ::Guard::UI.info('Guard could not detect any of the supported notification libraries.') unless available
     end
 
