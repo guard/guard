@@ -87,7 +87,7 @@ module Guard
       # Show a scoped action message.
       #
       # @param [String] action the action to show
-      # @param [Hash] scopes an hash with a guard or a group scope
+      # @param [Hash] scopes hash with a guard or a group scope
       #
       def action_with_scopes(action, scopes)
         scope_message ||= scopes[:guard]

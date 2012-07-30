@@ -90,7 +90,7 @@ module Guard
                   :aliases => '-p',
                   :banner  => 'Force usage of the Listen polling listener'
 
-    # Start Guard by initialize the defined Guard plugins and watch the file system.
+    # Start Guard by initializing the defined Guard plugins and watch the file system.
     # This is the default task, so calling `guard` is the same as calling `guard start`.
     #
     # @see Guard.start
@@ -135,7 +135,7 @@ module Guard
                   :aliases => '-b',
                   :banner => 'Generate a bare Guardfile without adding any installed guard into it'
 
-    # Initializes the templates of all installed Guard pluginss and adds them
+    # Initializes the templates of all installed Guard plugins and adds them
     # to the `Guardfile` when no Guard name is passed. When passing
     # Guard plugin names it does the same but only for those Guard plugins.
     #
