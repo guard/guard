@@ -147,7 +147,7 @@ module Guard
     # Stop the task run for the all Guard plugins within a group if one Guard
     # throws `:task_has_failed`.
     #
-    # @param [Hash] scopes an hash with a Guard plugin or a group scope
+    # @param [Hash] scopes hash with a Guard plugin or a group scope
     # @yield the task to run
     #
     def scoped_guards(scopes = {})
