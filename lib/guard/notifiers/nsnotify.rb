@@ -6,16 +6,16 @@ module Guard
     # This gem is available for OS X 10.8 Mountain Lion and sends notifications to the OS X
     # notification center.
     #
-    # @example Add the `nsnotify_guard` gem to your `Gemfile`
+    # @example Add the `nsnotify` gem to your `Gemfile`
     #   group :development
-    #     gem 'nsnotify_guard'
+    #     gem 'nsnotify'
     #   end
     #
     # @example Add the `:nsnotify` notifier to your `Guardfile`
     #   notification :nsnotify
     #
     # @example Add the `:nsnotify` notifier with configuration options to your `Guardfile`
-    #   notification :nsnotify_guard, app_name: "MyApp"
+    #   notification :nsnotify, app_name: "MyApp"
     #
     module Nsnotify
       extend self
