@@ -84,9 +84,9 @@ module Guard
       @guards = []
     end
 
-    # Sets up traps to catch signlas used to control Guard.
+    # Sets up traps to catch signals used to control Guard.
     #
-    # Currently two signals are cought:
+    # Currently two signals are caught:
     # - `USR1` which pauses listening to changes.
     # - `USR2` which resumes listening to changes.
     #
@@ -133,8 +133,8 @@ module Guard
       end
     end
 
-    # Start Guard by evaluate the `Guardfile`, initialize the declared Guard plugins
-    # and start the available file change listener.
+    # Start Guard by evaluating the `Guardfile`, initializing declared Guard plugins
+    # and starting the available file change listener.
     # Main method for Guard that is called from the CLI when Guard starts.
     #
     # - Setup Guard internals
@@ -176,7 +176,7 @@ module Guard
 
     # Reload Guardfile and all Guard plugins currently enabled.
     #
-    # @param [Hash] scopes an hash with a Guard plugin or a group scope
+    # @param [Hash] scopes hash with a Guard plugin or a group scope
     #
     def reload(scopes)
       within_preserved_state do
@@ -189,7 +189,7 @@ module Guard
 
     # Trigger `run_all` on all Guard plugins currently enabled.
     #
-    # @param [Hash] scopes an hash with a Guard plugin or a group scope
+    # @param [Hash] scopes hash with a Guard plugin or a group scope
     #
     def run_all(scopes)
       within_preserved_state do
