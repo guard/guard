@@ -27,7 +27,7 @@ describe Guard::Notifier::TerminalNotifier do
     it "should call the notifier." do
       ::TerminalNotifier.should_receive(:notify).with(
         "any message",
-        {:title=>"Guard Success any title"},
+        {:title=>"Guard Success any title"}
       )
       subject.notify('success', 'any title', 'any message', 'any image', { })
     end
