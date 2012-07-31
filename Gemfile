@@ -28,7 +28,7 @@ group :development do
 
     if `uname`.strip == 'Darwin' && `sw_vers -productVersion`.strip >= '10.8'
       gem 'terminal-notifier', '~> 1.2.0', :require => false
-    end
+    end rescue Errno::ENOENT
 
   elsif RbConfig::CONFIG['target_os'] =~ /linux/i
     gem 'libnotify',  '~> 0.7.1', :require => false
