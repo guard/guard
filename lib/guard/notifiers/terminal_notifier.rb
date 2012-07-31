@@ -22,19 +22,27 @@ module Guard
       def self.available?(silent=false)
         begin
           require 'terminal-notifier'
+        rescue LoadError
+          self.throw_load_name_error unless silent
+          false
+        end
 
+        begin
           if ::TerminalNotifier.available?
-            return true
+            true
           else
             ::Guard::UI.error 'The :terminal_notifier only runs on Mac OS X 10.8 and later.' unless silent
             false
           end
-        rescue LoadError && NameError
-          ::Guard::UI.error "Please add \"gem 'terminal_notifier'\" to your Gemfile and run Guard with \"bundle exec\"." unless silent
+        rescue NameError
+          self.throw_load_name_error unless silent
           false
         end
       end
 
+      def self.throw_load_name_error
+        ::Guard::UI.error "Please add \"gem 'terminal_notifier'\" to your Gemfile and run Guard with \"bundle exec\"."
+      end
       # Show a system notification.
       #
       # @param [String] type the notification type. Either 'success', 'pending', 'failed' or 'notify'
