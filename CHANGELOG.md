@@ -6,6 +6,7 @@
 
 ### Improvements
 
+- Add support for OS X notification center ([@foxycoder][])
 - Add support for Emacs notifications ([@maio][])
 - Add support for multiple guards being passed to `guard init`. ([@jredville][])
 
@@ -592,6 +593,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [@f1sherman]: https://github.com/f1sherman
 [@fabioyamate]: https://github.com/fabioyamate
 [@fnichol]: https://github.com/fnichol
+[@foxycoder]: https://github.com/foxycoder
 [@gix]: https://github.com/gix
 [@hardipe]: https://github.com/hardipe
 [@hashrocketeer]: https://github.com/hashrocketeer
