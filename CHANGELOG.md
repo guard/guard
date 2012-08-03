@@ -1,4 +1,4 @@
-## Master
+## 1.3.0 - 3 August, 2012
 
 ### Bug fix
 
