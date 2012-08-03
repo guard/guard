@@ -81,7 +81,7 @@ describe Guard do
   describe ".setup_signal_traps" do
     before { ::Guard::Dsl.stub(:evaluate_guardfile) }
 
-    unless windows?
+    unless windows? || defined?(JRUBY_VERSION)
       context 'when receiving SIGUSR1' do
         context 'when Guard is running' do
           before { ::Guard.listener.should_receive(:paused?).and_return false }

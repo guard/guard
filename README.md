@@ -500,7 +500,7 @@ Guard will automatically enable Coolline support if your environment supports it
 
 ### Signals
 
-You can also interact with Guard by sending POSIX signals to the Guard process (all but Windows).
+You can also interact with Guard by sending POSIX signals to the Guard process (all but Windows and JRuby).
 
 #### Pause watching
 

@@ -90,12 +90,14 @@ module Guard
     # - `USR2` which resumes listening to changes.
     #
     def setup_signal_traps
-      if Signal.list.keys.include?('USR1')
-        Signal.trap('USR1') { ::Guard.pause unless @listener.paused? }
-      end
-
-      if Signal.list.keys.include?('USR2')
-        Signal.trap('USR2') { ::Guard.pause if @listener.paused? }
+      unless defined?(JRUBY_VERSION)
+        if Signal.list.keys.include?('USR1')
+          Signal.trap('USR1') { ::Guard.pause unless @listener.paused? }
+        end
+  
+        if Signal.list.keys.include?('USR2')
+          Signal.trap('USR2') { ::Guard.pause if @listener.paused? }
+        end
       end
     end
 
