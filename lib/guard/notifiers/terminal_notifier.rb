@@ -18,32 +18,28 @@ module Guard
     #   notification :terminal_notifier, app_name: "MyApp"
     #
     module TerminalNotifier
-
-      def self.available?(silent=false)
-        begin
-          require 'terminal-notifier'
-        rescue LoadError
-          self.throw_load_name_error unless silent
-          false
-        end
-
-        begin
-          if ::TerminalNotifier.available?
-            true
-          else
-            ::Guard::UI.error 'The :terminal_notifier only runs on Mac OS X 10.8 and later.' unless silent
-            false
-          end
-        rescue NameError
-          self.throw_load_name_error unless silent
-          false
-        end
-      end
-
-      def self.throw_load_name_error
-        ::Guard::UI.error "Please add \"gem 'terminal-notifier'\" to your Gemfile and run Guard with \"bundle exec\"."
-      end
+      extend self
       
+      # Test if the notification library is available.
+      #
+      # @param [Boolean] silent true if no error messages should be shown
+      # @return [Boolean] the availability status
+      #
+      def available?(silent=false)
+        require 'terminal-notifier'
+        
+        if ::TerminalNotifier.available?
+          true
+        else
+          ::Guard::UI.error 'The :terminal_notifier only runs on Mac OS X 10.8 and later.' unless silent
+          false
+        end
+
+      rescue LoadError, NameError
+        ::Guard::UI.error "Please add \"gem 'terminal-notifier'\" to your Gemfile and run Guard with \"bundle exec\"." unless silent
+        false
+      end
+    
       # Show a system notification.
       #
       # @param [String] type the notification type. Either 'success', 'pending', 'failed' or 'notify'
@@ -56,9 +52,9 @@ module Guard
       # @option options [String] activate an app bundle
       # @option options [String] open some url or file
       #
-      def self.notify(type, title, message, image, options = { })
+      def notify(type, title, message, image, options = { })
         require 'terminal-notifier'
-        options[:title] = [options[:app_name] || "Guard", type.downcase.capitalize, title].join " "
+        options[:title] = [options[:app_name] || 'Guard', type.downcase.capitalize, title].join ' '
         options.delete :app_name if options[:app_name]
         ::TerminalNotifier.notify(message, options)
       end
