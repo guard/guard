@@ -3,6 +3,7 @@ require 'rbconfig'
 module Guard
   module Notifier
 
+    # Default options for EmacsClient
     DEFAULTS = {
       :client => 'emacsclient',
       :success => 'ForestGreen',
@@ -10,6 +11,8 @@ module Guard
       :default => 'Black',
     }
 
+    # Send a notification to Emacs with emacsclient (http://www.emacswiki.org/emacs/EmacsClient).
+    #
     # @example Add the `:emacs` notifier to your `Guardfile`
     #   notification :emacs
     #
@@ -45,6 +48,12 @@ module Guard
         system(%(#{DEFAULTS[:client]} --eval "(set-face-background 'modeline \\"#{emacs_color(type)}\\")"))
       end
 
+      # Get the Emacs color for the notification type.
+      # You can configure your own color by overwrite the defaults.
+      #
+      # @param [String] type the notification type
+      # @return [String] the name of the emacs color
+      #
       def emacs_color(type)
         case type
             when 'success'
