@@ -1,5 +1,6 @@
 require 'rubygems'
 require 'guard'
+require 'guard/ui'
 require 'guard/guard'
 require 'rspec'
 

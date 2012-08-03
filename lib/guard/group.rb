@@ -32,10 +32,13 @@ module Guard
       @options = options
     end
 
+    # String representation of the Guard group.
+    #
+    # @return [String] the group name
+    #
     def to_s
       "#{@name} group"
     end
 
   end
-
 end

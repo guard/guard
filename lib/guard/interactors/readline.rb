@@ -1,8 +1,10 @@
-module Guard
+require 'guard'
+require 'guard/ui'
+require 'guard/interactor'
+require 'guard/interactors/helpers/terminal'
+require 'guard/interactors/helpers/completion'
 
-  autoload :TerminalHelper,   'guard/interactors/helpers/terminal'
-  autoload :CompletionHelper, 'guard/interactors/helpers/completion'
-  autoload :UI,               'guard/ui'
+module Guard
 
   # Interactor that used readline for getting the user input.
   # This enables history support and auto-completion, but is
@@ -10,7 +12,7 @@ module Guard
   #
   # @see http://bugs.ruby-lang.org/issues/5539
   #
-  class ReadlineInteractor < Interactor
+  class ReadlineInteractor < ::Guard::Interactor
     include ::Guard::CompletionHelper
     include ::Guard::TerminalHelper
 
@@ -53,7 +55,7 @@ module Guard
     #
     def stop
       # Erase the current line for Ruby Readline
-      if Readline.respond_to?(:refresh_line) && !defined(::JRUBY_VERSION)
+      if Readline.respond_to?(:refresh_line) && !defined?(::JRUBY_VERSION)
         Readline.refresh_line
       end
 

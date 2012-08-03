@@ -1,4 +1,5 @@
 require 'rbconfig'
+require 'guard/ui'
 
 module Guard
   module Notifier

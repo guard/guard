@@ -84,6 +84,13 @@ module Guard
   #
   class Dsl
 
+    require 'guard'
+    require 'guard/dsl'
+    require 'guard/interactor'
+    require 'guard/notifier'
+    require 'guard/ui'
+    require 'guard/watcher'
+
     # Deprecation message for the `ignore_paths` method
     IGNORE_PATHS_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
       Starting with Guard v1.1 the use of the 'ignore_paths' Guardfile dsl method is deprecated.
@@ -116,7 +123,7 @@ module Guard
       #
       def reevaluate_guardfile
         before_reevaluate_guardfile
-        Dsl.evaluate_guardfile(@@options)
+        ::Guard::Dsl.evaluate_guardfile(@@options)
         after_reevaluate_guardfile
       end
 
@@ -156,7 +163,7 @@ module Guard
       def instance_eval_guardfile(contents)
         new.instance_eval(contents, @@options[:guardfile_path], 1)
       rescue
-        UI.error "Invalid Guardfile, original error is:\n#{ $! }"
+        ::Guard::UI.error "Invalid Guardfile, original error is:\n#{ $! }"
       end
 
       # Test if the current `Guardfile` contains a specific Guard plugin.
@@ -176,7 +183,7 @@ module Guard
         @@options[:guardfile_path]     = guardfile_path
         @@options[:guardfile_contents] = File.read(guardfile_path)
       rescue
-        UI.error("Error reading file #{ guardfile_path }")
+        ::Guard::UI.error("Error reading file #{ guardfile_path }")
         exit 1
       end
 
@@ -185,15 +192,15 @@ module Guard
       #
       def fetch_guardfile_contents
         if @@options[:guardfile_contents]
-          UI.info 'Using inline Guardfile.'
+          ::Guard::UI.info 'Using inline Guardfile.'
           @@options[:guardfile_path] = 'Inline Guardfile'
 
         elsif @@options[:guardfile]
           if File.exist?(@@options[:guardfile])
             read_guardfile(@@options[:guardfile])
-            UI.info "Using Guardfile at #{ @@options[:guardfile] }."
+            ::Guard::UI.info "Using Guardfile at #{ @@options[:guardfile] }."
           else
-            UI.error "No Guardfile exists at #{ @@options[:guardfile] }."
+            ::Guard::UI.error "No Guardfile exists at #{ @@options[:guardfile] }."
             exit 1
           end
 
@@ -201,13 +208,13 @@ module Guard
           if File.exist?(guardfile_default_path)
             read_guardfile(guardfile_default_path)
           else
-            UI.error 'No Guardfile found, please create one with `guard init`.'
+            ::Guard::UI.error 'No Guardfile found, please create one with `guard init`.'
             exit 1
           end
         end
 
         unless guardfile_contents_usable?
-          UI.error 'No Guard plugins found in Guardfile, please add at least one.'
+          ::Guard::UI.error 'No Guard plugins found in Guardfile, please add at least one.'
         end
       end
 
@@ -433,7 +440,7 @@ module Guard
     # @param [Array] paths the list of paths to ignore
     #
     def ignore_paths(*paths)
-      UI.deprecation(IGNORE_PATHS_DEPRECATION)
+      ::Guard::UI.deprecation(IGNORE_PATHS_DEPRECATION)
     end
 
     # Ignore certain patterns paths globally.

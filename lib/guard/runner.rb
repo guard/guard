@@ -4,6 +4,10 @@ module Guard
   #
   class Runner
 
+    require 'guard'
+    require 'guard/ui'
+    require 'guard/watcher'
+
     # Deprecation message for the `run_on_change` method
     RUN_ON_CHANGE_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
       Starting with Guard v1.1 the use of the 'run_on_change' method in the '%s' guard is deprecated.
@@ -30,8 +34,8 @@ module Guard
     #
     def deprecation_warning
       ::Guard.guards.each do |guard|
-        UI.deprecation(RUN_ON_CHANGE_DEPRECATION % guard.class.name)   if guard.respond_to?(:run_on_change)
-        UI.deprecation(RUN_ON_DELETION_DEPRECATION % guard.class.name) if guard.respond_to?(:run_on_deletion)
+        ::Guard::UI.deprecation(RUN_ON_CHANGE_DEPRECATION % guard.class.name)   if guard.respond_to?(:run_on_change)
+        ::Guard::UI.deprecation(RUN_ON_DELETION_DEPRECATION % guard.class.name) if guard.respond_to?(:run_on_deletion)
       end
     end
 
@@ -61,11 +65,11 @@ module Guard
     #
     def run_on_changes(modified, added, removed)
       scoped_guards do |guard|
-        modified_paths = Watcher.match_files(guard, modified)
-        added_paths    = Watcher.match_files(guard, added)
-        removed_paths  = Watcher.match_files(guard, removed)
+        modified_paths = ::Guard::Watcher.match_files(guard, modified)
+        added_paths    = ::Guard::Watcher.match_files(guard, added)
+        removed_paths  = ::Guard::Watcher.match_files(guard, removed)
 
-        UI.clear if clearable?(guard, modified_paths, added_paths, removed_paths)
+        ::Guard::UI.clear if clearable?(guard, modified_paths, added_paths, removed_paths)
 
         run_first_task_found(guard, MODIFICATION_TASKS, modified_paths) unless modified_paths.empty?
         run_first_task_found(guard, ADDITION_TASKS, added_paths) unless added_paths.empty?
@@ -95,11 +99,11 @@ module Guard
       rescue NoMethodError
         # Do nothing
       rescue Exception => ex
-        UI.error("#{ guard.class.name } failed to achieve its <#{ task.to_s }>, exception was:" +
+        ::Guard::UI.error("#{ guard.class.name } failed to achieve its <#{ task.to_s }>, exception was:" +
                  "\n#{ ex.class }: #{ ex.message }\n#{ ex.backtrace.join("\n") }")
 
         ::Guard.guards.delete guard
-        UI.info("\n#{ guard.class.name } has just been fired")
+        ::Guard::UI.info("\n#{ guard.class.name } has just been fired")
 
         ex
       end
@@ -137,7 +141,7 @@ module Guard
           run_supervised_task(guard, task, task_param)
           break
         else
-          UI.debug "Trying to run #{ guard.class.name }##{ task.to_s } with #{ task_param.inspect }"
+          ::Guard::UI.debug "Trying to run #{ guard.class.name }##{ task.to_s } with #{ task_param.inspect }"
         end
       end
     end

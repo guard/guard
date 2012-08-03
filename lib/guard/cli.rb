@@ -1,5 +1,4 @@
 require 'thor'
-require 'guard/version'
 
 module Guard
 
@@ -8,6 +7,11 @@ module Guard
   # Do not put any logic in here, create a class and delegate instead.
   #
   class CLI < Thor
+
+    require 'guard'
+    require 'guard/version'
+    require 'guard/dsl_describer'
+    require 'guard/guardfile'
 
     default_task :start
 

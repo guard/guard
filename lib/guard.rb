@@ -6,19 +6,18 @@ require 'listen'
 #
 module Guard
 
-  autoload :UI,           'guard/ui'
-  autoload :Guardfile,    'guard/guardfile'
-  autoload :Dsl,          'guard/dsl'
-  autoload :DslDescriber, 'guard/dsl_describer'
-  autoload :Group,        'guard/group'
-  autoload :Interactor,   'guard/interactor'
-  autoload :Watcher,      'guard/watcher'
-  autoload :Notifier,     'guard/notifier'
-  autoload :Runner,       'guard/runner'
-  autoload :Hook,         'guard/hook'
+  require 'guard/dsl'
+  require 'guard/guardfile'
+  require 'guard/group'
+  require 'guard/interactor'
+  require 'guard/notifier'
+  require 'guard/runner'
+  require 'guard/ui'
+  require 'guard/watcher'
 
   # The Guardfile template for `guard init`
   GUARDFILE_TEMPLATE = File.expand_path('../guard/templates/Guardfile', __FILE__)
+
   # The location of user defined templates
   HOME_TEMPLATES = File.expand_path('~/.guard/templates')
 
@@ -44,10 +43,10 @@ module Guard
       @lock       = Mutex.new
       @options    = options
       @watchdir   = (options[:watchdir] && File.expand_path(options[:watchdir])) || Dir.pwd
-      @runner     = Runner.new
+      @runner     = ::Guard::Runner.new
       @allow_stop = Listen::Turnstile.new
 
-      UI.clear
+      ::Guard::UI.clear
       deprecated_options_warning
 
       setup_groups
@@ -57,8 +56,8 @@ module Guard
 
       debug_command_execution if @options[:debug]
 
-      Dsl.evaluate_guardfile(options)
-      UI.error 'No guards found in Guardfile, please add at least one.' if @guards.empty?
+      ::Guard::Dsl.evaluate_guardfile(options)
+      ::Guard::UI.error 'No guards found in Guardfile, please add at least one.' if @guards.empty?
 
       runner.deprecation_warning if @options[:show_deprecations]
 
@@ -104,7 +103,7 @@ module Guard
     #
     def setup_listener
       listener_callback = lambda do |modified, added, removed|
-        Dsl.reevaluate_guardfile if Watcher.match_guardfile?(modified)
+        ::Guard::Dsl.reevaluate_guardfile if ::Guard::Watcher.match_guardfile?(modified)
 
         ::Guard.within_preserved_state do
           runner.run_on_changes(modified, added, removed)
@@ -122,14 +121,14 @@ module Guard
     # Enables or disables the notifier based on user's configurations.
     #
     def setup_notifier
-      options[:notify] && ENV['GUARD_NOTIFY'] != 'false' ? Notifier.turn_on : Notifier.turn_off
+      options[:notify] && ENV['GUARD_NOTIFY'] != 'false' ? ::Guard::Notifier.turn_on : ::Guard::Notifier.turn_off
     end
 
     # Initializes the interactor unless the user has specified not to.
     #
     def setup_interactor
       unless options[:no_interactions]
-        @interactor = Interactor.fabricate
+        @interactor = ::Guard::Interactor.fabricate
       end
     end
 
@@ -152,7 +151,7 @@ module Guard
     #
     def start(options = {})
       setup(options)
-      UI.info "Guard is now watching at '#{ @watchdir }'"
+      ::Guard::UI.info "Guard is now watching at '#{ @watchdir }'"
 
       within_preserved_state do
         runner.run(:start)
@@ -169,7 +168,7 @@ module Guard
       listener.stop
       interactor.stop if interactor
       runner.run(:stop)
-      UI.info 'Bye bye...', :reset => true
+      ::Guard::UI.info 'Bye bye...', :reset => true
 
       @allow_stop.signal if @allow_stop
     end
@@ -180,9 +179,9 @@ module Guard
     #
     def reload(scopes)
       within_preserved_state do
-        UI.clear
-        UI.action_with_scopes('Reload', scopes)
-        Dsl.reevaluate_guardfile if scopes.empty?
+        ::Guard::UI.clear
+        ::Guard::UI.action_with_scopes('Reload', scopes)
+        ::Guard::Dsl.reevaluate_guardfile if scopes.empty?
         runner.run(:reload, scopes)
       end
     end
@@ -193,8 +192,8 @@ module Guard
     #
     def run_all(scopes)
       within_preserved_state do
-        UI.clear
-        UI.action_with_scopes('Run', scopes)
+        ::Guard::UI.clear
+        ::Guard::UI.action_with_scopes('Run', scopes)
         runner.run(:run_all, scopes)
       end
     end
@@ -203,10 +202,10 @@ module Guard
     #
     def pause
       if listener.paused?
-        UI.info 'Un-paused files modification listening', :reset => true
+        ::Guard::UI.info 'Un-paused files modification listening', :reset => true
         listener.unpause
       else
-        UI.info 'Paused files modification listening', :reset => true
+        ::Guard::UI.info 'Paused files modification listening', :reset => true
         listener.pause
       end
     end
@@ -284,7 +283,7 @@ module Guard
     #
     def add_guard(name, watchers = [], callbacks = [], options = {})
       if name.to_sym == :ego
-        UI.deprecation('Guard::Ego is now part of Guard. You can remove it from your Guardfile.')
+        ::Guard::UI.deprecation('Guard::Ego is now part of Guard. You can remove it from your Guardfile.')
       else
         guard_class = get_guard_class(name)
         callbacks.each { |callback| Hook.add_callback(callback[:listener], guard_class, callback[:events]) }
@@ -304,7 +303,7 @@ module Guard
     def add_group(name, options = {})
       group = groups(name)
       if group.nil?
-        group = Group.new(name, options)
+        group = ::Guard::Group.new(name, options)
         @groups << group
       end
       group
@@ -357,12 +356,12 @@ module Guard
           try_require = true
           retry
         else
-          UI.error "Could not find class Guard::#{ const_name.capitalize }"
+          ::Guard::UI.error "Could not find class Guard::#{ const_name.capitalize }"
         end
       rescue LoadError => loadError
         unless fail_gracefully
-          UI.error "Could not load 'guard/#{ name.downcase }' or find class Guard::#{ const_name.capitalize }"
-          UI.error loadError.to_s
+          ::Guard::UI.error "Could not load 'guard/#{ name.downcase }' or find class Guard::#{ const_name.capitalize }"
+          ::Guard::UI.error loadError.to_s
         end
       end
     end
@@ -379,7 +378,7 @@ module Guard
         Gem.source_index.find_name("guard-#{ name }").last.full_gem_path
       end
     rescue
-      UI.error "Could not find 'guard-#{ name }' gem path."
+      ::Guard::UI.error "Could not find 'guard-#{ name }' gem path."
     end
 
     # Returns a list of Guard plugin Gem names installed locally.

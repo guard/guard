@@ -1,11 +1,5 @@
 module Guard
 
-  autoload :ReadlineInteractor, 'guard/interactors/readline'
-  autoload :CoollineInteractor, 'guard/interactors/coolline'
-  autoload :SimpleInteractor,   'guard/interactors/simple'
-  autoload :DslDescriber,       'guard/dsl_describer'
-  autoload :UI,                 'guard/ui'
-
   # The interactor triggers specific action from input
   # read by a interactor implementation.
   #
@@ -38,6 +32,14 @@ module Guard
   #
   class Interactor
 
+    require 'guard'
+    require 'guard/ui'
+    require 'guard/dsl_describer'
+    require 'guard/notifier'
+    require 'guard/interactors/readline'
+    require 'guard/interactors/coolline'
+    require 'guard/interactors/simple'
+
     ACTIONS = {
       :help         => %w[help h],
       :reload       => %w[reload r],
@@ -64,11 +66,11 @@ module Guard
     def self.fabricate
       case @interactor
       when :coolline
-        CoollineInteractor.new if CoollineInteractor.available?
+        ::Guard::CoollineInteractor.new if ::Guard::CoollineInteractor.available?
       when :readline
-        ReadlineInteractor.new if ReadlineInteractor.available?
+        ::Guard::ReadlineInteractor.new if ::Guard::ReadlineInteractor.available?
       when :simple
-        SimpleInteractor.new
+        ::Guard::SimpleInteractor.new
       when :off
         nil
       else
@@ -90,7 +92,9 @@ module Guard
     # @return [Interactor] an interactor implementation
     #
     def self.auto_detect
-      [CoollineInteractor, ReadlineInteractor, SimpleInteractor].detect { |interactor| interactor.available?(true) }.new
+      [::Guard::CoollineInteractor, ::Guard::ReadlineInteractor, ::Guard::SimpleInteractor].detect do |interactor|
+        interactor.available?(true)
+      end.new
     end
 
     # Template method for checking if the Interactor is
@@ -143,7 +147,7 @@ module Guard
       when :help
         help
       when :show
-        DslDescriber.show(::Guard.options)
+        ::Guard::DslDescriber.show(::Guard.options)
       when :stop
         ::Guard.stop
         exit

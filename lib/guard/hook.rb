@@ -9,6 +9,8 @@ module Guard
   #
   module Hook
 
+    require 'guard/ui'
+
     # The Hook module gets included.
     #
     # @param [Class] base the class that includes the module
@@ -57,7 +59,7 @@ module Guard
                       event
                     end.to_sym
 
-        UI.debug "Hook :#{ hook_name } executed for #{ self.class }"
+        ::Guard::UI.debug "Hook :#{ hook_name } executed for #{ self.class }"
 
         Hook.notify(self.class, hook_name, *args)
       end

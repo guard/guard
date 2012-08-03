@@ -1,16 +1,6 @@
 require 'yaml'
-
 require 'rbconfig'
 require 'pathname'
-require 'guard/ui'
-require 'guard/notifiers/gntp'
-require 'guard/notifiers/growl'
-require 'guard/notifiers/growl_notify'
-require 'guard/notifiers/libnotify'
-require 'guard/notifiers/notifysend'
-require 'guard/notifiers/rb_notifu'
-require 'guard/notifiers/emacs'
-require 'guard/notifiers/terminal_notifier'
 
 module Guard
 
@@ -42,6 +32,18 @@ module Guard
   # Guard can be configured to make use of more than one notifier at once, @see Guard::Dsl
   #
   module Notifier
+
+    require 'guard'
+    require 'guard/ui'
+    require 'guard/notifiers/gntp'
+    require 'guard/notifiers/growl'
+    require 'guard/notifiers/growl_notify'
+    require 'guard/notifiers/libnotify'
+    require 'guard/notifiers/notifysend'
+    require 'guard/notifiers/rb_notifu'
+    require 'guard/notifiers/emacs'
+    require 'guard/notifiers/terminal_notifier'
+
     extend self
 
     # List of available notifiers. It needs to be a nested hash instead of

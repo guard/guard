@@ -39,7 +39,10 @@ module Guard
   # the Guard::GuardName instance will be removed from the active guards.
   #
   class Guard
-    include Hook
+    require 'guard/hook'
+    require 'guard/ui'
+
+    include ::Guard::Hook
 
     attr_accessor :watchers, :options, :group
 
