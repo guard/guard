@@ -41,7 +41,7 @@ module Guard
       end
 
       def self.throw_load_name_error
-        ::Guard::UI.error "Please add \"gem 'terminal_notifier'\" to your Gemfile and run Guard with \"bundle exec\"."
+        ::Guard::UI.error "Please add \"gem 'terminal-notifier'\" to your Gemfile and run Guard with \"bundle exec\"."
       end
       
       # Show a system notification.
