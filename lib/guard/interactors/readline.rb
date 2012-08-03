@@ -29,6 +29,10 @@ module Guard
         ::Guard::UI.error 'The :readline interactor runs only fine on JRuby, Linux or with the gem \'rb-readline\' installed.' unless silent
         false
       end
+
+    rescue LoadError => e
+      ::Guard::UI.error "Please install Ruby Readline support or add \"gem 'rb-readline'\" to your Gemfile and run Guard with \"bundle exec\"." unless silent
+      false      
     end
 
     # Initialize the interactor.
