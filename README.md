@@ -680,9 +680,16 @@ more details.
 
 ### ignore
 
-The `ignore` method allows you to ignore specific paths. This comes in handy when you have large
-amounts of non-source data in you project. By default [`.rbx`, `.bundle`, `.git`, `.svn`, `log`, `tmp`, `vendor`](https://github.com/guard/listen/blob/master/lib/listen/directory_record.rb#L14) are ignored.
-Please note that method only accept regexps. More on the [Listen README](https://github.com/guard/listen#the-patterns-for-filtering-and-ignoring-paths).
+The `ignore` method can be used to exclude files and directories from the set of files being watched. Let's say you have
+used the `watch` method to monitor a directory, but you are not interested in changes happening to images, you could use
+the ignore method to exclude them.
+
+This comes in handy when you have large amounts of non-source data in you project. By default
+[`.rbx`, `.bundle`, `.git`, `.svn`, `log`, `tmp`, `vendor`](https://github.com/guard/listen/blob/master/lib/listen/directory_record.rb#L14)
+are ignored.
+
+Please note that method only accept regexps. More on the
+[Listen README](https://github.com/guard/listen#the-patterns-for-filtering-and-ignoring-paths).
 
 ```ruby
 ignore %r{^ignored/path/}, /public/
@@ -690,8 +697,12 @@ ignore %r{^ignored/path/}, /public/
 
 ### filter
 
-The `filter` method allows you to filter specific paths.
-Please note that method only accept regexps. More on the [Listen README](https://github.com/guard/listen#the-patterns-for-filtering-and-ignoring-paths).
+The `filter` method allows you to focus by filtering files and directories without having to specify them by hand in the
+`watch` method. E.g. if you are watching multiple directories but only interested in changes to the Ruby files, then use
+the `filter` method.
+
+Please note that method only accept regexps. More on the
+[Listen README](https://github.com/guard/listen#the-patterns-for-filtering-and-ignoring-paths).
 
 ```ruby
 filter /\.txt$/, /.*\.zip/
