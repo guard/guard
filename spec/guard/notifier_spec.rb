@@ -38,6 +38,7 @@ describe Guard::Notifier do
           Guard::Notifier.should_receive(:add_notification).with(:notifysend, { }, true).and_return false
           Guard::Notifier.should_receive(:add_notification).with(:notifu, { }, true).and_return false
           Guard::Notifier.should_receive(:add_notification).with(:emacs, { }, true).and_return false
+          Guard::Notifier.should_receive(:add_notification).with(:terminal_notifier, { }, true).and_return false
           Guard::Notifier.turn_on
         end
 
