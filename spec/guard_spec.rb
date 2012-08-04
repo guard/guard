@@ -272,7 +272,8 @@ describe Guard do
 
   describe '#reload' do
     let(:runner) { stub(:run => true) }
-
+    subject { ::Guard.setup }
+    
     before do
       ::Guard.stub(:runner) { runner }
       ::Guard::Dsl.stub(:reevaluate_guardfile)
