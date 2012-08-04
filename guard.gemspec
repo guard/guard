@@ -19,8 +19,8 @@ Gem::Specification.new do |s|
   s.add_dependency 'listen',   '>= 0.4.2'
 
   s.add_development_dependency 'bundler'
-  s.add_development_dependency 'rspec',       '~> 2.10.0'
-  s.add_development_dependency 'guard-rspec', '~> 1.1.0'
+  s.add_development_dependency 'rspec',       '~> 2.11.0'
+  s.add_development_dependency 'guard-rspec', '~> 1.2.1'
 
   s.files        = Dir.glob('{bin,images,lib}/**/*') + %w[CHANGELOG.md LICENSE man/guard.1 man/guard.1.html README.md]
   s.executable   = 'guard'
