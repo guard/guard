@@ -779,7 +779,7 @@ When you file a bug, please try to follow these simple rules if applicable:
 
 **It's most likely that your bug gets resolved faster if you provide as much information as possible!**
 
-Development [![Dependency Status](https://gemnasium.com/guard/guard.png?branch=master)](https://gemnasium.com/guard/guard)
+Development [![Dependency Status](https://gemnasium.com/guard/guard.png?branch=master)](https://gemnasium.com/guard/guard) [![Code Climate](https://codeclimate.com/badge.png)](https://codeclimate.com/github/guard/guard)
 -----------
 
 * Documentation hosted at [RubyDoc](http://rubydoc.info/github/guard/guard/master/frames).
