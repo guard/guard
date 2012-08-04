@@ -179,7 +179,7 @@ module Guard
     #
     # @param [Hash] scopes hash with a Guard plugin or a group scope
     #
-    def reload(scopes)
+    def reload(scopes = {})
       within_preserved_state do
         ::Guard::UI.clear
         ::Guard::UI.action_with_scopes('Reload', scopes)
@@ -192,7 +192,7 @@ module Guard
     #
     # @param [Hash] scopes hash with a Guard plugin or a group scope
     #
-    def run_all(scopes)
+    def run_all(scopes = {})
       within_preserved_state do
         ::Guard::UI.clear
         ::Guard::UI.action_with_scopes('Run', scopes)
