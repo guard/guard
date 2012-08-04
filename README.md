@@ -7,7 +7,7 @@ This document contains a lot of information, please take your time and read thes
 any questions, ask them in our [Google group](http://groups.google.com/group/guard-dev) or on `#guard`
 (irc.freenode.net).
 
-Information on advanced topics like create your own Guard plugin, programatic use of Guard, hooks and callbacks and
+Information on advanced topics like creating your own Guard plugin, programatic use of Guard, hooks and callbacks and
 more can be found in the [Guard wiki](https://github.com/guard/guard/wiki).
 
 Before you file an issue, make sure you have read the _[file an issue](#file-an-issue)_ section that contains some
@@ -183,11 +183,11 @@ The [terminal notifier](https://github.com/alloy/terminal-notifier) sends notifi
 The notification center doesn't support different icons for different message types, and it even shows only the icon
 from Terminal.app.
 
-To use `terminal_notifier` you have to add it to your `Gemfile` and run bundler:
+To use `terminal-notifier` you have to add it to your `Gemfile` and run bundler:
 
 ```ruby
 group :development do
-  gem 'terminal_notifier'
+  gem 'terminal-notifier'
 end
 ```
 
