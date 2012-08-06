@@ -25,12 +25,12 @@ module Guard
       # @return [Boolean] the availability status
       #
       def available?(silent = false)
-        result = `#{DEFAULTS[:client]} --eval '1' 2> /dev/null || echo 0`
+        result = `#{DEFAULTS[:client]} --eval '1' 2> /dev/null || echo 'N/A'`
 
-        if result.chomp! == "1"
-          true
-        else
+        if result.chomp! == "N/A"
           false
+        else
+          true
         end
       end
 
