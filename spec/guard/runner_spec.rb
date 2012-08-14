@@ -125,6 +125,11 @@ describe Guard::Runner do
       watcher_module.stub(:match_files) { [] }
     }
 
+    it "always calls UI.clearable" do
+      Guard::UI.should_receive(:clearable)
+      subject.run_on_changes(*changes)
+    end
+
     context 'when clearable' do
       before { subject.stub(:clearable?) { true } }
 
