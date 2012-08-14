@@ -47,7 +47,7 @@ module Guard
       @runner     = Runner.new
       @allow_stop = Listen::Turnstile.new
 
-      UI.clear
+      UI.clear(force: true)
       deprecated_options_warning
 
       setup_groups
@@ -180,7 +180,7 @@ module Guard
     #
     def reload(scopes)
       within_preserved_state do
-        UI.clear
+        UI.clear(force: true)
         UI.action_with_scopes('Reload', scopes)
         Dsl.reevaluate_guardfile if scopes.empty?
         runner.run(:reload, scopes)
@@ -193,7 +193,7 @@ module Guard
     #
     def run_all(scopes)
       within_preserved_state do
-        UI.clear
+        UI.clear(force: true)
         UI.action_with_scopes('Run', scopes)
         runner.run(:run_all, scopes)
       end

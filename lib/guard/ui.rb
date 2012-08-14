@@ -78,10 +78,19 @@ module Guard
         STDERR.print(color_enabled? ? "\r\e[0m" : "\r\n")
       end
 
-      # Clear the output.
+      # Clear the output if clearable.
       #
-      def clear
-        system('clear;') if ::Guard.options[:clear]
+      def clear(options = {})
+        if ::Guard.options[:clear] && (@clearable || options[:force])
+          @clearable = false
+          system('clear;')
+        end
+      end
+
+      # Allow the screen to be cleared again.
+      #
+      def clearable
+        @clearable = true
       end
 
       # Show a scoped action message.
