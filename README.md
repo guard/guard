@@ -179,15 +179,14 @@ end
 
 * Runs on Mac OS X 10.8 only
 
-The [terminal notifier](https://github.com/alloy/terminal-notifier) sends notifications to the OS X Notification Center.
-The notification center doesn't support different icons for different message types, and it even shows only the icon
-from Terminal.app.
+The [terminal-notifier-guard](https://github.com/Springest/terminal-notifier-guard) sends notifications to the OS X
+Notification Center.
 
-To use `terminal-notifier` you have to add it to your `Gemfile` and run bundler:
+To use `terminal-notifier-guard` you have to add it to your `Gemfile` and run bundler:
 
 ```ruby
 group :development do
-  gem 'terminal-notifier'
+  gem 'terminal-notifier-guard'
 end
 ```
 

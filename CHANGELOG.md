@@ -2,6 +2,7 @@
 
 ### Bug fix
 
+- [#317][] Switch to Terminal-Notifier-Guard gem. ([@foxycoder][])
 - [#299][] Fix Readline interactor on JRruby. ([@netzpirat][])
 
 ### Improvements
@@ -573,6 +574,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [#283]: https://github.com/guard/guard/issues/283
 [#298]: https://github.com/guard/guard/issues/298
 [#299]: https://github.com/guard/guard/issues/299
+[#317]: https://github.com/guard/guard/issues/317
 [@Gazer]: https://github.com/Gazer
 [@Maher4Ever]: https://github.com/Maher4Ever
 [@alandipert]: https://github.com/alandipert
