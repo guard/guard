@@ -1,8 +1,14 @@
+# Master
+
+### Improvements
+
+- [#317][] Switch to Terminal-Notifier-Guard gem. ([@foxycoder][])
+- [#315][] Improve Emacs detection. ([@maio][])
+
 ## 1.3.0 - 3 August, 2012
 
 ### Bug fix
 
-- [#317][] Switch to Terminal-Notifier-Guard gem. ([@foxycoder][])
 - [#299][] Fix Readline interactor on JRruby. ([@netzpirat][])
 
 ### Improvements
@@ -574,6 +580,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [#283]: https://github.com/guard/guard/issues/283
 [#298]: https://github.com/guard/guard/issues/298
 [#299]: https://github.com/guard/guard/issues/299
+[#315]: https://github.com/guard/guard/issues/315
 [#317]: https://github.com/guard/guard/issues/317
 [@Gazer]: https://github.com/Gazer
 [@Maher4Ever]: https://github.com/Maher4Ever
