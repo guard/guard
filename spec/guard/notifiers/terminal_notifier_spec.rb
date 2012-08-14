@@ -6,8 +6,10 @@ describe Guard::Notifier::TerminalNotifier do
   before do
     subject.stub(:require)
 
-    class ::TerminalNotifier
-      def self.show(options) end
+    class TerminalNotifier
+      module Guard
+        def self.show(options) end
+      end
     end
   end
 
@@ -17,7 +19,7 @@ describe Guard::Notifier::TerminalNotifier do
     context 'without the silent option' do
       it 'shows an error message when not available on the host OS' do
         ::Guard::UI.should_receive(:error).with 'The :terminal_notifier only runs on Mac OS X 10.8 and later.'
-        ::TerminalNotifier.stub(:available?).and_return(false)
+        ::TerminalNotifier::Guard.stub(:available?).and_return(false)
         subject.available?
       end
     end
@@ -25,17 +27,17 @@ describe Guard::Notifier::TerminalNotifier do
 
   describe ".notify" do
     it "should call the notifier." do
-      ::TerminalNotifier.should_receive(:notify).with(
-        "any message",
-        {:title=>"Guard Success any title"}
+      ::TerminalNotifier::Guard.should_receive(:execute).with(
+        false,
+        {:title=>"Guard Success any title", :type=>:success, :message=>"any message"}
       )
       subject.notify('success', 'any title', 'any message', 'any image', { })
     end
 
     it "should show the type of message in the title" do
-      ::TerminalNotifier.should_receive(:notify).with(
-        "any message",
-        {:title=>"Guard Error any title"}
+      ::TerminalNotifier::Guard.should_receive(:execute).with(
+        false,
+        {:title=>"Guard Error any title", :message => "any message", :type => :error}
       )
 
       subject.notify('error', 'any title', 'any message', 'any image', { })
@@ -43,9 +45,9 @@ describe Guard::Notifier::TerminalNotifier do
 
     context "with an app name set" do
       it "should show the app name in the title" do
-        ::TerminalNotifier.should_receive(:notify).with(
-          "any message",
-          {:title=>"FooBar Success any title"}
+        ::TerminalNotifier::Guard.should_receive(:execute).with(
+          false,
+          {:title=>"FooBar Success any title", :type=>:success, :message=>"any message"}
         )
 
         subject.notify('success', 'any title', 'any message', 'any image', {:app_name => "FooBar"})
