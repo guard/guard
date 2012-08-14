@@ -1,14 +1,6 @@
 require 'yaml'
-
 require 'rbconfig'
 require 'pathname'
-require 'guard/ui'
-require 'guard/notifiers/gntp'
-require 'guard/notifiers/growl'
-require 'guard/notifiers/growl_notify'
-require 'guard/notifiers/libnotify'
-require 'guard/notifiers/notifysend'
-require 'guard/notifiers/rb_notifu'
 
 module Guard
 
@@ -40,17 +32,32 @@ module Guard
   # Guard can be configured to make use of more than one notifier at once, @see Guard::Dsl
   #
   module Notifier
+
+    require 'guard'
+    require 'guard/ui'
+    require 'guard/notifiers/gntp'
+    require 'guard/notifiers/growl'
+    require 'guard/notifiers/growl_notify'
+    require 'guard/notifiers/libnotify'
+    require 'guard/notifiers/notifysend'
+    require 'guard/notifiers/rb_notifu'
+    require 'guard/notifiers/emacs'
+    require 'guard/notifiers/terminal_notifier'
+
     extend self
 
-    # List of available notifiers.
-    NOTIFIERS = {
-        :gntp         => ::Guard::Notifier::GNTP,
-        :growl        => ::Guard::Notifier::Growl,
-        :growl_notify => ::Guard::Notifier::GrowlNotify,
-        :libnotify    => ::Guard::Notifier::Libnotify,
-        :notifysend   => ::Guard::Notifier::NotifySend,
-        :notifu       => ::Guard::Notifier::Notifu
-    }
+    # List of available notifiers. It needs to be a nested hash instead of
+    # a simpler Hash, because it maintains its order on Ruby 1.8.7 also.
+    NOTIFIERS = [
+      [:growl,             ::Guard::Notifier::Growl],
+      [:gntp,              ::Guard::Notifier::GNTP],
+      [:growl_notify,      ::Guard::Notifier::GrowlNotify],
+      [:libnotify,         ::Guard::Notifier::Libnotify],
+      [:notifysend,        ::Guard::Notifier::NotifySend],
+      [:notifu,            ::Guard::Notifier::Notifu],
+      [:emacs,             ::Guard::Notifier::Emacs],
+      [:terminal_notifier, ::Guard::Notifier::TerminalNotifier]
+    ]
 
     # Get the available notifications.
     #
@@ -85,7 +92,7 @@ module Guard
         ENV['GUARD_NOTIFY'] = 'false'
       else
         notifications.each do |notification|
-          ::Guard::UI.info "Guard uses #{ NOTIFIERS[notification[:name]].to_s.split('::').last } to send notifications."
+          ::Guard::UI.info "Guard uses #{ get_notifier_module(notification[:name]).to_s.split('::').last } to send notifications."
         end
 
         ENV['GUARD_NOTIFY'] = 'true'
@@ -116,7 +123,9 @@ module Guard
     def add_notification(name, options = { }, silent = false)
       return turn_off if name == :off
 
-      if NOTIFIERS.has_key?(name) && NOTIFIERS[name].available?(silent)
+      notifier = get_notifier_module(name)
+      
+      if notifier && notifier.available?(silent)
         self.notifications = notifications << { :name => name, :options => options }
         true
       else
@@ -138,7 +147,7 @@ module Guard
 
         notifications.each do |notification|
           begin
-            NOTIFIERS[notification[:name]].notify(type, title, message, image, options.merge(notification[:options]))
+            get_notifier_module(notification[:name]).notify(type, title, message, image, options.merge(notification[:options]))
           rescue Exception => e
             ::Guard::UI.error "Error sending notification with #{ notification[:name] }: #{ e.message }"
           end
@@ -148,12 +157,22 @@ module Guard
 
     private
 
+    # Get the notifier module for the given name.
+    #
+    # @param [Symbol] the notifier name
+    # @return [Module] the notifier module
+    #
+    def get_notifier_module(name)
+      notifier = NOTIFIERS.detect { |n| n.first == name }
+      notifier ? notifier.last : notifier
+    end
+    
     # Auto detect the available notification library. This goes through
     # the list of supported notification gems and picks the first that
     # is available.
     #
     def auto_detect_notification
-      available = [:growl_notify, :gntp, :growl, :libnotify, :notifysend, :notifu].any? { |notifier| add_notification(notifier, { }, true) }
+      available = NOTIFIERS.map { |n| n.first }.any? { |notifier| add_notification(notifier, { }, true) }
       ::Guard::UI.info('Guard could not detect any of the supported notification libraries.') unless available
     end
 
@@ -171,14 +190,14 @@ module Guard
     #
     def image_path(image)
       case image
-      when :failed
-        images_path.join('failed.png').to_s
-      when :pending
-        images_path.join('pending.png').to_s
-      when :success
-        images_path.join('success.png').to_s
-      else
-        image
+        when :failed
+          images_path.join('failed.png').to_s
+        when :pending
+          images_path.join('pending.png').to_s
+        when :success
+          images_path.join('success.png').to_s
+        else
+          image
       end
     end
 
@@ -198,14 +217,14 @@ module Guard
     #
     def notification_type(image)
       case image
-      when :failed
-        'failed'
-      when :pending
-        'pending'
-      when :success
-        'success'
-      else
-        'notify'
+        when :failed
+          'failed'
+        when :pending
+          'pending'
+        when :success
+          'success'
+        else
+          'notify'
       end
     end
   end

@@ -4,9 +4,9 @@ module Guard
   # the behaviour of Guard.
   #
   # The main keywords of the DSL are `guard` and `watch`. These are necessary to define
-  # the used Guards and the file changes they are watching.
+  # the used Guard plugins and the file changes they are watching.
   #
-  # You can optionally group the Guards with the `group` keyword and ignore and filter certain paths
+  # You can optionally group the Guard plugins with the `group` keyword and ignore and filter certain paths
   # with the `ignore` and `filter` keywords.
   #
   # You can set your preferred system notification library with `notification` and pass
@@ -15,8 +15,9 @@ module Guard
   # specify `:off` as library). @see ::Guard::Notifier for more information about the supported libraries.
   #
   # A more advanced DSL use is the `callback` keyword that allows you to execute arbitrary
-  # code before or after any of the `start`, `stop`, `reload`, `run_all` and `run_on_change`
-  # Guards' method. You can even insert more hooks inside these methods.
+  # code before or after any of the `start`, `stop`, `reload`, `run_all`, `run_on_changes`,
+  # `run_on_additions`, `run_on_modifications` and `run_on_removals` Guard plugins method. 
+  # You can even insert more hooks inside these methods.
   # Please [checkout the Wiki page](https://github.com/guard/guard/wiki/Hooks-and-callbacks) for more details.
   #
   # The DSL will also evaluate normal Ruby code.
@@ -83,6 +84,13 @@ module Guard
   #
   class Dsl
 
+    require 'guard'
+    require 'guard/dsl'
+    require 'guard/interactor'
+    require 'guard/notifier'
+    require 'guard/ui'
+    require 'guard/watcher'
+
     # Deprecation message for the `ignore_paths` method
     IGNORE_PATHS_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
       Starting with Guard v1.1 the use of the 'ignore_paths' Guardfile dsl method is deprecated.
@@ -115,11 +123,11 @@ module Guard
       #
       def reevaluate_guardfile
         before_reevaluate_guardfile
-        Dsl.evaluate_guardfile(@@options)
+        ::Guard::Dsl.evaluate_guardfile(@@options)
         after_reevaluate_guardfile
       end
 
-      # Stop Guards and clear internal state
+      # Stop Guard and clear internal state
       # before the Guardfile will be re-evaluated.
       #
       def before_reevaluate_guardfile
@@ -131,7 +139,7 @@ module Guard
         @@options.delete(:guardfile_contents)
       end
 
-      # Start Guards and notification and show a message
+      # Start Guard and notification and show a message
       # after the Guardfile has been re-evaluated.
       #
       def after_reevaluate_guardfile
@@ -155,10 +163,10 @@ module Guard
       def instance_eval_guardfile(contents)
         new.instance_eval(contents, @@options[:guardfile_path], 1)
       rescue
-        UI.error "Invalid Guardfile, original error is:\n#{ $! }"
+        ::Guard::UI.error "Invalid Guardfile, original error is:\n#{ $! }"
       end
 
-      # Test if the current `Guardfile` contains a specific Guard.
+      # Test if the current `Guardfile` contains a specific Guard plugin.
       #
       # @param [String] guard_name the name of the Guard
       # @return [Boolean] whether the Guard has been declared
@@ -175,7 +183,7 @@ module Guard
         @@options[:guardfile_path]     = guardfile_path
         @@options[:guardfile_contents] = File.read(guardfile_path)
       rescue
-        UI.error("Error reading file #{ guardfile_path }")
+        ::Guard::UI.error("Error reading file #{ guardfile_path }")
         exit 1
       end
 
@@ -184,15 +192,15 @@ module Guard
       #
       def fetch_guardfile_contents
         if @@options[:guardfile_contents]
-          UI.info 'Using inline Guardfile.'
+          ::Guard::UI.info 'Using inline Guardfile.'
           @@options[:guardfile_path] = 'Inline Guardfile'
 
         elsif @@options[:guardfile]
           if File.exist?(@@options[:guardfile])
             read_guardfile(@@options[:guardfile])
-            UI.info "Using Guardfile at #{ @@options[:guardfile] }."
+            ::Guard::UI.info "Using Guardfile at #{ @@options[:guardfile] }."
           else
-            UI.error "No Guardfile exists at #{ @@options[:guardfile] }."
+            ::Guard::UI.error "No Guardfile exists at #{ @@options[:guardfile] }."
             exit 1
           end
 
@@ -200,13 +208,13 @@ module Guard
           if File.exist?(guardfile_default_path)
             read_guardfile(guardfile_default_path)
           else
-            UI.error 'No Guardfile found, please create one with `guard init`.'
+            ::Guard::UI.error 'No Guardfile found, please create one with `guard init`.'
             exit 1
           end
         end
 
         unless guardfile_contents_usable?
-          UI.error 'No Guards found in Guardfile, please add at least one.'
+          ::Guard::UI.error 'No Guard plugins found in Guardfile, please add at least one.'
         end
       end
 
@@ -320,9 +328,9 @@ module Guard
       ::Guard::Interactor.interactor = interactor.to_sym
     end
 
-    # Declares a group of guards to be run with `guard start --group group_name`.
+    # Declares a group of Guard plugins to be run with `guard start --group group_name`.
     #
-    # @example Declare two groups of Guards
+    # @example Declare two groups of Guard plugins
     #
     #   group 'backend' do
     #     guard 'spork'
@@ -334,7 +342,7 @@ module Guard
     #     guard 'livereload'
     #   end
     #
-    # @param [Symbol, String] name the group's name called from the CLI
+    # @param [Symbol, String] name the group name called from the CLI
     # @param [Hash] options the options accepted by the group
     # @yield a block where you can declare several guards
     #
@@ -356,7 +364,7 @@ module Guard
       end
     end
 
-    # Declare a guard to be used when running `guard start`.
+    # Declare a Guard plugin to be used when running `guard start`.
     #
     # The name parameter is usually the name of the gem without
     # the 'guard-' prefix.
@@ -411,7 +419,8 @@ module Guard
     end
 
     # Define a callback to execute arbitrary code before or after any of
-    # the `start`, `stop`, `reload`, `run_all` and `run_on_change` guards' method.
+    # the `start`, `stop`, `reload`, `run_all`, `run_on_changes` `run_on_additions`, `run_on_modifications`
+    # and `run_on_removals` plugin method.
     #
     # @param [Array] args the callback arguments
     # @yield a block with listeners
@@ -431,7 +440,7 @@ module Guard
     # @param [Array] paths the list of paths to ignore
     #
     def ignore_paths(*paths)
-      UI.deprecation(IGNORE_PATHS_DEPRECATION)
+      ::Guard::UI.deprecation(IGNORE_PATHS_DEPRECATION)
     end
 
     # Ignore certain patterns paths globally.
@@ -439,7 +448,7 @@ module Guard
     # @example Ignore some paths
     #   ignore %r{^ignored/path/}, /man/
     #
-    # @param [Regexp] regexp a pattern for ignoring paths
+    # @param [Regexp] regexps a pattern for ignoring paths
     #
     def ignore(*regexps)
       ::Guard.listener = ::Guard.listener.ignore(*regexps)
@@ -450,7 +459,7 @@ module Guard
     # @example Filter some files
     #   ignore /\.txt$/, /.*\.zip/
     #
-    # @param [Regexp] regexp a pattern for filtering paths
+    # @param [Regexp] regexps a pattern for filtering paths
     #
     def filter(*regexps)
       ::Guard.listener = ::Guard.listener.filter(*regexps)

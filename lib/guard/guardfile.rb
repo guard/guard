@@ -7,6 +7,9 @@ module Guard
   #
   class Guardfile
 
+    require 'guard'
+    require 'guard/ui'
+
     class << self
 
       # Creates the initial Guardfile template when it does not

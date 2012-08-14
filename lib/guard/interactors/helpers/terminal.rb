@@ -39,8 +39,8 @@ module Guard
     # Restore terminal settings
     #
     def restore_terminal_settings
-      system('stty', @stty_save, '2>/dev/null') if @stty_save
+      system("stty #{ @stty_save } 2>/dev/null") if @stty_save
     end
-    
+
   end
 end

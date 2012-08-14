@@ -2,23 +2,22 @@ require 'thread'
 require 'listen'
 
 # Guard is the main module for all Guard related modules and classes.
-# Also other Guard implementation should use this namespace.
+# Also Guard plugins should use this namespace.
 #
 module Guard
 
-  autoload :UI,           'guard/ui'
-  autoload :Guardfile,    'guard/guardfile'
-  autoload :Dsl,          'guard/dsl'
-  autoload :DslDescriber, 'guard/dsl_describer'
-  autoload :Group,        'guard/group'
-  autoload :Interactor,   'guard/interactor'
-  autoload :Watcher,      'guard/watcher'
-  autoload :Notifier,     'guard/notifier'
-  autoload :Runner,       'guard/runner'
-  autoload :Hook,         'guard/hook'
+  require 'guard/dsl'
+  require 'guard/guardfile'
+  require 'guard/group'
+  require 'guard/interactor'
+  require 'guard/notifier'
+  require 'guard/runner'
+  require 'guard/ui'
+  require 'guard/watcher'
 
   # The Guardfile template for `guard init`
   GUARDFILE_TEMPLATE = File.expand_path('../guard/templates/Guardfile', __FILE__)
+
   # The location of user defined templates
   HOME_TEMPLATES = File.expand_path('~/.guard/templates')
 
@@ -44,10 +43,10 @@ module Guard
       @lock       = Mutex.new
       @options    = options
       @watchdir   = (options[:watchdir] && File.expand_path(options[:watchdir])) || Dir.pwd
-      @runner     = Runner.new
+      @runner     = ::Guard::Runner.new
       @allow_stop = Listen::Turnstile.new
 
-      UI.clear(force: true)
+      ::Guard::UI.clear(force: true)
       deprecated_options_warning
 
       setup_groups
@@ -57,10 +56,10 @@ module Guard
 
       debug_command_execution if @options[:debug]
 
-      Dsl.evaluate_guardfile(options)
-      UI.error 'No guards found in Guardfile, please add at least one.' if @guards.empty?
+      ::Guard::Dsl.evaluate_guardfile(options)
+      ::Guard::UI.error 'No guards found in Guardfile, please add at least one.' if @guards.empty?
 
-      runner.deprecation_warning # Guard deprecation go here
+      runner.deprecation_warning if @options[:show_deprecations]
 
       setup_notifier
       setup_interactor
@@ -84,19 +83,21 @@ module Guard
       @guards = []
     end
 
-    # Sets up traps to catch signlas used to control Guard.
+    # Sets up traps to catch signals used to control Guard.
     #
-    # Currently two signals are cought:
+    # Currently two signals are caught:
     # - `USR1` which pauses listening to changes.
     # - `USR2` which resumes listening to changes.
     #
     def setup_signal_traps
-      if Signal.list.keys.include?('USR1')
-        Signal.trap('USR1') { ::Guard.pause unless @listener.paused? }
-      end
+      unless defined?(JRUBY_VERSION)
+        if Signal.list.keys.include?('USR1')
+          Signal.trap('USR1') { ::Guard.pause unless @listener.paused? }
+        end
 
-      if Signal.list.keys.include?('USR2')
-        Signal.trap('USR2') { ::Guard.pause if @listener.paused? }
+        if Signal.list.keys.include?('USR2')
+          Signal.trap('USR2') { ::Guard.pause if @listener.paused? }
+        end
       end
     end
 
@@ -104,7 +105,7 @@ module Guard
     #
     def setup_listener
       listener_callback = lambda do |modified, added, removed|
-        Dsl.reevaluate_guardfile if Watcher.match_guardfile?(modified)
+        ::Guard::Dsl.reevaluate_guardfile if ::Guard::Watcher.match_guardfile?(modified)
 
         ::Guard.within_preserved_state do
           runner.run_on_changes(modified, added, removed)
@@ -122,25 +123,25 @@ module Guard
     # Enables or disables the notifier based on user's configurations.
     #
     def setup_notifier
-      options[:notify] && ENV['GUARD_NOTIFY'] != 'false' ? Notifier.turn_on : Notifier.turn_off
+      options[:notify] && ENV['GUARD_NOTIFY'] != 'false' ? ::Guard::Notifier.turn_on : ::Guard::Notifier.turn_off
     end
 
     # Initializes the interactor unless the user has specified not to.
     #
     def setup_interactor
       unless options[:no_interactions]
-        @interactor = Interactor.fabricate
+        @interactor = ::Guard::Interactor.fabricate
       end
     end
 
-    # Start Guard by evaluate the `Guardfile`, initialize the declared Guards
-    # and start the available file change listener.
-    # Main method for Guard that is called from the CLI when guard starts.
+    # Start Guard by evaluating the `Guardfile`, initializing declared Guard plugins
+    # and starting the available file change listener.
+    # Main method for Guard that is called from the CLI when Guard starts.
     #
     # - Setup Guard internals
     # - Evaluate the `Guardfile`
     # - Configure Notifiers
-    # - Initialize the declared Guards
+    # - Initialize the declared Guard plugins
     # - Start the available file change listener
     #
     # @option options [Boolean] clear if auto clear the UI should be done
@@ -152,7 +153,7 @@ module Guard
     #
     def start(options = {})
       setup(options)
-      UI.info "Guard is now watching at '#{ @watchdir }'"
+      ::Guard::UI.info "Guard is now watching at '#{ @watchdir }'"
 
       within_preserved_state do
         runner.run(:start)
@@ -169,32 +170,32 @@ module Guard
       listener.stop
       interactor.stop if interactor
       runner.run(:stop)
-      UI.info 'Bye bye...', :reset => true
+      ::Guard::UI.info 'Bye bye...', :reset => true
 
       @allow_stop.signal if @allow_stop
     end
 
-    # Reload Guardfile and all Guards currently enabled.
+    # Reload Guardfile and all Guard plugins currently enabled.
     #
-    # @param [Hash] scopes an hash with a guard or a group scope
+    # @param [Hash] scopes hash with a Guard plugin or a group scope
     #
-    def reload(scopes)
+    def reload(scopes = {})
       within_preserved_state do
-        UI.clear(force: true)
-        UI.action_with_scopes('Reload', scopes)
-        Dsl.reevaluate_guardfile if scopes.empty?
+        ::Guard::UI.clear(force: true)
+        ::Guard::UI.action_with_scopes('Reload', scopes)
+        ::Guard::Dsl.reevaluate_guardfile if scopes.empty?
         runner.run(:reload, scopes)
       end
     end
 
-    # Trigger `run_all` on all Guards currently enabled.
+    # Trigger `run_all` on all Guard plugins currently enabled.
     #
-    # @param [Hash] scopes an hash with a guard or a group scope
+    # @param [Hash] scopes hash with a Guard plugin or a group scope
     #
-    def run_all(scopes)
+    def run_all(scopes = {})
       within_preserved_state do
-        UI.clear(force: true)
-        UI.action_with_scopes('Run', scopes)
+        ::Guard::UI.clear(force: true)
+        ::Guard::UI.action_with_scopes('Run', scopes)
         runner.run(:run_all, scopes)
       end
     end
@@ -203,30 +204,30 @@ module Guard
     #
     def pause
       if listener.paused?
-        UI.info 'Un-paused files modification listening', :reset => true
+        ::Guard::UI.info 'Un-paused files modification listening', :reset => true
         listener.unpause
       else
-        UI.info 'Paused files modification listening', :reset => true
+        ::Guard::UI.info 'Paused files modification listening', :reset => true
         listener.pause
       end
     end
 
-    # Smart accessor for retrieving a specific guard or several guards at once.
+    # Smart accessor for retrieving a specific Guard plugin or several Guard plugins at once.
     #
     # @see Guard.groups
     #
-    # @example Filter Guards by String or Symbol
+    # @example Filter Guard plugins by String or Symbol
     #   Guard.guards('rspec')
     #   Guard.guards(:rspec)
     #
-    # @example Filter Guards by Regexp
+    # @example Filter Guard plugins by Regexp
     #   Guard.guards(/rsp.+/)
     #
-    # @example Filter Guards by Hash
+    # @example Filter Guard plugins by Hash
     #   Guard.guards({ :name => 'rspec', :group => 'backend' })
     #
-    # @param [String, Symbol, Regexp, Hash] filter the filter to apply to the Guards
-    # @return [Array<Guard>] the filtered Guards
+    # @param [String, Symbol, Regexp, Hash] filter the filter to apply to the Guard plugins
+    # @return [Array<Guard>] the filtered Guard plugins
     #
     def guards(filter = nil)
       @guards ||= []
@@ -249,7 +250,7 @@ module Guard
       end
     end
 
-    # Smart accessor for retrieving a specific group or several groups at once.
+    # Smart accessor for retrieving a specific plugin group or several plugin groups at once.
     #
     # @see Guard.guards
     #
@@ -274,17 +275,17 @@ module Guard
       end
     end
 
-    # Add a Guard to use.
+    # Add a Guard plugin to use.
     #
     # @param [String] name the Guard name
     # @param [Array<Watcher>] watchers the list of declared watchers
     # @param [Array<Hash>] callbacks the list of callbacks
-    # @param [Hash] options the Guard options (see the given Guard documentation)
-    # @return [Guard::Guard] the guard added
+    # @param [Hash] options the plugin options (see the given Guard documentation)
+    # @return [Guard::Guard] the added Guard plugin
     #
     def add_guard(name, watchers = [], callbacks = [], options = {})
       if name.to_sym == :ego
-        UI.deprecation('Guard::Ego is now part of Guard. You can remove it from your Guardfile.')
+        ::Guard::UI.deprecation('Guard::Ego is now part of Guard. You can remove it from your Guardfile.')
       else
         guard_class = get_guard_class(name)
         callbacks.each { |callback| Hook.add_callback(callback[:listener], guard_class, callback[:events]) }
@@ -294,17 +295,17 @@ module Guard
       end
     end
 
-    # Add a Guard group.
+    # Add a Guard plugin group.
     #
     # @param [String] name the group name
     # @option options [Boolean] halt_on_fail if a task execution
-    #   should be halted for all Guards in this group if one Guard throws `:task_has_failed`
+    #   should be halted for all Guard plugins in this group if one Guard throws `:task_has_failed`
     # @return [Guard::Group] the group added (or retrieved from the `@groups` variable if already present)
     #
     def add_group(name, options = {})
       group = groups(name)
       if group.nil?
-        group = Group.new(name, options)
+        group = ::Guard::Group.new(name, options)
         @groups << group
       end
       group
@@ -329,7 +330,7 @@ module Guard
       @result
     end
 
-    # Tries to load the Guard main class. This transforms the supplied Guard
+    # Tries to load the Guard plugin main class. This transforms the supplied Guard plugin
     # name into a class name:
     #
     # * `guardname` will become `Guard::Guardname`
@@ -357,19 +358,19 @@ module Guard
           try_require = true
           retry
         else
-          UI.error "Could not find class Guard::#{ const_name.capitalize }"
+          ::Guard::UI.error "Could not find class Guard::#{ const_name.capitalize }"
         end
       rescue LoadError => loadError
         unless fail_gracefully
-          UI.error "Could not load 'guard/#{ name.downcase }' or find class Guard::#{ const_name.capitalize }"
-          UI.error loadError.to_s
+          ::Guard::UI.error "Could not load 'guard/#{ name.downcase }' or find class Guard::#{ const_name.capitalize }"
+          ::Guard::UI.error loadError.to_s
         end
       end
     end
 
-    # Locate a path to a Guard gem.
+    # Locate a path to a Guard plugin gem.
     #
-    # @param [String] name the name of the Guard without the prefix `guard-`
+    # @param [String] name the name of the Guard plugin without the prefix `guard-`
     # @return [String] the full path to the Guard gem
     #
     def locate_guard(name)
@@ -379,12 +380,12 @@ module Guard
         Gem.source_index.find_name("guard-#{ name }").last.full_gem_path
       end
     rescue
-      UI.error "Could not find 'guard-#{ name }' gem path."
+      ::Guard::UI.error "Could not find 'guard-#{ name }' gem path."
     end
 
-    # Returns a list of guard Gem names installed locally.
+    # Returns a list of Guard plugin Gem names installed locally.
     #
-    # @return [Array<String>] a list of guard gem names
+    # @return [Array<String>] a list of Guard plugin gem names
     #
     def guard_gem_names
       if Gem::Version.create(Gem::VERSION) >= Gem::Version.create('1.8.0')

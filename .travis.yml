@@ -1,23 +1,27 @@
+language: ruby
+bundler_args: --without development
 rvm:
   - 1.8.7
   - 1.9.2
   - 1.9.3
   - ruby-head
   - ree
-  # - jruby-18mode
-  # - jruby-19mode
-  # - jruby-head
+  - jruby-18mode
+  - jruby-19mode
+  - jruby-head
   - rbx-18mode
   - rbx-19mode
+matrix:
+  allow_failures:
+    - rvm: ruby-head
+    - rvm: jruby-head
 branches:
   only:
     - master
-    - listen
 notifications:
   recipients:
     - thibaud@thibaud.me
     - rymai@rymai.me
     - michi@netzpiraten.ch
-    - yann.lugrin@sans-savoir.net
     - maher@sallam.me
   irc: "irc.freenode.org#guard"

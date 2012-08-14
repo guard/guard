@@ -1,3 +1,5 @@
+require 'guard'
+
 module Guard
   
   # Module for providing word completion to an interactor.

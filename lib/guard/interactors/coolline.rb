@@ -1,13 +1,15 @@
-module Guard
+require 'guard'
+require 'guard/ui'
+require 'guard/interactor'
+require 'guard/interactors/helpers/terminal'
+require 'guard/interactors/helpers/completion'
 
-  autoload :TerminalHelper,   'guard/interactors/helpers/terminal'
-  autoload :CompletionHelper, 'guard/interactors/helpers/completion'
-  autoload :UI,               'guard/ui'
+module Guard
 
   # Interactor that uses coolline for getting the user input.
   # This enables history support and auto-completion,
   #
-  class CoollineInteractor < Interactor
+  class CoollineInteractor < ::Guard::Interactor
     include ::Guard::CompletionHelper
     include ::Guard::TerminalHelper
 

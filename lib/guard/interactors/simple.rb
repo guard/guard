@@ -1,9 +1,11 @@
+require 'guard/interactor'
+
 module Guard
 
   # Simple interactor that that reads user
   # input from standard input.
   #
-  class SimpleInteractor < Interactor
+  class SimpleInteractor < ::Guard::Interactor
 
     # Read a line from stdin with Readline.
     #

@@ -4,7 +4,7 @@ module Guard
   # through this class is considered either as an error message or a diagnostic
   # message and is written to standard error (STDERR).
   #
-  # If your Guard does some output that is piped into another process for further
+  # If your Guard plugin does some output that is piped into another process for further
   # processing, please just write it to STDOUT with `puts`.
   #
   module UI
@@ -96,7 +96,7 @@ module Guard
       # Show a scoped action message.
       #
       # @param [String] action the action to show
-      # @param [Hash] scopes an hash with a guard or a group scope
+      # @param [Hash] scopes hash with a guard or a group scope
       #
       def action_with_scopes(action, scopes)
         scope_message ||= scopes[:guard]

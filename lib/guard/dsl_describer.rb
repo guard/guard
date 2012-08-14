@@ -1,8 +1,4 @@
-require 'guard/dsl'
-
 module Guard
-
-  autoload :UI, 'guard/ui'
 
   # The DslDescriber overrides methods to create an internal structure
   # of the Guardfile that is used in some inspection utility methods
@@ -12,6 +8,9 @@ module Guard
   # @see Guard::CLI
   #
   class DslDescriber < Dsl
+
+    require 'guard/dsl'
+    require 'guard/ui'
 
     class << self
 
@@ -27,7 +26,7 @@ module Guard
         super options
       end
 
-      # List the Guards that are available for use in your system and marks
+      # List the Guard plugins that are available for use in your system and marks
       # those that are currently used in your `Guardfile`.
       #
       # @example Guard list output
@@ -52,18 +51,18 @@ module Guard
           installed
         end
 
-        UI.info 'Available guards:'
+        ::Guard::UI.info 'Available guards:'
 
         ::Guard.guard_gem_names.sort.uniq.each do |name|
-          UI.info "   #{ name }#{ installed_guards.include?(name) ? '*' : '' }"
+          ::Guard::UI.info "   #{ name }#{ installed_guards.include?(name) ? '*' : '' }"
         end
 
-        UI.info ''
-        UI.info 'See also https://github.com/guard/guard/wiki/List-of-available-Guards'
-        UI.info '* denotes ones already in your Guardfile'
+        ::Guard::UI.info ''
+        ::Guard::UI.info 'See also https://github.com/guard/guard/wiki/List-of-available-Guards'
+        ::Guard::UI.info '* denotes ones already in your Guardfile'
       end
 
-      # Shows all Guards and their options that are defined in
+      # Shows all Guard plugins and their options that are defined in
       # the `Guardfile`.
       #
       # @example guard show output
@@ -82,9 +81,9 @@ module Guard
         guardfile_structure.each do |group|
           unless group[:guards].empty?
             if group[:group]
-              UI.info "Group #{ group[:group] }:"
+              ::Guard::UI.info "Group #{ group[:group] }:"
             else
-              UI.info '(global):'
+              ::Guard::UI.info '(global):'
             end
 
             group[:guards].each do |guard|
@@ -94,12 +93,12 @@ module Guard
                 line += ": #{ guard[:options].inject({}) { |options, (k, v)| options[k.to_s] = v; options }.sort.collect { |k, v| "#{ k } => #{ v.inspect }" }.join(', ') }"
               end
 
-              UI.info line
+              ::Guard::UI.info line
             end
           end
         end
 
-        UI.info ''
+        ::Guard::UI.info ''
       end
 
       private

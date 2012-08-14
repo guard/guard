@@ -1,13 +1,13 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "GUARD" "1" "December 2011" "" ""
+.TH "GUARD" "1" "July 2012" "" ""
 .
 .SH "NAME"
 \fBguard\fR \- Guard keeps an eye on your file modifications\.
 .
 .SH "DESCRIPTION"
-Guard is a command line tool that easily handle events on files modifications\.
+Guard is a command line tool to easily handle events on file system modifications\.
 .
 .SH "SYNOPSIS"
 \fBguard <COMMAND> <OPTIONS>\fR
@@ -39,22 +39,31 @@ The following options are available:
 \fB\-G\fR, \fB\-\-guardfile\fR \fIFILE\fR Tells Guard to use FILE as its Guardfile instead of \fB\./Guardfile\fR or \fB~/\.Guardfile\fR\.
 .
 .P
-\fB\-A\fR, \fB\-\-watch\-all\-modifications\fR Watch all file modifications like moves or deletions with\.
-.
-.P
 \fB\-i\fR, \fB\-\-no\-interactions\fR Turn off completely any Guard terminal interactions\.
 .
-.SS "init [GUARD]"
+.P
+\fB\-B\fR, \fB\-\-no\-bundler\-warning\fR Turn off warning when Bundler is not present\.
+.
+.P
+\fB\-\-show\-deprecations\fR Turn on deprecation warnings\.
+.
+.P
+\fB\-l\fR, \fB\-\-latency\fR Overwrite Listen\'s default latency\.
+.
+.P
+\fB\-p\fR, \fB\-\-force\-polling\fR Force usage of the Listen polling listener\.
+.
+.SS "init [GUARDS]"
 If no Guardfile is present in the current directory, creates an empty Guardfile\.
 .
 .P
-If \fIGUARD\fR is present, add its default Guardfile configuration to the current Guardfile\. Note that \fIGUARD\fR is the guard\'s name without the \fBguard\-\fR prefix\. For instance to initialize guard\-rspec, run \fBguard init rspec\fR\.
+If \fIGUARDS\fR are present, add their default Guardfile configuration to the current Guardfile\. Note that \fIGUARDS\fR is a list of the Guard plugin names without the \fBguard\-\fR prefix\. For instance to initialize guard\-rspec, run \fBguard init rspec\fR\.
 .
 .SS "list"
-Lists guards that can be used with the \fBinit\fR command\.
+Lists Guard plugins that can be used with the \fBinit\fR command\.
 .
 .SS "\-T, show"
-List defined groups and guards for the current Guardfile\.
+List defined groups and Guard plugins for the current Guardfile\.
 .
 .SS "\-h, help [COMMAND]"
 List all of Guard\'s available commands\.
@@ -63,7 +72,7 @@ List all of Guard\'s available commands\.
 If \fICOMMAND\fR is given, displays a specific help for \fITASK\fR\.
 .
 .SH "EXAMPLES"
-Initialize Guard and a specific guard at the same time:
+Initialize Guard and a specific Guard plugin at the same time:
 .
 .P
 \fB[bundle exec] guard init [rspec]\fR

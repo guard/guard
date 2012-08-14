@@ -64,12 +64,24 @@ describe Guard do
       ::Guard.should_receive(:setup_interactor)
       subject
     end
+    
+    context 'when deprecations should be shown' do
+      let(:options) { { :show_deprecations => true, :guardfile => File.join(@fixture_path, "Guardfile") } }
+      subject { ::Guard.setup(options) }
+      let(:runner) { mock('runner') }
+      
+      it 'calls the runner show deprecations' do
+        ::Guard::Runner.should_receive(:new).and_return runner
+        runner.should_receive(:deprecation_warning)
+        subject
+      end
+    end
   end
 
   describe ".setup_signal_traps" do
     before { ::Guard::Dsl.stub(:evaluate_guardfile) }
 
-    unless windows?
+    unless windows? || defined?(JRUBY_VERSION)
       context 'when receiving SIGUSR1' do
         context 'when Guard is running' do
           before { ::Guard.listener.should_receive(:paused?).and_return false }
@@ -181,7 +193,7 @@ describe Guard do
       before { ::Guard.stub(:options).and_return("latency" => 1.5) }
 
       it "pass option to listener" do
-        Listen.should_receive(:to).with(an_instance_of(String), { :relative_paths => true, :latency => 1.5 }) { listener }
+        Listen.should_receive(:to).with(anything, { :relative_paths => true, :latency => 1.5 }) { listener }
         ::Guard.setup_listener
       end
     end
@@ -190,7 +202,7 @@ describe Guard do
       before { ::Guard.stub(:options).and_return("force_polling" => true) }
 
       it "pass option to listener" do
-        Listen.should_receive(:to).with(an_instance_of(String), { :relative_paths => true, :force_polling => true }) { listener }
+        Listen.should_receive(:to).with(anything, { :relative_paths => true, :force_polling => true }) { listener }
         ::Guard.setup_listener
       end
     end
@@ -260,7 +272,8 @@ describe Guard do
 
   describe '#reload' do
     let(:runner) { stub(:run => true) }
-
+    subject { ::Guard.setup }
+    
     before do
       ::Guard.stub(:runner) { runner }
       ::Guard::Dsl.stub(:reevaluate_guardfile)

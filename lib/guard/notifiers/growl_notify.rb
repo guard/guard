@@ -1,4 +1,5 @@
 require 'rbconfig'
+require 'guard/ui'
 
 module Guard
   module Notifier
@@ -58,7 +59,7 @@ module Guard
           false
         end
 
-      rescue LoadError
+      rescue LoadError, NameError
         ::Guard::UI.error "Please add \"gem 'growl_notify'\" to your Gemfile and run Guard with \"bundle exec\"." unless silent
         false
       end

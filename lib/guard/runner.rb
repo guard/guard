@@ -4,6 +4,10 @@ module Guard
   #
   class Runner
 
+    require 'guard'
+    require 'guard/ui'
+    require 'guard/watcher'
+
     # Deprecation message for the `run_on_change` method
     RUN_ON_CHANGE_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
       Starting with Guard v1.1 the use of the 'run_on_change' method in the '%s' guard is deprecated.
@@ -30,15 +34,15 @@ module Guard
     #
     def deprecation_warning
       ::Guard.guards.each do |guard|
-        UI.deprecation(RUN_ON_CHANGE_DEPRECATION % guard.class.name)   if guard.respond_to?(:run_on_change)
-        UI.deprecation(RUN_ON_DELETION_DEPRECATION % guard.class.name) if guard.respond_to?(:run_on_deletion)
+        ::Guard::UI.deprecation(RUN_ON_CHANGE_DEPRECATION % guard.class.name)   if guard.respond_to?(:run_on_change)
+        ::Guard::UI.deprecation(RUN_ON_DELETION_DEPRECATION % guard.class.name) if guard.respond_to?(:run_on_deletion)
       end
     end
 
     # Runs a Guard-task on all registered guards.
     #
     # @param [Symbol] task the task to run
-    # @param [Hash] scope either the guard or the group to run the task on
+    # @param [Hash] scopes either the Guard plugin or the group to run the task on
     #
     # @see self.run_supervised_task
     #
@@ -60,13 +64,13 @@ module Guard
     # @param [Array<String>] removed the removed paths.
     #
     def run_on_changes(modified, added, removed)
-      UI.clearable
+      ::Guard::UI.clearable
       scoped_guards do |guard|
-        modified_paths = Watcher.match_files(guard, modified)
-        added_paths    = Watcher.match_files(guard, added)
-        removed_paths  = Watcher.match_files(guard, removed)
+        modified_paths = ::Guard::Watcher.match_files(guard, modified)
+        added_paths    = ::Guard::Watcher.match_files(guard, added)
+        removed_paths  = ::Guard::Watcher.match_files(guard, removed)
 
-        UI.clear if clearable?(guard, modified_paths, added_paths, removed_paths)
+        ::Guard::UI.clear if clearable?(guard, modified_paths, added_paths, removed_paths)
 
         run_first_task_found(guard, MODIFICATION_TASKS, modified_paths) unless modified_paths.empty?
         run_first_task_found(guard, ADDITION_TASKS, added_paths) unless added_paths.empty?
@@ -74,7 +78,7 @@ module Guard
       end
     end
 
-    # Run a Guard task, but remove the Guard when his work leads to a system failure.
+    # Run a Guard plugin task, but remove the Guard plugin when his work leads to a system failure.
     #
     # When the Group has `:halt_on_fail` disabled, we've to catch `:task_has_failed`
     # here in order to avoid an uncaught throw error.
@@ -96,11 +100,11 @@ module Guard
       rescue NoMethodError
         # Do nothing
       rescue Exception => ex
-        UI.error("#{ guard.class.name } failed to achieve its <#{ task.to_s }>, exception was:" +
+        ::Guard::UI.error("#{ guard.class.name } failed to achieve its <#{ task.to_s }>, exception was:" +
                  "\n#{ ex.class }: #{ ex.message }\n#{ ex.backtrace.join("\n") }")
 
         ::Guard.guards.delete guard
-        UI.info("\n#{ guard.class.name } has just been fired")
+        ::Guard::UI.info("\n#{ guard.class.name } has just been fired")
 
         ex
       end
@@ -113,8 +117,7 @@ module Guard
     #   group level.
     # @see .scoped_guards
     #
-    # @param [Guard::Guard] guard the Guard to execute
-    #
+    # @param [Guard::Guard] guard the Guard plugin to execute
     # @return [Symbol] the symbol to catch
     #
     def self.stopping_symbol_for(guard)
@@ -129,7 +132,7 @@ module Guard
     # Tries to run the first implemented task by a given guard
     # from a collection of tasks.
     #
-    # @param [Guard::Guard] guard the guard to run the found task on
+    # @param [Guard::Guard] guard the Guard plugin to run the first found task on
     # @param [Array<Symbol>] tasks the tasks to run the first among
     # @param [Object] task_param the param to pass to each task
     #
@@ -139,17 +142,17 @@ module Guard
           run_supervised_task(guard, task, task_param)
           break
         else
-          UI.debug "Trying to run #{ guard.class.name }##{ task.to_s } with #{ task_param.inspect }"
+          ::Guard::UI.debug "Trying to run #{ guard.class.name }##{ task.to_s } with #{ task_param.inspect }"
         end
       end
     end
 
-    # Loop through all groups and run the given task for each Guard.
+    # Loop through all groups and run the given task for each Guard plugin.
     #
-    # Stop the task run for the all Guards within a group if one Guard
+    # Stop the task run for the all Guard plugins within a group if one Guard
     # throws `:task_has_failed`.
     #
-    # @param [Hash] scope an hash with a guard or a group scope
+    # @param [Hash] scopes hash with a Guard plugin or a group scope
     # @yield the task to run
     #
     def scoped_guards(scopes = {})
@@ -170,7 +173,7 @@ module Guard
     # Logic to know if the UI can be cleared or not in the run_on_changes method
     # based on the guard and the changes.
     #
-    # @param [Guard::Guard] guard the guard where run_on_changes is called
+    # @param [Guard::Guard] guard the Guard plugin where run_on_changes is called
     # @param [Array<String>] modified_paths the modified paths.
     # @param [Array<String>] added_paths the added paths.
     # @param [Array<String>] removed_paths the removed paths.

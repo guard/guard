@@ -1,5 +1,4 @@
 require 'thor'
-require 'guard/version'
 
 module Guard
 
@@ -8,6 +7,11 @@ module Guard
   # Do not put any logic in here, create a class and delegate instead.
   #
   class CLI < Thor
+
+    require 'guard'
+    require 'guard/version'
+    require 'guard/dsl_describer'
+    require 'guard/guardfile'
 
     default_task :start
 
@@ -73,6 +77,11 @@ module Guard
                   :aliases => '-B',
                   :banner => 'Turn off warning when Bundler is not present'
 
+    method_option :show_deprecations,
+                  :type => :boolean,
+                  :default => false,
+                  :banner => 'Turn on deprecation warnings'
+
     # Listen options
     method_option :latency,
                   :type    => :numeric,
@@ -85,7 +94,7 @@ module Guard
                   :aliases => '-p',
                   :banner  => 'Force usage of the Listen polling listener'
 
-    # Start Guard by initialize the defined Guards and watch the file system.
+    # Start Guard by initializing the defined Guard plugins and watch the file system.
     # This is the default task, so calling `guard` is the same as calling `guard start`.
     #
     # @see Guard.start
@@ -100,7 +109,7 @@ module Guard
 
     desc 'list', 'Lists guards that can be used with init'
 
-    # List the Guards that are available for use in your system and marks
+    # List the Guard plugins that are available for use in your system and marks
     # those that are currently used in your `Guardfile`.
     #
     # @see Guard::DslDescriber.list
@@ -122,7 +131,7 @@ module Guard
       ::Guard::UI.info "Guard version #{ ::Guard::VERSION }"
     end
 
-    desc 'init [GUARD]', 'Generates a Guardfile at the current directory (if it is not already there) and adds all installed guards or the given GUARD into it'
+    desc 'init [GUARDS]', 'Generates a Guardfile at the current directory (if it is not already there) and adds all installed guards or the given GUARDS into it'
 
     method_option :bare,
                   :type => :boolean,
@@ -130,33 +139,35 @@ module Guard
                   :aliases => '-b',
                   :banner => 'Generate a bare Guardfile without adding any installed guard into it'
 
-    # Initializes the templates of all installed Guards and adds them
-    # to the `Guardfile` when no Guard name is passed. When passed
-    # a guard name is does the same but only for that Guard.
+    # Initializes the templates of all installed Guard plugins and adds them
+    # to the `Guardfile` when no Guard name is passed. When passing
+    # Guard plugin names it does the same but only for those Guard plugins.
     #
     # @see Guard::Guard.initialize_template
     # @see Guard::Guard.initialize_all_templates
     #
-    # @param [String] guard_name the name of the Guard to initialize
+    # @param [Array<String>] guard_names the name of the Guard plugins to initialize
     #
-    def init(guard_name = nil)
+    def init(*guard_names)
       verify_bundler_presence
 
       ::Guard::Guardfile.create_guardfile(:abort_on_existence => options[:bare])
 
       return if options[:bare]
 
-      if guard_name.nil?
+      if guard_names.empty?
         ::Guard::Guardfile::initialize_all_templates
       else
-        ::Guard::Guardfile.initialize_template(guard_name)
+        guard_names.each do |guard_name|
+          ::Guard::Guardfile.initialize_template(guard_name)
+        end
       end
     end
 
-    desc 'show', 'Show all defined Guards and their options'
+    desc 'show', 'Show all defined Guard plugins and their options'
     map %w(-T) => :show
 
-    # Shows all Guards and their options that are defined in
+    # Shows all Guard plugins and their options that are defined in
     # the `Guardfile`
     #
     # @see Guard::DslDescriber.show

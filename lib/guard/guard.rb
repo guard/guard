@@ -1,6 +1,6 @@
 module Guard
 
-  # Base class that every Guard implementation must inherit from.
+  # Base class that every Guard plugin implementation must inherit from.
   #
   # Guard will trigger the `start`, `stop`, `reload`, `run_all` and `run_on_changes`
   # (`run_on_additions`, `run_on_modifications` and `run_on_removals`) task methods
@@ -13,8 +13,8 @@ module Guard
   # In each of these Guard task methods you have to implement some work when you want to
   # support this kind of task. The return value of each Guard task method is not evaluated
   # by Guard, but I'll be passed to the "_end" hook for further evaluation. You can
-  # throw `:task_has_failed` to indicate that your Guard method was not successful,
-  # and successive guard tasks will be aborted when the group has set the `:halt_on_fail`
+  # throw `:task_has_failed` to indicate that your Guard plugin method was not successful,
+  # and successive Guard plugin tasks will be aborted when the group has set the `:halt_on_fail`
   # option.
   #
   # @see Guard::Hook
@@ -28,26 +28,29 @@ module Guard
   #     end
   #   end
   #
-  # Each Guard should provide a template Guardfile located within the Gem
+  # Each Guard plugin should provide a template Guardfile located within the Gem
   # at `lib/guard/guard-name/templates/Guardfile`.
   #
-  # By default all watchers for a Guard are returning strings of paths to the
-  # Guard, but if your Guard want to allow any return value from a watcher,
+  # By default all watchers for a Guard plugin have to return strings of paths to the
+  # Guard, but if your Guard plugin wants to allow any return value from a watcher,
   # you can set the `any_return` option to true.
   #
   # If one of those methods raise an exception other than `:task_has_failed`,
   # the Guard::GuardName instance will be removed from the active guards.
   #
   class Guard
-    include Hook
+    require 'guard/hook'
+    require 'guard/ui'
+
+    include ::Guard::Hook
 
     attr_accessor :watchers, :options, :group
 
-    # Initializes a Guard.
+    # Initializes a Guard plugin.
     #
-    # @param [Array<Guard::Watcher>] watchers the Guard file watchers
-    # @param [Hash] options the custom Guard options
-    # @option options [Symbol] group the group this Guard belongs to
+    # @param [Array<Guard::Watcher>] watchers the Guard plugin file watchers
+    # @param [Hash] options the custom Guard plugin options
+    # @option options [Symbol] group the group this Guard plugin belongs to
     # @option options [Boolean] any_return allow any object to be returned from a watcher
     #
     def initialize(watchers = [], options = {})
@@ -55,10 +58,10 @@ module Guard
       @watchers, @options = watchers, options
     end
 
-    # Initialize the Guard. This will copy the Guardfile template inside the Guard gem.
+    # Initialize the Guard plugin. This will copy the Guardfile template inside the Guard plugin gem.
     # The template Guardfile must be located within the Gem at `lib/guard/guard-name/templates/Guardfile`.
     #
-    # @param [String] name the name of the Guard
+    # @param [String] name the name of the Guard plugin
     #
     def self.init(name)
       if ::Guard::Dsl.guardfile_include?(name)
@@ -77,25 +80,19 @@ module Guard
       end
     end
 
-    def to_s
-      self.class.to_s
-    end
-
     # Call once when Guard starts. Please override initialize method to init stuff.
     #
     # @raise [:task_has_failed] when start has failed
     # @return [Object] the task result
     #
-    # def start
-    # end
+    # @!method start
 
     # Called when `stop|quit|exit|s|q|e + enter` is pressed (when Guard quits).
     #
     # @raise [:task_has_failed] when stop has failed
     # @return [Object] the task result
     #
-    # def stop
-    # end
+    # @!method stop
 
     # Called when `reload|r|z + enter` is pressed.
     # This method should be mainly used for "reload" (really!) actions like reloading passenger/spork/bundler/...
@@ -103,8 +100,7 @@ module Guard
     # @raise [:task_has_failed] when reload has failed
     # @return [Object] the task result
     #
-    # def reload
-    # end
+    # @!method  reload
 
     # Called when just `enter` is pressed
     # This method should be principally used for long action like running all specs/tests/...
@@ -112,44 +108,48 @@ module Guard
     # @raise [:task_has_failed] when run_all has failed
     # @return [Object] the task result
     #
-    # def run_all
-    # end
+    # @!method run_all
 
-    # Default behaviour on file(s) changes that the Guard watches.
+    # Default behaviour on file(s) changes that the Guard plugin watches.
     #
     # @param [Array<String>] paths the changes files or paths
-    # @raise [:task_has_failed] when run_on_change has failed
+    # @raise [:task_has_failed] when run_on_changes has failed
     # @return [Object] the task result
     #
-    # def run_on_changes(paths)
-    # end
+    # @!method run_on_changes(paths)
 
-    # Called on file(s) additions that the Guard watches.
+    # Called on file(s) additions that the Guard plugin watches.
     #
     # @param [Array<String>] paths the changes files or paths
-    # @raise [:task_has_failed] when run_on_change has failed
+    # @raise [:task_has_failed] when run_on_additions has failed
     # @return [Object] the task result
     #
-    # def run_on_additions(paths)
-    # end
+    # @!method run_on_additions(paths)
 
-    # Called on file(s) modifications that the Guard watches.
+    # Called on file(s) modifications that the Guard plugin watches.
     #
     # @param [Array<String>] paths the changes files or paths
-    # @raise [:task_has_failed] when run_on_change has failed
+    # @raise [:task_has_failed] when run_on_modifications has failed
     # @return [Object] the task result
     #
-    # def run_on_modifications(paths)
-    # end
+    # @!method run_on_modifications(paths)
 
-    # Called on file(s) removals that the Guard watches.
+    # Called on file(s) removals that the Guard plugin watches.
     #
     # @param [Array<String>] paths the changes files or paths
-    # @raise [:task_has_failed] when run_on_change has failed
+    # @raise [:task_has_failed] when run_on_removals has failed
     # @return [Object] the task result
     #
-    # def run_on_removals(paths)
-    # end
+    # @!method run_on_removals(paths)
+
+    # Convert plugin to string representation. The
+    # default just uses the plugin class name.
+    # 
+    # @return [String] the string representation
+    #
+    def to_s
+      self.class.to_s
+    end
 
   end
 
