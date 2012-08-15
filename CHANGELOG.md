@@ -1,3 +1,9 @@
+## 1.3.2 - 15 August, 2012
+
+### Improvements
+
+- [#316][] Guard clears screen more than once per single watch event. (reported by [@japgolly][], fixed by [@thibaudgg][])
+
 ## 1.3.1 - 14 August, 2012
 
 ### Improvements
@@ -581,6 +587,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [#298]: https://github.com/guard/guard/issues/298
 [#299]: https://github.com/guard/guard/issues/299
 [#315]: https://github.com/guard/guard/issues/315
+[#316]: https://github.com/guard/guard/issues/316
 [#317]: https://github.com/guard/guard/issues/317
 [@Gazer]: https://github.com/Gazer
 [@Maher4Ever]: https://github.com/Maher4Ever
@@ -610,6 +617,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [@hron]: https://github.com/hron
 [@ianwhite]: https://github.com/ianwhite
 [@indirect]: https://github.com/indirect
+[@japgolly]: https://github.com/japgolly
 [@jeffutter]: https://github.com/jeffutter
 [@johnbintz]: https://github.com/johnbintz
 [@jredville]: https://github.com/jredville
