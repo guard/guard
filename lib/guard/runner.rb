@@ -64,6 +64,7 @@ module Guard
     # @param [Array<String>] removed the removed paths.
     #
     def run_on_changes(modified, added, removed)
+      ::Guard::UI.clearable
       scoped_guards do |guard|
         modified_paths = ::Guard::Watcher.match_files(guard, modified)
         added_paths    = ::Guard::Watcher.match_files(guard, added)
