@@ -23,13 +23,13 @@
 - Add support for Emacs notifications ([@maio][])
 - Add support for multiple guards being passed to `guard init`. ([@jredville][])
 
-### 1.2.1 - 2 Juli, 2012
+### 1.2.1 - 2 July, 2012
 
 ### Bug fix
 
 - Fix template methods in the Guard plugin class that causes loss of listen changes. ([@netzpirat][])
 
-### 1.2.2 - 2 Juli, 2012
+### 1.2.2 - 2 July, 2012
 
 ### Bug fix
 
