@@ -29,28 +29,28 @@ describe Guard::Notifier::TerminalNotifier do
     it "should call the notifier." do
       ::TerminalNotifier::Guard.should_receive(:execute).with(
         false,
-        {:title=>"Guard Success any title", :type=>:success, :message=>"any message"}
+        {:title=>"any title", :type=>:success, :message=>"any message"}
       )
       subject.notify('success', 'any title', 'any message', 'any image', { })
     end
 
-    it "should show the type of message in the title" do
+    it "should allow the title to be customized" do
       ::TerminalNotifier::Guard.should_receive(:execute).with(
         false,
-        {:title=>"Guard Error any title", :message => "any message", :type => :error}
+        {:title=>"any title", :message => "any message", :type => :error}
       )
 
       subject.notify('error', 'any title', 'any message', 'any image', { })
     end
 
-    context "with an app name set" do
+    context "without a title set" do
       it "should show the app name in the title" do
         ::TerminalNotifier::Guard.should_receive(:execute).with(
           false,
-          {:title=>"FooBar Success any title", :type=>:success, :message=>"any message"}
+          {:title=>"FooBar Success", :type=>:success, :message=>"any message"}
         )
 
-        subject.notify('success', 'any title', 'any message', 'any image', {:app_name => "FooBar"})
+        subject.notify('success', nil, 'any message', 'any image', {:app_name => "FooBar"})
       end
     end
   end
