@@ -56,7 +56,7 @@ module Guard
       #
       def notify(type, title, message, image, options = { })
         require 'terminal-notifier-guard'
-        options[:title] = [options[:app_name] || 'Guard', type.downcase.capitalize, title].join ' '
+        options[:title] = title || [options[:app_name] || 'Guard', type.downcase.capitalize].join(' ')
         options.merge!(:type => type.to_sym, :message => message)
         options.delete :app_name if options[:app_name]
         ::TerminalNotifier::Guard.execute(false, options)
