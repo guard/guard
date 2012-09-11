@@ -1,3 +1,7 @@
+# Master
+
+- [#324][] Allow Terminal Notifier title to be customizable. ([@mattgreen][])
+
 ## 1.3.2 - 15 August, 2012
 
 ### Improvements
@@ -589,6 +593,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [#315]: https://github.com/guard/guard/issues/315
 [#316]: https://github.com/guard/guard/issues/316
 [#317]: https://github.com/guard/guard/issues/317
+[#324]: https://github.com/guard/guard/issues/324
 [@Gazer]: https://github.com/Gazer
 [@Maher4Ever]: https://github.com/Maher4Ever
 [@alandipert]: https://github.com/alandipert
@@ -627,6 +632,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [@limeyd]: https://github.com/limeyd
 [@madtrick]: https://github.com/madtrick
 [@maio]: https://github.com/maio
+[@mattgreen]: https://github.com/mattgreen
 [@mcmire]: https://github.com/mcmire
 [@mislav]: https://github.com/mislav
 [@monocle]: https://github.com/monocle
