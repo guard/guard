@@ -18,7 +18,7 @@ module Guard
     require 'guard/commands/show'
 
     def initialize
-      Pry::RC_FILES << '~/.guardrc'
+      Pry::RC_FILES.unshift '~/.guardrc'
       Pry.config.history.file = '~/.guard_history'
 
       Pry.config.prompt = [
