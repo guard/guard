@@ -23,10 +23,10 @@ module Guard
 
       Pry.config.prompt = [
         proc do |target_self, nest_level, pry|
-          "[#{pry.input_array.size}] #{ ::Guard.listener.paused? ? '[p]' : '' } guard(#{Pry.view_clip(target_self)})#{":#{nest_level}" unless nest_level.zero?}> "
+          "[#{pry.input_array.size}] #{ ::Guard.listener.paused? ? 'pause' : 'guard' }(#{Pry.view_clip(target_self)})#{":#{nest_level}" unless nest_level.zero?}> "
         end,
         proc do |target_self, nest_level, pry|
-          "[#{pry.input_array.size}] #{ ::Guard.listener.paused? ? '[p]' : '' } guard(#{Pry.view_clip(target_self)})#{":#{nest_level}" unless nest_level.zero?}* "
+          "[#{pry.input_array.size}] #{ ::Guard.listener.paused? ? 'pause' : 'guard' }(#{Pry.view_clip(target_self)})#{":#{nest_level}" unless nest_level.zero?}* "
         end
       ]
     end
