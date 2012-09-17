@@ -16,7 +16,7 @@ module Guard
           either the name of a Guard plugin or a plugin group.
         BANNER
 
-        def process(*files)
+        def process(*entries)
           scopes, rest = ::Guard::Interactor.convert_scope(entries)
 
           ::Guard.within_preserved_state do
