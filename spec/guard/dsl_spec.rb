@@ -370,14 +370,10 @@ describe Guard::Dsl do
   describe "#interactor" do
     disable_user_config
 
-    it 'sets the interactor implementation' do
-      ::Guard::Interactor.should_receive(:interactor=).with(:readline)
-      described_class.evaluate_guardfile(:guardfile_contents => 'interactor :readline')
-    end
+    it "sets the interactor implementation" do
+      ::Guard::UI.should_receive(:deprecation).with(described_class::INTERACTOR_DEPRECATION)
 
-    it 'converts the interactor to a symbol' do
-      ::Guard::Interactor.should_receive(:interactor=).with(:readline)
-      described_class.evaluate_guardfile(:guardfile_contents => 'interactor "readline"')
+      described_class.evaluate_guardfile(:guardfile_contents => "interactor :coolline")
     end
   end
 

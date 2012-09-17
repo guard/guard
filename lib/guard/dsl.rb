@@ -335,7 +335,7 @@ module Guard
     # @deprecated
     #
     def interactor(interactor)
-      ::Guard::UI.deprecation(IINTERACTOR_DEPRECATION)
+      ::Guard::UI.deprecation(INTERACTOR_DEPRECATION)
     end
 
     # Declares a group of Guard plugins to be run with `guard start --group group_name`.
