@@ -105,6 +105,17 @@ module Guard
       ENV['GUARD_NOTIFY'] = 'false'
     end
 
+    # Toggle the system notifications on/off
+    #
+    def toggle
+      if ENV['GUARD_NOTIFY'] == 'true'
+        ::Guard::UI.info 'Turn off notifications'
+        turn_off
+      else
+        turn_on
+      end
+    end
+
     # Test if the notifications are on.
     #
     # @return [Boolean] whether the notifications are on
@@ -124,7 +135,7 @@ module Guard
       return turn_off if name == :off
 
       notifier = get_notifier_module(name)
-      
+
       if notifier && notifier.available?(silent)
         self.notifications = notifications << { :name => name, :options => options }
         true
@@ -166,7 +177,7 @@ module Guard
       notifier = NOTIFIERS.detect { |n| n.first == name }
       notifier ? notifier.last : notifier
     end
-    
+
     # Auto detect the available notification library. This goes through
     # the list of supported notification gems and picks the first that
     # is available.

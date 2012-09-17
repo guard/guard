@@ -82,6 +82,22 @@ describe Guard::Notifier do
     end
   end
 
+  describe 'toggle_notification' do
+    before { ::Guard::UI.stub(:info) }
+
+    it 'disables the notifications when enabled' do
+      ENV['GUARD_NOTIFY'] = 'true'
+      ::Guard::Notifier.should_receive(:turn_off)
+      subject.toggle
+    end
+
+    it 'enables the notifications when disabled' do
+      ENV['GUARD_NOTIFY'] = 'false'
+      ::Guard::Notifier.should_receive(:turn_on)
+      subject.toggle
+    end
+  end
+
   describe '.enabled?' do
     context 'when enabled' do
       before { ENV['GUARD_NOTIFY'] = 'true' }

@@ -420,82 +420,37 @@ read more about these files in the shared configuration section below.
 Interactions
 ------------
 
-You can interact with Guard and enter commands when Guard has nothing to do. Guard understands the following commands:
+Guard shows a [Pry](http://pryrepl.org/) console whenever it has nothing to do and comes with some Guard specific Pry
+commands:
 
-* `↩`:                 Run all plugins.
-* `h`, `help`:         Show a help of the available interactor commands.
-* `r`, `reload`:       Reload all plugins.
-* `c`, `change`:       Trigger a file change to the plugins.
-* `s`, `show`:         Show the plugin configurations.
-* `n`, `notification`: Toggle system notifications on and off.
-* `p`, `pause`:        Toggles the file modification listener. The prompt will change to `p>` when paused.
-                       This is useful when switching Git branches, rebase Git or change whitespace.
-* `e`, `exit`:         Stop all plugins and quit Guard.
+ * `all`                Run all plugins.
+ * `change`             Trigger a file change.
+ * `notification`       Toggles the notifications.
+ * `pause`              Toggles the file listener.
+ * `reload`             Reload all plugins.
+ * `show`               Show all Guard plugins.
 
-Instead of running all plugins with the `↩` key, you can also run a single plugin by entering its name:
-
-```bash
-> rspec
-```
-
-It's also possible to run all plugins within a group by entering the group name:
+The `all` and `reload` commands supports an optional scope, so you limit the Guard action to either a Guard plugin or
+a Guard group like:
 
 ```bash
-> frontend
+[1]  guard(main)> all rspec
+[2]  guard(main)> all frontend
 ```
 
-The same applies to reloading. You can reload a plugin with the following command:
+Remember, you can always use `help` on the Pry command line to see all available commands and `help <command>` for
+more detailed information.
 
-```bash
-> ronn reload
-```
+Pry supports the Ruby built-in Readline, [rb-readline](https://github.com/luislavena/rb-readline) and
+[Coolline](https://github.com/Mon-Ouie/coolline). Just install the readline implementation of your choice by adding it
+to your `Gemfile.
 
-This will reload only the Ronn plugin. You can also reload all plugins within a group:
+You can also disable the interactions completely by running Guard with the `--no-interactions` option.
 
-```bash
-> backend reload
-```
-
-The action and plugin/group name can have any order, so you can also write:
-
-```bash
-> reload backend
-```
-
-You can pass a list of filenames to the `change` command to trigger manually a file modification:
-
-```bash
-> change spec/guard_spec.rb
-```
-
-### Readline support
-
-With Readline enabled, you'll see a command prompt `>` when Guard is ready to accept a command. The command line
-supports history navigation with the `↑` and `↓` arrow keys, and command auto-completion with the `⇥` key.
-
-Unfortunately Readline [does not work on MRI](http://bugs.ruby-lang.org/issues/5539) on Mac OS X by default. You can
-work around the issue by installing a pure Ruby implementation:
-
-```ruby
-platforms :ruby do
-  gem 'rb-readline'
-end
-```
-
-Guard will automatically enable Readline support if your environment supports it, but you can disable Readline with the
-`interactor` DSL method or turn off completely with the `--no-interactions` option.
-
-### Coolline support
-
-With Ruby 1.9.3 you can use a [Coolline](https://github.com/Mon-Ouie/coolline) based interactor, which uses the new
-`io/console` from stdlib. Just add it to your `Gemfile`
-
-```ruby
-gem 'coolline'
-```
-
-Guard will automatically enable Coolline support if your environment supports it, but you can disable Coolline with the
-`interactor` DSL method or turn off completely with the `--no-interactions` option.
+Further Guard specific customizations can be made in `~/.guardrc` that will be evaluated prior the Pry session is
+started. This allows you to make use of the Pry plugin architecture to provide custom commands and extend Guard for
+your own needs and distribute as a gem. Please have a look at the [Pry Wiki](https://github.com/pry/pry/wiki) for more
+information.
 
 ### Signals
 
@@ -642,22 +597,6 @@ or using the cli switch `-n`:
 
 ```ruby
 notification :off
-```
-
-### interactor
-
-You can disable the interactor auto detection and select a specific implementation:
-
-```ruby
-interactor :coolline
-interactor :readline
-interactor :simple
-```
-
-If you do not need the keyboard interactions with Guard at all, you can turn them off:
-
-```ruby
-interactor :off
 ```
 
 ### callback
