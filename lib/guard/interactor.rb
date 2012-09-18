@@ -16,11 +16,22 @@ module Guard
     require 'guard/commands/pause'
     require 'guard/commands/reload'
     require 'guard/commands/show'
+    GUARD_RC = '~/.guardrc'
+    HISTORY_FILE = '~/.guard_history'
 
     def initialize
-      Pry::RC_FILES.unshift '~/.guardrc'
-      Pry.config.history.file = '~/.guard_history'
-
+      Pry.config.hooks.add_hook :when_started, :load_guard_rc do
+        if File.exist? File.expand_path GUARD_RC
+          load GUARD_RC
+        else
+          example_guard_rc_url = 'https://gist.github.com/da7f4b2f8465a3d75cd4'
+          Pry.output.puts <<-EOT
+- No ~/.guardrc found, so commands will be more verbose.
+(See tersifying example at #{example_guard_rc_url} )
+          EOT
+        end
+      end
+      Pry.config.history.file = HISTORY_FILE
       Pry.config.prompt = [
         proc do |target_self, nest_level, pry|
           "[#{pry.input_array.size}] #{ ::Guard.listener.paused? ? 'pause' : 'guard' }(#{Pry.view_clip(target_self)})#{":#{nest_level}" unless nest_level.zero?}> "
