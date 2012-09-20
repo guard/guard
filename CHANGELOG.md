@@ -1,4 +1,4 @@
-# Master
+## 1.3.3 - 20 September, 2012
 
 - Add Guard application icon to GNTP notifier. ([@netzpirat][])
 - [#324][] Allow Terminal Notifier title to be customizable. ([@mattgreen][])
