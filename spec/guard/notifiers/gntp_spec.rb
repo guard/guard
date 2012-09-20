@@ -58,7 +58,7 @@ describe Guard::Notifier::GNTP do
     end
 
     it 'opens GNTP as Guard application' do
-      ::GNTP.should_receive(:new).with('Guard', 'localhost', '', 23053)
+      ::GNTP.should_receive(:new).with('Guard', '127.0.0.1', '', 23053)
       subject.notify('success', 'Welcome', 'Welcome to Guard', '/tmp/welcome.png', { })
     end
 

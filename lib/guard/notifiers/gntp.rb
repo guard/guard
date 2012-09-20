@@ -32,7 +32,7 @@ module Guard
       # Default options for the ruby gtnp gem
       DEFAULTS = {
         :sticky   => false,
-        :host     => 'localhost',
+        :host     => '127.0.0.1',
         :password => '',
         :port     => 23053
       }
@@ -91,12 +91,15 @@ module Guard
         gntp = ::GNTP.new('Guard', options.delete(:host), options.delete(:password), options.delete(:port))
 
         unless registered?
-          gntp.register(:notifications => [
-              { :name => 'notify', :enabled => true },
-              { :name => 'failed', :enabled => true },
-              { :name => 'pending', :enabled => true },
-              { :name => 'success', :enabled => true }
-          ])
+          gntp.register({
+              :app_icon => File.expand_path(File.join(__FILE__, '..', '..', '..', '..', 'images', 'guard.png')),
+              :notifications => [
+                  { :name => 'notify', :enabled => true },
+                  { :name => 'failed', :enabled => true },
+                  { :name => 'pending', :enabled => true },
+                  { :name => 'success', :enabled => true }
+              ]
+          })
 
           registered!
         end
