@@ -16,10 +16,13 @@ module Guard
     require 'guard/commands/pause'
     require 'guard/commands/reload'
     require 'guard/commands/show'
+
     GUARD_RC = '~/.guardrc'
     HISTORY_FILE = '~/.guard_history'
 
     def initialize
+      Pry.config.history.file = HISTORY_FILE
+
       Pry.config.hooks.add_hook :when_started, :load_guard_rc do
         if File.exist? File.expand_path GUARD_RC
           load GUARD_RC
@@ -31,7 +34,7 @@ module Guard
           EOT
         end
       end
-      Pry.config.history.file = HISTORY_FILE
+
       Pry.config.prompt = [
         proc do |target_self, nest_level, pry|
           "[#{pry.input_array.size}] #{ ::Guard.listener.paused? ? 'pause' : 'guard' }(#{Pry.view_clip(target_self)})#{":#{nest_level}" unless nest_level.zero?}> "

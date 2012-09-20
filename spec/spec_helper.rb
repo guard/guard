@@ -28,6 +28,10 @@ RSpec.configure do |config|
     @guard_notifications = ::Guard::Notifier.notifications
   end
 
+  config.after(:each) do
+    Pry.config.hooks.delete_hook(:when_started, :load_guard_rc)
+  end
+
   config.after(:all) do
     ENV['GUARD_NOTIFY'] = @guard_notify
     ::Guard::Notifier.notifications = @guard_notifications
