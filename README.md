@@ -69,6 +69,29 @@ the time, try the [Rubygems Bundler](https://github.com/mpapis/rubygems-bundler)
 You can configure Guard to make use of the following system notification libraries, but it's strongly recommended
 to use either Ruby GNTP, Libnotify or Notifu:
 
+#### Ruby GNTP
+
+* Runs on Mac OS X, Linux and Windows
+* Supports [Growl](http://growl.info/) version >= 1.3, [Growl for Linux](http://mattn.github.com/growl-for-linux/),
+  [Growl for Windows](http://www.growlforwindows.com/gfw/default.aspx) and
+  [Snarl](https://sites.google.com/site/snarlapp/home)
+
+The [ruby_gntp](https://rubygems.org/gems/ruby_gntp) gem sends system notifications over the network with the
+[Growl Notification Transport Protocol](http://www.growlforwindows.com/gfw/help/gntp.aspx) and supports local and
+remote notifications. To have the images be displayed, you have to use `127.0.0.1` instead of `localhost` in your GTNP
+configuration.
+
+Guard supports multiple notification channels for customizing each notification type. For Growl on Mac OS X you need
+to have at least version 1.3 installed.
+
+To use `ruby_gntp` you have to add it to your `Gemfile` and run bundler:
+
+```ruby
+group :development do
+  gem 'ruby_gntp'
+end
+```
+
 #### Growl
 
 * Runs on Mac OS X
@@ -86,31 +109,6 @@ To use `growl` you have to add it to your `Gemfile` and run bundler:
 ```ruby
 group :development do
   gem 'growl'
-end
-```
-
-#### Ruby GNTP
-
-**There's currently a bug in Growl that prevents displaying the icons through GNTP, see
-[issue #231](https://github.com/guard/guard/issues/231). Use the growl gem until fixed.**
-
-* Runs on Mac OS X, Linux and Windows
-* Supports [Growl](http://growl.info/) version >= 1.3, [Growl for Linux](http://mattn.github.com/growl-for-linux/),
-  [Growl for Windows](http://www.growlforwindows.com/gfw/default.aspx) and
-  [Snarl](https://sites.google.com/site/snarlapp/home)
-
-The [ruby_gntp](https://rubygems.org/gems/ruby_gntp) gem sends system notifications over the network with the
-[Growl Notification Transport Protocol](http://www.growlforwindows.com/gfw/help/gntp.aspx) and supports local and
-remote notifications.
-
-Guard supports multiple notification channels for customizing each notification type. For Growl on Mac OS X you need
-to have at least version 1.3 installed.
-
-To use `ruby_gntp` you have to add it to your `Gemfile` and run bundler:
-
-```ruby
-group :development do
-  gem 'ruby_gntp'
 end
 ```
 
