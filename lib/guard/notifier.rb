@@ -12,6 +12,8 @@ module Guard
   # * GrowlNotify
   # * Libnotify
   # * rb-notifu
+  # * emacs
+  # * Terminal Notifier
   #
   # Please see the documentation of each notifier for more information about the requirements
   # and configuration possibilities.
