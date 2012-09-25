@@ -14,6 +14,7 @@ module Guard
   # * rb-notifu
   # * emacs
   # * Terminal Notifier
+  # * Tmux
   #
   # Please see the documentation of each notifier for more information about the requirements
   # and configuration possibilities.
@@ -45,6 +46,7 @@ module Guard
     require 'guard/notifiers/rb_notifu'
     require 'guard/notifiers/emacs'
     require 'guard/notifiers/terminal_notifier'
+    require 'guard/notifiers/tmux'
 
     extend self
 
@@ -58,7 +60,8 @@ module Guard
       [:notifysend,        ::Guard::Notifier::NotifySend],
       [:notifu,            ::Guard::Notifier::Notifu],
       [:emacs,             ::Guard::Notifier::Emacs],
-      [:terminal_notifier, ::Guard::Notifier::TerminalNotifier]
+      [:terminal_notifier, ::Guard::Notifier::TerminalNotifier],
+      [:tmux,              ::Guard::Notifier::Tmux]
     ]
 
     # Get the available notifications.
@@ -126,7 +129,7 @@ module Guard
       return turn_off if name == :off
 
       notifier = get_notifier_module(name)
-      
+
       if notifier && notifier.available?(silent)
         self.notifications = notifications << { :name => name, :options => options }
         true
@@ -168,7 +171,7 @@ module Guard
       notifier = NOTIFIERS.detect { |n| n.first == name }
       notifier ? notifier.last : notifier
     end
-    
+
     # Auto detect the available notification library. This goes through
     # the list of supported notification gems and picks the first that
     # is available.

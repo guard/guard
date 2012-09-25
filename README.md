@@ -188,6 +188,10 @@ group :development do
 end
 ```
 
+### Tmux
+
+* To use Tmux notifications, you have to start guard within a [tmux](http://tmux.sourceforge.net/) session
+
 Add Guard plugins
 -----------------
 
