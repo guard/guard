@@ -1,33 +1,32 @@
-require 'rbconfig'
-
 module Guard
   module Notifier
 
-    # Default options for EmacsClient
-    DEFAULTS = {
-      :client  => 'emacsclient',
-      :success => 'ForestGreen',
-      :failed  => 'Firebrick',
-      :default => 'Black',
-    }
+    # Default options for Tmux
 
-    # Send a notification to Emacs with emacsclient (http://www.emacswiki.org/emacs/EmacsClient).
+    # Changes the color of the Tmux status bar
     #
-    # @example Add the `:emacs` notifier to your `Guardfile`
-    #   notification :emacs
+    # @example Add the `:tmux` notifier to your `Guardfile`
+    #   notification :tmux
     #
-    module Emacs
+    module Tmux
       extend self
 
-      # Test if Emacs with running server is available.
+      DEFAULTS = {
+        :client           => 'tmux',
+        :tmux_environment => 'TMUX',
+        :success          => 'green',
+        :failed           => 'red',
+        :default          => 'green'
+      }
+
+      # Test if currently running in a Tmux session
       #
       # @param [Boolean] silent true if no error messages should be shown
       # @return [Boolean] the availability status
       #
       def available?(silent = false)
-        result = `#{ DEFAULTS[:client] } --eval '1' 2> /dev/null || echo 'N/A'`
-
-        if result.chomp! == 'N/A'
+        if ENV[DEFAULTS[:tmux_environment]].nil?
+          ::Guard::UI.error 'The :tmux notifier runs only on when Guard is executed inside of a tmux session.' unless silent
           false
         else
           true
@@ -45,23 +44,24 @@ module Guard
       # @option options [String, Integer] priority specify an int or named key (default is 0)
       #
       def notify(type, title, message, image, options = { })
-        system(%(#{ DEFAULTS[:client] } --eval "(set-face-background 'modeline \\"#{ emacs_color(type) }\\")"))
+        color = tmux_color type, options
+        system("#{ DEFAULTS[:client] } set -g status-left-bg #{ color }")
       end
 
-      # Get the Emacs color for the notification type.
-      # You can configure your own color by overwrite the defaults.
+      # Get the Tmux color for the notification type.
+      # You can configure your own color by overwriting the defaults.
       #
       # @param [String] type the notification type
       # @return [String] the name of the emacs color
       #
-      def emacs_color(type)
+      def tmux_color(type, options = { })
         case type
-            when 'success'
-              DEFAULTS[:success]
-            when 'failed'
-              DEFAULTS[:failed]
-            else
-              DEFAULTS[:default]
+        when 'success'
+          options[:success] || DEFAULTS[:success]
+        when 'failed'
+          options[:failed]  || DEFAULTS[:failed]
+        else
+          options[:default] || DEFAULTS[:default]
         end
       end
     end

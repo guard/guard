@@ -41,7 +41,7 @@ module Guard
           begin
             if ::GrowlNotify.application_name != 'Guard'
               ::GrowlNotify.config do |c|
-                c.notifications         = ['success', 'pending', 'failed', 'notify']
+                c.notifications         = %w(success pending failed notify)
                 c.default_notifications = 'notify'
                 c.application_name      = 'Guard'
               end

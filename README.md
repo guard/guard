@@ -18,7 +18,7 @@ Features
 
 * File system changes handled by our awesome [Listen](https://github.com/guard/listen) gem.
 * Support for visual system notifications.
-* Huge eco-system with [more than 130](https://rubygems.org/search?query=guard-) guard plugins.
+* Huge eco-system with [more than 150](https://rubygems.org/search?query=guard-) guard plugins.
 * Tested against Ruby 1.8.7, 1.9.2, 1.9.3, REE and the latest versions of JRuby & Rubinius.
 
 Screencast
@@ -52,17 +52,52 @@ Generate an empty `Guardfile` with:
 $ guard init
 ```
 
-If you are using Windows and want colors in your terminal, you'll have to add the
-[win32console](https://rubygems.org/gems/win32console) gem to your `Gemfile` and install it with Bundler:
+**It's important that you always run Guard through Bundler to avoid errors.** If you're getting sick of typing `bundle exec` all
+the time, try the [Rubygems Bundler](https://github.com/mpapis/rubygems-bundler).
+
+## OS X
+
+You may want to install the [rb-fsevent](https://github.com/thibaudgg/rb-fsevent) gem to make use of file change events
+and don't rely on polling by adding the gem to your `Gemfile` and install it with Bundler:
+
+```ruby
+group :development do
+  gem 'rb-fsevent', :require => false
+end
+```
+
+## Linux
+
+You may want to install the [rb-inotify](https://github.com/nex3/rb-inotify) gem to make use of file change events and
+don't rely on polling by adding the gem to your `Gemfile` and install it with Bundler:
+
+```ruby
+group :development do
+  gem 'rb-inotify', :require => false
+end
+```
+
+## Windows
+
+You may want to install the [wdm](https://github.com/Maher4Ever/wdm) gem to make use of file change events and don't
+rely on polling by adding the gem to your `Gemfile` and install it with Bundler:
+
+```ruby
+group :development do
+  gem 'wdm', :require => false
+end
+```
+
+Please note that you have to use at least on Ruby 1.9.2 for using WDM.
+
+If you want colors in your terminal, you'll have to add the [win32console](https://rubygems.org/gems/win32console) gem
+to your `Gemfile` and install it with Bundler:
 
 ```ruby
 group :development do
   gem 'win32console'
 end
 ```
-
-**It's important that you always run Guard through Bundler to avoid errors.** If you're getting sick of typing `bundle exec` all
-the time, try the [Rubygems Bundler](https://github.com/mpapis/rubygems-bundler).
 
 ### System notifications
 
@@ -169,10 +204,6 @@ group :development do
 end
 ```
 
-#### Emacs
-
-* Runs on any platform with Emacs + emacsclient (http://www.emacswiki.org/emacs/EmacsClient)
-
 #### Terminal Notifier
 
 * Runs on Mac OS X 10.8 only
@@ -187,6 +218,14 @@ group :development do
   gem 'terminal-notifier-guard'
 end
 ```
+
+#### Emacs
+
+* Runs on any platform with Emacs + emacsclient (http://www.emacswiki.org/emacs/EmacsClient)
+
+### Tmux
+
+* To use Tmux notifications, you have to start Guard within a [tmux](http://tmux.sourceforge.net/) session.
 
 Add Guard plugins
 -----------------

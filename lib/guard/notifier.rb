@@ -12,6 +12,9 @@ module Guard
   # * GrowlNotify
   # * Libnotify
   # * rb-notifu
+  # * emacs
+  # * Terminal Notifier
+  # * Tmux
   #
   # Please see the documentation of each notifier for more information about the requirements
   # and configuration possibilities.
@@ -43,6 +46,7 @@ module Guard
     require 'guard/notifiers/rb_notifu'
     require 'guard/notifiers/emacs'
     require 'guard/notifiers/terminal_notifier'
+    require 'guard/notifiers/tmux'
 
     extend self
 
@@ -56,7 +60,8 @@ module Guard
       [:notifysend,        ::Guard::Notifier::NotifySend],
       [:notifu,            ::Guard::Notifier::Notifu],
       [:emacs,             ::Guard::Notifier::Emacs],
-      [:terminal_notifier, ::Guard::Notifier::TerminalNotifier]
+      [:terminal_notifier, ::Guard::Notifier::TerminalNotifier],
+      [:tmux,              ::Guard::Notifier::Tmux]
     ]
 
     # Get the available notifications.
