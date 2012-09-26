@@ -45,7 +45,7 @@ module Guard
       #
       def notify(type, title, message, image, options = { })
         color = tmux_color type, options
-        system("#{DEFAULTS[:client]} set-window-option -g window-status-current-bg #{color}")
+        system("#{DEFAULTS[:client]} set -g status-left-bg #{color}")
       end
 
       # Get the Tmux color for the notification type.

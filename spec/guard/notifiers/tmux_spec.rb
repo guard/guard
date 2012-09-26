@@ -44,31 +44,31 @@ describe Guard::Notifier::Tmux do
 
   describe '.notify' do
     it 'should set the tmux status bar color to green on success' do
-      subject.should_receive(:system).with "tmux set-window-option -g window-status-current-bg green"
+      subject.should_receive(:system).with "tmux set -g status-left-bg green"
 
       subject.notify('success', 'any title', 'any message', 'any image', { })
     end
 
     it 'should set the tmux status bar color to black on success when black is passed in as an option' do
-      subject.should_receive(:system).with "tmux set-window-option -g window-status-current-bg black"
+      subject.should_receive(:system).with "tmux set -g status-left-bg black"
 
       subject.notify('success', 'any title', 'any message', 'any image', { :success => 'black' })
     end
 
     it 'should set the tmux status bar color to red on failure' do
-      subject.should_receive(:system).with "tmux set-window-option -g window-status-current-bg red"
+      subject.should_receive(:system).with "tmux set -g status-left-bg red"
 
       subject.notify('failed', 'any title', 'any message', 'any image', { })
     end
 
     it 'should set the tmux status bar color to green on pending' do
-      subject.should_receive(:system).with "tmux set-window-option -g window-status-current-bg green"
+      subject.should_receive(:system).with "tmux set -g status-left-bg green"
 
       subject.notify('pending', 'any title', 'any message', 'any image', { })
     end
 
     it 'should set the tmux status bar color to green on notify' do
-      subject.should_receive(:system).with "tmux set-window-option -g window-status-current-bg green"
+      subject.should_receive(:system).with "tmux set -g status-left-bg green"
 
       subject.notify('notify', 'any title', 'any message', 'any image', { })
     end
