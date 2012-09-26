@@ -5,9 +5,9 @@ module Guard
 
     # Default options for EmacsClient
     DEFAULTS = {
-      :client => 'emacsclient',
+      :client  => 'emacsclient',
       :success => 'ForestGreen',
-      :failed => 'Firebrick',
+      :failed  => 'Firebrick',
       :default => 'Black',
     }
 
@@ -25,9 +25,9 @@ module Guard
       # @return [Boolean] the availability status
       #
       def available?(silent = false)
-        result = `#{DEFAULTS[:client]} --eval '1' 2> /dev/null || echo 'N/A'`
+        result = `#{ DEFAULTS[:client] } --eval '1' 2> /dev/null || echo 'N/A'`
 
-        if result.chomp! == "N/A"
+        if result.chomp! == 'N/A'
           false
         else
           true
@@ -45,7 +45,7 @@ module Guard
       # @option options [String, Integer] priority specify an int or named key (default is 0)
       #
       def notify(type, title, message, image, options = { })
-        system(%(#{DEFAULTS[:client]} --eval "(set-face-background 'modeline \\"#{emacs_color(type)}\\")"))
+        system(%(#{ DEFAULTS[:client] } --eval "(set-face-background 'modeline \\"#{ emacs_color(type) }\\")"))
       end
 
       # Get the Emacs color for the notification type.

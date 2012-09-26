@@ -76,7 +76,7 @@ module Guard
       #
       def to_command_string(command, supported, options = {})
         options.reduce(command) do |cmd, (flag, value)|
-          supported.include?(flag) ? cmd + " -#{flag} '#{value}'" : cmd
+          supported.include?(flag) ? cmd + " -#{ flag } '#{ value }'" : cmd
         end
       end
     end

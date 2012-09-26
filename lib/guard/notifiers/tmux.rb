@@ -12,11 +12,11 @@ module Guard
       extend self
 
       DEFAULTS = {
-        :client => 'tmux',
+        :client           => 'tmux',
         :tmux_environment => 'TMUX',
-        :success => 'green',
-        :failed => 'red',
-        :default => 'green',
+        :success          => 'green',
+        :failed           => 'red',
+        :default          => 'green'
       }
 
       # Test if currently running in a Tmux session
@@ -26,7 +26,7 @@ module Guard
       #
       def available?(silent = false)
         if ENV[DEFAULTS[:tmux_environment]].nil?
-          ::Guard::UI.error 'The :tmux notifier runs only on when guard is executed inside of a tmux session.' unless silent
+          ::Guard::UI.error 'The :tmux notifier runs only on when Guard is executed inside of a tmux session.' unless silent
           false
         else
           true
@@ -45,7 +45,7 @@ module Guard
       #
       def notify(type, title, message, image, options = { })
         color = tmux_color type, options
-        system("#{DEFAULTS[:client]} set -g status-left-bg #{color}")
+        system("#{ DEFAULTS[:client] } set -g status-left-bg #{ color }")
       end
 
       # Get the Tmux color for the notification type.
