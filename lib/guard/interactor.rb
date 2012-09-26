@@ -21,6 +21,8 @@ module Guard
     HISTORY_FILE = '~/.guard_history'
 
     def initialize
+      return if ENV['GUARD_ENV'] == 'test'
+
       Pry.config.history.file = HISTORY_FILE
 
       Pry.config.hooks.add_hook :when_started, :load_guard_rc do
@@ -67,8 +69,8 @@ module Guard
     # Converts and validates a plain text scope
     # to a valid plugin or group scope.
     #
-    # @param [String] entries the text scope
-    # @return [Array<Hash}, Array] the plugin or group scope, the unknown entries
+    # @param [Array<String>] entries the text scope
+    # @return [Hash, Array<String>] the plugin or group scope, the unknown entries
     #
     def self.convert_scope(entries)
       scopes  = { }

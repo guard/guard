@@ -22,7 +22,7 @@ module Guard
           if rest.length == 0
             ::Guard.reload scopes
           else
-            puts "Unkown scope #{ rest.join(', ') }"
+            output.puts "Unkown scope #{ rest.join(', ') }"
           end
         end
 

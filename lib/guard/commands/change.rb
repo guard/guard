@@ -19,8 +19,12 @@ module Guard
         def process(*entries)
           scopes, rest = ::Guard::Interactor.convert_scope(entries)
 
-          ::Guard.within_preserved_state do
-            ::Guard.runner.run_on_changes(rest, [], [])
+          if rest.length != 0
+            ::Guard.within_preserved_state do
+              ::Guard.runner.run_on_changes(rest, [], [])
+            end
+          else
+            output.puts 'Please specify a file.'
           end
         end
 
