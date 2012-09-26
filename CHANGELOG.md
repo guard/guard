@@ -1,4 +1,4 @@
-# Master
+## 1.4.0 - 26 September, 2012
 
 - [#331][] Add tmux notifier. ([@royvandewater][])
 
