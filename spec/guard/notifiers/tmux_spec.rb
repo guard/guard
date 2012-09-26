@@ -29,7 +29,7 @@ describe Guard::Notifier::Tmux do
 
       context 'without the silent option' do
         it 'shows an error message when the TMUX environment variable is not set' do
-          ::Guard::UI.should_receive(:error).with "The :tmux notifier runs only on when guard is executed inside of a tmux session."
+          ::Guard::UI.should_receive(:error).with "The :tmux notifier runs only on when Guard is executed inside of a tmux session."
           subject.available?
         end
       end
