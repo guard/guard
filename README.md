@@ -52,17 +52,52 @@ Generate an empty `Guardfile` with:
 $ guard init
 ```
 
-If you are using Windows and want colors in your terminal, you'll have to add the
-[win32console](https://rubygems.org/gems/win32console) gem to your `Gemfile` and install it with Bundler:
+**It's important that you always run Guard through Bundler to avoid errors.** If you're getting sick of typing `bundle exec` all
+the time, try the [Rubygems Bundler](https://github.com/mpapis/rubygems-bundler).
+
+## OS X
+
+You may want to install the [rb-fsevent](https://github.com/thibaudgg/rb-fsevent) gem to make use of file change events
+and don't rely on polling by adding the gem to your `Gemfile` and install it with Bundler:
+
+```ruby
+group :development do
+  gem 'rb-fsevent', :require => false
+end
+```
+
+## Linux
+
+You may want to install the [rb-inotify](https://github.com/nex3/rb-inotify) gem to make use of file change events and
+don't rely on polling by adding the gem to your `Gemfile` and install it with Bundler:
+
+```ruby
+group :development do
+  gem 'rb-inotify', :require => false
+end
+```
+
+## Windows
+
+You may want to install the [wdm](https://github.com/Maher4Ever/wdm) gem to make use of file change events and don't
+rely on polling by adding the gem to your `Gemfile` and install it with Bundler:
+
+```ruby
+group :development do
+  gem 'wdm', :require => false
+end
+```
+
+Please note that you have to use at least on Ruby 1.9.2 for using WDM.
+
+If you want colors in your terminal, you'll have to add the [win32console](https://rubygems.org/gems/win32console) gem
+to your `Gemfile` and install it with Bundler:
 
 ```ruby
 group :development do
   gem 'win32console'
 end
 ```
-
-**It's important that you always run Guard through Bundler to avoid errors.** If you're getting sick of typing `bundle exec` all
-the time, try the [Rubygems Bundler](https://github.com/mpapis/rubygems-bundler).
 
 ### System notifications
 
