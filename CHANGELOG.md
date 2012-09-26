@@ -1,3 +1,7 @@
+# Master
+
+- [#331][] Add tmux notifier. ([@royvandewater][])
+
 ## 1.3.3 - 20 September, 2012
 
 - Add Guard application icon to GNTP notifier. ([@netzpirat][])
@@ -595,6 +599,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [#316]: https://github.com/guard/guard/issues/316
 [#317]: https://github.com/guard/guard/issues/317
 [#324]: https://github.com/guard/guard/issues/324
+[#331]: https://github.com/guard/guard/issues/331
 [@Gazer]: https://github.com/Gazer
 [@Maher4Ever]: https://github.com/Maher4Ever
 [@alandipert]: https://github.com/alandipert
@@ -648,6 +653,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [@philomory]: https://github.com/philomory
 [@pirukire]: https://github.com/pirukire
 [@rmm5t]: https://github.com/rmm5t
+[@royvandewater]: https://github.com/royvandewater
 [@rupert654]: https://github.com/rupert654
 [@rymai]: https://github.com/rymai
 [@scottdavis]: https://github.com/scottdavis
