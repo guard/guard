@@ -49,6 +49,12 @@ describe Guard::Notifier::Tmux do
       subject.notify('success', 'any title', 'any message', 'any image', { })
     end
 
+    it 'should set the tmux status bar color to black on success when black is passed in as an option' do
+      subject.should_receive(:system).with "tmux set-window-option -g window-status-current-bg black"
+
+      subject.notify('success', 'any title', 'any message', 'any image', { :success => 'black' })
+    end
+
     it 'should set the tmux status bar color to red on failure' do
       subject.should_receive(:system).with "tmux set-window-option -g window-status-current-bg red"
 

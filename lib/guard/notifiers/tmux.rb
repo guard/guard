@@ -44,23 +44,24 @@ module Guard
       # @option options [String, Integer] priority specify an int or named key (default is 0)
       #
       def notify(type, title, message, image, options = { })
-        system("#{DEFAULTS[:client]} set-window-option -g window-status-current-bg #{tmux_color type}")
+        color = tmux_color type, options
+        system("#{DEFAULTS[:client]} set-window-option -g window-status-current-bg #{color}")
       end
 
       # Get the Tmux color for the notification type.
-      # You can configure your own color by overwrite the defaults.
+      # You can configure your own color by overwriting the defaults.
       #
       # @param [String] type the notification type
       # @return [String] the name of the emacs color
       #
-      def tmux_color(type)
+      def tmux_color(type, options = { })
         case type
         when 'success'
-          DEFAULTS[:success]
+          options[:success] || DEFAULTS[:success]
         when 'failed'
-          DEFAULTS[:failed]
+          options[:failed]  || DEFAULTS[:failed]
         else
-          DEFAULTS[:default]
+          options[:default] || DEFAULTS[:default]
         end
       end
     end
