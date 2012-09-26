@@ -169,10 +169,6 @@ group :development do
 end
 ```
 
-#### Emacs
-
-* Runs on any platform with Emacs + emacsclient (http://www.emacswiki.org/emacs/EmacsClient)
-
 #### Terminal Notifier
 
 * Runs on Mac OS X 10.8 only
@@ -188,9 +184,13 @@ group :development do
 end
 ```
 
+#### Emacs
+
+* Runs on any platform with Emacs + emacsclient (http://www.emacswiki.org/emacs/EmacsClient)
+
 ### Tmux
 
-* To use Tmux notifications, you have to start guard within a [tmux](http://tmux.sourceforge.net/) session
+* To use Tmux notifications, you have to start Guard within a [tmux](http://tmux.sourceforge.net/) session.
 
 Add Guard plugins
 -----------------
