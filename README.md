@@ -445,10 +445,26 @@ to your `Gemfile.
 
 You can also disable the interactions completely by running Guard with the `--no-interactions` option.
 
+### Customizations
+
 Further Guard specific customizations can be made in `~/.guardrc` that will be evaluated prior the Pry session is
 started. This allows you to make use of the Pry plugin architecture to provide custom commands and extend Guard for
 your own needs and distribute as a gem. Please have a look at the [Pry Wiki](https://github.com/pry/pry/wiki) for more
 information.
+
+#### Shorthand commands
+
+If you like to have shorthand commands for the built in Guard commands, you can define aliases in your `~/.guardrc`
+file like this:
+
+```Ruby
+%w(help reload change show notification pause exit).each do |command|
+  Pry.commands.alias_command command[0].chr, command
+end
+Pry.commands.block_command /^$/, 'Hit Enter to run all tests' do
+  Pry.run_command 'all'
+end
+```
 
 ### Signals
 
