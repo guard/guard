@@ -20,23 +20,96 @@ module Guard
     GUARD_RC = '~/.guardrc'
     HISTORY_FILE = '~/.guard_history'
 
+    # Initialize the interactor. This configures
+    # Pry and creates some custom commands and aliases
+    # for Guard.
+    #
     def initialize
       return if ENV['GUARD_ENV'] == 'test'
 
       Pry.config.history.file = HISTORY_FILE
 
+      load_guard_rc
+
+      create_run_all_command
+      create_command_aliases
+      create_guard_commands
+      create_group_commands
+
+      configure_prompt
+    end
+
+    # Loads the `~/.guardrc` file when pry has started.
+    #
+    def load_guard_rc
       Pry.config.hooks.add_hook :when_started, :load_guard_rc do
         load GUARD_RC if File.exist? File.expand_path GUARD_RC
       end
+    end
 
-      %w(help reload change show notification pause exit).each do |command|
-        Pry.commands.alias_command command[0].chr, command
-      end
-
-      Pry.commands.block_command /^$/, 'Hit enter to run all tests' do
+    # Creates a command that triggers the `:run_all` action
+    # when the command is empty (just pressing enter on the
+    # beginning of a line).
+    #
+    def create_run_all_command
+      Pry.commands.block_command /^$/, 'Hit enter to run all' do
         Pry.run_command 'all'
       end
+    end
 
+    # Creates command aliases for the commands
+    # `help`, `reload`, `change`, `show`, `notification`, `pause`, `exit` and `quit`,
+    # which will be the first letter of the command.
+    #
+    def create_command_aliases
+      %w(help reload change show notification pause exit quit).each do |command|
+        Pry.commands.alias_command command[0].chr, command
+      end
+    end
+
+    # Create a shorthand command to run the `:run_all`
+    # action on a specific Guard plugin. For example,
+    # when guard-rspec is available, then a command
+    # `rspec` is created that runs `all rspec`.
+    #
+    def create_guard_commands
+      ::Guard.guards.each do |guard|
+        name = guard.class.to_s.downcase.sub('guard::', '')
+
+        Pry.commands.create_command name, "Run all #{ name }" do
+          group 'Guard'
+
+          def process
+            Pry.run_command "all #{ name }"
+          end
+        end
+      end
+    end
+
+    # Create a shorthand command to run the `:run_all`
+    # action on a specific Guard group. For example,
+    # when you have a group `frontend`, then a command
+    # `frontend` is created that runs `all frontend`.
+    #
+    def create_group_commands
+      ::Guard.groups.each do |group|
+        name = group.name.to_s
+        next if name == 'default'
+
+        Pry.commands.create_command name, "Run all #{ name }" do
+          group 'Guard'
+
+          def process
+            Pry.run_command "all #{ name }"
+          end
+        end
+      end
+    end
+
+    # Configure the pry prompt to see `guard` instead of
+    # `pry`.
+    #
+    def configure_prompt
       Pry.config.prompt = [
         proc do |target_self, nest_level, pry|
           "[#{ pry.input_array.size }] #{ ::Guard.listener.paused? ? 'pause' : 'guard' }(#{ Pry.view_clip(target_self) })#{":#{ nest_level }" unless nest_level.zero? }> "

@@ -478,7 +478,7 @@ a Guard group like:
 ```
 
 Remember, you can always use `help` on the Pry command line to see all available commands and `help <command>` for
-more detailed information.
+more detailed information. `help guard` will show all Guard related commands available
 
 Pry supports the Ruby built-in Readline, [rb-readline](https://github.com/luislavena/rb-readline) and
 [Coolline](https://github.com/Mon-Ouie/coolline). Just install the readline implementation of your choice by adding it
