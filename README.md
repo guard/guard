@@ -460,12 +460,14 @@ Interactions
 Guard shows a [Pry](http://pryrepl.org/) console whenever it has nothing to do and comes with some Guard specific Pry
 commands:
 
- * `all`                Run all plugins.
- * `change`             Trigger a file change.
- * `notification`       Toggles the notifications.
- * `pause`              Toggles the file listener.
- * `reload`             Reload all plugins.
- * `show`               Show all Guard plugins.
+ * `↩`, `a`, `all`: Run all plugins.
+ * `h`, `help`: Show help for all interactor commands.
+ * `c`, `change`: Trigger a file change.
+ * `n`, `notification`: Toggles the notifications.
+ * `p`, `pause`: Toggles the file listener.
+ * `r`, `reload`: Reload all plugins.
+ * `s`, `show`: Show all Guard plugins.
+ * `e`, `exit`: Stop all plugins and quit Guard
 
 The `all` and `reload` commands supports an optional scope, so you limit the Guard action to either a Guard plugin or
 a Guard group like:
@@ -490,20 +492,6 @@ Further Guard specific customizations can be made in `~/.guardrc` that will be e
 started. This allows you to make use of the Pry plugin architecture to provide custom commands and extend Guard for
 your own needs and distribute as a gem. Please have a look at the [Pry Wiki](https://github.com/pry/pry/wiki) for more
 information.
-
-#### Shorthand commands
-
-If you like to have shorthand commands for the built in Guard commands, you can define aliases in your `~/.guardrc`
-file like this:
-
-```Ruby
-%w(help reload change show notification pause exit).each do |command|
-  Pry.commands.alias_command command[0].chr, command
-end
-Pry.commands.block_command /^$/, 'Hit Enter to run all tests' do
-  Pry.run_command 'all'
-end
-```
 
 ### Signals
 

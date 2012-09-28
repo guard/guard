@@ -29,6 +29,14 @@ module Guard
         load GUARD_RC if File.exist? File.expand_path GUARD_RC
       end
 
+      %w(help reload change show notification pause exit).each do |command|
+        Pry.commands.alias_command command[0].chr, command
+      end
+
+      Pry.commands.block_command /^$/, 'Hit enter to run all tests' do
+        Pry.run_command 'all'
+      end
+
       Pry.config.prompt = [
         proc do |target_self, nest_level, pry|
           "[#{ pry.input_array.size }] #{ ::Guard.listener.paused? ? 'pause' : 'guard' }(#{ Pry.view_clip(target_self) })#{":#{ nest_level }" unless nest_level.zero? }> "
