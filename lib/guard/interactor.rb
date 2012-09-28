@@ -125,6 +125,9 @@ module Guard
     def start
       return if ENV['GUARD_ENV'] == 'test'
 
+      # TODO: Remove before merge
+      Thread.abort_on_exception = true
+
       if !@thread || !@thread.alive?
         ::Guard::UI.debug 'Start interactor'
 
