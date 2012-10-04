@@ -16,7 +16,12 @@ module Guard
         :tmux_environment => 'TMUX',
         :success          => 'green',
         :failed           => 'red',
-        :default          => 'green'
+        :pending          => 'yellow',
+        :default          => 'green',
+        :timeout          => 5,
+        :display_message  => false,
+        :message_format   => '%s - %s',
+        :line_separator   => ' - '
       }
 
       # Test if currently running in a Tmux session
@@ -46,6 +51,23 @@ module Guard
       def notify(type, title, message, image, options = { })
         color = tmux_color type, options
         system("#{ DEFAULTS[:client] } set -g status-left-bg #{ color }")
+
+        show_message = options[:display_message] || DEFAULTS[:display_message]
+        display_message(type, title, message, options) if show_message
+      end
+
+      def display_message(type, title, message, options)
+          message_format = options[:message_format] || DEFAULTS[:message_format]
+          display_time = options[:timeout] || DEFAULTS[:timeout]
+          separator = options[:line_separator] || DEFAULTS[:line_separator]
+
+          color = tmux_color type, options
+          formatted_message = message.split("\n").join(separator)
+          display_message = message_format % [title, formatted_message]
+
+          system("#{ DEFAULTS[:client] } set display-time #{ display_time * 1000 }")
+          system("#{ DEFAULTS[:client] } set message-bg #{ color }")
+          system("#{ DEFAULTS[:client] } display-message '#{ display_message }'")
       end
 
       # Get the Tmux color for the notification type.
@@ -60,6 +82,8 @@ module Guard
           options[:success] || DEFAULTS[:success]
         when 'failed'
           options[:failed]  || DEFAULTS[:failed]
+        when 'pending'
+          options[:pending] || DEFAULTS[:pending]
         else
           options[:default] || DEFAULTS[:default]
         end
