@@ -3,7 +3,8 @@ module Guard
 
     # Default options for Tmux
 
-    # Changes the color of the Tmux status bar
+    # Changes the color of the Tmux status bar, and optionally
+    # shows messages in the status bar. (see display_message)
     #
     # @example Add the `:tmux` notifier to your `Guardfile`
     #   notification :tmux
@@ -56,6 +57,15 @@ module Guard
         display_message(type, title, message, options) if show_message
       end
 
+      # Display a message in the statusbar of tmux.
+      #
+      # @param [String] type the notification type. Either 'success', 'pending', 'failed' or 'notify'
+      # @param [String] title the notification title
+      # @param [String] message the notification message body
+      # @param [Hash] options additional notification library options
+      # @option options [Integer] timeout the amount of seconds to show the message in the statusbar (default is 5)
+      # @option options [String] message_format a string to use as formatter. (default is '%s - %s')
+      # @option options [String] line_separator a string to use instead of a line-break. (default is ' - ')
       def display_message(type, title, message, options = { })
           message_format = options[:message_format] || DEFAULTS[:message_format]
           display_time = options[:timeout] || DEFAULTS[:timeout]
