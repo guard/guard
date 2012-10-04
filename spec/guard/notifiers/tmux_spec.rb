@@ -61,8 +61,8 @@ describe Guard::Notifier::Tmux do
       subject.notify('failed', 'any title', 'any message', 'any image', { })
     end
 
-    it 'should set the tmux status bar color to green on pending' do
-      subject.should_receive(:system).with "tmux set -g status-left-bg green"
+    it 'should set the tmux status bar color to yellow on pending' do
+      subject.should_receive(:system).with "tmux set -g status-left-bg yellow"
 
       subject.notify('pending', 'any title', 'any message', 'any image', { })
     end
@@ -72,5 +72,52 @@ describe Guard::Notifier::Tmux do
 
       subject.notify('notify', 'any title', 'any message', 'any image', { })
     end
+
+    it 'calls display_message if the display_message flag is set' do
+      subject.stub system: true
+      subject.should_receive(:display_message).with('notify', 'any title', 'any message', { display_message: true })
+
+      subject.notify('notify', 'any title', 'any message', 'any image', { display_message: true })
+    end
+
+    it 'does not call display message if the display_message flag is not set' do
+      subject.stub system: true
+      subject.should_receive(:display_message).never
+
+      subject.notify('notify', 'any title', 'any message', 'any image', { })
+    end
+  end
+
+  describe '.display_message' do
+    before do
+      subject.stub system: true
+    end
+
+    it 'sets the display-time' do
+      subject.should_receive(:system).with('tmux set display-time 3000').once
+      subject.display_message 'success', 'any title', 'any message', timeout: 3
+    end
+
+    it 'sets the background color' do
+      subject.stub tmux_color: 'blue'
+      subject.should_receive(:system).with('tmux set message-bg blue').once
+      subject.display_message 'success', 'any title', 'any message'
+    end
+
+    it 'displays the message' do
+      subject.should_receive(:system).with('tmux display-message \'any title - any message\'').once
+      subject.display_message 'success', 'any title', 'any message'
+    end
+
+    it 'formats the message' do
+      subject.should_receive(:system).with('tmux display-message \'(any title) -> any message - line two\'').once
+      subject.display_message 'success', 'any title', "any message\nline two", message_format: '(%s) -> %s'
+    end
+
+    it 'handles line-breaks' do
+      subject.should_receive(:system).with('tmux display-message \'any title - any message xx line two\'').once
+      subject.display_message 'success', 'any title', "any message\nline two", line_separator: ' xx '
+    end
+
   end
 end
