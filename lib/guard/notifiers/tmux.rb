@@ -56,7 +56,7 @@ module Guard
         display_message(type, title, message, options) if show_message
       end
 
-      def display_message(type, title, message, options)
+      def display_message(type, title, message, options = { })
           message_format = options[:message_format] || DEFAULTS[:message_format]
           display_time = options[:timeout] || DEFAULTS[:timeout]
           separator = options[:line_separator] || DEFAULTS[:line_separator]
