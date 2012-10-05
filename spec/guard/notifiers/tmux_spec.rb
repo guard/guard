@@ -111,7 +111,12 @@ describe Guard::Notifier::Tmux do
 
     it 'formats the message' do
       subject.should_receive(:system).with('tmux display-message \'(any title) -> any message - line two\'').once
-      subject.display_message 'success', 'any title', "any message\nline two", :message_format => '(%s) -> %s'
+      subject.display_message 'success', 'any title', "any message\nline two", :default_message_format => '(%s) -> %s'
+    end
+
+    it 'formats the message based on type' do
+      subject.should_receive(:system).with('tmux display-message \'[any title] => any message - line two\'').once
+      subject.display_message 'success', 'any title', "any message\nline two", :success_message_format => '[%s] => %s', :default_message_format => '(%s) -> %s'
     end
 
     it 'handles line-breaks' do

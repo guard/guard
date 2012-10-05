@@ -21,7 +21,7 @@ module Guard
         :default          => 'green',
         :timeout          => 5,
         :display_message  => false,
-        :message_format   => '%s - %s',
+        :default_message_format   => '%s - %s',
         :line_separator   => ' - '
       }
 
@@ -64,10 +64,10 @@ module Guard
       # @param [String] message the notification message body
       # @param [Hash] options additional notification library options
       # @option options [Integer] timeout the amount of seconds to show the message in the statusbar (default is 5)
-      # @option options [String] message_format a string to use as formatter. (default is '%s - %s')
+      # @option options [String] default_message_format a string to use as formatter. (default is '%s - %s')
       # @option options [String] line_separator a string to use instead of a line-break. (default is ' - ')
       def display_message(type, title, message, options = { })
-          message_format = options[:message_format] || DEFAULTS[:message_format]
+          message_format = options["#{type}_message_format".to_sym] || options[:default_message_format] || DEFAULTS[:default_message_format]
           display_time = options[:timeout] || DEFAULTS[:timeout]
           separator = options[:line_separator] || DEFAULTS[:line_separator]
 
