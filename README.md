@@ -228,7 +228,7 @@ end
 * To use Tmux notifications, you have to start Guard within a [tmux](http://tmux.sourceforge.net/) session.
 
 The Tmux notifier shows the notification message and changes the background color of the
-Tmux window status bar that is currently running Guard and. The duration of the message
+Tmux window status bar that is currently running Guard. The duration of the message
 can be set within a Tmux session with the option `display-time`.
 
 ```
