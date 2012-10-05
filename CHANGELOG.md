@@ -604,6 +604,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [#317]: https://github.com/guard/guard/issues/317
 [#324]: https://github.com/guard/guard/issues/324
 [#331]: https://github.com/guard/guard/issues/331
+[#334]: https://github.com/guard/guard/issues/334
 [@Gazer]: https://github.com/Gazer
 [@Maher4Ever]: https://github.com/Maher4Ever
 [@alandipert]: https://github.com/alandipert
@@ -643,6 +644,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [@madtrick]: https://github.com/madtrick
 [@maio]: https://github.com/maio
 [@mattgreen]: https://github.com/mattgreen
+[@matthijsgroen]: https://github.com/matthijsgroen
 [@mcmire]: https://github.com/mcmire
 [@mislav]: https://github.com/mislav
 [@monocle]: https://github.com/monocle
