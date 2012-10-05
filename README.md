@@ -227,6 +227,21 @@ end
 
 * To use Tmux notifications, you have to start Guard within a [tmux](http://tmux.sourceforge.net/) session.
 
+The Tmux notification will show the Guard notification message in the status bar.
+The duration of the message can be set within a Tmux session with the option `display-time`.
+
+```
+set-option display-time 4000
+```
+
+Will set the message duration to 4 seconds. You can also do this in your `.tmux.conf` by adding
+
+```
+set-option -g display-time 4000
+```
+
+You can get the message history by using `Ctrl+b ~` (where `Ctrl+b` is your key to activate Tmux).
+
 Add Guard plugins
 -----------------
 
