@@ -13,16 +13,16 @@ module Guard
       extend self
 
       DEFAULTS = {
-        :client           => 'tmux',
-        :tmux_environment => 'TMUX',
-        :success          => 'green',
-        :failed           => 'red',
-        :pending          => 'yellow',
-        :default          => 'green',
-        :timeout          => 5,
-        :display_message  => false,
-        :default_message_format   => '%s - %s',
-        :line_separator   => ' - '
+        :client                 => 'tmux',
+        :tmux_environment       => 'TMUX',
+        :success                => 'green',
+        :failed                 => 'red',
+        :pending                => 'yellow',
+        :default                => 'green',
+        :timeout                => 5,
+        :display_message        => false,
+        :default_message_format => '%s - %s',
+        :line_separator         => ' - '
       }
 
       # Test if currently running in a Tmux session
@@ -66,8 +66,9 @@ module Guard
       # @option options [Integer] timeout the amount of seconds to show the message in the statusbar (default is 5)
       # @option options [String] default_message_format a string to use as formatter. (default is '%s - %s')
       # @option options [String] line_separator a string to use instead of a line-break. (default is ' - ')
+      #
       def display_message(type, title, message, options = { })
-          message_format = options["#{type}_message_format".to_sym] || options[:default_message_format] || DEFAULTS[:default_message_format]
+          message_format = options["#{ type }_message_format".to_sym] || options[:default_message_format] || DEFAULTS[:default_message_format]
           display_time = options[:timeout] || DEFAULTS[:timeout]
           separator = options[:line_separator] || DEFAULTS[:line_separator]
 
