@@ -101,8 +101,7 @@ end
 
 ### System notifications
 
-You can configure Guard to make use of the following system notification libraries, but it's strongly recommended
-to use either Ruby GNTP, Libnotify or Notifu:
+You can configure Guard to make use of the following system notification libraries:
 
 #### Ruby GNTP
 
