@@ -1,4 +1,4 @@
-## Master
+## 1.4.1 - 5 October, 2012
 
 - [#334][] Extend `:tmux` notifier with use of `tmux display-message` and options to configure them. ([@matthijsgroen][])
 
