@@ -2,7 +2,7 @@ module Guard
 
   # The UI class helps to format messages for the user. Everything that is logged
   # through this class is considered either as an error message or a diagnostic
-  # message and is written to standard error (STDERR).
+  # message and is written to standard error ($stderr).
   #
   # If your Guard plugin does some output that is piped into another process for further
   # processing, please just write it to STDOUT with `puts`.
@@ -20,7 +20,7 @@ module Guard
       def info(message, options = { })
         unless ENV['GUARD_ENV'] == 'test'
           reset_line if options[:reset]
-          STDERR.puts color(message) if message != ''
+          $stderr.puts color(message) if message != ''
         end
       end
 
@@ -32,7 +32,7 @@ module Guard
       def warning(message, options = { })
         unless ENV['GUARD_ENV'] == 'test'
           reset_line if options[:reset]
-          STDERR.puts color('WARNING: ', :yellow) + message
+          $stderr.puts color('WARNING: ', :yellow) + message
         end
       end
 
@@ -44,7 +44,7 @@ module Guard
       def error(message, options = { })
         unless ENV['GUARD_ENV'] == 'test'
           reset_line if options[:reset]
-          STDERR.puts color('ERROR: ', :red) + message
+          $stderr.puts color('ERROR: ', :red) + message
         end
       end
 
@@ -56,7 +56,7 @@ module Guard
       def deprecation(message, options = { })
         unless ENV['GUARD_ENV'] == 'test'
           reset_line if options[:reset]
-          STDERR.puts color('DEPRECATION: ', :red) + message
+          $stderr.puts color('DEPRECATION: ', :red) + message
         end
       end
 
@@ -68,14 +68,14 @@ module Guard
       def debug(message, options = { })
         unless ENV['GUARD_ENV'] == 'test'
           reset_line if options[:reset]
-          STDERR.puts color("DEBUG (#{Time.now.strftime('%T')}): ", :yellow) + message if ::Guard.options && ::Guard.options[:debug]
+          $stderr.puts color("DEBUG (#{Time.now.strftime('%T')}): ", :yellow) + message if ::Guard.options && ::Guard.options[:debug]
         end
       end
 
       # Reset a line.
       #
       def reset_line
-        STDERR.print(color_enabled? ? "\r\e[0m" : "\r\n")
+        $stderr.print(color_enabled? ? "\r\e[0m" : "\r\n")
       end
 
       # Clear the output if clearable.
