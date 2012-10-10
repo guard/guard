@@ -1,7 +1,8 @@
 ## Master
 
-- Use `$stderr` instead of `STDERR` to allow redirection.
- 
+- Adds ability to override default options in emacs notifier. ([@d1][])
+- Use `$stderr` instead of `STDERR` to allow redirection. ([@netzpirat][])
+
 ## 1.4.1 - 5 October, 2012
 
 - [#334][] Extend `:tmux` notifier with use of `tmux display-message` and options to configure them. ([@matthijsgroen][])
@@ -620,6 +621,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [@capotej]: https://github.com/capotej
 [@ches]: https://github.com/ches
 [@chrisberkhout]: https://github.com/chrisberkhout
+[@d1]: https://github.com/d1
 [@dgutov]: https://github.com/dgutov
 [@dnagir]: https://github.com/dnagir
 [@docwhat]: https://github.com/docwhat
