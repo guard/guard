@@ -14,6 +14,7 @@ module Guard
   # * rb-notifu
   # * emacs
   # * Terminal Notifier
+  # * Terminal Title
   # * Tmux
   #
   # Please see the documentation of each notifier for more information about the requirements
@@ -46,6 +47,7 @@ module Guard
     require 'guard/notifiers/rb_notifu'
     require 'guard/notifiers/emacs'
     require 'guard/notifiers/terminal_notifier'
+    require 'guard/notifiers/terminal_title'
     require 'guard/notifiers/tmux'
 
     extend self
@@ -61,6 +63,7 @@ module Guard
       [:notifu,            ::Guard::Notifier::Notifu],
       [:emacs,             ::Guard::Notifier::Emacs],
       [:terminal_notifier, ::Guard::Notifier::TerminalNotifier],
+      [:terminal_title,    ::Guard::Notifier::TerminalTitle],
       [:tmux,              ::Guard::Notifier::Tmux]
     ]
 
