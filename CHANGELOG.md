@@ -2,9 +2,6 @@
 
 - Adds ability to override default options in emacs notifier. ([@d1][])
 - Use `$stderr` instead of `STDERR` to allow redirection. ([@netzpirat][])
-
-## 1.4.1 - 5 October, 2012
-
 - [#334][] Extend `:tmux` notifier with use of `tmux display-message` and options to configure them. ([@matthijsgroen][])
 
 ## 1.4.0 - 26 September, 2012
