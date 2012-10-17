@@ -218,6 +218,10 @@ group :development do
 end
 ```
 
+#### Terminal Title
+
+* Runs in every terminal supporting XTerm escape sequences to set the window title.
+
 #### Emacs
 
 * Runs on any platform with Emacs + emacsclient (http://www.emacswiki.org/emacs/EmacsClient)
