@@ -1,5 +1,6 @@
 ## Master
 
+- [#343][] Customize tmux notifier status location. ([@nickmabry][])
 - Adds ability to override default options in emacs notifier. ([@d1][])
 - Use `$stderr` instead of `STDERR` to allow redirection. ([@netzpirat][])
 - [#334][] Extend `:tmux` notifier with use of `tmux display-message` and options to configure them. ([@matthijsgroen][])
@@ -607,6 +608,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [#324]: https://github.com/guard/guard/issues/324
 [#331]: https://github.com/guard/guard/issues/331
 [#334]: https://github.com/guard/guard/issues/334
+[#343]: https://github.com/guard/guard/issues/343
 [@Gazer]: https://github.com/Gazer
 [@Maher4Ever]: https://github.com/Maher4Ever
 [@alandipert]: https://github.com/alandipert
@@ -654,6 +656,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [@mordaroso]: https://github.com/mordaroso
 [@nestegg]: https://github.com/nestegg
 [@netzpirat]: https://github.com/netzpirat
+[@nickmabry]: https://github.com/nickmabry
 [@nicksieger]: https://github.com/nicksieger
 [@niklas]: https://github.com/niklas
 [@oliamb]: https://github.com/oliamb
