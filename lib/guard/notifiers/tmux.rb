@@ -9,6 +9,9 @@ module Guard
     # @example Add the `:tmux` notifier to your `Guardfile`
     #   notification :tmux
     #
+    # @example Customize the tmux status colored for notifications
+    #   notification :tmux, :color_location => 'status-right-bg'
+    #
     module Tmux
       extend self
 
