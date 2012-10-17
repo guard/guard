@@ -22,7 +22,8 @@ module Guard
         :timeout                => 5,
         :display_message        => false,
         :default_message_format => '%s - %s',
-        :line_separator         => ' - '
+        :line_separator         => ' - ',
+        :color_location         => 'status-left-bg'
       }
 
       # Test if currently running in a Tmux session
@@ -51,7 +52,8 @@ module Guard
       #
       def notify(type, title, message, image, options = { })
         color = tmux_color type, options
-        system("#{ DEFAULTS[:client] } set -g status-left-bg #{ color }")
+        color_location = options[:color_location] || DEFAULTS[:color_location]
+        system("#{ DEFAULTS[:client] } set -g #{color_location} #{ color }")
 
         show_message = options[:display_message] || DEFAULTS[:display_message]
         display_message(type, title, message, options) if show_message
