@@ -242,8 +242,8 @@ notification :tmux,
   # the first %s will show the title, the second the message
   # Alternately you can also configure *success_message_format*,
   # *pending_message_format*, *failed_message_format*
-  :line_separator => ' > ' # since we are single line we need a
-separator
+  :line_separator => ' > ' # since we are single line we need a separator
+  :color_location => 'status-left-bg' # to customize which tmux element will change color
 ```
 
 The result will be for RSpec using example above
