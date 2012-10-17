@@ -73,6 +73,12 @@ describe Guard::Notifier::Tmux do
       subject.notify('notify', 'any title', 'any message', 'any image', { })
     end
 
+    it 'should set the right tmux status bar color on success when the right status bar is passed in as an option' do
+      subject.should_receive(:system).with "tmux set -g status-right-bg green"
+      
+      subject.notify('success', 'any title', 'any message', 'any image', { :color_location => 'status-right-bg' })
+    end
+
     it 'calls display_message if the display_message flag is set' do
       subject.stub :system => true
       subject.should_receive(:display_message).with('notify', 'any title', 'any message', { :display_message => true })
