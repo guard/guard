@@ -1,5 +1,6 @@
 ## Master
 
+- [#342][] Add notifier for displying result in terminal title. ([@tomas-zemres][])
 - [#343][] Customize tmux notifier status location. ([@nickmabry][])
 - Adds ability to override default options in emacs notifier. ([@d1][])
 - Use `$stderr` instead of `STDERR` to allow redirection. ([@netzpirat][])
@@ -608,6 +609,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [#324]: https://github.com/guard/guard/issues/324
 [#331]: https://github.com/guard/guard/issues/331
 [#334]: https://github.com/guard/guard/issues/334
+[#342]: https://github.com/guard/guard/issues/342
 [#343]: https://github.com/guard/guard/issues/343
 [@Gazer]: https://github.com/Gazer
 [@Maher4Ever]: https://github.com/Maher4Ever
@@ -679,6 +681,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [@thibaudgg]: https://github.com/thibaudgg
 [@thierryhenrio]: https://github.com/thierryhenrio
 [@tinogomes]: https://github.com/tinogomes
+[@tomas-zemres]: https://github.com/tomas-zemres
 [@tpope]: https://github.com/tpope
 [@uk-ar]: https://github.com/uk-ar
 [@veged]: https://github.com/veged
