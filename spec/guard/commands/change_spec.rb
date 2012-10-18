@@ -3,11 +3,12 @@ require 'spec_helper'
 describe 'Guard::Interactor::CHANGE' do
 
   let!(:guard) { ::Guard.setup }
-  
+
   before do
     Guard.runner.stub(:run_on_changes)
+    Pry.output.stub(:puts)
   end
-  
+
   describe '#perform' do
     context 'with a file' do
       it 'runs the :run_all action with the given scope' do

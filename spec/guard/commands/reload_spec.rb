@@ -8,6 +8,7 @@ describe 'Guard::Interactor::RELOAD' do
   before(:each) do
     Guard.stub(:reload)
     Guard.stub(:setup_interactor)
+    Pry.output.stub(:puts)
   end
 
   let(:guard)     { ::Guard.setup }

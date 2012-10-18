@@ -8,12 +8,13 @@ describe 'Guard::Interactor::ALL' do
   before(:each) do
     Guard.stub(:run_all)
     Guard.stub(:setup_interactor)
+    Pry.output.stub(:puts)
   end
 
   let(:guard)     { ::Guard.setup }
   let(:foo_group) { guard.add_group(:foo) }
   let(:bar_guard) { guard.add_guard(:bar, [], [], { :group => :foo }) }
-  
+
   describe '#perform' do
     context 'without scope' do
       it 'runs the :run_all action' do
