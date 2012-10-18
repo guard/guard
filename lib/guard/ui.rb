@@ -1,3 +1,5 @@
+require 'lumberjack'
+
 module Guard
 
   # The UI class helps to format messages for the user. Everything that is logged
@@ -8,9 +10,9 @@ module Guard
   # processing, please just write it to STDOUT with `puts`.
   #
   module UI
-    class << self
+    @logger = Lumberjack::Logger.new
 
-      color_enabled = nil
+    class << self
 
       # Show an info message.
       #
@@ -20,7 +22,7 @@ module Guard
       def info(message, options = { })
         unless ENV['GUARD_ENV'] == 'test'
           reset_line if options[:reset]
-          $stderr.puts color(message) if message != ''
+          @logger.info color(message) if message != ''
         end
       end
 
@@ -32,7 +34,7 @@ module Guard
       def warning(message, options = { })
         unless ENV['GUARD_ENV'] == 'test'
           reset_line if options[:reset]
-          $stderr.puts color('WARNING: ', :yellow) + message
+          @logger.warn color('WARNING: ', :yellow) + message
         end
       end
 
@@ -44,11 +46,12 @@ module Guard
       def error(message, options = { })
         unless ENV['GUARD_ENV'] == 'test'
           reset_line if options[:reset]
-          $stderr.puts color('ERROR: ', :red) + message
+          @logger.error color('ERROR: ', :red) + message
         end
       end
 
       # Show a red deprecation message that is prefixed with DEPRECATION.
+      # It has a log level of `warn`.
       #
       # @param [String] message the message to show
       # @option options [Boolean] reset whether to clean the output before
@@ -56,7 +59,7 @@ module Guard
       def deprecation(message, options = { })
         unless ENV['GUARD_ENV'] == 'test'
           reset_line if options[:reset]
-          $stderr.puts color('DEPRECATION: ', :red) + message
+          @logger.warn color('DEPRECATION: ', :red) + message
         end
       end
 
@@ -68,7 +71,7 @@ module Guard
       def debug(message, options = { })
         unless ENV['GUARD_ENV'] == 'test'
           reset_line if options[:reset]
-          $stderr.puts color("DEBUG (#{Time.now.strftime('%T')}): ", :yellow) + message if ::Guard.options && ::Guard.options[:debug]
+          @logger.debug color("DEBUG (#{Time.now.strftime('%T')}): ", :yellow) + message if ::Guard.options && ::Guard.options[:debug]
         end
       end
 
