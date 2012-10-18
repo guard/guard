@@ -125,9 +125,8 @@ module Guard
     def start
       return if ENV['GUARD_ENV'] == 'test'
 
-      # TODO: Remove before merge
-      Thread.abort_on_exception = true
-
+      store_terminal_settings if stty_exists?
+      
       if !@thread || !@thread.alive?
         ::Guard::UI.debug 'Start interactor'
 
@@ -148,8 +147,32 @@ module Guard
         ::Guard::UI.debug 'Stop interactor'
         @thread.kill
       end
+
+      restore_terminal_settings if stty_exists?
     end
 
+    # Detects whether or not the stty command exists
+    # on the user machine.
+    #
+    # @return [Boolean] the status of stty
+    #
+    def stty_exists?
+      @stty_exists ||= system('hash', 'stty')
+    end
+
+    # Stores the terminal settings so we can resore them
+    # when stopping.
+    #
+    def store_terminal_settings
+      @stty_save = `stty -g 2>/dev/null`.chomp
+    end
+
+    # Restore terminal settings
+    #
+    def restore_terminal_settings
+      system("stty #{ @stty_save } 2>/dev/null") if @stty_save
+    end
+    
     # Converts and validates a plain text scope
     # to a valid plugin or group scope.
     #
