@@ -4,7 +4,7 @@ gemspec
 
 gem 'rake'
 gem 'listen', :github => 'guard/listen'
-gem 'pry', :github => 'pry/pry'
+gem 'pry'
 
 # The development group will no be
 # installed on Travis CI.
