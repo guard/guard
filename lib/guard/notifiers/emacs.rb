@@ -3,14 +3,6 @@ require 'rbconfig'
 module Guard
   module Notifier
 
-    # Default options for EmacsClient
-    DEFAULTS = {
-      :client  => 'emacsclient',
-      :success => 'ForestGreen',
-      :failed  => 'Firebrick',
-      :default => 'Black',
-    }
-
     # Send a notification to Emacs with emacsclient (http://www.emacswiki.org/emacs/EmacsClient).
     #
     # @example Add the `:emacs` notifier to your `Guardfile`
@@ -18,6 +10,13 @@ module Guard
     #
     module Emacs
       extend self
+
+      DEFAULTS = {
+        :client  => 'emacsclient',
+        :success => 'ForestGreen',
+        :failed  => 'Firebrick',
+        :default => 'Black',
+      }
 
       # Test if Emacs with running server is available.
       #
@@ -41,28 +40,33 @@ module Guard
       # @param [String] message the notification message body
       # @param [String] image the path to the notification image
       # @param [Hash] options additional notification library options
-      # @option options [Boolean] sticky make the notification sticky
+      # @option options [String] success the color to use for success notifications (default is 'ForestGreen')
+      # @option options [String] failed the color to use for failure notifications (default is 'Firebrick')
+      # @option options [String] pending the color to use for pending notifications
+      # @option options [String] default the default color to use (default is 'Black')
+      # @option options [String] client the client to use for notification (default is 'emacsclient')
       # @option options [String, Integer] priority specify an int or named key (default is 0)
       #
       def notify(type, title, message, image, options = { })
-        system(%(#{ DEFAULTS[:client] } --eval "(set-face-background 'modeline \\"#{ emacs_color(type) }\\")"))
+        options = DEFAULTS.merge options
+        color   = emacs_color type, options
+        system(%(#{ options[:client] } --eval "(set-face-background 'modeline \\"#{ color }\\")"))
       end
 
       # Get the Emacs color for the notification type.
       # You can configure your own color by overwrite the defaults.
       #
       # @param [String] type the notification type
+      # @param [Hash] options aditional notification options
+      # @option options [String] success the color to use for success notifications (default is 'ForestGreen')
+      # @option options [String] failed the color to use for failure notifications (default is 'Firebrick')
+      # @option options [String] pending the color to use for pending notifications
+      # @option options [String] default the default color to use (default is 'Black')
       # @return [String] the name of the emacs color
       #
-      def emacs_color(type)
-        case type
-            when 'success'
-              DEFAULTS[:success]
-            when 'failed'
-              DEFAULTS[:failed]
-            else
-              DEFAULTS[:default]
-        end
+      def emacs_color(type, options = {})
+        default = options[:default] || DEFAULTS[:default]
+        options.fetch(type.to_sym, default)
       end
     end
   end

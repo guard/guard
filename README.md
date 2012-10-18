@@ -101,8 +101,7 @@ end
 
 ### System notifications
 
-You can configure Guard to make use of the following system notification libraries, but it's strongly recommended
-to use either Ruby GNTP, Libnotify or Notifu:
+You can configure Guard to make use of the following system notification libraries:
 
 #### Ruby GNTP
 
@@ -219,13 +218,45 @@ group :development do
 end
 ```
 
+#### Terminal Title
+
+* Runs in every terminal supporting XTerm escape sequences to set the window title.
+
 #### Emacs
 
 * Runs on any platform with Emacs + emacsclient (http://www.emacswiki.org/emacs/EmacsClient)
 
-### Tmux
+### TMux
 
-* To use Tmux notifications, you have to start Guard within a [tmux](http://tmux.sourceforge.net/) session.
+* To use TMux notifications, you have to start Guard within a [TMux](http://tmux.sourceforge.net/) session.
+
+The TMux notifier will color the background of the left part of the
+status bar indicating the status of the notifications. Optionally you
+can set `:display_message => true` to display the Guard notification as
+'display-message' notification.
+
+The way these messages are formatted is configurable.
+
+```ruby
+# Guardfile
+notification :tmux,
+  :display_message => true,
+  :timeout => 5, # in seconds
+  :default_message_format => '%s >> %s',
+  # the first %s will show the title, the second the message
+  # Alternately you can also configure *success_message_format*,
+  # *pending_message_format*, *failed_message_format*
+  :line_separator => ' > ', # since we are single line we need a separator
+  :color_location => 'status-left-bg' # to customize which tmux element will change color
+```
+
+The result will be for RSpec using example above
+
+    RSpec >> 15 test, 0 failures > in 0.002 sec
+
+You can use nice powerline chars here if you have that configured.
+
+You can get the message history by using `Ctrl+b ~` (where `Ctrl+b` is your key to activate TMux).
 
 Add Guard plugins
 -----------------

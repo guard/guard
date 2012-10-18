@@ -1,3 +1,11 @@
+## Master
+
+- [#342][] Add notifier for displying result in terminal title. ([@tomas-zemres][])
+- [#343][] Customize tmux notifier status location. ([@nickmabry][])
+- Adds ability to override default options in emacs notifier. ([@d1][])
+- Use `$stderr` instead of `STDERR` to allow redirection. ([@netzpirat][])
+- [#334][] Extend `:tmux` notifier with use of `tmux display-message` and options to configure them. ([@matthijsgroen][])
+
 ## 1.4.0 - 26 September, 2012
 
 - [#331][] Add tmux notifier. ([@royvandewater][])
@@ -600,6 +608,9 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [#317]: https://github.com/guard/guard/issues/317
 [#324]: https://github.com/guard/guard/issues/324
 [#331]: https://github.com/guard/guard/issues/331
+[#334]: https://github.com/guard/guard/issues/334
+[#342]: https://github.com/guard/guard/issues/342
+[#343]: https://github.com/guard/guard/issues/343
 [@Gazer]: https://github.com/Gazer
 [@Maher4Ever]: https://github.com/Maher4Ever
 [@alandipert]: https://github.com/alandipert
@@ -611,6 +622,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [@capotej]: https://github.com/capotej
 [@ches]: https://github.com/ches
 [@chrisberkhout]: https://github.com/chrisberkhout
+[@d1]: https://github.com/d1
 [@dgutov]: https://github.com/dgutov
 [@dnagir]: https://github.com/dnagir
 [@docwhat]: https://github.com/docwhat
@@ -639,12 +651,14 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [@madtrick]: https://github.com/madtrick
 [@maio]: https://github.com/maio
 [@mattgreen]: https://github.com/mattgreen
+[@matthijsgroen]: https://github.com/matthijsgroen
 [@mcmire]: https://github.com/mcmire
 [@mislav]: https://github.com/mislav
 [@monocle]: https://github.com/monocle
 [@mordaroso]: https://github.com/mordaroso
 [@nestegg]: https://github.com/nestegg
 [@netzpirat]: https://github.com/netzpirat
+[@nickmabry]: https://github.com/nickmabry
 [@nicksieger]: https://github.com/nicksieger
 [@niklas]: https://github.com/niklas
 [@oliamb]: https://github.com/oliamb
@@ -667,6 +681,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [@thibaudgg]: https://github.com/thibaudgg
 [@thierryhenrio]: https://github.com/thierryhenrio
 [@tinogomes]: https://github.com/tinogomes
+[@tomas-zemres]: https://github.com/tomas-zemres
 [@tpope]: https://github.com/tpope
 [@uk-ar]: https://github.com/uk-ar
 [@veged]: https://github.com/veged

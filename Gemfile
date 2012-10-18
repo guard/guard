@@ -28,7 +28,7 @@ group :development do
     end rescue Errno::ENOENT
 
   elsif RbConfig::CONFIG['target_os'] =~ /linux/i
-    gem 'libnotify',  '~> 0.7.1', :require => false
+    gem 'libnotify',  '~> 0.8.0', :require => false
     gem 'rb-inotify', :require => false
 
   elsif RbConfig::CONFIG['target_os'] =~ /mswin|mingw/i
