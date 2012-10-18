@@ -178,7 +178,7 @@ module Guard
 
     # Get the notifier module for the given name.
     #
-    # @param [Symbol] the notifier name
+    # @param [Symbol] name the notifier name
     # @return [Module] the notifier module
     #
     def get_notifier_module(name)
