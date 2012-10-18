@@ -10,7 +10,8 @@ module Guard
   # processing, please just write it to STDOUT with `puts`.
   #
   module UI
-    @logger = Lumberjack::Logger.new
+    
+    @logger = Lumberjack::Logger.new($stderr, :level => :debug, :template => ':time - :severity - :message', :time_format => '%H:%M:%S')
 
     class << self
 
@@ -22,7 +23,7 @@ module Guard
       def info(message, options = { })
         unless ENV['GUARD_ENV'] == 'test'
           reset_line if options[:reset]
-          @logger.info color(message) if message != ''
+          @logger.info message
         end
       end
 
@@ -34,7 +35,7 @@ module Guard
       def warning(message, options = { })
         unless ENV['GUARD_ENV'] == 'test'
           reset_line if options[:reset]
-          @logger.warn color('WARNING: ', :yellow) + message
+          @logger.warn color(message, :yellow)
         end
       end
 
@@ -46,7 +47,7 @@ module Guard
       def error(message, options = { })
         unless ENV['GUARD_ENV'] == 'test'
           reset_line if options[:reset]
-          @logger.error color('ERROR: ', :red) + message
+          @logger.error color(message, :red)
         end
       end
 
@@ -59,7 +60,7 @@ module Guard
       def deprecation(message, options = { })
         unless ENV['GUARD_ENV'] == 'test'
           reset_line if options[:reset]
-          @logger.warn color('DEPRECATION: ', :red) + message
+          @logger.warn color(message, :yellow)
         end
       end
 
@@ -71,7 +72,7 @@ module Guard
       def debug(message, options = { })
         unless ENV['GUARD_ENV'] == 'test'
           reset_line if options[:reset]
-          @logger.debug color("DEBUG (#{Time.now.strftime('%T')}): ", :yellow) + message if ::Guard.options && ::Guard.options[:debug]
+          @logger.debug color(message, :yellow)
         end
       end
 
@@ -110,7 +111,7 @@ module Guard
       end
 
       private
-
+     
       # Reset a color sequence.
       #
       # @deprecated
