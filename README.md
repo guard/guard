@@ -671,6 +671,14 @@ or using the cli switch `-n`:
 notification :off
 ```
 
+### interactor
+
+If you do not need the Pry interactions with Guard at all, you can turn it off:
+
+```ruby
+interactor :off
+```
+
 ### callback
 
 The `callback` method allows you to execute arbitrary code before or after any of the `start`, `stop`, `reload`,

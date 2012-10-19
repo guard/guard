@@ -101,7 +101,8 @@ module Guard
 
     # Deprecation message for the `ignore_paths` method
     INTERACTOR_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
-      Starting with Guard v1.4 the use of the 'interactor' Guardfile DSL method is deprecated.
+      Starting with Guard v1.4 the use of the 'interactor' Guardfile DSL method is only used to
+      turn the Pry interactor off. All other usages are deprecated.
 
       Please make use of the Pry plugin architecture to customize the interactions and place them
       either in your `~/.guardrc` or the `Guardfile`.
@@ -323,19 +324,15 @@ module Guard
 
     # Sets the interactor to use.
     #
-    # @example Use the readline interactor
-    #   interactor :readline
-    #
-    # @example Use the gets interactor
-    #   interactor :gets
-    #
     # @example Turn off interactions
     #   interactor :off
     #
-    # @deprecated
-    #
     def interactor(interactor)
-      ::Guard::UI.deprecation(INTERACTOR_DEPRECATION)
+      if interactor == :off
+        ::Guard.options[:no_interactions] = true
+      else
+        ::Guard::UI.deprecation(INTERACTOR_DEPRECATION)
+      end
     end
 
     # Declares a group of Guard plugins to be run with `guard start --group group_name`.
