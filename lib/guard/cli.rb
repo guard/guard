@@ -21,13 +21,13 @@ module Guard
                   :type    => :boolean,
                   :default => false,
                   :aliases => '-c',
-                  :banner  => 'Auto clear shell before each change/run_all/reload'
+                  :banner  => 'Auto clear shell before each action'
 
     method_option :notify,
                   :type    => :boolean,
                   :default => true,
                   :aliases => '-n',
-                  :banner  => 'Notifications feature (growl/libnotify)'
+                  :banner  => 'Notifications feature'
 
     method_option :debug,
                   :type    => :boolean,
