@@ -54,13 +54,16 @@ module Guard
       setup_listener
       setup_signal_traps
 
-      debug_command_execution if @options[:debug]
-
       ::Guard::Dsl.evaluate_guardfile(options)
       ::Guard::UI.error 'No guards found in Guardfile, please add at least one.' if @guards.empty?
 
       runner.deprecation_warning if @options[:show_deprecations]
 
+      if @options[:debug]
+        ::Guard::UI.options[:level] = :debug
+        debug_command_execution
+      end
+      
       setup_notifier
       setup_interactor
 

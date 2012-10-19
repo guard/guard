@@ -2,6 +2,10 @@ require 'spec_helper'
 
 describe Guard::Guard do
 
+  before do
+    ::Guard::UI.stub(:info)
+  end
+  
   describe '#initialize' do
 
     it 'assigns the defined watchers' do

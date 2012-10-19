@@ -11,19 +11,43 @@ module Guard
   #
   module UI
     
-    @logger = Lumberjack::Logger.new($stderr, :level => :debug, :template => ':time - :severity - :message', :time_format => '%H:%M:%S')
-
     class << self
+
+      # Get the Guard::UI logger instance
+      #
+      def logger
+        @logger ||= Lumberjack::Logger.new($stderr, self.options)
+      end
+      
+      # Get the logger options
+      #
+      # @return [Hash] the logger options
+      #
+      def options
+        @options ||= { :level => :info, :template => ':time - :severity - :message', :time_format => '%H:%M:%S' }
+      end
+
+      # Set the logger options
+      #
+      # @param [Hash] options the logger options
+      # @option options [Symbol] level the log level
+      # @option options [String] template the logger template
+      # @option options [String] time_format the time format
+      #
+      def options=(options)
+        @options = options
+      end
 
       # Show an info message.
       #
       # @param [String] message the message to show
       # @option options [Boolean] reset whether to clean the output before
+      # @option options [String] plugin manually define the calling plugin
       #
       def info(message, options = { })
-        unless ENV['GUARD_ENV'] == 'test'
+        filter(options[:plugin]) do |plugin|
           reset_line if options[:reset]
-          @logger.info message
+          self.logger.info(message, plugin)
         end
       end
 
@@ -31,11 +55,12 @@ module Guard
       #
       # @param [String] message the message to show
       # @option options [Boolean] reset whether to clean the output before
+      # @option options [String] plugin manually define the calling plugin
       #
       def warning(message, options = { })
-        unless ENV['GUARD_ENV'] == 'test'
+        filter(options[:plugin]) do |plugin|
           reset_line if options[:reset]
-          @logger.warn color(message, :yellow)
+          self.logger.warn(color(message, :yellow), plugin)
         end
       end
 
@@ -43,11 +68,12 @@ module Guard
       #
       # @param [String] message the message to show
       # @option options [Boolean] reset whether to clean the output before
+      # @option options [String] plugin manually define the calling plugin
       #
       def error(message, options = { })
-        unless ENV['GUARD_ENV'] == 'test'
+        filter(options[:plugin]) do |plugin|
           reset_line if options[:reset]
-          @logger.error color(message, :red)
+          self.logger.error(color(message, :red), plugin)
         end
       end
 
@@ -56,11 +82,12 @@ module Guard
       #
       # @param [String] message the message to show
       # @option options [Boolean] reset whether to clean the output before
+      # @option options [String] plugin manually define the calling plugin
       #
       def deprecation(message, options = { })
-        unless ENV['GUARD_ENV'] == 'test'
+        filter(options[:plugin]) do |plugin|
           reset_line if options[:reset]
-          @logger.warn color(message, :yellow)
+          self.logger.warn(color(message, :yellow), plugin)
         end
       end
 
@@ -68,11 +95,12 @@ module Guard
       #
       # @param [String] message the message to show
       # @option options [Boolean] reset whether to clean the output before
+      # @option options [String] plugin manually define the calling plugin
       #
       def debug(message, options = { })
-        unless ENV['GUARD_ENV'] == 'test'
+        filter(options[:plugin]) do |plugin|
           reset_line if options[:reset]
-          @logger.debug color(message, :yellow)
+          self.logger.debug(color(message, :yellow), plugin)
         end
       end
 
@@ -112,6 +140,34 @@ module Guard
 
       private
      
+      # Filters log messages depending on either the
+      # `:only`` or `:except` option.
+      #
+      # @param [String] plugin the calling plugin name
+      # @yield When the message should be logged
+      # @yieldparam [String] param the calling plugin name 
+      #
+      def filter(plugin)
+        only   = self.options[:only]
+        except = self.options[:except]
+        plugin = plugin || calling_plugin_name
+        
+        if (!only && !except) || (only && only.match(plugin)) || (except && !except.match(plugin))
+          yield plugin
+        end
+      end
+
+      # Tries to extract the calling Guard plugin name
+      # from the call stack.
+      #
+      # @param [Integer] depth the stack depth
+      # @return [String] the Guard plugin name
+      #
+      def calling_plugin_name(depth = 2)
+        name = /(guard\/[a-z_]*)(\/[a-z_]*)?.rb:/i.match(caller[depth])
+        name ? name[1].split('/').map { |part| part.split(/[^a-z0-9]/i).map { |word| word.capitalize }.join }.join('::') : 'Guard'
+      end
+
       # Reset a color sequence.
       #
       # @deprecated
@@ -165,7 +221,7 @@ module Guard
         color_options.each do |color_option|
           color_option = color_option.to_s
           if color_option != ''
-            if !(color_option =~ /\d+/)
+            unless color_option =~ /\d+/
               color_option = const_get("ANSI_ESCAPE_#{ color_option.upcase }")
             end
             color_code += ';' + color_option

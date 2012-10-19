@@ -1,8 +1,15 @@
 require 'spec_helper'
 
 describe Guard do
-  before { ::Guard::Interactor.stub(:fabricate) }
-
+  before do
+    ::Guard::Interactor.stub(:fabricate)
+    
+    ::Guard::UI.stub(:info)
+    ::Guard::UI.stub(:error)
+  end
+  
+  after { Guard.options[:debug] = false }
+  
   describe ".setup" do
     let(:options) { { :my_opts => true, :guardfile => File.join(@fixture_path, "Guardfile") } }
     subject { ::Guard.setup(options) }
@@ -38,6 +45,11 @@ describe Guard do
       ::Guard.should_receive(:debug_command_execution)
 
       ::Guard.setup(:debug => true)
+    end
+
+    it "sets the log level to :debug if the debug option is true" do
+      ::Guard.setup(:debug => true)
+      ::Guard::UI.options[:level].should eql :debug
     end
 
     it "call setup_signal_traps" do

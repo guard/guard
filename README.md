@@ -775,6 +775,30 @@ Please note that method only accept regexps. More on the
 filter /\.txt$/, /.*\.zip/
 ```
 
+### logger
+
+The `logger` method allows you to customize the Guard log output to your needs by specifying one or more options like:
+
+```ruby
+logger :level       => :warn,
+       :template    => '[:severity - :time - :progname] :message',
+       :time_format => 'at %I:%M%p',
+       :only        => /RSpec/,
+       :except      => /Jasmine/
+```
+
+Log `:level` option must be either `:debug`, `:info`, `:warn` or `:error`. If Guard is started in debug mode, the log
+level will be automatically set to `:debug`.
+
+The `:template` option is a string which can have one or more of the following placeholders: `:time`, `:severity`,
+`:progname`, `:pid`, `:unit_of_work_id` and `:message`. A unit of work is assigned for each action Guard performs on
+multiple Guard plugin.
+
+The `:time_format` option directives are the same as Time#strftime or can be `:milliseconds`
+
+The `:only` and `:except` are regular expressions that matches the Guard plugin name that sends the log message. They
+cannot be specified at the same time.
+
 ### Example
 
 ```ruby

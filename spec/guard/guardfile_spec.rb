@@ -2,6 +2,10 @@ require 'spec_helper'
 
 describe Guard::Guardfile do
 
+  before do
+    ::Guard::UI.stub(:info)
+  end
+  
   it "has a valid Guardfile template" do
     File.exists?(Guard::GUARDFILE_TEMPLATE).should be_true
   end

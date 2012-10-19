@@ -2,6 +2,10 @@ require 'spec_helper'
 
 describe Guard::Notifier do
 
+  before do
+    ::Guard::UI.stub(:info)
+  end
+
   describe '.turn_on' do
     context 'with configured notifications' do
       before do

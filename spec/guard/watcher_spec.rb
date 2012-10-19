@@ -2,6 +2,10 @@ require 'spec_helper'
 
 describe Guard::Watcher do
 
+  before do
+    ::Guard::UI.stub(:info)
+  end
+
   describe "#initialize" do
     it "requires a pattern parameter" do
       expect { described_class.new }.to raise_error(ArgumentError)

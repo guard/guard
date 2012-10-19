@@ -465,5 +465,64 @@ module Guard
       ::Guard.listener = ::Guard.listener.filter(*regexps)
     end
 
+    # Configure the Guard logger.
+    #
+    # * Log level must be either `:debug`, `:info`, `:warn` or `:error`.
+    # * Template supports the following placeholders: `:time`, `:severity`, `:progname`, `:pid`, `:unit_of_work_id` and `:message`
+    # * Time format directives are the same as Time#strftime or :milliseconds
+    # * The `:only` and `:except` options must be a RegExp.
+    #
+    # @example Set the log level
+    #   logger :level => :warn
+    #
+    # @example Set a custom log template
+    #   logger :template => '[Guard - :severity - :progname - :time] :message'
+    #
+    # @example Set a custom time format
+    #   logger :time_format => '%h'
+    #
+    # @example Limit logging to a Guard plugin
+    #   logger :only => %r{jasmine}
+    #
+    # @example Log all but not the messages from a specific Guard plugin
+    #   logger :except => %r{jasmine}
+    #
+    # @param [Hash] options the log options
+    # @option options [String, Symbol] level the log level
+    # @option options [String] template the logger template
+    # @option options [String, Symbol] time_format the time format
+    # @option options [RegExp] only show only messages from the matching Guard plugin
+    # @option options [RegExp] except does not show messages from the matching Guard plugin
+    #
+    def logger(options)
+      if options[:level]
+        options[:level] = options[:level].to_sym 
+        
+        unless [:debug, :info, :warn, :error].include? options[:level]
+          ::Guard::UI.warning "Invalid log level `#{ options[:level] }` ignored. Please use either :debug, :info, :warn or :error."
+          options.delete :level
+        end
+      end
+      
+      if options[:only] && options[:expect]
+        ::Guard::UI.warning "You cannot specify the logger options :only and :except at the same time."
+
+        options.delete :only
+        options.delete :expect
+      end
+      
+      if options[:only] && !(options[:only].class == Regexp)
+        ::Guard::UI.warning "Invalid log option `#{ options[:only] }` ignored. Please specify a Regexp for :only."
+        options.delete :only
+      end
+
+      if options[:expect] && !(options[:expect].class == Regexp)
+        ::Guard::UI.warning "Invalid log option `#{ options[:expect] }` ignored. Please specify a Regexp for :except."
+        options.delete :expect
+      end
+
+      ::Guard::UI.options = ::Guard::UI.options.merge options
+    end
+    
   end
 end
