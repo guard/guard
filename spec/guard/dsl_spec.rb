@@ -513,7 +513,7 @@ describe Guard::Dsl do
 
   describe "#logger" do
     after { Guard::UI.options = { :level => :info, :template => ':time - :severity - :message', :time_format => '%H:%M:%S' } }
-    
+
     context 'with valid options' do
       it "sets the logger log level" do
         described_class.evaluate_guardfile(:guardfile_contents => "logger :level => :error")
@@ -529,23 +529,23 @@ describe Guard::Dsl do
         described_class.evaluate_guardfile(:guardfile_contents => "logger :template => ':message - :severity'")
         Guard::UI.options[:template].should eql ':message - :severity'
       end
-  
+
       it "sets the logger time format" do
         described_class.evaluate_guardfile(:guardfile_contents => "logger :time_format => '%Y'")
         Guard::UI.options[:time_format].should eql '%Y'
       end
-  
+
       it "sets the logger only filter" do
         described_class.evaluate_guardfile(:guardfile_contents => "logger :only => /cucumber/i")
         Guard::UI.options[:only].should eql /cucumber/i
       end
-  
-      it "sets the logger only filter" do
-        described_class.evaluate_guardfile(:guardfile_contents => "logger :expect => /jasmine/i")
-        Guard::UI.options[:expect].should eql /jasmine/i
+
+      it "sets the logger except filter" do
+        described_class.evaluate_guardfile(:guardfile_contents => "logger :except=> /jasmine/i")
+        Guard::UI.options[:except].should eql /jasmine/i
       end
     end
-    
+
     context 'with invalid options' do
       context 'for the log level' do
         it 'shows a warning' do
@@ -559,17 +559,17 @@ describe Guard::Dsl do
         end
       end
 
-      context 'when having both the :only and :expect options' do
+      context 'when having both the :only and :except options' do
         it 'shows a warning' do
           Guard::UI.should_receive(:warning).with "You cannot specify the logger options :only and :except at the same time."
-          described_class.evaluate_guardfile(:guardfile_contents => "logger :only => /jasmine/, :expect => /rspec/")
-          
+          described_class.evaluate_guardfile(:guardfile_contents => "logger :only => /jasmine/, :except=> /rspec/")
+
         end
 
         it 'removes the options' do
-          described_class.evaluate_guardfile(:guardfile_contents => "logger :only => /jasmine/, :expect => /rspec/")
+          described_class.evaluate_guardfile(:guardfile_contents => "logger :only => /jasmine/, :except=> /rspec/")
           Guard::UI.options[:only].should be_nil
-          Guard::UI.options[:expect].should be_nil
+          Guard::UI.options[:except].should be_nil
         end
       end
 
@@ -588,11 +588,11 @@ describe Guard::Dsl do
       context 'for the log :except option' do
         it 'shows a warning' do
           Guard::UI.should_receive(:warning).with "Invalid log option `11` ignored. Please specify a Regexp for :except."
-          described_class.evaluate_guardfile(:guardfile_contents => "logger :expect => 11")
+          described_class.evaluate_guardfile(:guardfile_contents => "logger :except=> 11")
         end
 
         it 'does not set the invalid value' do
-          described_class.evaluate_guardfile(:guardfile_contents => "logger :expect => 'hi'")
+          described_class.evaluate_guardfile(:guardfile_contents => "logger :except=> 'hi'")
           Guard::UI.options[:except].should be_nil
         end
       end

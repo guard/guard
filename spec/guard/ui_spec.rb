@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Guard::UI do
   after { Guard::UI.options = { :level => :info, :template => ':time - :severity - :message', :time_format => '%H:%M:%S' } }
-  
+
   before do
     Guard::UI.logger.stub(:info)
     Guard::UI.logger.stub(:warn)
@@ -10,45 +10,45 @@ describe Guard::UI do
     Guard::UI.logger.stub(:deprecation)
     Guard::UI.logger.stub(:debug)
   end
-  
+
   describe '.logger' do
     it 'returns the logger instance' do
       Guard::UI.logger.should be_an_instance_of Lumberjack::Logger
     end
   end
-  
+
   describe '.options' do
     it 'returns the default logger options' do
       Guard::UI.options.should eql({ :level => :info, :template => ':time - :severity - :message', :time_format => '%H:%M:%S' })
     end
   end
-  
+
   describe '.options=' do
     it 'sets the logger options' do
       Guard::UI.options = { :hi => :ho }
       Guard::UI.options.should eql({ :hi => :ho })
     end
   end
-  
+
   describe '.info' do
     it 'resets the line with the :reset option' do
       Guard::UI.should_receive :reset_line
       Guard::UI.info('Info message', { :reset => true })
     end
-      
+
     it 'logs the message to with the info severity' do
       Guard::UI.logger.should_receive(:info).with('Info message', 'Guard::UiSpec')
       Guard::UI.info 'Info message'
     end
-    
+
     context 'with the :only option' do
       before { Guard::UI.options[:only] = /A/ }
-      
+
       it 'shows only the matching messages' do
         Guard::UI.logger.should_receive(:info).with('Info message', 'A')
         Guard::UI.logger.should_not_receive(:info).with('Info message', 'B')
         Guard::UI.logger.should_not_receive(:info).with('Info message', 'C')
-        
+
         Guard::UI.info 'Info message', :plugin => 'A'
         Guard::UI.info 'Info message', :plugin => 'B'
         Guard::UI.info 'Info message', :plugin => 'C'
@@ -69,7 +69,7 @@ describe Guard::UI do
       end
     end
   end
-  
+
   describe '.warning' do
     it 'resets the line with the :reset option' do
       Guard::UI.should_receive :reset_line
@@ -109,7 +109,7 @@ describe Guard::UI do
       end
     end
   end
-  
+
   describe '.error' do
     it 'resets the line with the :reset option' do
       Guard::UI.should_receive :reset_line
@@ -149,7 +149,7 @@ describe Guard::UI do
       end
     end
   end
-  
+
   describe '.deprecation' do
     it 'resets the line with the :reset option' do
       Guard::UI.should_receive :reset_line

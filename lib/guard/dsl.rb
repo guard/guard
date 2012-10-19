@@ -16,7 +16,7 @@ module Guard
   #
   # A more advanced DSL use is the `callback` keyword that allows you to execute arbitrary
   # code before or after any of the `start`, `stop`, `reload`, `run_all`, `run_on_changes`,
-  # `run_on_additions`, `run_on_modifications` and `run_on_removals` Guard plugins method. 
+  # `run_on_additions`, `run_on_modifications` and `run_on_removals` Guard plugins method.
   # You can even insert more hooks inside these methods.
   # Please [checkout the Wiki page](https://github.com/guard/guard/wiki/Hooks-and-callbacks) for more details.
   #
@@ -496,33 +496,33 @@ module Guard
     #
     def logger(options)
       if options[:level]
-        options[:level] = options[:level].to_sym 
-        
+        options[:level] = options[:level].to_sym
+
         unless [:debug, :info, :warn, :error].include? options[:level]
           ::Guard::UI.warning "Invalid log level `#{ options[:level] }` ignored. Please use either :debug, :info, :warn or :error."
           options.delete :level
         end
       end
-      
-      if options[:only] && options[:expect]
+
+      if options[:only] && options[:except]
         ::Guard::UI.warning "You cannot specify the logger options :only and :except at the same time."
 
         options.delete :only
-        options.delete :expect
+        options.delete :except
       end
-      
+
       if options[:only] && !(options[:only].class == Regexp)
         ::Guard::UI.warning "Invalid log option `#{ options[:only] }` ignored. Please specify a Regexp for :only."
         options.delete :only
       end
 
-      if options[:expect] && !(options[:expect].class == Regexp)
-        ::Guard::UI.warning "Invalid log option `#{ options[:expect] }` ignored. Please specify a Regexp for :except."
-        options.delete :expect
+      if options[:except] && !(options[:except].class == Regexp)
+        ::Guard::UI.warning "Invalid log option `#{ options[:except] }` ignored. Please specify a Regexp for :except."
+        options.delete :except
       end
 
       ::Guard::UI.options = ::Guard::UI.options.merge options
     end
-    
+
   end
 end

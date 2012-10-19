@@ -3,13 +3,11 @@ require 'spec_helper'
 describe Guard do
   before do
     ::Guard::Interactor.stub(:fabricate)
-    
+
     ::Guard::UI.stub(:info)
     ::Guard::UI.stub(:error)
   end
-  
-  after { Guard.options[:debug] = false }
-  
+
   describe ".setup" do
     let(:options) { { :my_opts => true, :guardfile => File.join(@fixture_path, "Guardfile") } }
     subject { ::Guard.setup(options) }
@@ -41,17 +39,6 @@ describe Guard do
       ::Guard.listener.directory.should eq '/usr'
     end
 
-    it "logs command execution if the debug option is true" do
-      ::Guard.should_receive(:debug_command_execution)
-
-      ::Guard.setup(:debug => true)
-    end
-
-    it "sets the log level to :debug if the debug option is true" do
-      ::Guard.setup(:debug => true)
-      ::Guard::UI.options[:level].should eql :debug
-    end
-
     it "call setup_signal_traps" do
       ::Guard.should_receive(:setup_signal_traps)
       subject
@@ -76,16 +63,32 @@ describe Guard do
       ::Guard.should_receive(:setup_interactor)
       subject
     end
-    
+
     context 'when deprecations should be shown' do
       let(:options) { { :show_deprecations => true, :guardfile => File.join(@fixture_path, "Guardfile") } }
       subject { ::Guard.setup(options) }
       let(:runner) { mock('runner') }
-      
+
       it 'calls the runner show deprecations' do
         ::Guard::Runner.should_receive(:new).and_return runner
         runner.should_receive(:deprecation_warning)
         subject
+      end
+    end
+
+    context 'with the debug mode turned on' do
+      let(:options) { { :debug => true, :guardfile => File.join(@fixture_path, "Guardfile") } }
+      subject { ::Guard.setup(options) }
+      after { Guard.options[:debug] = false }
+
+      it "logs command execution if the debug option is true" do
+        ::Guard.should_receive(:debug_command_execution)
+        subject
+      end
+
+      it "sets the log level to :debug if the debug option is true" do
+        subject
+        ::Guard::UI.options[:level].should eql :debug
       end
     end
   end
@@ -285,7 +288,7 @@ describe Guard do
   describe '#reload' do
     let(:runner) { stub(:run => true) }
     subject { ::Guard.setup }
-    
+
     before do
       ::Guard.stub(:runner) { runner }
       ::Guard::Dsl.stub(:reevaluate_guardfile)
@@ -749,21 +752,27 @@ describe Guard do
     end
 
     after do
+      Guard.options[:debug] = false
       Kernel.send(:remove_method, :system, :'`')
       Kernel.send(:define_method, :system, @original_system.to_proc)
       Kernel.send(:define_method, :"`", @original_command.to_proc)
     end
 
     it "outputs Kernel.#system method parameters" do
-      ::Guard.setup(:debug => true)
       ::Guard::UI.should_receive(:debug).with("Command execution: exit 0")
+      ::Guard.setup(:debug => true)
       system("exit", "0").should be_false
     end
 
     it "outputs Kernel.#` method parameters" do
+      ::Guard::UI.should_receive(:debug).with("Command execution: echo test")
       ::Guard.setup(:debug => true)
-      ::Guard::UI.should_receive(:debug).twice.with("Command execution: echo test")
       `echo test`.should == "test\n"
+    end
+
+    it "outputs %x{} method parameters" do
+      ::Guard::UI.should_receive(:debug).with("Command execution: echo test")
+      ::Guard.setup(:debug => true)
       %x{echo test}.should == "test\n"
     end
 
