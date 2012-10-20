@@ -25,6 +25,7 @@ module Guard
         :timeout                => 5,
         :display_message        => false,
         :default_message_format => '%s - %s',
+        :default_message_color  => 'white',
         :line_separator         => ' - ',
         :color_location         => 'status-left-bg'
       }
@@ -74,6 +75,7 @@ module Guard
       #
       def display_message(type, title, message, options = { })
           message_format = options["#{ type }_message_format".to_sym] || options[:default_message_format] || DEFAULTS[:default_message_format]
+          message_color = options[:default_message_color] || DEFAULTS[:default_message_color]
           display_time = options[:timeout] || DEFAULTS[:timeout]
           separator = options[:line_separator] || DEFAULTS[:line_separator]
 
@@ -82,6 +84,7 @@ module Guard
           display_message = message_format % [title, formatted_message]
 
           system("#{ DEFAULTS[:client] } set display-time #{ display_time * 1000 }")
+          system("#{ DEFAULTS[:client] } set message-fg #{ message_color }")
           system("#{ DEFAULTS[:client] } set message-bg #{ color }")
           system("#{ DEFAULTS[:client] } display-message '#{ display_message }'")
       end
