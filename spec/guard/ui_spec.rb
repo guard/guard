@@ -20,15 +20,17 @@ describe Guard::UI do
     Guard::UI.logger.stub(:debug)
   end
 
+  after do
+    ::Guard::UI.stub(:info)
+    ::Guard::UI.stub(:warning)
+    ::Guard::UI.stub(:error)
+    ::Guard::UI.stub(:debug)
+    ::Guard::UI.stub(:deprecation)
+  end
+
   describe '.logger' do
     it 'returns the logger instance' do
       Guard::UI.logger.should be_an_instance_of Lumberjack::Logger
-    end
-  end
-
-  describe '.options' do
-    it 'returns the default logger options' do
-      Guard::UI.options.should eql({ :level => :info, :template => ':time - :severity - :message', :time_format => '%H:%M:%S' })
     end
   end
 
