@@ -1,6 +1,15 @@
 ## Master
 
+### New features
+
+- [#327][] Use Pry as interactor. ([@netzpirat][])
+- [#345][] Use Lumberjack as customizable logger. ([@netzpirat][])
+- [#348][] Introduce grouping of the notifiers for better auto-detection. ([@netzpirat][])
 - [#342][] Add notifier for displying result in terminal title. ([@tomas-zemres][])
+
+### Improvements
+
+- [#348][] Introduce grouping of the notifiers. ([@netzpirat][])
 - [#343][] Customize tmux notifier status location. ([@nickmabry][])
 - Adds ability to override default options in emacs notifier. ([@d1][])
 - Use `$stderr` instead of `STDERR` to allow redirection. ([@netzpirat][])
