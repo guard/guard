@@ -80,7 +80,7 @@ module Guard
           group 'Guard'
 
           def process
-            Pry.run_command "all #{ name }"
+            Pry.run_command "all #{ match }"
           end
         end
       end
@@ -100,7 +100,7 @@ module Guard
           group 'Guard'
 
           def process
-            Pry.run_command "all #{ name }"
+            Pry.run_command "all #{ match }"
           end
         end
       end
@@ -126,7 +126,7 @@ module Guard
       return if ENV['GUARD_ENV'] == 'test'
 
       store_terminal_settings if stty_exists?
-      
+
       if !@thread || !@thread.alive?
         ::Guard::UI.debug 'Start interactor'
 
@@ -172,7 +172,7 @@ module Guard
     def restore_terminal_settings
       system("stty #{ @stty_save } 2>/dev/null") if @stty_save
     end
-    
+
     # Converts and validates a plain text scope
     # to a valid plugin or group scope.
     #
