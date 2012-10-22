@@ -75,7 +75,7 @@ describe Guard::Notifier::Tmux do
 
     it 'should set the right tmux status bar color on success when the right status bar is passed in as an option' do
       subject.should_receive(:system).with "tmux set -g status-right-bg green"
-      
+
       subject.notify('success', 'any title', 'any message', 'any image', { :color_location => 'status-right-bg' })
     end
 
@@ -100,14 +100,8 @@ describe Guard::Notifier::Tmux do
     end
 
     it 'sets the display-time' do
-      subject.should_receive(:system).with('tmux set display-time 3000').once
+      subject.should_receive(:system).with('tmux set display-time 3000')
       subject.display_message 'success', 'any title', 'any message', :timeout => 3
-    end
-
-    it 'sets the background color' do
-      subject.stub :tmux_color => 'blue'
-      subject.should_receive(:system).with('tmux set message-bg blue').once
-      subject.display_message 'success', 'any title', 'any message'
     end
 
     it 'displays the message' do
@@ -115,19 +109,60 @@ describe Guard::Notifier::Tmux do
       subject.display_message 'success', 'any title', 'any message'
     end
 
-    it 'formats the message' do
-      subject.should_receive(:system).with('tmux display-message \'(any title) -> any message - line two\'').once
-      subject.display_message 'success', 'any title', "any message\nline two", :default_message_format => '(%s) -> %s'
-    end
-
-    it 'formats the message based on type' do
-      subject.should_receive(:system).with('tmux display-message \'[any title] => any message - line two\'').once
-      subject.display_message 'success', 'any title', "any message\nline two", :success_message_format => '[%s] => %s', :default_message_format => '(%s) -> %s'
-    end
-
     it 'handles line-breaks' do
       subject.should_receive(:system).with('tmux display-message \'any title - any message xx line two\'').once
       subject.display_message 'success', 'any title', "any message\nline two", :line_separator => ' xx '
+    end
+
+    context 'with success message type options' do
+      it 'formats the message' do
+        subject.should_receive(:system).with('tmux display-message \'[any title] => any message - line two\'').once
+        subject.display_message 'success', 'any title', "any message\nline two", :success_message_format => '[%s] => %s', :default_message_format => '(%s) -> %s'
+      end
+
+      it 'sets the foreground color based on the type for success' do
+        subject.should_receive(:system).with('tmux set message-fg green')
+        subject.display_message 'success', 'any title', 'any message', { :success_message_color => 'green' }
+      end
+
+      it 'sets the background color' do
+        subject.should_receive(:system).with('tmux set message-bg blue')
+        subject.display_message 'success', 'any title', 'any message', { :success => :blue }
+      end
+    end
+
+    context 'with pending message type options' do
+      it 'formats the message' do
+        subject.should_receive(:system).with('tmux display-message \'[any title] === any message - line two\'').once
+        subject.display_message 'pending', 'any title', "any message\nline two", :pending_message_format => '[%s] === %s', :default_message_format => '(%s) -> %s'
+      end
+
+      it 'sets the foreground color' do
+        subject.should_receive(:system).with('tmux set message-fg blue')
+        subject.display_message 'pending', 'any title', 'any message', { :pending_message_color => 'blue' }
+      end
+
+      it 'sets the background color' do
+        subject.should_receive(:system).with('tmux set message-bg white')
+        subject.display_message 'pending', 'any title', 'any message', { :pending => :white }
+      end
+    end
+
+    context 'with failed message type options' do
+      it 'formats the message' do
+        subject.should_receive(:system).with('tmux display-message \'[any title] <=> any message - line two\'').once
+        subject.display_message 'failed', 'any title', "any message\nline two", :failed_message_format => '[%s] <=> %s', :default_message_format => '(%s) -> %s'
+      end
+
+      it 'sets the foreground color' do
+        subject.should_receive(:system).with('tmux set message-fg red')
+        subject.display_message 'failed', 'any title', 'any message', { :failed_message_color => 'red' }
+      end
+
+      it 'sets the background color' do
+        subject.should_receive(:system).with('tmux set message-bg black')
+        subject.display_message 'failed', 'any title', 'any message', { :failed => :black }
+      end
     end
 
   end
