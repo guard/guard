@@ -3,11 +3,14 @@ module Guard
 
     # Default options for Tmux
 
-    # Changes the color of the Tmux status bar, and optionally
-    # shows messages in the status bar. (see display_message)
+    # Changes the color of the Tmux status bar and optionally
+    # shows messages in the status bar.
     #
     # @example Add the `:tmux` notifier to your `Guardfile`
     #   notification :tmux
+    #
+    # @example Enable text messages
+    #   notification :tmux, :display_message => true
     #
     # @example Customize the tmux status colored for notifications
     #   notification :tmux, :color_location => 'status-right-bg'
@@ -25,6 +28,7 @@ module Guard
         :timeout                => 5,
         :display_message        => false,
         :default_message_format => '%s - %s',
+        :default_message_color  => 'white',
         :line_separator         => ' - ',
         :color_location         => 'status-left-bg'
       }
@@ -43,37 +47,49 @@ module Guard
         end
       end
 
-      # Show a system notification.
+      # Show a system notification. By default, the Tmux notifier only makes use of a color based
+      # notification, changing the background color of the `color_location` to the color defined
+      # in either the `success`, `failed`, `pending` or `default`, depending on the notification type.
+      # If you also want display a text message, you have to enable it explicit by setting `display_message`
+      # to `true`.
       #
       # @param [String] type the notification type. Either 'success', 'pending', 'failed' or 'notify'
       # @param [String] title the notification title
       # @param [String] message the notification message body
       # @param [String] image the path to the notification image
       # @param [Hash] options additional notification library options
-      # @option options [Boolean] sticky make the notification sticky
-      # @option options [String, Integer] priority specify an int or named key (default is 0)
+      # @option options [String] color_location the location where to draw the color notification
+      # @option options [Boolean] display_message whether to display a message or not
       #
       def notify(type, title, message, image, options = { })
         color = tmux_color type, options
         color_location = options[:color_location] || DEFAULTS[:color_location]
-        system("#{ DEFAULTS[:client] } set -g #{color_location} #{ color }")
+        system("#{ DEFAULTS[:client] } set -g #{ color_location } #{ color }")
 
         show_message = options[:display_message] || DEFAULTS[:display_message]
         display_message(type, title, message, options) if show_message
       end
 
-      # Display a message in the statusbar of tmux.
+      # Display a message in the status bar of tmux.
       #
       # @param [String] type the notification type. Either 'success', 'pending', 'failed' or 'notify'
       # @param [String] title the notification title
       # @param [String] message the notification message body
       # @param [Hash] options additional notification library options
-      # @option options [Integer] timeout the amount of seconds to show the message in the statusbar (default is 5)
-      # @option options [String] default_message_format a string to use as formatter. (default is '%s - %s')
-      # @option options [String] line_separator a string to use instead of a line-break. (default is ' - ')
+      # @option options [Integer] timeout the amount of seconds to show the message in the status bar
+      # @option options [String] success_message_format a string to use as formatter for the success message.
+      # @option options [String] failed_message_format a string to use as formatter for the failed message.
+      # @option options [String] pending_message_format a string to use as formatter for the pending message.
+      # @option options [String] default_message_format a string to use as formatter when no format per type is defined.
+      # @option options [String] success_message_color the success notification foreground color name.
+      # @option options [String] failed_message_color the failed notification foreground color name.
+      # @option options [String] pending_message_color the pending notification foreground color name.
+      # @option options [String] default_message_color a notification foreground color to use when no color per type is defined.
+      # @option options [String] line_separator a string to use instead of a line-break.
       #
       def display_message(type, title, message, options = { })
           message_format = options["#{ type }_message_format".to_sym] || options[:default_message_format] || DEFAULTS[:default_message_format]
+          message_color = options["#{ type }_message_color".to_sym] || options[:default_message_color] || DEFAULTS[:default_message_color]
           display_time = options[:timeout] || DEFAULTS[:timeout]
           separator = options[:line_separator] || DEFAULTS[:line_separator]
 
@@ -82,6 +98,7 @@ module Guard
           display_message = message_format % [title, formatted_message]
 
           system("#{ DEFAULTS[:client] } set display-time #{ display_time * 1000 }")
+          system("#{ DEFAULTS[:client] } set message-fg #{ message_color }")
           system("#{ DEFAULTS[:client] } set message-bg #{ color }")
           system("#{ DEFAULTS[:client] } display-message '#{ display_message }'")
       end
