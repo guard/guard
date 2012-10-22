@@ -10,17 +10,10 @@ describe Guard::Dsl do
 
     ::Guard.stub(:setup_interactor)
 
-    ::Guard.stub(:debug_command_execution)
     ::Guard.setup
 
     ::Guard.stub(:options).and_return(:debug => true)
     ::Guard.stub(:guards).and_return([mock('Guard')])
-
-    ::Guard::UI.stub(:info)
-    ::Guard::UI.stub(:warning)
-    ::Guard::UI.stub(:error)
-    ::Guard::UI.stub(:debug)
-    ::Guard::UI.stub(:deprecation)
 
     ::Guard::Notifier.stub(:notify)
   end

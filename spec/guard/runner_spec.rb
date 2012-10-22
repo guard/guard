@@ -9,14 +9,6 @@ describe Guard::Runner do
     class ::Guard::Bar2 < ::Guard::Guard; end
   end
 
-  before do
-    ::Guard::UI.stub(:info)
-    ::Guard::UI.stub(:warning)
-    ::Guard::UI.stub(:error)
-    ::Guard::UI.stub(:debug)
-    ::Guard::UI.stub(:deprecation)
-  end
-
   let(:guard_module) { ::Guard }
   let(:ui_module)    { guard_module::UI }
   let!(:guard_singleton) { guard_module.setup }

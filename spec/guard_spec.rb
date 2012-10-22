@@ -82,9 +82,6 @@ describe Guard do
       let(:options) { { :debug => true, :guardfile => File.join(@fixture_path, "Guardfile") } }
       subject { ::Guard.setup(options) }
 
-      before { Guard.stub(:debug_command_execution) }
-      after { ::Guard.options[:debug] = false }
-
       it "logs command execution if the debug option is true" do
         ::Guard.should_receive(:debug_command_execution)
         subject
@@ -751,6 +748,7 @@ describe Guard do
     subject { ::Guard.setup }
 
     before do
+      Guard.unstub(:debug_command_execution)
       @original_system = Kernel.method(:system)
       @original_command = Kernel.method(:"`")
     end

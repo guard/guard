@@ -19,6 +19,16 @@ RSpec.configure do |config|
 
   config.before(:each) do
     @fixture_path = Pathname.new(File.expand_path('../fixtures/', __FILE__))
+
+    # Ensure debug command execution isn't used in the specs
+    Guard.stub(:debug_command_execution)
+
+    # Stub all UI methods, so no visible output appears for the UI class
+    ::Guard::UI.stub(:info)
+    ::Guard::UI.stub(:warning)
+    ::Guard::UI.stub(:error)
+    ::Guard::UI.stub(:debug)
+    ::Guard::UI.stub(:deprecation)
   end
 
   config.before(:all) do
@@ -30,6 +40,10 @@ RSpec.configure do |config|
 
   config.after(:each) do
     Pry.config.hooks.delete_hook(:when_started, :load_guard_rc)
+
+    if ::Guard.options
+      ::Guard.options[:debug] = false
+    end
   end
 
   config.after(:all) do

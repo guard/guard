@@ -4,6 +4,15 @@ describe Guard::UI do
   after { Guard::UI.options = { :level => :info, :template => ':time - :severity - :message', :time_format => '%H:%M:%S' } }
 
   before do
+    # The spec helper stubs all UI classes, so other specs doesn't have
+    # to explicit take care of it. We unstub and move the stubs one layer
+    # down just for this spec.
+    Guard::UI.unstub(:info)
+    Guard::UI.unstub(:warning)
+    Guard::UI.unstub(:error)
+    Guard::UI.unstub(:deprecation)
+    Guard::UI.unstub(:debug)
+
     Guard::UI.logger.stub(:info)
     Guard::UI.logger.stub(:warn)
     Guard::UI.logger.stub(:error)
