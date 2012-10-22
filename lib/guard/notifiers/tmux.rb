@@ -81,11 +81,15 @@ module Guard
       # @option options [String] failed_message_format a string to use as formatter for the failed message.
       # @option options [String] pending_message_format a string to use as formatter for the pending message.
       # @option options [String] default_message_format a string to use as formatter when no format per type is defined.
+      # @option options [String] success_message_color the success notification foreground color name.
+      # @option options [String] failed_message_color the failed notification foreground color name.
+      # @option options [String] pending_message_color the pending notification foreground color name.
+      # @option options [String] default_message_color a notification foreground color to use when no color per type is defined.
       # @option options [String] line_separator a string to use instead of a line-break.
       #
       def display_message(type, title, message, options = { })
           message_format = options["#{ type }_message_format".to_sym] || options[:default_message_format] || DEFAULTS[:default_message_format]
-          message_color = options[:default_message_color] || DEFAULTS[:default_message_color]
+          message_color = options["#{ type }_message_color".to_sym] || options[:default_message_color] || DEFAULTS[:default_message_color]
           display_time = options[:timeout] || DEFAULTS[:timeout]
           separator = options[:line_separator] || DEFAULTS[:line_separator]
 
