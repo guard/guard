@@ -52,19 +52,21 @@ module Guard
 
     extend self
 
-    # List of available notifiers. It needs to be a nested hash instead of
+    # List of available notifiers, grouped by functionality. It needs to be a nested hash instead of
     # a simpler Hash, because it maintains its order on Ruby 1.8.7 also.
     NOTIFIERS = [
-      [:growl,             ::Guard::Notifier::Growl],
-      [:gntp,              ::Guard::Notifier::GNTP],
-      [:growl_notify,      ::Guard::Notifier::GrowlNotify],
-      [:libnotify,         ::Guard::Notifier::Libnotify],
-      [:notifysend,        ::Guard::Notifier::NotifySend],
-      [:notifu,            ::Guard::Notifier::Notifu],
-      [:emacs,             ::Guard::Notifier::Emacs],
-      [:terminal_notifier, ::Guard::Notifier::TerminalNotifier],
-      [:terminal_title,    ::Guard::Notifier::TerminalTitle],
-      [:tmux,              ::Guard::Notifier::Tmux]
+      [
+        [:gntp,              ::Guard::Notifier::GNTP],
+        [:growl,             ::Guard::Notifier::Growl],
+        [:growl_notify,      ::Guard::Notifier::GrowlNotify],
+        [:terminal_notifier, ::Guard::Notifier::TerminalNotifier],
+        [:libnotify,         ::Guard::Notifier::Libnotify],
+        [:notifysend,        ::Guard::Notifier::NotifySend],
+        [:notifu,            ::Guard::Notifier::Notifu]
+      ],
+      [[:emacs,             ::Guard::Notifier::Emacs]],
+      [[:tmux,              ::Guard::Notifier::Tmux]],
+      [[:terminal_title,    ::Guard::Notifier::TerminalTitle]]
     ]
 
     # Get the available notifications.
@@ -182,16 +184,22 @@ module Guard
     # @return [Module] the notifier module
     #
     def get_notifier_module(name)
-      notifier = NOTIFIERS.detect { |n| n.first == name }
+      notifier = NOTIFIERS.flatten(1).detect { |n| n.first == name }
       notifier ? notifier.last : notifier
     end
 
     # Auto detect the available notification library. This goes through
     # the list of supported notification gems and picks the first that
-    # is available.
+    # is available in each notification group.
     #
     def auto_detect_notification
-      available = NOTIFIERS.map { |n| n.first }.any? { |notifier| add_notification(notifier, { }, true) }
+      available = nil
+
+      NOTIFIERS.each do |group|
+        added = group.map { |n| n.first }.find { |notifier| add_notification(notifier, { }, true) }
+        available = available || added
+      end
+
       ::Guard::UI.info('Guard could not detect any of the supported notification libraries.') unless available
     end
 

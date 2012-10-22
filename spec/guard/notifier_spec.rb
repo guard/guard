@@ -39,24 +39,39 @@ describe Guard::Notifier do
         end
 
         it 'tries to add each available notification silently' do
-          Guard::Notifier.should_receive(:add_notification).with(:growl_notify, { }, true).and_return false
           Guard::Notifier.should_receive(:add_notification).with(:gntp, { }, true).and_return false
           Guard::Notifier.should_receive(:add_notification).with(:growl, { }, true).and_return false
+          Guard::Notifier.should_receive(:add_notification).with(:growl_notify, { }, true).and_return false
+          Guard::Notifier.should_receive(:add_notification).with(:terminal_notifier, { }, true).and_return false
           Guard::Notifier.should_receive(:add_notification).with(:libnotify, { }, true).and_return false
           Guard::Notifier.should_receive(:add_notification).with(:notifysend, { }, true).and_return false
           Guard::Notifier.should_receive(:add_notification).with(:notifu, { }, true).and_return false
           Guard::Notifier.should_receive(:add_notification).with(:emacs, { }, true).and_return false
-          Guard::Notifier.should_receive(:add_notification).with(:terminal_notifier, { }, true).and_return false
           Guard::Notifier.should_receive(:add_notification).with(:terminal_title, { }, true).and_return false
           Guard::Notifier.should_receive(:add_notification).with(:tmux, { }, true).and_return false
           Guard::Notifier.turn_on
         end
 
+        it 'adds only the first notification per group' do
+          Guard::Notifier.should_receive(:add_notification).with(:gntp, { }, true).and_return false
+          Guard::Notifier.should_receive(:add_notification).with(:growl, { }, true).and_return false
+          Guard::Notifier.should_receive(:add_notification).with(:growl_notify, { }, true).and_return true
+          Guard::Notifier.should_not_receive(:add_notification).with(:terminal_notifier, { }, true)
+          Guard::Notifier.should_not_receive(:add_notification).with(:libnotify, { }, true)
+          Guard::Notifier.should_not_receive(:add_notification).with(:notifysend, { }, true)
+          Guard::Notifier.should_not_receive(:add_notification).with(:notifu, { }, true)
+          Guard::Notifier.should_receive(:add_notification).with(:emacs, { }, true)
+          Guard::Notifier.should_receive(:add_notification).with(:terminal_title, { }, true)
+          Guard::Notifier.should_receive(:add_notification).with(:tmux, { }, true)
+          Guard::Notifier.turn_on
+        end
+
+
         it 'does enable the notifications when a library is available' do
           Guard::Notifier.should_receive(:add_notification) do
             Guard::Notifier.notifications = [{ :name => :gntp, :options => { } }]
             true
-          end
+          end.any_number_of_times
           Guard::Notifier.turn_on
           Guard::Notifier.should be_enabled
         end
