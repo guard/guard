@@ -757,8 +757,7 @@ describe Guard do
       Kernel.send(:remove_method, :system, :'`')
       Kernel.send(:define_method, :system, @original_system.to_proc)
       Kernel.send(:define_method, :"`", @original_command.to_proc)
-
-      ::Guard.options[:debug] = false
+      Guard.stub(:debug_command_execution)
     end
 
     it "outputs Kernel.#system method parameters" do
