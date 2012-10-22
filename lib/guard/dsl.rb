@@ -16,7 +16,7 @@ module Guard
   #
   # A more advanced DSL use is the `callback` keyword that allows you to execute arbitrary
   # code before or after any of the `start`, `stop`, `reload`, `run_all`, `run_on_changes`,
-  # `run_on_additions`, `run_on_modifications` and `run_on_removals` Guard plugins method. 
+  # `run_on_additions`, `run_on_modifications` and `run_on_removals` Guard plugins method.
   # You can even insert more hooks inside these methods.
   # Please [checkout the Wiki page](https://github.com/guard/guard/wiki/Hooks-and-callbacks) for more details.
   #
@@ -93,10 +93,19 @@ module Guard
 
     # Deprecation message for the `ignore_paths` method
     IGNORE_PATHS_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
-      Starting with Guard v1.1 the use of the 'ignore_paths' Guardfile dsl method is deprecated.
+      Starting with Guard v1.1 the use of the 'ignore_paths' Guardfile DSL method is deprecated.
 
       Please replace that method with the better 'ignore' or/and 'filter' methods.
       Documentation on the README: https://github.com/guard/guard#guardfile-dsl-ignore
+    EOS
+
+    # Deprecation message for the `ignore_paths` method
+    INTERACTOR_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
+      Starting with Guard v1.4 the use of the 'interactor' Guardfile DSL method is only used to
+      turn the Pry interactor off. All other usages are deprecated.
+
+      Please make use of the Pry plugin architecture to customize the interactions and place them
+      either in your `~/.guardrc` or the `Guardfile`.
     EOS
 
     class << self
@@ -315,17 +324,15 @@ module Guard
 
     # Sets the interactor to use.
     #
-    # @example Use the readline interactor
-    #   interactor :readline
-    #
-    # @example Use the gets interactor
-    #   interactor :gets
-    #
     # @example Turn off interactions
     #   interactor :off
     #
     def interactor(interactor)
-      ::Guard::Interactor.interactor = interactor.to_sym
+      if interactor == :off
+        ::Guard.options[:no_interactions] = true
+      else
+        ::Guard::UI.deprecation(INTERACTOR_DEPRECATION)
+      end
     end
 
     # Declares a group of Guard plugins to be run with `guard start --group group_name`.

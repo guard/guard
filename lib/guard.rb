@@ -130,7 +130,7 @@ module Guard
     #
     def setup_interactor
       unless options[:no_interactions]
-        @interactor = ::Guard::Interactor.fabricate
+        @interactor = ::Guard::Interactor.new
       end
     end
 

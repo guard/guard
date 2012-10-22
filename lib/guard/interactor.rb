@@ -1,110 +1,123 @@
 module Guard
 
-  # The interactor triggers specific action from input
-  # read by a interactor implementation.
-  #
-  # Currently the following actions are implemented:
-  #
-  # - h, help          => Show help
-  # - e, exit,
-  #   q. quit          => Exit Guard
-  # - r, reload        => Reload Guard
-  # - p, pause         => Toggle file modification listener
-  # - n, notification  => Toggle notifications
-  # - s, show          => Show Guard plugin configuration
-  # - c, change        => Trigger a file change
-  # - <enter>          => Run all
-  #
-  # It's also possible to scope `reload` and `run all` actions to only a specified group or a guard.
-  #
-  # @example Reload backend group
-  #   backend reload
-  #   reload backend
-  #
-  # @example Reload rspec guard
-  #   spork reload
-  #   reload spork
-  #
-  # @example Run all jasmine specs
-  #   jasmine
-  #
-  # @abstract
+  # The Guard interactor is a Pry REPL with a Guard
+  # specific command set.
   #
   class Interactor
 
+    require 'pry'
+
     require 'guard'
     require 'guard/ui'
-    require 'guard/dsl_describer'
-    require 'guard/notifier'
-    require 'guard/interactors/readline'
-    require 'guard/interactors/coolline'
-    require 'guard/interactors/simple'
 
-    ACTIONS = {
-      :help         => %w[help h],
-      :reload       => %w[reload r],
-      :stop         => %w[exit e quit q],
-      :pause        => %w[pause p],
-      :notification => %w[notification n],
-      :show         => %w[show s],
-      :change       => %w[change c]
-    }
+    require 'guard/commands/all'
+    require 'guard/commands/change'
+    require 'guard/commands/notification'
+    require 'guard/commands/pause'
+    require 'guard/commands/reload'
+    require 'guard/commands/show'
 
-    # Set the interactor implementation
+    GUARD_RC = '~/.guardrc'
+    HISTORY_FILE = '~/.guard_history'
+
+    # Initialize the interactor. This configures
+    # Pry and creates some custom commands and aliases
+    # for Guard.
     #
-    # @param [Symbol] interactor the name of the interactor
-    #
-    def self.interactor=(interactor)
-      @interactor = interactor
+    def initialize
+      return if ENV['GUARD_ENV'] == 'test'
+
+      Pry.config.history.file = HISTORY_FILE
+
+      load_guard_rc
+
+      create_run_all_command
+      create_command_aliases
+      create_guard_commands
+      create_group_commands
+
+      configure_prompt
     end
 
-    # Get an instance of the currently configured
-    # interactor implementation.
+    # Loads the `~/.guardrc` file when pry has started.
     #
-    # @return [Interactor] an interactor implementation
-    #
-    def self.fabricate
-      case @interactor
-      when :coolline
-        ::Guard::CoollineInteractor.new if ::Guard::CoollineInteractor.available?
-      when :readline
-        ::Guard::ReadlineInteractor.new if ::Guard::ReadlineInteractor.available?
-      when :simple
-        ::Guard::SimpleInteractor.new
-      when :off
-        nil
-      else
-        auto_detect
+    def load_guard_rc
+      Pry.config.hooks.add_hook :when_started, :load_guard_rc do
+        load GUARD_RC if File.exist? File.expand_path GUARD_RC
       end
     end
 
-    # Tries to detect an optimal interactor for the
-    # current environment.
+    # Creates a command that triggers the `:run_all` action
+    # when the command is empty (just pressing enter on the
+    # beginning of a line).
     #
-    # It returns the Readline implementation when:
-    #
-    # * rb-readline is installed
-    # * The Ruby implementation is JRuby
-    # * The current OS is not Mac OS X
-    #
-    # Otherwise the plain gets interactor is returned.
-    #
-    # @return [Interactor] an interactor implementation
-    #
-    def self.auto_detect
-      [::Guard::CoollineInteractor, ::Guard::ReadlineInteractor, ::Guard::SimpleInteractor].detect do |interactor|
-        interactor.available?(true)
-      end.new
+    def create_run_all_command
+      Pry.commands.block_command /^$/, 'Hit enter to run all' do
+        Pry.run_command 'all'
+      end
     end
 
-    # Template method for checking if the Interactor is
-    # available in the current environment?
+    # Creates command aliases for the commands
+    # `help`, `reload`, `change`, `show`, `notification`, `pause`, `exit` and `quit`,
+    # which will be the first letter of the command.
     #
-    # @param [Boolean] silent true if no error messages should be shown
-    # @return [Boolean] the availability status
+    def create_command_aliases
+      %w(help reload change show notification pause exit quit).each do |command|
+        Pry.commands.alias_command command[0].chr, command
+      end
+    end
+
+    # Create a shorthand command to run the `:run_all`
+    # action on a specific Guard plugin. For example,
+    # when guard-rspec is available, then a command
+    # `rspec` is created that runs `all rspec`.
     #
-    def self.available?(silent = false)
-      true
+    def create_guard_commands
+      ::Guard.guards.each do |guard|
+        name = guard.class.to_s.downcase.sub('guard::', '')
+
+        Pry.commands.create_command name, "Run all #{ name }" do
+          group 'Guard'
+
+          def process
+            Pry.run_command "all #{ name }"
+          end
+        end
+      end
+    end
+
+    # Create a shorthand command to run the `:run_all`
+    # action on a specific Guard group. For example,
+    # when you have a group `frontend`, then a command
+    # `frontend` is created that runs `all frontend`.
+    #
+    def create_group_commands
+      ::Guard.groups.each do |group|
+        name = group.name.to_s
+        next if name == 'default'
+
+        Pry.commands.create_command name, "Run all #{ name }" do
+          group 'Guard'
+
+          def process
+            Pry.run_command "all #{ name }"
+          end
+        end
+      end
+    end
+
+    # Configure the pry prompt to see `guard` instead of
+    # `pry`.
+    #
+    def configure_prompt
+      Pry.config.prompt = [
+        proc do |target_self, nest_level, pry|
+          "[#{ pry.input_array.size }] #{ ::Guard.listener.paused? ? 'pause' : 'guard' }(#{ Pry.view_clip(target_self) })#{":#{ nest_level }" unless nest_level.zero? }> "
+        end,
+        proc do |target_self, nest_level, pry|
+          "[#{ pry.input_array.size }] #{ ::Guard.listener.paused? ? 'pause' : 'guard' }(#{ Pry.view_clip(target_self) })#{":#{ nest_level }" unless nest_level.zero? }* "
+        end
+      ]
     end
 
     # Start the line reader in its own thread.
@@ -112,8 +125,17 @@ module Guard
     def start
       return if ENV['GUARD_ENV'] == 'test'
 
-      ::Guard::UI.debug 'Start interactor'
-      @thread = Thread.new { read_line } if !@thread || !@thread.alive?
+      store_terminal_settings if stty_exists?
+      
+      if !@thread || !@thread.alive?
+        ::Guard::UI.debug 'Start interactor'
+
+        @thread = Thread.new do
+          Pry.start
+          ::Guard.stop
+          exit
+        end
+      end
     end
 
     # Kill interactor thread if not current
@@ -121,157 +143,57 @@ module Guard
     def stop
       return if !@thread || ENV['GUARD_ENV'] == 'test'
 
-      ::Guard::UI.debug 'Stop interactor'
       unless Thread.current == @thread
+        ::Guard::UI.debug 'Stop interactor'
         @thread.kill
       end
+
+      restore_terminal_settings if stty_exists?
     end
 
-    # Read the user input. This method must be implemented
-    # by each interactor implementation.
+    # Detects whether or not the stty command exists
+    # on the user machine.
     #
-    # @abstract
+    # @return [Boolean] the status of stty
     #
-    def read_line
-      raise NotImplementedError
+    def stty_exists?
+      @stty_exists ||= system('hash', 'stty')
     end
 
-    # Process the input from readline.
+    # Stores the terminal settings so we can resore them
+    # when stopping.
     #
-    # @param [String] line the input line
-    #
-    def process_input(line)
-      scopes, action, rest = extract_scopes_and_action(line)
-
-      case action
-      when :help
-        help
-      when :show
-        ::Guard::DslDescriber.show(::Guard.options)
-      when :stop
-        ::Guard.stop
-        exit
-      when :pause
-        ::Guard.pause
-      when :reload
-        ::Guard.reload(scopes)
-      when :change
-        ::Guard.within_preserved_state do
-          ::Guard.runner.run_on_changes(rest, [], [])
-        end
-      when :run_all
-        ::Guard.run_all(scopes)
-      when :notification
-        toggle_notification
-      else
-        ::Guard::UI.error "Unknown command #{ line }"
-      end
+    def store_terminal_settings
+      @stty_save = `stty -g 2>/dev/null`.chomp
     end
 
-    # Toggle the system notifications on/off
+    # Restore terminal settings
     #
-    def toggle_notification
-      if ENV['GUARD_NOTIFY'] == 'true'
-        ::Guard::UI.info 'Turn off notifications'
-        ::Guard::Notifier.turn_off
-      else
-        ::Guard::Notifier.turn_on
-      end
+    def restore_terminal_settings
+      system("stty #{ @stty_save } 2>/dev/null") if @stty_save
     end
-
-    # Show the help.
+    
+    # Converts and validates a plain text scope
+    # to a valid plugin or group scope.
     #
-    def help
-      puts ''
-      puts '[e]xit, [q]uit   Exit Guard'
-      puts '[p]ause          Toggle file modification listener'
-      puts '[r]eload         Reload Guard'
-      puts '[n]otification   Toggle notifications'
-      puts '[s]how           Show available Guard plugins'
-      puts '[c]hange <file>  Trigger a file change'
-      puts '<enter>          Run all Guard plugins'
-      puts ''
-      puts 'You can scope the reload action to a specific guard or group:'
-      puts ''
-      puts 'rspec reload     Reload the RSpec Guard'
-      puts 'backend reload   Reload the backend group'
-      puts ''
-      puts 'You can also run only a specific Guard or all Guard plugins in a specific group:'
-      puts ''
-      puts 'jasmine          Run the jasmine Guard'
-      puts 'frontend         Run all Guard plugins in the frontend group'
-      puts ''
-    end
-
-    # Extract the Guard or group scope and action from the
-    # input line. There's no strict order for scopes and
-    # actions.
+    # @param [Array<String>] entries the text scope
+    # @return [Hash, Array<String>] the plugin or group scope, the unknown entries
     #
-    # @example `spork reload` will only reload rspec
-    # @example `jasmine` will only run all jasmine specs
-    #
-    # @param [String] line the readline input
-    # @return [Array] the group or guard scope, the action and the rest
-    #
-    def extract_scopes_and_action(line)
-      entries = line.split(' ')
+    def self.convert_scope(entries)
+      scopes  = { }
+      unknown = []
 
-      scopes = extract_scopes(entries)
-      action = extract_action(entries)
-
-      action = :run_all if !action && (!scopes.empty? || entries.empty?)
-
-      [scopes, action, entries]
-    end
-
-    private
-
-    # Extract a guard or group scope from entry if valid.
-    # Any entry found will be removed from the entries.
-    #
-    # @param [Array<String>] entries the user entries
-    # @return [Hash] a hash with a Guard or a group scope
-    #
-    def extract_scopes(entries)
-      scopes = { }
-
-      entries.delete_if do |entry|
+      entries.each do |entry|
         if guard = ::Guard.guards(entry)
           scopes[:guard] ||= guard
-          true
-
         elsif group = ::Guard.groups(entry)
           scopes[:group] ||= group
-          true
-
         else
-          false
+          unknown << entry
         end
       end
 
-      scopes
+      [scopes, unknown]
     end
-
-    # Find the action for the given input entry.
-    # Any action found will be removed from the entries.
-    #
-    # @param [Array<String>] entries the user entries
-    # @return [Symbol] a Guard action
-    #
-    def extract_action(entries)
-      action = nil
-
-      entries.delete_if do |entry|
-        if command = ACTIONS.detect { |k, list| list.include?(entry) }
-          action ||= command.first
-          true
-        else
-          false
-        end
-      end
-
-      action
-    end
-
   end
 end

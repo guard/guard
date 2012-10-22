@@ -113,6 +113,17 @@ module Guard
       ENV['GUARD_NOTIFY'] = 'false'
     end
 
+    # Toggle the system notifications on/off
+    #
+    def toggle
+      if ENV['GUARD_NOTIFY'] == 'true'
+        ::Guard::UI.info 'Turn off notifications'
+        turn_off
+      else
+        turn_on
+      end
+    end
+
     # Test if the notifications are on.
     #
     # @return [Boolean] whether the notifications are on
@@ -167,7 +178,7 @@ module Guard
 
     # Get the notifier module for the given name.
     #
-    # @param [Symbol] the notifier name
+    # @param [Symbol] name the notifier name
     # @return [Module] the notifier module
     #
     def get_notifier_module(name)

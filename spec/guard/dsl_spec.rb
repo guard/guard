@@ -6,9 +6,8 @@ describe Guard::Dsl do
   before(:each) do
     @local_guardfile_path = File.join(Dir.pwd, 'Guardfile')
     @home_guardfile_path  = File.expand_path(File.join("~", ".Guardfile"))
-    @user_config_path     = File.expand_path(File.join("~", ".guard.rb"))
+    @user_config_path     = File.expand_path(File.join("~", ".guard.rb"))   
     ::Guard.setup
-    ::Guard.stub!(:options).and_return(:debug => true)
     ::Guard.stub!(:guards).and_return([mock('Guard')])
   end
 
@@ -370,14 +369,19 @@ describe Guard::Dsl do
   describe "#interactor" do
     disable_user_config
 
-    it 'sets the interactor implementation' do
-      ::Guard::Interactor.should_receive(:interactor=).with(:readline)
-      described_class.evaluate_guardfile(:guardfile_contents => 'interactor :readline')
+    before do
+      Guard.options = { :no_interactions => false }
     end
-
-    it 'converts the interactor to a symbol' do
-      ::Guard::Interactor.should_receive(:interactor=).with(:readline)
-      described_class.evaluate_guardfile(:guardfile_contents => 'interactor "readline"')
+    
+    it "disables the interactions with :off" do
+      ::Guard::UI.should_not_receive(:deprecation).with(described_class::INTERACTOR_DEPRECATION)
+      described_class.evaluate_guardfile(:guardfile_contents => "interactor :off")
+      Guard.options[:no_interactions].should be_true
+    end
+    
+    it "shows a deprecation for anything but :off" do
+      ::Guard::UI.should_receive(:deprecation).with(described_class::INTERACTOR_DEPRECATION)
+      described_class.evaluate_guardfile(:guardfile_contents => "interactor :coolline")
     end
   end
 
