@@ -783,8 +783,8 @@ The `logger` method allows you to customize the Guard log output to your needs b
 logger :level       => :warn,
        :template    => '[:severity - :time - :progname] :message',
        :time_format => 'at %I:%M%p',
-       :only        => /RSpec/,
-       :except      => /Jasmine/
+       :only        => [:rspec, :jasmine, 'coffeescript'],
+       :except      => :jammit
 ```
 
 Log `:level` option must be either `:debug`, `:info`, `:warn` or `:error`. If Guard is started in debug mode, the log
@@ -796,8 +796,8 @@ multiple Guard plugin.
 
 The `:time_format` option directives are the same as Time#strftime or can be `:milliseconds`
 
-The `:only` and `:except` are regular expressions that matches the Guard plugin name that sends the log message. They
-cannot be specified at the same time.
+The `:only` and `:except` are either a string or a symbol, or an array of strings or symbols that matches the name of
+the Guard plugin name that sends the log message. They cannot be specified at the same time.
 
 ### Example
 

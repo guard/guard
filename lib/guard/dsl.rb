@@ -482,10 +482,10 @@ module Guard
     #   logger :time_format => '%h'
     #
     # @example Limit logging to a Guard plugin
-    #   logger :only => %r{jasmine}
+    #   logger :only => :jasmine
     #
     # @example Log all but not the messages from a specific Guard plugin
-    #   logger :except => %r{jasmine}
+    #   logger :except => :jasmine
     #
     # @param [Hash] options the log options
     # @option options [String, Symbol] level the log level
@@ -511,14 +511,12 @@ module Guard
         options.delete :except
       end
 
-      if options[:only] && !(options[:only].class == Regexp)
-        ::Guard::UI.warning "Invalid log option `#{ options[:only] }` ignored. Please specify a Regexp for :only."
-        options.delete :only
-      end
-
-      if options[:except] && !(options[:except].class == Regexp)
-        ::Guard::UI.warning "Invalid log option `#{ options[:except] }` ignored. Please specify a Regexp for :except."
-        options.delete :except
+      # Convert the :only and :except options to a regular expression
+      [:only, :except].each do |name|
+        if options[name]
+          list = [].push(options[name]).flatten.map { |plugin| Regexp.escape(plugin) }.join('|')
+          options[name] = Regexp.new(list, Regexp::IGNORECASE)
+        end
       end
 
       ::Guard::UI.options = ::Guard::UI.options.merge options
