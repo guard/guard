@@ -6,7 +6,7 @@ describe Guard::Notifier::TerminalNotifier do
   before do
     subject.stub(:require)
 
-    class TerminalNotifier
+    class ::TerminalNotifier
       module Guard
         def self.show(options) end
       end
