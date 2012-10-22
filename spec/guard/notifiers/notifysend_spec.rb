@@ -1,15 +1,16 @@
 require 'spec_helper'
 
 describe Guard::Notifier::NotifySend do
-  before(:all) { Object.send(:remove_const, :NotifySend) if defined?(::NotifySend) }
 
-  before do
-    class ::NotifySend
+  let(:fake_notifysend) do
+    Class.new do
       def self.show(options) end
     end
   end
 
-  after { Object.send(:remove_const, :NotifySend) if defined?(::NotifySend) }
+  before do
+    stub_const 'NotifySend', :fake_notifysend
+  end
 
   describe '.available?' do
     context 'without the silent option' do

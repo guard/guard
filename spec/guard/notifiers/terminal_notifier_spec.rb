@@ -1,19 +1,17 @@
 require 'spec_helper'
 
 describe Guard::Notifier::TerminalNotifier do
-  before(:all) { Object.send(:remove_const, :TerminalNotifier) if defined?(::TerminalNotifier) }
 
-  before do
-    subject.stub(:require)
-
-    class ::TerminalNotifier
-      module Guard
-        def self.show(options) end
-      end
+  let(:fake_terminal_notifier) do
+    Module.new do
+      def self.show(options) end
     end
   end
 
-  after { Object.send(:remove_const, :TerminalNotifier) if defined?(::TerminalNotifier) }
+  before do
+    subject.stub(:require)
+    stub_const 'TerminalNotifier::Guard', fake_terminal_notifier
+  end
 
   describe '.available?' do
     context 'without the silent option' do

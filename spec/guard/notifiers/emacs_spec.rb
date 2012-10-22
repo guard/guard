@@ -1,15 +1,6 @@
 require 'spec_helper'
 
 describe Guard::Notifier::Emacs do
-  before(:all) { Object.send(:remove_const, :Emacs) if defined?(::Emacs) }
-
-  before do
-    class ::Emacs
-      def self.show(options) end
-    end
-  end
-
-  after { Object.send(:remove_const, :Emacs) if defined?(::Emacs) }
 
   describe '.notify' do
     context 'when no color options are specified' do

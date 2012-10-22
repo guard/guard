@@ -1,27 +1,28 @@
 require 'spec_helper'
 
 describe Guard::Notifier::TerminalTitle do
-  before(:all) { Object.send(:remove_const, :TerminalTitle) if defined?(::TerminalTitle) }
 
-  before do
-    subject.stub!(:puts)
-
-    class ::TerminalTitle
+  let(:fake_terminal_title) do
+    Class.new do
       def self.show(options) end
     end
   end
 
-  after { Object.send(:remove_const, :TerminalTitle) if defined?(::TerminalTitle) }
+  before do
+    subject.stub!(:puts)
+    stub_const 'TerminalTitle', fake_terminal_title
+  end
 
   describe '.available?' do
     context 'without the silent option' do
       it 'returns true' do
-        true.should be(subject.available?)
+        subject.available?.should be_true
       end
     end
+
     context 'with the silent option' do
       it 'returns true' do
-        true.should be(subject.available?)
+        subject.available?.should be_true
       end
     end
   end
@@ -29,8 +30,7 @@ describe Guard::Notifier::TerminalTitle do
   describe '.notify' do
     it 'set title + first line of message to terminal title' do
       subject.should_receive(:set_terminal_title).with("[any title] first line")
-      subject.notify('success', 'any title', "first line\nsecond line\nthird",
-                        'any image', { })
+      subject.notify('success', 'any title', "first line\nsecond line\nthird", 'any image', { })
     end
   end
 

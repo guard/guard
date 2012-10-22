@@ -1,12 +1,13 @@
 require 'spec_helper'
 
 describe Guard::Dsl do
-  before(:all) { class Guard::Dummy < Guard::Guard; end }
 
-  before(:each) do
+  before do
     @local_guardfile_path = File.join(Dir.pwd, 'Guardfile')
     @home_guardfile_path  = File.expand_path(File.join("~", ".Guardfile"))
     @user_config_path     = File.expand_path(File.join("~", ".guard.rb"))
+
+    stub_const 'Guard::Dummy', Class.new(Guard::Guard)
 
     ::Guard.stub(:setup_interactor)
 
@@ -17,8 +18,6 @@ describe Guard::Dsl do
 
     ::Guard::Notifier.stub(:notify)
   end
-
-  after(:all) { ::Guard.instance_eval { remove_const(:Dummy) } }
 
   def self.disable_user_config
     before(:each) { File.stub(:exist?).with(@user_config_path) { false } }

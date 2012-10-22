@@ -2,18 +2,16 @@ require 'spec_helper'
 
 describe 'Guard::Interactor::ALL' do
 
-  before(:all) { class ::Guard::Bar < ::Guard::Guard; end }
-  after(:all)  { ::Guard.instance_eval { remove_const(:Bar) } }
-
-  before(:each) do
-    Guard.stub(:run_all)
-    Guard.stub(:setup_interactor)
-    Pry.output.stub(:puts)
-  end
-
   let(:guard)     { ::Guard.setup }
   let(:foo_group) { guard.add_group(:foo) }
   let(:bar_guard) { guard.add_guard(:bar, [], [], { :group => :foo }) }
+
+  before do
+    Guard.stub(:run_all)
+    Guard.stub(:setup_interactor)
+    Pry.output.stub(:puts)
+    stub_const 'Guard::Bar', Class.new(Guard::Guard)
+  end
 
   describe '#perform' do
     context 'without scope' do

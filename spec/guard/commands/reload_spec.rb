@@ -2,13 +2,11 @@ require 'spec_helper'
 
 describe 'Guard::Interactor::RELOAD' do
 
-  before(:all) { class ::Guard::Bar < ::Guard::Guard; end }
-  after(:all)  { ::Guard.instance_eval { remove_const(:Bar) } }
-
-  before(:each) do
+  before do
     Guard.stub(:reload)
     Guard.stub(:setup_interactor)
     Pry.output.stub(:puts)
+    stub_const 'Guard::Bar', Class.new(Guard::Guard)
   end
 
   let(:guard)     { ::Guard.setup }

@@ -1,15 +1,16 @@
 require 'spec_helper'
 
 describe Guard::Notifier::Tmux do
-  before(:all) { Object.send(:remove_const, :Tmux) if defined?(::Tmux) }
 
-  before do
-    class ::Tmux
+  let(:fake_tmux) do
+    Class.new do
       def self.show(options) end
     end
   end
 
-  after { Object.send(:remove_const, :Tmux) if defined?(::Tmux) }
+  before do
+    stub_const 'Tmux', fake_tmux
+  end
 
   describe '.available?' do
     context "when the TMUX environment variable is set" do

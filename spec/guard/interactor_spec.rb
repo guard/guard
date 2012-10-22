@@ -3,24 +3,16 @@ require 'spec_helper'
 describe Guard::Interactor do
 
   describe '.convert_scope' do
-    before(:all) do
-      class Guard::Foo < Guard::Guard; end
-      class Guard::Bar < Guard::Guard; end
-    end
-
-    before(:each) do
+    before do
       guard           = ::Guard.setup
+
+      stub_const 'Guard::Foo', Class.new(Guard::Guard)
+      stub_const 'Guard::Bar', Class.new(Guard::Guard)
+
       @backend_group  = guard.add_group(:backend)
       @frontend_group = guard.add_group(:frontend)
       @foo_guard      = guard.add_guard(:foo, [], [], { :group => :backend })
       @bar_guard      = guard.add_guard(:bar, [], [], { :group => :frontend })
-    end
-
-    after(:all) do
-      ::Guard.instance_eval do
-        remove_const(:Foo)
-        remove_const(:Bar)
-      end
     end
 
     it 'returns a group scope' do
