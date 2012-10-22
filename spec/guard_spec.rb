@@ -83,7 +83,7 @@ describe Guard do
       subject { ::Guard.setup(options) }
 
       before { Guard.stub(:debug_command_execution) }
-      after { subject.options[:debug] = false }
+      after { ::Guard.options[:debug] = false }
 
       it "logs command execution if the debug option is true" do
         ::Guard.should_receive(:debug_command_execution)
@@ -760,7 +760,7 @@ describe Guard do
       Kernel.send(:define_method, :system, @original_system.to_proc)
       Kernel.send(:define_method, :"`", @original_command.to_proc)
 
-      subject.options[:debug] = false
+      ::Guard.options[:debug] = false
     end
 
     it "outputs Kernel.#system method parameters" do

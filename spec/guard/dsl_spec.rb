@@ -10,6 +10,7 @@ describe Guard::Dsl do
 
     ::Guard.stub(:setup_interactor)
 
+    ::Guard.stub(:debug_command_execution)
     ::Guard.setup
 
     ::Guard.stub(:options).and_return(:debug => true)
