@@ -1,11 +1,11 @@
-## Master
+## 1.5.0 - 22 October, 2012
 
 ### New features
 
 - [#327][] Use Pry as interactor. ([@netzpirat][])
 - [#345][] Use Lumberjack as customizable logger. ([@netzpirat][])
+- [#342][] Add notifier for displaying result in terminal title. ([@tomas-zemres][])
 - [#348][] Introduce grouping of the notifiers for better auto-detection. ([@netzpirat][])
-- [#342][] Add notifier for displying result in terminal title. ([@tomas-zemres][])
 
 ### Improvements
 
