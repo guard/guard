@@ -3,11 +3,6 @@ require 'spec_helper'
 describe Guard do
   before do
     ::Guard::Interactor.stub(:fabricate)
-
-    ::Guard::UI.stub(:info)
-    ::Guard::UI.stub(:warn)
-    ::Guard::UI.stub(:error)
-    ::Guard::UI.stub(:debug)
   end
 
   describe ".setup" do
