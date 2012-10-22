@@ -4,6 +4,10 @@ describe Guard::Watcher do
 
   before do
     ::Guard::UI.stub(:info)
+    ::Guard::UI.stub(:warning)
+    ::Guard::UI.stub(:error)
+    ::Guard::UI.stub(:debug)
+    ::Guard::UI.stub(:deprecation)
   end
 
   describe "#initialize" do

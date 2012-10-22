@@ -5,7 +5,9 @@ describe Guard do
     ::Guard::Interactor.stub(:fabricate)
 
     ::Guard::UI.stub(:info)
+    ::Guard::UI.stub(:warn)
     ::Guard::UI.stub(:error)
+    ::Guard::UI.stub(:debug)
   end
 
   describe ".setup" do
@@ -79,7 +81,9 @@ describe Guard do
     context 'with the debug mode turned on' do
       let(:options) { { :debug => true, :guardfile => File.join(@fixture_path, "Guardfile") } }
       subject { ::Guard.setup(options) }
-      after { Guard.options[:debug] = false }
+
+      before { Guard.stub(:debug_command_execution) }
+      after { subject.options[:debug] = false }
 
       it "logs command execution if the debug option is true" do
         ::Guard.should_receive(:debug_command_execution)
@@ -752,10 +756,11 @@ describe Guard do
     end
 
     after do
-      Guard.options[:debug] = false
       Kernel.send(:remove_method, :system, :'`')
       Kernel.send(:define_method, :system, @original_system.to_proc)
       Kernel.send(:define_method, :"`", @original_command.to_proc)
+
+      subject.options[:debug] = false
     end
 
     it "outputs Kernel.#system method parameters" do

@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Guard::Runner do
-  
+
   before(:all) do
     # Define two guard implementations
     class ::Guard::Foo < ::Guard::Guard; end
@@ -11,7 +11,10 @@ describe Guard::Runner do
 
   before do
     ::Guard::UI.stub(:info)
+    ::Guard::UI.stub(:warning)
     ::Guard::UI.stub(:error)
+    ::Guard::UI.stub(:debug)
+    ::Guard::UI.stub(:deprecation)
   end
 
   let(:guard_module) { ::Guard }
@@ -88,7 +91,7 @@ describe Guard::Runner do
       Lumberjack.should_receive(:unit_of_work)
       subject.run(:my_task)
     end
-    
+
     context 'with a failing task' do
       before { subject.stub(:run_supervised_task) { throw :task_has_failed } }
 

@@ -514,7 +514,7 @@ module Guard
       # Convert the :only and :except options to a regular expression
       [:only, :except].each do |name|
         if options[name]
-          list = [].push(options[name]).flatten.map { |plugin| Regexp.escape(plugin) }.join('|')
+          list = [].push(options[name]).flatten.map { |plugin| Regexp.escape(plugin.to_s) }.join('|')
           options[name] = Regexp.new(list, Regexp::IGNORECASE)
         end
       end

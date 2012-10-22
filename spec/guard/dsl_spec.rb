@@ -16,8 +16,10 @@ describe Guard::Dsl do
     ::Guard.stub(:guards).and_return([mock('Guard')])
 
     ::Guard::UI.stub(:info)
-    ::Guard::UI.stub(:warn)
+    ::Guard::UI.stub(:warning)
     ::Guard::UI.stub(:error)
+    ::Guard::UI.stub(:debug)
+    ::Guard::UI.stub(:deprecation)
 
     ::Guard::Notifier.stub(:notify)
   end
@@ -537,32 +539,32 @@ describe Guard::Dsl do
 
       it "sets the logger only filter from a symbol" do
         described_class.evaluate_guardfile(:guardfile_contents => "logger :only => :cucumber")
-        Guard::UI.options[:only].should eql /cucumber/i
+        Guard::UI.options[:only].should eql(/cucumber/i)
       end
 
       it "sets the logger only filter from a string" do
         described_class.evaluate_guardfile(:guardfile_contents => "logger :only => 'jasmine'")
-        Guard::UI.options[:only].should eql /jasmine/i
+        Guard::UI.options[:only].should eql(/jasmine/i)
       end
 
       it "sets the logger only filter from an array of symbols and string" do
         described_class.evaluate_guardfile(:guardfile_contents => "logger :only => [:rspec, 'cucumber']")
-        Guard::UI.options[:only].should eql /rspec|cucumber/i
+        Guard::UI.options[:only].should eql(/rspec|cucumber/i)
       end
 
       it "sets the logger except filter from a symbol" do
         described_class.evaluate_guardfile(:guardfile_contents => "logger :except => :jasmine")
-        Guard::UI.options[:except].should eql /jasmine/i
+        Guard::UI.options[:except].should eql(/jasmine/i)
       end
 
       it "sets the logger except filter from a string" do
         described_class.evaluate_guardfile(:guardfile_contents => "logger :except => 'jasmine'")
-        Guard::UI.options[:except].should eql /jasmine/i
+        Guard::UI.options[:except].should eql(/jasmine/i)
       end
 
       it "sets the logger except filter from an array of symbols and string" do
         described_class.evaluate_guardfile(:guardfile_contents => "logger :except => [:rspec, 'cucumber', :jasmine]")
-        Guard::UI.options[:except].should eql /rspec|cucumber|jasmine/i
+        Guard::UI.options[:except].should eql(/rspec|cucumber|jasmine/i)
       end
     end
 
