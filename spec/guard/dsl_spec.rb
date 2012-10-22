@@ -7,9 +7,21 @@ describe Guard::Dsl do
     @local_guardfile_path = File.join(Dir.pwd, 'Guardfile')
     @home_guardfile_path  = File.expand_path(File.join("~", ".Guardfile"))
     @user_config_path     = File.expand_path(File.join("~", ".guard.rb"))
+
+    ::Guard.stub(:setup_interactor)
+
     ::Guard.setup
-    ::Guard.stub!(:options).and_return(:debug => true)
-    ::Guard.stub!(:guards).and_return([mock('Guard')])
+
+    ::Guard.stub(:options).and_return(:debug => true)
+    ::Guard.stub(:guards).and_return([mock('Guard')])
+
+    ::Guard::UI.stub(:info)
+    ::Guard::UI.stub(:warning)
+    ::Guard::UI.stub(:error)
+    ::Guard::UI.stub(:debug)
+    ::Guard::UI.stub(:deprecation)
+
+    ::Guard::Notifier.stub(:notify)
   end
 
   after(:all) { ::Guard.instance_eval { remove_const(:Dummy) } }
@@ -501,7 +513,91 @@ describe Guard::Dsl do
     end
   end
 
-private
+  describe "#logger" do
+    after { Guard::UI.options = { :level => :info, :template => ':time - :severity - :message', :time_format => '%H:%M:%S' } }
+
+    context 'with valid options' do
+      it "sets the logger log level" do
+        described_class.evaluate_guardfile(:guardfile_contents => "logger :level => :error")
+        Guard::UI.options[:level].should eql :error
+      end
+
+      it "sets the logger log level and convert to a symbol" do
+        described_class.evaluate_guardfile(:guardfile_contents => "logger :level => 'error'")
+        Guard::UI.options[:level].should eql :error
+      end
+
+      it "sets the logger template" do
+        described_class.evaluate_guardfile(:guardfile_contents => "logger :template => ':message - :severity'")
+        Guard::UI.options[:template].should eql ':message - :severity'
+      end
+
+      it "sets the logger time format" do
+        described_class.evaluate_guardfile(:guardfile_contents => "logger :time_format => '%Y'")
+        Guard::UI.options[:time_format].should eql '%Y'
+      end
+
+      it "sets the logger only filter from a symbol" do
+        described_class.evaluate_guardfile(:guardfile_contents => "logger :only => :cucumber")
+        Guard::UI.options[:only].should eql(/cucumber/i)
+      end
+
+      it "sets the logger only filter from a string" do
+        described_class.evaluate_guardfile(:guardfile_contents => "logger :only => 'jasmine'")
+        Guard::UI.options[:only].should eql(/jasmine/i)
+      end
+
+      it "sets the logger only filter from an array of symbols and string" do
+        described_class.evaluate_guardfile(:guardfile_contents => "logger :only => [:rspec, 'cucumber']")
+        Guard::UI.options[:only].should eql(/rspec|cucumber/i)
+      end
+
+      it "sets the logger except filter from a symbol" do
+        described_class.evaluate_guardfile(:guardfile_contents => "logger :except => :jasmine")
+        Guard::UI.options[:except].should eql(/jasmine/i)
+      end
+
+      it "sets the logger except filter from a string" do
+        described_class.evaluate_guardfile(:guardfile_contents => "logger :except => 'jasmine'")
+        Guard::UI.options[:except].should eql(/jasmine/i)
+      end
+
+      it "sets the logger except filter from an array of symbols and string" do
+        described_class.evaluate_guardfile(:guardfile_contents => "logger :except => [:rspec, 'cucumber', :jasmine]")
+        Guard::UI.options[:except].should eql(/rspec|cucumber|jasmine/i)
+      end
+    end
+
+    context 'with invalid options' do
+      context 'for the log level' do
+        it 'shows a warning' do
+          Guard::UI.should_receive(:warning).with "Invalid log level `baz` ignored. Please use either :debug, :info, :warn or :error."
+          described_class.evaluate_guardfile(:guardfile_contents => "logger :level => :baz")
+        end
+
+        it 'does not set the invalid value' do
+          described_class.evaluate_guardfile(:guardfile_contents => "logger :level => :baz")
+          Guard::UI.options[:level].should eql :info
+        end
+      end
+
+      context 'when having both the :only and :except options' do
+        it 'shows a warning' do
+          Guard::UI.should_receive(:warning).with "You cannot specify the logger options :only and :except at the same time."
+          described_class.evaluate_guardfile(:guardfile_contents => "logger :only => :jasmine, :except => :rspec")
+        end
+
+        it 'removes the options' do
+          described_class.evaluate_guardfile(:guardfile_contents => "logger :only => :jasmine, :except => :rspec")
+          Guard::UI.options[:only].should be_nil
+          Guard::UI.options[:except].should be_nil
+        end
+      end
+
+    end
+  end
+
+  private
 
   def fake_guardfile(name, contents)
     File.stub!(:exist?).with(name) { true }

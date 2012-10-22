@@ -3,6 +3,14 @@ require 'spec_helper'
 describe Guard::Interactor do
   subject { Guard::Interactor.new }
 
+  before do
+    ::Guard::UI.stub(:info)
+    ::Guard::UI.stub(:warning)
+    ::Guard::UI.stub(:error)
+    ::Guard::UI.stub(:debug)
+    ::Guard::UI.stub(:deprecation)
+  end
+
   describe '#readline' do
     it 'must be implemented by a subclass' do
       expect { subject.read_line }.to raise_error(NotImplementedError)
@@ -12,13 +20,13 @@ describe Guard::Interactor do
   describe '.fabricate' do
     context 'with coolline available' do
       before { Guard::CoollineInteractor.stub(:available?).and_return true }
-      
+
       it 'returns the Coolline interactor for a :coolline symbol' do
         Guard::Interactor.interactor = :coolline
         Guard::Interactor.fabricate.should be_an_instance_of(Guard::CoollineInteractor)
       end
     end
-    
+
     context 'with coolline unavailable' do
       before { Guard::CoollineInteractor.stub(:available?).and_return false }
 
@@ -103,7 +111,7 @@ describe Guard::Interactor do
       ::Guard.stub(:within_preserved_state).and_yield
       ::Guard.runner = stub('runner')
     end
-    
+
     it 'shows the help on help action' do
       subject.should_receive(:extract_scopes_and_action).with('help').and_return [{ }, :help, []]
       subject.should_receive(:help)
@@ -208,7 +216,7 @@ describe Guard::Interactor do
         subject.extract_scopes_and_action('').should == [{ }, :run_all, []]
       end
     end
-    
+
     context 'for an action command' do
       it 'returns the action if the command contains only a action' do
         subject.extract_scopes_and_action('exit').should == [{ }, :stop, []]
@@ -237,7 +245,7 @@ describe Guard::Interactor do
         subject.extract_scopes_and_action('frontend backend').should == [{ :group => @frontend_group }, :run_all, []]
       end
     end
-    
+
     context 'for an action and scope command' do
       it 'returns guard scope and action if entry is a guard scope and a action' do
         subject.extract_scopes_and_action('foo r').should == [{ :guard => @foo_guard1 }, :reload, []]

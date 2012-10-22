@@ -1,11 +1,20 @@
 require 'spec_helper'
 
 describe Guard::Runner do
+
   before(:all) do
     # Define two guard implementations
     class ::Guard::Foo < ::Guard::Guard; end
     class ::Guard::Bar1 < ::Guard::Guard; end
     class ::Guard::Bar2 < ::Guard::Guard; end
+  end
+
+  before do
+    ::Guard::UI.stub(:info)
+    ::Guard::UI.stub(:warning)
+    ::Guard::UI.stub(:error)
+    ::Guard::UI.stub(:debug)
+    ::Guard::UI.stub(:deprecation)
   end
 
   let(:guard_module) { ::Guard }
@@ -75,6 +84,11 @@ describe Guard::Runner do
       [foo_guard, bar1_guard, bar2_guard].each do |g|
         subject.should_receive(:run_supervised_task).with(g, :my_task)
       end
+      subject.run(:my_task)
+    end
+
+    it 'marks an action as unit of work' do
+      Lumberjack.should_receive(:unit_of_work)
       subject.run(:my_task)
     end
 
