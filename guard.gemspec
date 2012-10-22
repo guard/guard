@@ -18,6 +18,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'thor',     '>= 0.14.6'
   s.add_dependency 'listen',   '>= 0.4.2'
   s.add_dependency 'pry'
+  s.add_dependency 'lumberjack'
 
   s.add_development_dependency 'bundler'
   s.add_development_dependency 'rspec',       '~> 2.11.0'

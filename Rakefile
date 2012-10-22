@@ -19,15 +19,7 @@ namespace(:spec) do
   else
     desc "Run all specs on multiple ruby versions (requires rvm)"
     task(:portability) do
-      travis_config_file = File.expand_path("../.travis.yml", __FILE__)
-      begin
-        travis_options ||= YAML::load_file(travis_config_file)
-      rescue => ex
-        puts "Travis config file '#{travis_config_file}' could not be found: #{ex.message}"
-        return
-      end
-
-      travis_options['rvm'].each do |version|
+      %w(1.8.7 1.9.2 1.9.3 jruby ree rbx).each do |version|
         system <<-BASH
           bash -c 'source ~/.rvm/scripts/rvm;
                    rvm #{version};

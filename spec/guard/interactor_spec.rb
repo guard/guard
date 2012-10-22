@@ -29,14 +29,14 @@ describe Guard::Interactor do
       scopes, _ = Guard::Interactor.convert_scope %w(frontend)
       scopes.should eql({ :group => @frontend_group })
     end
-    
+
     it 'returns a plugin scope' do
       scopes, _ = Guard::Interactor.convert_scope %w(foo)
       scopes.should eql({ :guard => @foo_guard })
       scopes, _ = Guard::Interactor.convert_scope %w(bar)
       scopes.should eql({ :guard => @bar_guard })
     end
-    
+
     it 'returns the unkown scopes' do
       _, unkown = Guard::Interactor.convert_scope %w(unkown scope)
       unkown.should eql %w(unkown scope)

@@ -7,6 +7,8 @@ module Guard
     require 'guard'
     require 'guard/ui'
     require 'guard/watcher'
+    
+    require 'lumberjack'
 
     # Deprecation message for the `run_on_change` method
     RUN_ON_CHANGE_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
@@ -47,8 +49,10 @@ module Guard
     # @see self.run_supervised_task
     #
     def run(task, scopes = {})
-      scoped_guards(scopes) do |guard|
-        run_supervised_task(guard, task)
+      Lumberjack.unit_of_work do
+       scoped_guards(scopes) do |guard|
+          run_supervised_task(guard, task)
+        end
       end
     end
 
