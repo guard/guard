@@ -20,9 +20,7 @@ module Guard
           scopes, rest = ::Guard::Interactor.convert_scope(entries)
 
           if rest.length != 0
-            ::Guard.within_preserved_state do
-              ::Guard.runner.run_on_changes(rest, [], [])
-            end
+            ::Guard.runner.run_on_changes(rest, [], [])
           else
             output.puts 'Please specify a file.'
           end

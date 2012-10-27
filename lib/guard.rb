@@ -22,7 +22,7 @@ module Guard
   HOME_TEMPLATES = File.expand_path('~/.guard/templates')
 
   class << self
-    attr_accessor :options, :interactor, :runner, :listener, :lock
+    attr_accessor :options, :interactor, :runner, :listener
 
     # Initialize the Guard singleton:
     #
@@ -40,7 +40,6 @@ module Guard
     # @deprecated @option options [Boolean] no_vendor ignore vendored dependencies
     #
     def setup(options = {})
-      @lock       = Mutex.new
       @options    = options
       @watchdir   = (options[:watchdir] && File.expand_path(options[:watchdir])) || Dir.pwd
       @runner     = ::Guard::Runner.new
@@ -63,7 +62,7 @@ module Guard
         ::Guard::UI.options[:level] = :debug
         debug_command_execution
       end
-      
+
       setup_notifier
       setup_interactor
 
@@ -110,9 +109,7 @@ module Guard
       listener_callback = lambda do |modified, added, removed|
         ::Guard::Dsl.reevaluate_guardfile if ::Guard::Watcher.match_guardfile?(modified)
 
-        ::Guard.within_preserved_state do
-          runner.run_on_changes(modified, added, removed)
-        end
+        runner.run_on_changes(modified, added, removed)
       end
 
       listener_options = { :relative_paths => true }
@@ -158,11 +155,9 @@ module Guard
       setup(options)
       ::Guard::UI.info "Guard is now watching at '#{ @watchdir }'"
 
-      within_preserved_state do
-        runner.run(:start)
-      end
-
+      runner.run(:start)
       listener.start(false)
+      interactor.start
 
       @allow_stop.wait if @allow_stop
     end
@@ -183,12 +178,10 @@ module Guard
     # @param [Hash] scopes hash with a Guard plugin or a group scope
     #
     def reload(scopes = {})
-      within_preserved_state do
-        ::Guard::UI.clear(:force => true)
-        ::Guard::UI.action_with_scopes('Reload', scopes)
-        ::Guard::Dsl.reevaluate_guardfile if scopes.empty?
-        runner.run(:reload, scopes)
-      end
+      ::Guard::UI.clear(:force => true)
+      ::Guard::UI.action_with_scopes('Reload', scopes)
+      ::Guard::Dsl.reevaluate_guardfile if scopes.empty?
+      runner.run(:reload, scopes)
     end
 
     # Trigger `run_all` on all Guard plugins currently enabled.
@@ -196,11 +189,9 @@ module Guard
     # @param [Hash] scopes hash with a Guard plugin or a group scope
     #
     def run_all(scopes = {})
-      within_preserved_state do
-        ::Guard::UI.clear(:force => true)
-        ::Guard::UI.action_with_scopes('Run', scopes)
-        runner.run(:run_all, scopes)
-      end
+      ::Guard::UI.clear(:force => true)
+      ::Guard::UI.action_with_scopes('Run', scopes)
+      runner.run(:run_all, scopes)
     end
 
     # Pause Guard listening to file changes.
@@ -312,25 +303,6 @@ module Guard
         @groups << group
       end
       group
-    end
-
-    # Runs a block where the interactor is
-    # blocked and execution is synchronized
-    # to avoid state inconsistency.
-    #
-    # @yield the block to run
-    #
-    def within_preserved_state
-      lock.synchronize do
-        begin
-          interactor.stop if interactor
-          @result = yield
-        rescue Interrupt
-        end
-
-        interactor.start if interactor
-      end
-      @result
     end
 
     # Tries to load the Guard plugin main class. This transforms the supplied Guard plugin

@@ -487,8 +487,8 @@ describe Guard do
     before do
       ::Guard.stub(:setup)
       ::Guard.stub(:listener => mock('listener', :start => true))
+      ::Guard.stub(:interactor => mock('listener', :start => true))
       ::Guard.stub(:runner => mock('runner', :run => true))
-      ::Guard.stub(:within_preserved_state).and_yield
       ::Guard.instance_variable_set('@allow_stop', mock('turnstile', :wait => true, :signal => true))
     end
 
@@ -605,28 +605,6 @@ describe Guard do
 
       ::Guard.groups[0].options.should eq({})
       ::Guard.groups[1].options.should eq({ :halt_on_fail => true })
-    end
-  end
-
-  describe '.within_preserved_state' do
-    subject { ::Guard.setup }
-    before { subject.interactor =  stub('interactor').as_null_object }
-
-    it 'disables the interactor before running the block and then re-enables it when done' do
-      subject.interactor.should_receive(:stop)
-      subject.interactor.should_receive(:start)
-      subject.within_preserved_state &Proc.new {}
-    end
-
-    it 'disallows running the block concurrently to avoid inconsistent states' do
-      subject.lock.should_receive(:synchronize)
-      subject.within_preserved_state &Proc.new {}
-    end
-
-    it 'runs the passed block' do
-      @called = false
-      subject.within_preserved_state { @called = true }
-      @called.should be_true
     end
   end
 

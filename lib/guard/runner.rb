@@ -50,8 +50,8 @@ module Guard
     #
     def run(task, scopes = {})
       Lumberjack.unit_of_work do
-       scoped_guards(scopes) do |guard|
-          run_supervised_task(guard, task)
+        scoped_guards(scopes) do |guard|
+           run_supervised_task(guard, task)
         end
       end
     end
