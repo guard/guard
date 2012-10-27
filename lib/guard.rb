@@ -40,7 +40,8 @@ module Guard
     # @deprecated @option options [Boolean] no_vendor ignore vendored dependencies
     #
     def setup(options = {})
-      @options    = options
+      @lock       = Mutex.new
+      @options    = options.dup
       @watchdir   = (options[:watchdir] && File.expand_path(options[:watchdir])) || Dir.pwd
       @runner     = ::Guard::Runner.new
       @allow_stop = Listen::Turnstile.new
