@@ -1,3 +1,9 @@
+## Master
+
+### Bug fix
+
+- [#351][] Fix turning off the interactor from the Guardfile. ([@netzpirat][])
+
 ## 1.5.0 - 22 October, 2012
 
 ### New features
@@ -616,10 +622,14 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [#316]: https://github.com/guard/guard/issues/316
 [#317]: https://github.com/guard/guard/issues/317
 [#324]: https://github.com/guard/guard/issues/324
+[#327]: https://github.com/guard/guard/issues/327
 [#331]: https://github.com/guard/guard/issues/331
 [#334]: https://github.com/guard/guard/issues/334
 [#342]: https://github.com/guard/guard/issues/342
 [#343]: https://github.com/guard/guard/issues/343
+[#345]: https://github.com/guard/guard/issues/345
+[#348]: https://github.com/guard/guard/issues/348
+[#351]: https://github.com/guard/guard/issues/351
 [@Gazer]: https://github.com/Gazer
 [@Maher4Ever]: https://github.com/Maher4Ever
 [@alandipert]: https://github.com/alandipert

@@ -41,7 +41,7 @@ module Guard
     #
     def setup(options = {})
       @lock       = Mutex.new
-      @options    = options
+      @options    = options.dup
       @watchdir   = (options[:watchdir] && File.expand_path(options[:watchdir])) || Dir.pwd
       @runner     = ::Guard::Runner.new
       @allow_stop = Listen::Turnstile.new
