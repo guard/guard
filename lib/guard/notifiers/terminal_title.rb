@@ -22,9 +22,8 @@ module Guard
       # @param [Hash] options additional notification library options
       #
       def notify(type, title, message, image, options = { })
-        message.sub!(/^\n/, '')
-        message.sub!(/\n.*/m, '')
-        set_terminal_title("[#{title}] #{message}")
+        first_line = message.sub(/^\n/, '').sub(/\n.*/m, '')
+        set_terminal_title("[#{title}] #{first_line}")
       end
 
       def set_terminal_title(text)
