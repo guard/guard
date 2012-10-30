@@ -72,19 +72,13 @@ thrash the file back and forth.
 There is a good solution. All three gems will successfully, quietly install on all three operating
 systems, and `guard/listen` will only pull in the one you need. This is a more proper `Gemfile`:
 
-    group :development do
-      gem 'rb-inotify', require: false
-      gem 'rb-fsevent', require: false
-      gem 'rb-fchange', require: false
-    end
-
-(And, re-formatted as 1.8-style for easy pasting…)
-
-    group :development do
-      gem 'rb-inotify', :require => false
-      gem 'rb-fsevent', :require => false
-      gem 'rb-fchange', :require => false
-    end
+```Ruby
+group :development do
+  gem 'rb-inotify', :require => false
+  gem 'rb-fsevent', :require => false
+  gem 'rb-fchange', :require => false
+end
+```
 
 ## Windows Colors
 
