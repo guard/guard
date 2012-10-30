@@ -1,3 +1,9 @@
+## Master
+
+### Bug fix
+
+- [#354][] Ignore `~/.pryrc` since it breaks Guard when loading the Rails env. ([@netzpirat][])
+
 ## 1.5.2 - 29 October, 2012
 
 ### Bug fix

@@ -27,6 +27,7 @@ module Guard
     def initialize
       return if ENV['GUARD_ENV'] == 'test'
 
+      Pry.config.should_load_local_rc = false
       Pry.config.history.file = HISTORY_FILE
 
       load_guard_rc

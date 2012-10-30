@@ -520,9 +520,9 @@ You can also disable the interactions completely by running Guard with the `--no
 ### Customizations
 
 Further Guard specific customizations can be made in `~/.guardrc` that will be evaluated prior the Pry session is
-started. This allows you to make use of the Pry plugin architecture to provide custom commands and extend Guard for
-your own needs and distribute as a gem. Please have a look at the [Pry Wiki](https://github.com/pry/pry/wiki) for more
-information.
+started (`~/.pryrc` is ignored). This allows you to make use of the Pry plugin architecture to provide custom commands
+and extend Guard for your own needs and distribute as a gem. Please have a look at the
+[Pry Wiki](https://github.com/pry/pry/wiki) for more information.
 
 ### Signals
 
