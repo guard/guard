@@ -1,3 +1,15 @@
+## Master
+
+### Bug fix
+
+- [#354][] Ignore `~/.pryrc` since it breaks Guard when loading the Rails env. ([@netzpirat][])
+
+## 1.5.2 - 29 October, 2012
+
+### Bug fix
+
+- [#353][] Do not modify original message in terminal_title notifier. ([@tomas-zemres][])
+
 ## 1.5.1 - 28 October, 2012
 
 ### Bug fix
@@ -630,6 +642,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [#345]: https://github.com/guard/guard/issues/345
 [#348]: https://github.com/guard/guard/issues/348
 [#351]: https://github.com/guard/guard/issues/351
+[#353]: https://github.com/guard/guard/issues/353
 [@Gazer]: https://github.com/Gazer
 [@Maher4Ever]: https://github.com/Maher4Ever
 [@alandipert]: https://github.com/alandipert

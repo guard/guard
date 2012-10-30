@@ -28,9 +28,14 @@ describe Guard::Notifier::TerminalTitle do
   end
 
   describe '.notify' do
+    long_message = "first line\nsecond line\nthird"
     it 'set title + first line of message to terminal title' do
       subject.should_receive(:set_terminal_title).with("[any title] first line")
-      subject.notify('success', 'any title', "first line\nsecond line\nthird", 'any image', { })
+      subject.notify('success', 'any title', long_message, 'any image', { })
+    end
+
+    it 'does not change original message' do
+      long_message.should eq("first line\nsecond line\nthird")
     end
   end
 

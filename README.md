@@ -1,4 +1,4 @@
-Guard [![Build Status](https://secure.travis-ci.org/guard/guard.png?branch=master)](http://travis-ci.org/guard/guard)
+Guard [![Build Status](https://secure.travis-ci.org/guard/guard.png?branch=master)](http://travis-ci.org/guard/guard) [![Dependency Status](https://gemnasium.com/guard/guard.png)](https://gemnasium.com/guard/guard)
 =====
 
 Guard is a command line tool to easily handle events on file system modifications.
@@ -55,40 +55,32 @@ $ guard init
 **It's important that you always run Guard through Bundler to avoid errors.** If you're getting sick of typing `bundle exec` all
 the time, try the [Rubygems Bundler](https://github.com/mpapis/rubygems-bundler).
 
-## OS X
+## Efficient Filesystem Handling
 
-You may want to install the [rb-fsevent](https://github.com/thibaudgg/rb-fsevent) gem to make use of file change events
-and don't rely on polling by adding the gem to your `Gemfile` and install it with Bundler:
+Various operating systems are willing to notify you of changes to files, but the API to
+register/receive updates varies (see [rb-fsevent](https://github.com/thibaudgg/rb-fsevent) for
+OS X, [rb-inotify](https://github.com/nex3/rb-inotify) for Linux, and
+[rb-fchange](https://github.com/stereobooster/rb-fchange) for Windows).  If you do not supply
+one of the supported gems for these methods, Guard will fall back to polling, and give you a
+warning about it doing so.
 
-```ruby
-group :development do
-  gem 'rb-fsevent', :require => false
-end
-```
+A challenge arises when trying to make these dependencies work with [Bundler](http://gembundler.com/).
+If you simply put one of these dependencies into you `Gemfile`, even if it is conditional on a
+platform match, the platform-specific gem will end up in the `Gemfile.lock`, and developers will
+thrash the file back and forth.
 
-## Linux
+There is a good solution. All three gems will successfully, quietly install on all three operating
+systems, and `guard/listen` will only pull in the one you need. This is a more proper `Gemfile`:
 
-You may want to install the [rb-inotify](https://github.com/nex3/rb-inotify) gem to make use of file change events and
-don't rely on polling by adding the gem to your `Gemfile` and install it with Bundler:
-
-```ruby
+```Ruby
 group :development do
   gem 'rb-inotify', :require => false
+  gem 'rb-fsevent', :require => false
+  gem 'rb-fchange', :require => false
 end
 ```
 
-## Windows
-
-You may want to install the [wdm](https://github.com/Maher4Ever/wdm) gem to make use of file change events and don't
-rely on polling by adding the gem to your `Gemfile` and install it with Bundler:
-
-```ruby
-group :development do
-  gem 'wdm', :require => false
-end
-```
-
-Please note that you have to use at least on Ruby 1.9.2 for using WDM.
+## Windows Colors
 
 If you want colors in your terminal, you'll have to add the [win32console](https://rubygems.org/gems/win32console) gem
 to your `Gemfile` and install it with Bundler:
@@ -96,6 +88,16 @@ to your `Gemfile` and install it with Bundler:
 ```ruby
 group :development do
   gem 'win32console'
+end
+```
+
+If you're using Windows and at least Ruby 1.9.2, then [Windows Directory Monitor](https://github.com/Maher4Ever/wdm) is
+more efficient than using `rb-fchange`. However WDM cannot be installed on platforms other than Windows, making it
+impossible to add it to the `Gemfile` for projects developed on multiple platforms.
+
+```Ruby
+group :development do
+  gem 'rb-fchange', :require => false
 end
 ```
 
@@ -520,9 +522,9 @@ You can also disable the interactions completely by running Guard with the `--no
 ### Customizations
 
 Further Guard specific customizations can be made in `~/.guardrc` that will be evaluated prior the Pry session is
-started. This allows you to make use of the Pry plugin architecture to provide custom commands and extend Guard for
-your own needs and distribute as a gem. Please have a look at the [Pry Wiki](https://github.com/pry/pry/wiki) for more
-information.
+started (`~/.pryrc` is ignored). This allows you to make use of the Pry plugin architecture to provide custom commands
+and extend Guard for your own needs and distribute as a gem. Please have a look at the
+[Pry Wiki](https://github.com/pry/pry/wiki) for more information.
 
 ### Signals
 
