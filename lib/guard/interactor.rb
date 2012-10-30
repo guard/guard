@@ -126,26 +126,10 @@ module Guard
     def start
       return if ENV['GUARD_ENV'] == 'test'
 
-      if !@thread || !@thread.alive?
-        ::Guard::UI.debug 'Start interactor'
-
-        @thread = Thread.new do
-          Pry.start
-          ::Guard.stop
-          exit
-        end
-      end
-    end
-
-    # Kill interactor thread if not current
-    #
-    def stop
-      return if !@thread || ENV['GUARD_ENV'] == 'test'
-
-      unless Thread.current == @thread
-        ::Guard::UI.debug 'Stop interactor'
-        @thread.kill
-      end
+      ::Guard::UI.debug 'Start interactor'
+      Pry.start
+      ::Guard.stop
+      exit
     end
 
     # Converts and validates a plain text scope

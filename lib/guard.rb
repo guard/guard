@@ -40,11 +40,9 @@ module Guard
     # @deprecated @option options [Boolean] no_vendor ignore vendored dependencies
     #
     def setup(options = {})
-      @lock       = Mutex.new
       @options    = options.dup
       @watchdir   = (options[:watchdir] && File.expand_path(options[:watchdir])) || Dir.pwd
       @runner     = ::Guard::Runner.new
-      @allow_stop = Listen::Turnstile.new
 
       ::Guard::UI.clear(:force => true)
       deprecated_options_warning
@@ -159,19 +157,14 @@ module Guard
       runner.run(:start)
       listener.start(false)
       interactor.start
-
-      @allow_stop.wait if @allow_stop
     end
 
     # Stop Guard listening to file changes
     #
     def stop
       listener.stop
-      interactor.stop if interactor
       runner.run(:stop)
       ::Guard::UI.info 'Bye bye...', :reset => true
-
-      @allow_stop.signal if @allow_stop
     end
 
     # Reload Guardfile and all Guard plugins currently enabled.
