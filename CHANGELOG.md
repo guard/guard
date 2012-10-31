@@ -643,7 +643,9 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [#345]: https://github.com/guard/guard/issues/345
 [#348]: https://github.com/guard/guard/issues/348
 [#351]: https://github.com/guard/guard/issues/351
+[#352]: https://github.com/guard/guard/issues/352
 [#353]: https://github.com/guard/guard/issues/353
+[#354]: https://github.com/guard/guard/issues/354
 [@Gazer]: https://github.com/Gazer
 [@Maher4Ever]: https://github.com/Maher4Ever
 [@alandipert]: https://github.com/alandipert
