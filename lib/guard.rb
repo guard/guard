@@ -179,7 +179,7 @@ module Guard
     end
 
     # Reload Guardfile and all Guard plugins currently enabled.
-    # If now scope is given, then the Guardfile will be re-evaluated,
+    # If no scope is given, then the Guardfile will be re-evaluated,
     # which results in a stop/start, which makes the reload obsolete.
     #
     # @param [Hash] scopes hash with a Guard plugin or a group scope
