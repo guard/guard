@@ -1,4 +1,4 @@
-## Master
+## 1.5.3 - 31 October, 2012
 
 ### Bug fix
 
