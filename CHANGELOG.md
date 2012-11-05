@@ -1,8 +1,15 @@
 ## Master
 
+## Bug fix
+
+- [#358][] Ignore `~/.pryrc` since it breaks Guard when loading the Rails env. ([@netzpirat][])
+
+## 1.5.3 - 31 October, 2012
+
 ### Bug fix
 
-- [#354][] Ignore `~/.pryrc` since it breaks Guard when loading the Rails env. ([@netzpirat][])
+- [#352][] Guard always reloading twice. ([@netzpirat][])
+- [#354][] Ignore `./.pryrc` since it breaks Guard when loading the Rails env. ([@netzpirat][])
 
 ## 1.5.2 - 29 October, 2012
 
@@ -642,7 +649,10 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [#345]: https://github.com/guard/guard/issues/345
 [#348]: https://github.com/guard/guard/issues/348
 [#351]: https://github.com/guard/guard/issues/351
+[#352]: https://github.com/guard/guard/issues/352
 [#353]: https://github.com/guard/guard/issues/353
+[#354]: https://github.com/guard/guard/issues/354
+[#358]: https://github.com/guard/guard/issues/358
 [@Gazer]: https://github.com/Gazer
 [@Maher4Ever]: https://github.com/Maher4Ever
 [@alandipert]: https://github.com/alandipert

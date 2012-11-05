@@ -288,13 +288,14 @@ describe Guard do
     before do
       ::Guard.stub(:runner) { runner }
       ::Guard::Dsl.stub(:reevaluate_guardfile)
+      ::Guard.stub(:within_preserved_state).and_yield
       ::Guard::UI.stub(:info)
       ::Guard::UI.stub(:clear)
     end
 
     it "clear UI" do
       ::Guard::UI.should_receive(:clear)
-      subject.reload({ })
+      subject.reload
     end
 
     context 'with a scope' do
@@ -312,12 +313,12 @@ describe Guard do
     context 'with an empty scope' do
       it 'does re-evaluate the Guardfile' do
         ::Guard::Dsl.should_receive(:reevaluate_guardfile)
-        subject.reload({ })
+        subject.reload
       end
 
-      it 'reloads Guard' do
-        ::Guard.should_receive(:reload).with({ })
-        subject.reload({ })
+      it 'does not reload Guard' do
+        ::Guard.should_not_receive(:reload).with({ })
+        subject.reload
       end
     end
   end

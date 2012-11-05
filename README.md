@@ -80,6 +80,16 @@ group :development do
 end
 ```
 
+If you're using Windows and at least Ruby 1.9.2, then [Windows Directory Monitor](https://github.com/Maher4Ever/wdm) is
+more efficient than using `rb-fchange`. However WDM cannot be installed on platforms other than Windows, making it
+impossible to add it to the `Gemfile` for projects developed on multiple platforms.
+
+```Ruby
+group :development do
+  gem 'wdm', :require => false
+end
+```
+
 ## Windows Colors
 
 If you want colors in your terminal, you'll have to add the [win32console](https://rubygems.org/gems/win32console) gem
@@ -88,16 +98,6 @@ to your `Gemfile` and install it with Bundler:
 ```ruby
 group :development do
   gem 'win32console'
-end
-```
-
-If you're using Windows and at least Ruby 1.9.2, then [Windows Directory Monitor](https://github.com/Maher4Ever/wdm) is
-more efficient than using `rb-fchange`. However WDM cannot be installed on platforms other than Windows, making it
-impossible to add it to the `Gemfile` for projects developed on multiple platforms.
-
-```Ruby
-group :development do
-  gem 'rb-fchange', :require => false
 end
 ```
 

@@ -168,14 +168,20 @@ module Guard
     end
 
     # Reload Guardfile and all Guard plugins currently enabled.
+    # If no scope is given, then the Guardfile will be re-evaluated,
+    # which results in a stop/start, which makes the reload obsolete.
     #
     # @param [Hash] scopes hash with a Guard plugin or a group scope
     #
     def reload(scopes = {})
       ::Guard::UI.clear(:force => true)
       ::Guard::UI.action_with_scopes('Reload', scopes)
-      ::Guard::Dsl.reevaluate_guardfile if scopes.empty?
-      runner.run(:reload, scopes)
+
+      if scopes.empty?
+        ::Guard::Dsl.reevaluate_guardfile
+      else
+        runner.run(:reload, scopes)
+      end
     end
 
     # Trigger `run_all` on all Guard plugins currently enabled.
