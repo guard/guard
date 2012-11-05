@@ -69,6 +69,7 @@ module Guard
     #
     def run_on_changes(modified, added, removed)
       ::Guard::UI.clearable
+      
       scoped_guards do |guard|
         modified_paths = ::Guard::Watcher.match_files(guard, modified)
         added_paths    = ::Guard::Watcher.match_files(guard, added)
@@ -80,6 +81,8 @@ module Guard
         run_first_task_found(guard, ADDITION_TASKS, added_paths) unless added_paths.empty?
         run_first_task_found(guard, REMOVAL_TASKS, removed_paths) unless removed_paths.empty?
       end
+
+      ::Guard.interactor.redraw if ::Guard.interactor
     end
 
     # Run a Guard plugin task, but remove the Guard plugin when his work leads to a system failure.
