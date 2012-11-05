@@ -2,16 +2,6 @@ require 'spec_helper'
 
 describe Guard::Notifier::Tmux do
 
-  let(:fake_tmux) do
-    Class.new do
-      def self.show(options) end
-    end
-  end
-
-  before do
-    stub_const 'Tmux', fake_tmux
-  end
-
   describe '.available?' do
     context "when the TMUX environment variable is set" do
       before :each do

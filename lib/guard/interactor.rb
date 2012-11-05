@@ -20,6 +20,8 @@ module Guard
     GUARD_RC = '~/.guardrc'
     HISTORY_FILE = '~/.guard_history'
 
+    attr_accessor :pry_instance
+
     # Initialize the interactor. This configures
     # Pry and creates some custom commands and aliases
     # for Guard.
@@ -44,8 +46,9 @@ module Guard
     # Loads the `~/.guardrc` file when pry has started.
     #
     def load_guard_rc
-      Pry.config.hooks.add_hook :when_started, :load_guard_rc do
+      Pry.config.hooks.add_hook :when_started, :load_guard_rc do |target, options, pry_instance|
         load GUARD_RC if File.exist? File.expand_path GUARD_RC
+        @pry_instance = pry_instance
       end
     end
 
@@ -127,52 +130,20 @@ module Guard
     def start
       return if ENV['GUARD_ENV'] == 'test'
 
-      store_terminal_settings if stty_exists?
+      ::Guard::UI.debug 'Start interactor'
+      Pry.start
+      ::Guard.stop
+      exit
+    end
 
-      if !@thread || !@thread.alive?
-        ::Guard::UI.debug 'Start interactor'
-
-        @thread = Thread.new do
-          Pry.start
-          ::Guard.stop
-          exit
-        end
+    # Redraw the current line. This outputs
+    # the prompt at the moment and misses the current
+    # line input.
+    #
+    def redraw
+      if pry_instance
+        print "\n#{ pry_instance.select_prompt('', pry_instance.current_context) }"
       end
-    end
-
-    # Kill interactor thread if not current
-    #
-    def stop
-      return if !@thread || ENV['GUARD_ENV'] == 'test'
-
-      unless Thread.current == @thread
-        ::Guard::UI.debug 'Stop interactor'
-        @thread.kill
-      end
-
-      restore_terminal_settings if stty_exists?
-    end
-
-    # Detects whether or not the stty command exists
-    # on the user machine.
-    #
-    # @return [Boolean] the status of stty
-    #
-    def stty_exists?
-      @stty_exists ||= system('hash', 'stty')
-    end
-
-    # Stores the terminal settings so we can resore them
-    # when stopping.
-    #
-    def store_terminal_settings
-      @stty_save = `stty -g 2>/dev/null`.chomp
-    end
-
-    # Restore terminal settings
-    #
-    def restore_terminal_settings
-      system("stty #{ @stty_save } 2>/dev/null") if @stty_save
     end
 
     # Converts and validates a plain text scope

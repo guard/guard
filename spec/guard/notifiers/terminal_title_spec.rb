@@ -2,15 +2,8 @@ require 'spec_helper'
 
 describe Guard::Notifier::TerminalTitle do
 
-  let(:fake_terminal_title) do
-    Class.new do
-      def self.show(options) end
-    end
-  end
-
   before do
     subject.stub!(:puts)
-    stub_const 'TerminalTitle', fake_terminal_title
   end
 
   describe '.available?' do
