@@ -4,7 +4,7 @@ describe Guard::Notifier::TerminalNotifier do
 
   let(:fake_terminal_notifier) do
     Module.new do
-      def self.show(options) end
+      def self.execute(options) end
     end
   end
 
