@@ -23,11 +23,7 @@ module Guard
       #
       def notify(type, title, message, image, options = { })
         first_line = message.sub(/^\n/, '').sub(/\n.*/m, '')
-        set_terminal_title("[#{title}] #{first_line}")
-      end
-
-      def set_terminal_title(text)
-        puts "\e]2;#{text}\a"
+        puts("\e]2;[#{ title }] #{ first_line }\a")
       end
     end
   end
