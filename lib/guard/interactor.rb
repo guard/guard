@@ -146,6 +146,7 @@ module Guard
       return if !@thread || ENV['GUARD_ENV'] == 'test'
 
       unless Thread.current == @thread
+        ::Guard::UI.reset_line
         ::Guard::UI.debug 'Stop interactor'
         @thread.kill
       end
