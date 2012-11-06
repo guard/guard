@@ -18,6 +18,9 @@ When you file a bug, please try to follow these simple rules if applicable:
 * Make sure you run Guard with `bundle exec` first.
 * Add debug information to the issue by running Guard with the `--debug` option.
 * Add your `Guardfile` and `Gemfile` to the issue.
+* Provide information about your environment:
+  * Your current versions of your OS, Ruby, Rubygems and Bundler.
+  * Shared project folder with services like Dropbox, NFS, etc.
 * Make sure that the issue is reproducible with your description.
 
 **It's most likely that your bug gets resolved faster if you provide as much information as possible!**
