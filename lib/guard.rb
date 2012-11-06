@@ -171,12 +171,11 @@ module Guard
     def stop
       within_preserved_state(false) do
         runner.run(:stop)
+        ::Guard::UI.info 'Bye bye...', :reset => true
+
+        # Unblocks main thread
+        listener.stop
       end
-
-      ::Guard::UI.info 'Bye bye...', :reset => true
-
-      # Unblocks main thread
-      listener.stop
     end
 
     # Reload Guardfile and all Guard plugins currently enabled.
