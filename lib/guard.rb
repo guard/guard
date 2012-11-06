@@ -44,7 +44,6 @@ module Guard
       @options    = options.dup
       @watchdir   = (options[:watchdir] && File.expand_path(options[:watchdir])) || Dir.pwd
       @runner     = ::Guard::Runner.new
-      @allow_stop = Listen::Turnstile.new
 
       ::Guard::UI.clear(:force => true)
       deprecated_options_warning
@@ -162,20 +161,21 @@ module Guard
         runner.run(:start)
       end
 
-      listener.start(false)
-
-      @allow_stop.wait if @allow_stop
+      # Blocks main thread
+      listener.start
     end
 
     # Stop Guard listening to file changes
     #
     def stop
-      listener.stop
-      interactor.stop if interactor
-      runner.run(:stop)
+      within_preserved_state(false) do
+        runner.run(:stop)
+      end
+
       ::Guard::UI.info 'Bye bye...', :reset => true
 
-      @allow_stop.signal if @allow_stop
+      # Unblocks main thread
+      listener.stop
     end
 
     # Reload Guardfile and all Guard plugins currently enabled.
@@ -324,9 +324,10 @@ module Guard
     # blocked and execution is synchronized
     # to avoid state inconsistency.
     #
+    # @param [Boolean] restart_interactor whether to restart the interactor or not
     # @yield the block to run
     #
-    def within_preserved_state
+    def within_preserved_state(restart_interactor = true)
       lock.synchronize do
         begin
           interactor.stop if interactor
@@ -334,8 +335,9 @@ module Guard
         rescue Interrupt
         end
 
-        interactor.start if interactor
+        interactor.start if interactor && restart_interactor
       end
+
       @result
     end
 
