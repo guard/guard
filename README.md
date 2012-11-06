@@ -1,4 +1,4 @@
-Guard [![Build Status](https://secure.travis-ci.org/guard/guard.png?branch=master)](http://travis-ci.org/guard/guard) [![Dependency Status](https://gemnasium.com/guard/guard.png)](https://gemnasium.com/guard/guard)
+Guard [![Build Status](https://secure.travis-ci.org/guard/guard.png?branch=master)](http://travis-ci.org/guard/guard) [![Dependency Status](https://gemnasium.com/guard/guard.png)](https://gemnasium.com/guard/guard) [![Code Climate](https://codeclimate.com/badge.png)](https://codeclimate.com/github/guard/guard)
 =====
 
 Guard is a command line tool to easily handle events on file system modifications.
@@ -823,7 +823,7 @@ When you file a bug, please try to follow these simple rules if applicable:
 
 **It's most likely that your bug gets resolved faster if you provide as much information as possible!**
 
-Development [![Dependency Status](https://gemnasium.com/guard/guard.png?branch=master)](https://gemnasium.com/guard/guard) [![Code Climate](https://codeclimate.com/badge.png)](https://codeclimate.com/github/guard/guard)
+Development
 -----------
 
 * Documentation hosted at [RubyDoc](http://rubydoc.info/github/guard/guard/master/frames).
