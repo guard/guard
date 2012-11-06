@@ -45,6 +45,12 @@ module Guard
       @watchdir   = (options[:watchdir] && File.expand_path(options[:watchdir])) || Dir.pwd
       @runner     = ::Guard::Runner.new
 
+      if @options[:debug]
+        Thread.abort_on_exception = true
+        ::Guard::UI.options[:level] = :debug
+        debug_command_execution
+      end
+
       ::Guard::UI.clear(:force => true)
       deprecated_options_warning
 
@@ -57,11 +63,6 @@ module Guard
       ::Guard::UI.error 'No guards found in Guardfile, please add at least one.' if @guards.empty?
 
       runner.deprecation_warning if @options[:show_deprecations]
-
-      if @options[:debug]
-        ::Guard::UI.options[:level] = :debug
-        debug_command_execution
-      end
 
       setup_notifier
       setup_interactor
