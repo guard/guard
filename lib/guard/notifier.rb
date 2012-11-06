@@ -194,6 +194,7 @@ module Guard
     #
     def auto_detect_notification
       available = nil
+      self.notifications = []
 
       NOTIFIERS.each do |group|
         added = group.map { |n| n.first }.find { |notifier| add_notification(notifier, { }, true) }
