@@ -52,25 +52,25 @@ Generate an empty `Guardfile` with:
 $ guard init
 ```
 
-**It's important that you always run Guard through Bundler to avoid errors.** If you're getting sick of typing `bundle exec` all
-the time, try the [Rubygems Bundler](https://github.com/mpapis/rubygems-bundler).
+**It's important that you always run Guard through Bundler to avoid errors.** If you're getting sick of typing
+`bundle exec` all the time, try the [Rubygems Bundler](https://github.com/mpapis/rubygems-bundler).
+
+If you are on Mac OS X and have problems with either Guard not reacting to file changes or Pry behaving strange, then
+you should [add proper Readline support to Ruby on Mac OS X](https://github.com/guard/guard/wiki/Add-proper-Readline-support-to-Ruby-on-Mac-OS-X).
 
 ## Efficient Filesystem Handling
 
-Various operating systems are willing to notify you of changes to files, but the API to
-register/receive updates varies (see [rb-fsevent](https://github.com/thibaudgg/rb-fsevent) for
-OS X, [rb-inotify](https://github.com/nex3/rb-inotify) for Linux, and
-[rb-fchange](https://github.com/stereobooster/rb-fchange) for Windows).  If you do not supply
-one of the supported gems for these methods, Guard will fall back to polling, and give you a
-warning about it doing so.
+Various operating systems are willing to notify you of changes to files, but the API to register/receive updates varies
+(see [rb-fsevent](https://github.com/thibaudgg/rb-fsevent) for OS X, [rb-inotify](https://github.com/nex3/rb-inotify)
+for Linux, and [rb-fchange](https://github.com/stereobooster/rb-fchange) for Windows). If you do not supply one of the
+supported gems for these methods, Guard will fall back to polling, and give you a warning about it doing so.
 
-A challenge arises when trying to make these dependencies work with [Bundler](http://gembundler.com/).
-If you simply put one of these dependencies into you `Gemfile`, even if it is conditional on a
-platform match, the platform-specific gem will end up in the `Gemfile.lock`, and developers will
-thrash the file back and forth.
+A challenge arises when trying to make these dependencies work with [Bundler](http://gembundler.com/). If you simply put
+one of these dependencies into you `Gemfile`, even if it is conditional on a platform match, the platform-specific gem
+will end up in the `Gemfile.lock`, and developers will thrash the file back and forth.
 
-There is a good solution. All three gems will successfully, quietly install on all three operating
-systems, and `guard/listen` will only pull in the one you need. This is a more proper `Gemfile`:
+There is a good solution. All three gems will successfully, quietly install on all three operating systems, and
+`guard/listen` will only pull in the one you need. This is a more proper `Gemfile`:
 
 ```Ruby
 group :development do
@@ -816,9 +816,13 @@ using?
 
 When you file a bug, please try to follow these simple rules if applicable:
 
+* Make sure you've read the README carefully.
 * Make sure you run Guard with `bundle exec` first.
 * Add debug information to the issue by running Guard with the `--debug` option.
 * Add your `Guardfile` and `Gemfile` to the issue.
+* Provide information about your environment:
+  * Your current versions of your OS, Ruby, Rubygems and Bundler.
+  * Shared project folder with services like Dropbox, NFS, etc.
 * Make sure that the issue is reproducible with your description.
 
 **It's most likely that your bug gets resolved faster if you provide as much information as possible!**
