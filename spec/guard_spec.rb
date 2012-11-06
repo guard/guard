@@ -613,12 +613,6 @@ describe Guard do
     subject { ::Guard.setup }
     before { subject.interactor =  stub('interactor').as_null_object }
 
-    it 'disables the interactor before running the block and then re-enables it when done' do
-      subject.interactor.should_receive(:stop)
-      subject.interactor.should_receive(:start)
-      subject.within_preserved_state &Proc.new {}
-    end
-
     it 'disallows running the block concurrently to avoid inconsistent states' do
       subject.lock.should_receive(:synchronize)
       subject.within_preserved_state &Proc.new {}
@@ -628,6 +622,22 @@ describe Guard do
       @called = false
       subject.within_preserved_state { @called = true }
       @called.should be_true
+    end
+
+    context 'with restart interactor enabled' do
+      it 'stops the interactor before running the block and starts it again when done' do
+        subject.interactor.should_receive(:stop)
+        subject.interactor.should_receive(:start)
+        subject.within_preserved_state &Proc.new {}
+      end
+    end
+
+    context 'without restart interactor enabled' do
+      it 'stops the interactor before running the block' do
+        subject.interactor.should_receive(:stop)
+        subject.interactor.should__not_receive(:start)
+        subject.within_preserved_state &Proc.new {}
+      end
     end
   end
 
