@@ -4,7 +4,7 @@
 
 - Thread handling improved and added thread debug mode. ([@netzpirat][])
 
-## Bug fix
+### Bug fix
 
 - [#358][] Ignore `~/.pryrc` since it breaks Guard when loading the Rails env. ([@netzpirat][])
 
