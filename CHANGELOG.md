@@ -1,4 +1,8 @@
-## Master
+## 1.5.4 - 9 November, 2012
+
+### Improvements
+
+- Thread handling improved and added thread debug mode. ([@netzpirat][])
 
 ## Bug fix
 
