@@ -64,7 +64,7 @@ module Guard
       def notify(type, title, message, image, options = { })
         color = tmux_color type, options
         color_location = options[:color_location] || DEFAULTS[:color_location]
-        system("#{ DEFAULTS[:client] } set -g #{ color_location } #{ color }")
+        system("#{ DEFAULTS[:client] } set #{ color_location } #{ color }")
 
         show_message = options[:display_message] || DEFAULTS[:display_message]
         display_message(type, title, message, options) if show_message
