@@ -375,19 +375,21 @@ describe Guard::Dsl do
   describe "#interactor" do
     disable_user_config
 
-    before do
-      Guard.options = { :no_interactions => false }
-    end
-
     it "disables the interactions with :off" do
       ::Guard::UI.should_not_receive(:deprecation).with(described_class::INTERACTOR_DEPRECATION)
       described_class.evaluate_guardfile(:guardfile_contents => "interactor :off")
-      Guard.options[:no_interactions].should be_true
+      Guard::Interactor.enabled.should be_false
     end
 
-    it "shows a deprecation for anything but :off" do
+    it "shows a deprecation for symbols other than :off" do
       ::Guard::UI.should_receive(:deprecation).with(described_class::INTERACTOR_DEPRECATION)
       described_class.evaluate_guardfile(:guardfile_contents => "interactor :coolline")
+    end
+
+    it "passes the options to the interactor" do
+      ::Guard::UI.should_not_receive(:deprecation).with(described_class::INTERACTOR_DEPRECATION)
+      described_class.evaluate_guardfile(:guardfile_contents => "interactor :option1 => 'a', :option2 => 123")
+      Guard::Interactor.options.should include({ :option1 => 'a', :option2 => 123 })
     end
   end
 

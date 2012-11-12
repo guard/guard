@@ -41,7 +41,7 @@ module Guard
     #
     def setup(options = {})
       @lock       = Mutex.new
-      @options    = options.dup
+      @options    = options
       @watchdir   = (options[:watchdir] && File.expand_path(options[:watchdir])) || Dir.pwd
       @runner     = ::Guard::Runner.new
 
@@ -132,7 +132,7 @@ module Guard
     # Initializes the interactor unless the user has specified not to.
     #
     def setup_interactor
-      unless options[:no_interactions]
+      unless options[:no_interactions] || !::Guard::Interactor.enabled
         @interactor = ::Guard::Interactor.new
       end
     end

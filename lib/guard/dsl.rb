@@ -327,9 +327,15 @@ module Guard
     # @example Turn off interactions
     #   interactor :off
     #
-    def interactor(interactor)
-      if interactor == :off
-        ::Guard.options[:no_interactions] = true
+    # @param [Symbol,Hash] options either `:off` or a Hash with interactor options
+    #
+    def interactor(options)
+      if options == :off
+        ::Guard::Interactor.enabled = false
+
+      elsif options.is_a?(Hash)
+        ::Guard::Interactor.options = options
+
       else
         ::Guard::UI.deprecation(INTERACTOR_DEPRECATION)
       end

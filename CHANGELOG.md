@@ -1,5 +1,6 @@
 ## Master
 
+- [#362][] Add interactor options `:history_file` and `:guard_rc`. ([@netzpirat][])
 - [#361][] Tmux notifier affects only the local session. ([@netzpirat][])
 
 ## 1.5.4 - 9 November, 2012
@@ -662,6 +663,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [#354]: https://github.com/guard/guard/issues/354
 [#358]: https://github.com/guard/guard/issues/358
 [#361]: https://github.com/guard/guard/issues/361
+[#362]: https://github.com/guard/guard/issues/362
 [@Gazer]: https://github.com/Gazer
 [@Maher4Ever]: https://github.com/Maher4Ever
 [@alandipert]: https://github.com/alandipert

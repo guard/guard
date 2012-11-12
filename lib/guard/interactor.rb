@@ -17,8 +17,49 @@ module Guard
     require 'guard/commands/reload'
     require 'guard/commands/show'
 
+    # The default Ruby script to configure Guard Pry if the option `:guard_rc` is not defined.
     GUARD_RC = '~/.guardrc'
+
+    # The default Guard Pry history file if the option `:history_file` is not defined.
     HISTORY_FILE = '~/.guard_history'
+
+    class << self
+
+      # Get the interactor options
+      #
+      # @return [Hash] the options
+      #
+      def options
+        @options ||= {}
+      end
+
+      # Set the interactor options
+      #
+      # @param [Hash] options the interactor options
+      # @option options [String] :guard_rc the Ruby script to configure Guard Pry
+      # @option options [String] :history_file the file to write the Pry history to
+      #
+      def options=(options)
+        @options = options
+      end
+
+      # Is the interactor enabled?
+      #
+      # @return [Boolean] true if enabled
+      #
+      def enabled
+        @enabled.nil? ? true : @enabled
+      end
+
+      # Set the enabled status for the interactor
+      #
+      # @param [Boolean] status true if enabled
+      #
+      def enabled=(status)
+        @enabled = status
+      end
+
+    end
 
     # Initialize the interactor. This configures
     # Pry and creates some custom commands and aliases
@@ -29,7 +70,7 @@ module Guard
 
       Pry.config.should_load_rc = false
       Pry.config.should_load_local_rc = false
-      Pry.config.history.file = HISTORY_FILE
+      Pry.config.history.file = self.class.options[:history_file] || HISTORY_FILE
 
       load_guard_rc
 
@@ -45,7 +86,7 @@ module Guard
     #
     def load_guard_rc
       Pry.config.hooks.add_hook :when_started, :load_guard_rc do
-        load GUARD_RC if File.exist? File.expand_path GUARD_RC
+        load GUARD_RC if File.exist?(File.expand_path(self.class.options[:guard_rc] || GUARD_RC))
       end
     end
 

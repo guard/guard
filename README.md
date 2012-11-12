@@ -675,6 +675,12 @@ notification :off
 
 ### interactor
 
+You can customize the Pry interactor history and RC file like:
+
+```ruby
+interactor :guard_rc => '~/.my_guard-rc', :history_file => '~/.my_guard_history_file'
+```
+
 If you do not need the Pry interactions with Guard at all, you can turn it off:
 
 ```ruby
