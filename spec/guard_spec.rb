@@ -269,6 +269,13 @@ describe Guard do
 
   describe ".setup_interactor" do
     context 'with CLI options' do
+      before do
+        @enabled = ::Guard::Interactor.enabled
+        ::Guard::Interactor.enabled = true
+      end
+
+      after { ::Guard::Interactor.enabled = @enabled }
+
       context "with interactions enabled" do
         before { ::Guard.setup(:no_interactions => false) }
 
@@ -283,8 +290,12 @@ describe Guard do
     end
 
     context 'with DSL options' do
+      before { @enabled = ::Guard::Interactor.enabled }
+      after { ::Guard::Interactor.enabled = @enabled }
+
       context "with interactions enabled" do
         before do
+          ::Guard::Interactor.enabled = true
           ::Guard.setup()
         end
 
@@ -293,7 +304,8 @@ describe Guard do
 
       context "with interactions disabled" do
         before do
-          ::Guard.setup(:guardfile_contents => "interactor :off")
+          ::Guard::Interactor.enabled = false
+          ::Guard.setup()
         end
 
         it_should_behave_like 'interactor disabled'
