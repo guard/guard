@@ -285,7 +285,6 @@ describe Guard do
     context 'with DSL options' do
       context "with interactions enabled" do
         before do
-          ::Guard::Interactor.enabled = true
           ::Guard.setup()
         end
 
@@ -294,8 +293,7 @@ describe Guard do
 
       context "with interactions disabled" do
         before do
-          ::Guard::Interactor.enabled = false
-          ::Guard.setup()
+          ::Guard.setup(:guardfile_contents => "interactor :off")
         end
 
         it_should_behave_like 'interactor disabled'
