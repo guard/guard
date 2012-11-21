@@ -208,13 +208,13 @@ module Guard
     # when stopping.
     #
     def store_terminal_settings
-      @stty_save = `stty -g 2>/dev/null`.chomp
+      @stty_save = `stty -g 2>#{DEV_NULL}`.chomp
     end
 
     # Restore terminal settings
     #
     def restore_terminal_settings
-      system("stty #{ @stty_save } 2>/dev/null") if @stty_save
+      system("stty #{ @stty_save } 2>#{DEV_NULL}") if @stty_save
     end
 
     # Converts and validates a plain text scope
