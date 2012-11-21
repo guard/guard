@@ -1,5 +1,6 @@
 ## Master
 
+- [#364][] Add `ignore!` and `filter!` DSL methods. ([@tarsolya][])
 - [#365][] Fix terminal reset redirect to null devise on Windows. ([@cablegram][])
 - [#365][] Fix Emacs notifier detection on Windows. ([@cablegram][])
 - [#362][] Add interactor options `:history_file` and `:guard_rc`. ([@netzpirat][])
@@ -666,6 +667,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [#358]: https://github.com/guard/guard/issues/358
 [#361]: https://github.com/guard/guard/issues/361
 [#362]: https://github.com/guard/guard/issues/362
+[#364]: https://github.com/guard/guard/issues/364
 [#365]: https://github.com/guard/guard/issues/365
 [@Gazer]: https://github.com/Gazer
 [@Maher4Ever]: https://github.com/Maher4Ever
@@ -735,6 +737,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [@stouset]: https://github.com/stouset
 [@sunaku]: https://github.com/sunaku
 [@sutherland]: https://github.com/sutherland
+[@tarsolya]: https://github.com/tarsolya
 [@thibaudgg]: https://github.com/thibaudgg
 [@thierryhenrio]: https://github.com/thierryhenrio
 [@tinogomes]: https://github.com/tinogomes
