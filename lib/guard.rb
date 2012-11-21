@@ -1,3 +1,4 @@
+require 'rbconfig'
 require 'thread'
 require 'listen'
 
@@ -20,6 +21,9 @@ module Guard
 
   # The location of user defined templates
   HOME_TEMPLATES = File.expand_path('~/.guard/templates')
+
+  WINDOWS = RbConfig::CONFIG["host_os"] =~ %r!(msdos|mswin|djgpp|mingw)!
+  DEV_NULL = WINDOWS ? "NUL" : "/dev/null"
 
   class << self
     attr_accessor :options, :interactor, :runner, :listener, :lock
