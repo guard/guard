@@ -9,6 +9,7 @@ bundle
 .yardoc
 .rbx
 .rvmrc
+.rbenv-version
 Gemfile.lock
 bin/fsevent_watch_guard
 Makefile
