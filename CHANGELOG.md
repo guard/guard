@@ -1,5 +1,7 @@
 ## Master
 
+- [#365][] Fix terminal reset redirect to null devise on Windows. ([@cablegram][])
+- [#365][] Fix Emacs notifier detection on Windows. ([@cablegram][])
 - [#362][] Add interactor options `:history_file` and `:guard_rc`. ([@netzpirat][])
 - [#361][] Tmux notifier affects only the local session. ([@netzpirat][])
 
@@ -664,6 +666,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [#358]: https://github.com/guard/guard/issues/358
 [#361]: https://github.com/guard/guard/issues/361
 [#362]: https://github.com/guard/guard/issues/362
+[#365]: https://github.com/guard/guard/issues/365
 [@Gazer]: https://github.com/Gazer
 [@Maher4Ever]: https://github.com/Maher4Ever
 [@alandipert]: https://github.com/alandipert
@@ -672,6 +675,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [@benolee]: https://github.com/benolee
 [@brainopia]: https://github.com/brainopia
 [@bronson]: https://github.com/bronson
+[@cablegram]: https://github.com/cablegram
 [@capotej]: https://github.com/capotej
 [@ches]: https://github.com/ches
 [@chrisberkhout]: https://github.com/chrisberkhout
