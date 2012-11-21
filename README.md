@@ -717,8 +717,16 @@ are ignored.
 Please note that method only accept regexps. More on the
 [Listen README](https://github.com/guard/listen#the-patterns-for-filtering-and-ignoring-paths).
 
+To append to the default ignored files and directories, use the `ignore` method:
+
 ```ruby
 ignore %r{^ignored/path/}, /public/
+```
+
+To _replace_ to default ignored files and directories, use the `ignore!` method:
+
+```ruby
+ignore! /data/
 ```
 
 ### filter
@@ -732,6 +740,12 @@ Please note that method only accept regexps. More on the
 
 ```ruby
 filter /\.txt$/, /.*\.zip/
+```
+
+To _replace_ any existing filter, use the `filter!` method:
+
+```ruby
+filter /\.js$/
 ```
 
 ### logger
