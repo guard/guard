@@ -453,7 +453,7 @@ module Guard
       ::Guard::UI.deprecation(IGNORE_PATHS_DEPRECATION)
     end
 
-    # Ignore certain patterns paths globally.
+    # Ignore certain paths globally.
     #
     # @example Ignore some paths
     #   ignore %r{^ignored/path/}, /man/
@@ -475,9 +475,10 @@ module Guard
       ::Guard.listener = ::Guard.listener.ignore!(*regexps)
     end
 
+    # Filter certain paths globally.
     #
     # @example Filter some files
-    #   ignore /\.txt$/, /.*\.zip/
+    #   filter /\.txt$/, /.*\.zip/
     #
     # @param [Regexp] regexps a pattern for filtering paths
     #
