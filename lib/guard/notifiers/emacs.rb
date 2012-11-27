@@ -12,10 +12,11 @@ module Guard
       extend self
 
       DEFAULTS = {
-        :client  => 'emacsclient',
-        :success => 'ForestGreen',
-        :failed  => 'Firebrick',
-        :default => 'Black',
+        :client    => 'emacsclient',
+        :success   => 'ForestGreen',
+        :failed    => 'Firebrick',
+        :default   => 'Black',
+        :fontcolor => 'White',
       }
 
       # Test if Emacs with running server is available.
@@ -48,9 +49,10 @@ module Guard
       # @option options [String, Integer] priority specify an int or named key (default is 0)
       #
       def notify(type, title, message, image, options = { })
-        options = DEFAULTS.merge options
-        color   = emacs_color type, options
-        system(%(#{ options[:client] } --eval "(set-face-background 'modeline \\"#{ color }\\")"))
+        options   = DEFAULTS.merge options
+        color     = emacs_color type, options
+        fontcolor = emacs_color :fontcolor, options
+        system(%(#{ options[:client] } --eval "(set-face-attribute 'mode-line nil :background \\"#{ color }\\" :foreground \\"#{ fontcolor }\\")"))
       end
 
       # Get the Emacs color for the notification type.
