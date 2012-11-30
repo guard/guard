@@ -1,5 +1,7 @@
 ## Master
 
+- [#368][] Detecting duplicate definitions and then warning the user. ([@jfolkins][])
+- [#367][] Change modeline's fgcolor when changing bgcolor in emacs notifier. ([@iljoo][])
 - [#364][] Add `ignore!` and `filter!` DSL methods. ([@tarsolya][])
 - [#365][] Fix terminal reset redirect to null devise on Windows. ([@cablegram][])
 - [#365][] Fix Emacs notifier detection on Windows. ([@cablegram][])
@@ -669,6 +671,8 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [#362]: https://github.com/guard/guard/issues/362
 [#364]: https://github.com/guard/guard/issues/364
 [#365]: https://github.com/guard/guard/issues/365
+[#367]: https://github.com/guard/guard/issues/367
+[#368]: https://github.com/guard/guard/issues/368
 [@Gazer]: https://github.com/Gazer
 [@Maher4Ever]: https://github.com/Maher4Ever
 [@alandipert]: https://github.com/alandipert
@@ -698,9 +702,11 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [@hawx]: https://github.com/hawx
 [@hron]: https://github.com/hron
 [@ianwhite]: https://github.com/ianwhite
+[@iljoo]:https://github.com/iljoo
 [@indirect]: https://github.com/indirect
 [@japgolly]: https://github.com/japgolly
 [@jeffutter]: https://github.com/jeffutter
+[@jfolkins]: https://github.com/jfolkins
 [@johnbintz]: https://github.com/johnbintz
 [@jredville]: https://github.com/jredville
 [@jrsacks]: https://github.com/jrsacks
