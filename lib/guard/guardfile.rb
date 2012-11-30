@@ -30,6 +30,24 @@ module Guard
         end
       end
 
+      # Opens an existing guardfile and searches for redundant definitions
+      # if extraneous defintions are found, it warns the user
+      #
+      # @see Guard::CLI.init
+      #
+      # @param [String] class name of gem definition that you would like to search for in the Guardfile
+      # @param [String] contents of existing guardfile
+      #
+      def duplicate_definitions?(guard_class, guard_file)
+        matches = guard_file.to_s.scan(/guard\s[\'|\"]#{guard_class}[\'|\"]\sdo/)
+        if matches.count > 1
+          ::Guard::UI.info "There are #{matches.count.to_s} definitions in your Guardfile for '#{guard_class}', you may want to clean up your Guardfile as this could cause issues."
+          return true
+        else
+          return false
+        end
+      end
+
       # Adds the Guardfile template of a Guard implementation
       # to an existing Guardfile.
       #
@@ -42,6 +60,9 @@ module Guard
 
         if guard_class
           guard_class.init(guard_name)
+          guardfile_name = 'Guardfile'
+          guard_file = File.read(guardfile_name) if File.exists?(guardfile_name)
+          duplicate_definitions?(guard_name, guard_file)
         elsif File.exist?(File.join(HOME_TEMPLATES, guard_name))
           content  = File.read('Guardfile')
           template = File.read(File.join(HOME_TEMPLATES, guard_name))

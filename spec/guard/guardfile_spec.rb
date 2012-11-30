@@ -46,6 +46,24 @@ describe Guard::Guardfile do
     end
   end
 
+  describe ".duplicate_defintions?" do
+    context "that finds an existing Guardfile"  do
+      context "that has duplicate definitions" do
+        it "should return true" do
+          io = StringIO.new("guard 'rspec' do\nend\nguard 'rspec' do\nend\n")
+          Guard::Guardfile.duplicate_definitions?('rspec', io.string).should == true
+        end
+      end
+
+      context "that doesn't have duplicate definitions" do
+        it "should return false" do
+          io = StringIO.new("guard 'rspec' do\nend\n")
+          Guard::Guardfile.duplicate_definitions?('rspec', io.string).should == false
+        end
+      end
+    end
+  end
+
   describe ".initialize_template" do
     context 'with an installed Guard implementation' do
       let(:foo_guard) { double('Guard::Foo').as_null_object }
