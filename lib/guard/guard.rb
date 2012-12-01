@@ -58,6 +58,11 @@ module Guard
       @watchers, @options = watchers, options
     end
 
+    
+    def self.template(name)
+      File.read("#{ ::Guard.locate_guard(name) }/lib/guard/#{ name }/templates/Guardfile")
+    end
+    
     # Initialize the Guard plugin. This will copy the Guardfile template inside the Guard plugin gem.
     # The template Guardfile must be located within the Gem at `lib/guard/guard-name/templates/Guardfile`.
     #
@@ -68,7 +73,7 @@ module Guard
         ::Guard::UI.info "Guardfile already includes #{ name } guard"
       else
         content = File.read('Guardfile')
-        guard   = File.read("#{ ::Guard.locate_guard(name) }/lib/guard/#{ name }/templates/Guardfile")
+        guard = template(name)
 
         File.open('Guardfile', 'wb') do |f|
           f.puts(content)
