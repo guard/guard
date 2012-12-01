@@ -58,7 +58,11 @@ module Guard
       @watchers, @options = watchers, options
     end
 
-    
+    # Specify the source for the Guardfile template.
+    # Each Guard plugin can redefine this method to add its own logic.
+    # 
+    # @param [String] The plugin name
+    # 
     def self.template(name)
       File.read("#{ ::Guard.locate_guard(name) }/lib/guard/#{ name }/templates/Guardfile")
     end
