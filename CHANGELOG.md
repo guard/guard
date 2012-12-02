@@ -1,11 +1,20 @@
 ## Master
 
+### New features
+
+- [#369][] Allow Guard plugins to specify their template location. ([@schmurfy][])
+- [#364][] Add `ignore!` and `filter!` DSL methods. ([@tarsolya][])
+- [#362][] Add interactor options `:history_file` and `:guard_rc`. ([@netzpirat][])
+
+### Improvements
+
 - [#368][] Detecting duplicate definitions and then warning the user. ([@jfolkins][])
 - [#367][] Change modeline's fgcolor when changing bgcolor in emacs notifier. ([@iljoo][])
-- [#364][] Add `ignore!` and `filter!` DSL methods. ([@tarsolya][])
+
+### Bug fixes
+
 - [#365][] Fix terminal reset redirect to null devise on Windows. ([@cablegram][])
 - [#365][] Fix Emacs notifier detection on Windows. ([@cablegram][])
-- [#362][] Add interactor options `:history_file` and `:guard_rc`. ([@netzpirat][])
 - [#361][] Tmux notifier affects only the local session. ([@netzpirat][])
 
 ## 1.5.4 - 9 November, 2012
@@ -20,7 +29,7 @@
 
 ## 1.5.3 - 31 October, 2012
 
-### Bug fix
+### Bug fixes
 
 - [#352][] Guard always reloading twice. ([@netzpirat][])
 - [#354][] Ignore `./.pryrc` since it breaks Guard when loading the Rails env. ([@netzpirat][])
@@ -673,6 +682,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [#365]: https://github.com/guard/guard/issues/365
 [#367]: https://github.com/guard/guard/issues/367
 [#368]: https://github.com/guard/guard/issues/368
+[#369]: https://github.com/guard/guard/issues/369
 [@Gazer]: https://github.com/Gazer
 [@Maher4Ever]: https://github.com/Maher4Ever
 [@alandipert]: https://github.com/alandipert
@@ -702,7 +712,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [@hawx]: https://github.com/hawx
 [@hron]: https://github.com/hron
 [@ianwhite]: https://github.com/ianwhite
-[@iljoo]:https://github.com/iljoo
+[@iljoo]: https://github.com/iljoo
 [@indirect]: https://github.com/indirect
 [@japgolly]: https://github.com/japgolly
 [@jeffutter]: https://github.com/jeffutter
@@ -735,6 +745,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [@royvandewater]: https://github.com/royvandewater
 [@rupert654]: https://github.com/rupert654
 [@rymai]: https://github.com/rymai
+[@schmurfy]: https://github.com/schmurfy
 [@scottdavis]: https://github.com/scottdavis
 [@semperos]: https://github.com/semperos
 [@spadin]: https://github.com/spadin
