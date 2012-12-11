@@ -404,7 +404,14 @@ module Guard
     #
     def guard_gem_names
       if Gem::Version.create(Gem::VERSION) >= Gem::Version.create('1.8.0')
-        Gem::Specification.find_all.select { |x| x.name =~ /^guard-/ }
+        Gem::Specification.find_all.select do |x|
+          if x.name =~ /^guard-/
+            true
+          elsif x.name != "guard"
+            guard_plugin_path = File.join(x.full_gem_path, "lib/guard/#{x.name}.rb")
+            File.exists?( guard_plugin_path )
+          end
+        end
       else
         Gem.source_index.find_name(/^guard-/)
       end.map { |x| x.name.sub(/^guard-/, '') }
