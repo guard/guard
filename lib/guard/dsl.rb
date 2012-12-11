@@ -361,10 +361,9 @@ module Guard
     # @see Guard::DslDescriber
     #
     def group(name, options = {})
-      @groups = @@options[:group] || []
       name    = name.to_sym
 
-      if block_given? && (@groups.empty? || @groups.map(&:to_sym).include?(name))
+      if block_given?
         ::Guard.add_group(name.to_s.downcase, options)
         @current_group = name
 

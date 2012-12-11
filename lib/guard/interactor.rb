@@ -15,13 +15,27 @@ module Guard
     require 'guard/commands/notification'
     require 'guard/commands/pause'
     require 'guard/commands/reload'
+    require 'guard/commands/scope'
     require 'guard/commands/show'
 
     # The default Ruby script to configure Guard Pry if the option `:guard_rc` is not defined.
-    GUARD_RC = '~/.guardrc'
+    GUARD_RC     = '~/.guardrc'
 
     # The default Guard Pry history file if the option `:history_file` is not defined.
     HISTORY_FILE = '~/.guard_history'
+
+    # List of shortcuts for each interactor command
+    SHORTCUTS = {
+      :help         => 'h',
+      :reload       => 'r',
+      :change       => 'c',
+      :show         => 's',
+      :scope        => 'o',
+      :notification => 'n',
+      :pause        => 'p',
+      :exit         => 'e',
+      :quit         => 'q'
+    }
 
     class << self
 
@@ -30,7 +44,7 @@ module Guard
       # @return [Hash] the options
       #
       def options
-        @options ||= {}
+        @options ||= { }
       end
 
       # Set the interactor options
@@ -68,9 +82,9 @@ module Guard
     def initialize
       return if ENV['GUARD_ENV'] == 'test'
 
-      Pry.config.should_load_rc = false
+      Pry.config.should_load_rc       = false
       Pry.config.should_load_local_rc = false
-      Pry.config.history.file = self.class.options[:history_file] || HISTORY_FILE
+      Pry.config.history.file         = self.class.options[:history_file] || HISTORY_FILE
 
       load_guard_rc
 
@@ -101,12 +115,12 @@ module Guard
     end
 
     # Creates command aliases for the commands
-    # `help`, `reload`, `change`, `show`, `notification`, `pause`, `exit` and `quit`,
+    # `help`, `reload`, `change`, `scope`, `notification`, `pause`, `exit` and `quit`,
     # which will be the first letter of the command.
     #
     def create_command_aliases
-      %w(help reload change show notification pause exit quit).each do |command|
-        Pry.commands.alias_command command[0].chr, command
+      SHORTCUTS.each do |command, shortcut|
+        Pry.commands.alias_command shortcut, command
       end
     end
 
@@ -155,10 +169,34 @@ module Guard
     def configure_prompt
       Pry.config.prompt = [
         proc do |target_self, nest_level, pry|
-          "[#{ pry.input_array.size }] #{ ::Guard.listener.paused? ? 'pause' : 'guard' }(#{ Pry.view_clip(target_self) })#{":#{ nest_level }" unless nest_level.zero? }> "
+          history = pry.input_array.size
+          process = ::Guard.listener.paused? ? 'pause' : 'guard'
+          clip    = Pry.view_clip(target_self)
+          level = ":#{ nest_level }" unless nest_level.zero?
+          scope = if !::Guard.scope[:plugins].empty?
+                    "{#{ ::Guard.scope[:plugins].join }} "
+                  elsif !::Guard.scope[:groups].empty?
+                    "{#{ ::Guard.scope[:groups].join }} "
+                  else
+                    ''
+                  end
+
+          "[#{ history }] #{ scope }#{ process }(#{ clip })#{ level }> "
         end,
         proc do |target_self, nest_level, pry|
-          "[#{ pry.input_array.size }] #{ ::Guard.listener.paused? ? 'pause' : 'guard' }(#{ Pry.view_clip(target_self) })#{":#{ nest_level }" unless nest_level.zero? }* "
+          history = pry.input_array.size
+          process = ::Guard.listener.paused? ? 'pause' : 'guard'
+          clip    = Pry.view_clip(target_self)
+          level = ":#{ nest_level }" unless nest_level.zero?
+          scope = if !::Guard.scope[:plugins].empty?
+                    "{#{ ::Guard.scope[:plugins].join }} "
+                  elsif !::Guard.scope[:groups].empty?
+                    "{#{ ::Guard.scope[:groups].join }} "
+                  else
+                    ''
+                  end
+
+          "[#{ history }] #{ scope }#{ process }(#{ clip })#{ level }* "
         end
       ]
     end
@@ -208,13 +246,13 @@ module Guard
     # when stopping.
     #
     def store_terminal_settings
-      @stty_save = `stty -g 2>#{DEV_NULL}`.chomp
+      @stty_save = `stty -g 2>#{ DEV_NULL }`.chomp
     end
 
     # Restore terminal settings
     #
     def restore_terminal_settings
-      system("stty #{ @stty_save } 2>#{DEV_NULL}") if @stty_save
+      system("stty #{ @stty_save } 2>#{ DEV_NULL }") if @stty_save
     end
 
     # Converts and validates a plain text scope
@@ -224,14 +262,14 @@ module Guard
     # @return [Hash, Array<String>] the plugin or group scope, the unknown entries
     #
     def self.convert_scope(entries)
-      scopes  = { }
+      scopes  = { :plugins => [], :groups => [] }
       unknown = []
 
       entries.each do |entry|
-        if guard = ::Guard.guards(entry)
-          scopes[:guard] ||= guard
+        if plugin = ::Guard.guards(entry)
+          scopes[:plugins] << plugin
         elsif group = ::Guard.groups(entry)
-          scopes[:group] ||= group
+          scopes[:groups] << group
         else
           unknown << entry
         end

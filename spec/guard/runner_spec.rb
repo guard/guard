@@ -90,8 +90,8 @@ describe Guard::Runner do
       end
     end
 
-    context 'within the scope of a specified guard' do
-      let(:scopes) { { :guard => bar1_guard } }
+    context 'within the scope of a specified local guard' do
+      let(:scopes) { { :plugins => [bar1_guard] } }
 
       it 'executes the supervised task on the specified guard only' do
         subject.should_receive(:run_supervised_task).with(bar1_guard, :my_task)
@@ -103,8 +103,8 @@ describe Guard::Runner do
       end
     end
 
-    context 'within the scope of a specified group' do
-      let(:scopes) { { :group => foo_group } }
+    context 'within the scope of a specified local group' do
+      let(:scopes) { { :groups => [foo_group] } }
 
       it 'executes the task on each guard in the specified group only' do
         subject.should_receive(:run_supervised_task).with(foo_guard, :my_task)
@@ -121,11 +121,11 @@ describe Guard::Runner do
     let(:changes) { [ [], [], [] ] }
     let(:watcher_module) { ::Guard::Watcher }
 
-    before {
+    before do
       subject.stub(:scoped_guards).and_yield(foo_guard)
       subject.stub(:clearable?) { false }
       watcher_module.stub(:match_files) { [] }
-    }
+    end
 
     it "always calls UI.clearable" do
       Guard::UI.should_receive(:clearable)
