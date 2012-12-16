@@ -101,7 +101,7 @@ group :development do
 end
 ```
 
-### System notifications
+## System notifications
 
 You can configure Guard to make use of the following system notification libraries:
 
