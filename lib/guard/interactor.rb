@@ -105,7 +105,7 @@ module Guard
     # which will be the first letter of the command.
     #
     def create_command_aliases
-      %w(help reload change show notification pause exit quit).each do |command|
+      %w(help all reload change show notification pause exit quit).each do |command|
         Pry.commands.alias_command command[0].chr, command
       end
     end
