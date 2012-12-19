@@ -41,7 +41,7 @@ module Guard
                   :aliases => '-g',
                   :banner  => 'Run only the passed groups'
 
-    method_option :plugins,
+    method_option :plugin,
                   :type    => :array,
                   :default => [],
                   :aliases => '-P',
