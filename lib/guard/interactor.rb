@@ -27,6 +27,7 @@ module Guard
     # List of shortcuts for each interactor command
     SHORTCUTS = {
       :help         => 'h',
+      :all          => 'a',
       :reload       => 'r',
       :change       => 'c',
       :show         => 's',

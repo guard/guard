@@ -57,7 +57,7 @@ module Guard
       # @return [Boolean] the availability status
       #
       def available?(silent = false)
-        if RbConfig::CONFIG['host_os'] =~ /darwin|linux|freebsd|openbsd|sunos|solaris|mswin|mingw/
+        if RbConfig::CONFIG['host_os'] =~ /darwin|linux|freebsd|openbsd|sunos|solaris|mswin|mingw|cygwin/
           require 'ruby_gntp'
           true
 

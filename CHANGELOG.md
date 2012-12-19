@@ -13,6 +13,7 @@
 
 ### Bug fixes
 
+- [#377][] Add the 'a' alias for the 'all' Pry command. (reported by [@cknadler][], fixed by [@rymai][])
 - [#365][] Fix terminal reset redirect to null devise on Windows. ([@cablegram][])
 - [#365][] Fix Emacs notifier detection on Windows. ([@cablegram][])
 - [#361][] Tmux notifier affects only the local session. ([@netzpirat][])
@@ -683,6 +684,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [#367]: https://github.com/guard/guard/issues/367
 [#368]: https://github.com/guard/guard/issues/368
 [#369]: https://github.com/guard/guard/issues/369
+[#377]: https://github.com/guard/guard/issues/377
 [@Gazer]: https://github.com/Gazer
 [@Maher4Ever]: https://github.com/Maher4Ever
 [@alandipert]: https://github.com/alandipert
@@ -695,6 +697,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [@capotej]: https://github.com/capotej
 [@ches]: https://github.com/ches
 [@chrisberkhout]: https://github.com/chrisberkhout
+[@cknadler]: https://github.com/cknadler
 [@d1]: https://github.com/d1
 [@dgutov]: https://github.com/dgutov
 [@dnagir]: https://github.com/dnagir
