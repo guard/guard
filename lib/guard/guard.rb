@@ -60,13 +60,13 @@ module Guard
 
     # Specify the source for the Guardfile template.
     # Each Guard plugin can redefine this method to add its own logic.
-    # 
+    #
     # @param [String] The plugin name
-    # 
+    #
     def self.template(name)
       File.read("#{ ::Guard.locate_guard(name) }/lib/guard/#{ name }/templates/Guardfile")
     end
-    
+
     # Initialize the Guard plugin. This will copy the Guardfile template inside the Guard plugin gem.
     # The template Guardfile must be located within the Gem at `lib/guard/guard-name/templates/Guardfile`.
     #
@@ -152,12 +152,13 @@ module Guard
     # @!method run_on_removals(paths)
 
     # Convert plugin to string representation. The
-    # default just uses the plugin class name.
-    # 
+    # default just uses the plugin class name and
+    # removes the Guard module name.
+    #
     # @return [String] the string representation
     #
     def to_s
-      self.class.to_s
+      self.class.to_s.downcase.sub('guard::', '').capitalize
     end
 
   end

@@ -422,37 +422,7 @@ describe Guard::Dsl do
   describe "#group" do
     disable_user_config
 
-    it "evaluates only the specified string group" do
-      ::Guard.should_receive(:add_guard).with('pow', [], [], { :group => :default })
-      ::Guard.should_receive(:add_guard).with('test', [], [], { :group => :w })
-
-      described_class.evaluate_guardfile(:guardfile_contents => valid_guardfile_string, :group => [:w])
-    end
-
-    it "evaluates only the specified symbol group" do
-      ::Guard.should_receive(:add_guard).with('pow', [], [], { :group => :default })
-      ::Guard.should_receive(:add_guard).with('test', [], [], { :group => :w })
-
-      described_class.evaluate_guardfile(:guardfile_contents => valid_guardfile_string, :group => [:w])
-    end
-
-    it "evaluates only the specified groups (with their options)" do
-      ::Guard.should_receive(:add_guard).with('pow', [], [], { :group => :default })
-      ::Guard.should_receive(:add_guard).with('rspec', [], [], { :group => :x })
-      ::Guard.should_receive(:add_guard).with('ronn', [], [], { :group => :x })
-      ::Guard.should_receive(:add_guard).with('less', [], [], { :group => :y })
-
-      described_class.evaluate_guardfile(:guardfile_contents => valid_guardfile_string, :group => [:x, :y])
-    end
-
-    it "evaluates always guard outside any group (even when a group is given)" do
-      ::Guard.should_receive(:add_guard).with('pow', [], [], { :group => :default })
-      ::Guard.should_receive(:add_guard).with('test', [], [], { :group => :w })
-
-      described_class.evaluate_guardfile(:guardfile_contents => valid_guardfile_string, :group => [:w])
-    end
-
-    it "evaluates all groups when no group option is specified (with their options)" do
+    it "evaluates all groups" do
       ::Guard.should_receive(:add_guard).with('pow', [], [], { :group => :default })
       ::Guard.should_receive(:add_guard).with('test', [], [], { :group => :w })
       ::Guard.should_receive(:add_guard).with('rspec', [], [], { :group => :x })

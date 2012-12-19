@@ -374,7 +374,7 @@ Notifications can also be disabled globally by setting a `GUARD_NOTIFY` environm
 
 #### `-g`/`--group` option
 
-Only certain plugin groups can be run:
+Scope Guard to certain plugin groups on start:
 
 ```bash
 $ guard --group group_name another_group_name
@@ -382,6 +382,15 @@ $ guard -g group_name another_group_name # shortcut
 ```
 
 See the Guardfile DSL below for creating groups.
+
+#### `-P`/`--plugins` option
+
+Scope Guard to certain plugins on start:
+
+```bash
+$ guard --plugins plugin_name another_plugin_name
+$ guard -p plugin_name another_plugin_name # shortcut
+```
 
 #### `-d`/`--debug` option
 
@@ -499,6 +508,7 @@ commands:
  * `n`, `notification`: Toggles the notifications.
  * `p`, `pause`: Toggles the file listener.
  * `r`, `reload`: Reload all plugins.
+ * `o`, `scope`: Scope Guard actions to plugins or groups.
  * `s`, `show`: Show all Guard plugins.
  * `e`, `exit`: Stop all plugins and quit Guard
 

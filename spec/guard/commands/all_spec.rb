@@ -16,21 +16,21 @@ describe 'Guard::Interactor::ALL' do
   describe '#perform' do
     context 'without scope' do
       it 'runs the :run_all action' do
-        Guard.should_receive(:run_all).with({})
+        Guard.should_receive(:run_all).with({ :groups => [], :plugins => [] })
         Pry.run_command 'all'
       end
     end
 
     context 'with a valid Guard group scope' do
       it 'runs the :run_all action with the given scope' do
-        Guard.should_receive(:run_all).with({ :group => foo_group })
+        Guard.should_receive(:run_all).with({ :groups => [foo_group], :plugins => [] })
         Pry.run_command 'all foo'
       end
     end
 
     context 'with a valid Guard plugin scope' do
       it 'runs the :run_all action with the given scope' do
-        Guard.should_receive(:run_all).with({ :guard => bar_guard })
+        Guard.should_receive(:run_all).with({ :plugins => [bar_guard], :groups => [] })
         Pry.run_command 'all bar'
       end
     end

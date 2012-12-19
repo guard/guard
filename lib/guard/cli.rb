@@ -41,6 +41,12 @@ module Guard
                   :aliases => '-g',
                   :banner  => 'Run only the passed groups'
 
+    method_option :plugin,
+                  :type    => :array,
+                  :default => [],
+                  :aliases => '-P',
+                  :banner  => 'Run only the passed plugins'
+
     method_option :watchdir,
                   :type    => :string,
                   :aliases => '-w',

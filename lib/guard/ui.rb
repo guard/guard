@@ -10,7 +10,7 @@ module Guard
   # processing, please just write it to STDOUT with `puts`.
   #
   module UI
-    
+
     class << self
 
       # Get the Guard::UI logger instance
@@ -18,7 +18,7 @@ module Guard
       def logger
         @logger ||= Lumberjack::Logger.new($stderr, self.options)
       end
-      
+
       # Get the logger options
       #
       # @return [Hash] the logger options
@@ -131,27 +131,35 @@ module Guard
       # @param [Hash] scopes hash with a guard or a group scope
       #
       def action_with_scopes(action, scopes)
-        scope_message ||= scopes[:guard]
-        scope_message ||= scopes[:group]
+        plugins = scopes[:plugins] || []
+        groups  = scopes[:groups] || []
+
+        if plugins.empty? && groups.empty?
+          plugins = ::Guard.scope[:plugins] || []
+          groups  = ::Guard.scope[:groups] || []
+        end
+
+        scope_message ||= plugins.join(',') unless plugins.empty?
+        scope_message ||= groups.join(',') unless groups.empty?
         scope_message ||= 'all'
 
-        info "#{action} #{scope_message}"
+        info "#{ action } #{ scope_message }"
       end
 
       private
-     
+
       # Filters log messages depending on either the
       # `:only`` or `:except` option.
       #
       # @param [String] plugin the calling plugin name
       # @yield When the message should be logged
-      # @yieldparam [String] param the calling plugin name 
+      # @yieldparam [String] param the calling plugin name
       #
       def filter(plugin)
         only   = self.options[:only]
         except = self.options[:except]
         plugin = plugin || calling_plugin_name
-        
+
         if (!only && !except) || (only && only.match(plugin)) || (except && !except.match(plugin))
           yield plugin
         end

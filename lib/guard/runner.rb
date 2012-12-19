@@ -7,7 +7,7 @@ module Guard
     require 'guard'
     require 'guard/ui'
     require 'guard/watcher'
-    
+
     require 'lumberjack'
 
     # Deprecation message for the `run_on_change` method
@@ -153,18 +153,23 @@ module Guard
 
     # Loop through all groups and run the given task for each Guard plugin.
     #
+    # If no scope is supplied, the global Guard scope is taken into account.
+    # If both a plugin and a group scope is given, then only the plugin scope
+    # is used.
+    #
     # Stop the task run for the all Guard plugins within a group if one Guard
     # throws `:task_has_failed`.
     #
-    # @param [Hash] scopes hash with a Guard plugin or a group scope
+    # @param [Hash] scopes hash with plugins or a groups scope
     # @yield the task to run
     #
     def scoped_guards(scopes = {})
-      if guard = scopes[:guard]
-        yield(guard)
+      if guards = current_plugins_scope(scopes)
+        guards.each do |guard|
+          yield(guard)
+        end
       else
-        groups = scopes[:group] ? [scopes[:group]] : ::Guard.groups
-        groups.each do |group|
+        current_groups_scope(scopes).each do |group|
           catch :task_has_failed do
             ::Guard.guards(:group => group.name).each do |guard|
               yield(guard)
@@ -188,5 +193,42 @@ module Guard
       (REMOVAL_TASKS.any? { |task| guard.respond_to?(task) } && !removed_paths.empty?)
     end
 
+    # Returns the current plugins scope.
+    # Local plugins scope wins over global plugins scope.
+    # If no plugins scope is found, then NO plugins are returned.
+    #
+    # @param [Hash] scopes hash with a local plugins or a groups scope
+    # @return [Array<Guard::Guard>] the plugins to scope to
+    #
+    def current_plugins_scope(scopes)
+      if scopes[:plugins] && !scopes[:plugins].empty?
+        scopes[:plugins]
+
+      elsif !::Guard.scope[:plugins].empty?
+        ::Guard.scope[:plugins]
+
+      else
+        nil
+      end
+    end
+
+    # Returns the current groups scope.
+    # Local groups scope wins over global groups scope.
+    # If no groups scope is found, then ALL groups are returned.
+    #
+    # @param [Hash] scopes hash with a local plugins or a groups scope
+    # @return [Array<Guard::Group>] the groups to scope to
+    #
+    def current_groups_scope(scopes)
+      if scopes[:groups] && !scopes[:groups].empty?
+        scopes[:groups]
+
+      elsif !::Guard.scope[:groups].empty?
+        ::Guard.scope[:groups]
+
+      else
+        ::Guard.groups
+      end
+    end
   end
 end
