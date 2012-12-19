@@ -19,7 +19,7 @@ describe Guard::Group do
   describe '#to_s' do
     it "output Group properly" do
       group = described_class.new(:foo)
-      group.to_s.should eq "foo group"
+      group.to_s.should eq "Foo"
     end
   end
 

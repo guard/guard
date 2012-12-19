@@ -26,7 +26,7 @@ module Guard
   DEV_NULL = WINDOWS ? "NUL" : "/dev/null"
 
   class << self
-    attr_accessor :options, :interactor, :runner, :listener, :lock
+    attr_accessor :options, :interactor, :runner, :listener, :lock, :scope
 
     # Initialize the Guard singleton:
     #
@@ -48,8 +48,9 @@ module Guard
       @options    = options
       @watchdir   = (options[:watchdir] && File.expand_path(options[:watchdir])) || Dir.pwd
       @runner     = ::Guard::Runner.new
+      @scope      = { :plugins => [], :groups => []}
 
-      if @options[:debug]
+      if options[:debug]
         Thread.abort_on_exception = true
         ::Guard::UI.options[:level] = :debug
         debug_command_execution
@@ -65,6 +66,14 @@ module Guard
 
       ::Guard::Dsl.evaluate_guardfile(options)
       ::Guard::UI.error 'No guards found in Guardfile, please add at least one.' if @guards.empty?
+
+      if options[:group]
+        @scope[:groups] = options[:group].map { |g| ::Guard.groups(g) }
+      end
+
+      if options[:plugin]
+        @scope[:plugins] = options[:plugin].map { |p| ::Guard.guards(p) }
+      end
 
       runner.deprecation_warning if @options[:show_deprecations]
 
@@ -189,6 +198,8 @@ module Guard
     # @param [Hash] scopes hash with a Guard plugin or a group scope
     #
     def reload(scopes = {})
+      scopes = convert_scopes(scopes)
+
       within_preserved_state do
         ::Guard::UI.clear(:force => true)
         ::Guard::UI.action_with_scopes('Reload', scopes)
@@ -206,6 +217,8 @@ module Guard
     # @param [Hash] scopes hash with a Guard plugin or a group scope
     #
     def run_all(scopes = {})
+      scopes = convert_scopes(scopes)
+
       within_preserved_state do
         ::Guard::UI.clear(:force => true)
         ::Guard::UI.action_with_scopes('Run', scopes)
@@ -455,5 +468,24 @@ module Guard
       ::Guard::UI.deprecation(NO_VENDOR_DEPRECATION) if options[:no_vendor]
     end
 
+    # Convert the old scope format to the new scope format.
+    #
+    # @example Convert old scopes
+    #   convert_scopes({ :guard => :rspec, :group => :backend })
+    #   => { :plugins => [:rspec], :groups => [:backend] }
+    #
+    def convert_scopes(scopes)
+      if scopes[:guard]
+        scopes[:plugins] = [scopes[:guard]]
+        scopes.delete(:guard)
+      end
+
+      if scopes[:group]
+        scopes[:groups] = [scopes[:group]]
+        scopes.delete(:group)
+      end
+
+      scopes
+    end
   end
 end

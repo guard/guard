@@ -16,21 +16,21 @@ describe 'Guard::Interactor::RELOAD' do
   describe '#perform' do
     context 'without scope' do
       it 'runs the :reload action' do
-        Guard.should_receive(:reload).with({})
+        Guard.should_receive(:reload).with({ :groups => [], :plugins => [] })
         Pry.run_command 'reload'
       end
     end
 
     context 'with a valid Guard group scope' do
       it 'runs the :reload action with the given scope' do
-        Guard.should_receive(:reload).with({ :group => foo_group })
+        Guard.should_receive(:reload).with({ :groups => [foo_group], :plugins => [] })
         Pry.run_command 'reload foo'
       end
     end
 
     context 'with a valid Guard plugin scope' do
       it 'runs the :reload action with the given scope' do
-        Guard.should_receive(:reload).with({ :guard => bar_guard })
+        Guard.should_receive(:reload).with({ :plugins => [bar_guard], :groups => [] })
         Pry.run_command 'reload bar'
       end
     end

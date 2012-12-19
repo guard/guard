@@ -13,13 +13,13 @@ describe Guard do
       subject.should be ::Guard
     end
 
-    it "initializes @guards" do
+    it "initializes the plugins" do
       subject.guards.should eq []
     end
 
-    it "initializes @groups" do
+    it "initializes the groups" do
       subject.groups[0].name.should eq :default
-      subject.groups[0].options.should == {}
+      subject.groups[0].options.should == { }
     end
 
     it "initializes the options" do
@@ -59,6 +59,46 @@ describe Guard do
     it "call setup_interactor" do
       ::Guard.should_receive(:setup_interactor)
       subject
+    end
+
+    context 'without the group or plugin option' do
+      it "initializes the empty scope" do
+        subject.scope.should == { :groups => [], :plugins => [] }
+      end
+    end
+
+    context 'with the group option' do
+      let(:options) { {
+        :group              => ['backend', 'frontend'],
+        :guardfile_contents => "group :backend do; end; group :frontend do; end; group :excluded do; end"
+      } }
+
+      it "initializes the group scope" do
+        subject.scope[:plugins].should be_empty
+        subject.scope[:groups].count.should be 2
+        subject.scope[:groups][0].name.should eql :backend
+        subject.scope[:groups][1].name.should eql :frontend
+      end
+    end
+
+    context 'with the plugin option' do
+      let(:options) { {
+        :plugin             => ['cucumber', 'jasmine'],
+        :guardfile_contents => "guard :jasmine do; end; guard :cucumber do; end; guard :coffeescript do; end"
+      } }
+
+      before do
+        stub_const 'Guard::Jasmine', Class.new(Guard::Guard)
+        stub_const 'Guard::Cucumber', Class.new(Guard::Guard)
+        stub_const 'Guard::CoffeeScript', Class.new(Guard::Guard)
+      end
+
+      it "initializes the plugin scope" do
+        subject.scope[:groups].should be_empty
+        subject.scope[:plugins].count.should be 2
+        subject.scope[:plugins][0].class.should eql ::Guard::Cucumber
+        subject.scope[:plugins][1].class.should eql ::Guard::Jasmine
+      end
     end
 
     context 'when deprecations should be shown' do
@@ -270,7 +310,7 @@ describe Guard do
   describe ".setup_interactor" do
     context 'with CLI options' do
       before do
-        @enabled = ::Guard::Interactor.enabled
+        @enabled                    = ::Guard::Interactor.enabled
         ::Guard::Interactor.enabled = true
       end
 
@@ -330,15 +370,27 @@ describe Guard do
       subject.reload
     end
 
-    context 'with a scope' do
+    context 'with a old scope format' do
       it 'does not re-evaluate the Guardfile' do
         ::Guard::Dsl.should_not_receive(:reevaluate_guardfile)
         subject.reload({ :group => :frontend })
       end
 
       it 'reloads Guard' do
-        ::Guard.should_receive(:reload).with({ :group => :frontend })
+        runner.should_receive(:run).with(:reload, { :groups => [:frontend] })
         subject.reload({ :group => :frontend })
+      end
+    end
+
+    context 'with a new scope format' do
+      it 'does not re-evaluate the Guardfile' do
+        ::Guard::Dsl.should_not_receive(:reevaluate_guardfile)
+        subject.reload({ :groups => [:frontend] })
+      end
+
+      it 'reloads Guard' do
+        runner.should_receive(:run).with(:reload, { :groups => [:frontend] })
+        subject.reload({ :groups => [:frontend] })
       end
     end
 
@@ -349,7 +401,7 @@ describe Guard do
       end
 
       it 'does not reload Guard' do
-        ::Guard.should_not_receive(:reload).with({ })
+        runner.should_not_receive(:run).with(:reload, { })
         subject.reload
       end
     end
@@ -357,8 +409,10 @@ describe Guard do
 
   describe ".guards" do
     before(:all) do
-      class Guard::FooBar < Guard::Guard; end
-      class Guard::FooBaz < Guard::Guard; end
+      class Guard::FooBar < Guard::Guard;
+      end
+      class Guard::FooBaz < Guard::Guard;
+      end
     end
 
     after(:all) do
@@ -369,7 +423,7 @@ describe Guard do
     end
 
     subject do
-      guard = ::Guard.setup
+      guard                   = ::Guard.setup
       @guard_foo_bar_backend  = Guard::FooBar.new([], { :group => 'backend' })
       @guard_foo_bar_frontend = Guard::FooBar.new([], { :group => 'frontend' })
       @guard_foo_baz_backend  = Guard::FooBaz.new([], { :group => 'backend' })
@@ -385,7 +439,7 @@ describe Guard do
       subject.guards.should == subject.instance_variable_get("@guards")
     end
 
-    describe "find a guard by as string/symbol" do
+    context "find a guard by as string/symbol" do
       it "find a guard by a string" do
         subject.guards('foo-bar').should == @guard_foo_bar_backend
       end
@@ -399,7 +453,7 @@ describe Guard do
       end
     end
 
-    describe "find guards matching a regexp" do
+    context "find guards matching a regexp" do
       it "with matches" do
         subject.guards(/^foobar/).should == [@guard_foo_bar_backend, @guard_foo_bar_frontend]
       end
@@ -409,7 +463,7 @@ describe Guard do
       end
     end
 
-    describe "find guards by their group" do
+    context "find guards by their group" do
       it "group name is a string" do
         subject.guards(:group => 'backend').should == [@guard_foo_bar_backend, @guard_foo_baz_backend]
       end
@@ -423,7 +477,7 @@ describe Guard do
       end
     end
 
-    describe "find guards by their group & name" do
+    context "find guards by their group & name" do
       it "group name is a string" do
         subject.guards(:group => 'backend', :name => 'foo-bar').should == [@guard_foo_bar_backend]
       end
@@ -440,17 +494,19 @@ describe Guard do
 
   describe ".groups" do
     subject do
-      guard = ::Guard.setup
+      guard           = ::Guard.setup
       @group_backend  = guard.add_group(:backend)
       @group_backflip = guard.add_group(:backflip)
       guard
     end
 
-    it "return @groups without any argument" do
-      subject.groups.should == subject.instance_variable_get("@groups")
+    context 'without any argument' do
+      it "return all groups" do
+        subject.groups.should == subject.instance_variable_get("@groups")
+      end
     end
 
-    describe "find a group by as string/symbol" do
+    context "find a group by as string/symbol" do
       it "find a group by a string" do
         subject.groups('backend').should == @group_backend
       end
@@ -464,7 +520,7 @@ describe Guard do
       end
     end
 
-    describe "find groups matching a regexp" do
+    context "find groups matching a regexp" do
       it "with matches" do
         subject.groups(/^back/).should == [@group_backend, @group_backflip]
       end
@@ -477,32 +533,32 @@ describe Guard do
 
   describe ".setup_groups" do
     subject do
-      guard = ::Guard.setup(:guardfile => File.join(@fixture_path, "Guardfile"))
+      guard           = ::Guard.setup(:guardfile => File.join(@fixture_path, "Guardfile"))
       @group_backend  = guard.add_group(:backend)
       @group_backflip = guard.add_group(:backflip)
       guard
     end
 
-    it "return @groups without any argument" do
-      subject.groups.should have(3).items
-
+    it "initializes a default group" do
       subject.setup_groups
 
       subject.groups.should have(1).item
       subject.groups[0].name.should eq :default
-      subject.groups[0].options.should == {}
+      subject.groups[0].options.should == { }
     end
   end
 
   describe ".setup_guards" do
-    before(:all) { class Guard::FooBar < Guard::Guard; end }
+    before(:all) {
+      class Guard::FooBar < Guard::Guard;
+      end }
 
     after(:all) do
       ::Guard.instance_eval { remove_const(:FooBar) }
     end
 
     subject do
-      guard = ::Guard.setup(:guardfile => File.join(@fixture_path, "Guardfile"))
+      guard          = ::Guard.setup(:guardfile => File.join(@fixture_path, "Guardfile"))
       @group_backend = guard.add_guard(:foo_bar)
       guard
     end
@@ -554,7 +610,7 @@ describe Guard do
   describe ".add_guard" do
     before do
       @guard_rspec_class = double('Guard::RSpec')
-      @guard_rspec = double('Guard::RSpec', :is_a? => true)
+      @guard_rspec       = double('Guard::RSpec', :is_a? => true)
 
       ::Guard.stub!(:get_guard_class) { @guard_rspec_class }
 
@@ -585,7 +641,7 @@ describe Guard do
 
     context "with no watchers given" do
       it "gives an empty array of watchers" do
-        @guard_rspec_class.should_receive(:new).with([], {}).and_return(@guard_rspec)
+        @guard_rspec_class.should_receive(:new).with([], { }).and_return(@guard_rspec)
 
         ::Guard.add_guard(:rspec, [])
       end
@@ -593,7 +649,7 @@ describe Guard do
 
     context "with watchers given" do
       it "give the watchers array" do
-        @guard_rspec_class.should_receive(:new).with([:foo], {}).and_return(@guard_rspec)
+        @guard_rspec_class.should_receive(:new).with([:foo], { }).and_return(@guard_rspec)
 
         ::Guard.add_guard(:rspec, [:foo])
       end
@@ -601,9 +657,9 @@ describe Guard do
 
     context "with no options given" do
       it "gives an empty hash of options" do
-        @guard_rspec_class.should_receive(:new).with([], {}).and_return(@guard_rspec)
+        @guard_rspec_class.should_receive(:new).with([], { }).and_return(@guard_rspec)
 
-        ::Guard.add_guard(:rspec, [], [], {})
+        ::Guard.add_guard(:rspec, [], [], { })
       end
     end
 
@@ -636,18 +692,18 @@ describe Guard do
     it "accepts options" do
       ::Guard.add_group(:backend, { :halt_on_fail => true })
 
-      ::Guard.groups[0].options.should eq({})
+      ::Guard.groups[0].options.should eq({ })
       ::Guard.groups[1].options.should eq({ :halt_on_fail => true })
     end
   end
 
   describe '.within_preserved_state' do
     subject { ::Guard.setup }
-    before { subject.interactor =  stub('interactor').as_null_object }
+    before { subject.interactor = stub('interactor').as_null_object }
 
     it 'disallows running the block concurrently to avoid inconsistent states' do
       subject.lock.should_receive(:synchronize)
-      subject.within_preserved_state &Proc.new {}
+      subject.within_preserved_state &Proc.new { }
     end
 
     it 'runs the passed block' do
@@ -660,7 +716,7 @@ describe Guard do
       it 'stops the interactor before running the block and starts it again when done' do
         subject.interactor.should_receive(:stop)
         subject.interactor.should_receive(:start)
-        subject.within_preserved_state &Proc.new {}
+        subject.within_preserved_state &Proc.new { }
       end
     end
 
@@ -668,7 +724,7 @@ describe Guard do
       it 'stops the interactor before running the block' do
         subject.interactor.should_receive(:stop)
         subject.interactor.should__not_receive(:start)
-        subject.within_preserved_state &Proc.new {}
+        subject.within_preserved_state &Proc.new { }
       end
     end
   end
@@ -691,7 +747,8 @@ describe Guard do
       it "resolves the Guard class from string" do
         Guard.should_receive(:require) { |classname|
           classname.should eq 'guard/classname'
-          class Guard::Classname; end
+          class Guard::Classname;
+          end
         }
         Guard.get_guard_class('classname').should == Guard::Classname
       end
@@ -699,7 +756,8 @@ describe Guard do
       it "resolves the Guard class from symbol" do
         Guard.should_receive(:require) { |classname|
           classname.should eq 'guard/classname'
-          class Guard::Classname; end
+          class Guard::Classname;
+          end
         }
         Guard.get_guard_class(:classname).should == Guard::Classname
       end
@@ -711,7 +769,8 @@ describe Guard do
       it "returns the Guard class" do
         Guard.should_receive(:require) { |classname|
           classname.should eq 'guard/dashed-class-name'
-          class Guard::DashedClassName; end
+          class Guard::DashedClassName;
+          end
         }
         Guard.get_guard_class('dashed-class-name').should == Guard::DashedClassName
       end
@@ -723,7 +782,8 @@ describe Guard do
       it "returns the Guard class" do
         Guard.should_receive(:require) { |classname|
           classname.should eq 'guard/underscore_class_name'
-          class Guard::UnderscoreClassName; end
+          class Guard::UnderscoreClassName;
+          end
         }
         Guard.get_guard_class('underscore_class_name').should == Guard::UnderscoreClassName
       end
@@ -735,7 +795,8 @@ describe Guard do
       it "returns the Guard class" do
         Guard.should_receive(:require) { |classname|
           classname.should eq 'guard/vspec'
-          class Guard::VSpec; end
+          class Guard::VSpec;
+          end
         }
         Guard.get_guard_class('vspec').should == Guard::VSpec
       end
@@ -801,7 +862,7 @@ describe Guard do
 
     before do
       Guard.unstub(:debug_command_execution)
-      @original_system = Kernel.method(:system)
+      @original_system  = Kernel.method(:system)
       @original_command = Kernel.method(:"`")
     end
 
