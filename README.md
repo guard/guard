@@ -646,6 +646,29 @@ $ guard -g specs
 
 Guard plugins that don't belong to a group are considered global and are always run.
 
+### scope
+
+The `scope` method allows you to define the default plugin or group scope for Guard, if not
+specified as command line option. Thus command line group and plugin scope takes precedence over
+the DSL scope configuration.
+
+You can define either a single plugin or group:
+
+```ruby
+scope :plugin => :rspec
+scope :group => :docs
+```
+
+or specify multiple plugins or groups.
+
+```ruby
+scope :plugins => [:test, :jasmine]
+scope :groups => [:docs, :frontend]
+```
+
+If you define both the plugin and group scope, the plugin scope has precedence. If you use both the
+plural and the singular option, the plural has precedence.
+
 ### notification
 
 If you don't specify any notification configuration in your `Guardfile`, Guard goes through the list of available

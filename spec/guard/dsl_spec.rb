@@ -593,6 +593,76 @@ describe Guard::Dsl do
     end
   end
 
+  describe '#scope' do
+    context 'with an existing command line plugin scope' do
+      before do
+        ::Guard.options[:plugin] = ['rspec']
+        ::Guard.options[:group] = []
+      end
+
+      it 'does not use the DSL scope plugin' do
+        described_class.evaluate_guardfile(:guardfile_contents => 'scope :plugin => :baz')
+        ::Guard.options[:plugin].should eql(['rspec'])
+      end
+
+      it 'does not use the DSL scope plugins' do
+        described_class.evaluate_guardfile(:guardfile_contents => 'scope :plugins => [:foo, :bar]')
+        ::Guard.options[:plugin].should eql(['rspec'])
+      end
+    end
+
+    context 'without an existing command line plugin scope' do
+      before do
+        ::Guard.options[:plugin] = []
+        ::Guard.options[:group] = []
+      end
+
+      it 'does use the DSL scope plugin' do
+        described_class.evaluate_guardfile(:guardfile_contents => 'scope :plugin => :baz')
+        ::Guard.options[:plugin].should eql([:baz])
+      end
+
+      it 'does use the DSL scope plugins' do
+        described_class.evaluate_guardfile(:guardfile_contents => 'scope :plugins => [:foo, :bar]')
+        ::Guard.options[:plugin].should eql([:foo, :bar])
+      end
+    end
+
+    context 'with an existing command line group scope' do
+      before do
+        ::Guard.options[:plugin] = []
+        ::Guard.options[:group] = ['frontend']
+      end
+
+      it 'does not use the DSL scope plugin' do
+        described_class.evaluate_guardfile(:guardfile_contents => 'scope :group => :baz')
+        ::Guard.options[:group].should eql(['frontend'])
+      end
+
+      it 'does not use the DSL scope plugins' do
+        described_class.evaluate_guardfile(:guardfile_contents => 'scope :groups => [:foo, :bar]')
+        ::Guard.options[:group].should eql(['frontend'])
+      end
+    end
+
+    context 'without an existing command line group scope' do
+      before do
+        ::Guard.options[:plugin] = []
+        ::Guard.options[:group] = []
+      end
+
+      it 'does use the DSL scope group' do
+        described_class.evaluate_guardfile(:guardfile_contents => 'scope :group => :baz')
+        ::Guard.options[:group].should eql([:baz])
+      end
+
+      it 'does use the DSL scope groups' do
+        described_class.evaluate_guardfile(:guardfile_contents => 'scope :groups => [:foo, :bar]')
+        ::Guard.options[:group].should eql([:foo, :bar])
+      end
+    end
+  end
+
   private
 
   def fake_guardfile(name, contents)

@@ -2,6 +2,7 @@
 
 ### New features
 
+- Allow the Guard scope to be defined from the `Guardfile` with the `scope` DSL method. ([@netzpirat][])
 - [#378][] Scope plugins and groups from CLI and interactor. ([@netzpirat][])
 - [#369][] Allow Guard plugins to specify their template location. ([@schmurfy][])
 - [#364][] Add `ignore!` and `filter!` DSL methods. ([@tarsolya][])

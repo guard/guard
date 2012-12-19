@@ -553,5 +553,33 @@ module Guard
       ::Guard::UI.options = ::Guard::UI.options.merge options
     end
 
+    # Sets the default scope on startup
+    #
+    # @example Scope Guard to a single group
+    #   scope :group => :frontend
+    #
+    # @example Scope Guard to multiple groups
+    #   scope :groups => [:specs, :docs]
+    #
+    # @example Scope Guard to a single plugin
+    #   scope :plugin => :test
+    #
+    # @example Scope Guard to multiple plugins
+    #   scope :plugins => [:jasmine, :rspec]
+    #
+    # @param [Hash] scopes the scope for the groups and plugins
+    #
+    def scope(scopes = {})
+      if ::Guard.options[:plugin].empty?
+        ::Guard.options[:plugin] = [scopes[:plugin]] if scopes[:plugin]
+        ::Guard.options[:plugin] = scopes[:plugins]  if scopes[:plugins]
+      end
+
+      if ::Guard.options[:group].empty?
+        ::Guard.options[:group] = [scopes[:group]] if scopes[:group]
+        ::Guard.options[:group] = scopes[:groups]  if scopes[:groups]
+      end
+    end
+
   end
 end

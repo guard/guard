@@ -46,7 +46,7 @@ module Guard
     def setup(options = {})
       @running    = true
       @lock       = Mutex.new
-      @options    = options
+      @options    = options.dup
       @watchdir   = (options[:watchdir] && File.expand_path(options[:watchdir])) || Dir.pwd
       @runner     = ::Guard::Runner.new
       @scope      = { :plugins => [], :groups => []}
@@ -68,12 +68,12 @@ module Guard
       ::Guard::Dsl.evaluate_guardfile(options)
       ::Guard::UI.error 'No guards found in Guardfile, please add at least one.' if @guards.empty?
 
-      if options[:group]
-        @scope[:groups] = options[:group].map { |g| ::Guard.groups(g) }
+      if @options[:group]
+        @scope[:groups] = @options[:group].map { |g| ::Guard.groups(g) }
       end
 
-      if options[:plugin]
-        @scope[:plugins] = options[:plugin].map { |p| ::Guard.guards(p) }
+      if @options[:plugin]
+        @scope[:plugins] = @options[:plugin].map { |p| ::Guard.guards(p) }
       end
 
       runner.deprecation_warning if @options[:show_deprecations]
