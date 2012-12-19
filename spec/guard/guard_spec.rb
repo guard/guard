@@ -61,9 +61,9 @@ describe Guard::Guard do
   describe '#to_s' do
     before(:all) { class Guard::Dummy < Guard::Guard; end }
 
-    it "output Guard properly" do
+    it "output the short plugin name" do
       guard = Guard::Dummy.new
-      guard.to_s.should eq "Guard::Dummy"
+      guard.to_s.should eq "dummy"
     end
   end
 
