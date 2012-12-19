@@ -158,7 +158,7 @@ module Guard
     # @return [String] the string representation
     #
     def to_s
-      self.class.to_s.downcase.sub('guard::', '')
+      self.class.to_s.downcase.sub('guard::', '').capitalize
     end
 
   end

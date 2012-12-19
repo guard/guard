@@ -63,7 +63,7 @@ describe Guard::Guard do
 
     it "output the short plugin name" do
       guard = Guard::Dummy.new
-      guard.to_s.should eq "dummy"
+      guard.to_s.should eq "Dummy"
     end
   end
 
