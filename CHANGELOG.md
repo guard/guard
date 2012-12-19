@@ -2,6 +2,7 @@
 
 ### New features
 
+- [#378][] Scope plugins and groups from CLI and interactor. ([@netzpirat][])
 - [#369][] Allow Guard plugins to specify their template location. ([@schmurfy][])
 - [#364][] Add `ignore!` and `filter!` DSL methods. ([@tarsolya][])
 - [#362][] Add interactor options `:history_file` and `:guard_rc`. ([@netzpirat][])
@@ -685,6 +686,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [#368]: https://github.com/guard/guard/issues/368
 [#369]: https://github.com/guard/guard/issues/369
 [#377]: https://github.com/guard/guard/issues/377
+[#378]: https://github.com/guard/guard/issues/378
 [@Gazer]: https://github.com/Gazer
 [@Maher4Ever]: https://github.com/Maher4Ever
 [@alandipert]: https://github.com/alandipert
