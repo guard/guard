@@ -121,7 +121,7 @@ module Guard
     #
     def create_command_aliases
       SHORTCUTS.each do |command, shortcut|
-        Pry.commands.alias_command shortcut, command
+        Pry.commands.alias_command shortcut, command.to_s
       end
     end
 
