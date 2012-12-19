@@ -131,14 +131,16 @@ module Guard
       # @param [Hash] scopes hash with a guard or a group scope
       #
       def action_with_scopes(action, scopes)
-        if scopes[:plugins]
-          scope_message ||= scopes[:plugins].join(',')
+        plugins = scopes[:plugins] || []
+        groups  = scopes[:groups] || []
+
+        if plugins.empty? && groups.empty?
+          plugins = ::Guard.scope[:plugins] || []
+          groups  = ::Guard.scope[:groups] || []
         end
 
-        if scopes[:groups]
-          scope_message ||= scopes[:groups].join(',')
-        end
-
+        scope_message ||= plugins.join(',') unless plugins.empty?
+        scope_message ||= groups.join(',') unless groups.empty?
         scope_message ||= 'all'
 
         info "#{ action } #{ scope_message }"
