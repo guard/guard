@@ -176,6 +176,29 @@ describe Guard do
           end
         end
       end
+
+      context 'when receiving SIGINT' do
+        context 'without an interactor' do
+          before { ::Guard.should_receive(:interactor).and_return nil }
+
+          it 'stops Guard' do
+            ::Guard.should_receive(:stop)
+            Process.kill :INT, Process.pid
+            sleep 1
+          end
+        end
+
+        context 'with an interactor' do
+          let(:interactor) { mock('interactor', :thread => mock('thread')) }
+          before { ::Guard.should_receive(:interactor).twice.and_return interactor }
+
+          it 'delegates to the Pry thread' do
+            interactor.thread.should_receive(:raise).with Interrupt
+            Process.kill :INT, Process.pid
+            sleep 1
+          end
+        end
+      end
     end
 
     context "with the notify option enabled" do
@@ -841,17 +864,17 @@ describe Guard do
       gems = Guard.guard_gem_names
       gems.should include("rspec")
     end
-    
+
     it "returns the list of embedded guard gems" do
       gem1 = stub(:gem, :name => "gem1", :full_gem_path => '/gem1' )
       gem2 = stub(:gem, :name => "gem2", :full_gem_path => '/gem2' )
       gem3 = stub(:gem, :name => "guard", :full_gem_path => '/guard' )
-      
+
       File.should_receive(:exists?).with('/gem1/lib/guard/gem1.rb').and_return(false)
       File.should_receive(:exists?).with('/gem2/lib/guard/gem2.rb').and_return(true)
-      
+
       Gem::Specification.should_receive(:find_all).and_return([gem1, gem2, gem3])
-      
+
       Guard.guard_gem_names.should == ['gem2']
     end
 

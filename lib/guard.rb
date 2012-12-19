@@ -26,7 +26,7 @@ module Guard
   DEV_NULL = WINDOWS ? "NUL" : "/dev/null"
 
   class << self
-    attr_accessor :options, :interactor, :runner, :listener, :lock, :scope
+    attr_accessor :options, :interactor, :runner, :listener, :lock, :scope, :running
 
     # Initialize the Guard singleton:
     #
@@ -44,6 +44,7 @@ module Guard
     # @deprecated @option options [Boolean] no_vendor ignore vendored dependencies
     #
     def setup(options = {})
+      @running    = true
       @lock       = Mutex.new
       @options    = options
       @watchdir   = (options[:watchdir] && File.expand_path(options[:watchdir])) || Dir.pwd
@@ -104,15 +105,26 @@ module Guard
     # Currently two signals are caught:
     # - `USR1` which pauses listening to changes.
     # - `USR2` which resumes listening to changes.
+    # - 'INT' which is delegated to Pry if active, otherwise stops Guard.
     #
     def setup_signal_traps
       unless defined?(JRUBY_VERSION)
         if Signal.list.keys.include?('USR1')
-          Signal.trap('USR1') { ::Guard.pause unless @listener.paused? }
+          Signal.trap('USR1') { ::Guard.pause unless listener.paused? }
         end
 
         if Signal.list.keys.include?('USR2')
-          Signal.trap('USR2') { ::Guard.pause if @listener.paused? }
+          Signal.trap('USR2') { ::Guard.pause if listener.paused? }
+        end
+
+        if Signal.list.keys.include?('INT')
+          Signal.trap('INT') do
+            if interactor
+              interactor.thread.raise(Interrupt)
+            else
+              ::Guard.stop
+            end
+          end
         end
       end
     end
@@ -169,25 +181,24 @@ module Guard
     #
     def start(options = {})
       setup(options)
-      ::Guard::UI.info "Guard is now watching at '#{ @watchdir }'"
 
       within_preserved_state do
+        ::Guard::UI.debug 'Guard starts all plugins'
         runner.run(:start)
+        ::Guard::UI.info "Guard is now watching at '#{ @watchdir }'"
+        listener.start(false)
       end
-
-      # Blocks main thread
-      listener.start
     end
 
     # Stop Guard listening to file changes
     #
     def stop
       within_preserved_state(false) do
+        ::Guard::UI.debug 'Guard stops all plugins'
         runner.run(:stop)
         ::Guard::UI.info 'Bye bye...', :reset => true
-
-        # Unblocks main thread
         listener.stop
+        ::Guard.running = false
       end
     end
 
@@ -350,6 +361,7 @@ module Guard
           interactor.stop if interactor
           @result = yield
         rescue Interrupt
+          # Bring back Pry when the block is halted with Ctrl-C
         end
 
         interactor.start if interactor && restart_interactor
@@ -486,6 +498,22 @@ module Guard
       end
 
       scopes
+    end
+
+    # Determine if Guard needs to quit. This
+    # checks for Ctrl-D pressed.
+    #
+    # @return [Boolean] whether to quit or not
+    #
+    def quit?
+      STDIN.read_nonblock(1)
+      false
+    rescue Errno::EINTR
+      false
+    rescue Errno::EAGAIN
+      false
+    rescue EOFError
+      true
     end
   end
 end

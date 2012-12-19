@@ -38,6 +38,8 @@ module Guard
       :quit         => 'q'
     }
 
+    attr_accessor :thread
+
     class << self
 
       # Get the interactor options
@@ -202,7 +204,8 @@ module Guard
       ]
     end
 
-    # Start the line reader in its own thread.
+    # Start the line reader in its own thread and
+    # stop Guard on Ctrl-D.
     #
     def start
       return if ENV['GUARD_ENV'] == 'test'
@@ -215,7 +218,6 @@ module Guard
         @thread = Thread.new do
           Pry.start
           ::Guard.stop
-          exit
         end
       end
     end

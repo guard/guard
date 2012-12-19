@@ -9,6 +9,8 @@
 
 ### Improvements
 
+- [#376][] Delegate Ctrl-C to Pry to exit continuation. ([@netzpirat][])
+- [#360][] Improve Guard/listen/interactor thread coordination. ([@netzpirat][])
 - [#368][] Detecting duplicate definitions and then warning the user. ([@jfolkins][])
 - [#367][] Change modeline's fgcolor when changing bgcolor in emacs notifier. ([@iljoo][])
 
