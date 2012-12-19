@@ -29,9 +29,13 @@ The following options are available:
   Runs Guard in debug mode.
 
 `-g`, `--group` <GROUP1> <GROUP2>...
-  Runs only the groups specified by GROUP1, GROUP2 etc.
-  Groups name should be separated by spaces.
-  Guards that don't belong to a group are considered global and are always run.
+  Scopes the Guard actions to the groups specified by GROUP1, GROUP2, etc.
+  Group names should be separated by spaces.
+  Plugins that don't belong to a group are considered global and are always run.
+
+`-P`, `--plugin` <PLUGIN1> <PLUGIN2>...
+  Scopes the Guard actions to the plugins specified by PLUGIN1, PLUGIN2, etc.
+  Plugin names should be separated by spaces.
 
 `-w`, `--watchdir` <PATH>
   Tells Guard to watch PATH instead of `./`.

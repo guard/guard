@@ -101,9 +101,13 @@
   Runs Guard in debug mode.</p>
 
 <p><code>-g</code>, <code>--group</code> <var>GROUP1</var> <var>GROUP2</var>...
-  Runs only the groups specified by GROUP1, GROUP2 etc.
-  Groups name should be separated by spaces.
-  Guards that don't belong to a group are considered global and are always run.</p>
+  Scopes the Guard actions to the groups specified by GROUP1, GROUP2, etc.
+  Group names should be separated by spaces.
+  Plugins that don't belong to a group are considered global and are always run.</p>
+
+<p><code>-P</code>, <code>--plugin</code> <var>PLUGIN1</var> <var>PLUGIN2</var>...
+  Scopes the Guard actions to the plugins specified by PLUGIN1, PLUGIN2, etc.
+  Plugin names should be separated by spaces.</p>
 
 <p><code>-w</code>, <code>--watchdir</code> <var>PATH</var>
   Tells Guard to watch PATH instead of <code>./</code>.</p>
@@ -181,7 +185,7 @@ https://github.com/guard/guard/blob/master/CHANGELOG.md</p>
 
   <ol class='man-decor man-foot man foot'>
     <li class='tl'></li>
-    <li class='tc'>July 2012</li>
+    <li class='tc'>December 2012</li>
     <li class='tr'>guard(1)</li>
   </ol>
 
