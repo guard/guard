@@ -157,4 +157,47 @@ describe Guard::Notifier::Tmux do
     end
 
   end
+
+  describe '.save_tmux_state' do
+    before do
+      subject.stub(:`).and_return("option1 setting1\noption2 setting2\n")
+    end
+
+    it 'saves the current tmux options' do
+      subject.should_receive(:`).with('tmux show')
+      subject.save_tmux_state
+      subject.get_tmux_option("option1").should eq "setting1"
+      subject.get_tmux_option("option2").should eq "setting2"
+    end
+
+    it 'sets the ready_to_restore flag to true after state is saved' do
+      subject.should_receive(:`).with('tmux show')
+      subject.save_tmux_state
+      subject.ready_to_restore.should be_true
+    end
+
+  end
+
+  describe '.restore_tmux_state' do
+    before do
+      subject.stub(:`).and_return("option1 setting1\noption2 setting2\n")
+      subject.stub :system => true
+    end
+
+    it 'restores the tmux options' do
+      subject.should_receive(:`).with('tmux show')
+      subject.save_tmux_state
+      subject.should_receive(:system).with('tmux set quiet off')
+      subject.should_receive(:system).with('tmux set option2 setting2')
+      subject.should_receive(:system).with('tmux set -u status-left-bg')
+      subject.should_receive(:system).with('tmux set option1 setting1')
+      subject.should_receive(:system).with('tmux set -u status-right-bg')
+      subject.should_receive(:system).with('tmux set -u status-right-fg')
+      subject.should_receive(:system).with('tmux set -u status-left-fg')
+      subject.should_receive(:system).with('tmux set -u message-fg')
+      subject.should_receive(:system).with('tmux set -u message-bg')
+      subject.restore_tmux_state
+    end
+
+  end
 end

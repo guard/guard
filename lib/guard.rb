@@ -198,6 +198,7 @@ module Guard
         runner.run(:stop)
         ::Guard::UI.info 'Bye bye...', :reset => true
         listener.stop
+        ::Guard::Notifier.turn_off
         ::Guard.running = false
       end
     end
