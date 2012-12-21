@@ -1,4 +1,4 @@
-## Master
+## 1.6.0 - 21 December, 2012
 
 ### New features
 
