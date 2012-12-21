@@ -601,7 +601,6 @@ describe Guard do
       ::Guard.stub(:listener => mock('listener', :start => true))
       ::Guard.stub(:runner => mock('runner', :run => true))
       ::Guard.stub(:within_preserved_state).and_yield
-      ::Guard.instance_variable_set('@allow_stop', mock('turnstile', :wait => true, :signal => true))
     end
 
     it "setup Guard" do
@@ -627,6 +626,39 @@ describe Guard do
       ::Guard.listener.should_receive(:start)
 
       ::Guard.start
+    end
+  end
+
+  describe ".stop" do
+    before do
+      ::Guard.stub(:setup)
+      ::Guard.stub(:listener => mock('listener', :stop => true))
+      ::Guard.stub(:runner => mock('runner', :run => true))
+      ::Guard.stub(:within_preserved_state).and_yield
+    end
+
+    it "turns the notifier off" do
+      ::Guard::Notifier.should_receive(:turn_off)
+
+      ::Guard.stop
+    end
+
+    it "tell the runner to run the :stop task" do
+      ::Guard.runner.should_receive(:run).with(:stop)
+
+      ::Guard.stop
+    end
+
+    it "stops the listener" do
+      ::Guard.listener.should_receive(:stop)
+
+      ::Guard.stop
+    end
+
+    it "sets the running state to false" do
+      ::Guard.running = true
+      ::Guard.stop
+      ::Guard.running.should be_false
     end
   end
 

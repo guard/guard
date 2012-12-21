@@ -1,8 +1,6 @@
 module Guard
   module Notifier
 
-    # Default options for Tmux
-
     # Changes the color of the Tmux status bar and optionally
     # shows messages in the status bar.
     #
@@ -18,6 +16,7 @@ module Guard
     module Tmux
       extend self
 
+      # Default options for Tmux
       DEFAULTS = {
         :client                 => 'tmux',
         :tmux_environment       => 'TMUX',
@@ -62,7 +61,7 @@ module Guard
       # @option options [Boolean] display_message whether to display a message or not
       #
       def notify(type, title, message, image, options = { })
-        color = tmux_color type, options
+        color = tmux_color(type, options)
         color_location = options[:color_location] || DEFAULTS[:color_location]
 
         system("#{ DEFAULTS[:client] } set #{ color_location } #{ color }")
@@ -123,63 +122,60 @@ module Guard
         end
       end
 
-      # Notfications starting,
-      # quiet tmux output
+      # Notification starting, save the current Tmux settings
+      # and quiet the Tmux output.
       #
       def turn_on(options = { })
-        save_tmux_state
-        system(" #{ DEFAULTS[:client] } set quiet on")
+        unless @options_stored
+          reset_options_store
+
+          `#{ DEFAULTS[:client] } show`.each_line do |line|
+            option, _, setting = line.chomp.partition(' ')
+            @options_store[option] = setting
+          end
+
+          @options_stored = true
+        end
+
+        system("#{ DEFAULTS[:client] } set quiet on")
       end
 
+      # Notification stopping. Restore the previous Tmux state
+      # if available (existing options are restored, new options
+      # are unset) and unquite the Tmux output.
+      #
       def turn_off(options = { })
-        restore_tmux_state
+        if @options_stored
+          @options_store.each do |key, value|
+            if value
+              system("#{ DEFAULTS[:client] } set #{ key } #{ value }")
+            else
+              system("#{ DEFAULTS[:client] } set -u #{ key }")
+            end
+          end
+
+          reset_options_store
+        end
+
+        system("#{ DEFAULTS[:client] } set quiet off")
       end
 
-      # Saves current tmux options that will be restored when notifications are turned off.
-      # @tmux_state { }, nil marks options to be 'unset'
-      def save_tmux_state
-        @tmux_state = {
+      private
+
+      # Reset the internal Tmux options store defaults.
+      #
+      def reset_options_store
+        @options_stored = false
+        @options_store = {
           'status-left-bg'  => nil,
           'status-right-bg' => nil,
           'status-left-fg'  => nil,
           'status-right-fg' => nil,
           'message-bg'      => nil,
           'message-fg'      => nil,
-          'display-time'    => nil,
+          'display-time'    => nil
         }
-        tmux_state = `#{ DEFAULTS[:client] } show`
-
-        tmux_state.each_line do |line|
-          option, space, setting = line.chomp.partition(' ')
-          @tmux_state[option] = setting
-        end
-        @ready_to_restore = true
       end
-
-      # Restore tmux settings, if previously saved.
-      # If an option was saved it restores the value
-      # If an option did not exist it attempts to un-set it
-      # tmux output, back on
-      #
-      def restore_tmux_state
-        return unless ready_to_restore
-        @ready_to_restore = false
-
-        @tmux_state.each do |key, value|
-          if value
-            system("#{ DEFAULTS[:client] } set #{ key } #{ value }")
-          else
-            system("#{ DEFAULTS[:client] } set -u #{ key }")
-          end
-        end
-        system("#{ DEFAULTS[:client] } set quiet off")
-      end
-
-      def get_tmux_option option
-        @tmux_state[option]
-      end
-
-      attr_accessor :ready_to_restore
 
     end
   end

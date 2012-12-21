@@ -196,9 +196,9 @@ module Guard
       within_preserved_state(false) do
         ::Guard::UI.debug 'Guard stops all plugins'
         runner.run(:stop)
+        ::Guard::Notifier.turn_off
         ::Guard::UI.info 'Bye bye...', :reset => true
         listener.stop
-        ::Guard::Notifier.turn_off
         ::Guard.running = false
       end
     end

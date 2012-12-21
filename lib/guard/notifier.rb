@@ -118,6 +118,7 @@ module Guard
         notifier = get_notifier_module(notification[:name])
         notifier.turn_off(notification[:options]) if notifier.respond_to?(:turn_off)
       end
+
       ENV['GUARD_NOTIFY'] = 'false'
     end
 

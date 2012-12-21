@@ -17,6 +17,11 @@ describe Guard::Notifier do
         Guard::Notifier.turn_on
         Guard::Notifier.should be_enabled
       end
+
+      it 'turns on the defined notification module' do
+        ::Guard::Notifier::GNTP.should_receive(:turn_on)
+        Guard::Notifier.turn_on
+      end
     end
 
     context 'without configured notifications' do
@@ -58,7 +63,6 @@ describe Guard::Notifier do
           Guard::Notifier.turn_on
         end
 
-
         it 'does enable the notifications when a library is available' do
           Guard::Notifier.should_receive(:add_notification) do
             Guard::Notifier.notifications = [{ :name => :gntp, :options => { } }]
@@ -66,6 +70,15 @@ describe Guard::Notifier do
           end.any_number_of_times
           Guard::Notifier.turn_on
           Guard::Notifier.should be_enabled
+        end
+
+        it 'does turn on the notification module for libraries that are available' do
+          ::Guard::Notifier::GNTP.should_receive(:turn_on)
+          Guard::Notifier.should_receive(:add_notification) do
+            Guard::Notifier.notifications = [{ :name => :gntp, :options => { } }]
+            true
+          end.any_number_of_times
+          Guard::Notifier.turn_on
         end
 
         it 'does not enable the notifications when no library is available' do
@@ -94,8 +107,19 @@ describe Guard::Notifier do
     before { ENV['GUARD_NOTIFY'] = 'true' }
 
     it 'disables the notifications' do
-      subject.turn_off
+      Guard::Notifier.turn_off
       ENV['GUARD_NOTIFY'].should == 'false'
+    end
+
+    context 'when turned on with available notifications' do
+      before do
+        Guard::Notifier.notifications = [{ :name => :gntp, :options => { } }]
+      end
+
+      it 'turns off each notification' do
+        ::Guard::Notifier::GNTP.should_receive(:turn_off)
+        Guard::Notifier.turn_off
+      end
     end
   end
 
