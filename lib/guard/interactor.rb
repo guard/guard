@@ -89,7 +89,7 @@ module Guard
       Pry.config.should_load_local_rc = false
       Pry.config.history.file         = self.class.options[:history_file] || HISTORY_FILE
 
-      load_guard_rc
+      add_hooks
 
       create_run_all_command
       create_command_aliases
@@ -99,11 +99,20 @@ module Guard
       configure_prompt
     end
 
-    # Loads the `~/.guardrc` file when pry has started.
+    # Add Pry hooks:
     #
-    def load_guard_rc
+    # * Load `~/.guardrc` within each new Pry session.
+    # * Restore prompt after each evaluation.
+    #
+    def add_hooks
       Pry.config.hooks.add_hook :when_started, :load_guard_rc do
         load GUARD_RC if File.exist?(File.expand_path(self.class.options[:guard_rc] || GUARD_RC))
+      end
+
+      if stty_exists?
+        Pry.config.hooks.add_hook :after_eval, :restore_visibility do
+          system('stty echo')
+        end
       end
     end
 

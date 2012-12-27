@@ -1,3 +1,9 @@
+## Master
+
+### Improvements
+
+- [#344][] Restore Pry visibility after each evaluation. (reported by [@rking][], fixed by [@netzpirat][])
+
 ## 1.6.0 - 21 December, 2012
 
 ### New features
@@ -675,6 +681,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [#334]: https://github.com/guard/guard/issues/334
 [#342]: https://github.com/guard/guard/issues/342
 [#343]: https://github.com/guard/guard/issues/343
+[#344]: https://github.com/guard/guard/issues/344
 [#345]: https://github.com/guard/guard/issues/345
 [#348]: https://github.com/guard/guard/issues/348
 [#351]: https://github.com/guard/guard/issues/351
@@ -753,6 +760,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [@pcreux]: https://github.com/pcreux
 [@philomory]: https://github.com/philomory
 [@pirukire]: https://github.com/pirukire
+[@rking]: https://github.com/rking
 [@rmm5t]: https://github.com/rmm5t
 [@royvandewater]: https://github.com/royvandewater
 [@rudicode]: https://github.com/rudicode
