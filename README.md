@@ -389,7 +389,7 @@ Scope Guard to certain plugins on start:
 
 ```bash
 $ guard --plugins plugin_name another_plugin_name
-$ guard -p plugin_name another_plugin_name # shortcut
+$ guard -P plugin_name another_plugin_name # shortcut
 ```
 
 #### `-d`/`--debug` option
