@@ -81,12 +81,11 @@ end
 ```
 
 If you're using Windows and at least Ruby 1.9.2, then [Windows Directory Monitor](https://github.com/Maher4Ever/wdm) is
-more efficient than using `rb-fchange`. However WDM cannot be installed on platforms other than Windows, making it
-impossible to add it to the `Gemfile` for projects developed on multiple platforms.
+more efficient than using `rb-fchange`.
 
 ```Ruby
 group :development do
-  gem 'wdm', :require => false
+  gem 'wdm', :platforms => [:mswin, :mingw], :require => false
 end
 ```
 
