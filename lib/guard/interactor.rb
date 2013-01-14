@@ -106,7 +106,9 @@ module Guard
     #
     def add_hooks
       Pry.config.hooks.add_hook :when_started, :load_guard_rc do
-        load GUARD_RC if File.exist?(File.expand_path(self.class.options[:guard_rc] || GUARD_RC))
+        (self.class.options[:guard_rc] || GUARD_RC).tap do |p|
+          load p if File.exist?(File.expand_path(p))
+        end
       end
 
       if stty_exists?
