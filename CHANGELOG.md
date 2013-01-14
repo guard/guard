@@ -1,3 +1,13 @@
+## Master
+
+### Improvements
+
+- [#386][] Replace Pry's reset command. ([@envygeeks][])
+
+### Bug fixes
+
+- [#387][] Load the users defined guardrc file. ([@envygeeks][])
+
 ## 1.6.1 - 27 December, 2012
 
 ### Improvements
@@ -701,6 +711,8 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [#376]: https://github.com/guard/guard/issues/376
 [#377]: https://github.com/guard/guard/issues/377
 [#378]: https://github.com/guard/guard/issues/378
+[#386]: https://github.com/guard/guard/issues/386
+[#387]: https://github.com/guard/guard/issues/387
 [@Gazer]: https://github.com/Gazer
 [@Maher4Ever]: https://github.com/Maher4Ever
 [@alandipert]: https://github.com/alandipert
@@ -720,6 +732,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [@docwhat]: https://github.com/docwhat
 [@dyfrgi]: https://github.com/dyfrgi
 [@earlonrails]: https://github.com/earlonrails
+[@envygeeks]: https://github.com/envygeeks
 [@etehtsea]: https://github.com/etehtsea
 [@f1sherman]: https://github.com/f1sherman
 [@fabioyamate]: https://github.com/fabioyamate
