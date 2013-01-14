@@ -91,6 +91,7 @@ module Guard
 
       add_hooks
 
+      replace_reset_command
       create_run_all_command
       create_command_aliases
       create_guard_commands
@@ -113,6 +114,16 @@ module Guard
         Pry.config.hooks.add_hook :after_eval, :restore_visibility do
           system('stty echo')
         end
+      end
+    end
+
+    # Replaces reset defined inside of Pry with a reset that
+    # instead restarts guard.
+
+    def replace_reset_command
+      Pry.commands.command "reset", "Reset the Guard to a clean state." do
+        output.puts "Guard reset."
+        exec "guard"
       end
     end
 
