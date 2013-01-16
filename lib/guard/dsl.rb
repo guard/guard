@@ -29,58 +29,7 @@ module Guard
   # In addition, if a user configuration `.guard.rb` in your home directory is found, it will
   # be appended to the current project `Guardfile`.
   #
-  # @example A sample of a complex Guardfile
-  #
-  #   notification :growl
-  #
-  #   group 'frontend' do
-  #     guard 'passenger', :ping => true do
-  #       watch('config/application.rb')
-  #       watch('config/environment.rb')
-  #       watch(%r{^config/environments/.+\.rb})
-  #       watch(%r{^config/initializers/.+\.rb})
-  #     end
-  #
-  #     guard 'livereload', :apply_js_live => false do
-  #       watch(%r{^app/.+\.(erb|haml)})
-  #       watch(%r{^app/helpers/.+\.rb})
-  #       watch(%r{^public/javascripts/.+\.js})
-  #       watch(%r{^public/stylesheets/.+\.css})
-  #       watch(%r{^public/.+\.html})
-  #       watch(%r{^config/locales/.+\.yml})
-  #     end
-  #   end
-  #
-  #   group 'backend' do
-  #     # Reload the bundle when the Gemfile is modified
-  #     guard 'bundler' do
-  #       watch('Gemfile')
-  #     end
-  #
-  #     # for big project you can fine tune the "timeout" before Spork's launch is considered failed
-  #     guard 'spork', :wait => 40 do
-  #       watch('Gemfile')
-  #       watch('config/application.rb')
-  #       watch('config/environment.rb')
-  #       watch(%r{^config/environments/.+\.rb})
-  #       watch(%r{^config/initializers/.+\.rb})
-  #       watch('spec/spec_helper.rb')
-  #     end
-  #
-  #     # use RSpec 2, from the system's gem and with some direct RSpec CLI options
-  #     guard 'rspec', :version => 2, :cli => "--color --drb -f doc", :bundler => false do
-  #       watch('spec/spec_helper.rb')                                  { "spec" }
-  #       watch('app/controllers/application_controller.rb')            { "spec/controllers" }
-  #       watch('config/routes.rb')                                     { "spec/routing" }
-  #       watch(%r{^spec/support/(controllers|acceptance)_helpers\.rb}) { |m| "spec/#{m[1]}" }
-  #       watch(%r{^spec/.+_spec\.rb})
-  #
-  #       watch(%r{^app/controllers/(.+)_(controller)\.rb}) { |m| ["spec/routing/#{m[1]}_routing_spec.rb", "spec/#{m[2]}s/#{m[1]}_#{m[2]}_spec.rb", "spec/acceptance/#{m[1]}_spec.rb"] }
-  #
-  #       watch(%r{^app/(.+)\.rb}) { |m| "spec/#{m[1]}_spec.rb" }
-  #       watch(%r{^lib/(.+)\.rb}) { |m| "spec/lib/#{m[1]}_spec.rb" }
-  #     end
-  #   end
+  # @see https://github.com/guard/guard/wiki/Guardfile-examples
   #
   class Dsl
 
@@ -361,7 +310,7 @@ module Guard
     # @see Guard::DslDescriber
     #
     def group(name, options = {})
-      name    = name.to_sym
+      name = name.to_sym
 
       if block_given?
         ::Guard.add_group(name.to_s.downcase, options)
@@ -536,7 +485,7 @@ module Guard
       end
 
       if options[:only] && options[:except]
-        ::Guard::UI.warning "You cannot specify the logger options :only and :except at the same time."
+        ::Guard::UI.warning 'You cannot specify the logger options :only and :except at the same time.'
 
         options.delete :only
         options.delete :except
