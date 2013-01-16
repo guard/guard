@@ -47,6 +47,7 @@ module Guard
     attr_accessor :watchers, :options, :group
 
     # Initializes a Guard plugin.
+    # Don't do any work here, especially as Guards plugins get initialized even if they are not in an active group!
     #
     # @param [Array<Guard::Watcher>] watchers the Guard plugin file watchers
     # @param [Hash] options the custom Guard plugin options
