@@ -22,8 +22,8 @@ module Guard
   # The location of user defined templates
   HOME_TEMPLATES = File.expand_path('~/.guard/templates')
 
-  WINDOWS = RbConfig::CONFIG["host_os"] =~ %r!(msdos|mswin|djgpp|mingw)!
-  DEV_NULL = WINDOWS ? "NUL" : "/dev/null"
+  WINDOWS = RbConfig::CONFIG['host_os'] =~ %r!(msdos|mswin|djgpp|mingw)!
+  DEV_NULL = WINDOWS ? 'NUL' : '/dev/null'
 
   class << self
     attr_accessor :options, :interactor, :runner, :listener, :lock, :scope, :running
@@ -44,12 +44,12 @@ module Guard
     # @deprecated @option options [Boolean] no_vendor ignore vendored dependencies
     #
     def setup(options = {})
-      @running    = true
-      @lock       = Mutex.new
-      @options    = options.dup
-      @watchdir   = (options[:watchdir] && File.expand_path(options[:watchdir])) || Dir.pwd
-      @runner     = ::Guard::Runner.new
-      @scope      = { :plugins => [], :groups => []}
+      @running  = true
+      @lock     = Mutex.new
+      @options  = options.dup
+      @watchdir = (options[:watchdir] && File.expand_path(options[:watchdir])) || Dir.pwd
+      @runner   = ::Guard::Runner.new
+      @scope    = { :plugins => [], :groups => [] }
 
       if options[:debug]
         Thread.abort_on_exception = true
@@ -433,8 +433,8 @@ module Guard
         Gem::Specification.find_all.select do |x|
           if x.name =~ /^guard-/
             true
-          elsif x.name != "guard"
-            guard_plugin_path = File.join(x.full_gem_path, "lib/guard/#{x.name}.rb")
+          elsif x.name != 'guard'
+            guard_plugin_path = File.join(x.full_gem_path, "lib/guard/#{ x.name }.rb")
             File.exists?( guard_plugin_path )
           end
         end
