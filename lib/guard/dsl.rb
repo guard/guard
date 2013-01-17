@@ -56,7 +56,7 @@ module Guard
 
     class << self
 
-      @@options = nil
+      attr_accessor :options
 
       # Evaluate the DSL methods in the `Guardfile`.
       #
@@ -68,7 +68,7 @@ module Guard
       def evaluate_guardfile(options = {})
         raise ArgumentError.new('No option hash passed to evaluate_guardfile!') unless options.is_a?(Hash)
 
-        @@options = options.dup
+        self.options = options.dup
 
         fetch_guardfile_contents
         instance_eval_guardfile(guardfile_contents_with_user_config)
@@ -78,7 +78,7 @@ module Guard
       #
       def reevaluate_guardfile
         before_reevaluate_guardfile
-        ::Guard::Dsl.evaluate_guardfile(@@options)
+        ::Guard::Dsl.evaluate_guardfile(options)
         after_reevaluate_guardfile
       end
 
@@ -91,7 +91,7 @@ module Guard
         ::Guard.setup_groups
         ::Guard::Notifier.clear_notifications
 
-        @@options.delete(:guardfile_contents)
+        options.delete(:guardfile_contents)
       end
 
       # Start Guard and notification and show a message
@@ -116,7 +116,7 @@ module Guard
       # @param [String] contents the content to evaluate.
       #
       def instance_eval_guardfile(contents)
-        new.instance_eval(contents, @@options[:guardfile_path], 1)
+        new.instance_eval(contents, options[:guardfile_path], 1)
       rescue
         ::Guard::UI.error "Invalid Guardfile, original error is:\n#{ $! }"
       end
@@ -135,8 +135,8 @@ module Guard
       # @param [String] guardfile_path the path to the Guardfile
       #
       def read_guardfile(guardfile_path)
-        @@options[:guardfile_path]     = guardfile_path
-        @@options[:guardfile_contents] = File.read(guardfile_path)
+        options[:guardfile_path]     = guardfile_path
+        options[:guardfile_contents] = File.read(guardfile_path)
       rescue
         ::Guard::UI.error("Error reading file #{ guardfile_path }")
         exit 1
@@ -146,16 +146,16 @@ module Guard
       # the options as `:guardfile_contents`.
       #
       def fetch_guardfile_contents
-        if @@options[:guardfile_contents]
+        if options[:guardfile_contents]
           ::Guard::UI.info 'Using inline Guardfile.'
-          @@options[:guardfile_path] = 'Inline Guardfile'
+          options[:guardfile_path] = 'Inline Guardfile'
 
-        elsif @@options[:guardfile]
-          if File.exist?(@@options[:guardfile])
-            read_guardfile(@@options[:guardfile])
-            ::Guard::UI.info "Using Guardfile at #{ @@options[:guardfile] }."
+        elsif options[:guardfile]
+          if File.exist?(options[:guardfile])
+            read_guardfile(options[:guardfile])
+            ::Guard::UI.info "Using Guardfile at #{ options[:guardfile] }."
           else
-            ::Guard::UI.error "No Guardfile exists at #{ @@options[:guardfile] }."
+            ::Guard::UI.error "No Guardfile exists at #{ options[:guardfile] }."
             exit 1
           end
 
@@ -178,7 +178,7 @@ module Guard
       # @return [String] the Guardfile content
       #
       def guardfile_contents
-        @@options ? @@options[:guardfile_contents] : ''
+        options ? options[:guardfile_contents] : ''
       end
 
       # Get the content of the `Guardfile` and the global
@@ -198,7 +198,7 @@ module Guard
       # @return [String] the path to the Guardfile
       #
       def guardfile_path
-        @@options ? @@options[:guardfile_path] : ''
+        options ? options[:guardfile_path] : ''
       end
 
       # Tests if the current `Guardfile` content is usable.
