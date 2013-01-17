@@ -70,75 +70,23 @@ describe Guard::CLI do
   end
 
   describe '#list' do
-    before { ::Guard::DslDescriber.stub(:list) }
+    before do
+      ::Guard::DslDescriber.stub(:list)
+      ::Guard::CLI.stub(:puts)
+    end
 
     it 'delegates to Guard::DslDescriber.list' do
       ::Guard::DslDescriber.should_receive(:list)
       subject.list
     end
-
-    context 'when running with Bundler' do
-      before do
-        @bundler_env = ENV['BUNDLE_GEMFILE']
-        ENV['BUNDLE_GEMFILE'] = 'Gemfile'
-      end
-
-      after { ENV['BUNDLE_GEMFILE'] = @bundler_env }
-
-      it 'does not show the Bundler warning' do
-        ui.should_not_receive(:info).with(/Guard here!/)
-        subject.list
-      end
-    end
-
-    context 'when running without Bundler' do
-      before do
-        @bundler_env = ENV['BUNDLE_GEMFILE']
-        ENV['BUNDLE_GEMFILE'] = nil
-      end
-
-      after { ENV['BUNDLE_GEMFILE'] = @bundler_env }
-
-      it 'does not show the Bundler warning' do
-        ui.should_receive(:info).with(/Guard here!/)
-        subject.list
-      end
-    end
   end
 
   describe '#version' do
+    before { ::Guard::CLI.stub(:puts) }
+
     it 'shows the current version' do
       ui.should_not_receive(:info).with(/#{ ::Guard::VERSION }/)
-      subject.list
-    end
-
-    context 'when running with Bundler' do
-      before do
-        @bundler_env = ENV['BUNDLE_GEMFILE']
-        ENV['BUNDLE_GEMFILE'] = 'Gemfile'
-      end
-
-      after { ENV['BUNDLE_GEMFILE'] = @bundler_env }
-
-      it 'does not show the Bundler warning' do
-        ui.should_not_receive(:info).with(/Guard here!/)
-        subject.version
-      end
-    end
-
-    context 'when running without Bundler' do
-      before do
-        @bundler_env = ENV['BUNDLE_GEMFILE']
-        ENV['BUNDLE_GEMFILE'] = nil
-      end
-
-      after { ENV['BUNDLE_GEMFILE'] = @bundler_env }
-
-      it 'does not show the Bundler warning' do
-        ui.should_receive(:info).with(/Guard version/)
-        ui.should_receive(:info).with(/Guard here!/)
-        subject.version
-      end
+      subject.version
     end
   end
 
@@ -219,37 +167,9 @@ describe Guard::CLI do
   describe '#show' do
     before { ::Guard::DslDescriber.stub(:show) }
 
-    it 'delegates to Guard::DslDescriber.list' do
+    it 'delegates to Guard::DslDescriber.show' do
       ::Guard::DslDescriber.should_receive(:show)
       subject.show
-    end
-
-    context 'when running with Bundler' do
-      before do
-        @bundler_env = ENV['BUNDLE_GEMFILE']
-        ENV['BUNDLE_GEMFILE'] = 'Gemfile'
-      end
-
-      after { ENV['BUNDLE_GEMFILE'] = @bundler_env }
-
-      it 'does not show the Bundler warning' do
-        ui.should_not_receive(:info).with(/Guard here!/)
-        subject.show
-      end
-    end
-
-    context 'when running without Bundler' do
-      before do
-        @bundler_env = ENV['BUNDLE_GEMFILE']
-        ENV['BUNDLE_GEMFILE'] = nil
-      end
-
-      after { ENV['BUNDLE_GEMFILE'] = @bundler_env }
-
-      it 'does not show the Bundler warning' do
-        ui.should_receive(:info).with(/Guard here!/)
-        subject.show
-      end
     end
   end
 end

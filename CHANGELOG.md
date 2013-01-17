@@ -2,10 +2,12 @@
 
 ### Improvements
 
+- Improve `list` and `show` command output. ([@netzpirat][])
 - [#386][] Replace Pry's reset command. ([@envygeeks][])
 
 ### Bug fixes
 
+- [#389][] Fix `list` and `show` commands. ([@netzpirat][])
 - [#387][] Load the users defined guardrc file. ([@envygeeks][])
 
 ## 1.6.1 - 27 December, 2012
@@ -713,6 +715,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [#378]: https://github.com/guard/guard/issues/378
 [#386]: https://github.com/guard/guard/issues/386
 [#387]: https://github.com/guard/guard/issues/387
+[#389]: https://github.com/guard/guard/issues/389
 [@Gazer]: https://github.com/Gazer
 [@Maher4Ever]: https://github.com/Maher4Ever
 [@alandipert]: https://github.com/alandipert

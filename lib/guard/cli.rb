@@ -124,8 +124,7 @@ module Guard
     # @see Guard::DslDescriber.list
     #
     def list
-      verify_bundler_presence
-      ::Guard::DslDescriber.list(options)
+      puts ::Guard::DslDescriber.list(options)
     end
 
     desc 'version', 'Show the Guard version'
@@ -136,8 +135,7 @@ module Guard
     # @see Guard::VERSION
     #
     def version
-      verify_bundler_presence
-      ::Guard::UI.info "Guard version #{ ::Guard::VERSION }"
+      puts "Guard version #{ ::Guard::VERSION }"
     end
 
     desc 'init [GUARDS]', 'Generates a Guardfile at the current directory (if it is not already there) and adds all installed guards or the given GUARDS into it'
@@ -182,8 +180,7 @@ module Guard
     # @see Guard::DslDescriber.show
     #
     def show
-      verify_bundler_presence
-      ::Guard::DslDescriber.show(options)
+      puts ::Guard::DslDescriber.show(options)
     end
 
     private

@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 module Guard
 
   # The DslDescriber overrides methods to create an internal structure
@@ -12,139 +14,68 @@ module Guard
     require 'guard/dsl'
     require 'guard/ui'
 
+    require 'terminal-table'
+
     class << self
 
-      # Evaluate the DSL methods in the `Guardfile`.
+      # Setups groups and plugins state and evaluates the DSL methods in the `Guardfile`.
       #
       # @option options [Array<Symbol,String>] groups the groups to evaluate
       # @option options [String] guardfile the path to a valid Guardfile
       # @option options [String] guardfile_contents a string representing the content of a valid Guardfile
       # @raise [ArgumentError] when options are not a Hash
       #
-      def evaluate_guardfile(options = {})
-        @@guardfile_structure = [{ :guards => [] }]
+      def evaluate_guardfile(options = { })
+        ::Guard.options = { :plugin => [], :group => [] }
+        ::Guard.setup_groups
+        ::Guard.setup_guards
+
         super options
       end
 
       # List the Guard plugins that are available for use in your system and marks
       # those that are currently used in your `Guardfile`.
       #
-      # @example Guard list output
-      #
-      #   Available guards:
-      #     bundler *
-      #     livereload
-      #     ronn
-      #     rspec *
-      #     spork
-      #
-      #   See also https://github.com/guard/guard/wiki/List-of-available-Guards
-      #   * denotes ones already in your Guardfile
-      #
       # @param [Hash] options the Guard options
       #
       def list(options)
         evaluate_guardfile(options)
 
-        installed_guards = guardfile_structure.inject([]) do |installed, group|
-          group[:guards].each { |guard| installed << guard[:name].to_s } if group[:guards]
-          installed
+        rows = ::Guard.guard_gem_names.sort.uniq.inject([]) do |rows, name|
+          rows << [name.capitalize, ::Guard.guards(name) ? '✔' : '✘']
         end
 
-        ::Guard::UI.info 'Available guards:'
-
-        ::Guard.guard_gem_names.sort.uniq.each do |name|
-          ::Guard::UI.info "   #{ name }#{ installed_guards.include?(name) ? '*' : '' }"
-        end
-
-        ::Guard::UI.info ''
-        ::Guard::UI.info 'See also https://github.com/guard/guard/wiki/List-of-available-Guards'
-        ::Guard::UI.info '* denotes ones already in your Guardfile'
+        Terminal::Table.new(:title => 'Available Guard plugins', :headings => ['Plugin', 'In Guardfile'], :rows => rows)
       end
 
       # Shows all Guard plugins and their options that are defined in
       # the `Guardfile`.
-      #
-      # @example guard show output
-      #
-      #   (global):
-      #     bundler
-      #     coffeescript: input => "app/assets/javascripts", noop => true
-      #     jasmine
-      #     rspec: cli => "--fail-fast --format Fuubar
       #
       # @param [Hash] options the Guard options
       #
       def show(options)
         evaluate_guardfile(options)
 
-        guardfile_structure.each do |group|
-          unless group[:guards].empty?
-            if group[:group]
-              ::Guard::UI.info "Group #{ group[:group] }:"
-            else
-              ::Guard::UI.info '(global):'
-            end
+        rows = ::Guard.groups.inject([]) do |rows, group|
+          plugins = ''
+          options = ''
+          values  = ''
 
-            group[:guards].each do |guard|
-              line = "  #{ guard[:name] }"
+          ::Guard.guards({ :group => group.name }).each do |plugin|
+            plugins << plugin.to_s
 
-              unless guard[:options].empty?
-                line += ": #{ guard[:options].inject({}) { |options, (k, v)| options[k.to_s] = v; options }.sort.collect { |k, v| "#{ k } => #{ v.inspect }" }.join(', ') }"
-              end
-
-              ::Guard::UI.info line
+            plugin.options.inject({}) { |options, (k, v)| options[k.to_s] = v; options }.sort.each do |name, value|
+              options << name << "\n"
+              values  << value.inspect << "\n"
             end
           end
+
+          rows << [group.name.capitalize, plugins, options, values]
         end
 
-        ::Guard::UI.info ''
-      end
-
-      private
-
-      # Get the Guardfile structure.
-      #
-      # @return [Array<Hash>] the structure
-      #
-      def guardfile_structure
-        @@guardfile_structure
+        Terminal::Table.new(:title => 'Guardfile structure', :headings => %w(Group Plugin Option Value), :rows => rows)
       end
 
     end
-
-    private
-
-    # Declares a group of guards.
-    #
-    # @param [String] name the group's name called from the CLI
-    # @yield a block where you can declare several guards
-    #
-    # @see Guard::Dsl#group
-    #
-    def group(name)
-      @@guardfile_structure << { :group => name.to_sym, :guards => [] }
-      @group = true
-
-      yield if block_given?
-
-      @group = false
-    end
-
-    # Declares a Guard.
-    #
-    # @param [String] name the Guard name
-    # @param [Hash] options the options accepted by the Guard
-    # @yield a block where you can declare several watch patterns and actions
-    #
-    # @see Guard::Dsl#guard
-    #
-    def guard(name, options = { })
-      @group ||= false
-      node = (@group ? @@guardfile_structure.last : @@guardfile_structure.first)
-
-      node[:guards] << { :name => name, :options => options }
-    end
-
   end
 end

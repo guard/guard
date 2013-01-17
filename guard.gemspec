@@ -15,10 +15,11 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = '>= 1.3.6'
   s.rubyforge_project = 'guard'
 
-  s.add_dependency 'thor',       '>= 0.14.6'
-  s.add_dependency 'listen',     '>= 0.6.0'
-  s.add_dependency 'pry',        '>= 0.9.10'
-  s.add_dependency 'lumberjack', '>= 1.0.2'
+  s.add_dependency 'thor',           '>= 0.14.6'
+  s.add_dependency 'listen',         '>= 0.6.0'
+  s.add_dependency 'pry',            '>= 0.9.10'
+  s.add_dependency 'lumberjack',     '>= 1.0.2'
+  s.add_dependency 'terminal-table', '>= 1.4.3'
 
   s.add_development_dependency 'bundler'
   s.add_development_dependency 'rspec',       '~> 2.12.0'

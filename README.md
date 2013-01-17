@@ -364,7 +364,7 @@ You can add the following snippet to your `~/.guardrc` to have the clear option 
 
 ```
 Guard.options[:clear] = true
-``` 
+```
 
 #### `-n`/`--notify` option
 
@@ -467,18 +467,19 @@ You can list the available plugins with the `list` task:
 
 ```bash
 $ guard list
-
-Available guards:
-   coffeescript
-   compass
-   cucumber
-   jammit
-   ronn
-   rspec *
-   spork
-   yard
-See also https://github.com/guard/guard/wiki/List-of-available-Guards
-* denotes ones already in your Guardfile
++----------+--------------+
+| Available Guard plugins |
++----------+--------------+
+| Plugin   | In Guardfile |
++----------+--------------+
+| Compass  | ✘            |
+| Cucumber | ✘            |
+| Jammit   | ✘            |
+| Ronn     | ✔            |
+| Rspec    | ✔            |
+| Spork    | ✘            |
+| Yard     | ✘            |
++----------+--------------+
 ```
 
 ### Show
@@ -487,19 +488,25 @@ You can show the structure of the groups and their plugins with the `show` task:
 
 ```bash
 $ guard show
-
-(global):
-  shell
-Group backend:
-  bundler
-  rspec: cli => "--color --format doc"
-Group frontend:
-  coffeescript: output => "public/javascripts/compiled"
-  livereload
++---------+--------+-----------------+----------------------------+
+|                       Guardfile structure                       |
++---------+--------+-----------------+----------------------------+
+| Group   | Plugin | Option          | Value                      |
++---------+--------+-----------------+----------------------------+
+| Default |        |                 |                            |
+| Specs   | Rspec  | all_after_pass  | true                       |
+|         |        | all_on_start    | true                       |
+|         |        | cli             | "--fail-fast --format doc" |
+|         |        | focus_on_failed | false                      |
+|         |        | keep_failed     | true                       |
+|         |        | run_all         | {}                         |
+|         |        | spec_paths      | ["spec"]                   |
+| Docs    | Ronn   |                 |                            |
++---------+--------+-----------------+----------------------------+
 ```
 
 This shows the internal structure of the evaluated `Guardfile` or `.Guardfile`, with the `.guard.rb` file. You can
-read more about these files in the shared configuration section below.
+read more about these files in the [shared configuration section](https://github.com/guard/guard#shared-configurations).
 
 Interactions
 ------------
