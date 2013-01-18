@@ -50,7 +50,8 @@ describe Guard::DslDescriber do
     end
 
     it 'lists the available Guards when they\'re declared as strings or symbols' do
-      ::Guard::DslDescriber.list(:guardfile_contents => guardfile).to_s.should eq(output)
+      # Delete is needed for 1.8.7 compatibility only
+      ::Guard::DslDescriber.list(:guardfile_contents => guardfile).to_s.delete(' ').should eq(output.delete(' '))
     end
   end
 

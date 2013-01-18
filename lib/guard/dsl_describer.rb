@@ -64,13 +64,13 @@ module Guard
           ::Guard.guards({ :group => group.name }).each do |plugin|
             plugins << plugin.to_s
 
-            plugin.options.inject({}) { |options, (k, v)| options[k.to_s] = v; options }.sort.each do |name, value|
-              options << name << "\n"
+            plugin.options.inject({}) { |o, (k, v)| o[k.to_s] = v; o }.sort.each do |name, value|
+              options << name.to_s << "\n"
               values  << value.inspect << "\n"
             end
           end
 
-          rows << [group.name.capitalize, plugins, options, values]
+          rows << [group.to_s, plugins, options, values]
         end
 
         Terminal::Table.new(:title => 'Guardfile structure', :headings => %w(Group Plugin Option Value), :rows => rows)
