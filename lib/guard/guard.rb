@@ -7,12 +7,12 @@ module Guard
   # depending on user interaction and file modification.
   #
   # `run_on_changes` could be implemented to handle all the changes task case (additions,
-  # modifications, removals) in once, or each task can be implemented separatly with a
+  # modifications, removals) in once, or each task can be implemented separately with a
   # specific behavior.
   #
   # In each of these Guard task methods you have to implement some work when you want to
   # support this kind of task. The return value of each Guard task method is not evaluated
-  # by Guard, but I'll be passed to the "_end" hook for further evaluation. You can
+  # by Guard, but it'll be passed to the "_end" hook for further evaluation. You can
   # throw `:task_has_failed` to indicate that your Guard plugin method was not successful,
   # and successive Guard plugin tasks will be aborted when the group has set the `:halt_on_fail`
   # option.
@@ -47,7 +47,7 @@ module Guard
     attr_accessor :watchers, :options, :group
 
     # Initializes a Guard plugin.
-    # Don't do any work here, especially as Guards plugins get initialized even if they are not in an active group!
+    # Don't do any work here, especially as Guard plugins get initialized even if they are not in an active group!
     #
     # @param [Array<Guard::Watcher>] watchers the Guard plugin file watchers
     # @param [Hash] options the custom Guard plugin options
@@ -68,7 +68,7 @@ module Guard
       File.read("#{ ::Guard.locate_guard(name) }/lib/guard/#{ name }/templates/Guardfile")
     end
 
-    # Initialize the Guard plugin. This will copy the Guardfile template inside the Guard plugin gem.
+    # Initialize the Guard plugin. This will copy the Guardfile template inside the Guard plugin Gem.
     # The template Guardfile must be located within the Gem at `lib/guard/guard-name/templates/Guardfile`.
     #
     # @param [String] name the name of the Guard plugin
@@ -90,7 +90,7 @@ module Guard
       end
     end
 
-    # Call once when Guard starts. Please override initialize method to init stuff.
+    # Called once when Guard starts. Please override initialize method to init stuff.
     #
     # @raise [:task_has_failed] when start has failed
     # @return [Object] the task result
