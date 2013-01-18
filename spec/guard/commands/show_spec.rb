@@ -2,13 +2,10 @@ require 'spec_helper'
 
 describe 'Guard::Interactor::SHOW' do
 
-  before do
-    ::Guard::DslDescriber::stub(:show)
-  end
-
   describe '#perform' do
-    it 'shows the DSL description' do
-      ::Guard::DslDescriber.should_receive(:show)
+    it 'outputs the DSL description' do
+      ::Guard::DslDescriber.should_receive(:show).and_return 'SHOW OUTPUT'
+      Pry.output.should_receive(:puts).with 'SHOW OUTPUT'
       Pry.run_command 'show'
     end
   end

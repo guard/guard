@@ -70,22 +70,16 @@ describe Guard::CLI do
   end
 
   describe '#list' do
-    before do
-      ::Guard::DslDescriber.stub(:list)
-      ::Guard::CLI.stub(:puts)
-    end
-
-    it 'delegates to Guard::DslDescriber.list' do
-      ::Guard::DslDescriber.should_receive(:list)
+    it 'outputs the Guard::DslDescriber.list result' do
+      ::Guard::DslDescriber.should_receive(:list).and_return 'LIST OUTPUT'
+      subject.should_receive(:puts).with 'LIST OUTPUT'
       subject.list
     end
   end
 
   describe '#version' do
-    before { ::Guard::CLI.stub(:puts) }
-
     it 'shows the current version' do
-      ui.should_not_receive(:info).with(/#{ ::Guard::VERSION }/)
+      subject.should_receive(:puts).with(/#{ ::Guard::VERSION }/)
       subject.version
     end
   end
@@ -165,11 +159,10 @@ describe Guard::CLI do
   end
 
   describe '#show' do
-    before { ::Guard::DslDescriber.stub(:show) }
-
-    it 'delegates to Guard::DslDescriber.show' do
-      ::Guard::DslDescriber.should_receive(:show)
-      subject.show
+    it 'outputs the Guard::DslDescriber.list result' do
+      ::Guard::DslDescriber.should_receive(:list).and_return 'SHOW OUTPUT'
+      subject.should_receive(:puts).with 'SHOW OUTPUT'
+      subject.list
     end
   end
 end
