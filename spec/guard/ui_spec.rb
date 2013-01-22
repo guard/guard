@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Guard::UI do
-  after { Guard::UI.options = { :level => :info, :template => ':time - :severity - :message', :time_format => '%H:%M:%S' } }
+  after { Guard::UI.options = { :level => :info, :device => $stderr, :template => ':time - :severity - :message', :time_format => '%H:%M:%S' } }
 
   before do
     # The spec helper stubs all UI classes, so other specs doesn't have
@@ -31,6 +31,10 @@ describe Guard::UI do
   describe '.logger' do
     it 'returns the logger instance' do
       Guard::UI.logger.should be_an_instance_of Lumberjack::Logger
+    end
+
+    it 'sets the logger device' do
+      Guard::UI.logger.device.send(:stream).should be $stderr
     end
   end
 

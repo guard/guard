@@ -2,6 +2,7 @@
 
 ### Improvements
 
+- Allow the logger device to be set with the `:device` option.
 - Improve `list` and `show` command output. ([@netzpirat][])
 - [#386][] Replace Pry's reset command. ([@envygeeks][])
 

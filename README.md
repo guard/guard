@@ -795,14 +795,16 @@ filter /\.js$/
 
 ### logger
 
-The `logger` method allows you to customize the Guard log output to your needs by specifying one or more options like:
+The `logger` method allows you to customize the [Lumberjack](https://github.com/bdurand/lumberjack) log output to your
+needs by specifying one or more options like:
 
 ```ruby
 logger :level       => :warn,
        :template    => '[:severity - :time - :progname] :message',
        :time_format => 'at %I:%M%p',
        :only        => [:rspec, :jasmine, 'coffeescript'],
-       :except      => :jammit
+       :except      => :jammit,
+       :device      => 'guard.log'
 ```
 
 Log `:level` option must be either `:debug`, `:info`, `:warn` or `:error`. If Guard is started in debug mode, the log
@@ -816,6 +818,9 @@ The `:time_format` option directives are the same as Time#strftime or can be `:m
 
 The `:only` and `:except` are either a string or a symbol, or an array of strings or symbols that matches the name of
 the Guard plugin name that sends the log message. They cannot be specified at the same time.
+
+By default the logger uses `$stderr` as device, but you can override this by supplying the `:device` option and set
+either an IO stream or a filename.
 
 ### Example
 
