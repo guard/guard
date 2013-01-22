@@ -16,7 +16,10 @@ module Guard
       # Get the Guard::UI logger instance
       #
       def logger
-        @logger ||= Lumberjack::Logger.new(self.options[:device], self.options)
+        @logger ||= begin
+          options = self.options.dup
+          Lumberjack::Logger.new(options.delete(:device) || $stderr, options)
+        end
       end
 
       # Get the logger options
@@ -24,7 +27,7 @@ module Guard
       # @return [Hash] the logger options
       #
       def options
-        @options ||= { :device => $stderr, :level => :info, :template => ':time - :severity - :message', :time_format => '%H:%M:%S' }
+        @options ||= { :level => :info, :template => ':time - :severity - :message', :time_format => '%H:%M:%S' }
       end
 
       # Set the logger options
