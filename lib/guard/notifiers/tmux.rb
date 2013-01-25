@@ -132,7 +132,7 @@ module Guard
         unless @options_stored
           reset_options_store
 
-          `#{ DEFAULTS[:client] } show`.each_line do |line|
+          `#{ DEFAULTS[:client] } show-options -g; #{ DEFAULTS[:client] } show-options`.each_line do |line|
             option, setting = line.chomp.split(' ')
             next unless OVERWRITTEN_OPTIONS.include? option
             @options_store[option] = setting
