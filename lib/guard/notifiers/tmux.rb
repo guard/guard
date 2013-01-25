@@ -32,6 +32,9 @@ module Guard
         :color_location         => 'status-left-bg'
       }
 
+      # Tmux options the notifier is going to overwrite
+      OVERWRITTEN_OPTIONS = %w(display-time message-fg message-bg)
+
       # Test if currently running in a Tmux session
       #
       # @param [Boolean] silent true if no error messages should be shown
@@ -130,7 +133,8 @@ module Guard
           reset_options_store
 
           `#{ DEFAULTS[:client] } show`.each_line do |line|
-            option, _, setting = line.chomp.partition(' ')
+            option, setting = line.chomp.split(' ')
+            next unless OVERWRITTEN_OPTIONS.include? option
             @options_store[option] = setting
           end
 
