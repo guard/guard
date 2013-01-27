@@ -1,4 +1,4 @@
-## Master
+## 1.6.2 - 27 January, 2013
 
 ### Improvements
 
