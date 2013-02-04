@@ -103,7 +103,7 @@ module Guard
         system("#{ DEFAULTS[:client] } set display-time #{ display_time * 1000 }")
         system("#{ DEFAULTS[:client] } set message-fg #{ message_color }")
         system("#{ DEFAULTS[:client] } set message-bg #{ color }")
-        fork do
+        Thread.new do
           system("#{ DEFAULTS[:client] } display-message '#{ display_message }'")
           sleep display_time
           restore_options
