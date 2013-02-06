@@ -204,6 +204,20 @@ group :development do
 end
 ```
 
+#### Amazon SNS
+
+The [aws-sdk](http://rubygems.org/gems/aws-sdk) gem enables you to send SNS notifications.
+In addition to the gem you'll need to configure two environment variables, `AWS_ACCESS_KEY` and
+`AWS_SECRET_KEY`. You also must pass the `:topic` option with the topic ARN in the notification.
+
+To use `aws-sdk` you have to add it to your `Gemfile` and run bundler:
+
+```ruby
+group :development do
+  gem 'aws-sdk'
+end
+```
+
 #### Terminal Notifier
 
 * Runs on Mac OS X 10.8 only
@@ -706,6 +720,7 @@ notification :growl_notify, :sticky => true, :priority => 0
 notification :libnotify, :timeout => 5, :transient => true, :append => false, :urgency => :critical
 notification :notifu, :time => 5, :nosound => true, :xp => true
 notification :emacs
+notification :sns, :topic => 'your_topic_arn'
 ```
 
 It's possible to use more than one notifier. This allows you to configure different notifiers for different OS if your
