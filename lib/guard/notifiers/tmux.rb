@@ -103,11 +103,7 @@ module Guard
         system("#{ DEFAULTS[:client] } set display-time #{ display_time * 1000 }")
         system("#{ DEFAULTS[:client] } set message-fg #{ message_color }")
         system("#{ DEFAULTS[:client] } set message-bg #{ color }")
-        Thread.new do
-          system("#{ DEFAULTS[:client] } display-message '#{ display_message }'")
-          sleep display_time
-          restore_options
-        end
+        display_and_restore(display_message, display_time)
       end
 
       # Get the Tmux color for the notification type.
@@ -162,6 +158,16 @@ module Guard
       end
 
       private
+
+      # Displays the message, waits for it to disappear
+      #
+      def display_and_restore(message, delay)
+        Thread.new do
+          system("#{ DEFAULTS[:client] } display-message '#{ message }'")
+          sleep delay
+          restore_options
+        end
+      end
 
       # Restore Tmux options to the ones saved before displaying messages
       #

@@ -85,9 +85,19 @@ describe Guard::Notifier::Tmux do
     end
   end
 
+  describe '.display_and_restore' do
+    it 'displays the provided message and restores tmux options afterwards' do
+      subject.stub :system => true
+      subject.should_receive(:system).with('tmux display-message \'hello world\'').once
+      subject.should_receive(:restore_options)
+      subject.send :display_and_restore, 'hello world', 0.1
+      sleep 0.2
+    end
+  end
+
   describe '.display_message' do
     before do
-      subject.stub :system => true
+      subject.stub :system => true, :display_and_restore => true
     end
 
     it 'sets the display-time' do
@@ -96,18 +106,18 @@ describe Guard::Notifier::Tmux do
     end
 
     it 'displays the message' do
-      subject.should_receive(:system).with('tmux display-message \'any title - any message\'').once
+      subject.should_receive(:display_and_restore).with('any title - any message', 5).once
       subject.display_message 'success', 'any title', 'any message'
     end
 
     it 'handles line-breaks' do
-      subject.should_receive(:system).with('tmux display-message \'any title - any message xx line two\'').once
+      subject.should_receive(:display_and_restore).with('any title - any message xx line two', 5).once
       subject.display_message 'success', 'any title', "any message\nline two", :line_separator => ' xx '
     end
 
     context 'with success message type options' do
       it 'formats the message' do
-        subject.should_receive(:system).with('tmux display-message \'[any title] => any message - line two\'').once
+        subject.should_receive(:display_and_restore).with('[any title] => any message - line two', 5).once
         subject.display_message 'success', 'any title', "any message\nline two", :success_message_format => '[%s] => %s', :default_message_format => '(%s) -> %s'
       end
 
@@ -124,7 +134,7 @@ describe Guard::Notifier::Tmux do
 
     context 'with pending message type options' do
       it 'formats the message' do
-        subject.should_receive(:system).with('tmux display-message \'[any title] === any message - line two\'').once
+        subject.should_receive(:display_and_restore).with('[any title] === any message - line two', 5).once
         subject.display_message 'pending', 'any title', "any message\nline two", :pending_message_format => '[%s] === %s', :default_message_format => '(%s) -> %s'
       end
 
@@ -141,7 +151,7 @@ describe Guard::Notifier::Tmux do
 
     context 'with failed message type options' do
       it 'formats the message' do
-        subject.should_receive(:system).with('tmux display-message \'[any title] <=> any message - line two\'').once
+        subject.should_receive(:display_and_restore).with('[any title] <=> any message - line two', 5).once
         subject.display_message 'failed', 'any title', "any message\nline two", :failed_message_format => '[%s] <=> %s', :default_message_format => '(%s) -> %s'
       end
 
@@ -180,7 +190,7 @@ describe Guard::Notifier::Tmux do
       end
 
       it 'saves the current tmux options' do
-        subject.should_receive(:`).with('tmux show')
+        subject.should_receive(:`).with('tmux show-options -g; tmux show-options')
         subject.turn_on
       end
     end
@@ -204,7 +214,7 @@ describe Guard::Notifier::Tmux do
 
   describe '.turn_off' do
     before do
-      subject.stub(:`).and_return("option1 setting1\noption2 setting2\n")
+      subject.stub(:`).and_return("option1 setting1\ndisplay-time 10\n")
       subject.stub :system => true
     end
 
@@ -214,9 +224,8 @@ describe Guard::Notifier::Tmux do
       end
 
       it 'restores the tmux options' do
-        subject.should_receive(:system).with('tmux set option2 setting2')
+        subject.should_receive(:system).with('tmux set display-time 10')
         subject.should_receive(:system).with('tmux set -u status-left-bg')
-        subject.should_receive(:system).with('tmux set option1 setting1')
         subject.should_receive(:system).with('tmux set -u status-right-bg')
         subject.should_receive(:system).with('tmux set -u status-right-fg')
         subject.should_receive(:system).with('tmux set -u status-left-fg')
