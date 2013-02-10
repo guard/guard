@@ -4,8 +4,13 @@ Guard [![Gem Version](https://badge.fury.io/rb/guard.png)](http://badge.fury.io/
 Guard is a command line tool to easily handle events on file system modifications.
 
 This document contains a lot of information, please take your time and read these instructions carefully. If you have
-any questions, ask them in our [Google group](http://groups.google.com/group/guard-dev) or on `#guard`
-(irc.freenode.net).
+any questions about the Guard usage or want to share some information with the Guard community, please go to one of
+the following places:
+
+* [Google+ community](https://plus.google.com/u/1/communities/110022199336250745477)
+* [Google group](http://groups.google.com/group/guard-dev)
+* [StackOverflow](http://stackoverflow.com/questions/tagged/guard)
+* IRC channel `#guard` (irc.freenode.net) for chatting
 
 Information on advanced topics like creating your own Guard plugin, programatic use of Guard, hooks and callbacks and
 more can be found in the [Guard wiki](https://github.com/guard/guard/wiki).
@@ -878,8 +883,12 @@ File an issue
 
 You can report bugs and feature requests to [GitHub Issues](https://github.com/guard/guard/issues).
 
-**Please don't ask question in the issue tracker**, instead ask them in our
-[Google group](http://groups.google.com/group/guard-dev) or on `#guard` (irc.freenode.net).
+**Please don't ask question in the issue tracker**, instead ask them at one of our other places:
+
+* [Google+ community](https://plus.google.com/u/1/communities/110022199336250745477)
+* [Google group](http://groups.google.com/group/guard-dev)
+* [StackOverflow](http://stackoverflow.com/questions/tagged/guard)
+* IRC channel `#guard` (irc.freenode.net) for chatting
 
 Try to figure out where the issue belongs to: Is it an issue with Guard itself or with a Guard plugin you're
 using?
