@@ -199,9 +199,9 @@ module Guard
           clip    = Pry.view_clip(target_self)
           level = ":#{ nest_level }" unless nest_level.zero?
           scope = if !::Guard.scope[:plugins].empty?
-                    "{#{ ::Guard.scope[:plugins].join }} "
+                    "{#{ ::Guard.scope[:plugins].join(',') }} "
                   elsif !::Guard.scope[:groups].empty?
-                    "{#{ ::Guard.scope[:groups].join }} "
+                    "{#{ ::Guard.scope[:groups].join(',') }} "
                   else
                     ''
                   end
