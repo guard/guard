@@ -21,7 +21,7 @@ branches:
 notifications:
   recipients:
     - thibaud@thibaud.me
-    - rymai@rymai.me
+    - remy@rymai.me
     - michi@netzpiraten.ch
     - maher@sallam.me
   irc: "irc.freenode.org#guard"
