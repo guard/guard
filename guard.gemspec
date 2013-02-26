@@ -22,7 +22,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'terminal-table', '>= 1.4.3'
 
   s.add_development_dependency 'bundler'
-  s.add_development_dependency 'rspec',       '~> 2.12.0'
+  s.add_development_dependency 'rspec',       '~> 2.13.0'
   s.add_development_dependency 'guard-rspec', '~> 2.4.0'
 
   s.files        = Dir.glob('{bin,images,lib}/**/*') + %w[CHANGELOG.md LICENSE man/guard.1 man/guard.1.html README.md]
