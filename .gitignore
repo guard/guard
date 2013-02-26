@@ -10,6 +10,7 @@ bundle
 .rbx
 .rvmrc
 .rbenv-version
+.idea
 Gemfile.lock
 bin/fsevent_watch_guard
 Makefile
