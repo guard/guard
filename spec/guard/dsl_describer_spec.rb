@@ -61,7 +61,8 @@ describe Guard::DslDescriber do
 
     it 'lists the available Guards when they\'re declared as strings or symbols' do
       ::Guard::DslDescriber.list(:guardfile_contents => guardfile)
-      @output.should eql(result)
+      # Drop the calls to delete when drop Ruby 1.8.7 support
+      @output.delete(' ').should eql(result.delete(' '))
     end
   end
 
