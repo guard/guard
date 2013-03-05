@@ -4,6 +4,10 @@
 
 - [#400][] Drop dependency on `terminal-table` and use `formatador` instead. ([@netzpirat][])
 
+### Bug fixes
+
+- [#401][] Fix Pry `history_file` file expansion. ([@martoche][])
+
 ## 1.6.2 - 27 January, 2013
 
 ### Improvements
@@ -723,6 +727,8 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [#386]: https://github.com/guard/guard/issues/386
 [#387]: https://github.com/guard/guard/issues/387
 [#389]: https://github.com/guard/guard/issues/389
+[#400]: https://github.com/guard/guard/issues/400
+[#401]: https://github.com/guard/guard/issues/401
 [@Gazer]: https://github.com/Gazer
 [@Maher4Ever]: https://github.com/Maher4Ever
 [@alandipert]: https://github.com/alandipert
@@ -767,6 +773,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [@limeyd]: https://github.com/limeyd
 [@madtrick]: https://github.com/madtrick
 [@maio]: https://github.com/maio
+[@martoche]: https://github.com/martoche
 [@mattgreen]: https://github.com/mattgreen
 [@matthijsgroen]: https://github.com/matthijsgroen
 [@mcmire]: https://github.com/mcmire
