@@ -49,6 +49,7 @@ module Guard
     require 'guard/notifiers/terminal_notifier'
     require 'guard/notifiers/terminal_title'
     require 'guard/notifiers/tmux'
+    require 'guard/notifiers/sns'
 
     extend self
 
@@ -62,7 +63,8 @@ module Guard
         [:terminal_notifier, ::Guard::Notifier::TerminalNotifier],
         [:libnotify,         ::Guard::Notifier::Libnotify],
         [:notifysend,        ::Guard::Notifier::NotifySend],
-        [:notifu,            ::Guard::Notifier::Notifu]
+        [:notifu,            ::Guard::Notifier::Notifu],
+        [:sns,               ::Guard::Notifier::Sns]
       ],
       [[:emacs,             ::Guard::Notifier::Emacs]],
       [[:tmux,              ::Guard::Notifier::Tmux]],
