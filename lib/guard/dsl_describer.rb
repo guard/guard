@@ -14,7 +14,7 @@ module Guard
     require 'guard/dsl'
     require 'guard/ui'
 
-    require 'terminal-table'
+    require 'formatador'
 
     class << self
 
@@ -42,10 +42,10 @@ module Guard
         evaluate_guardfile(options)
 
         rows = ::Guard.guard_gem_names.sort.uniq.inject([]) do |rows, name|
-          rows << [name.capitalize, ::Guard.guards(name) ? '✔' : '✘']
+          rows << { :Plugin => name.capitalize, :Guardfile => ::Guard.guards(name) ? '✔' : '✘' }
         end
 
-        Terminal::Table.new(:title => 'Available Guard plugins', :headings => ['Plugin', 'In Guardfile'], :rows => rows)
+        Formatador.display_compact_table(rows, [:Plugin, :Guardfile])
       end
 
       # Shows all Guard plugins and their options that are defined in
@@ -57,23 +57,28 @@ module Guard
         evaluate_guardfile(options)
 
         rows = ::Guard.groups.inject([]) do |rows, group|
-          plugins = ''
-          options = ''
-          values  = ''
-
           ::Guard.guards({ :group => group.name }).each do |plugin|
-            plugins << plugin.to_s
+            options = plugin.options.inject({}) { |o, (k, v)| o[k.to_s] = v; o }.sort
 
-            plugin.options.inject({}) { |o, (k, v)| o[k.to_s] = v; o }.sort.each do |name, value|
-              options << name.to_s << "\n"
-              values  << value.inspect << "\n"
+            if options.empty?
+              rows << :split
+              rows << { :Group => group.to_s, :Plugin => plugin.to_s, :Option => '', :Value => '' }
+            else
+              options.each_with_index do |(option, value), index|
+                if index == 0
+                  rows << :split
+                  rows << { :Group => group.to_s, :Plugin => plugin.to_s, :Option => option.to_s, :Value => value.inspect }
+                else
+                  rows << { :Group => '', :Plugin => '', :Option => option.to_s, :Value => value.inspect }
+                end
+              end
             end
           end
 
-          rows << [group.to_s, plugins, options, values]
+          rows
         end
 
-        Terminal::Table.new(:title => 'Guardfile structure', :headings => %w(Group Plugin Option Value), :rows => rows)
+        Formatador.display_compact_table(rows.drop(1), [:Group, :Plugin, :Option, :Value])
       end
 
     end

@@ -19,7 +19,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'listen',         '>= 0.6.0'
   s.add_dependency 'pry',            '>= 0.9.10'
   s.add_dependency 'lumberjack',     '>= 1.0.2'
-  s.add_dependency 'terminal-table', '>= 1.4.3'
+  s.add_dependency 'formatador',    '>= 0.2.4'
 
   s.add_development_dependency 'bundler'
   s.add_development_dependency 'rspec',       '~> 2.13.0'

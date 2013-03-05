@@ -1,3 +1,9 @@
+## Master
+
+### Improvements
+
+- [#400][] Drop dependency on `terminal-table` and use `formatador` instead. ([@netzpirat][])
+
 ## 1.6.2 - 27 January, 2013
 
 ### Improvements

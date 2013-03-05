@@ -473,8 +473,6 @@ You can list the available plugins with the `list` task:
 ```bash
 $ guard list
 +----------+--------------+
-| Available Guard plugins |
-+----------+--------------+
 | Plugin   | In Guardfile |
 +----------+--------------+
 | Compass  | ✘            |
@@ -494,11 +492,8 @@ You can show the structure of the groups and their plugins with the `show` task:
 ```bash
 $ guard show
 +---------+--------+-----------------+----------------------------+
-|                       Guardfile structure                       |
-+---------+--------+-----------------+----------------------------+
 | Group   | Plugin | Option          | Value                      |
 +---------+--------+-----------------+----------------------------+
-| Default |        |                 |                            |
 | Specs   | Rspec  | all_after_pass  | true                       |
 |         |        | all_on_start    | true                       |
 |         |        | cli             | "--fail-fast --format doc" |
@@ -506,6 +501,7 @@ $ guard show
 |         |        | keep_failed     | true                       |
 |         |        | run_all         | {}                         |
 |         |        | spec_paths      | ["spec"]                   |
++---------+--------+-----------------+----------------------------+
 | Docs    | Ronn   |                 |                            |
 +---------+--------+-----------------+----------------------------+
 ```

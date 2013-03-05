@@ -71,8 +71,7 @@ describe Guard::CLI do
 
   describe '#list' do
     it 'outputs the Guard::DslDescriber.list result' do
-      ::Guard::DslDescriber.should_receive(:list).and_return 'LIST OUTPUT'
-      subject.should_receive(:puts).with 'LIST OUTPUT'
+      ::Guard::DslDescriber.should_receive(:list)
       subject.list
     end
   end
@@ -160,8 +159,7 @@ describe Guard::CLI do
 
   describe '#show' do
     it 'outputs the Guard::DslDescriber.list result' do
-      ::Guard::DslDescriber.should_receive(:list).and_return 'SHOW OUTPUT'
-      subject.should_receive(:puts).with 'SHOW OUTPUT'
+      ::Guard::DslDescriber.should_receive(:list)
       subject.list
     end
   end

@@ -124,7 +124,7 @@ module Guard
     # @see Guard::DslDescriber.list
     #
     def list
-      puts ::Guard::DslDescriber.list(options)
+      ::Guard::DslDescriber.list(options)
     end
 
     desc 'version', 'Show the Guard version'
@@ -180,7 +180,7 @@ module Guard
     # @see Guard::DslDescriber.show
     #
     def show
-      puts ::Guard::DslDescriber.show(options)
+      ::Guard::DslDescriber.show(options)
     end
 
     private
