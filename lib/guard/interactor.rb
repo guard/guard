@@ -114,7 +114,7 @@ module Guard
 
       if stty_exists?
         Pry.config.hooks.add_hook :after_eval, :restore_visibility do
-          system('stty echo')
+          system('stty echo 2>/dev/null')
         end
       end
     end
