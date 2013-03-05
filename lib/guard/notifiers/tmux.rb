@@ -32,6 +32,9 @@ module Guard
         :color_location         => 'status-left-bg'
       }
 
+      # Tmux options the notifier is going to overwrite
+      OVERWRITTEN_OPTIONS = %w(display-time message-fg message-bg)
+
       # Test if currently running in a Tmux session
       #
       # @param [Boolean] silent true if no error messages should be shown
@@ -88,19 +91,19 @@ module Guard
       # @option options [String] line_separator a string to use instead of a line-break.
       #
       def display_message(type, title, message, options = { })
-          message_format = options["#{ type }_message_format".to_sym] || options[:default_message_format] || DEFAULTS[:default_message_format]
-          message_color = options["#{ type }_message_color".to_sym] || options[:default_message_color] || DEFAULTS[:default_message_color]
-          display_time = options[:timeout] || DEFAULTS[:timeout]
-          separator = options[:line_separator] || DEFAULTS[:line_separator]
+        message_format = options["#{ type }_message_format".to_sym] || options[:default_message_format] || DEFAULTS[:default_message_format]
+        message_color = options["#{ type }_message_color".to_sym] || options[:default_message_color] || DEFAULTS[:default_message_color]
+        display_time = options[:timeout] || DEFAULTS[:timeout]
+        separator = options[:line_separator] || DEFAULTS[:line_separator]
 
-          color = tmux_color type, options
-          formatted_message = message.split("\n").join(separator)
-          display_message = message_format % [title, formatted_message]
+        color = tmux_color type, options
+        formatted_message = message.split("\n").join(separator)
+        display_message = message_format % [title, formatted_message]
 
-          system("#{ DEFAULTS[:client] } set display-time #{ display_time * 1000 }")
-          system("#{ DEFAULTS[:client] } set message-fg #{ message_color }")
-          system("#{ DEFAULTS[:client] } set message-bg #{ color }")
-          system("#{ DEFAULTS[:client] } display-message '#{ display_message }'")
+        system("#{ DEFAULTS[:client] } set display-time #{ display_time * 1000 }")
+        system("#{ DEFAULTS[:client] } set message-fg #{ message_color }")
+        system("#{ DEFAULTS[:client] } set message-bg #{ color }")
+        display_and_restore(display_message, display_time)
       end
 
       # Get the Tmux color for the notification type.
@@ -129,8 +132,9 @@ module Guard
         unless @options_stored
           reset_options_store
 
-          `#{ DEFAULTS[:client] } show`.each_line do |line|
-            option, _, setting = line.chomp.partition(' ')
+          `#{ DEFAULTS[:client] } show-options -g; #{ DEFAULTS[:client] } show-options`.each_line do |line|
+            option, setting = line.chomp.split(' ')
+            next unless OVERWRITTEN_OPTIONS.include? option
             @options_store[option] = setting
           end
 
@@ -146,14 +150,7 @@ module Guard
       #
       def turn_off(options = { })
         if @options_stored
-          @options_store.each do |key, value|
-            if value
-              system("#{ DEFAULTS[:client] } set #{ key } #{ value }")
-            else
-              system("#{ DEFAULTS[:client] } set -u #{ key }")
-            end
-          end
-
+          restore_options
           reset_options_store
         end
 
@@ -161,6 +158,28 @@ module Guard
       end
 
       private
+
+      # Displays the message, waits for it to disappear
+      #
+      def display_and_restore(message, delay)
+        Thread.new do
+          system("#{ DEFAULTS[:client] } display-message '#{ message }'")
+          sleep delay
+          restore_options
+        end
+      end
+
+      # Restore Tmux options to the ones saved before displaying messages
+      #
+      def restore_options
+        @options_store.each do |key, value|
+          if value
+            system("#{ DEFAULTS[:client] } set #{ key } #{ value }")
+          else
+            system("#{ DEFAULTS[:client] } set -u #{ key }")
+          end
+        end
+      end
 
       # Reset the internal Tmux options store defaults.
       #
