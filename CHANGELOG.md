@@ -6,6 +6,7 @@
 
 ### Bug fixes
 
+- [#402][] Make stty less noisy under JRuby. ([@pritchie][])
 - [#401][] Fix Pry `history_file` file expansion. ([@martoche][])
 
 ## 1.6.2 - 27 January, 2013
@@ -729,6 +730,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [#389]: https://github.com/guard/guard/issues/389
 [#400]: https://github.com/guard/guard/issues/400
 [#401]: https://github.com/guard/guard/issues/401
+[#402]: https://github.com/guard/guard/issues/402
 [@Gazer]: https://github.com/Gazer
 [@Maher4Ever]: https://github.com/Maher4Ever
 [@alandipert]: https://github.com/alandipert
@@ -790,6 +792,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [@pcreux]: https://github.com/pcreux
 [@philomory]: https://github.com/philomory
 [@pirukire]: https://github.com/pirukire
+[@pritchie]: https://github.com/pritchie
 [@rking]: https://github.com/rking
 [@rmm5t]: https://github.com/rmm5t
 [@royvandewater]: https://github.com/royvandewater
