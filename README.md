@@ -1,4 +1,4 @@
-Guard [![Gem Version](https://badge.fury.io/rb/guard.png)](http://badge.fury.io/rb/guard) [![Build Status](https://secure.travis-ci.org/guard/guard.png?branch=master)](http://travis-ci.org/guard/guard) [![Dependency Status](https://gemnasium.com/guard/guard.png)](https://gemnasium.com/guard/guard) [![Code Climate](https://codeclimate.com/badge.png)](https://codeclimate.com/github/guard/guard)
+Guard [![Gem Version](https://badge.fury.io/rb/guard.png)](http://badge.fury.io/rb/guard) [![Build Status](https://secure.travis-ci.org/guard/guard.png?branch=master)](http://travis-ci.org/guard/guard) [![Dependency Status](https://gemnasium.com/guard/guard.png)](https://gemnasium.com/guard/guard) [![Code Climate](https://codeclimate.com/github/guard/guard.png)](https://codeclimate.com/github/guard/guard)
 =====
 
 Guard is a command line tool to easily handle events on file system modifications.
