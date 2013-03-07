@@ -6,7 +6,7 @@ File an issue
 
 You can report bugs and feature requests to [GitHub Issues](https://github.com/guard/guard/issues).
 
-**Please don't ask question in the issue tracker**, instead ask them on at Stack Overflow and use the
+**Please don't ask question in the issue tracker**, instead ask them at Stack Overflow and use the
 [guard](http://stackoverflow.com/questions/tagged/guard) tag.
 
 Try to figure out where the issue belongs to: Is it an issue with Guard itself or with a Guard plugin you're
