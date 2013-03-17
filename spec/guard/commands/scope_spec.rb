@@ -5,7 +5,7 @@ describe 'Guard::Interactor::SCOPE' do
   before do
     Guard.stub(:scope=)
     Guard.stub(:setup_interactor)
-    Pry.output.stub(puts: true)
+    Pry.output.stub(:puts => true)
     stub_const 'Guard::Bar', Class.new(Guard::Guard)
   end
 
