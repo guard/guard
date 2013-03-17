@@ -6,6 +6,7 @@
 
 ### Bug fixes
 
+- [#406][] Avoid spurious 'nil' output from emacs notifier. ([@aspiers][])
 - [#402][] Make stty less noisy under JRuby. ([@pritchie][])
 - [#401][] Fix Pry `history_file` file expansion. ([@martoche][])
 
@@ -731,11 +732,13 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [#400]: https://github.com/guard/guard/issues/400
 [#401]: https://github.com/guard/guard/issues/401
 [#402]: https://github.com/guard/guard/issues/402
+[#406]: https://github.com/guard/guard/issues/406
 [@Gazer]: https://github.com/Gazer
 [@Maher4Ever]: https://github.com/Maher4Ever
 [@alandipert]: https://github.com/alandipert
 [@anithri]: https://github.com/anithri
 [@ashleyconnor]: https://github.com/ashleyconnor
+[@aspiers]: https://github.com/aspiers
 [@benolee]: https://github.com/benolee
 [@brainopia]: https://github.com/brainopia
 [@bronson]: https://github.com/bronson
