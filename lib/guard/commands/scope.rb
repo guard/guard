@@ -16,10 +16,10 @@ module Guard
         def process(*entries)
           scope, rest = ::Guard::Interactor.convert_scope(entries)
 
-          if rest.length == 0
-            ::Guard.scope =  scope
+          if scope[:plugins].empty? && scope[:groups].empty?
+            output.puts 'Usage: scope <scope>'
           else
-            output.puts "Unkown scope #{ rest.join(', ') }"
+            ::Guard.scope = scope
           end
         end
 

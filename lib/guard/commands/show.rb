@@ -10,7 +10,7 @@ module Guard
         description 'Show all Guard plugins.'
 
         banner <<-BANNER
-          Usage: show <scope>
+          Usage: show
 
           Show all defined Guard plugins and their options.
         BANNER

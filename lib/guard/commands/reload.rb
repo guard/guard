@@ -19,7 +19,7 @@ module Guard
         def process(*entries)
           scopes, rest = ::Guard::Interactor.convert_scope(entries)
 
-          if rest.length == 0
+          if rest.empty?
             ::Guard.reload scopes
           else
             output.puts "Unkown scope #{ rest.join(', ') }"

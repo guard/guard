@@ -8,23 +8,20 @@ module Guard
         description 'Trigger a file change.'
 
         banner <<-BANNER
-          Usage: change <scope>
+          Usage: change <file> <other_file>
 
-          Runs the Guard plugin `run_on_changes` action.
-
-          You may want to specify an optional scope to the action,
-          either the name of a Guard plugin or a plugin group.
+          Pass the given files to the Guard plugin `run_on_changes` action.
         BANNER
 
         def process(*entries)
-          scopes, rest = ::Guard::Interactor.convert_scope(entries)
+          scopes, files = ::Guard::Interactor.convert_scope(entries)
 
-          if rest.length != 0
-            ::Guard.within_preserved_state do
-              ::Guard.runner.run_on_changes(rest, [], [])
-            end
-          else
+          if files.empty?
             output.puts 'Please specify a file.'
+          else
+            ::Guard.within_preserved_state do
+              ::Guard.runner.run_on_changes(files, [], [])
+            end
           end
         end
 

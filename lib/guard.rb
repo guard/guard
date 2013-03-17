@@ -488,14 +488,12 @@ module Guard
     #   => { :plugins => [:rspec], :groups => [:backend] }
     #
     def convert_scopes(scopes)
-      if scopes[:guard]
-        scopes[:plugins] = [scopes[:guard]]
-        scopes.delete(:guard)
+      if plugin = scopes.delete(:guard)
+        scopes[:plugins] = [plugin]
       end
 
-      if scopes[:group]
-        scopes[:groups] = [scopes[:group]]
-        scopes.delete(:group)
+      if group = scopes.delete(:group)
+        scopes[:groups] = [group]
       end
 
       scopes

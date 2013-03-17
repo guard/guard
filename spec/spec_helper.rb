@@ -44,8 +44,6 @@ RSpec.configure do |config|
     if ::Guard.options
       ::Guard.options[:debug] = false
     end
-
-    Guard.scope = { :plugins => [], :groups => [] }
   end
 
   config.after(:all) do
