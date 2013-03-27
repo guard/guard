@@ -49,6 +49,7 @@ module Guard
     require 'guard/notifiers/terminal_notifier'
     require 'guard/notifiers/terminal_title'
     require 'guard/notifiers/tmux'
+    require 'guard/notifiers/file_notifier'
 
     extend self
 
@@ -66,7 +67,8 @@ module Guard
       ],
       [[:emacs,             ::Guard::Notifier::Emacs]],
       [[:tmux,              ::Guard::Notifier::Tmux]],
-      [[:terminal_title,    ::Guard::Notifier::TerminalTitle]]
+      [[:terminal_title,    ::Guard::Notifier::TerminalTitle]],
+      [[:file,              ::Guard::Notifier::FileNotifier]]
     ]
 
     # Get the available notifications.
