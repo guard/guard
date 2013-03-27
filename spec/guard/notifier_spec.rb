@@ -46,6 +46,7 @@ describe Guard::Notifier do
           Guard::Notifier.should_receive(:add_notification).with(:emacs, { }, true).and_return false
           Guard::Notifier.should_receive(:add_notification).with(:terminal_title, { }, true).and_return false
           Guard::Notifier.should_receive(:add_notification).with(:tmux, { }, true).and_return false
+          Guard::Notifier.should_receive(:add_notification).with(:file, { }, true).and_return false
           Guard::Notifier.turn_on
         end
 
@@ -60,6 +61,7 @@ describe Guard::Notifier do
           Guard::Notifier.should_receive(:add_notification).with(:emacs, { }, true)
           Guard::Notifier.should_receive(:add_notification).with(:terminal_title, { }, true)
           Guard::Notifier.should_receive(:add_notification).with(:tmux, { }, true)
+          Guard::Notifier.should_receive(:add_notification).with(:file, { }, true)
           Guard::Notifier.turn_on
         end
 
