@@ -292,7 +292,7 @@ Configuration:
 # Guardfile
 notification :file,
   :path => '.guard_result', # Required, no default
-  :format => 'result: %s\ntitle: %s\nmessage: %s\n' # Default: '%s\n%s\n%s\n'
+  :format => "result: %s\ntitle: %s\nmessage: %s\n" # Default: "%s\n%s\n%s\n"
 ```
 
 Add Guard plugins
