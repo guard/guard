@@ -11,7 +11,7 @@ module Guard
 
       # Default options for FileNotifier
       DEFAULTS = {
-        format: "%s\n%s\n%s\n"
+        :format => "%s\n%s\n%s\n"
       }
 
       # Test if the file notification option is available?

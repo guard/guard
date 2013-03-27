@@ -13,13 +13,13 @@ describe Guard::Notifier::FileNotifier do
     it 'writes to a file on success' do
       subject.should_receive(:write).with('tmp/guard_result', "success\nany title\nany message\n")
 
-      subject.notify('success', 'any title', 'any message', 'any image', { path: 'tmp/guard_result' })
+      subject.notify('success', 'any title', 'any message', 'any image', { :path => 'tmp/guard_result' })
     end
 
     it 'also writes to a file on failure' do
       subject.should_receive(:write).with('tmp/guard_result', "failed\nany title\nany message\n")
 
-      subject.notify('failed', 'any title', 'any message', 'any image', { path: 'tmp/guard_result' })
+      subject.notify('failed', 'any title', 'any message', 'any image', { :path => 'tmp/guard_result' })
     end
 
     # We don't have a way to return false in .available? when no path is
