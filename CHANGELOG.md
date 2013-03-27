@@ -3,6 +3,7 @@
 ### Improvements
 
 - [#400][] Drop dependency on `terminal-table` and use `formatador` instead. ([@netzpirat][])
+- Change the current work dir to the `watchdir`. ([@netzpirat][])
 
 ### Bug fixes
 

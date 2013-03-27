@@ -51,6 +51,8 @@ module Guard
       @runner   = ::Guard::Runner.new
       @scope    = { :plugins => [], :groups => [] }
 
+      Dir.chdir(@watchdir)
+
       if options[:debug]
         Thread.abort_on_exception = true
         ::Guard::UI.options[:level] = :debug

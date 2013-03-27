@@ -3,6 +3,7 @@ require 'spec_helper'
 describe Guard do
   before do
     ::Guard::Interactor.stub(:fabricate)
+    Dir.stub(:chdir)
   end
 
   describe ".setup" do
@@ -34,6 +35,11 @@ describe Guard do
       ::Guard.setup(:watchdir => '/usr')
 
       ::Guard.listener.directory.should eq '/usr'
+    end
+
+    it "changes the current work dir to the watchdir" do
+      Dir.should_receive(:chdir).with('/tmp')
+      ::Guard.setup(:watchdir => '/tmp')
     end
 
     it "call setup_signal_traps" do
