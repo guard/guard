@@ -265,6 +265,36 @@ You can use nice powerline chars here if you have that configured.
 
 You can get the message history by using `Ctrl+b ~` (where `Ctrl+b` is your key to activate TMux).
 
+### File
+
+* You can also have Guard write notifications to a file. Each notification will
+  overwrite the file. This allows other commands to be run based on the status
+  of other guard commands.
+
+Example:
+
+```ruby
+# Guardfile
+notification :file, path: '.guard_result'
+
+guard :shell do
+  watch '.guard_result' do
+    if File.read('.guard_result').lines.first.strip == 'failed'
+      # ...
+    end
+  end
+end
+```
+
+Configuration:
+
+```ruby
+# Guardfile
+notification :file,
+  :path => '.guard_result', # Required, no default
+  :format => 'result: %s\ntitle: %s\nmessage: %s\n' # Default: '%s\n%s\n%s\n'
+```
+
 Add Guard plugins
 -----------------
 
