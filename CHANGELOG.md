@@ -3,6 +3,7 @@
 ### Improvements
 
 - [#400][] Drop dependency on `terminal-table` and use `formatador` instead. ([@netzpirat][])
+- [][] Add file notifier to write notifications to a configured. file. ([@amiel][])
 
 ### Bug fixes
 
