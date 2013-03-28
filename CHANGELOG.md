@@ -738,6 +738,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [@Gazer]: https://github.com/Gazer
 [@Maher4Ever]: https://github.com/Maher4Ever
 [@alandipert]: https://github.com/alandipert
+[@amiel]: https://github.com/amiel
 [@anithri]: https://github.com/anithri
 [@ashleyconnor]: https://github.com/ashleyconnor
 [@aspiers]: https://github.com/aspiers
