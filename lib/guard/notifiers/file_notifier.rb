@@ -20,10 +20,11 @@ module Guard
       #   we don't get options in available?.
       #
       # @param [Boolean] silent true if no error messages should be shown
+      # @param [Hash] options notifier options
       # @return [Boolean] the availability status
       #
-      def available?(silent = false)
-        true
+      def available?(silent = false, options = {})
+        options.has_key?(:path)
       end
 
       # Write the notification to a file. By default it writes type, tytle, and
@@ -42,6 +43,8 @@ module Guard
           format = options.fetch(:format, DEFAULTS[:format])
 
           write(options[:path], format % [type, title, message])
+        else
+          ::Guard::UI.error ':file notifier requires a :path option'
         end
       end
 

@@ -22,10 +22,11 @@ module Guard
       # Test if Emacs with running server is available.
       #
       # @param [Boolean] silent true if no error messages should be shown
+      # @param [Hash] options notifier options
       # @return [Boolean] the availability status
       #
-      def available?(silent = false)
-        result = `#{ DEFAULTS[:client] } --eval '1' 2> #{DEV_NULL} || echo 'N/A'`
+      def available?(silent = false, options = {})
+        result = `#{ options.fetch(:client, DEFAULTS[:client]) } --eval '1' 2> #{DEV_NULL} || echo 'N/A'`
 
         if %w(N/A 'N/A').include?(result.chomp!)
           false

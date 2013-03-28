@@ -155,7 +155,7 @@ module Guard
 
       notifier = get_notifier_module(name)
 
-      if notifier && notifier.available?(silent)
+      if notifier && notifier.available?(silent, options)
         self.notifications = notifications << { :name => name, :options => options }
         true
       else

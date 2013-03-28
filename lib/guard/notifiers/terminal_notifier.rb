@@ -25,9 +25,10 @@ module Guard
       # Test if the notification library is available.
       #
       # @param [Boolean] silent true if no error messages should be shown
+      # @param [Hash] options notifier options
       # @return [Boolean] the availability status
       #
-      def available?(silent=false)
+      def available?(silent = false, options = {})
         require 'terminal-notifier-guard'
 
         if ::TerminalNotifier::Guard.available?

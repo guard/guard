@@ -35,10 +35,11 @@ module Guard
       # Test if currently running in a Tmux session
       #
       # @param [Boolean] silent true if no error messages should be shown
+      # @param [Hash] options notifier options
       # @return [Boolean] the availability status
       #
-      def available?(silent = false)
-        if ENV[DEFAULTS[:tmux_environment]].nil?
+      def available?(silent = false, options = {})
+        if ENV[options.fetch(:tmux_environment, DEFAULTS[:tmux_environment])].nil?
           ::Guard::UI.error 'The :tmux notifier runs only on when Guard is executed inside of a tmux session.' unless silent
           false
         else
