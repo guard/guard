@@ -2,9 +2,9 @@
 
 ### Improvements
 
-- [#400][] Drop dependency on `terminal-table` and use `formatador` instead. ([@netzpirat][])
+- [#407][], [#408][] Add file notifier to write notifications to a configured file. ([@amiel][])
 - Change the current work dir to the `watchdir`. ([@netzpirat][])
-- Add file notifier to write notifications to a configured file. ([@amiel][])
+- [#400][] Drop dependency on `terminal-table` and use `formatador` instead. ([@netzpirat][])
 
 ### Bug fixes
 
@@ -735,6 +735,8 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [#401]: https://github.com/guard/guard/issues/401
 [#402]: https://github.com/guard/guard/issues/402
 [#406]: https://github.com/guard/guard/issues/406
+[#407]: https://github.com/guard/guard/issues/407
+[#408]: https://github.com/guard/guard/issues/408
 [@Gazer]: https://github.com/Gazer
 [@Maher4Ever]: https://github.com/Maher4Ever
 [@alandipert]: https://github.com/alandipert

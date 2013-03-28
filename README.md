@@ -233,7 +233,7 @@ end
 
 * Runs on any platform with Emacs + emacsclient (http://www.emacswiki.org/emacs/EmacsClient)
 
-### TMux
+#### TMux
 
 * To use TMux notifications, you have to start Guard within a [TMux](http://tmux.sourceforge.net/) session.
 
@@ -265,7 +265,7 @@ You can use nice powerline chars here if you have that configured.
 
 You can get the message history by using `Ctrl+b ~` (where `Ctrl+b` is your key to activate TMux).
 
-### File
+#### File
 
 * You can also have Guard write notifications to a file. Each notification will
   overwrite the file. This allows other commands to be run based on the status
