@@ -36,9 +36,10 @@ module Guard
       # Test if the notification library is available.
       #
       # @param [Boolean] silent true if no error messages should be shown
+      # @param [Hash] options notifier options
       # @return [Boolean] the availability status
       #
-      def available?(silent = false)
+      def available?(silent = false, options = {})
         if RbConfig::CONFIG['host_os'] =~ /mswin|mingw/
           require 'rb-notifu'
 

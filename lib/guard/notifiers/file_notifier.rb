@@ -20,9 +20,10 @@ module Guard
       #   we don't get options in available?.
       #
       # @param [Boolean] silent true if no error messages should be shown
+      # @param [Hash] options notifier options
       # @return [Boolean] the availability status
       #
-      def available?(silent = false)
+      def available?(silent = false, options = {})
         true
       end
 
