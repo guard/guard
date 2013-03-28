@@ -1,4 +1,4 @@
-source 'https://www.rubygems.org'
+source 'https://rubygems.org'
 
 gemspec
 
@@ -9,7 +9,7 @@ gem 'listen', :github => 'guard/listen'
 # installed on Travis CI.
 #
 group :development do
-
+  gem 'guard-rspec'
   gem 'guard-ronn'
 
   gem 'yard'
@@ -42,6 +42,5 @@ end
 #
 group :test do
   gem 'rspec'
-  gem 'guard-rspec'
   gem 'coveralls', :require => false
 end
