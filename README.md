@@ -951,6 +951,16 @@ Pull requests are very welcome! Please try to follow these simple rules if appli
 For questions please join us in our [Google group](http://groups.google.com/group/guard-dev) or on
 `#guard` (irc.freenode.net).
 
+### Open Commit Bit
+
+Guard has an open commit bit policy: Anyone with an accepted pull request gets added as a repository collaborator.
+Please try to follow these simple rules:
+
+* Commit directly onto the master branch only for typos, improvements to the readme and documentation (please add
+  `[ci skip]` to the commit message).
+* Create a feature branch and open a pull-request early for any new features to get feedback.
+* Make sure you adhere to the general pull request rules above.
+
 ### Author
 
 [Thibaud Guillaume-Gentil](https://github.com/thibaudgg) ([@thibaudgg](http://twitter.com/thibaudgg))
