@@ -16,9 +16,6 @@ module Guard
 
       # Test if the file notification option is available?
       #
-      # REVIEW: This could test if there is a path provided in options, but
-      #   we don't get options in available?.
-      #
       # @param [Boolean] silent true if no error messages should be shown
       # @param [Hash] options notifier options
       # @return [Boolean] the availability status
@@ -27,7 +24,7 @@ module Guard
         options.has_key?(:path)
       end
 
-      # Write the notification to a file. By default it writes type, tytle, and
+      # Write the notification to a file. By default it writes type, title, and
       # message separated by newlines.
       #
       # @param [String] type the notification type. Either 'success', 'pending', 'failed' or 'notify'
