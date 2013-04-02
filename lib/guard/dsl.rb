@@ -48,7 +48,7 @@ module Guard
       Documentation on the README: https://github.com/guard/guard#guardfile-dsl-ignore
     EOS
 
-    # Deprecation message for the `ignore_paths` method
+    # Deprecation message for the `interactor` method
     INTERACTOR_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
       Starting with Guard v1.4 the use of the 'interactor' Guardfile DSL method is only used to
       disable or pass options to the Pry interactor. All other usages are deprecated.
