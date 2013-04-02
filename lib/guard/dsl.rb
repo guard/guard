@@ -45,7 +45,7 @@ module Guard
       Starting with Guard v1.1 the use of the 'ignore_paths' Guardfile DSL method is deprecated.
 
       Please replace that method with the better 'ignore' or/and 'filter' methods.
-      Documentation on the README: https://github.com/guard/guard#guardfile-dsl-ignore
+      Documentation on the README: https://github.com/guard/guard#ignore
     EOS
 
     # Deprecation message for the `interactor` method
