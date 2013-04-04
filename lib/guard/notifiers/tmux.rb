@@ -143,7 +143,7 @@ module Guard
 
       # Notification stopping. Restore the previous Tmux state
       # if available (existing options are restored, new options
-      # are unset) and unquite the Tmux output.
+      # are unset) and unquiet the Tmux output.
       #
       def turn_off(options = { })
         if @options_stored
