@@ -1,4 +1,4 @@
-Guard [![Gem Version](https://badge.fury.io/rb/guard.png)](http://badge.fury.io/rb/guard) [![Build Status](https://secure.travis-ci.org/guard/guard.png?branch=master)](http://travis-ci.org/guard/guard) [![Dependency Status](https://gemnasium.com/guard/guard.png)](https://gemnasium.com/guard/guard) [![Code Climate](https://codeclimate.com/github/guard/guard.png)](https://codeclimate.com/github/guard/guard) [![Coverage Status](https://coveralls.io/repos/guard/guard/badge.png?branch=master)](https://coveralls.io/r/guard/guard)
+Guard [![Gem Version](https://badge.fury.io/rb/guard.png)](http://badge.fury.io/rb/guard) [![Build Status](https://travis-ci.org/guard/guard.png?branch=master)](https://travis-ci.org/guard/guard) [![Dependency Status](https://gemnasium.com/guard/guard.png)](https://gemnasium.com/guard/guard) [![Code Climate](https://codeclimate.com/github/guard/guard.png)](https://codeclimate.com/github/guard/guard) [![Coverage Status](https://coveralls.io/repos/guard/guard/badge.png?branch=master)](https://coveralls.io/r/guard/guard)
 =====
 
 <img src="http://img515.imageshack.us/img515/1358/guardicon.png" alt="Guard Icon" align="right" />
@@ -942,10 +942,10 @@ Development
 Pull requests are very welcome! Please try to follow these simple rules if applicable:
 
 * Please create a topic branch for every separate change you make.
-* Make sure your patches are well tested. All specs run with `rake spec:portability` must pass.
+* Make sure your patches are well tested. All specs must pass on [Travis CI](https://travis-ci.org/guard/guard).
 * Update the [Yard](http://yardoc.org/) documentation.
 * Update the [README](https://github.com/guard/guard/blob/master/README.md).
-* Update the [CHANGELOG](https://github.com/guard/guard/blob/master/CHANGELOG.md) for noteworthy changes.
+* Update the [CHANGELOG](https://github.com/guard/guard/blob/master/CHANGELOG.md) for noteworthy changes (don't forget to run `bundle exec pimpmychangelog` and watch the magic happen)!
 * Please **do not change** the version number.
 
 For questions please join us in our [Google group](http://groups.google.com/group/guard-dev) or on
