@@ -135,7 +135,7 @@ describe Guard do
     end
   end
 
-  describe ".setup_signal_traps" do
+  describe ".setup_signal_traps", :speed => 'slow' do
     before { ::Guard::Dsl.stub(:evaluate_guardfile) }
 
     unless windows? || defined?(JRUBY_VERSION)
