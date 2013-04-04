@@ -43,6 +43,5 @@ end
 #
 group :test do
   gem 'rspec'
-  gem 'guard-rspec' # this is required by guard_spec.rb
   gem 'coveralls', :require => false
 end

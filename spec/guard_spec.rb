@@ -885,37 +885,80 @@ describe Guard do
     end
   end
 
-  describe ".locate_guard" do
-    it "returns the path of a Guard gem" do
-      if Gem::Version.create(Gem::VERSION) >= Gem::Version.create('1.8.0')
-        gem_location = Gem::Specification.find_by_name("guard-rspec").full_gem_path
-      else
-        gem_location = Gem.source_index.find_name("guard-rspec").last.full_gem_path
+  let!(:rubygems_version_1_7_2) { Gem::Version.create('1.7.2') }
+  let!(:rubygems_version_1_8_0) { Gem::Version.create('1.8.0') }
+
+  describe '.locate_guard' do
+    context 'Rubygems < 1.8.0' do
+      before do
+        Gem::Version.should_receive(:create).with(Gem::VERSION) { rubygems_version_1_7_2 }
+        Gem::Version.should_receive(:create).with('1.8.0') { rubygems_version_1_8_0 }
       end
 
-      Guard.locate_guard('rspec').should == gem_location
+      it "returns the path of a Guard gem" do
+        gems_source_index = stub
+        gems_found = [stub(:full_gem_path => 'gems/guard-rspec')]
+        Gem.should_receive(:source_index) { gems_source_index }
+        gems_source_index.should_receive(:find_name).with('guard-rspec') { gems_found }
+
+        Guard.locate_guard('rspec').should eq 'gems/guard-rspec'
+      end
+    end
+
+    context 'Rubygems >= 1.8.0' do
+      before do
+        Gem::Version.should_receive(:create).with(Gem::VERSION) { rubygems_version_1_8_0 }
+        Gem::Version.should_receive(:create).with('1.8.0') { rubygems_version_1_8_0 }
+      end
+
+      it "returns the path of a Guard gem" do
+        Gem::Specification.should_receive(:find_by_name).with('guard-rspec') { stub(:full_gem_path => 'gems/guard-rspec') }
+
+        Guard.locate_guard('rspec').should eq 'gems/guard-rspec'
+      end
     end
   end
 
-  describe ".guard_gem_names" do
-    it "returns the list of guard gems" do
-      gems = Guard.guard_gem_names
-      gems.should include("rspec")
+  describe '.guard_gem_names' do
+    context 'Rubygems < 1.8.0' do
+      before do
+        Gem::Version.should_receive(:create).with(Gem::VERSION) { rubygems_version_1_7_2 }
+        Gem::Version.should_receive(:create).with('1.8.0') { rubygems_version_1_8_0 }
+        gems_source_index = stub
+        Gem.should_receive(:source_index) { gems_source_index }
+        gems_source_index.should_receive(:find_name).with(/^guard-/) { [stub(:name => 'guard-rspec')] }
+      end
+
+      it 'returns the list of guard gems' do
+        Guard.guard_gem_names.should include('rspec')
+      end
     end
 
-    it "returns the list of embedded guard gems" do
-      gem1 = stub(:gem, :name => "gem1", :full_gem_path => '/gem1' )
-      gem2 = stub(:gem, :name => "gem2", :full_gem_path => '/gem2' )
-      gem3 = stub(:gem, :name => "guard", :full_gem_path => '/guard' )
+    context 'Rubygems >= 1.8.0' do
+      before do
+        Gem::Version.should_receive(:create).with(Gem::VERSION) { rubygems_version_1_8_0 }
+        Gem::Version.should_receive(:create).with('1.8.0') { rubygems_version_1_8_0 }
+        gems = [
+          stub(:name => 'guard'),
+          stub(:name => 'guard-rspec'),
+          stub(:name => 'gem1', :full_gem_path => '/gem1'),
+          stub(:name => 'gem2', :full_gem_path => '/gem2'),
+        ]
+        File.stub(:exists?).with('/gem1/lib/guard/gem1.rb') { false }
+        File.stub(:exists?).with('/gem2/lib/guard/gem2.rb') { true }
+        Gem::Specification.should_receive(:find_all) { gems }
+      end
 
-      File.should_receive(:exists?).with('/gem1/lib/guard/gem1.rb').and_return(false)
-      File.should_receive(:exists?).with('/gem2/lib/guard/gem2.rb').and_return(true)
+      it "returns the list of guard gems" do
+        gems = Guard.guard_gem_names
+        gems.should include('rspec')
+      end
 
-      Gem::Specification.should_receive(:find_all).and_return([gem1, gem2, gem3])
-
-      Guard.guard_gem_names.should == ['gem2']
+      it "returns the list of embedded guard gems" do
+        gems = Guard.guard_gem_names
+        gems.should include('gem2')
+      end
     end
-
   end
 
   describe ".debug_command_execution" do
