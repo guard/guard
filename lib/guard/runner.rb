@@ -50,8 +50,8 @@ module Guard
     #
     def run(task, scopes = {})
       Lumberjack.unit_of_work do
-       scoped_guards(scopes) do |guard|
-          run_supervised_task(guard, task)
+        scoped_guards(scopes) do |guard|
+          run_supervised_task(guard, task) if guard.respond_to?(task)
         end
       end
     end
@@ -101,8 +101,6 @@ module Guard
           result
         end
 
-      rescue NoMethodError
-        # Do nothing
       rescue Exception => ex
         ::Guard::UI.error("#{ guard.class.name } failed to achieve its <#{ task.to_s }>, exception was:" +
                  "\n#{ ex.class }: #{ ex.message }\n#{ ex.backtrace.join("\n") }")
