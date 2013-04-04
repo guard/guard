@@ -68,8 +68,9 @@ describe Guard::Runner do
   describe '#run' do
     let(:scopes) { { :group => foo_group } }
 
-    it 'executes a supervised task on all registered guards' do
-      [foo_guard, bar1_guard, bar2_guard].each do |g|
+    it 'executes a supervised task on all registered guards implementing that task' do
+      [foo_guard, bar1_guard].each do |g|
+        g.stub(:my_task)
         subject.should_receive(:run_supervised_task).with(g, :my_task)
       end
       subject.run(:my_task)
@@ -94,6 +95,7 @@ describe Guard::Runner do
       let(:scopes) { { :plugins => [bar1_guard] } }
 
       it 'executes the supervised task on the specified guard only' do
+        bar1_guard.stub(:my_task)
         subject.should_receive(:run_supervised_task).with(bar1_guard, :my_task)
 
         subject.should_not_receive(:run_supervised_task).with(foo_guard, :my_task)
@@ -107,6 +109,7 @@ describe Guard::Runner do
       let(:scopes) { { :groups => [foo_group] } }
 
       it 'executes the task on each guard in the specified group only' do
+        foo_guard.stub(:my_task)
         subject.should_receive(:run_supervised_task).with(foo_guard, :my_task)
 
         subject.should_not_receive(:run_supervised_task).with(bar1_guard, :my_task)
