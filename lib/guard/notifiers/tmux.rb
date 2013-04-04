@@ -65,7 +65,7 @@ module Guard
         color = tmux_color(type, options)
         color_location = options[:color_location] || DEFAULTS[:color_location]
 
-        system("#{ DEFAULTS[:client] } set #{ color_location } #{ color }")
+        run_client "set #{ color_location } #{ color }"
 
         show_message = options[:display_message] || DEFAULTS[:display_message]
         display_message(type, title, message, options) if show_message
@@ -98,10 +98,10 @@ module Guard
           formatted_message = message.split("\n").join(separator)
           display_message = message_format % [title, formatted_message]
 
-          system("#{ DEFAULTS[:client] } set display-time #{ display_time * 1000 }")
-          system("#{ DEFAULTS[:client] } set message-fg #{ message_color }")
-          system("#{ DEFAULTS[:client] } set message-bg #{ color }")
-          system("#{ DEFAULTS[:client] } display-message '#{ display_message }'")
+          run_client "set display-time #{ display_time * 1000 }"
+          run_client "set message-fg #{ message_color }"
+          run_client "set message-bg #{ color }"
+          run_client "display-message '#{ display_message }'"
       end
 
       # Get the Tmux color for the notification type.
@@ -138,7 +138,7 @@ module Guard
           @options_stored = true
         end
 
-        system("#{ DEFAULTS[:client] } set quiet on")
+        run_client "set quiet on"
       end
 
       # Notification stopping. Restore the previous Tmux state
@@ -149,19 +149,23 @@ module Guard
         if @options_stored
           @options_store.each do |key, value|
             if value
-              system("#{ DEFAULTS[:client] } set #{ key } #{ value }")
+              run_client "set #{ key } #{ value }"
             else
-              system("#{ DEFAULTS[:client] } set -u #{ key }")
+              run_client "set -u #{ key }"
             end
           end
 
           reset_options_store
         end
 
-        system("#{ DEFAULTS[:client] } set quiet off")
+        run_client 'set quiet off'
       end
 
       private
+
+      def run_client(args)
+        system("#{ DEFAULTS[:client] } #{args}")
+      end
 
       # Reset the internal Tmux options store defaults.
       #
