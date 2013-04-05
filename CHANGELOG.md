@@ -1,3 +1,18 @@
+## git master
+
+### Bug fixes
+
+- [#413][], [#414][] NoMethodError exceptions raised by plugins are no longer silently discarded. ([@aspiers][])
+- [#414][] Test suite now runs cleanly within a `tmux` session. ([@aspiers][])
+- Specs and Travis builds no longer require `guard-rspec`. ([@aspiers][], [@rymai][])
+- [#414][] Various minor issues with the test suite were fixed. ([@aspiers][])
+- [#409][], [#410][] Fix some typos and broken URLs. ([@aspiers][], [@rymai][])
+
+### Process changes
+
+- Guard has an open commit bit policy: Anyone with an accepted pull
+  request gets added as a repository collaborator. ([@netzpirat][])
+
 ## 1.7.0 - 28 March, 2013
 
 ### Improvements
@@ -737,6 +752,10 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [#406]: https://github.com/guard/guard/issues/406
 [#407]: https://github.com/guard/guard/issues/407
 [#408]: https://github.com/guard/guard/issues/408
+[#409]: https://github.com/guard/guard/issues/409
+[#410]: https://github.com/guard/guard/issues/410
+[#413]: https://github.com/guard/guard/issues/413
+[#414]: https://github.com/guard/guard/issues/414
 [@Gazer]: https://github.com/Gazer
 [@Maher4Ever]: https://github.com/Maher4Ever
 [@alandipert]: https://github.com/alandipert
