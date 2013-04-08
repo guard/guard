@@ -103,6 +103,7 @@ module Guard
     # Add Pry hooks:
     #
     # * Load `~/.guardrc` within each new Pry session.
+    # * Load project's `.guardrc` within each new Pry session.
     # * Restore prompt after each evaluation.
     #
     def add_hooks
@@ -110,6 +111,11 @@ module Guard
         (self.class.options[:guard_rc] || GUARD_RC).tap do |p|
           load p if File.exist?(File.expand_path(p))
         end
+      end
+
+      Pry.config.hooks.add_hook :when_started, :load_project_guard_rc do
+        project_guard_rc = Dir.pwd + '/.guardrc'
+        load project_guard_rc if File.exist?(project_guard_rc)
       end
 
       if stty_exists?
