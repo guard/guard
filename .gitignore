@@ -25,3 +25,5 @@ coverage/
 .fseventsd
 Desktop DB
 Desktop DF
+
+.ruby-version
