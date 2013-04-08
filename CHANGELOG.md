@@ -1,5 +1,9 @@
 ## git master
 
+### Improvements
+
+- [#416][] Support .guardrc file on the folder from which Guard is executed as well. ([@Nerian][])
+
 ### Bug fixes
 
 - [#413][], [#414][] NoMethodError exceptions raised by plugins are no longer silently discarded. ([@aspiers][])
@@ -756,8 +760,10 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [#410]: https://github.com/guard/guard/issues/410
 [#413]: https://github.com/guard/guard/issues/413
 [#414]: https://github.com/guard/guard/issues/414
+[#416]: https://github.com/guard/guard/issues/416
 [@Gazer]: https://github.com/Gazer
 [@Maher4Ever]: https://github.com/Maher4Ever
+[@Nerian]: https://github.com/Nerian
 [@alandipert]: https://github.com/alandipert
 [@amiel]: https://github.com/amiel
 [@anithri]: https://github.com/anithri
