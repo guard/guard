@@ -30,8 +30,10 @@ Features
 Screencast
 ----------
 
-Ryan Bates made an excellent [RailsCast about Guard](http://railscasts.com/episodes/264-guard) and you should definitely
-watch it for a nice introduction to Guard.
+Two nice introduction screen casts to Guard are available that helps you get started:
+
+* [Guard is Your Best Friend](http://net.tutsplus.com/tutorials/tools-and-tips/guard-is-your-best-friend) on Net Tuts+
+* [Guard](http://railscasts.com/episodes/264-guard) on RailsCast
 
 Installation
 ------------
