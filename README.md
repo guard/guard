@@ -108,6 +108,11 @@ group :development do
 end
 ```
 
+## Interrupt handling
+
+If the Pry interactor is used, then `Ctrl-C` is delegated to Pry to exit continuation and `Ctrl-D` to exit Guard.
+Without interactor, `Ctrl-C` exists Guard and `Ctrl-D` is ignored.
+
 ## System notifications
 
 You can configure Guard to make use of the following system notification libraries:
