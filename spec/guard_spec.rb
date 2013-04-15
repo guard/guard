@@ -34,7 +34,7 @@ describe Guard do
     it "respect the watchdir option" do
       ::Guard.setup(:watchdir => '/usr')
 
-      ::Guard.listener.directory.should eq '/usr'
+      ::Guard.listener.directories.should eq ['/usr']
     end
 
     it "changes the current work dir to the watchdir" do

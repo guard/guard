@@ -191,7 +191,7 @@ module Guard
         ::Guard::UI.debug 'Guard starts all plugins'
         runner.run(:start)
         ::Guard::UI.info "Guard is now watching at '#{ @watchdir }'"
-        listener.start(false)
+        listener.start
       end
     end
 
