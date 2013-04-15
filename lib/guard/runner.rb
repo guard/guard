@@ -126,7 +126,7 @@ module Guard
       return :task_has_failed if guard.group.class != Symbol
 
       group = ::Guard.groups(guard.group)
-      group.options[:halt_on_fail] ? :no_catch : :task_has_failed
+      group.options.fetch(:halt_on_fail, false) ? :no_catch : :task_has_failed
     end
 
   private
@@ -168,10 +168,16 @@ module Guard
         end
       else
         current_groups_scope(scopes).each do |group|
-          catch :task_has_failed do
+          current_plugin = nil
+          block_return = catch :task_has_failed do
             ::Guard.guards(:group => group.name).each do |guard|
+              current_plugin = guard
               yield(guard)
             end
+          end
+
+          if block_return.nil?
+            ::Guard::UI.info "#{ current_plugin.class.name } has failed, other group's plugins execution has been halted."
           end
         end
       end
