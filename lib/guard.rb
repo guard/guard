@@ -52,38 +52,31 @@ module Guard
       @scope    = { :plugins => [], :groups => [] }
 
       Dir.chdir(@watchdir)
-
-      if options[:debug]
-        Thread.abort_on_exception = true
-        ::Guard::UI.options[:level] = :debug
-        debug_command_execution
-      end
-
       ::Guard::UI.clear(:force => true)
+      setup_debug
       deprecated_options_warning
 
       setup_groups
       setup_guards
       setup_listener
       setup_signal_traps
+      setup_from_guardfile
+      setup_scopes
 
-      ::Guard::Dsl.evaluate_guardfile(options)
-      ::Guard::UI.error 'No guards found in Guardfile, please add at least one.' if @guards.empty?
-
-      if @options[:group]
-        @scope[:groups] = @options[:group].map { |g| ::Guard.groups(g) }
-      end
-
-      if @options[:plugin]
-        @scope[:plugins] = @options[:plugin].map { |p| ::Guard.guards(p) }
-      end
-
-      runner.deprecation_warning if @options[:show_deprecations]
+      runner.deprecation_warning if options[:show_deprecations]
 
       setup_notifier
       setup_interactor
 
       self
+    end
+
+    def setup_debug
+      if options[:debug]
+        Thread.abort_on_exception = true
+        ::Guard::UI.options[:level] = :debug
+        debug_command_execution
+      end
     end
 
     # Initialize the groups array with the `:default` group.
@@ -100,6 +93,25 @@ module Guard
     #
     def setup_guards
       @guards = []
+    end
+
+    # Initializes the listener and registers a callback for changes.
+    #
+    def setup_listener
+      listener_callback = lambda do |modified, added, removed|
+        ::Guard::Dsl.reevaluate_guardfile if ::Guard::Watcher.match_guardfile?(modified)
+
+        ::Guard.within_preserved_state do
+          runner.run_on_changes(modified, added, removed)
+        end
+      end
+
+      listener_options = { :relative_paths => true }
+      %w[latency force_polling].each do |option|
+        listener_options[option.to_sym] = options[option] if options.key?(option)
+      end
+
+      @listener = Listen.to(@watchdir, listener_options).change(&listener_callback)
     end
 
     # Sets up traps to catch signals used to control Guard.
@@ -131,23 +143,14 @@ module Guard
       end
     end
 
-    # Initializes the listener and registers a callback for changes.
-    #
-    def setup_listener
-      listener_callback = lambda do |modified, added, removed|
-        ::Guard::Dsl.reevaluate_guardfile if ::Guard::Watcher.match_guardfile?(modified)
+    def setup_from_guardfile
+      ::Guard::Dsl.evaluate_guardfile(options)
+      ::Guard::UI.error 'No guards found in Guardfile, please add at least one.' if @guards.empty?
+    end
 
-        ::Guard.within_preserved_state do
-          runner.run_on_changes(modified, added, removed)
-        end
-      end
-
-      listener_options = { :relative_paths => true }
-      %w[latency force_polling].each do |option|
-        listener_options[option.to_sym] = options[option] if options.key?(option)
-      end
-
-      @listener = Listen.to(@watchdir, listener_options).change(&listener_callback)
+    def setup_scopes
+      scope[:groups]  = options[:group].map { |g| ::Guard.groups(g) } if options[:group]
+      scope[:plugins] = options[:plugin].map { |p| ::Guard.guards(p) } if options[:plugin]
     end
 
     # Enables or disables the notifier based on user's configurations.
@@ -201,7 +204,7 @@ module Guard
         ::Guard::Notifier.turn_off
         ::Guard::UI.info 'Bye bye...', :reset => true
         listener.stop
-        ::Guard.running = false
+        @running = false
       end
     end
 
@@ -397,11 +400,11 @@ module Guard
         require "guard/#{ name.downcase }" if try_require
         self.const_get(self.constants.find { |c| c.to_s == const_name } || self.constants.find { |c| c.to_s.downcase == const_name.downcase })
       rescue TypeError
-        unless try_require
+        if try_require
+          ::Guard::UI.error "Could not find class Guard::#{ const_name.capitalize }"
+        else
           try_require = true
           retry
-        else
-          ::Guard::UI.error "Could not find class Guard::#{ const_name.capitalize }"
         end
       rescue LoadError => loadError
         unless fail_gracefully
