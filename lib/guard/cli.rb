@@ -163,7 +163,7 @@ module Guard
       return if options[:bare]
 
       if guard_names.empty?
-        ::Guard::Guardfile::initialize_all_templates
+        ::Guard::Guardfile.initialize_all_templates
       else
         guard_names.each do |guard_name|
           ::Guard::Guardfile.initialize_template(guard_name)
