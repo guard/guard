@@ -3,6 +3,8 @@
 ### Improvements
 
 - [#416][] Support .guardrc file on the folder from which Guard is executed as well. ([@Nerian][])
+- Display an info message when a plugin throws `:task_has_failed`. ([@rymai][])
+- Ensure compatibility with new Listen's API. ([@rymai][])
 
 ### Bug fixes
 
