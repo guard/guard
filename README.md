@@ -697,6 +697,22 @@ $ guard -g specs
 
 Guard plugins that don't belong to a group are considered global and are always run.
 
+Another neat use of groups is to group dependant plugins and stop processing if one fails. In order
+to make this work, the group needs to have the `halt_on_fail` option enabled and the Guard plugin
+needs to throw `:task_has_failed` to indicate that the action was not successful.
+
+```ruby
+group :specs, :halt_on_fail => true do
+  guard :rspec do
+    watch(/.../)
+  end
+
+  guard :cucumber do
+    watch(/.../)
+  end
+end
+```
+
 ### scope
 
 The `scope` method allows you to define the default plugin or group scope for Guard, if not
