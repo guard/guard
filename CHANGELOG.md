@@ -2,6 +2,7 @@
 
 ### Improvements
 
+- New `Guard::Plugin::Base` module common to `Guard::Guard` (deprecated) & `Guard::Plugin`. ([@rymai][])
 - Deprecate `Guard::Guard` and replace it with `Guard::Plugin`. ([@rymai][])
 - New `Guard::PluginUtil` that contains useful methods to find and instantiate Guard plugins. ([@rymai][])
 - Move setup stuff into a new `Guard::Setuper` module. ([@rymai][])
