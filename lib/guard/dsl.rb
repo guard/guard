@@ -40,20 +40,6 @@ module Guard
     require 'guard/ui'
     require 'guard/watcher'
 
-    # Deprecation message for the `ignore_paths` method
-    IGNORE_PATHS_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
-      Starting with Guard v1.1 the use of the 'ignore_paths' Guardfile DSL method is deprecated.
-
-      Please replace that method with the better 'ignore' or/and 'filter' methods.
-      Documentation on the README: https://github.com/guard/guard#ignore
-    EOS
-
-    # Deprecation message for the `interactor` method
-    INTERACTOR_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
-      Starting with Guard v1.4 the use of the 'interactor' Guardfile DSL method is only used to
-      disable or pass options to the Pry interactor. All other usages are deprecated.
-    EOS
-
     class << self
 
       attr_accessor :options
@@ -283,7 +269,7 @@ module Guard
         ::Guard::Interactor.options = options
 
       else
-        ::Guard::UI.deprecation(INTERACTOR_DEPRECATION)
+        ::Guard::UI.deprecation(::Guard::Deprecator::DSL_METHOD_INTERACTOR_DEPRECATION)
       end
     end
 
@@ -398,7 +384,7 @@ module Guard
     # @param [Array] paths the list of paths to ignore
     #
     def ignore_paths(*paths)
-      ::Guard::UI.deprecation(IGNORE_PATHS_DEPRECATION)
+      ::Guard::UI.deprecation(::Guard::Deprecator::DSL_METHOD_IGNORE_PATHS_DEPRECATION)
     end
 
     # Ignore certain paths globally.

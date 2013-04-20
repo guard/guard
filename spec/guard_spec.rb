@@ -997,27 +997,4 @@ describe Guard do
 
   end
 
-  describe ".deprecated_options_warning" do
-    subject { ::Guard.setup }
-
-    context "with watch_all_modifications options" do
-      before { subject.options[:watch_all_modifications] = true }
-
-      it 'displays a deprecation warning to the user' do
-        ::Guard::UI.should_receive(:deprecation)
-        subject.deprecated_options_warning
-      end
-    end
-
-    context "with no_vendor options" do
-      before { subject.options[:no_vendor] = true }
-
-      it 'displays a deprecation warning to the user' do
-        ::Guard::UI.should_receive(:deprecation)
-        subject.deprecated_options_warning
-      end
-    end
-
-  end
-
 end

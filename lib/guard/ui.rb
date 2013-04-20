@@ -87,7 +87,9 @@ module Guard
       # @option options [Boolean] reset whether to clean the output before
       # @option options [String] plugin manually define the calling plugin
       #
-      def deprecation(message, options = { })
+      def deprecation(message, options = {})
+        return unless ::Guard.options[:show_deprecations]
+
         filter(options[:plugin]) do |plugin|
           reset_line if options[:reset]
           self.logger.warn(color(message, :yellow), plugin)
@@ -100,7 +102,7 @@ module Guard
       # @option options [Boolean] reset whether to clean the output before
       # @option options [String] plugin manually define the calling plugin
       #
-      def debug(message, options = { })
+      def debug(message, options = {})
         filter(options[:plugin]) do |plugin|
           reset_line if options[:reset]
           self.logger.debug(color(message, :yellow), plugin)

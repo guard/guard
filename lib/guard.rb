@@ -7,6 +7,7 @@ require 'listen'
 #
 module Guard
 
+  require 'guard/deprecator'
   require 'guard/dsl'
   require 'guard/guardfile'
   require 'guard/group'
@@ -465,26 +466,7 @@ module Guard
       end
     end
 
-    # Deprecation message for the `watch_all_modifications` start option
-    WATCH_ALL_MODIFICATIONS_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
-      Starting with Guard v1.1 the 'watch_all_modifications' option is removed and is now always on.
-    EOS
-
-    # Deprecation message for the `no_vendor` start option
-    NO_VENDOR_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
-      Starting with Guard v1.1 the 'no_vendor' option is removed because the monitoring
-      gems are now part of a new gem called Listen. (https://github.com/guard/listen)
-
-      You can specify a custom version of any monitoring gem directly in your Gemfile
-      if you want to overwrite Listen's default monitoring gems.
-    EOS
-
-    # Displays a warning for each deprecated options used.
-    #
-    def deprecated_options_warning
-      ::Guard::UI.deprecation(WATCH_ALL_MODIFICATIONS_DEPRECATION) if options[:watch_all_modifications]
-      ::Guard::UI.deprecation(NO_VENDOR_DEPRECATION) if options[:no_vendor]
-    end
+    private
 
     # Convert the old scope format to the new scope format.
     #

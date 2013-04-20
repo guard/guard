@@ -1,7 +1,14 @@
+## git master
+
+### Improvements
+
+- Move deprecation stuff inside a new `Guard::Deprecator` class. ([@rymai][])
+
 ## 1.8.0 - 20 April, 2013
 
 ### Improvements
 
+- Listen 1.0.0 support. ([@thibaudgg][])
 - [#416][] Support .guardrc file on the folder from which Guard is executed as well. ([@Nerian][])
 - Display an info message when a plugin throws `:task_has_failed`. ([@rymai][])
 - Ensure compatibility with new Listen's API. ([@rymai][])
