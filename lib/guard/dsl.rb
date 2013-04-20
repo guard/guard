@@ -369,7 +369,7 @@ module Guard
     # @param [Array] args the callback arguments
     # @yield a block with listeners
     #
-    # @see Guard::Hook
+    # @see Guard::Hooker
     #
     def callback(*args, &listener)
       listener, events = args.size > 1 ? args : [listener, args[0]]

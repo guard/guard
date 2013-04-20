@@ -2,6 +2,7 @@
 
 ### Improvements
 
+- Rename `Guard::Hook` to `Guard::Plugin::Hooker`. ([@rymai][])
 - New `Guard::Plugin::Base` module common to `Guard::Guard` (deprecated) & `Guard::Plugin`. ([@rymai][])
 - Deprecate `Guard::Guard` and replace it with `Guard::Plugin`. ([@rymai][])
 - New `Guard::PluginUtil` that contains useful methods to find and instantiate Guard plugins. ([@rymai][])
