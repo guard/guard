@@ -37,7 +37,7 @@ module Guard
     # @return [String] the group name
     #
     def to_s
-      @name.to_s.capitalize
+      "#<#{self.class} @name=#{name} @options=#{options}>"
     end
 
   end

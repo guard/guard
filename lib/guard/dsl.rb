@@ -54,7 +54,7 @@ module Guard
       def evaluate_guardfile(options = {})
         raise ArgumentError.new('No option hash passed to evaluate_guardfile!') unless options.is_a?(Hash)
 
-        self.options = options.dup
+        @options = options.dup
 
         fetch_guardfile_contents
         instance_eval_guardfile(guardfile_contents_with_user_config)
@@ -64,7 +64,7 @@ module Guard
       #
       def reevaluate_guardfile
         before_reevaluate_guardfile
-        ::Guard::Dsl.evaluate_guardfile(options)
+        evaluate_guardfile(options)
         after_reevaluate_guardfile
       end
 

@@ -166,41 +166,54 @@ describe Guard::UI do
   end
 
   describe '.deprecation' do
-    it 'resets the line with the :reset option' do
-      Guard::UI.should_receive :reset_line
-      Guard::UI.deprecation('Deprecation message', { :reset => true })
-    end
+    context 'with the :show_deprecation option set to false (default)' do
+      before { Guard.options = { :show_deprecations => false } }
 
-    it 'logs the message to with the warn severity' do
-      Guard::UI.logger.should_receive(:warn).with("\e[0;33mDeprecation message\e[0m", 'Guard::UiSpec')
-      Guard::UI.deprecation 'Deprecation message'
-    end
-
-    context 'with the :only option' do
-      before { Guard::UI.options[:only] = /A/ }
-
-      it 'shows only the matching messages' do
-        Guard::UI.logger.should_receive(:warn).with("\e[0;33mDeprecation message\e[0m", 'A')
-        Guard::UI.logger.should_not_receive(:warn).with("\e[0;33mDeprecation message\e[0m", 'B')
-        Guard::UI.logger.should_not_receive(:warn).with("\e[0;33mDeprecation message\e[0m", 'C')
-
-        Guard::UI.deprecation 'Deprecation message', :plugin => 'A'
-        Guard::UI.deprecation 'Deprecation message', :plugin => 'B'
-        Guard::UI.deprecation 'Deprecation message', :plugin => 'C'
+      it 'do not log' do
+        Guard::UI.logger.should_not_receive(:warn)
+        Guard::UI.deprecation 'Deprecator message'
       end
     end
 
-    context 'with the :except option' do
-      before { Guard::UI.options[:except] = /A/ }
+    context 'with the :show_deprecation option set to true' do
+      before { Guard.options = { :show_deprecations => true } }
 
-      it 'shows only the matching messages' do
-        Guard::UI.logger.should_not_receive(:warn).with("\e[0;33mDeprecation message\e[0m", 'A')
-        Guard::UI.logger.should_receive(:warn).with("\e[0;33mDeprecation message\e[0m", 'B')
-        Guard::UI.logger.should_receive(:warn).with("\e[0;33mDeprecation message\e[0m", 'C')
+      it 'resets the line with the :reset option' do
+        Guard::UI.should_receive :reset_line
+        Guard::UI.deprecation('Deprecator message', { :reset => true })
+      end
 
-        Guard::UI.deprecation 'Deprecation message', :plugin => 'A'
-        Guard::UI.deprecation 'Deprecation message', :plugin => 'B'
-        Guard::UI.deprecation 'Deprecation message', :plugin => 'C'
+      it 'logs the message to with the warn severity' do
+        Guard::UI.logger.should_receive(:warn).with("\e[0;33mDeprecator message\e[0m", 'Guard::UiSpec')
+        Guard::UI.deprecation 'Deprecator message'
+      end
+
+      context 'with the :only option' do
+        before { Guard::UI.options[:only] = /A/ }
+
+        it 'shows only the matching messages' do
+          Guard::UI.logger.should_receive(:warn).with("\e[0;33mDeprecator message\e[0m", 'A')
+          Guard::UI.logger.should_not_receive(:warn).with("\e[0;33mDeprecator message\e[0m", 'B')
+          Guard::UI.logger.should_not_receive(:warn).with("\e[0;33mDeprecator message\e[0m", 'C')
+
+          Guard::UI.deprecation 'Deprecator message', :plugin => 'A'
+          Guard::UI.deprecation 'Deprecator message', :plugin => 'B'
+          Guard::UI.deprecation 'Deprecator message', :plugin => 'C'
+        end
+      end
+
+      context 'with the :except option' do
+        before { Guard::UI.options[:except] = /A/ }
+
+        it 'shows only the matching messages' do
+          Guard::UI.logger.should_not_receive(:warn).with("\e[0;33mDeprecator message\e[0m", 'A')
+          Guard::UI.logger.should_receive(:warn).with("\e[0;33mDeprecator message\e[0m", 'B')
+          Guard::UI.logger.should_receive(:warn).with("\e[0;33mDeprecator message\e[0m", 'C')
+
+          Guard::UI.deprecation 'Deprecator message', :plugin => 'A'
+          Guard::UI.deprecation 'Deprecator message', :plugin => 'B'
+          Guard::UI.deprecation 'Deprecator message', :plugin => 'C'
+        end
       end
     end
   end

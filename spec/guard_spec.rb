@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Guard do
-  describe '#reload' do
+  describe '.reload' do
     let(:runner) { stub(:run => true) }
     subject { ::Guard.setup }
 
@@ -137,59 +137,40 @@ describe Guard do
       guard
     end
 
-    context 'without any argument' do
-      it "return all groups" do
-        subject.groups.should == subject.instance_variable_get("@groups")
+    context 'without no argument' do
+      it 'returns all groups' do
+        subject.groups.should eq subject.instance_variable_get("@groups")
       end
     end
 
-    context "find a group by as string/symbol" do
-      it "find a group by a string" do
-        subject.groups('backend').should == @group_backend
-      end
-
-      it "find a group by a symbol" do
-        subject.groups(:backend).should == @group_backend
-      end
-
-      it "returns nil if group is not found" do
-        subject.groups(:foo).should be_nil
+    context 'with a string argument' do
+      it 'returns a single group' do
+        subject.groups('backend').should eq @group_backend
       end
     end
 
-    context "find groups matching a regexp" do
-      it "with matches" do
-        subject.groups(/^back/).should == [@group_backend, @group_backflip]
-      end
-
-      it "without matches" do
-        subject.groups(/back$/).should == []
+    context 'with a symbol argument matching a group' do
+      it 'returns a single group' do
+        subject.groups(:backend).should eq @group_backend
       end
     end
-  end
 
-
-  describe ".setup_guards" do
-    before(:all) {
-      class Guard::FooBar < Guard::Guard;
-      end }
-
-    after(:all) do
-      ::Guard.instance_eval { remove_const(:FooBar) }
+    context 'with a symbol argument not matching a group' do
+      it 'returns nil' do
+        subject.groups(:foo).should eq nil
+      end
     end
 
-    subject do
-      guard          = ::Guard.setup(:guardfile => File.join(@fixture_path, "Guardfile"))
-      @group_backend = guard.add_guard(:foo_bar)
-      guard
+    context 'with a regexp argument matching a group' do
+      it 'returns an array of groups' do
+        subject.groups(/^back/).should eq [@group_backend, @group_backflip]
+      end
     end
 
-    it "return @guards without any argument" do
-      subject.guards.should have(1).item
-
-      subject.setup_guards
-
-      subject.guards.should be_empty
+    context 'with a regexp argument not matching a group' do
+      it 'returns nil' do
+        subject.groups(/back$/).should eq nil
+      end
     end
   end
 
@@ -284,21 +265,20 @@ describe Guard do
     end
   end
 
-  describe ".add_group" do
-    before { ::Guard.setup_groups }
+  describe '.add_group' do
+    before { ::Guard.reset_groups }
 
     it "accepts group name as string" do
       ::Guard.add_group('backend')
-
-      ::Guard.groups[0].name.should == :default
-      ::Guard.groups[1].name.should == :backend
+      ::Guard.groups[0].name.should eq :default
+      ::Guard.groups[1].name.should eq :backend
     end
 
     it "accepts group name as symbol" do
       ::Guard.add_group(:backend)
 
-      ::Guard.groups[0].name.should == :default
-      ::Guard.groups[1].name.should == :backend
+      ::Guard.groups[0].name.should eq :default
+      ::Guard.groups[1].name.should eq :backend
     end
 
     it "accepts options" do
