@@ -284,20 +284,5 @@ module Guard
       scopes
     end
 
-    # Determine if Guard needs to quit. This
-    # checks for Ctrl-D pressed.
-    #
-    # @return [Boolean] whether to quit or not
-    #
-    def quit?
-      STDIN.read_nonblock(1)
-      false
-    rescue Errno::EINTR
-      false
-    rescue Errno::EAGAIN
-      false
-    rescue EOFError
-      true
-    end
   end
 end
