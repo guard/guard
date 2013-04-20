@@ -16,9 +16,6 @@ matrix:
   allow_failures:
     - rvm: ruby-head
     - rvm: jruby-head
-branches:
-  only:
-    - master
 notifications:
   recipients:
     - thibaud@thibaud.me
