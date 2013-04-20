@@ -59,7 +59,7 @@ module Guard
     # Stop Guard listening to file changes
     #
     def stop
-      within_preserved_state(false) do
+      within_preserved_state do
         ::Guard::UI.debug 'Guard stops all plugins'
         runner.run(:stop)
         ::Guard::Notifier.turn_off
@@ -241,7 +241,7 @@ module Guard
           # Bring back Pry when the block is halted with Ctrl-C
         end
 
-        interactor.start if interactor && restart_interactor
+        interactor.start if running
       end
 
       @result

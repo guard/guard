@@ -324,7 +324,7 @@ describe Guard do
       @called.should be_true
     end
 
-    context 'with restart interactor enabled' do
+    context '@running is true' do
       it 'stops the interactor before running the block and starts it again when done' do
         subject.interactor.should_receive(:stop)
         subject.interactor.should_receive(:start)
@@ -332,10 +332,12 @@ describe Guard do
       end
     end
 
-    context 'without restart interactor enabled' do
-      it 'stops the interactor before running the block' do
+    context '@running is false' do
+      before { ::Guard.stub(:running) { false } }
+
+      it 'stops the interactor before running the block and do not starts it again when done' do
         subject.interactor.should_receive(:stop)
-        subject.interactor.should__not_receive(:start)
+        subject.interactor.should_not_receive(:start)
         subject.within_preserved_state &Proc.new { }
       end
     end
