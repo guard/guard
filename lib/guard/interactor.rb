@@ -161,10 +161,8 @@ module Guard
     # `rspec` is created that runs `all rspec`.
     #
     def create_guard_commands
-      ::Guard.guards.each do |guard|
-        name = guard.class.to_s.downcase.sub('guard::', '')
-
-        Pry.commands.create_command name, "Run all #{ name }" do
+      ::Guard.guards.each do |guard_plugin|
+        Pry.commands.create_command guard_plugin.name, "Run all #{ guard_plugin.title }" do
           group 'Guard'
 
           def process
@@ -181,10 +179,9 @@ module Guard
     #
     def create_group_commands
       ::Guard.groups.each do |group|
-        name = group.name.to_s
-        next if name == 'default'
+        next if group.name == :default
 
-        Pry.commands.create_command name, "Run all #{ name }" do
+        Pry.commands.create_command group.name.to_s, "Run all #{ group.title }" do
           group 'Guard'
 
           def process
@@ -205,9 +202,9 @@ module Guard
           clip    = Pry.view_clip(target_self)
           level = ":#{ nest_level }" unless nest_level.zero?
           scope = if !::Guard.scope[:plugins].empty?
-                    "{#{ ::Guard.scope[:plugins].map(&:name).join(',') }} "
+                    "{#{ ::Guard.scope[:plugins].map(&:title).join(',') }} "
                   elsif !::Guard.scope[:groups].empty?
-                    "{#{ ::Guard.scope[:groups].map(&:name).join(',') }} "
+                    "{#{ ::Guard.scope[:groups].map(&:title).join(',') }} "
                   else
                     ''
                   end
@@ -220,9 +217,9 @@ module Guard
           clip    = Pry.view_clip(target_self)
           level = ":#{ nest_level }" unless nest_level.zero?
           scope = if !::Guard.scope[:plugins].empty?
-                    "{#{ ::Guard.scope[:plugins].map(&:name).join }} "
+                    "{#{ ::Guard.scope[:plugins].map(&:title).join }} "
                   elsif !::Guard.scope[:groups].empty?
-                    "{#{ ::Guard.scope[:groups].map(&:name).join }} "
+                    "{#{ ::Guard.scope[:groups].map(&:title).join }} "
                   else
                     ''
                   end

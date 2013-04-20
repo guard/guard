@@ -7,8 +7,18 @@ describe Guard::Plugin::Base do
       class Guard::Dummy < Guard::Plugin; end
     end
 
-    it 'output the short plugin name' do
+    it 'outputs the short plugin name' do
       Guard::Dummy.new.name.should eq 'dummy'
+    end
+  end
+
+  describe '#title' do
+    before do
+      class Guard::Dummy < Guard::Plugin; end
+    end
+
+    it 'outputs the plugin title' do
+      Guard::Dummy.new.title.should eq 'Dummy'
     end
   end
 

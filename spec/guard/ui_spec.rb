@@ -294,33 +294,37 @@ describe Guard::UI do
   end
 
   describe '.action_with_scopes' do
+    let(:rspec) { stub('Guard::Rspec', title: 'Rspec') }
+    let(:jasmine) { stub('Guard::Jasmine', title: 'Jasmine') }
+    let(:group) { stub('Guard::Group frontend', title: 'Frontend') }
+
     context 'with a plugins scope' do
       it 'shows the plugin scoped action' do
-        Guard::UI.should_receive(:info).with('Reload rspec,jasmine')
-        Guard::UI.action_with_scopes('Reload', { :plugins => [:rspec, :jasmine] })
+        Guard::UI.should_receive(:info).with('Reload Rspec, Jasmine')
+        Guard::UI.action_with_scopes('Reload', { :plugins => [rspec, jasmine] })
       end
     end
 
     context 'with a groups scope' do
       it 'shows the group scoped action' do
-        Guard::UI.should_receive(:info).with('Reload frontend')
-        Guard::UI.action_with_scopes('Reload', { :groups => [:frontend] })
+        Guard::UI.should_receive(:info).with('Reload Frontend')
+        Guard::UI.action_with_scopes('Reload', { :groups => [group] })
       end
     end
 
     context 'without a scope' do
       context 'with a global plugin scope' do
         it 'shows the global plugin scoped action' do
-          Guard.scope = { :groups => [:test] }
-          Guard::UI.should_receive(:info).with('Reload test')
+          Guard.scope = { :plugins => [rspec, jasmine] }
+          Guard::UI.should_receive(:info).with('Reload Rspec, Jasmine')
           Guard::UI.action_with_scopes('Reload', {})
         end
       end
 
       context 'with a global group scope' do
         it 'shows the global group scoped action' do
-          Guard.scope = { :groups => [:backend] }
-          Guard::UI.should_receive(:info).with('Reload backend')
+          Guard.scope = { :groups => [group] }
+          Guard::UI.should_receive(:info).with('Reload Frontend')
           Guard::UI.action_with_scopes('Reload', {})
         end
       end

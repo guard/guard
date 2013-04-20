@@ -144,8 +144,8 @@ module Guard
           groups  = ::Guard.scope[:groups] || []
         end
 
-        scope_message ||= plugins.join(',') unless plugins.empty?
-        scope_message ||= groups.join(',') unless groups.empty?
+        scope_message ||= plugins.map(&:title).join(', ') unless plugins.empty?
+        scope_message ||= groups.map(&:title).join(', ') unless groups.empty?
         scope_message ||= 'all'
 
         info "#{ action } #{ scope_message }"

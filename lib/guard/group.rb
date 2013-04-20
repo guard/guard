@@ -32,6 +32,14 @@ module Guard
       @options = options
     end
 
+    # Guard group title (capitalized).
+    #
+    # @return [String] the group name
+    #
+    def title
+      @title ||= name.to_s.capitalize
+    end
+
     # String representation of the Guard group.
     #
     # @return [String] the group name
