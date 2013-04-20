@@ -10,6 +10,12 @@ module Guard
     require 'guard'
     require 'guard/ui'
 
+    # The Guardfile template for `guard init`
+    GUARDFILE_TEMPLATE = File.expand_path('../../guard/templates/Guardfile', __FILE__)
+
+    # The location of user defined templates
+    HOME_TEMPLATES = File.expand_path('~/.guard/templates')
+
     class << self
 
       # Creates the initial Guardfile template when it does not

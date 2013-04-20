@@ -20,13 +20,7 @@ module Guard
   require 'guard/ui'
   require 'guard/watcher'
 
-  # The Guardfile template for `guard init`
-  GUARDFILE_TEMPLATE = File.expand_path('../guard/templates/Guardfile', __FILE__)
-
-  # The location of user defined templates
-  HOME_TEMPLATES = File.expand_path('~/.guard/templates')
-
-  WINDOWS = RbConfig::CONFIG['host_os'] =~ %r!(msdos|mswin|djgpp|mingw)!
+  WINDOWS  = RbConfig::CONFIG['host_os'] =~ %r!(msdos|mswin|djgpp|mingw)!
   DEV_NULL = WINDOWS ? 'NUL' : '/dev/null'
 
   class << self
