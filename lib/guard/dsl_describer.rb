@@ -62,12 +62,12 @@ module Guard
 
             if options.empty?
               rows << :split
-              rows << { :Group => group.name.capitalize, :Plugin => plugin.name.capitalize, :Option => '', :Value => '' }
+              rows << { :Group => group.title, :Plugin => plugin.title, :Option => '', :Value => '' }
             else
               options.each_with_index do |(option, value), index|
                 if index == 0
                   rows << :split
-                  rows << { :Group => group.name.capitalize, :Plugin => plugin.name.capitalize, :Option => option.to_s, :Value => value.inspect }
+                  rows << { :Group => group.title, :Plugin => plugin.title, :Option => option.to_s, :Value => value.inspect }
                 else
                   rows << { :Group => '', :Plugin => '', :Option => option.to_s, :Value => value.inspect }
                 end

@@ -3,6 +3,7 @@ require 'spec_helper'
 describe Guard do
   describe '.reload' do
     let(:runner) { stub(:run => true) }
+    let(:group) { ::Guard::Group.new('frontend') }
     subject { ::Guard.setup }
 
     before do
@@ -21,24 +22,24 @@ describe Guard do
     context 'with a old scope format' do
       it 'does not re-evaluate the Guardfile' do
         ::Guard::Dsl.should_not_receive(:reevaluate_guardfile)
-        subject.reload({ :group => :frontend })
+        subject.reload({ :group => group })
       end
 
       it 'reloads Guard' do
-        runner.should_receive(:run).with(:reload, { :groups => [:frontend] })
-        subject.reload({ :group => :frontend })
+        runner.should_receive(:run).with(:reload, { :groups => [group] })
+        subject.reload({ :group => group })
       end
     end
 
     context 'with a new scope format' do
       it 'does not re-evaluate the Guardfile' do
         ::Guard::Dsl.should_not_receive(:reevaluate_guardfile)
-        subject.reload({ :groups => [:frontend] })
+        subject.reload({ :groups => [group] })
       end
 
       it 'reloads Guard' do
-        runner.should_receive(:run).with(:reload, { :groups => [:frontend] })
-        subject.reload({ :groups => [:frontend] })
+        runner.should_receive(:run).with(:reload, { :groups => [group] })
+        subject.reload({ :groups => [group] })
       end
     end
 

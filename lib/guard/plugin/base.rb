@@ -83,6 +83,14 @@ module Guard
         @name ||= self.class.to_s.downcase.sub('guard::', '')
       end
 
+      # Returns the plugin's name capitalized.
+      #
+      # @return [String] the string representation
+      #
+      def title
+        @title ||= name.capitalize
+      end
+
       # Convert plugin to string representation.
       #
       # @return [String] the string representation
