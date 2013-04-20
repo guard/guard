@@ -1,6 +1,5 @@
 require 'spec_helper'
 
-
 describe Guard::Notifier::FileNotifier do
 
   describe '.available?' do
@@ -35,4 +34,5 @@ describe Guard::Notifier::FileNotifier do
       subject.notify('success', 'any title', 'any message', 'any image', { })
     end
   end
+
 end

@@ -13,6 +13,7 @@ module Guard
   require 'guard/group'
   require 'guard/interactor'
   require 'guard/notifier'
+  require 'guard/plugin'
   require 'guard/plugin_util'
   require 'guard/runner'
   require 'guard/setuper'
@@ -141,21 +142,36 @@ module Guard
     def guards(filter = nil)
       @guards ||= []
 
-      case filter
-      when String, Symbol
-        @guards.find { |guard| guard.class.to_s.downcase.sub('guard::', '') == filter.to_s.downcase.gsub('-', '') }
-      when Regexp
-        @guards.find_all { |guard| guard.class.to_s.downcase.sub('guard::', '') =~ filter }
-      when Hash
-        filter.inject(@guards) do |matches, (k, v)|
-          if k.to_sym == :name
-            matches.find_all { |guard| guard.class.to_s.downcase.sub('guard::', '') == v.to_s.downcase.gsub('-', '') }
-          else
-            matches.find_all { |guard| guard.send(k).to_sym == v.to_sym }
+      return @guards if filter.nil?
+
+      g = case filter
+          when String, Symbol
+            @guards.find_all do |guard_plugin|
+              guard_plugin.name == filter.to_s.downcase.gsub('-', '')
+            end
+          when Regexp
+            @guards.find_all do |guard_plugin|
+              guard_plugin.name =~ filter
+            end
+          when Hash
+            @guards.find_all do |guard_plugin|
+              filter.all? do |k, v|
+                case k
+                when :name
+                  guard_plugin.name == v.to_s.downcase.gsub('-', '')
+                when :group
+                  guard_plugin.group.name == v.to_sym
+                end
+              end
+            end
           end
-        end
+
+      if g.empty?
+        nil
+      elsif g.one?
+        g[0]
       else
-        @guards
+        g
       end
     end
 
@@ -190,7 +206,7 @@ module Guard
     # @param [Array<Watcher>] watchers the list of declared watchers
     # @param [Array<Hash>] callbacks the list of callbacks
     # @param [Hash] options the plugin options (see the given Guard documentation)
-    # @return [Guard::Guard] the added Guard plugin
+    # @return [Guard::Plugin] the added Guard plugin
     #
     def add_guard(name, options = {})
       guard_plugin_instance = ::Guard::PluginUtil.new(name).initialize_plugin(options)

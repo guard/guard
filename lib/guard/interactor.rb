@@ -47,7 +47,7 @@ module Guard
       # @return [Hash] the options
       #
       def options
-        @options ||= { }
+        @options ||= {}
       end
 
       # Set the interactor options
@@ -205,9 +205,9 @@ module Guard
           clip    = Pry.view_clip(target_self)
           level = ":#{ nest_level }" unless nest_level.zero?
           scope = if !::Guard.scope[:plugins].empty?
-                    "{#{ ::Guard.scope[:plugins].join(',') }} "
+                    "{#{ ::Guard.scope[:plugins].map(&:name).join(',') }} "
                   elsif !::Guard.scope[:groups].empty?
-                    "{#{ ::Guard.scope[:groups].join(',') }} "
+                    "{#{ ::Guard.scope[:groups].map(&:name).join(',') }} "
                   else
                     ''
                   end
@@ -220,9 +220,9 @@ module Guard
           clip    = Pry.view_clip(target_self)
           level = ":#{ nest_level }" unless nest_level.zero?
           scope = if !::Guard.scope[:plugins].empty?
-                    "{#{ ::Guard.scope[:plugins].join }} "
+                    "{#{ ::Guard.scope[:plugins].map(&:name).join }} "
                   elsif !::Guard.scope[:groups].empty?
-                    "{#{ ::Guard.scope[:groups].join }} "
+                    "{#{ ::Guard.scope[:groups].map(&:name).join }} "
                   else
                     ''
                   end

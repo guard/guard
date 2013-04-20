@@ -10,59 +10,26 @@ describe Guard::Runner do
   let!(:foo_group) { guard_singleton.add_group(:foo) }
 
   let!(:foo_guard) do
-    stub_const 'Guard::Foo', Class.new(Guard::Guard)
-    guard_singleton.add_guard(:foo, [], [], :group => :foo)
+    stub_const 'Guard::Foo', Class.new(Guard::Plugin)
+    guard_singleton.add_guard(:foo, :group => :foo)
   end
 
   # Two guards in one group
   let!(:bar_group)  { guard_singleton.add_group(:bar) }
 
   let!(:bar1_guard) do
-    stub_const 'Guard::Bar1', Class.new(Guard::Guard)
-    guard_singleton.add_guard(:bar1, [], [], :group => :bar)
+    stub_const 'Guard::Bar1', Class.new(Guard::Plugin)
+    guard_singleton.add_guard(:bar1, :group => :bar)
   end
 
   let!(:bar2_guard) do
-    stub_const 'Guard::Bar2', Class.new(Guard::Guard)
-    guard_singleton.add_guard(:bar2, [], [], :group => :bar)
+    stub_const 'Guard::Bar2', Class.new(Guard::Plugin)
+    guard_singleton.add_guard(:bar2, :group => :bar)
   end
 
   before do
     # Stub the groups to avoid using the real ones from Guardfile (ex.: Guard::Rspec)
     guard_module.stub(:groups) { [foo_group, bar_group] }
-  end
-
-  describe '#deprecation_warning' do
-    before { guard_module.stub(:guards) { [foo_guard] } }
-
-    context 'when neither run_on_change nor run_on_deletion is implemented in a guard' do
-      it 'does not display a deprecation warning to the user' do
-        ui_module.should_not_receive(:deprecation)
-        subject.deprecation_warning
-      end
-    end
-
-    context 'when run_on_change is implemented in a guard' do
-      before { foo_guard.stub(:run_on_change) }
-
-      it 'displays a deprecation warning to the user' do
-        ui_module.should_receive(:deprecation).with(
-          described_class::RUN_ON_CHANGE_DEPRECATION % foo_guard.class.name
-        )
-        subject.deprecation_warning
-      end
-    end
-
-    context 'when run_on_deletion is implemented in a guard' do
-      before { foo_guard.stub(:run_on_deletion) }
-
-      it 'displays a deprecation warning to the user' do
-        ui_module.should_receive(:deprecation).with(
-          described_class::RUN_ON_DELETION_DEPRECATION % foo_guard.class.name
-        )
-        subject.deprecation_warning
-      end
-    end
   end
 
   describe '#run' do
@@ -348,37 +315,25 @@ describe Guard::Runner do
   end
 
   describe '.stopping_symbol_for' do
-    let(:guard_implmentation) { mock(Guard::Guard).as_null_object }
-
-    it 'returns :task_has_failed when the group is missing' do
-      described_class.stopping_symbol_for(guard_implmentation).should == :task_has_failed
-    end
+    let(:guard_plugin) { mock(Guard::Plugin).as_null_object }
 
     context 'for a group with :halt_on_fail' do
-      let(:group) { mock(Guard::Group) }
-
       before do
-        guard_implmentation.stub(:group).and_return :foo
-        group.stub(:options).and_return({ :halt_on_fail => true })
+        guard_plugin.group.stub(:options).and_return({ :halt_on_fail => true })
       end
 
       it 'returns :no_catch' do
-        guard_module.should_receive(:groups).with(:foo).and_return group
-        described_class.stopping_symbol_for(guard_implmentation).should == :no_catch
+        described_class.stopping_symbol_for(guard_plugin).should eq :no_catch
       end
     end
 
     context 'for a group without :halt_on_fail' do
-      let(:group) { mock(Guard::Group) }
-
       before do
-        guard_implmentation.stub(:group).and_return :foo
-        group.stub(:options).and_return({ :halt_on_fail => false })
+        guard_plugin.group.stub(:options).and_return({ :halt_on_fail => false })
       end
 
       it 'returns :task_has_failed' do
-        guard_module.should_receive(:groups).with(:foo).and_return group
-        described_class.stopping_symbol_for(guard_implmentation).should == :task_has_failed
+        described_class.stopping_symbol_for(guard_plugin).should eq :task_has_failed
       end
     end
   end

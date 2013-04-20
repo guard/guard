@@ -336,8 +336,8 @@ module Guard
 
       yield if block_given?
 
-      options.update(:group => @current_group)
-      ::Guard.add_guard(name.to_s.downcase, @watchers, @callbacks, options)
+      options.update(:group => @current_group, :watchers => @watchers, :callbacks => @callbacks)
+      ::Guard.add_guard(name.to_s.downcase, options)
     end
 
     # Define a pattern to be watched in order to run actions on file modification.

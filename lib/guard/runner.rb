@@ -56,14 +56,14 @@ module Guard
     # When the Group has `:halt_on_fail` disabled, we've to catch `:task_has_failed`
     # here in order to avoid an uncaught throw error.
     #
-    # @param [Guard::Guard] guard the Guard to execute
+    # @param [Guard::Plugin] guard the Guard to execute
     # @param [Symbol] task the task to run
     # @param [Array] args the arguments for the task
     # @raise [:task_has_failed] when task has failed
     #
     def run_supervised_task(guard, task, *args)
       begin
-        catch Runner.stopping_symbol_for(guard) do
+        catch self.class.stopping_symbol_for(guard) do
           guard.hook("#{ task }_begin", *args)
           result = guard.send(task, *args)
           guard.hook("#{ task }_end", result)
@@ -88,14 +88,11 @@ module Guard
     #   group level.
     # @see .scoped_guards
     #
-    # @param [Guard::Guard] guard the Guard plugin to execute
+    # @param [Guard::Plugin] guard the Guard plugin to execute
     # @return [Symbol] the symbol to catch
     #
     def self.stopping_symbol_for(guard)
-      return :task_has_failed if guard.group.class != Symbol
-
-      group = ::Guard.groups(guard.group)
-      group.options.fetch(:halt_on_fail, false) ? :no_catch : :task_has_failed
+      guard.group.options[:halt_on_fail] ? :no_catch : :task_has_failed
     end
 
   private
@@ -103,7 +100,7 @@ module Guard
     # Tries to run the first implemented task by a given guard
     # from a collection of tasks.
     #
-    # @param [Guard::Guard] guard the Guard plugin to run the first found task on
+    # @param [Guard::Plugin] guard the Guard plugin to run the first found task on
     # @param [Array<Symbol>] tasks the tasks to run the first among
     # @param [Object] task_param the param to pass to each task
     #
@@ -139,7 +136,7 @@ module Guard
         current_groups_scope(scopes).each do |group|
           current_plugin = nil
           block_return = catch :task_has_failed do
-            ::Guard.guards(:group => group.name).each do |guard|
+            Array(::Guard.guards(:group => group.name)).each do |guard|
               current_plugin = guard
               yield(guard)
             end
@@ -155,7 +152,7 @@ module Guard
     # Logic to know if the UI can be cleared or not in the run_on_changes method
     # based on the guard and the changes.
     #
-    # @param [Guard::Guard] guard the Guard plugin where run_on_changes is called
+    # @param [Guard::Plugin] guard the Guard plugin where run_on_changes is called
     # @param [Array<String>] modified_paths the modified paths.
     # @param [Array<String>] added_paths the added paths.
     # @param [Array<String>] removed_paths the removed paths.
@@ -171,7 +168,7 @@ module Guard
     # If no plugins scope is found, then NO plugins are returned.
     #
     # @param [Hash] scopes hash with a local plugins or a groups scope
-    # @return [Array<Guard::Guard>] the plugins to scope to
+    # @return [Array<Guard::Plugin>] the plugins to scope to
     #
     def current_plugins_scope(scopes)
       if scopes[:plugins] && !scopes[:plugins].empty?

@@ -26,8 +26,8 @@ describe Guard::DslDescriber do
   end
 
   before do
-    stub_const 'Guard::Test', Class.new(Guard::Guard)
-    stub_const 'Guard::Another', Class.new(Guard::Guard)
+    stub_const 'Guard::Test', Class.new(Guard::Plugin)
+    stub_const 'Guard::Another', Class.new(Guard::Plugin)
 
     @output = ''
 

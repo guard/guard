@@ -2,16 +2,16 @@ require 'spec_helper'
 
 describe 'Guard::Interactor::RELOAD' do
 
+  let(:guard)     { ::Guard.setup }
+  let(:foo_group) { guard.add_group(:foo) }
+  let(:bar_guard) { guard.add_guard(:bar, :group => :foo) }
+
   before do
     Guard.stub(:reload)
     Guard.stub(:setup_interactor)
     Pry.output.stub(:puts)
-    stub_const 'Guard::Bar', Class.new(Guard::Guard)
+    stub_const 'Guard::Bar', Class.new(Guard::Plugin)
   end
-
-  let(:guard)     { ::Guard.setup }
-  let(:foo_group) { guard.add_group(:foo) }
-  let(:bar_guard) { guard.add_guard(:bar, [], [], { :group => :foo }) }
 
   describe '#perform' do
     context 'without scope' do
@@ -42,4 +42,5 @@ describe 'Guard::Interactor::RELOAD' do
       end
     end
   end
+
 end

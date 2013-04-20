@@ -40,4 +40,5 @@ describe Guard::Notifier::Emacs do
       end
     end
   end
+
 end

@@ -38,12 +38,13 @@ module Guard
 
     # Finds the files that matches a Guard.
     #
-    # @param [Guard::Guard] guard the Guard plugin which watchers are used
+    # @param [Guard::Plugin] guard the Guard plugin which watchers are used
     # @param [Array<String>] files the changed files
     # @return [Array<Object>] the matched watcher response
     #
     def self.match_files(guard, files)
       return [] if files.empty?
+
       guard.watchers.inject([]) do |paths, watcher|
         files.each do |file|
           if matches = watcher.match(file)
@@ -66,7 +67,7 @@ module Guard
 
     # Test if a file would be matched by any of the Guard plugin watchers.
     #
-    # @param [Array<Guard::Guard>] guards the Guard plugins to use the watchers from
+    # @param [Array<Guard::Plugin>] guards the Guard plugins to use the watchers from
     # @param [Array<String>] files the files to test
     # @return [Boolean] Whether a file matches
     #

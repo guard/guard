@@ -52,4 +52,5 @@ describe Guard::Notifier::TerminalNotifier do
       end
     end
   end
+
 end

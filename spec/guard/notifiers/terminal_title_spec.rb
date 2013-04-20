@@ -26,4 +26,5 @@ describe Guard::Notifier::TerminalTitle do
       subject.notify('success', 'any title', "first line\nsecond line\nthird", 'any image', { })
     end
   end
+
 end

@@ -59,4 +59,5 @@ describe Guard::Notifier::NotifySend do
       end
     end
   end
+
 end

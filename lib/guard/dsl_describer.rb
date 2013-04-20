@@ -57,17 +57,17 @@ module Guard
         evaluate_guardfile(options)
 
         rows = ::Guard.groups.inject([]) do |rows, group|
-          ::Guard.guards({ :group => group.name }).each do |plugin|
+          Array(::Guard.guards({ :group => group.name })).each do |plugin|
             options = plugin.options.inject({}) { |o, (k, v)| o[k.to_s] = v; o }.sort
 
             if options.empty?
               rows << :split
-              rows << { :Group => group.to_s, :Plugin => plugin.to_s, :Option => '', :Value => '' }
+              rows << { :Group => group.name.capitalize, :Plugin => plugin.name.capitalize, :Option => '', :Value => '' }
             else
               options.each_with_index do |(option, value), index|
                 if index == 0
                   rows << :split
-                  rows << { :Group => group.to_s, :Plugin => plugin.to_s, :Option => option.to_s, :Value => value.inspect }
+                  rows << { :Group => group.name.capitalize, :Plugin => plugin.name.capitalize, :Option => option.to_s, :Value => value.inspect }
                 else
                   rows << { :Group => '', :Plugin => '', :Option => option.to_s, :Value => value.inspect }
                 end

@@ -262,4 +262,5 @@ describe Guard::Notifier::Tmux do
       end
     end
   end
+
 end

@@ -55,87 +55,76 @@ describe Guard do
     end
   end
 
-  describe ".guards" do
-    before(:all) do
-      class Guard::FooBar < Guard::Guard;
-      end
-      class Guard::FooBaz < Guard::Guard;
-      end
+  describe '.guards' do
+    before do
+      class Guard::FooBar < Guard::Plugin; end
+      class Guard::FooBaz < Guard::Plugin; end
+      @guard_foo_bar_backend = described_class.add_guard('foo_bar', :group => 'backend')
+      @guard_foo_baz_backend = described_class.add_guard('foo_baz', :group => 'backend')
+      @guard_foo_bar_frontend = described_class.add_guard('foo_bar', :group => 'frontend')
+      @guard_foo_baz_frontend = described_class.add_guard('foo_baz', :group => 'frontend')
     end
 
-    after(:all) do
+    after do
       ::Guard.instance_eval do
         remove_const(:FooBar)
         remove_const(:FooBaz)
       end
     end
 
-    subject do
-      guard                   = ::Guard.setup
-      @guard_foo_bar_backend  = Guard::FooBar.new([], { :group => 'backend' })
-      @guard_foo_bar_frontend = Guard::FooBar.new([], { :group => 'frontend' })
-      @guard_foo_baz_backend  = Guard::FooBaz.new([], { :group => 'backend' })
-      @guard_foo_baz_frontend = Guard::FooBaz.new([], { :group => 'frontend' })
-      guard.instance_variable_get("@guards").push(@guard_foo_bar_backend)
-      guard.instance_variable_get("@guards").push(@guard_foo_bar_frontend)
-      guard.instance_variable_get("@guards").push(@guard_foo_baz_backend)
-      guard.instance_variable_get("@guards").push(@guard_foo_baz_frontend)
-      guard
-    end
-
     it "return @guards without any argument" do
-      subject.guards.should == subject.instance_variable_get("@guards")
+      described_class.guards.should eq subject.instance_variable_get("@guards")
     end
 
     context "find a guard by as string/symbol" do
       it "find a guard by a string" do
-        subject.guards('foo-bar').should == @guard_foo_bar_backend
+        described_class.guards('foo-bar').should eq [@guard_foo_bar_backend, @guard_foo_bar_frontend]
       end
 
       it "find a guard by a symbol" do
-        subject.guards(:'foo-bar').should == @guard_foo_bar_backend
+        described_class.guards(:'foo-bar').should eq [@guard_foo_bar_backend, @guard_foo_bar_frontend]
       end
 
       it "returns nil if guard is not found" do
-        subject.guards('foo-foo').should be_nil
+        described_class.guards('foo-foo').should eq nil
       end
     end
 
     context "find guards matching a regexp" do
       it "with matches" do
-        subject.guards(/^foobar/).should == [@guard_foo_bar_backend, @guard_foo_bar_frontend]
+        described_class.guards(/^foobar/).should eq [@guard_foo_bar_backend, @guard_foo_bar_frontend]
       end
 
       it "without matches" do
-        subject.guards(/foo$/).should == []
+        described_class.guards(/foo$/).should eq nil
       end
     end
 
     context "find guards by their group" do
       it "group name is a string" do
-        subject.guards(:group => 'backend').should == [@guard_foo_bar_backend, @guard_foo_baz_backend]
+        described_class.guards(:group => 'backend').should eq [@guard_foo_bar_backend, @guard_foo_baz_backend]
       end
 
       it "group name is a symbol" do
-        subject.guards(:group => :frontend).should == [@guard_foo_bar_frontend, @guard_foo_baz_frontend]
+        described_class.guards(:group => :frontend).should eq [@guard_foo_bar_frontend, @guard_foo_baz_frontend]
       end
 
-      it "returns [] if guard is not found" do
-        subject.guards(:group => :unknown).should == []
+      it "returns nil if guard is not found" do
+        described_class.guards(:group => :unknown).should eq nil
       end
     end
 
     context "find guards by their group & name" do
       it "group name is a string" do
-        subject.guards(:group => 'backend', :name => 'foo-bar').should == [@guard_foo_bar_backend]
+        described_class.guards(:group => 'backend', :name => 'foo-bar').should eq @guard_foo_bar_backend
       end
 
       it "group name is a symbol" do
-        subject.guards(:group => :frontend, :name => :'foo-baz').should == [@guard_foo_baz_frontend]
+        described_class.guards(:group => :frontend, :name => :'foo-baz').should eq @guard_foo_baz_frontend
       end
 
-      it "returns [] if guard is not found" do
-        subject.guards(:group => :unknown, :name => :'foo-baz').should == []
+      it "returns nil if guard is not found" do
+        described_class.guards(:group => :unknown, :name => :'foo-baz').should eq nil
       end
     end
   end
@@ -271,68 +260,27 @@ describe Guard do
     end
   end
 
-  describe ".add_guard" do
+  describe '.add_guard' do
+    let(:plugin_util) { double('Guard::PluginUtil') }
+    let(:guard_rspec) { double('Guard::RSpec instance') }
+
     before do
-      @guard_rspec_class = double('Guard::RSpec')
-      @guard_rspec       = double('Guard::RSpec', :is_a? => true)
+      ::Guard::PluginUtil.should_receive(:new).with('rspec') { plugin_util }
+      plugin_util.stub!(:initialize_plugin) { guard_rspec }
 
-      ::Guard.stub!(:get_guard_class) { @guard_rspec_class }
-
-      ::Guard.setup_guards
-      ::Guard.setup_groups
-      ::Guard.add_group(:backend)
+      ::Guard.reset_guards
     end
 
-    it "accepts guard name as string" do
-      @guard_rspec_class.should_receive(:new).and_return(@guard_rspec)
+    it 'delegates the plugin instantiation to Guard::PluginUtil' do
+      plugin_util.should_receive(:initialize_plugin).with(:watchers => ['watcher'], :group => 'foo')
 
-      ::Guard.add_guard('rspec')
-    end
-
-    it "accepts guard name as symbol" do
-      @guard_rspec_class.should_receive(:new).and_return(@guard_rspec)
-
-      ::Guard.add_guard(:rspec)
+      ::Guard.add_guard('rspec', :watchers => ['watcher'], :group => 'foo')
     end
 
     it "adds guard to the @guards array" do
-      @guard_rspec_class.should_receive(:new).and_return(@guard_rspec)
+      ::Guard.add_guard('rspec')
 
-      ::Guard.add_guard(:rspec)
-
-      ::Guard.guards.should eq [@guard_rspec]
-    end
-
-    context "with no watchers given" do
-      it "gives an empty array of watchers" do
-        @guard_rspec_class.should_receive(:new).with([], { }).and_return(@guard_rspec)
-
-        ::Guard.add_guard(:rspec, [])
-      end
-    end
-
-    context "with watchers given" do
-      it "give the watchers array" do
-        @guard_rspec_class.should_receive(:new).with([:foo], { }).and_return(@guard_rspec)
-
-        ::Guard.add_guard(:rspec, [:foo])
-      end
-    end
-
-    context "with no options given" do
-      it "gives an empty hash of options" do
-        @guard_rspec_class.should_receive(:new).with([], { }).and_return(@guard_rspec)
-
-        ::Guard.add_guard(:rspec, [], [], { })
-      end
-    end
-
-    context "with options given" do
-      it "give the options hash" do
-        @guard_rspec_class.should_receive(:new).with([], { :foo => true, :group => :backend }).and_return(@guard_rspec)
-
-        ::Guard.add_guard(:rspec, [], [], { :foo => true, :group => :backend })
-      end
+      ::Guard.guards.should eq [guard_rspec]
     end
   end
 
