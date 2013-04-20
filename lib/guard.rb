@@ -14,6 +14,7 @@ module Guard
   require 'guard/interactor'
   require 'guard/notifier'
   require 'guard/runner'
+  require 'guard/setuper'
   require 'guard/ui'
   require 'guard/watcher'
 
@@ -29,144 +30,7 @@ module Guard
   class << self
     attr_accessor :options, :interactor, :runner, :listener, :lock, :scope, :running
 
-    # Initialize the Guard singleton:
-    #
-    # - Initialize the internal Guard state.
-    # - Create the interactor when necessary for user interaction.
-    # - Select and initialize the file change listener.
-    #
-    # @option options [Boolean] clear if auto clear the UI should be done
-    # @option options [Boolean] notify if system notifications should be shown
-    # @option options [Boolean] debug if debug output should be shown
-    # @option options [Array<String>] group the list of groups to start
-    # @option options [String] watchdir the director to watch
-    # @option options [String] guardfile the path to the Guardfile
-    # @deprecated @option options [Boolean] watch_all_modifications watches all file modifications if true
-    # @deprecated @option options [Boolean] no_vendor ignore vendored dependencies
-    #
-    def setup(options = {})
-      @running  = true
-      @lock     = Mutex.new
-      @options  = options.dup
-      @watchdir = (options[:watchdir] && File.expand_path(options[:watchdir])) || Dir.pwd
-      @runner   = ::Guard::Runner.new
-      @scope    = { :plugins => [], :groups => [] }
-
-      Dir.chdir(@watchdir)
-      ::Guard::UI.clear(:force => true)
-      setup_debug
-      deprecated_options_warning
-
-      setup_groups
-      setup_guards
-      setup_listener
-      setup_signal_traps
-      setup_from_guardfile
-      setup_scopes
-
-      runner.deprecation_warning if options[:show_deprecations]
-
-      setup_notifier
-      setup_interactor
-
-      self
-    end
-
-    def setup_debug
-      if options[:debug]
-        Thread.abort_on_exception = true
-        ::Guard::UI.options[:level] = :debug
-        debug_command_execution
-      end
-    end
-
-    # Initialize the groups array with the `:default` group.
-    #
-    # @see Guard.groups
-    #
-    def setup_groups
-      @groups = [Group.new(:default)]
-    end
-
-    # Initialize the guards array to an empty array.
-    #
-    # @see Guard.guards
-    #
-    def setup_guards
-      @guards = []
-    end
-
-    # Initializes the listener and registers a callback for changes.
-    #
-    def setup_listener
-      listener_callback = lambda do |modified, added, removed|
-        ::Guard::Dsl.reevaluate_guardfile if ::Guard::Watcher.match_guardfile?(modified)
-
-        ::Guard.within_preserved_state do
-          runner.run_on_changes(modified, added, removed)
-        end
-      end
-
-      listener_options = { :relative_paths => true }
-      %w[latency force_polling].each do |option|
-        listener_options[option.to_sym] = options[option] if options.key?(option)
-      end
-
-      @listener = Listen.to(@watchdir, listener_options).change(&listener_callback)
-    end
-
-    # Sets up traps to catch signals used to control Guard.
-    #
-    # Currently two signals are caught:
-    # - `USR1` which pauses listening to changes.
-    # - `USR2` which resumes listening to changes.
-    # - 'INT' which is delegated to Pry if active, otherwise stops Guard.
-    #
-    def setup_signal_traps
-      unless defined?(JRUBY_VERSION)
-        if Signal.list.keys.include?('USR1')
-          Signal.trap('USR1') { ::Guard.pause unless listener.paused? }
-        end
-
-        if Signal.list.keys.include?('USR2')
-          Signal.trap('USR2') { ::Guard.pause if listener.paused? }
-        end
-
-        if Signal.list.keys.include?('INT')
-          Signal.trap('INT') do
-            if interactor
-              interactor.thread.raise(Interrupt)
-            else
-              ::Guard.stop
-            end
-          end
-        end
-      end
-    end
-
-    def setup_from_guardfile
-      ::Guard::Dsl.evaluate_guardfile(options)
-      ::Guard::UI.error 'No guards found in Guardfile, please add at least one.' if @guards.empty?
-    end
-
-    def setup_scopes
-      scope[:groups]  = options[:group].map { |g| ::Guard.groups(g) } if options[:group]
-      scope[:plugins] = options[:plugin].map { |p| ::Guard.guards(p) } if options[:plugin]
-    end
-
-    # Enables or disables the notifier based on user's configurations.
-    #
-    def setup_notifier
-      options[:notify] && ENV['GUARD_NOTIFY'] != 'false' ? ::Guard::Notifier.turn_on : ::Guard::Notifier.turn_off
-    end
-
-    # Initializes the interactor unless the user has specified not to.
-    #
-    def setup_interactor
-      unless options[:no_interactions] || !::Guard::Interactor.enabled
-        @interactor = ::Guard::Interactor.new
-      end
-    end
+    include Setuper
 
     # Start Guard by evaluating the `Guardfile`, initializing declared Guard plugins
     # and starting the available file change listener.

@@ -32,6 +32,9 @@ RSpec.configure do |config|
     ::Guard::UI.stub(:error)
     ::Guard::UI.stub(:debug)
     ::Guard::UI.stub(:deprecation)
+
+    ::Guard.reset_groups
+    ::Guard.reset_guards
   end
 
   config.before(:all) do
@@ -45,9 +48,7 @@ RSpec.configure do |config|
     Pry.config.hooks.delete_hook(:when_started, :load_guard_rc)
     Pry.config.hooks.delete_hook(:when_started, :load_project_guard_rc)
 
-    if ::Guard.options
-      ::Guard.options[:debug] = false
-    end
+    ::Guard.options[:debug] = false if ::Guard.options
   end
 
   config.after(:all) do

@@ -2,6 +2,7 @@
 
 ### Improvements
 
+- Move setup stuff into a new `Guard::Setuper` module. ([@rymai][])
 - Move deprecation stuff inside a new `Guard::Deprecator` class. ([@rymai][])
 
 ## 1.8.0 - 20 April, 2013

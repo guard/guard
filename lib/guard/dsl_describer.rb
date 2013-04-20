@@ -27,8 +27,8 @@ module Guard
       #
       def evaluate_guardfile(options = { })
         ::Guard.options = { :plugin => [], :group => [] }
-        ::Guard.setup_groups
-        ::Guard.setup_guards
+        ::Guard.reset_groups
+        ::Guard.reset_guards
 
         super options
       end

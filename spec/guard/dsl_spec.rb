@@ -183,22 +183,16 @@ describe Guard::Dsl do
       described_class.before_reevaluate_guardfile
     end
 
-    it 'clears all Guards' do
-      ::Guard.guards.should_not be_empty
+    it 'reset all Guard plugins' do
+      ::Guard.should_receive(:reset_guards)
 
-      described_class.reevaluate_guardfile
-
-      ::Guard.guards.should be_empty
+      described_class.before_reevaluate_guardfile
     end
 
     it 'resets all groups' do
-      ::Guard.groups.should_not be_empty
+      ::Guard.should_receive(:reset_groups)
 
       described_class.before_reevaluate_guardfile
-
-      ::Guard.groups.should_not be_empty
-      ::Guard.groups[0].name.should eq :default
-      ::Guard.groups[0].options.should == {}
     end
 
     it 'clears the notifications' do
@@ -208,13 +202,13 @@ describe Guard::Dsl do
 
        described_class.before_reevaluate_guardfile
 
-       ::Guard::Notifier.notifications.should be_empty
+       ::Guard::Notifier.notifications.should eq []
     end
 
     it 'removes the cached Guardfile content' do
-      ::Guard::Dsl.should_receive(:after_reevaluate_guardfile)
+      described_class.before_reevaluate_guardfile
 
-      described_class.after_reevaluate_guardfile
+      described_class.options.should_not have_key(:guardfile_content)
     end
   end
 

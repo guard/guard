@@ -73,8 +73,8 @@ module Guard
       #
       def before_reevaluate_guardfile
         ::Guard.runner.run(:stop)
-        ::Guard.guards.clear
-        ::Guard.setup_groups
+        ::Guard.reset_groups
+        ::Guard.reset_guards
         ::Guard::Notifier.clear_notifications
 
         options.delete(:guardfile_contents)
