@@ -24,7 +24,7 @@ Features
 
 * File system changes handled by our awesome [Listen](https://github.com/guard/listen) gem.
 * Support for visual system notifications.
-* Huge eco-system with [more than 150](https://rubygems.org/search?query=guard-) guard plugins.
+* Huge eco-system with [more than 190](https://rubygems.org/search?query=guard-) guard plugins.
 * Tested against Ruby 1.8.7, 1.9.2, 1.9.3, 2.0.0, REE and the latest versions of JRuby & Rubinius.
 
 Screencast
