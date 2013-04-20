@@ -184,13 +184,23 @@ module Guard
     # @return [Array<Group>] the filtered groups
     #
     def groups(filter = nil)
-      case filter
-      when String, Symbol
-        @groups.find { |group| group.name == filter.to_sym }
-      when Regexp
-        @groups.find_all { |group| group.name.to_s =~ filter }
+      @groups ||= default_groups
+
+      return @groups if filter.nil?
+
+      g = case filter
+          when String, Symbol
+            @groups.find_all { |group| group.name == filter.to_sym }
+          when Regexp
+            @groups.find_all { |group| group.name.to_s =~ filter }
+          end
+
+      if g.empty?
+        nil
+      elsif g.one?
+        g[0]
       else
-        @groups
+        g
       end
     end
 
