@@ -1,10 +1,7 @@
-require 'rubygems'
 require 'coveralls'
 Coveralls.wear!
 
 require 'guard'
-require 'guard/ui'
-require 'guard/guard'
 require 'rspec'
 
 ENV["GUARD_ENV"] = 'test'

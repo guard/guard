@@ -13,7 +13,6 @@ module Guard
   require 'guard/group'
   require 'guard/interactor'
   require 'guard/notifier'
-  require 'guard/plugin'
   require 'guard/plugin_util'
   require 'guard/runner'
   require 'guard/setuper'
