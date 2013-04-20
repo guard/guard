@@ -2,6 +2,7 @@
 
 ### Improvements
 
+- Listen 1.0.0 support. ([@thibaudgg][])
 - [#416][] Support .guardrc file on the folder from which Guard is executed as well. ([@Nerian][])
 
 ### Bug fixes
