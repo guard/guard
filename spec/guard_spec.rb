@@ -393,173 +393,29 @@ describe Guard do
     end
   end
 
-  describe ".get_guard_class" do
-    after do
-      [:Classname, :DashedClassName, :UnderscoreClassName, :VSpec, :Inline].each do |const|
-        Guard.send(:remove_const, const) rescue nil
-      end
+  describe '.get_guard_class' do
+    let(:plugin_util) { stub('Guard::PluginUtil', plugin_class: true) }
+    before { ::Guard::PluginUtil.stub(:new).and_return(plugin_util) }
+
+    it 'displays a deprecation warning to the user' do
+      ::Guard::UI.should_receive(:deprecation).with(::Guard::Deprecator::GET_GUARD_CLASS_DEPRECATION)
+
+      described_class.get_guard_class('rspec')
     end
 
-    it "reports an error if the class is not found" do
-      ::Guard::UI.should_receive(:error).twice
-      Guard.get_guard_class('notAGuardClass')
+    it 'delegates to Guard::PluginUtil' do
+      ::Guard::PluginUtil.should_receive(:new).with('rspec') { plugin_util }
+      plugin_util.should_receive(:plugin_class).with(:fail_gracefully => false)
+
+      described_class.get_guard_class('rspec')
     end
 
-    context 'with a nested Guard class' do
-      after(:all) { Guard.instance_eval { remove_const(:Classname) } rescue nil }
+    describe ':fail_gracefully' do
+      it 'pass it to get_guard_class' do
+        ::Guard::PluginUtil.should_receive(:new).with('rspec') { plugin_util }
+        plugin_util.should_receive(:plugin_class).with(:fail_gracefully => true)
 
-      it "resolves the Guard class from string" do
-        Guard.should_receive(:require) { |classname|
-          classname.should eq 'guard/classname'
-          class Guard::Classname;
-          end
-        }
-        Guard.get_guard_class('classname').should == Guard::Classname
-      end
-
-      it "resolves the Guard class from symbol" do
-        Guard.should_receive(:require) { |classname|
-          classname.should eq 'guard/classname'
-          class Guard::Classname;
-          end
-        }
-        Guard.get_guard_class(:classname).should == Guard::Classname
-      end
-    end
-
-    context 'with a name with dashes' do
-      after(:all) { Guard.instance_eval { remove_const(:DashedClassName) } rescue nil }
-
-      it "returns the Guard class" do
-        Guard.should_receive(:require) { |classname|
-          classname.should eq 'guard/dashed-class-name'
-          class Guard::DashedClassName;
-          end
-        }
-        Guard.get_guard_class('dashed-class-name').should == Guard::DashedClassName
-      end
-    end
-
-    context 'with a name with underscores' do
-      after(:all) { Guard.instance_eval { remove_const(:UnderscoreClassName) } rescue nil }
-
-      it "returns the Guard class" do
-        Guard.should_receive(:require) { |classname|
-          classname.should eq 'guard/underscore_class_name'
-          class Guard::UnderscoreClassName;
-          end
-        }
-        Guard.get_guard_class('underscore_class_name').should == Guard::UnderscoreClassName
-      end
-    end
-
-    context 'with a name where its class does not follow the strict case rules' do
-      after(:all) { Guard.instance_eval { remove_const(:VSpec) } rescue nil }
-
-      it "returns the Guard class" do
-        Guard.should_receive(:require) { |classname|
-          classname.should eq 'guard/vspec'
-          class Guard::VSpec;
-          end
-        }
-        Guard.get_guard_class('vspec').should == Guard::VSpec
-      end
-    end
-
-    context 'with an inline Guard class' do
-      after(:all) { Guard.instance_eval { remove_const(:Inline) } rescue nil }
-
-      it 'returns the Guard class' do
-        module Guard
-          class Inline < Guard
-          end
-        end
-
-        Guard.should_not_receive(:require)
-        Guard.get_guard_class('inline').should == Guard::Inline
-      end
-    end
-
-    context 'when set to fail gracefully' do
-      it 'does not print error messages on fail' do
-        ::Guard::UI.should_not_receive(:error)
-        Guard.get_guard_class('notAGuardClass', true).should be_nil
-      end
-    end
-  end
-
-  let!(:rubygems_version_1_7_2) { Gem::Version.create('1.7.2') }
-  let!(:rubygems_version_1_8_0) { Gem::Version.create('1.8.0') }
-
-  describe '.locate_guard' do
-    context 'Rubygems < 1.8.0' do
-      before do
-        Gem::Version.should_receive(:create).with(Gem::VERSION) { rubygems_version_1_7_2 }
-        Gem::Version.should_receive(:create).with('1.8.0') { rubygems_version_1_8_0 }
-      end
-
-      it "returns the path of a Guard gem" do
-        gems_source_index = stub
-        gems_found = [stub(:full_gem_path => 'gems/guard-rspec')]
-        Gem.should_receive(:source_index) { gems_source_index }
-        gems_source_index.should_receive(:find_name).with('guard-rspec') { gems_found }
-
-        Guard.locate_guard('rspec').should eq 'gems/guard-rspec'
-      end
-    end
-
-    context 'Rubygems >= 1.8.0' do
-      before do
-        Gem::Version.should_receive(:create).with(Gem::VERSION) { rubygems_version_1_8_0 }
-        Gem::Version.should_receive(:create).with('1.8.0') { rubygems_version_1_8_0 }
-      end
-
-      it "returns the path of a Guard gem" do
-        Gem::Specification.should_receive(:find_by_name).with('guard-rspec') { stub(:full_gem_path => 'gems/guard-rspec') }
-
-        Guard.locate_guard('rspec').should eq 'gems/guard-rspec'
-      end
-    end
-  end
-
-  describe '.guard_gem_names' do
-    context 'Rubygems < 1.8.0' do
-      before do
-        Gem::Version.should_receive(:create).with(Gem::VERSION) { rubygems_version_1_7_2 }
-        Gem::Version.should_receive(:create).with('1.8.0') { rubygems_version_1_8_0 }
-        gems_source_index = stub
-        Gem.should_receive(:source_index) { gems_source_index }
-        gems_source_index.should_receive(:find_name).with(/^guard-/) { [stub(:name => 'guard-rspec')] }
-      end
-
-      it 'returns the list of guard gems' do
-        Guard.guard_gem_names.should include('rspec')
-      end
-    end
-
-    context 'Rubygems >= 1.8.0' do
-      before do
-        Gem::Version.should_receive(:create).with(Gem::VERSION) { rubygems_version_1_8_0 }
-        Gem::Version.should_receive(:create).with('1.8.0') { rubygems_version_1_8_0 }
-        gems = [
-          stub(:name => 'guard'),
-          stub(:name => 'guard-rspec'),
-          stub(:name => 'gem1', :full_gem_path => '/gem1'),
-          stub(:name => 'gem2', :full_gem_path => '/gem2'),
-        ]
-        File.stub(:exists?).with('/gem1/lib/guard/gem1.rb') { false }
-        File.stub(:exists?).with('/gem2/lib/guard/gem2.rb') { true }
-        Gem::Specification.should_receive(:find_all) { gems }
-      end
-
-      it "returns the list of guard gems" do
-        gems = Guard.guard_gem_names
-        gems.should include('rspec')
-      end
-
-      it "returns the list of embedded guard gems" do
-        gems = Guard.guard_gem_names
-        gems.should include('gem2')
+        described_class.get_guard_class('rspec', true)
       end
     end
   end

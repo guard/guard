@@ -48,35 +48,34 @@ module Guard
         end
       end
 
-      # Adds the Guardfile template of a Guard implementation
-      # to an existing Guardfile.
+      # Adds the Guardfile template of a Guard plugin to an existing Guardfile.
       #
       # @see Guard::CLI.init
       #
-      # @param [String] guard_name the name of the Guard or template to initialize
+      # @param [String] plugin_name the name of the Guard plugin or template to initialize
       #
-      def initialize_template(guard_name)
-        guard_class = ::Guard.get_guard_class(guard_name, true)
+      def initialize_template(plugin_name)
+        plugin_util = ::Guard::PluginUtil.new(plugin_name)
+        if plugin_util.plugin_class(:fail_gracefully => true)
+          plugin_util.add_to_guardfile(plugin_name)
 
-        if guard_class
-          guard_class.init(guard_name)
-          guardfile_name = 'Guardfile'
-          guard_file = File.read(guardfile_name) if File.exists?(guardfile_name)
-          duplicate_definitions?(guard_name, guard_file)
-        elsif File.exist?(File.join(HOME_TEMPLATES, guard_name))
-          content  = File.read('Guardfile')
-          template = File.read(File.join(HOME_TEMPLATES, guard_name))
+          guard_file = File.read('Guardfile') if File.exists?('Guardfile')
+
+          duplicate_definitions?(plugin_name, guard_file)
+
+        elsif File.exist?(File.join(HOME_TEMPLATES, plugin_name))
+          content = File.read('Guardfile')
 
           File.open('Guardfile', 'wb') do |f|
             f.puts(content)
             f.puts('')
-            f.puts(template)
+            f.puts(File.read(File.join(HOME_TEMPLATES, plugin_name)))
           end
 
-          ::Guard::UI.info "#{ guard_name } template added to Guardfile, feel free to edit it"
+          ::Guard::UI.info "#{ plugin_name } template added to Guardfile, feel free to edit it"
         else
-          const_name = guard_name.downcase.gsub('-', '')
-          UI.error "Could not load 'guard/#{ guard_name.downcase }' or '~/.guard/templates/#{ guard_name.downcase }' or find class Guard::#{ const_name.capitalize }"
+          const_name = plugin_name.downcase.gsub('-', '')
+          UI.error "Could not load 'guard/#{ plugin_name.downcase }' or '~/.guard/templates/#{ plugin_name.downcase }' or find class Guard::#{ const_name.capitalize }"
         end
       end
 
@@ -86,7 +85,7 @@ module Guard
       # @see Guard::CLI.init
       #
       def initialize_all_templates
-        ::Guard.guard_gem_names.each { |g| initialize_template(g) }
+        ::Guard::PluginUtil.plugin_names.each { |g| initialize_template(g) }
       end
 
     end

@@ -2,8 +2,10 @@ require 'spec_helper'
 
 describe Guard::Guardfile do
 
+  let(:plugin_util) { double('Guard::PluginUtil') }
+
   it "has a valid Guardfile template" do
-    File.exists?(Guard::GUARDFILE_TEMPLATE).should be_true
+    File.exists?(Guard::Guardfile::GUARDFILE_TEMPLATE).should be_true
   end
 
   describe ".create_guardfile" do
@@ -64,20 +66,21 @@ describe Guard::Guardfile do
     end
   end
 
-  describe ".initialize_template" do
+  describe '.initialize_template' do
     context 'with an installed Guard implementation' do
-      let(:foo_guard) { double('Guard::Foo').as_null_object }
+      before do
+        ::Guard::PluginUtil.should_receive(:new) { plugin_util }
+        plugin_util.should_receive(:plugin_class) { double('Guard::Foo').as_null_object }
+      end
 
-      before { ::Guard.should_receive(:get_guard_class).and_return(foo_guard) }
-
-      it "initializes the Guard" do
-        foo_guard.should_receive(:init)
+      it 'initializes the Guard' do
+        plugin_util.should_receive(:add_to_guardfile)
         described_class.initialize_template('foo')
       end
     end
 
     context "with a user defined template" do
-      let(:template) { File.join(Guard::HOME_TEMPLATES, '/bar') }
+      let(:template) { File.join(Guard::Guardfile::HOME_TEMPLATES, '/bar') }
 
       before { File.should_receive(:exist?).with(template).and_return true }
 
@@ -93,7 +96,8 @@ describe Guard::Guardfile do
 
     context "when the passed guard can't be found" do
       before do
-        ::Guard.should_receive(:get_guard_class).and_return nil
+        ::Guard::PluginUtil.should_receive(:new) { plugin_util }
+        plugin_util.stub!(:plugin_class) { nil }
         File.should_receive(:exist?).and_return false
       end
 
@@ -109,7 +113,7 @@ describe Guard::Guardfile do
   describe ".initialize_all_templates" do
     let(:guards) { ['rspec', 'spork', 'phpunit'] }
 
-    before { ::Guard.should_receive(:guard_gem_names).and_return(guards) }
+    before { ::Guard::PluginUtil.should_receive(:plugin_names).and_return(guards) }
 
     it "calls Guard.initialize_template on all installed guards" do
       guards.each do |g|

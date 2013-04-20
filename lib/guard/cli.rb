@@ -150,8 +150,8 @@ module Guard
     # to the `Guardfile` when no Guard name is passed. When passing
     # Guard plugin names it does the same but only for those Guard plugins.
     #
-    # @see Guard::Guard.initialize_template
-    # @see Guard::Guard.initialize_all_templates
+    # @see Guard::Guardfile.initialize_template
+    # @see Guard::Guardfile.initialize_all_templates
     #
     # @param [Array<String>] guard_names the name of the Guard plugins to initialize
     #

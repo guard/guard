@@ -25,7 +25,7 @@ module Guard
       # @option options [String] guardfile_contents a string representing the content of a valid Guardfile
       # @raise [ArgumentError] when options are not a Hash
       #
-      def evaluate_guardfile(options = { })
+      def evaluate_guardfile(options = {})
         ::Guard.options = { :plugin => [], :group => [] }
         ::Guard.reset_groups
         ::Guard.reset_guards
@@ -41,7 +41,7 @@ module Guard
       def list(options)
         evaluate_guardfile(options)
 
-        rows = ::Guard.guard_gem_names.sort.uniq.inject([]) do |rows, name|
+        rows = ::Guard::PluginUtil.plugin_names.sort.uniq.inject([]) do |rows, name|
           rows << { :Plugin => name.capitalize, :Guardfile => ::Guard.guards(name) ? '✔' : '✘' }
         end
 

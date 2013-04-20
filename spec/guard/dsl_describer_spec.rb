@@ -56,13 +56,13 @@ describe Guard::DslDescriber do
     end
 
     before do
-      ::Guard.stub(:guard_gem_names).and_return %w(test another even more)
+      ::Guard::PluginUtil.stub(:plugin_names).and_return %w(test another even more)
     end
 
     it 'lists the available Guards when they\'re declared as strings or symbols' do
       ::Guard::DslDescriber.list(:guardfile_contents => guardfile)
       # Drop the calls to delete when drop Ruby 1.8.7 support
-      @output.delete(' ').should eql(result.delete(' '))
+      @output.delete(' ').should eq result.delete(' ')
     end
   end
 
@@ -85,7 +85,7 @@ describe Guard::DslDescriber do
 
     it 'shows the Guards and their options' do
       ::Guard::DslDescriber.show(:guardfile_contents => guardfile)
-      @output.should eql(result)
+      @output.should eq result
     end
   end
 

@@ -13,6 +13,7 @@ module Guard
   require 'guard/group'
   require 'guard/interactor'
   require 'guard/notifier'
+  require 'guard/plugin_util'
   require 'guard/runner'
   require 'guard/setuper'
   require 'guard/ui'
@@ -191,16 +192,11 @@ module Guard
     # @param [Hash] options the plugin options (see the given Guard documentation)
     # @return [Guard::Guard] the added Guard plugin
     #
-    def add_guard(name, watchers = [], callbacks = [], options = {})
-      if name.to_sym == :ego
-        ::Guard::UI.deprecation('Guard::Ego is now part of Guard. You can remove it from your Guardfile.')
-      else
-        guard_class = get_guard_class(name)
-        callbacks.each { |callback| Hook.add_callback(callback[:listener], guard_class, callback[:events]) }
-        guard = guard_class.new(watchers, options)
-        @guards << guard
-        guard
-      end
+    def add_guard(name, options = {})
+      guard_plugin_instance = ::Guard::PluginUtil.new(name).initialize_plugin(options)
+      @guards << guard_plugin_instance
+
+      guard_plugin_instance
     end
 
     # Add a Guard plugin group.
@@ -241,93 +237,11 @@ module Guard
       @result
     end
 
-    # Tries to load the Guard plugin main class. This transforms the supplied Guard plugin
-    # name into a class name:
+    # @deprecated Use {Guard::PluginUtil.new(name).plugin_class(:fail_gracefully => fail_gracefully)} instead.
     #
-    # * `guardname` will become `Guard::Guardname`
-    # * `dashed-guard-name` will become `Guard::DashedGuardName`
-    # * `underscore_guard_name` will become `Guard::UnderscoreGuardName`
-    #
-    # When no class is found with the strict case sensitive rules, another
-    # try is made to locate the class without matching case:
-    #
-    # * `rspec` will find a class `Guard::RSpec`
-    #
-    # @param [String] name the name of the Guard
-    # @param [Boolean] fail_gracefully whether error messages should not be printed
-    # @return [Class, nil] the loaded class
-    #
-    def get_guard_class(name, fail_gracefully=false)
-      name        = name.to_s
-      try_require = false
-      const_name  = name.gsub(/\/(.?)/) { "::#{ $1.upcase }" }.gsub(/(?:^|[_-])(.)/) { $1.upcase }
-      begin
-        require "guard/#{ name.downcase }" if try_require
-        self.const_get(self.constants.find { |c| c.to_s == const_name } || self.constants.find { |c| c.to_s.downcase == const_name.downcase })
-      rescue TypeError
-        if try_require
-          ::Guard::UI.error "Could not find class Guard::#{ const_name.capitalize }"
-        else
-          try_require = true
-          retry
-        end
-      rescue LoadError => loadError
-        unless fail_gracefully
-          ::Guard::UI.error "Could not load 'guard/#{ name.downcase }' or find class Guard::#{ const_name.capitalize }"
-          ::Guard::UI.error loadError.to_s
-        end
-      end
-    end
-
-    # Locate a path to a Guard plugin gem.
-    #
-    # @param [String] name the name of the Guard plugin without the prefix `guard-`
-    # @return [String] the full path to the Guard gem
-    #
-    def locate_guard(name)
-      if Gem::Version.create(Gem::VERSION) >= Gem::Version.create('1.8.0')
-        Gem::Specification.find_by_name("guard-#{ name }").full_gem_path
-      else
-        Gem.source_index.find_name("guard-#{ name }").last.full_gem_path
-      end
-    rescue
-      ::Guard::UI.error "Could not find 'guard-#{ name }' gem path."
-    end
-
-    # Returns a list of Guard plugin Gem names installed locally.
-    #
-    # @return [Array<String>] a list of Guard plugin gem names
-    #
-    def guard_gem_names
-      if Gem::Version.create(Gem::VERSION) >= Gem::Version.create('1.8.0')
-        Gem::Specification.find_all.select do |x|
-          if x.name =~ /^guard-/
-            true
-          elsif x.name != 'guard'
-            guard_plugin_path = File.join(x.full_gem_path, "lib/guard/#{ x.name }.rb")
-            File.exists?( guard_plugin_path )
-          end
-        end
-      else
-        Gem.source_index.find_name(/^guard-/)
-      end.map { |x| x.name.sub(/^guard-/, '') }
-    end
-
-    # Adds a command logger in debug mode. This wraps common command
-    # execution functions and logs the executed command before execution.
-    #
-    def debug_command_execution
-      Kernel.send(:alias_method, :original_system, :system)
-      Kernel.send(:define_method, :system) do |command, *args|
-        ::Guard::UI.debug "Command execution: #{ command } #{ args.join(' ') }"
-        original_system command, *args
-      end
-
-      Kernel.send(:alias_method, :original_backtick, :'`')
-      Kernel.send(:define_method, :'`') do |command|
-        ::Guard::UI.debug "Command execution: #{ command }"
-        original_backtick command
-      end
+    def get_guard_class(name, fail_gracefully = false)
+      ::Guard::UI.deprecation(::Guard::Deprecator::GET_GUARD_CLASS_DEPRECATION)
+      ::Guard::PluginUtil.new(name).plugin_class(:fail_gracefully => fail_gracefully)
     end
 
     private

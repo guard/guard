@@ -2,6 +2,7 @@
 
 ### Improvements
 
+- New `Guard::PluginUtil` that contains useful methods to find and instantiate Guard plugins. ([@rymai][])
 - Move setup stuff into a new `Guard::Setuper` module. ([@rymai][])
 - Move deprecation stuff inside a new `Guard::Deprecator` class. ([@rymai][])
 
