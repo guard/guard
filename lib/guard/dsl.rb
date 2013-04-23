@@ -42,9 +42,23 @@ module Guard
 
     class << self
 
-      attr_accessor :options
+      # Access the class `@options` variable.
+      # This is also a lazy initializer for `@options`.
+      #
+      def options
+        @options ||= {}
+      end
 
-      # Evaluate the DSL methods in the `Guardfile`.
+      # Evaluates the DSL methods in the `Guardfile`.
+      #
+      # @example Programmatically evaluate a Guardfile
+      #   Guard::Dsl.evaluate_guardfile
+      #
+      # @example Programmatically evaluate a Guardfile with a custom Guardfile path
+      #   Guard::Dsl.evaluate_guardfile(:guardfile => '/Users/guardfile/MyAwesomeGuardfile')
+      #
+      # @example Programmatically evaluate a Guardfile with an inline Guardfile
+      #   Guard::Dsl.evaluate_guardfile(:guardfile_contents => 'guard :rspec')
       #
       # @option options [Array<Symbol,String>] groups the groups to evaluate
       # @option options [String] guardfile the path to a valid Guardfile
@@ -57,10 +71,11 @@ module Guard
         @options = options.dup
 
         fetch_guardfile_contents
-        instance_eval_guardfile(guardfile_contents_with_user_config)
+        instance_eval_guardfile(guardfile_contents)
       end
 
-      # Re-evaluate the `Guardfile` to update the current Guard configuration.
+      # Re-evaluates the `Guardfile` to update
+      # the current Guard configuration.
       #
       def reevaluate_guardfile
         before_reevaluate_guardfile
@@ -68,36 +83,82 @@ module Guard
         after_reevaluate_guardfile
       end
 
-      # Stop Guard and clear internal state
-      # before the Guardfile will be re-evaluated.
+      # Tests if the current `Guardfile` contains a specific Guard plugin.
       #
-      def before_reevaluate_guardfile
-        ::Guard.runner.run(:stop)
-        ::Guard.reset_groups
-        ::Guard.reset_guards
-        ::Guard::Notifier.clear_notifications
-
-        options.delete(:guardfile_contents)
+      # @example Programmatically test if a Guardfile contains a specific Guard plugin
+      #   > File.read('Guardfile')
+      #   => "guard :rspec"
+      #
+      #   > Guard::Dsl.guardfile_include?('rspec)
+      #   => true
+      #
+      # @param [String] plugin_name the name of the Guard
+      # @return [Boolean] whether the Guard plugin has been declared
+      #
+      def guardfile_include?(plugin_name)
+        guardfile_contents_without_user_config.match(/^guard\s*\(?\s*['":]#{ plugin_name }['"]?/)
       end
 
-      # Start Guard and notification and show a message
-      # after the Guardfile has been re-evaluated.
+      # Gets the file path to the project `Guardfile`.
       #
-      def after_reevaluate_guardfile
-        ::Guard::Notifier.turn_on if ::Guard::Notifier.enabled?
-
-        if ::Guard.guards.empty?
-          ::Guard::Notifier.notify('No guards found in Guardfile, please add at least one.', :title => 'Guard re-evaluate', :image => :failed)
-        else
-          msg = 'Guardfile has been re-evaluated.'
-          ::Guard::UI.info(msg)
-          ::Guard::Notifier.notify(msg, :title => 'Guard re-evaluate')
-
-          ::Guard.runner.run(:start)
-        end
+      # @example Gets the path of the currently evaluated Guardfile
+      #   > Dir.pwd
+      #   => "/Users/remy/Code/github/guard"
+      #
+      #   > Guard::Dsl.evaluate_guardfile
+      #   => nil
+      #
+      #   > Guard::Dsl.guardfile_path
+      #   => "/Users/remy/Code/github/guard/Guardfile"
+      #
+      # @example Gets the "path" of an inline Guardfile
+      #   > Guard::Dsl.evaluate_guardfile(:guardfile_contents => 'guard :rspec')
+      #   => nil
+      #
+      #   > Guard::Dsl.guardfile_path
+      #   => "Inline Guardfile"
+      #
+      # @return [String] the path to the Guardfile or 'Inline Guardfile' if
+      #   the Guardfile has been specified via the `:guardfile_contents` option.
+      #
+      def guardfile_path
+        options[:guardfile_path] || ''
       end
 
-      # Evaluate the content of the `Guardfile`.
+      # Gets the content of the `Guardfile` concatenated with the global
+      # user configuration file.
+      #
+      # @example Programmatically get the content of the current Guardfile
+      #   Guard::Dsl.guardfile_contents
+      #   #=> "guard :rspec"
+      #
+      # @return [String] the Guardfile content
+      #
+      def guardfile_contents
+        config = File.read(user_config_path) if File.exist?(user_config_path)
+        [guardfile_contents_without_user_config, config].compact.join("\n")
+      end
+
+      private
+
+      # Gets the default path of the `Guardfile`. This returns the `Guardfile`
+      # from the current directory when existing, or the global `~/.Guardfile`.
+      #
+      # @return [String] the path to the Guardfile
+      #
+      def guardfile_default_path
+        File.exist?(local_guardfile_path) ? local_guardfile_path : home_guardfile_path
+      end
+
+      # Gets the content of the `Guardfile`.
+      #
+      # @return [String] the Guardfile content
+      #
+      def guardfile_contents_without_user_config
+        options[:guardfile_contents] || ''
+      end
+
+      # Evaluates the content of the `Guardfile`.
       #
       # @param [String] contents the content to evaluate.
       #
@@ -107,28 +168,7 @@ module Guard
         ::Guard::UI.error "Invalid Guardfile, original error is:\n#{ $! }"
       end
 
-      # Test if the current `Guardfile` contains a specific Guard plugin.
-      #
-      # @param [String] guard_name the name of the Guard
-      # @return [Boolean] whether the Guard has been declared
-      #
-      def guardfile_include?(guard_name)
-        guardfile_contents.match(/^guard\s*\(?\s*['":]#{ guard_name }['"]?/)
-      end
-
-      # Read the current `Guardfile` content.
-      #
-      # @param [String] guardfile_path the path to the Guardfile
-      #
-      def read_guardfile(guardfile_path)
-        options[:guardfile_path]     = guardfile_path
-        options[:guardfile_contents] = File.read(guardfile_path)
-      rescue
-        ::Guard::UI.error("Error reading file #{ guardfile_path }")
-        exit 1
-      end
-
-      # Get the content to evaluate and stores it into
+      # Gets the content to evaluate and stores it into
       # the options as `:guardfile_contents`.
       #
       def fetch_guardfile_contents
@@ -159,32 +199,45 @@ module Guard
         end
       end
 
-      # Get the content of the `Guardfile`.
+      # Reads the current `Guardfile` content.
       #
-      # @return [String] the Guardfile content
+      # @param [String] guardfile_path the path to the Guardfile
       #
-      def guardfile_contents
-        options ? options[:guardfile_contents] : ''
+      def read_guardfile(guardfile_path)
+        options[:guardfile_path]     = guardfile_path
+        options[:guardfile_contents] = File.read(guardfile_path)
+      rescue
+        ::Guard::UI.error("Error reading file #{ guardfile_path }")
+        exit 1
       end
 
-      # Get the content of the `Guardfile` and the global
-      # user configuration file.
+      # Stops Guard and clear internal state
+      # before the Guardfile will be re-evaluated.
       #
-      # @see #user_config_path
-      #
-      # @return [String] the Guardfile content
-      #
-      def guardfile_contents_with_user_config
-        config = File.read(user_config_path) if File.exist?(user_config_path)
-        [guardfile_contents, config].join("\n")
+      def before_reevaluate_guardfile
+        ::Guard.runner.run(:stop)
+        ::Guard.reset_groups
+        ::Guard.reset_guards
+        ::Guard::Notifier.clear_notifications
+
+        options.delete(:guardfile_contents)
       end
 
-      # Get the file path to the project `Guardfile`.
+      # Starts Guard and notification and show a message
+      # after the Guardfile has been re-evaluated.
       #
-      # @return [String] the path to the Guardfile
-      #
-      def guardfile_path
-        options ? options[:guardfile_path] : ''
+      def after_reevaluate_guardfile
+        ::Guard::Notifier.turn_on if ::Guard::Notifier.enabled?
+
+        if ::Guard.guards.empty?
+          ::Guard::Notifier.notify('No guards found in Guardfile, please add at least one.', :title => 'Guard re-evaluate', :image => :failed)
+        else
+          msg = 'Guardfile has been re-evaluated.'
+          ::Guard::UI.info(msg)
+          ::Guard::Notifier.notify(msg, :title => 'Guard re-evaluate')
+
+          ::Guard.runner.run(:start)
+        end
       end
 
       # Tests if the current `Guardfile` content is usable.
@@ -194,18 +247,6 @@ module Guard
       def guardfile_contents_usable?
         guardfile_contents && guardfile_contents.size >= 'guard :a'.size # Smallest Guard definition
       end
-
-      # Gets the default path of the `Guardfile`. This returns the `Guardfile`
-      # from the current directory when existing, or the global `.Guardfile`
-      # at the home directory.
-      #
-      # @return [String] the path to the Guardfile
-      #
-      def guardfile_default_path
-        File.exist?(local_guardfile_path) ? local_guardfile_path : home_guardfile_path
-      end
-
-      private
 
       # The path to the `Guardfile` that is located at
       # the directory, where Guard has been started from.
@@ -219,7 +260,7 @@ module Guard
       # The path to the `.Guardfile` that is located at
       # the users home directory.
       #
-      # @return [String] the path to ~/.Guardfile
+      # @return [String] the path to `~/.Guardfile`
       #
       def home_guardfile_path
         File.expand_path(File.join('~', '.Guardfile'))
@@ -228,7 +269,7 @@ module Guard
       # The path to the user configuration `.guard.rb`
       # that is located at the users home directory.
       #
-      # @return [String] the path to ~/.guard.rb
+      # @return [String] the path to `~/.guard.rb`
       #
       def user_config_path
         File.expand_path(File.join('~', '.guard.rb'))
@@ -237,7 +278,7 @@ module Guard
     end
 
     # Set notification options for the system notifications.
-    # You can set multiple notification, which allows you to show local
+    # You can set multiple notifications, which allows you to show local
     # system notifications and remote notifications with separate libraries.
     # You can also pass `:off` as library to turn off notifications.
     #
@@ -254,12 +295,15 @@ module Guard
       ::Guard::Notifier.add_notification(notifier.to_sym, options, false)
     end
 
-    # Sets the interactor to use.
+    # Sets the interactor options or disable the interactor.
+    #
+    # @example Pass options to the interactor
+    #   interactor :option1 => 'value1', :option2 => 'value2'
     #
     # @example Turn off interactions
     #   interactor :off
     #
-    # @param [Symbol,Hash] options either `:off` or a Hash with interactor options
+    # @param [Symbol, Hash] options either `:off` or a Hash with interactor options
     #
     def interactor(options)
       if options == :off
@@ -277,14 +321,14 @@ module Guard
     #
     # @example Declare two groups of Guard plugins
     #
-    #   group 'backend' do
-    #     guard 'spork'
-    #     guard 'rspec'
+    #   group :backend do
+    #     guard :spork
+    #     guard :rspec
     #   end
     #
-    #   group 'frontend' do
-    #     guard 'passenger'
-    #     guard 'livereload'
+    #   group :frontend do
+    #     guard :passenger
+    #     guard :livereload
     #   end
     #
     # @param [Symbol, String] name the group name called from the CLI
@@ -299,29 +343,36 @@ module Guard
       name = name.to_sym
 
       if block_given?
-        ::Guard.add_group(name.to_s.downcase, options)
+        ::Guard.add_group(name, options)
         @current_group = name
 
-        yield if block_given?
+        yield
 
         @current_group = nil
+      else
+        ::Guard::UI.error "No Guard plugins found in the group '#{ name }', please add at least one."
       end
     end
 
-    # Declare a Guard plugin to be used when running `guard start`.
+    # Declares a Guard plugin to be used when running `guard start`.
     #
     # The name parameter is usually the name of the gem without
     # the 'guard-' prefix.
     #
     # The available options are different for each Guard implementation.
     #
-    # @example Declare a Guard
+    # @example Declare a Guard without `watch` patterns
     #
-    #   guard 'rspec' do
+    #   guard :rspec
+    #
+    # @example Declare a Guard with a `watch` pattern
+    #
+    #   guard :rspec do
+    #     watch %r{.*_spec.rb}
     #   end
     #
-    # @param [String] name the Guard name
-    # @param [Hash] options the options accepted by the Guard
+    # @param [String] name the Guard plugin name
+    # @param [Hash] options the options accepted by the Guard plugin
     # @yield a block where you can declare several watch patterns and actions
     #
     # @see Guard.add_guard
@@ -336,21 +387,21 @@ module Guard
 
       yield if block_given?
 
-      options.update(:group => @current_group, :watchers => @watchers, :callbacks => @callbacks)
-      ::Guard.add_guard(name.to_s.downcase, options)
+      options.merge!(:group => @current_group, :watchers => @watchers, :callbacks => @callbacks)
+      ::Guard.add_guard(name, options)
     end
 
-    # Define a pattern to be watched in order to run actions on file modification.
+    # Defines a pattern to be watched in order to run actions on file modification.
     #
     # @example Declare watchers for a Guard
     #
-    #   guard 'rspec' do
+    #   guard :rspec do
     #     watch('spec/spec_helper.rb')
     #     watch(%r{^.+_spec.rb})
     #     watch(%r{^app/controllers/(.+).rb}) { |m| 'spec/acceptance/#{m[1]}s_spec.rb' }
     #   end
     #
-    # @param [String, Regexp] pattern the pattern to be watched by the guard
+    # @param [String, Regexp] pattern the pattern that Guard must watch for modification
     # @yield a block to be run when the pattern is matched
     # @yieldparam [MatchData] m matches of the pattern
     # @yieldreturn a directory, a filename, an array of directories / filenames, or nothing (can be an arbitrary command)
@@ -362,9 +413,9 @@ module Guard
       @watchers << ::Guard::Watcher.new(pattern, action)
     end
 
-    # Define a callback to execute arbitrary code before or after any of
-    # the `start`, `stop`, `reload`, `run_all`, `run_on_changes` `run_on_additions`, `run_on_modifications`
-    # and `run_on_removals` plugin method.
+    # Defines a callback to execute arbitrary code before or after any of
+    # the `start`, `stop`, `reload`, `run_all`, `run_on_changes`, `run_on_additions`,
+    # `run_on_modifications` and `run_on_removals` plugin method.
     #
     # @param [Array] args the callback arguments
     # @yield a block with listeners
@@ -376,7 +427,7 @@ module Guard
       @callbacks << { :events => events, :listener => listener }
     end
 
-    # @deprecated Ignore certain paths globally.
+    # @deprecated Ignores certain paths globally.
     #
     # @example Ignore some paths
     #   ignore_paths ".git", ".svn"
@@ -387,56 +438,57 @@ module Guard
       ::Guard::UI.deprecation(::Guard::Deprecator::DSL_METHOD_IGNORE_PATHS_DEPRECATION)
     end
 
-    # Ignore certain paths globally.
+    # Ignores certain paths globally.
     #
     # @example Ignore some paths
     #   ignore %r{^ignored/path/}, /man/
     #
-    # @param [Regexp] regexps a pattern for ignoring paths
+    # @param [Regexp] regexps a pattern (or list of patterns) for ignoring paths
     #
     def ignore(*regexps)
       ::Guard.listener = ::Guard.listener.ignore(*regexps)
     end
 
-    # Replace ignored paths globally
+    # Replaces ignored paths globally
     #
     # @example Ignore only these paths
     #   ignore! %r{^ignored/path/}, /man/
     #
-    # @param [Regexp] regexps a pattern for ignoring paths
+    # @param [Regexp] regexps a pattern (or list of patterns) for ignoring paths
     #
     def ignore!(*regexps)
       ::Guard.listener = ::Guard.listener.ignore!(*regexps)
     end
 
-    # Filter certain paths globally.
+    # Filters certain paths globally.
     #
     # @example Filter some files
     #   filter /\.txt$/, /.*\.zip/
     #
-    # @param [Regexp] regexps a pattern for filtering paths
+    # @param [Regexp] regexps a pattern (or list of patterns) for filtering paths
     #
     def filter(*regexps)
       ::Guard.listener = ::Guard.listener.filter(*regexps)
     end
 
-    # Replace filtered paths globally.
+    # Replaces filtered paths globally.
     #
     # @example Filter only these files
     #   filter! /\.txt$/, /.*\.zip/
     #
-    # @param [Regexp] regexps a pattern for filtering paths
+    # @param [Regexp] regexps a pattern (or list of patterns) for filtering paths
     #
     def filter!(*regexps)
       ::Guard.listener = ::Guard.listener.filter!(*regexps)
     end
 
-    # Configure the Guard logger.
+    # Configures the Guard logger.
     #
     # * Log level must be either `:debug`, `:info`, `:warn` or `:error`.
-    # * Template supports the following placeholders: `:time`, `:severity`, `:progname`, `:pid`, `:unit_of_work_id` and `:message`
-    # * Time format directives are the same as Time#strftime or :milliseconds
-    # * The `:only` and `:except` options must be a RegExp.
+    # * Template supports the following placeholders: `:time`, `:severity`,
+    #   `:progname`, `:pid`, `:unit_of_work_id` and `:message`.
+    # * Time format directives are the same as `Time#strftime` or `:milliseconds`.
+    # * The `:only` and `:except` options must be a `RegExp`.
     #
     # @example Set the log level
     #   logger :level => :warn
