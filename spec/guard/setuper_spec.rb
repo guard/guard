@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'guard/plugin'
 
 describe Guard::Setuper do
 
@@ -76,7 +77,7 @@ describe Guard::Setuper do
 
     context 'without the group or plugin option' do
       it "initializes the empty scope" do
-        subject.scope.should == { :groups => [], :plugins => [] }
+        subject.scope.should eq({ :groups => [], :plugins => [] })
       end
     end
 
@@ -89,8 +90,8 @@ describe Guard::Setuper do
       it 'initializes the group scope' do
         subject.scope[:plugins].should be_empty
         subject.scope[:groups].count.should be 2
-        subject.scope[:groups][0].name.should eql :backend
-        subject.scope[:groups][1].name.should eql :frontend
+        subject.scope[:groups][0].name.should eq :backend
+        subject.scope[:groups][1].name.should eq :frontend
       end
     end
 
@@ -111,8 +112,8 @@ describe Guard::Setuper do
       it "initializes the plugin scope" do
         subject.scope[:groups].should be_empty
         subject.scope[:plugins].count.should be 2
-        subject.scope[:plugins][0].class.should eql ::Guard::Cucumber
-        subject.scope[:plugins][1].class.should eql ::Guard::Jasmine
+        subject.scope[:plugins][0].class.should eq ::Guard::Cucumber
+        subject.scope[:plugins][1].class.should eq ::Guard::Jasmine
       end
     end
 
@@ -127,7 +128,7 @@ describe Guard::Setuper do
 
       it "sets the log level to :debug if the debug option is true" do
         subject
-        ::Guard::UI.options[:level].should eql :debug
+        ::Guard::UI.options[:level].should eq :debug
       end
     end
   end
@@ -392,7 +393,7 @@ describe Guard::Setuper do
 
       subject.groups.should have(1).item
       subject.groups[0].name.should eq :default
-      subject.groups[0].options.should == { }
+      subject.groups[0].options.should eq({})
     end
   end
 

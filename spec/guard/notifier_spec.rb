@@ -110,7 +110,7 @@ describe Guard::Notifier do
 
     it 'disables the notifications' do
       Guard::Notifier.turn_off
-      ENV['GUARD_NOTIFY'].should == 'false'
+      ENV['GUARD_NOTIFY'].should eq 'false'
     end
 
     context 'when turned on with available notifications' do

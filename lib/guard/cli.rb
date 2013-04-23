@@ -153,19 +153,19 @@ module Guard
     # @see Guard::Guardfile.initialize_template
     # @see Guard::Guardfile.initialize_all_templates
     #
-    # @param [Array<String>] guard_names the name of the Guard plugins to initialize
+    # @param [Array<String>] plugin_names the name of the Guard plugins to initialize
     #
-    def init(*guard_names)
+    def init(*plugin_names)
       verify_bundler_presence
 
       ::Guard::Guardfile.create_guardfile(:abort_on_existence => options[:bare])
 
       return if options[:bare]
 
-      if guard_names.empty?
+      if plugin_names.empty?
         ::Guard::Guardfile.initialize_all_templates
       else
-        guard_names.each do |guard_name|
+        plugin_names.each do |guard_name|
           ::Guard::Guardfile.initialize_template(guard_name)
         end
       end

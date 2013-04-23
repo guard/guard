@@ -55,7 +55,7 @@ module Guard
       end
     end
 
-    # Stop Guard listening to file changes
+    # Stop Guard listening to file changes.
     #
     def stop
       within_preserved_state do

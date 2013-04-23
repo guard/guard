@@ -53,14 +53,14 @@ describe Guard::Guardfile do
       context "that has duplicate definitions" do
         it "should return true" do
           io = StringIO.new("guard 'rspec' do\nend\nguard 'rspec' do\nend\n")
-          Guard::Guardfile.duplicate_definitions?('rspec', io.string).should == true
+          Guard::Guardfile.duplicate_definitions?('rspec', io.string).should be_true
         end
       end
 
       context "that doesn't have duplicate definitions" do
         it "should return false" do
           io = StringIO.new("guard 'rspec' do\nend\n")
-          Guard::Guardfile.duplicate_definitions?('rspec', io.string).should == false
+          Guard::Guardfile.duplicate_definitions?('rspec', io.string).should be_false
         end
       end
     end
@@ -90,7 +90,7 @@ describe Guard::Guardfile do
         io = StringIO.new
         File.should_receive(:open).with('Guardfile', 'wb').and_yield io
         described_class.initialize_template('bar')
-        io.string.should == "Guardfile content\n\nTemplate content\n"
+        io.string.should eq "Guardfile content\n\nTemplate content\n"
       end
     end
 

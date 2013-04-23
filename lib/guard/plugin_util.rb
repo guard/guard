@@ -43,7 +43,7 @@ module Guard
 
     # Initialize a new Guard::Plugin with the given options. This methods
     # handles plugins that inherit from the deprecated Guard::Guard class
-    # as weel as plugins that inherit from Guard::Plugin.
+    # as well as plugins that inherit from Guard::Plugin.
     #
     def initialize_plugin(options)
       if plugin_class.superclass == ::Guard::Guard

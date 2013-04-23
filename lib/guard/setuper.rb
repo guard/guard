@@ -104,11 +104,20 @@ module Guard
       end
     end
 
+    # Evaluates the Guardfile content. It displays an error message if no
+    # Guard plugins are instantiated after the Guardfile evaluation.
+    #
+    # @see Guard::Dsl.evaluate_guardfile
+    #
     def setup_from_guardfile
       ::Guard::Dsl.evaluate_guardfile(options)
       ::Guard::UI.error 'No guards found in Guardfile, please add at least one.' if guards.empty?
     end
 
+    # Stores the scopes defined by the user via the `--group` / `-g` option (to run
+    # only a specific group) or the `--plugin` / `-P` option (to run only a
+    # specific plugin).
+    #
     def setup_scopes
       scope[:groups]  = options[:group].map { |g| ::Guard.groups(g) } if options[:group]
       scope[:plugins] = options[:plugin].map { |p| ::Guard.guards(p) } if options[:plugin]

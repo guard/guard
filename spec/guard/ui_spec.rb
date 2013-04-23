@@ -41,7 +41,7 @@ describe Guard::UI do
   describe '.options=' do
     it 'sets the logger options' do
       Guard::UI.options = { :hi => :ho }
-      Guard::UI.options.should eql({ :hi => :ho })
+      Guard::UI.options.should eq({ :hi => :ho })
     end
   end
 
