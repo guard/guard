@@ -1,8 +1,11 @@
 module Guard
 
-  # This class contains useful methods to fetch all the Guard plugins names,
-  # initialize a plugin, get its location, returns its class name and add its
-  # template to the Guardfile.
+  # This class contains useful methods to:
+  #
+  # * Fetch all the Guard plugins names;
+  # * Initialize a plugin, get its location;
+  # * Return its class name;
+  # * Add its template to the Guardfile.
   #
   class PluginUtil
 
@@ -33,7 +36,7 @@ module Guard
 
     end
 
-    # Initializes a new Guard::PluginUtil object.
+    # Initializes a new `Guard::PluginUtil` object.
     #
     # @param [String] name the name of the Guard plugin
     #
@@ -41,9 +44,18 @@ module Guard
       @name = name.to_s
     end
 
-    # Initialize a new Guard::Plugin with the given options. This methods
-    # handles plugins that inherit from the deprecated Guard::Guard class
-    # as weel as plugins that inherit from Guard::Plugin.
+    # Initializes a new `Guard::Plugin` with the given `options` hash. This
+    # methods handles plugins that inherit from the deprecated `Guard::Guard`
+    # class as well as plugins that inherit from `Guard::Plugin`.
+    #
+    # @see Guard::Plugin
+    # @see https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0 How to upgrade for Guard 2.0
+    #
+    # @return [Guard::Plugin] the initialized plugin
+    # @return [Guard::Guard] the initialized plugin. This return type is
+    #   deprecated and the plugin's maintainer should update it to be
+    #   compatible with Guard 2.0. For more information on how to upgrade for
+    #   Guard 2.0, please head over to: https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0
     #
     def initialize_plugin(options)
       if plugin_class.superclass == ::Guard::Guard
@@ -55,7 +67,7 @@ module Guard
 
     # Locates a path to a Guard plugin gem.
     #
-    # @return [String] the full path to the Guard gem
+    # @return [String] the full path to the plugin gem
     #
     def plugin_location
       @plugin_location ||= begin
@@ -94,14 +106,14 @@ module Guard
         @plugin_class ||= ::Guard.const_get(plugin_constant)
       rescue TypeError
         if try_require
-          ::Guard::UI.error "Could not find class Guard::#{ constant_name.capitalize }"
+          ::Guard::UI.error "Could not find class Guard::#{ constant_name }"
         else
           try_require = true
           retry
         end
       rescue LoadError => loadError
         unless options[:fail_gracefully]
-          ::Guard::UI.error "Could not load 'guard/#{ name.downcase }' or find class Guard::#{ constant_name.capitalize }"
+          ::Guard::UI.error "Could not load 'guard/#{ name.downcase }' or find class Guard::#{ constant_name }"
           ::Guard::UI.error loadError.to_s
         end
       end
@@ -126,13 +138,22 @@ module Guard
 
     private
 
+    # Returns the constant for the current plugin.
+    #
+    # @example Returns the constant for a plugin
+    #   > Guard::PluginUtil.new('rspec').plugin_constant
+    #   => Guard::RSpec
+    #
     def plugin_constant
-      @plugin_constant ||= begin
-        ::Guard.constants.find { |c| c.to_s == constant_name } ||
-        ::Guard.constants.find { |c| c.to_s.downcase == constant_name.downcase }
-      end
+      @plugin_constant ||= ::Guard.constants.find { |c| c.to_s.downcase == constant_name.downcase }
     end
 
+    # Guesses the most probable name for the current plugin based on its name.
+    #
+    # @example Returns the most probable name for a plugin
+    #   > Guard::PluginUtil.new('rspec').plugin_constant
+    #   => "Rspec"
+    #
     def constant_name
       @constant_name ||= name.gsub(/\/(.?)/) { "::#{ $1.upcase }" }.gsub(/(?:^|[_-])(.)/) { $1.upcase }
     end

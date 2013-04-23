@@ -2,11 +2,11 @@ module Guard
 
   module Setuper
 
-    # Initialize the Guard singleton:
+    # Initializes the Guard singleton:
     #
-    # - Initialize the internal Guard state.
-    # - Create the interactor when necessary for user interaction.
-    # - Select and initialize the file change listener.
+    # * Initialize the internal Guard state;
+    # * Create the interactor when necessary for user interaction;
+    # * Select and initialize the file change listener.
     #
     # @option options [Boolean] clear if auto clear the UI should be done
     # @option options [Boolean] notify if system notifications should be shown
@@ -45,7 +45,7 @@ module Guard
       self
     end
 
-    # Setup various debug behaviors:
+    # Sets up various debug behaviors:
     # - Abort threads on exception
     # - Set the logging level to :debug
     # - Modify the system and ` methods to log themselves before being executed
@@ -104,11 +104,20 @@ module Guard
       end
     end
 
+    # Evaluates the Guardfile content. It displays an error message if no
+    # Guard plugins are instantiated after the Guardfile evaluation.
+    #
+    # @see Guard::Dsl.evaluate_guardfile
+    #
     def setup_from_guardfile
       ::Guard::Dsl.evaluate_guardfile(options)
       ::Guard::UI.error 'No guards found in Guardfile, please add at least one.' if guards.empty?
     end
 
+    # Stores the scopes defined by the user via the `--group` / `-g` option (to run
+    # only a specific group) or the `--plugin` / `-P` option (to run only a
+    # specific plugin).
+    #
     def setup_scopes
       scope[:groups]  = options[:group].map { |g| ::Guard.groups(g) } if options[:group]
       scope[:plugins] = options[:plugin].map { |p| ::Guard.guards(p) } if options[:plugin]

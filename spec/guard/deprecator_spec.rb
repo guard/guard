@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'guard/plugin'
 
 describe Guard::Deprecator do
 

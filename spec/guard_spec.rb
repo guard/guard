@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'guard/plugin'
 
 describe Guard do
   describe '.reload' do
@@ -58,19 +59,12 @@ describe Guard do
 
   describe '.guards' do
     before do
-      class Guard::FooBar < Guard::Plugin; end
-      class Guard::FooBaz < Guard::Plugin; end
+      stub_const 'Guard::FooBar', Class.new(Guard::Plugin)
+      stub_const 'Guard::FooBaz', Class.new(Guard::Plugin)
       @guard_foo_bar_backend = described_class.add_guard('foo_bar', :group => 'backend')
       @guard_foo_baz_backend = described_class.add_guard('foo_baz', :group => 'backend')
       @guard_foo_bar_frontend = described_class.add_guard('foo_bar', :group => 'frontend')
       @guard_foo_baz_frontend = described_class.add_guard('foo_baz', :group => 'frontend')
-    end
-
-    after do
-      ::Guard.instance_eval do
-        remove_const(:FooBar)
-        remove_const(:FooBaz)
-      end
     end
 
     it "return @guards without any argument" do
@@ -285,7 +279,7 @@ describe Guard do
     it "accepts options" do
       ::Guard.add_group(:backend, { :halt_on_fail => true })
 
-      ::Guard.groups[0].options.should eq({ })
+      ::Guard.groups[0].options.should eq({})
       ::Guard.groups[1].options.should eq({ :halt_on_fail => true })
     end
   end
@@ -376,13 +370,13 @@ describe Guard do
     it "outputs Kernel.#` method parameters" do
       ::Guard::UI.should_receive(:debug).with("Command execution: echo test")
       ::Guard.setup(:debug => true)
-      `echo test`.should == "test\n"
+      `echo test`.should eq "test\n"
     end
 
     it "outputs %x{} method parameters" do
       ::Guard::UI.should_receive(:debug).with("Command execution: echo test")
       ::Guard.setup(:debug => true)
-      %x{echo test}.should == "test\n"
+      %x{echo test}.should eq "test\n"
     end
 
   end

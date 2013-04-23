@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'guard/plugin'
 
 describe Guard::Interactor do
 
@@ -48,6 +49,6 @@ describe Guard::Interactor do
       _, unkown = Guard::Interactor.convert_scope %w(unkown scope)
       unkown.should eq %w(unkown scope)
     end
-
   end
+
 end

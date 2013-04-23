@@ -1,6 +1,6 @@
 # encoding: utf-8
-
 require 'spec_helper'
+require 'guard/plugin'
 require 'formatador'
 
 describe Guard::DslDescriber do

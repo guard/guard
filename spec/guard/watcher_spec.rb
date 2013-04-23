@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'guard/plugin'
 
 describe Guard::Watcher do
 
@@ -10,13 +11,13 @@ describe Guard::Watcher do
     context "with a pattern parameter" do
       context "that is a string" do
         it "keeps the string pattern unmodified" do
-          described_class.new('spec_helper.rb').pattern.should == 'spec_helper.rb'
+          described_class.new('spec_helper.rb').pattern.should eq 'spec_helper.rb'
         end
       end
 
       context "that is a regexp" do
         it "keeps the regex pattern unmodified" do
-          described_class.new(/spec_helper\.rb/).pattern.should == /spec_helper\.rb/
+          described_class.new(/spec_helper\.rb/).pattern.should eq /spec_helper\.rb/
         end
       end
 

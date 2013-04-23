@@ -55,7 +55,7 @@ module Guard
       end
     end
 
-    # Stop Guard listening to file changes
+    # Stop Guard listening to file changes.
     #
     def stop
       within_preserved_state do
@@ -256,7 +256,9 @@ module Guard
       @result
     end
 
-    # @deprecated Use {Guard::PluginUtil.new(name).plugin_class(:fail_gracefully => fail_gracefully)} instead.
+    # @deprecated Use `Guard::PluginUtil.new(name).plugin_class(:fail_gracefully => fail_gracefully)` instead.
+    #
+    # @see https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0 How to upgrade for Guard 2.0
     #
     def get_guard_class(name, fail_gracefully = false)
       ::Guard::UI.deprecation(::Guard::Deprecator::GET_GUARD_CLASS_DEPRECATION)

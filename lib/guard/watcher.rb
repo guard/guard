@@ -10,7 +10,7 @@ module Guard
 
     attr_accessor :pattern, :action
 
-    # Initialize a file watcher.
+    # Initializes a file watcher.
     #
     # @param [String, Regexp] pattern the pattern to be watched by the Guard plugin
     # @param [Block] action the action to execute before passing the result to the Guard plugin
@@ -36,7 +36,7 @@ module Guard
       end
     end
 
-    # Finds the files that matches a Guard.
+    # Finds the files that matches a Guard plugin.
     #
     # @param [Guard::Plugin] guard the Guard plugin which watchers are used
     # @param [Array<String>] files the changed files
@@ -65,7 +65,7 @@ module Guard
       end
     end
 
-    # Test if a file would be matched by any of the Guard plugin watchers.
+    # Tests if a file would be matched by any of the Guard plugin watchers.
     #
     # @param [Array<Guard::Plugin>] guards the Guard plugins to use the watchers from
     # @param [Array<String>] files the files to test
@@ -79,10 +79,10 @@ module Guard
       end
     end
 
-    # @deprecated Use .match instead
+    # @deprecated Use `.match` instead
     #
     def match_file?(file)
-      ::Guard::UI.info "Guard::Watcher.match_file? is deprecated, please use Guard::Watcher.match instead."
+      ::Guard::UI.deprecation 'Guard::Watcher.match_file? is deprecated, please use Guard::Watcher.match instead.'
       match(file)
     end
 
@@ -106,7 +106,7 @@ module Guard
       end
     end
 
-    # Test if any of the files is the Guardfile.
+    # Tests if any of the files is the Guardfile.
     #
     # @param [Array<String>] files the files to test
     # @return [Boolean] whether one of these files is the Guardfile

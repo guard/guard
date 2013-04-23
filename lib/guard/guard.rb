@@ -1,9 +1,11 @@
 module Guard
 
   # @deprecated Inheriting from Guard::Guard is deprecated, please inherit from
-  #   Guard::Plugin instead. Please note that the constructor signature has
-  #   changed from Guard::Guard#initialize(watchers = [], options = {}) to
-  #   Guard::Plugin#initialize(options = {}).
+  #   `Guard::Plugin` instead. Please note that the constructor signature has
+  #   changed from `Guard::Guard#initialize(watchers = [], options = {})` to
+  #   `Guard::Plugin#initialize(options = {})`.
+  #
+  # @see https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0 How to upgrade for Guard 2.0
   #
   class Guard
     require 'guard/plugin/base'
