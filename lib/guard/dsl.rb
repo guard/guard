@@ -427,7 +427,7 @@ module Guard
       @callbacks << { :events => events, :listener => listener }
     end
 
-    # @deprecated Ignores certain paths globally.
+    # @deprecated Use `ignore` or `ignore!` instead.
     #
     # @example Ignore some paths
     #   ignore_paths ".git", ".svn"

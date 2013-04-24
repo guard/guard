@@ -181,13 +181,12 @@ module Guard
         name ? name[1].split('/').map { |part| part.split(/[^a-z0-9]/i).map { |word| word.capitalize }.join }.join('::') : 'Guard'
       end
 
-      # Reset a color sequence.
+      # @deprecated Reset a color sequence.
       #
-      # @deprecated
       # @param [String] text the text
       #
       def reset_color(text)
-        deprecation('UI.reset_color(text) is deprecated, please use color(text, ' ') instead.')
+        deprecation("UI.reset_color(text) is deprecated, please use color(text, ' ') instead.")
         color(text, '')
       end
 

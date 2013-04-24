@@ -2,11 +2,11 @@ module Guard
 
   module Setuper
 
-    # Initialize the Guard singleton:
+    # Initializes the Guard singleton:
     #
-    # - Initialize the internal Guard state.
-    # - Create the interactor when necessary for user interaction.
-    # - Select and initialize the file change listener.
+    # * Initialize the internal Guard state;
+    # * Create the interactor when necessary for user interaction;
+    # * Select and initialize the file change listener.
     #
     # @option options [Boolean] clear if auto clear the UI should be done
     # @option options [Boolean] notify if system notifications should be shown
@@ -45,7 +45,7 @@ module Guard
       self
     end
 
-    # Setup various debug behaviors:
+    # Sets up various debug behaviors:
     # - Abort threads on exception
     # - Set the logging level to :debug
     # - Modify the system and ` methods to log themselves before being executed

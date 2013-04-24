@@ -105,9 +105,9 @@ module Guard
 
         Hooker.notify(self, hook_name.to_sym, *args)
       end
-      
+
       private
-      
+
       # Add all the Guard::Plugin's callbacks to the global @callbacks array
       # that's used by Guard to know which callbacks to notify.
       #

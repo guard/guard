@@ -2,8 +2,8 @@ module Guard
 
   class Plugin
 
-    # Colection of shared methods between Guard::Guard (deprecated)
-    # and Guard::Plugin.
+    # Colection of shared methods between `Guard::Guard` (deprecated)
+    # and `Guard::Plugin`.
     #
     module Base
       require 'guard/ui'
@@ -101,6 +101,13 @@ module Guard
 
       private
 
+      # Sets the @group, @watchers, @callbacks and @options variables from the
+      # given options hash.
+      #
+      # @param [Hash] options the Guard plugin options
+      #
+      # @see Guard::Plugin.initialize
+      #
       def set_instance_variables_from_options(options)
         set_group_from_options(options)
         @watchers  = options.delete(:watchers) { [] }
