@@ -140,7 +140,7 @@ module Guard
         @title ||= self.class.non_namespaced_classname
       end
 
-      # Converts plugin to a string representation.
+      # String representation of the plugin.
       #
       # @example String representation of an instance of the Guard::RSpec plugin
       #   > Guard::RSpec.new.title
