@@ -14,8 +14,10 @@ module Guard
     # @option options [Array<String>] group the list of groups to start
     # @option options [String] watchdir the director to watch
     # @option options [String] guardfile the path to the Guardfile
-    # @deprecated @option options [Boolean] watch_all_modifications watches all file modifications if true
-    # @deprecated @option options [Boolean] no_vendor ignore vendored dependencies
+    # @option options [Boolean] watch_all_modifications **[deprecated]** watches all file modifications if true
+    # @option options [Boolean] no_vendor **[deprecated]** ignore vendored dependencies
+    #
+    # @return [Guard] the Guard singleton
     #
     def setup(options = {})
       @running  = true
@@ -46,9 +48,12 @@ module Guard
     end
 
     # Sets up various debug behaviors:
-    # - Abort threads on exception
-    # - Set the logging level to :debug
-    # - Modify the system and ` methods to log themselves before being executed
+    #
+    # * Abort threads on exception;
+    # * Set the logging level to `:debug`;
+    # * Modify the system and ` methods to log themselves before being executed
+    #
+    # @see #debug_command_execution
     #
     def setup_debug
       Thread.abort_on_exception = true
@@ -118,6 +123,9 @@ module Guard
     # only a specific group) or the `--plugin` / `-P` option (to run only a
     # specific plugin).
     #
+    # @see CLI#start
+    # @see Dsl#scope
+    #
     def setup_scopes
       scope[:groups]  = options[:group].map { |g| ::Guard.groups(g) } if options[:group]
       scope[:plugins] = options[:plugin].map { |p| ::Guard.guards(p) } if options[:plugin]
@@ -126,7 +134,11 @@ module Guard
     # Enables or disables the notifier based on user's configurations.
     #
     def setup_notifier
-      options[:notify] && ENV['GUARD_NOTIFY'] != 'false' ? ::Guard::Notifier.turn_on : ::Guard::Notifier.turn_off
+      if options[:notify] && ENV['GUARD_NOTIFY'] != 'false'
+        ::Guard::Notifier.turn_on
+      else
+        ::Guard::Notifier.turn_off
+      end
     end
 
     # Initializes the interactor unless the user has specified not to.
@@ -137,7 +149,7 @@ module Guard
       end
     end
 
-    # Initialize the groups array with the default group(s).
+    # Initializes the groups array with the default group(s).
     #
     # @see #default_groups
     #
@@ -145,7 +157,7 @@ module Guard
       @groups = default_groups
     end
 
-    # Initialize the guards array to an empty array.
+    # Initializes the guards array to an empty array.
     #
     # @see Guard.guards
     #
@@ -155,6 +167,13 @@ module Guard
 
     private
 
+    # Returns an array of the default group(s) when Guard starts or when
+    # `Guard.reset` is called.
+    #
+    # @see #reset_groups
+    #
+    # @return [Array<Guard::Group>] the default groups
+    #
     def default_groups
       [Group.new(:default)]
     end

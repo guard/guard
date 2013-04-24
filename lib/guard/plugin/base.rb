@@ -18,8 +18,30 @@ module Guard
       end
 
       module ClassMethods
+        # Returns the non-namespaced class name of the plugin
+        #
+        #
+        # @example Non-namespaced class name for Guard::RSpec
+        #   > Guard::RSpec.non_namespaced_classname
+        #   => "RSpec"
+        #
+        # @return [String]
+        #
+        def non_namespaced_classname
+          self.to_s.sub('Guard::', '')
+        end
+
+        # Returns the non-namespaced name of the plugin
+        #
+        #
+        # @example Non-namespaced name for Guard::RSpec
+        #   > Guard::RSpec.non_namespaced_name
+        #   => "rspec"
+        #
+        # @return [String]
+        #
         def non_namespaced_name
-          self.to_s.downcase.sub('guard::', '')
+          non_namespaced_classname.downcase
         end
 
         # Specify the source for the Guardfile template.
@@ -96,21 +118,33 @@ module Guard
 
       # Returns the plugin's name (without "guard-").
       #
-      # @return [String] the string representation
+      # @example Name for Guard::RSpec
+      #   > Guard::RSpec.new.name
+      #   => "rspec"
+      #
+      # @return [String]
       #
       def name
         @name ||= self.class.non_namespaced_name
       end
 
-      # Returns the plugin's name capitalized.
+      # Returns the plugin's class name without the Guard:: namespace.
       #
-      # @return [String] the string representation
+      # @example Title for Guard::RSpec
+      #   > Guard::RSpec.new.title
+      #   => "RSpec"
+      #
+      # @return [String]
       #
       def title
-        @title ||= name.capitalize
+        @title ||= self.class.non_namespaced_classname
       end
 
       # Converts plugin to a string representation.
+      #
+      # @example String representation of an instance of the Guard::RSpec plugin
+      #   > Guard::RSpec.new.title
+      #   => "#<Guard::RSpec @name=rspec @group=#<Guard::Group @name=default @options={}> @watchers=[] @callbacks=[] @options={:all_after_pass=>true}>"
       #
       # @return [String] the string representation
       #

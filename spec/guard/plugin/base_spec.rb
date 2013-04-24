@@ -3,7 +3,21 @@ require 'guard/plugin'
 
 describe Guard::Plugin::Base do
   before do
-    stub_const 'Guard::Dummy', Class.new(Guard::Plugin)
+    stub_const 'Guard::DuMmy', Class.new(Guard::Plugin)
+  end
+
+  describe '.non_namespaced_classname' do
+    it 'remove the Guard:: namespace' do
+      puts Guard::DuMmy.to_s
+      Guard::DuMmy.non_namespaced_classname.should eq 'DuMmy'
+    end
+  end
+
+  describe '.non_namespaced_name' do
+    it 'remove the Guard:: namespace and downcase' do
+      puts Guard::DuMmy.to_s
+      Guard::DuMmy.non_namespaced_name.should eq 'dummy'
+    end
   end
 
   describe '.template' do
@@ -14,25 +28,25 @@ describe Guard::Plugin::Base do
     it 'reads the default template' do
       File.should_receive(:read).with('/guard-dummy/lib/guard/dummy/templates/Guardfile') { true }
 
-      Guard::Dummy.template('/guard-dummy')
+      Guard::DuMmy.template('/guard-dummy')
     end
   end
 
   describe '#name' do
     it 'outputs the short plugin name' do
-      Guard::Dummy.new.name.should eq 'dummy'
+      Guard::DuMmy.new.name.should eq 'dummy'
     end
   end
 
   describe '#title' do
     it 'outputs the plugin title' do
-      Guard::Dummy.new.title.should eq 'Dummy'
+      Guard::DuMmy.new.title.should eq 'DuMmy'
     end
   end
 
   describe '#to_s' do
     it 'output the short plugin name' do
-      Guard::Dummy.new.to_s.should eq '#<Guard::Dummy @name=dummy @group=#<Guard::Group @name=default @options={}> @watchers=[] @callbacks=[] @options={}>'
+      Guard::DuMmy.new.to_s.should eq '#<Guard::DuMmy @name=dummy @group=#<Guard::Group @name=default @options={}> @watchers=[] @callbacks=[] @options={}>'
     end
   end
 
