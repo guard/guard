@@ -6,6 +6,18 @@ describe Guard::Plugin::Base do
     stub_const 'Guard::Dummy', Class.new(Guard::Plugin)
   end
 
+  describe '.template' do
+    before do
+      File.stub(:read)
+    end
+
+    it 'reads the default template' do
+      File.should_receive(:read).with('/guard-dummy/lib/guard/dummy/templates/Guardfile') { true }
+
+      Guard::Dummy.template('/guard-dummy')
+    end
+  end
+
   describe '#name' do
     it 'outputs the short plugin name' do
       Guard::Dummy.new.name.should eq 'dummy'

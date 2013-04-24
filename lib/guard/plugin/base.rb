@@ -13,6 +13,25 @@ module Guard
 
       attr_accessor :group, :watchers, :callbacks, :options
 
+      def self.included(base)
+        base.extend(ClassMethods)
+      end
+
+      module ClassMethods
+        def non_namespaced_name
+          self.to_s.downcase.sub('guard::', '')
+        end
+
+        # Specify the source for the Guardfile template.
+        # Each Guard plugin can redefine this method to add its own logic.
+        #
+        # @param [String] plugin_location the plugin location
+        #
+        def template(plugin_location)
+          File.read("#{ plugin_location }/lib/guard/#{ non_namespaced_name }/templates/Guardfile")
+        end
+      end
+
       # Called once when Guard starts. Please override initialize method to init stuff.
       #
       # @raise [:task_has_failed] when start has failed
@@ -80,7 +99,7 @@ module Guard
       # @return [String] the string representation
       #
       def name
-        @name ||= self.class.to_s.downcase.sub('guard::', '')
+        @name ||= self.class.non_namespaced_name
       end
 
       # Returns the plugin's name capitalized.
@@ -91,7 +110,7 @@ module Guard
         @title ||= name.capitalize
       end
 
-      # Convert plugin to string representation.
+      # Converts plugin to a string representation.
       #
       # @return [String] the string representation
       #
@@ -109,15 +128,11 @@ module Guard
       # @see Guard::Plugin.initialize
       #
       def set_instance_variables_from_options(options)
-        set_group_from_options(options)
+        group_name = options.delete(:group) { :default }
+        @group = ::Guard.groups(group_name) || ::Guard.add_group(group_name)
         @watchers  = options.delete(:watchers) { [] }
         @callbacks = options.delete(:callbacks) { [] }
         @options   = options
-      end
-
-      def set_group_from_options(options)
-        group_name = options.delete(:group) { :default }
-        @group = ::Guard.groups(group_name) || ::Guard.add_group(group_name)
       end
 
     end

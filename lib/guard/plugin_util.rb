@@ -129,7 +129,7 @@ module Guard
         File.open('Guardfile', 'wb') do |f|
           f.puts(content)
           f.puts('')
-          f.puts(template)
+          f.puts(plugin_class.template(plugin_location))
         end
 
         ::Guard::UI.info "#{ name } guard added to Guardfile, feel free to edit it"
@@ -156,13 +156,6 @@ module Guard
     #
     def constant_name
       @constant_name ||= name.gsub(/\/(.?)/) { "::#{ $1.upcase }" }.gsub(/(?:^|[_-])(.)/) { $1.upcase }
-    end
-
-    # Specify the source for the Guardfile template.
-    # Each Guard plugin can redefine this method to add its own logic.
-    #
-    def template
-      @template ||= File.read("#{ plugin_location }/lib/guard/#{ name }/templates/Guardfile")
     end
 
   end

@@ -204,21 +204,28 @@ describe Guard::PluginUtil do
 
       it 'shows an info message' do
         ::Guard::UI.should_receive(:info).with 'Guardfile already includes myguard guard'
+
         described_class.new('myguard').add_to_guardfile
       end
     end
 
     context 'when the Guard is not in the Guardfile' do
-      before { ::Guard::Dsl.stub(:guardfile_include?).and_return false }
+      let(:plugin_util) { described_class.new('myguard') }
+      before do
+        stub_const 'Guard::Myguard', Class.new(Guard::Plugin)
+        plugin_util.stub(:plugin_class) { Guard::Myguard }
+        plugin_util.should_receive(:plugin_location) { '/Users/me/projects/guard-myguard' }
+        ::Guard::Dsl.stub(:guardfile_include?).and_return(false)
+      end
 
       it 'appends the template to the Guardfile' do
-        plugin_util = described_class.new('myguard')
         File.should_receive(:read).with('Guardfile') { 'Guardfile content' }
-        plugin_util.should_receive(:plugin_location) { '/Users/me/projects/guard-myguard' }
         File.should_receive(:read).with('/Users/me/projects/guard-myguard/lib/guard/myguard/templates/Guardfile') { 'Template content' }
         io = StringIO.new
         File.should_receive(:open).with('Guardfile', 'wb').and_yield io
+
         plugin_util.add_to_guardfile
+
         io.string.should eq "Guardfile content\n\nTemplate content\n"
       end
     end
