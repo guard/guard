@@ -32,17 +32,25 @@ module Guard
       @options = options
     end
 
-    # Guard group title (capitalized).
+    # Returns the group title.
     #
-    # @return [String] the group name
+    # @example Title for a group named 'backend'
+    #   > Guard::Group.new('backend').title
+    #   => "Backend"
+    #
+    # @return [String]
     #
     def title
       @title ||= name.to_s.capitalize
     end
 
-    # String representation of the Guard group.
+    # String representation of the group.
     #
-    # @return [String] the group name
+    # @example String representation of a group named 'backend'
+    #   > Guard::Group.new('backend').to_s
+    #   => "#<Guard::Group @name=backend @options={}>"
+    #
+    # @return [String] the string representation
     #
     def to_s
       "#<#{self.class} @name=#{name} @options=#{options}>"

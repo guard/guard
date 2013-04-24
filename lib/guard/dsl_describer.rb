@@ -6,7 +6,7 @@ module Guard
   # of the Guardfile that is used in some inspection utility methods
   # like the CLI commands `show` and `list`.
   #
-  # @see Guard::Dsl
+  # @see Guard::DSL
   # @see Guard::CLI
   #
   class DslDescriber < Dsl

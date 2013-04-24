@@ -13,6 +13,47 @@ module Guard
 
       attr_accessor :group, :watchers, :callbacks, :options
 
+      def self.included(base)
+        base.extend(ClassMethods)
+      end
+
+      module ClassMethods
+        # Returns the non-namespaced class name of the plugin
+        #
+        #
+        # @example Non-namespaced class name for Guard::RSpec
+        #   > Guard::RSpec.non_namespaced_classname
+        #   => "RSpec"
+        #
+        # @return [String]
+        #
+        def non_namespaced_classname
+          self.to_s.sub('Guard::', '')
+        end
+
+        # Returns the non-namespaced name of the plugin
+        #
+        #
+        # @example Non-namespaced name for Guard::RSpec
+        #   > Guard::RSpec.non_namespaced_name
+        #   => "rspec"
+        #
+        # @return [String]
+        #
+        def non_namespaced_name
+          non_namespaced_classname.downcase
+        end
+
+        # Specify the source for the Guardfile template.
+        # Each Guard plugin can redefine this method to add its own logic.
+        #
+        # @param [String] plugin_location the plugin location
+        #
+        def template(plugin_location)
+          File.read("#{ plugin_location }/lib/guard/#{ non_namespaced_name }/templates/Guardfile")
+        end
+      end
+
       # Called once when Guard starts. Please override initialize method to init stuff.
       #
       # @raise [:task_has_failed] when start has failed
@@ -77,21 +118,33 @@ module Guard
 
       # Returns the plugin's name (without "guard-").
       #
-      # @return [String] the string representation
+      # @example Name for Guard::RSpec
+      #   > Guard::RSpec.new.name
+      #   => "rspec"
+      #
+      # @return [String]
       #
       def name
-        @name ||= self.class.to_s.downcase.sub('guard::', '')
+        @name ||= self.class.non_namespaced_name
       end
 
-      # Returns the plugin's name capitalized.
+      # Returns the plugin's class name without the Guard:: namespace.
       #
-      # @return [String] the string representation
+      # @example Title for Guard::RSpec
+      #   > Guard::RSpec.new.title
+      #   => "RSpec"
+      #
+      # @return [String]
       #
       def title
-        @title ||= name.capitalize
+        @title ||= self.class.non_namespaced_classname
       end
 
-      # Convert plugin to string representation.
+      # String representation of the plugin.
+      #
+      # @example String representation of an instance of the Guard::RSpec plugin
+      #   > Guard::RSpec.new.title
+      #   => "#<Guard::RSpec @name=rspec @group=#<Guard::Group @name=default @options={}> @watchers=[] @callbacks=[] @options={:all_after_pass=>true}>"
       #
       # @return [String] the string representation
       #
@@ -109,15 +162,11 @@ module Guard
       # @see Guard::Plugin.initialize
       #
       def set_instance_variables_from_options(options)
-        set_group_from_options(options)
+        group_name = options.delete(:group) { :default }
+        @group = ::Guard.groups(group_name) || ::Guard.add_group(group_name)
         @watchers  = options.delete(:watchers) { [] }
         @callbacks = options.delete(:callbacks) { [] }
         @options   = options
-      end
-
-      def set_group_from_options(options)
-        group_name = options.delete(:group) { :default }
-        @group = ::Guard.groups(group_name) || ::Guard.add_group(group_name)
       end
 
     end

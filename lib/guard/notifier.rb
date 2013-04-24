@@ -33,7 +33,7 @@ module Guard
   # `gntp` and `growl_notify` notifiers are able to register these types
   # at Growl and allows customization of each notification type.
   #
-  # Guard can be configured to make use of more than one notifier at once, @see Guard::Dsl
+  # Guard can be configured to make use of more than one notifier at once, @see Guard::DSL
   #
   module Notifier
 
