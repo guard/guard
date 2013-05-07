@@ -845,7 +845,7 @@ filter /\.txt$/, /.*\.zip/
 To _replace_ any existing filter, use the `filter!` method:
 
 ```ruby
-filter /\.js$/
+filter! /\.js$/
 ```
 
 ### logger
