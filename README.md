@@ -64,7 +64,7 @@ $ guard init
 `bundle exec` all the time, try the [Rubygems Bundler](https://github.com/mpapis/rubygems-bundler).
 
 If you are on Mac OS X and have problems with either Guard not reacting to file changes or Pry behaving strange, then
-you should [add proper Readline support to Ruby on Mac OS X](https://github.com/guard/guard/wiki/Add-proper-Readline-support-to-Ruby-on-Mac-OS-X).
+you should [add proper Readline support to Ruby on Mac OS X](https://github.com/guard/guard/wiki/Add-Readline-support-to-Ruby-on-Mac-OS-X).
 
 ## Windows Colors
 
