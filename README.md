@@ -16,8 +16,7 @@ the following places:
 Information on advanced topics like creating your own Guard plugin, programatic use of Guard, hooks and callbacks and
 more can be found in the [Guard wiki](https://github.com/guard/guard/wiki).
 
-Before you file an issue, make sure you have read the _[file an issue](#file-an-issue)_ section that contains some
-important information.
+Before you file an issue, make sure you have read the _[known issues](#known-issues)_ and _[file an issue](#file-an-issue)_ sections that contains some important information.
 
 Features
 --------
@@ -896,6 +895,11 @@ guard :shell do
   watch(%r{^(?:app|lib)/.+\.rb$}) { `ctags -R` }
 end
 ```
+
+Known issues
+------------
+
+Please check guard's [GitHub issue tracker](https://github.com/guard/guard/issues) for known issues.  Additionally you should check [listen's issue tracker](https://github.com/guard/listen/issues) for issues which affect guard's behaviour; for example, there is currently a nasty [bug preventing listen from watching files inside symlinked directories](https://github.com/guard/listen/issues/25).
 
 File an issue
 -------------
