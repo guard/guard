@@ -31,10 +31,9 @@ module Guard
   #
   # @see https://github.com/guard/guard/wiki/Guardfile-examples
   #
-  class Dsl
+  class DSL
 
-    require 'guard'
-    require 'guard/dsl'
+    require 'guard/guardfile'
     require 'guard/interactor'
     require 'guard/notifier'
     require 'guard/ui'
@@ -320,7 +319,6 @@ module Guard
     # Declares a group of Guard plugins to be run with `guard start --group group_name`.
     #
     # @example Declare two groups of Guard plugins
-    #
     #   group :backend do
     #     guard :spork
     #     guard :rspec
@@ -336,8 +334,8 @@ module Guard
     # @yield a block where you can declare several guards
     #
     # @see Guard.add_group
-    # @see Dsl#guard
-    # @see Guard::DslDescriber
+    # @see #guard
+    # @see Guard::DSLDescriber
     #
     def group(name, options = {})
       name = name.to_sym
@@ -362,11 +360,9 @@ module Guard
     # The available options are different for each Guard implementation.
     #
     # @example Declare a Guard without `watch` patterns
-    #
     #   guard :rspec
     #
     # @example Declare a Guard with a `watch` pattern
-    #
     #   guard :rspec do
     #     watch %r{.*_spec.rb}
     #   end
@@ -376,9 +372,9 @@ module Guard
     # @yield a block where you can declare several watch patterns and actions
     #
     # @see Guard.add_guard
-    # @see Dsl#group
-    # @see Dsl#watch
-    # @see Guard::DslDescriber
+    # @see #group
+    # @see #watch
+    # @see Guard::DSLDescriber
     #
     def guard(name, options = {})
       @watchers  = []
@@ -394,7 +390,6 @@ module Guard
     # Defines a pattern to be watched in order to run actions on file modification.
     #
     # @example Declare watchers for a Guard
-    #
     #   guard :rspec do
     #     watch('spec/spec_helper.rb')
     #     watch(%r{^.+_spec.rb})
@@ -407,7 +402,7 @@ module Guard
     # @yieldreturn a directory, a filename, an array of directories / filenames, or nothing (can be an arbitrary command)
     #
     # @see Guard::Watcher
-    # @see Dsl#guard
+    # @see #guard
     #
     def watch(pattern, &action)
       @watchers << ::Guard::Watcher.new(pattern, action)

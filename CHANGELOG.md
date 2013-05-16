@@ -4,6 +4,7 @@
 
 - New `#title` method for `Guard::Group` & `Guard::Plugin`. ([@rymai][])
 - Rename `Guard::Hook` to `Guard::Plugin::Hooker`. ([@rymai][])
+- Rename `Guard::Dsl` to `Guard::DSL`. ([@rymai][])
 - New `Guard::Plugin::Base` module common to `Guard::Guard` (deprecated) & `Guard::Plugin`. ([@rymai][])
 - Deprecate `Guard::Guard` and replace it with `Guard::Plugin`. ([@rymai][])
 - New `Guard::PluginUtil` that contains useful methods to find and instantiate Guard plugins. ([@rymai][])
@@ -400,9 +401,9 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 ### New feature
 
 - [#136][] New CLI `:watch_all_modifications`/`-A` option to watch for deleted and moved files too. ([@limeyd][] and [@netzpirat][])
-- [#97][] Guard dependencies. Task execution can now be halted if a Guard throws `:task_has_failed` and `Guard::Dsl#group` options include `:halt_on_fail => true`. ([@rymai][])
+- [#97][] Guard dependencies. Task execution can now be halted if a Guard throws `:task_has_failed` and `Guard::DSL#group` options include `:halt_on_fail => true`. ([@rymai][])
 - [#121][] `Guard.guards` and `Guard.groups` are now smart accessors. Filters can be passed to find a specific Guard/group or several Guard plugins/groups that match (see YARDoc). ([@rymai][] and [@ches][])
-- New `Guard::Group` class to store groups defined in Guardfile (with `Guard::Dsl#group`). ([@rymai][])
+- New `Guard::Group` class to store groups defined in Guardfile (with `Guard::DSL#group`). ([@rymai][])
 
 ### Improvements
 
@@ -455,7 +456,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 ### Bug fixes
 
 - [#120][] Remove `guardfile_contents` when re-evaluating so that the Guardfile gets reloaded correctly. ([@mordaroso][])
-- [#119][] `Dsl.evaluate_guardfile` uses all groups if none specified. ([@ches][])
+- [#119][] `DSL.evaluate_guardfile` uses all groups if none specified. ([@ches][])
 
 ## 0.6.0 - August 13, 2011
 
@@ -473,7 +474,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 - [#99][] [OS X] Switch from growl gem to growl_notify gem. ([@johnbintz][])
 - [#115][] [Linux] Add `:transient => true` to default libnotify options. ([@zonque][])
 - [#95][] Output system commands and options to be executed when in debug mode. ([@uk-ar][] and [@netzpirat][])
-- `Guard::Dsl.revaluate_guardfile` has been renamed to `Guard::Dsl.reevaluate_guardfile`. ([@rymai][])
+- `Guard::DSL.revaluate_guardfile` has been renamed to `Guard::DSL.reevaluate_guardfile`. ([@rymai][])
 - New CLI options: ([@nestegg][])
   - `watchdir`/`-w` to specify the directory in which Guard should watch for changes,
   - `guardfile`/`-G` to specify an alternate location for the Guardfile to use.
@@ -554,7 +555,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 - Cleaning up all specs. ([@netzpirat][])
 - [#60][] Add Windows support. ([@stereobooster][])
 - [#58][] Extract code from signal handlers into methods. ([@nicksieger][])
-- [#55][] It's now possible to pass `:guardfile` (a Guardfile path) or `:guardfile_contents` (the content of a Guardfile) to `Guard::Dsl.evaluate_guardfile`. Hence this allows the use of `Guard::Dsl.evaluate_guardfile` in a programmatic manner. ([@anithri][], improved by [@rymai][])
+- [#55][] It's now possible to pass `:guardfile` (a Guardfile path) or `:guardfile_contents` (the content of a Guardfile) to `Guard::DSL.evaluate_guardfile`. Hence this allows the use of `Guard::DSL.evaluate_guardfile` in a programmatic manner. ([@anithri][], improved by [@rymai][])
 
 ## 0.3.4 - April 24, 2011
 
@@ -610,7 +611,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 ### New specs
 
 - `Guard::Watcher`. ([@rymai][])
-- [#13][] `Guard::Dsl`. ([@oliamb][])
+- [#13][] `Guard::DSL`. ([@oliamb][])
 
 ## 0.2.2 - October 25, 2010
 

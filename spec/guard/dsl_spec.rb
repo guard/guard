@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'guard/plugin'
 
-describe Guard::Dsl do
+describe Guard::DSL do
 
   let(:local_guardfile) { File.join(Dir.pwd, 'Guardfile') }
   let(:home_guardfile) { File.expand_path(File.join('~', '.Guardfile')) }

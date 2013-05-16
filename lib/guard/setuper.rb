@@ -124,7 +124,6 @@ module Guard
     # specific plugin).
     #
     # @see CLI#start
-    # @see Dsl#scope
     #
     def setup_scopes
       scope[:groups]  = options[:group].map { |g| ::Guard.groups(g) } if options[:group]
