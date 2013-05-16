@@ -16,7 +16,7 @@ module Guard
         BANNER
 
         def process
-          ::Guard::DslDescriber.show(::Guard.options)
+          ::Guard::DSLDescriber.show(::Guard.options)
         end
       end
     end
