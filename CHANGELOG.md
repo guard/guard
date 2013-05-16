@@ -5,6 +5,9 @@
 - Remove `Guard::Guardfile.duplicate_definitions?`. ([@rymai][])
 - Remove `Guard::DSL.reevaluate_guardfile`. ([@rymai][])
 - Deprecate `Guard::DSL.evaluate_guardfile(options)` and replace it with `Guard::Guardfile::Evaluator.new(options).evaluate_guardfile`. ([@rymai][])
+- Deprecate `Guard::Guardfile.create_guardfile(options)` and replace it with `Guard::Guardfile::Generator.new(options).create_guardfile`. ([@rymai][])
+- Deprecate `Guard::Guardfile.initialize_template(plugin_name)` and replace it with `Guard::Guardfile::Generator.new.initialize_template(plugin_name)`. ([@rymai][])
+- Deprecate `Guard::Guardfile.initialize_all_templates` and replace it with `Guard::Guardfile::Generator.new.initialize_all_templates`. ([@rymai][])
 
 ### Improvements
 
