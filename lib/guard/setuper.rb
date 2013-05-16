@@ -30,22 +30,39 @@ module Guard
 
       Dir.chdir(@watchdir)
       ::Guard::UI.clear(:force => true)
-      setup_debug if options[:debug]
+      _setup_debug if options[:debug]
+      _setup_listener
+      _setup_signal_traps
 
-      setup_listener
-      setup_signal_traps
       reset_groups
       reset_guards
-      setup_scopes
       evaluate_guardfile
+
+      _setup_scopes
 
       ::Guard::Deprecator.deprecated_options_warning(options)
       ::Guard::Deprecator.deprecated_plugin_methods_warning
 
-      setup_notifier
-      setup_interactor
+      _setup_notifier
+      _setup_interactor
 
       self
+    end
+
+    # Initializes the groups array with the default group(s).
+    #
+    # @see #_default_groups
+    #
+    def reset_groups
+      @groups = _default_groups
+    end
+
+    # Initializes the guards array to an empty array.
+    #
+    # @see Guard.guards
+    #
+    def reset_guards
+      @guards = []
     end
 
     # Evaluates the Guardfile content. It displays an error message if no
@@ -58,25 +75,27 @@ module Guard
       ::Guard::UI.error 'No guards found in Guardfile, please add at least one.' if guards.empty?
     end
 
+    private
+
     # Sets up various debug behaviors:
     #
     # * Abort threads on exception;
     # * Set the logging level to `:debug`;
     # * Modify the system and ` methods to log themselves before being executed
     #
-    # @see #debug_command_execution
+    # @see #_debug_command_execution
     #
-    def setup_debug
+    def _setup_debug
       Thread.abort_on_exception = true
       ::Guard::UI.options[:level] = :debug
-      debug_command_execution
+      _debug_command_execution
     end
 
     # Initializes the listener and registers a callback for changes.
     #
-    def setup_listener
+    def _setup_listener
       listener_callback = lambda do |modified, added, removed|
-        ::Guard::Dsl.reevaluate_guardfile if ::Guard::Watcher.match_guardfile?(modified)
+        evaluator.reevaluate_guardfile if ::Guard::Watcher.match_guardfile?(modified)
 
         ::Guard.within_preserved_state do
           runner.run_on_changes(modified, added, removed)
@@ -98,7 +117,7 @@ module Guard
     # - `USR2` which resumes listening to changes.
     # - 'INT' which is delegated to Pry if active, otherwise stops Guard.
     #
-    def setup_signal_traps
+    def _setup_signal_traps
       unless defined?(JRUBY_VERSION)
         if Signal.list.keys.include?('USR1')
           Signal.trap('USR1') { ::Guard.pause unless listener.paused? }
@@ -125,15 +144,16 @@ module Guard
     # specific plugin).
     #
     # @see CLI#start
+    # @see DSL#scope
     #
-    def setup_scopes
+    def _setup_scopes
       scope[:groups]  = options[:group].map { |g| ::Guard.groups(g) } if options[:group]
       scope[:plugins] = options[:plugin].map { |p| ::Guard.guards(p) } if options[:plugin]
     end
 
     # Enables or disables the notifier based on user's configurations.
     #
-    def setup_notifier
+    def _setup_notifier
       if options[:notify] && ENV['GUARD_NOTIFY'] != 'false'
         ::Guard::Notifier.turn_on
       else
@@ -143,29 +163,11 @@ module Guard
 
     # Initializes the interactor unless the user has specified not to.
     #
-    def setup_interactor
+    def _setup_interactor
       unless options[:no_interactions] || !::Guard::Interactor.enabled
         @interactor = ::Guard::Interactor.new
       end
     end
-
-    # Initializes the groups array with the default group(s).
-    #
-    # @see #default_groups
-    #
-    def reset_groups
-      @groups = default_groups
-    end
-
-    # Initializes the guards array to an empty array.
-    #
-    # @see Guard.guards
-    #
-    def reset_guards
-      @guards = []
-    end
-
-    private
 
     # Returns an array of the default group(s) when Guard starts or when
     # `Guard.reset` is called.
@@ -174,14 +176,14 @@ module Guard
     #
     # @return [Array<Guard::Group>] the default groups
     #
-    def default_groups
+    def _default_groups
       [Group.new(:default)]
     end
 
     # Adds a command logger in debug mode. This wraps common command
     # execution functions and logs the executed command before execution.
     #
-    def debug_command_execution
+    def _debug_command_execution
       Kernel.send(:alias_method, :original_system, :system)
       Kernel.send(:define_method, :system) do |command, *args|
         ::Guard::UI.debug "Command execution: #{ command } #{ args.join(' ') }"

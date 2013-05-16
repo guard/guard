@@ -49,7 +49,7 @@ module Guard
       # @option options [String] client the client to use for notification (default is 'emacsclient')
       # @option options [String, Integer] priority specify an int or named key (default is 0)
       #
-      def notify(type, title, message, image, options = { })
+      def notify(type, title, message, image, options = {})
         options   = DEFAULTS.merge options
         color     = emacs_color type, options
         fontcolor = emacs_color :fontcolor, options

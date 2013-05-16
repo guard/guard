@@ -75,7 +75,7 @@ module Guard
       # @option options [Boolean] sticky if the message should stick to the screen
       # @option options [Integer] priority the importance of message from -2 (very low) to 2 (emergency)
       #
-      def notify(type, title, message, image, options = { })
+      def notify(type, title, message, image, options = {})
         require 'growl_notify'
 
         ::GrowlNotify.send_notification(DEFAULTS.merge(options).merge({

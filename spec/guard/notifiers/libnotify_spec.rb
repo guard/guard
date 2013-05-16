@@ -48,7 +48,7 @@ describe Guard::Notifier::Libnotify do
   describe '.notify' do
     it 'requires the library again' do
       subject.should_receive(:require).with('libnotify').and_return true
-      subject.notify('success', 'Welcome', 'Welcome to Guard', '/tmp/welcome.png', { })
+      subject.notify('success', 'Welcome', 'Welcome to Guard', '/tmp/welcome.png', {})
     end
 
     context 'without additional options' do
@@ -62,7 +62,7 @@ describe Guard::Notifier::Libnotify do
             :body      => 'Welcome to Guard',
             :icon_path => '/tmp/welcome.png'
         })
-        subject.notify('success', 'Welcome', 'Welcome to Guard', '/tmp/welcome.png', { })
+        subject.notify('success', 'Welcome', 'Welcome to Guard', '/tmp/welcome.png', {})
       end
     end
 

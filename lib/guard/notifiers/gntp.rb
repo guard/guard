@@ -84,7 +84,7 @@ module Guard
       # @option options [Integer] port the port to send a remote notification
       # @option options [Boolean] sticky make the notification sticky
       #
-      def notify(type, title, message, image, options = { })
+      def notify(type, title, message, image, options = {})
         require 'ruby_gntp'
 
         options = DEFAULTS.merge(options)

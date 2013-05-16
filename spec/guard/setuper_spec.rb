@@ -48,7 +48,8 @@ describe Guard::Setuper do
     end
 
     it 'call setup_signal_traps' do
-      Guard.should_receive(:setup_signal_traps)
+      Guard.should_receive(:_setup_signal_traps)
+
       subject
     end
 
@@ -66,12 +67,14 @@ describe Guard::Setuper do
     end
 
     it 'call setup_notifier' do
-      Guard.should_receive(:setup_notifier)
+      Guard.should_receive(:_setup_notifier)
+
       subject
     end
 
     it 'call setup_interactor' do
-      Guard.should_receive(:setup_interactor)
+      Guard.should_receive(:_setup_interactor)
+
       subject
     end
 
@@ -129,7 +132,7 @@ describe Guard::Setuper do
       subject { ::Guard.setup(options) }
 
       it "logs command execution if the debug option is true" do
-        ::Guard.should_receive(:debug_command_execution)
+        ::Guard.should_receive(:_debug_command_execution)
         subject
       end
 
@@ -140,8 +143,41 @@ describe Guard::Setuper do
     end
   end
 
-  describe '.setup_signal_traps', :speed => 'slow' do
-    before { ::Guard::Dsl.stub(:evaluate_guardfile) }
+  describe '.reset_groups' do
+    subject do
+      guard           = Guard.setup(:guardfile => File.join(@fixture_path, "Guardfile"))
+      @group_backend  = guard.add_group(:backend)
+      @group_backflip = guard.add_group(:backflip)
+      guard
+    end
+
+    it "initializes a default group" do
+      subject.reset_groups
+
+      subject.groups.should have(1).item
+      subject.groups[0].name.should eq :default
+      subject.groups[0].options.should eq({})
+    end
+  end
+
+  describe '.reset_guards' do
+    before { class Guard::FooBar < Guard::Plugin; end }
+    subject do
+      ::Guard.setup(:guardfile => File.join(@fixture_path, "Guardfile")).tap { |g| g.add_guard(:foo_bar) }
+    end
+    after do
+      ::Guard.instance_eval { remove_const(:FooBar) }
+    end
+
+    it "return clear the guards array" do
+      subject.guards.should have(1).item
+
+      subject.reset_guards
+
+      subject.guards.should be_empty
+    end
+  end
+
   describe '.evaluate_guardfile' do
     it 'evaluates the Guardfile' do
       Guard.stub(:evaluator) { guardfile_evaluator }
@@ -151,6 +187,8 @@ describe Guard::Setuper do
     end
   end
 
+  describe '._setup_signal_traps', :speed => 'slow' do
+    before { ::Guard.stub(:evaluate_guardfile) }
 
     unless windows? || defined?(JRUBY_VERSION)
       context 'when receiving SIGUSR1' do
@@ -286,7 +324,7 @@ describe Guard::Setuper do
     end
   end
 
-  describe '.setup_listener' do
+  describe '._setup_listener' do
     let(:listener) { stub.as_null_object }
 
     context "with latency option" do
@@ -294,7 +332,8 @@ describe Guard::Setuper do
 
       it "pass option to listener" do
         Listen.should_receive(:to).with(anything, { :relative_paths => true, :latency => 1.5 }) { listener }
-        ::Guard.setup_listener
+
+        ::Guard.send :_setup_listener
       end
     end
 
@@ -303,12 +342,13 @@ describe Guard::Setuper do
 
       it "pass option to listener" do
         Listen.should_receive(:to).with(anything, { :relative_paths => true, :force_polling => true }) { listener }
-        ::Guard.setup_listener
+
+        ::Guard.send :_setup_listener
       end
     end
   end
 
-  describe '.setup_notifier' do
+  describe '._setup_notifier' do
     context "with the notify option enabled" do
       before { ::Guard.stub(:options).and_return(:notify => true) }
 
@@ -356,7 +396,7 @@ describe Guard::Setuper do
     end
   end
 
-  describe '.setup_interactor' do
+  describe '._setup_interactor' do
     context 'with CLI options' do
       before do
         @enabled                  = Guard::Interactor.enabled
@@ -402,38 +442,36 @@ describe Guard::Setuper do
     end
   end
 
-  describe '.reset_groups' do
-    subject do
-      guard           = Guard.setup(:guardfile => File.join(@fixture_path, "Guardfile"))
-      @group_backend  = guard.add_group(:backend)
-      @group_backflip = guard.add_group(:backflip)
-      guard
+  describe '._debug_command_execution' do
+    subject { ::Guard.setup }
+
+    before do
+      @original_system  = Kernel.method(:system)
+      @original_command = Kernel.method(:"`")
     end
 
-    it "initializes a default group" do
-      subject.reset_groups
-
-      subject.groups.should have(1).item
-      subject.groups[0].name.should eq :default
-      subject.groups[0].options.should eq({})
-    end
-  end
-
-  describe '.reset_guards' do
-    before { class Guard::FooBar < Guard::Plugin; end }
-    subject do
-      ::Guard.setup(:guardfile => File.join(@fixture_path, "Guardfile")).tap { |g| g.add_guard(:foo_bar) }
-    end
     after do
-      ::Guard.instance_eval { remove_const(:FooBar) }
+      Kernel.send(:remove_method, :system, :'`')
+      Kernel.send(:define_method, :system, @original_system.to_proc)
+      Kernel.send(:define_method, :"`", @original_command.to_proc)
     end
 
-    it "return clear the guards array" do
-      subject.guards.should have(1).item
+    it "outputs Kernel.#system method parameters" do
+      ::Guard::UI.should_receive(:debug).with("Command execution: exit 0")
+      subject.send :_debug_command_execution
+      system("exit", "0").should be_false
+    end
 
-      subject.reset_guards
+    it "outputs Kernel.#` method parameters" do
+      ::Guard::UI.should_receive(:debug).with("Command execution: echo test")
+      subject.send :_debug_command_execution
+      `echo test`.should eq "test\n"
+    end
 
-      subject.guards.should be_empty
+    it "outputs %x{} method parameters" do
+      ::Guard::UI.should_receive(:debug).with("Command execution: echo test")
+      subject.send :_debug_command_execution
+      %x{echo test}.should eq "test\n"
     end
   end
 

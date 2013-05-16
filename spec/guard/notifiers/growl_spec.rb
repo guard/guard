@@ -63,7 +63,7 @@ describe Guard::Notifier::Growl do
   describe '.nofify' do
     it 'requires the library again' do
       subject.should_receive(:require).with('growl').and_return true
-      subject.notify('success', 'Welcome', 'Welcome to Guard', '/tmp/welcome.png', { })
+      subject.notify('success', 'Welcome', 'Welcome to Guard', '/tmp/welcome.png', {})
     end
 
     context 'without additional options' do
@@ -75,7 +75,7 @@ describe Guard::Notifier::Growl do
           :title    => 'Welcome',
           :image    => '/tmp/welcome.png'
         })
-        subject.notify('success', 'Welcome', 'Welcome to Guard', '/tmp/welcome.png', { })
+        subject.notify('success', 'Welcome', 'Welcome to Guard', '/tmp/welcome.png', {})
       end
     end
 

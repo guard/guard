@@ -61,7 +61,7 @@ module Guard
       # @option options [String] color_location the location where to draw the color notification
       # @option options [Boolean] display_message whether to display a message or not
       #
-      def notify(type, title, message, image, options = { })
+      def notify(type, title, message, image, options = {})
         color = tmux_color(type, options)
         color_location = options[:color_location] || DEFAULTS[:color_location]
 
@@ -88,7 +88,7 @@ module Guard
       # @option options [String] default_message_color a notification foreground color to use when no color per type is defined.
       # @option options [String] line_separator a string to use instead of a line-break.
       #
-      def display_message(type, title, message, options = { })
+      def display_message(type, title, message, options = {})
           message_format = options["#{ type }_message_format".to_sym] || options[:default_message_format] || DEFAULTS[:default_message_format]
           message_color = options["#{ type }_message_color".to_sym] || options[:default_message_color] || DEFAULTS[:default_message_color]
           display_time = options[:timeout] || DEFAULTS[:timeout]
@@ -110,7 +110,7 @@ module Guard
       # @param [String] type the notification type
       # @return [String] the name of the emacs color
       #
-      def tmux_color(type, options = { })
+      def tmux_color(type, options = {})
         case type
         when 'success'
           options[:success] || DEFAULTS[:success]
@@ -126,7 +126,7 @@ module Guard
       # Notification starting, save the current Tmux settings
       # and quiet the Tmux output.
       #
-      def turn_on(options = { })
+      def turn_on(options = {})
         unless @options_stored
           reset_options_store
 
@@ -145,7 +145,7 @@ module Guard
       # if available (existing options are restored, new options
       # are unset) and unquiet the Tmux output.
       #
-      def turn_off(options = { })
+      def turn_off(options = {})
         if @options_stored
           @options_store.each do |key, value|
             if value

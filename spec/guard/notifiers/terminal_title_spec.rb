@@ -23,7 +23,7 @@ describe Guard::Notifier::TerminalTitle do
   describe '.notify' do
     it 'set title + first line of message to terminal title' do
       subject.should_receive(:puts).with("\e]2;[any title] first line\a")
-      subject.notify('success', 'any title', "first line\nsecond line\nthird", 'any image', { })
+      subject.notify('success', 'any title', "first line\nsecond line\nthird", 'any image', {})
     end
   end
 

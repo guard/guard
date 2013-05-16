@@ -55,7 +55,7 @@ module Guard
       # @option options [String] activate an app bundle
       # @option options [String] open some url or file
       #
-      def notify(type, title, message, image, options = { })
+      def notify(type, title, message, image, options = {})
         require 'terminal-notifier-guard'
         options[:title] = title || [options[:app_name] || 'Guard', type.downcase.capitalize].join(' ')
         options.merge!(:type => type.to_sym, :message => message)

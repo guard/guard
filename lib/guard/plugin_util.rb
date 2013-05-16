@@ -99,17 +99,17 @@ module Guard
       begin
         require "guard/#{ name.downcase }" if try_require
 
-        @plugin_class ||= ::Guard.const_get(plugin_constant)
+        @plugin_class ||= ::Guard.const_get(_plugin_constant)
       rescue TypeError
         if try_require
-          ::Guard::UI.error "Could not find class Guard::#{ constant_name }"
+          ::Guard::UI.error "Could not find class Guard::#{ _constant_name }"
         else
           try_require = true
           retry
         end
       rescue LoadError => loadError
         unless options[:fail_gracefully]
-          ::Guard::UI.error "Could not load 'guard/#{ name.downcase }' or find class Guard::#{ constant_name }"
+          ::Guard::UI.error "Could not load 'guard/#{ name.downcase }' or find class Guard::#{ _constant_name }"
           ::Guard::UI.error loadError.to_s
         end
       end
@@ -137,21 +137,21 @@ module Guard
     # Returns the constant for the current plugin.
     #
     # @example Returns the constant for a plugin
-    #   > Guard::PluginUtil.new('rspec').plugin_constant
+    #   > Guard::PluginUtil.new('rspec').send(:_plugin_constant)
     #   => Guard::RSpec
     #
-    def plugin_constant
-      @plugin_constant ||= ::Guard.constants.find { |c| c.to_s.downcase == constant_name.downcase }
+    def _plugin_constant
+      @_plugin_constant ||= ::Guard.constants.find { |c| c.to_s.downcase == _constant_name.downcase }
     end
 
     # Guesses the most probable name for the current plugin based on its name.
     #
     # @example Returns the most probable name for a plugin
-    #   > Guard::PluginUtil.new('rspec').plugin_constant
+    #   > Guard::PluginUtil.new('rspec').send(:_constant_name)
     #   => "Rspec"
     #
-    def constant_name
-      @constant_name ||= name.gsub(/\/(.?)/) { "::#{ $1.upcase }" }.gsub(/(?:^|[_-])(.)/) { $1.upcase }
+    def _constant_name
+      @_constant_name ||= name.gsub(/\/(.?)/) { "::#{ $1.upcase }" }.gsub(/(?:^|[_-])(.)/) { $1.upcase }
     end
 
   end

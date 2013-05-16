@@ -35,7 +35,7 @@ module Guard
       # @option options [String] format printf style format for file contents
       # @option options [String] path the path of where to write the file
       #
-      def notify(type, title, message, image, options = { })
+      def notify(type, title, message, image, options = {})
         if options[:path]
           format = options.fetch(:format, DEFAULTS[:format])
 

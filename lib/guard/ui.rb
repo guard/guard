@@ -49,7 +49,7 @@ module Guard
       # @option options [Boolean] reset whether to clean the output before
       # @option options [String] plugin manually define the calling plugin
       #
-      def info(message, options = { })
+      def info(message, options = {})
         filter(options[:plugin]) do |plugin|
           reset_line if options[:reset]
           self.logger.info(message, plugin)
@@ -62,7 +62,7 @@ module Guard
       # @option options [Boolean] reset whether to clean the output before
       # @option options [String] plugin manually define the calling plugin
       #
-      def warning(message, options = { })
+      def warning(message, options = {})
         filter(options[:plugin]) do |plugin|
           reset_line if options[:reset]
           self.logger.warn(color(message, :yellow), plugin)
@@ -75,7 +75,7 @@ module Guard
       # @option options [Boolean] reset whether to clean the output before
       # @option options [String] plugin manually define the calling plugin
       #
-      def error(message, options = { })
+      def error(message, options = {})
         filter(options[:plugin]) do |plugin|
           reset_line if options[:reset]
           self.logger.error(color(message, :red), plugin)

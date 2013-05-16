@@ -29,7 +29,7 @@ describe Guard::Notifier::TerminalNotifier do
         false,
         { :title => 'any title', :type => :success, :message => 'any message' }
       )
-      subject.notify('success', 'any title', 'any message', 'any image', { })
+      subject.notify('success', 'any title', 'any message', 'any image', {})
     end
 
     it "should allow the title to be customized" do
@@ -38,7 +38,7 @@ describe Guard::Notifier::TerminalNotifier do
         { :title => 'any title', :message => 'any message', :type => :error }
       )
 
-      subject.notify('error', 'any title', 'any message', 'any image', { })
+      subject.notify('error', 'any title', 'any message', 'any image', {})
     end
 
     context 'without a title set' do

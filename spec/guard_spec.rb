@@ -42,7 +42,8 @@ describe Guard do
       end
 
       it 'does not reload Guard' do
-        runner.should_not_receive(:run).with(:reload, { })
+        runner.should_not_receive(:run).with(:reload, {})
+
         subject.reload
       end
     end
@@ -281,7 +282,7 @@ describe Guard do
 
     it 'disallows running the block concurrently to avoid inconsistent states' do
       subject.lock.should_receive(:synchronize)
-      subject.within_preserved_state &Proc.new { }
+      subject.within_preserved_state &Proc.new {}
     end
 
     it 'runs the passed block' do
@@ -294,7 +295,7 @@ describe Guard do
       it 'stops the interactor before running the block and starts it again when done' do
         subject.interactor.should_receive(:stop)
         subject.interactor.should_receive(:start)
-        subject.within_preserved_state &Proc.new { }
+        subject.within_preserved_state &Proc.new {}
       end
     end
 
@@ -304,7 +305,7 @@ describe Guard do
       it 'stops the interactor before running the block and do not starts it again when done' do
         subject.interactor.should_receive(:stop)
         subject.interactor.should_not_receive(:start)
-        subject.within_preserved_state &Proc.new { }
+        subject.within_preserved_state &Proc.new {}
       end
     end
   end

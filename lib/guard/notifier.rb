@@ -98,14 +98,14 @@ module Guard
     # library.
     #
     def turn_on
-      auto_detect_notification if notifications.empty? && (!::Guard.options || ::Guard.options[:notify])
+      _auto_detect_notification if notifications.empty? && (!::Guard.options || ::Guard.options[:notify])
 
       if notifications.empty?
         ENV['GUARD_NOTIFY'] = 'false'
       else
         notifications.each do |notification|
-          ::Guard::UI.info "Guard uses #{ get_notifier_module(notification[:name]).to_s.split('::').last } to send notifications."
-          notifier = get_notifier_module(notification[:name])
+          notifier = _get_notifier_module(notification[:name])
+          ::Guard::UI.info "Guard uses #{ notifier.to_s.split('::').last } to send notifications."
           notifier.turn_on(notification[:options]) if notifier.respond_to?(:turn_on)
         end
 
@@ -117,7 +117,7 @@ module Guard
     #
     def turn_off
       notifications.each do |notification|
-        notifier = get_notifier_module(notification[:name])
+        notifier = _get_notifier_module(notification[:name])
         notifier.turn_off(notification[:options]) if notifier.respond_to?(:turn_off)
       end
 
@@ -150,10 +150,10 @@ module Guard
     # @param [Hash] options the notifier options
     # @return [Boolean] if the notification could be added
     #
-    def add_notification(name, options = { }, silent = false)
+    def add_notification(name, options = {}, silent = false)
       return turn_off if name == :off
 
-      notifier = get_notifier_module(name)
+      notifier = _get_notifier_module(name)
 
       if notifier && notifier.available?(silent, options)
         self.notifications = notifications << { :name => name, :options => options }
@@ -169,15 +169,15 @@ module Guard
     # @option options [Symbol, String] image the image symbol or path to an image
     # @option options [String] title the notification title
     #
-    def notify(message, options = { })
+    def notify(message, options = {})
       if enabled?
-        type  = notification_type(options[:image] || :success)
-        image = image_path(options.delete(:image) || :success)
+        type  = _notification_type(options[:image] || :success)
+        image = _image_path(options.delete(:image) || :success)
         title = options.delete(:title) || 'Guard'
 
         notifications.each do |notification|
           begin
-            get_notifier_module(notification[:name]).notify(type, title, message, image, options.merge(notification[:options]))
+            _get_notifier_module(notification[:name]).notify(type, title, message, image, options.merge(notification[:options]))
           rescue Exception => e
             ::Guard::UI.error "Error sending notification with #{ notification[:name] }: #{ e.message }"
           end
@@ -192,7 +192,7 @@ module Guard
     # @param [Symbol] name the notifier name
     # @return [Module] the notifier module
     #
-    def get_notifier_module(name)
+    def _get_notifier_module(name)
       notifier = NOTIFIERS.flatten(1).detect { |n| n.first == name }
       notifier ? notifier.last : notifier
     end
@@ -201,12 +201,12 @@ module Guard
     # the list of supported notification gems and picks the first that
     # is available in each notification group.
     #
-    def auto_detect_notification
+    def _auto_detect_notification
       available = nil
       self.notifications = []
 
       NOTIFIERS.each do |group|
-        added = group.map { |n| n.first }.find { |notifier| add_notification(notifier, { }, true) }
+        added = group.map { |n| n.first }.find { |notifier| add_notification(notifier, {}, true) }
         available = available || added
       end
 
@@ -225,14 +225,14 @@ module Guard
     # @param [Symbol, String] image the image symbol or path to an image
     # @return [String] the image path
     #
-    def image_path(image)
+    def _image_path(image)
       case image
         when :failed
-          images_path.join('failed.png').to_s
+          _images_path.join('failed.png').to_s
         when :pending
-          images_path.join('pending.png').to_s
+          _images_path.join('pending.png').to_s
         when :success
-          images_path.join('success.png').to_s
+          _images_path.join('success.png').to_s
         else
           image
       end
@@ -242,8 +242,8 @@ module Guard
     #
     # @return [Pathname] the path to the images directory
     #
-    def images_path
-      @images_path ||= Pathname.new(File.dirname(__FILE__)).join('../../images')
+    def _images_path
+      @_images_path ||= Pathname.new(File.dirname(__FILE__)).join('../../images')
     end
 
     # Get the notification type depending on the
@@ -252,7 +252,7 @@ module Guard
     # @param [Symbol, String] image the image symbol or path to an image
     # @return [String] the notification type
     #
-    def notification_type(image)
+    def _notification_type(image)
       case image
         when :failed
           'failed'

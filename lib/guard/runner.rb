@@ -19,7 +19,7 @@ module Guard
     #
     def run(task, scopes = {})
       Lumberjack.unit_of_work do
-        scoped_guards(scopes) do |guard|
+        _scoped_guards(scopes) do |guard|
           run_supervised_task(guard, task) if guard.respond_to?(task)
         end
       end
@@ -38,16 +38,16 @@ module Guard
     #
     def run_on_changes(modified, added, removed)
       ::Guard::UI.clearable
-      scoped_guards do |guard|
+      _scoped_guards do |guard|
         modified_paths = ::Guard::Watcher.match_files(guard, modified)
         added_paths    = ::Guard::Watcher.match_files(guard, added)
         removed_paths  = ::Guard::Watcher.match_files(guard, removed)
 
-        ::Guard::UI.clear if clearable?(guard, modified_paths, added_paths, removed_paths)
+        ::Guard::UI.clear if _clearable?(guard, modified_paths, added_paths, removed_paths)
 
-        run_first_task_found(guard, MODIFICATION_TASKS, modified_paths) unless modified_paths.empty?
-        run_first_task_found(guard, ADDITION_TASKS, added_paths) unless added_paths.empty?
-        run_first_task_found(guard, REMOVAL_TASKS, removed_paths) unless removed_paths.empty?
+        _run_first_task_found(guard, MODIFICATION_TASKS, modified_paths) unless modified_paths.empty?
+        _run_first_task_found(guard, ADDITION_TASKS, added_paths) unless added_paths.empty?
+        _run_first_task_found(guard, REMOVAL_TASKS, removed_paths) unless removed_paths.empty?
       end
     end
 
@@ -86,7 +86,7 @@ module Guard
     # @note If a Guard group is being run and it has the `:halt_on_fail`
     #   option set, this method returns :no_catch as it will be caught at the
     #   group level.
-    # @see .scoped_guards
+    # @see ._scoped_guards
     #
     # @param [Guard::Plugin] guard the Guard plugin to execute
     # @return [Symbol] the symbol to catch
@@ -95,7 +95,7 @@ module Guard
       guard.group.options[:halt_on_fail] ? :no_catch : :task_has_failed
     end
 
-  private
+    private
 
     # Tries to run the first implemented task by a given guard
     # from a collection of tasks.
@@ -104,7 +104,7 @@ module Guard
     # @param [Array<Symbol>] tasks the tasks to run the first among
     # @param [Object] task_param the param to pass to each task
     #
-    def run_first_task_found(guard, tasks, task_param)
+    def _run_first_task_found(guard, tasks, task_param)
       tasks.each do |task|
         if guard.respond_to?(task)
           run_supervised_task(guard, task, task_param)
@@ -127,13 +127,13 @@ module Guard
     # @param [Hash] scopes hash with plugins or a groups scope
     # @yield the task to run
     #
-    def scoped_guards(scopes = {})
-      if guards = current_plugins_scope(scopes)
+    def _scoped_guards(scopes = {})
+      if guards = _current_plugins_scope(scopes)
         guards.each do |guard|
           yield(guard)
         end
       else
-        current_groups_scope(scopes).each do |group|
+        _current_groups_scope(scopes).each do |group|
           current_plugin = nil
           block_return = catch :task_has_failed do
             Array(::Guard.guards(:group => group.name)).each do |guard|
@@ -157,7 +157,7 @@ module Guard
     # @param [Array<String>] added_paths the added paths.
     # @param [Array<String>] removed_paths the removed paths.
     #
-    def clearable?(guard, modified_paths, added_paths, removed_paths)
+    def _clearable?(guard, modified_paths, added_paths, removed_paths)
       (MODIFICATION_TASKS.any? { |task| guard.respond_to?(task) } && !modified_paths.empty?) ||
       (ADDITION_TASKS.any? { |task| guard.respond_to?(task) } && !added_paths.empty?) ||
       (REMOVAL_TASKS.any? { |task| guard.respond_to?(task) } && !removed_paths.empty?)
@@ -170,7 +170,7 @@ module Guard
     # @param [Hash] scopes hash with a local plugins or a groups scope
     # @return [Array<Guard::Plugin>] the plugins to scope to
     #
-    def current_plugins_scope(scopes)
+    def _current_plugins_scope(scopes)
       if scopes[:plugins] && !scopes[:plugins].empty?
         scopes[:plugins]
 
@@ -189,7 +189,7 @@ module Guard
     # @param [Hash] scopes hash with a local plugins or a groups scope
     # @return [Array<Guard::Group>] the groups to scope to
     #
-    def current_groups_scope(scopes)
+    def _current_groups_scope(scopes)
       if scopes[:groups] && !scopes[:groups].empty?
         scopes[:groups]
 
