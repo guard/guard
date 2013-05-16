@@ -3,6 +3,8 @@ require 'guard/plugin'
 
 describe Guard::Setuper do
 
+  let(:guardfile_evaluator) { double('Guard::Guardfile::Evaluator instance') }
+
   before do
     Guard::Interactor.stub(:fabricate)
     Dir.stub(:chdir)
@@ -41,6 +43,7 @@ describe Guard::Setuper do
 
     it "changes the current work dir to the watchdir" do
       Dir.should_receive(:chdir).with('/tmp')
+
       Guard.setup(:watchdir => '/tmp')
     end
 
@@ -49,13 +52,16 @@ describe Guard::Setuper do
       subject
     end
 
-    it 'evaluates the DSL' do
-      Guard::Dsl.should_receive(:evaluate_guardfile).with(options)
+    it 'create the evaluator and evaluate the Guardfile' do
+      Guard::Guardfile::Evaluator.should_receive(:new).with(options)
+      Guard.should_receive(:evaluate_guardfile)
+
       subject
     end
 
     it 'displays an error message when no guard are defined in Guardfile' do
       Guard::UI.should_receive(:error).with('No guards found in Guardfile, please add at least one.')
+
       subject
     end
 
@@ -72,6 +78,7 @@ describe Guard::Setuper do
     it 'show the deprecations' do
       Guard::Deprecator.should_receive(:deprecated_options_warning)
       Guard::Deprecator.should_receive(:deprecated_plugin_methods_warning)
+
       subject
     end
 
@@ -135,6 +142,15 @@ describe Guard::Setuper do
 
   describe '.setup_signal_traps', :speed => 'slow' do
     before { ::Guard::Dsl.stub(:evaluate_guardfile) }
+  describe '.evaluate_guardfile' do
+    it 'evaluates the Guardfile' do
+      Guard.stub(:evaluator) { guardfile_evaluator }
+      guardfile_evaluator.should_receive(:evaluate_guardfile)
+
+      Guard.evaluate_guardfile
+    end
+  end
+
 
     unless windows? || defined?(JRUBY_VERSION)
       context 'when receiving SIGUSR1' do
@@ -211,6 +227,7 @@ describe Guard::Setuper do
 
         it "turns on the notifier on" do
           ::Guard::Notifier.should_receive(:turn_on)
+
           ::Guard.setup(:notify => true)
         end
       end
@@ -220,6 +237,7 @@ describe Guard::Setuper do
 
         it "turns on the notifier on" do
           ::Guard::Notifier.should_receive(:turn_on)
+
           ::Guard.setup(:notify => true)
         end
       end
@@ -229,6 +247,7 @@ describe Guard::Setuper do
 
         it "turns on the notifier off" do
           ::Guard::Notifier.should_receive(:turn_off)
+
           ::Guard.setup(:notify => true)
         end
       end
@@ -240,6 +259,7 @@ describe Guard::Setuper do
 
         it "turns on the notifier off" do
           ::Guard::Notifier.should_receive(:turn_off)
+
           ::Guard.setup(:notify => false)
         end
       end
@@ -249,6 +269,7 @@ describe Guard::Setuper do
 
         it "turns on the notifier on" do
           ::Guard::Notifier.should_receive(:turn_off)
+
           ::Guard.setup(:notify => false)
         end
       end
@@ -258,6 +279,7 @@ describe Guard::Setuper do
 
         it "turns on the notifier off" do
           ::Guard::Notifier.should_receive(:turn_off)
+
           ::Guard.setup(:notify => false)
         end
       end

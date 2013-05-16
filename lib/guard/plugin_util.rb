@@ -122,7 +122,7 @@ module Guard
     # Adds a plugin's template to the Guardfile.
     #
     def add_to_guardfile
-      if ::Guard::Dsl.guardfile_include?(name)
+      if ::Guard.evaluator.guardfile_include?(name)
         ::Guard::UI.info "Guardfile already includes #{ name } guard"
       else
         content = File.read('Guardfile')

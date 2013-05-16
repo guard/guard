@@ -3,7 +3,17 @@ module Guard
 
     require 'guard/ui'
 
-    # Deprecator message for the `watch_all_modifications` start option
+    MORE_INFO_ON_UPGRADING_TO_GUARD_1_1 = <<-EOS.gsub(/^\s*/, '')
+      For more information on how to update existing guards, please head over
+      to: https://github.com/guard/guard/wiki/Upgrade-guide-for-existing-guards-to-Guard-v1.1
+    EOS
+
+    MORE_INFO_ON_UPGRADING_TO_GUARD_2 = <<-EOS.gsub(/^\s*/, '')
+      For more information on how to upgrade for Guard 2.0, please head over
+      to: https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0
+    EOS
+
+    # Deprecator message for the `Guard.get_guard_class` method
     GET_GUARD_CLASS_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
       Starting with Guard 2.0 'Guard.get_guard_class(name, fail_gracefully =
       false)' is deprecated and is now always on.
@@ -12,6 +22,15 @@ module Guard
       fail_gracefully)' instead.
 
       For more information on how to upgrade for Guard 2.0, please head over to: https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0
+
+    # Deprecator message for the `Guard::DSL.evaluate_guardfile` method
+    EVALUATE_GUARDFILE_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
+      Starting with Guard 2.0 'Guard::DSL.evaluate_guardfile(options)' is deprecated.
+
+      Please use 'Guard::Guardfile::Evaluator.new(options).evaluate_guardfile' instead.
+
+      #{MORE_INFO_ON_UPGRADING_TO_GUARD_2}
+    EOS
     EOS
 
     # Deprecator message for when a Guard plugin inherits from Guard::Guard

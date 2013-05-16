@@ -79,11 +79,13 @@ module Guard
       end
     end
 
-    # @deprecated Use `.match` instead
+    # Tests if any of the files is the Guardfile.
     #
-    def match_file?(file)
-      ::Guard::UI.deprecation 'Guard::Watcher.match_file? is deprecated, please use Guard::Watcher.match instead.'
-      match(file)
+    # @param [Array<String>] files the files to test
+    # @return [Boolean] whether one of these files is the Guardfile
+    #
+    def self.match_guardfile?(files)
+      files.any? { |file| "#{ Dir.pwd }/#{ file }" == ::Guard.evaluator.guardfile_path }
     end
 
     # Test the watchers pattern against a file.
@@ -106,13 +108,11 @@ module Guard
       end
     end
 
-    # Tests if any of the files is the Guardfile.
+    # @deprecated Use `.match` instead
     #
-    # @param [Array<String>] files the files to test
-    # @return [Boolean] whether one of these files is the Guardfile
-    #
-    def self.match_guardfile?(files)
-      files.any? { |file| "#{ Dir.pwd }/#{ file }" == Dsl.guardfile_path }
+    def match_file?(file)
+      ::Guard::UI.deprecation 'Guard::Watcher.match_file? is deprecated, please use Guard::Watcher.match instead.'
+      match(file)
     end
 
     # Executes a watcher action.
