@@ -9,18 +9,18 @@ describe Guard do
 
     before do
       ::Guard.stub(:runner) { runner }
-      ::Guard::Dsl.stub(:reevaluate_guardfile)
       ::Guard.stub(:within_preserved_state).and_yield
       ::Guard::UI.stub(:info)
       ::Guard::UI.stub(:clear)
     end
 
-    it "clear UI" do
+    it 'clears the screen' do
       ::Guard::UI.should_receive(:clear)
+
       subject.reload
     end
 
-    context 'with a old scope format' do
+    context 'with a given scope' do
       it 'does not re-evaluate the Guardfile' do
         ::Guard::Dsl.should_not_receive(:reevaluate_guardfile)
         subject.reload({ :group => group })
