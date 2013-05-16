@@ -336,40 +336,38 @@ describe Guard do
     end
   end
 
-  describe ".debug_command_execution" do
-    subject { ::Guard.setup }
+  describe '.locate_guard' do
+    let(:plugin_util) { stub('Guard::PluginUtil', plugin_location: true) }
+    before { ::Guard::PluginUtil.stub(:new).and_return(plugin_util) }
 
-    before do
-      Guard.unstub(:debug_command_execution)
-      @original_system  = Kernel.method(:system)
-      @original_command = Kernel.method(:"`")
+    it 'displays a deprecation warning to the user' do
+      ::Guard::UI.should_receive(:deprecation).with(::Guard::Deprecator::LOCATE_GUARD_DEPRECATION)
+
+      described_class.locate_guard('rspec')
     end
 
-    after do
-      Kernel.send(:remove_method, :system, :'`')
-      Kernel.send(:define_method, :system, @original_system.to_proc)
-      Kernel.send(:define_method, :"`", @original_command.to_proc)
-      Guard.stub(:debug_command_execution)
+    it 'delegates to Guard::PluginUtil' do
+      ::Guard::PluginUtil.should_receive(:new).with('rspec') { plugin_util }
+      plugin_util.should_receive(:plugin_location)
+
+      described_class.locate_guard('rspec')
+    end
+  end
+
+  describe '.guard_gem_names' do
+    before { ::Guard::PluginUtil.stub(:plugin_names) }
+
+    it 'displays a deprecation warning to the user' do
+      ::Guard::UI.should_receive(:deprecation).with(::Guard::Deprecator::GUARD_GEM_NAMES_DEPRECATION)
+
+      described_class.guard_gem_names
     end
 
-    it "outputs Kernel.#system method parameters" do
-      ::Guard::UI.should_receive(:debug).with("Command execution: exit 0")
-      ::Guard.setup(:debug => true)
-      system("exit", "0").should be_false
-    end
+    it 'delegates to Guard::PluginUtil' do
+      Guard::PluginUtil.should_receive(:plugin_names)
 
-    it "outputs Kernel.#` method parameters" do
-      ::Guard::UI.should_receive(:debug).with("Command execution: echo test")
-      ::Guard.setup(:debug => true)
-      `echo test`.should eq "test\n"
+      described_class.guard_gem_names
     end
-
-    it "outputs %x{} method parameters" do
-      ::Guard::UI.should_receive(:debug).with("Command execution: echo test")
-      ::Guard.setup(:debug => true)
-      %x{echo test}.should eq "test\n"
-    end
-
   end
 
 end

@@ -21,7 +21,26 @@ module Guard
       Please use 'Guard::PluginUtil.new(name).plugin_class(:fail_gracefully =>
       fail_gracefully)' instead.
 
-      For more information on how to upgrade for Guard 2.0, please head over to: https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0
+      #{MORE_INFO_ON_UPGRADING_TO_GUARD_2}
+    EOS
+
+    # Deprecator message for the `Guard.locate_guard` method
+    LOCATE_GUARD_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
+      Starting with Guard 2.0 'Guard.locate_guard(name)' is deprecated.
+
+      Please use 'Guard::PluginUtil.new(name).plugin_location' instead.
+
+      #{MORE_INFO_ON_UPGRADING_TO_GUARD_2}
+    EOS
+
+    # Deprecator message for the `Guard.guard_gem_names` method
+    GUARD_GEM_NAMES_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
+      Starting with Guard 2.0 'Guard.guard_gem_names' is deprecated.
+
+      Please use 'Guard::PluginUtil.plugin_names' instead.
+
+      #{MORE_INFO_ON_UPGRADING_TO_GUARD_2}
+    EOS
 
     # Deprecator message for the `Guard::DSL.evaluate_guardfile` method
     EVALUATE_GUARDFILE_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
@@ -31,6 +50,32 @@ module Guard
 
       #{MORE_INFO_ON_UPGRADING_TO_GUARD_2}
     EOS
+
+    # Deprecator message for the `Guardfile.create_guardfile` method
+    CREATE_GUARDFILE_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
+      Starting with Guard 2.0 'Guardfile.create_guardfile(options)' is deprecated.
+
+      Please use 'Guard::Guardfile::Generator.new(options).create_guardfile' instead.
+
+      #{MORE_INFO_ON_UPGRADING_TO_GUARD_2}
+    EOS
+
+    # Deprecator message for the `Guardfile.initialize_template` method
+    INITIALIZE_TEMPLATE_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
+      Starting with Guard 2.0 'Guardfile.initialize_template(plugin_name)' is deprecated.
+
+      Please use 'Guard::Guardfile::Generator.new.initialize_template(plugin_name)' instead.
+
+      #{MORE_INFO_ON_UPGRADING_TO_GUARD_2}
+    EOS
+
+    # Deprecator message for the `Guardfile.initialize_all_templates` method
+    INITIALIZE_ALL_TEMPLATES_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
+      Starting with Guard 2.0 'Guardfile.initialize_all_templates' is deprecated.
+
+      Please use 'Guard::Guardfile::Generator.new.initialize_all_templates' instead.
+
+      #{MORE_INFO_ON_UPGRADING_TO_GUARD_2}
     EOS
 
     # Deprecator message for when a Guard plugin inherits from Guard::Guard
@@ -39,7 +84,7 @@ module Guard
 
       Please not that the constructor signature has changed from Guard::Guard#initialize(watchers = [], options = {}) to Guard::Plugin#initialize(options = {}).
 
-      For more information on how to upgrade for Guard 2.0, please head over to: https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0
+      #{MORE_INFO_ON_UPGRADING_TO_GUARD_2}
     EOS
 
     # Deprecator message for the `watch_all_modifications` start option
@@ -66,8 +111,7 @@ module Guard
       is not important for your usecase or using either 'run_on_modifications' or 'run_on_additions'
       based on the type of the changes you want to handle.
 
-      For more information on how to update existing guards, please head over to:
-      https://github.com/guard/guard/wiki/Upgrade-guide-for-existing-guards-to-Guard-v1.1
+      #{MORE_INFO_ON_UPGRADING_TO_GUARD_1_1}
     EOS
 
     # Deprecator message for the `run_on_deletion` method
@@ -76,8 +120,7 @@ module Guard
 
       Please consider replacing that method-call with 'run_on_removals' for future proofing your code.
 
-      For more information on how to update existing guards, please head over to:
-      https://github.com/guard/guard/wiki/Upgrade-guide-for-existing-guards-to-Guard-v1.1
+      #{MORE_INFO_ON_UPGRADING_TO_GUARD_1_1}
     EOS
 
     # Deprecator message for the `interactor` method

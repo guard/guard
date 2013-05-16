@@ -252,11 +252,25 @@ module Guard
       ::Guard::PluginUtil.new(name).plugin_class(:fail_gracefully => fail_gracefully)
     end
 
+    # @deprecated Use `Guard::PluginUtil.new(name).plugin_location` instead.
+    #
+    # @see https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0 How to upgrade for Guard 2.0
+    #
+    def locate_guard(name)
+      ::Guard::UI.deprecation(::Guard::Deprecator::LOCATE_GUARD_DEPRECATION)
+      ::Guard::PluginUtil.new(name).plugin_location
+    end
+
+    # @deprecated Use `Guard::PluginUtil.plugin_names` instead.
+    #
+    # @see https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0 How to upgrade for Guard 2.0
+    #
+    def guard_gem_names
+      ::Guard::UI.deprecation(::Guard::Deprecator::GUARD_GEM_NAMES_DEPRECATION)
+      ::Guard::PluginUtil.plugin_names
+    end
+
     private
-
-    #
-    #
-
 
     # Given an array, returns either:
     #   - nil if it's empty

@@ -3,7 +3,7 @@ require 'spec_helper'
 require 'guard/plugin'
 require 'formatador'
 
-describe Guard::DslDescriber do
+describe Guard::DSLDescriber do
 
   let(:guardfile) do
     <<-GUARDFILE
@@ -41,7 +41,7 @@ describe Guard::DslDescriber do
     end
   end
 
-  describe '.list' do
+  describe '#list' do
     let(:result) do
       <<-OUTPUT
   +---------+-----------+
@@ -60,7 +60,8 @@ describe Guard::DslDescriber do
     end
 
     it 'lists the available Guards when they\'re declared as strings or symbols' do
-      ::Guard::DslDescriber.list(:guardfile_contents => guardfile)
+      ::Guard::DSLDescriber.new(:guardfile_contents => guardfile).list
+
       # Drop the calls to delete when drop Ruby 1.8.7 support
       @output.delete(' ').should eq result.delete(' ')
     end
@@ -84,7 +85,8 @@ describe Guard::DslDescriber do
     end
 
     it 'shows the Guards and their options' do
-      ::Guard::DslDescriber.show(:guardfile_contents => guardfile)
+      ::Guard::DSLDescriber.new(:guardfile_contents => guardfile).show
+
       @output.should eq result
     end
   end

@@ -121,10 +121,10 @@ module Guard
     # List the Guard plugins that are available for use in your system and marks
     # those that are currently used in your `Guardfile`.
     #
-    # @see Guard::DslDescriber.list
+    # @see Guard::DSLDescriber.list
     #
     def list
-      ::Guard::DslDescriber.list(options)
+      ::Guard::DSLDescriber.new(options).list
     end
 
     desc 'version', 'Show the Guard version'
@@ -177,10 +177,10 @@ module Guard
     # Shows all Guard plugins and their options that are defined in
     # the `Guardfile`
     #
-    # @see Guard::DslDescriber.show
+    # @see Guard::DSLDescriber.show
     #
     def show
-      ::Guard::DslDescriber.show(options)
+      ::Guard::DSLDescriber.new(options).show
     end
 
     private
