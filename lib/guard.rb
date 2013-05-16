@@ -23,7 +23,7 @@ module Guard
   DEV_NULL = WINDOWS ? 'NUL' : '/dev/null'
 
   class << self
-    attr_accessor :options, :interactor, :runner, :listener, :lock, :scope, :running
+    attr_accessor :options, :evaluator, :interactor, :runner, :listener, :lock, :scope, :running
 
     include Setuper
 
@@ -80,7 +80,7 @@ module Guard
         ::Guard::UI.action_with_scopes('Reload', scopes)
 
         if scopes.empty?
-          ::Guard::Dsl.reevaluate_guardfile
+          evaluator.reevaluate_guardfile
         else
           runner.run(:reload, scopes)
         end

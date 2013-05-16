@@ -1,4 +1,5 @@
 require 'spec_helper'
+
 require 'guard/plugin'
 
 describe Guard::PluginUtil do
@@ -7,6 +8,7 @@ describe Guard::PluginUtil do
   let!(:rubygems_version_1_8_0) { Gem::Version.create('1.8.0') }
   let(:guard_rspec_class) { double('Guard::RSpec') }
   let(:guard_rspec) { double('Guard::RSpec instance') }
+  let(:guardfile_evaluator) { double('Guard::Guardfile::Evaluator instance') }
 
   describe '.plugin_names' do
     context 'Rubygems < 1.8.0' do
@@ -199,8 +201,14 @@ describe Guard::PluginUtil do
   end
 
   describe '#add_to_guardfile' do
+    before do
+      ::Guard.stub(:evaluator) { guardfile_evaluator }
+    end
+
     context 'when the Guard is already in the Guardfile' do
-      before { ::Guard::Dsl.stub(:guardfile_include?).and_return true }
+      before do
+        guardfile_evaluator.stub(:guardfile_include?).and_return(true)
+      end
 
       it 'shows an info message' do
         ::Guard::UI.should_receive(:info).with 'Guardfile already includes myguard guard'
@@ -215,7 +223,7 @@ describe Guard::PluginUtil do
         stub_const 'Guard::Myguard', Class.new(Guard::Plugin)
         plugin_util.stub(:plugin_class) { Guard::Myguard }
         plugin_util.should_receive(:plugin_location) { '/Users/me/projects/guard-myguard' }
-        ::Guard::Dsl.stub(:guardfile_include?).and_return(false)
+        guardfile_evaluator.stub(:guardfile_include?).and_return(false)
       end
 
       it 'appends the template to the Guardfile' do

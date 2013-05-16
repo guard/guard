@@ -22,31 +22,22 @@ describe Guard do
 
     context 'with a given scope' do
       it 'does not re-evaluate the Guardfile' do
-        ::Guard::Dsl.should_not_receive(:reevaluate_guardfile)
-        subject.reload({ :group => group })
-      end
+        Guard::Guardfile::Evaluator.any_instance.should_not_receive(:reevaluate_guardfile)
 
-      it 'reloads Guard' do
-        runner.should_receive(:run).with(:reload, { :groups => [group] })
-        subject.reload({ :group => group })
-      end
-    end
-
-    context 'with a new scope format' do
-      it 'does not re-evaluate the Guardfile' do
-        ::Guard::Dsl.should_not_receive(:reevaluate_guardfile)
         subject.reload({ :groups => [group] })
       end
 
       it 'reloads Guard' do
         runner.should_receive(:run).with(:reload, { :groups => [group] })
+
         subject.reload({ :groups => [group] })
       end
     end
 
     context 'with an empty scope' do
       it 'does re-evaluate the Guardfile' do
-        ::Guard::Dsl.should_receive(:reevaluate_guardfile)
+        ::Guard::Guardfile::Evaluator.any_instance.should_receive(:reevaluate_guardfile)
+
         subject.reload
       end
 

@@ -1,5 +1,11 @@
 ## git master
 
+### Removals & deprecations
+
+- Remove `Guard::Guardfile.duplicate_definitions?`. ([@rymai][])
+- Remove `Guard::DSL.reevaluate_guardfile`. ([@rymai][])
+- Deprecate `Guard::DSL.evaluate_guardfile(options)` and replace it with `Guard::Guardfile::Evaluator.new(options).evaluate_guardfile`. ([@rymai][])
+
 ### Improvements
 
 - New `#title` method for `Guard::Group` & `Guard::Plugin`. ([@rymai][])

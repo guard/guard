@@ -20,12 +20,13 @@ module Guard
     # @return [Guard] the Guard singleton
     #
     def setup(options = {})
-      @running  = true
-      @lock     = Mutex.new
-      @options  = options.dup
-      @watchdir = (options[:watchdir] && File.expand_path(options[:watchdir])) || Dir.pwd
-      @runner   = ::Guard::Runner.new
-      @scope    = { :plugins => [], :groups => [] }
+      @running   = true
+      @lock      = Mutex.new
+      @options   = options.dup
+      @watchdir  = (options[:watchdir] && File.expand_path(options[:watchdir])) || Dir.pwd
+      @evaluator = ::Guard::Guardfile::Evaluator.new(options)
+      @runner    = ::Guard::Runner.new
+      @scope     = { :plugins => [], :groups => [] }
 
       Dir.chdir(@watchdir)
       ::Guard::UI.clear(:force => true)
@@ -35,8 +36,8 @@ module Guard
       setup_signal_traps
       reset_groups
       reset_guards
-      setup_from_guardfile
       setup_scopes
+      evaluate_guardfile
 
       ::Guard::Deprecator.deprecated_options_warning(options)
       ::Guard::Deprecator.deprecated_plugin_methods_warning
@@ -45,6 +46,16 @@ module Guard
       setup_interactor
 
       self
+    end
+
+    # Evaluates the Guardfile content. It displays an error message if no
+    # Guard plugins are instantiated after the Guardfile evaluation.
+    #
+    # @see Guard::Guardfile::Evaluator#evaluate_guardfile
+    #
+    def evaluate_guardfile
+      evaluator.evaluate_guardfile
+      ::Guard::UI.error 'No guards found in Guardfile, please add at least one.' if guards.empty?
     end
 
     # Sets up various debug behaviors:
@@ -107,16 +118,6 @@ module Guard
           end
         end
       end
-    end
-
-    # Evaluates the Guardfile content. It displays an error message if no
-    # Guard plugins are instantiated after the Guardfile evaluation.
-    #
-    # @see Guard::Dsl.evaluate_guardfile
-    #
-    def setup_from_guardfile
-      ::Guard::Dsl.evaluate_guardfile(options)
-      ::Guard::UI.error 'No guards found in Guardfile, please add at least one.' if guards.empty?
     end
 
     # Stores the scopes defined by the user via the `--group` / `-g` option (to run
