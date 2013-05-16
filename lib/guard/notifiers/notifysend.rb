@@ -47,7 +47,7 @@ module Guard
       # @option options [String] c the notification category
       # @option options [Number] t the number of milliseconds to display (1000, 3000)
       #
-      def notify(type, title, message, image, options = { })
+      def notify(type, title, message, image, options = {})
         command = "notify-send '#{title}' '#{message}'"
         options = DEFAULTS.merge(options).merge({
           :i => image

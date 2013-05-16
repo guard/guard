@@ -10,7 +10,7 @@ describe Guard::Notifier::Emacs do
           command.should include(%{(set-face-attribute 'mode-line nil :background "ForestGreen" :foreground "White")})
         end
 
-        subject.notify('success', 'any title', 'any message', 'any image', { })
+        subject.notify('success', 'any title', 'any message', 'any image', {})
       end
     end
 

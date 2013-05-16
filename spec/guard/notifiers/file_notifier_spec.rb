@@ -31,7 +31,7 @@ describe Guard::Notifier::FileNotifier do
       subject.should_not_receive(:write)
       ::Guard::UI.should_receive(:error).with ":file notifier requires a :path option"
 
-      subject.notify('success', 'any title', 'any message', 'any image', { })
+      subject.notify('success', 'any title', 'any message', 'any image', {})
     end
   end
 

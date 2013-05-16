@@ -63,7 +63,7 @@ module Guard
       # @option options [Boolean] append append onto existing notification
       # @option options [Number, Boolean] timeout the number of seconds to display (1.5 (s), 1000 (ms), false)
       #
-      def notify(type, title, message, image, options = { })
+      def notify(type, title, message, image, options = {})
         require 'libnotify'
 
         options = DEFAULTS.merge(options).merge({

@@ -48,7 +48,7 @@ describe Guard::Notifier::Notifu do
   describe '.nofify' do
     it 'requires the library again' do
       subject.should_receive(:require).with('rb-notifu').and_return true
-      subject.notify('success', 'Welcome', 'Welcome to Guard', '/tmp/welcome.png', { })
+      subject.notify('success', 'Welcome', 'Welcome to Guard', '/tmp/welcome.png', {})
     end
 
     context 'without additional options' do
@@ -64,7 +64,7 @@ describe Guard::Notifier::Notifu do
             :title   => 'Welcome',
             :message => 'Welcome to Guard'
         })
-        subject.notify('success', 'Welcome', 'Welcome to Guard', '/tmp/welcome.png', { })
+        subject.notify('success', 'Welcome', 'Welcome to Guard', '/tmp/welcome.png', {})
       end
     end
 

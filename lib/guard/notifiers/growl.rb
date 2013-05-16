@@ -85,7 +85,7 @@ module Guard
       # @option options [String] host the hostname or IP address to which to send a remote notification
       # @option options [String] password the password used for remote notifications
       #
-      def notify(type, title, message, image, options = { })
+      def notify(type, title, message, image, options = {})
         require 'growl'
 
         ::Growl.notify(message, DEFAULTS.merge(options).merge({

@@ -1,4 +1,5 @@
 require 'lumberjack'
+require 'guard/ui/colors'
 
 module Guard
 
@@ -10,6 +11,7 @@ module Guard
   # processing, please just write it to STDOUT with `puts`.
   #
   module UI
+    include Colors
 
     class << self
 
@@ -47,7 +49,7 @@ module Guard
       # @option options [Boolean] reset whether to clean the output before
       # @option options [String] plugin manually define the calling plugin
       #
-      def info(message, options = { })
+      def info(message, options = {})
         filter(options[:plugin]) do |plugin|
           reset_line if options[:reset]
           self.logger.info(message, plugin)
@@ -60,7 +62,7 @@ module Guard
       # @option options [Boolean] reset whether to clean the output before
       # @option options [String] plugin manually define the calling plugin
       #
-      def warning(message, options = { })
+      def warning(message, options = {})
         filter(options[:plugin]) do |plugin|
           reset_line if options[:reset]
           self.logger.warn(color(message, :yellow), plugin)
@@ -73,7 +75,7 @@ module Guard
       # @option options [Boolean] reset whether to clean the output before
       # @option options [String] plugin manually define the calling plugin
       #
-      def error(message, options = { })
+      def error(message, options = {})
         filter(options[:plugin]) do |plugin|
           reset_line if options[:reset]
           self.logger.error(color(message, :red), plugin)
@@ -243,57 +245,6 @@ module Guard
       end
 
     end
-
-    # Brighten the color
-    ANSI_ESCAPE_BRIGHT    = '1'
-
-    # Black foreground color
-    ANSI_ESCAPE_BLACK     = '30'
-
-    # Red foreground color
-    ANSI_ESCAPE_RED       = '31'
-
-    # Green foreground color
-    ANSI_ESCAPE_GREEN     = '32'
-
-    # Yellow foreground color
-    ANSI_ESCAPE_YELLOW    = '33'
-
-    # Blue foreground color
-    ANSI_ESCAPE_BLUE      = '34'
-
-    # Magenta foreground color
-    ANSI_ESCAPE_MAGENTA   = '35'
-
-    # Cyan foreground color
-    ANSI_ESCAPE_CYAN      = '36'
-
-    # White foreground color
-    ANSI_ESCAPE_WHITE     = '37'
-
-    # Black background color
-    ANSI_ESCAPE_BGBLACK   = '40'
-
-    # Red background color
-    ANSI_ESCAPE_BGRED     = '41'
-
-    # Green background color
-    ANSI_ESCAPE_BGGREEN   = '42'
-
-    # Yellow background color
-    ANSI_ESCAPE_BGYELLOW  = '43'
-
-    # Blue background color
-    ANSI_ESCAPE_BGBLUE    = '44'
-
-    # Magenta background color
-    ANSI_ESCAPE_BGMAGENTA = '45'
-
-    # Cyan background color
-    ANSI_ESCAPE_BGCYAN    = '46'
-
-    # White background color
-    ANSI_ESCAPE_BGWHITE   = '47'
 
   end
 end

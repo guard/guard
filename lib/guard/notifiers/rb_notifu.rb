@@ -69,7 +69,7 @@ module Guard
       # @option options [Boolean] noquiet show the tooltip even if the user is in the quiet period that follows his very first login (Windows 7 and up)
       # @option options [Boolean] xp use IUserNotification interface event when IUserNotification2 is available
       #
-      def notify(type, title, message, image, options = { })
+      def notify(type, title, message, image, options = {})
         require 'rb-notifu'
 
         ::Notifu.show(DEFAULTS.merge(options).merge({

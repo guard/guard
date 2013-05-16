@@ -54,12 +54,12 @@ describe Guard::Notifier::GNTP do
 
     it 'requires the library again' do
       subject.should_receive(:require).with('ruby_gntp').and_return true
-      subject.notify('success', 'Welcome', 'Welcome to Guard', '/tmp/welcome.png', { })
+      subject.notify('success', 'Welcome', 'Welcome to Guard', '/tmp/welcome.png', {})
     end
 
     it 'opens GNTP as Guard application' do
       ::GNTP.should_receive(:new).with('Guard', '127.0.0.1', '', 23053)
-      subject.notify('success', 'Welcome', 'Welcome to Guard', '/tmp/welcome.png', { })
+      subject.notify('success', 'Welcome', 'Welcome to Guard', '/tmp/welcome.png', {})
     end
 
     context 'when not registered' do
@@ -67,7 +67,7 @@ describe Guard::Notifier::GNTP do
 
       it 'registers the Guard notification types' do
         gntp.should_receive(:register)
-        subject.notify('success', 'Welcome', 'Welcome to Guard', '/tmp/welcome.png', { })
+        subject.notify('success', 'Welcome', 'Welcome to Guard', '/tmp/welcome.png', {})
       end
     end
 
@@ -76,7 +76,7 @@ describe Guard::Notifier::GNTP do
 
       it 'registers the Guard notification types' do
         gntp.should_not_receive(:register)
-        subject.notify('success', 'Welcome', 'Welcome to Guard', '/tmp/welcome.png', { })
+        subject.notify('success', 'Welcome', 'Welcome to Guard', '/tmp/welcome.png', {})
       end
     end
 
@@ -89,7 +89,7 @@ describe Guard::Notifier::GNTP do
             :text   => 'Welcome to Guard',
             :icon   => '/tmp/welcome.png'
         })
-        subject.notify('success', 'Welcome', 'Welcome to Guard', '/tmp/welcome.png', { })
+        subject.notify('success', 'Welcome', 'Welcome to Guard', '/tmp/welcome.png', {})
       end
     end
 

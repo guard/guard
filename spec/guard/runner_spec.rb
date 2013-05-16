@@ -76,8 +76,8 @@ describe Guard::Runner do
     let(:watcher_module) { ::Guard::Watcher }
 
     before do
-      subject.stub(:scoped_guards).and_yield(@foo_guard)
-      subject.stub(:clearable?) { false }
+      subject.stub(:_scoped_guards).and_yield(@foo_guard)
+      subject.stub(:_clearable?) { false }
       watcher_module.stub(:match_files) { [] }
     end
 
@@ -87,7 +87,7 @@ describe Guard::Runner do
     end
 
     context 'when clearable' do
-      before { subject.stub(:clearable?) { true } }
+      before { subject.stub(:_clearable?) { true } }
 
       it "clear UI" do
         Guard::UI.should_receive(:clear)
@@ -113,7 +113,7 @@ describe Guard::Runner do
       end
 
       it 'does not call run_first_task_found' do
-        subject.should_not_receive(:run_first_task_found)
+        subject.should_not_receive(:_run_first_task_found)
         subject.run_on_changes(*changes)
       end
     end
@@ -127,7 +127,7 @@ describe Guard::Runner do
       end
 
       it 'executes the :run_first_task_found task' do
-        subject.should_receive(:run_first_task_found).with(@foo_guard, [:run_on_modifications, :run_on_changes, :run_on_change], modified)
+        subject.should_receive(:_run_first_task_found).with(@foo_guard, [:run_on_modifications, :run_on_changes, :run_on_change], modified)
         subject.run_on_changes(*changes)
       end
     end
@@ -141,7 +141,7 @@ describe Guard::Runner do
       end
 
       it 'does not call run_first_task_found' do
-        subject.should_not_receive(:run_first_task_found)
+        subject.should_not_receive(:_run_first_task_found)
         subject.run_on_changes(*changes)
       end
     end
@@ -155,7 +155,7 @@ describe Guard::Runner do
       end
 
       it 'executes the :run_on_additions task' do
-        subject.should_receive(:run_first_task_found).with(@foo_guard, [:run_on_additions, :run_on_changes, :run_on_change], added)
+        subject.should_receive(:_run_first_task_found).with(@foo_guard, [:run_on_additions, :run_on_changes, :run_on_change], added)
         subject.run_on_changes(*changes)
       end
     end
@@ -169,7 +169,7 @@ describe Guard::Runner do
       end
 
       it 'does not call run_first_task_found' do
-        subject.should_not_receive(:run_first_task_found)
+        subject.should_not_receive(:_run_first_task_found)
         subject.run_on_changes(*changes)
       end
     end
@@ -183,7 +183,7 @@ describe Guard::Runner do
       end
 
       it 'executes the :run_on_removals task' do
-        subject.should_receive(:run_first_task_found).with(@foo_guard, [:run_on_removals, :run_on_changes, :run_on_deletion], removed)
+        subject.should_receive(:_run_first_task_found).with(@foo_guard, [:run_on_removals, :run_on_changes, :run_on_deletion], removed)
         subject.run_on_changes(*changes)
       end
     end

@@ -76,6 +76,30 @@ module Guard
         @enabled = status
       end
 
+
+      # Converts and validates a plain text scope
+      # to a valid plugin or group scope.
+      #
+      # @param [Array<String>] entries the text scope
+      # @return [Hash, Array<String>] the plugin or group scope, the unknown entries
+      #
+      def convert_scope(entries)
+        scopes  = { :plugins => [], :groups => [] }
+        unknown = []
+
+        entries.each do |entry|
+          if plugin = ::Guard.guards(entry)
+            scopes[:plugins] << plugin
+          elsif group = ::Guard.groups(entry)
+            scopes[:groups] << group
+          else
+            unknown << entry
+          end
+        end
+
+        [scopes, unknown]
+      end
+
     end
 
     # Initialize the interactor. This configures
@@ -89,15 +113,47 @@ module Guard
       Pry.config.should_load_local_rc = false
       Pry.config.history.file         = File.expand_path(self.class.options[:history_file] || HISTORY_FILE)
 
-      add_hooks
+      _add_hooks
 
-      replace_reset_command
-      create_run_all_command
-      create_command_aliases
-      create_guard_commands
-      create_group_commands
+      _replace_reset_command
+      _create_run_all_command
+      _create_command_aliases
+      _create_guard_commands
+      _create_group_commands
 
-      configure_prompt
+      _configure_prompt
+    end
+
+    # Start the line reader in its own thread and
+    # stop Guard on Ctrl-D.
+    #
+    def start
+      return if ENV['GUARD_ENV'] == 'test'
+
+      _store_terminal_settings if _stty_exists?
+
+      if !@thread || !@thread.alive?
+        ::Guard::UI.debug 'Start interactor'
+
+        @thread = Thread.new do
+          Pry.start
+          ::Guard.stop
+        end
+      end
+    end
+
+    # Kill interactor thread if not current
+    #
+    def stop
+      return if !@thread || ENV['GUARD_ENV'] == 'test'
+
+      unless Thread.current == @thread
+        ::Guard::UI.reset_line
+        ::Guard::UI.debug 'Stop interactor'
+        @thread.kill
+      end
+
+      _restore_terminal_settings if _stty_exists?
     end
 
     # Add Pry hooks:
@@ -106,7 +162,7 @@ module Guard
     # * Load project's `.guardrc` within each new Pry session.
     # * Restore prompt after each evaluation.
     #
-    def add_hooks
+    def _add_hooks
       Pry.config.hooks.add_hook :when_started, :load_guard_rc do
         (self.class.options[:guard_rc] || GUARD_RC).tap do |p|
           load p if File.exist?(File.expand_path(p))
@@ -118,7 +174,7 @@ module Guard
         load project_guard_rc if File.exist?(project_guard_rc)
       end
 
-      if stty_exists?
+      if _stty_exists?
         Pry.config.hooks.add_hook :after_eval, :restore_visibility do
           system('stty echo 2>/dev/null')
         end
@@ -127,8 +183,8 @@ module Guard
 
     # Replaces reset defined inside of Pry with a reset that
     # instead restarts guard.
-
-    def replace_reset_command
+    #
+    def _replace_reset_command
       Pry.commands.command "reset", "Reset the Guard to a clean state." do
         output.puts "Guard reset."
         exec "guard"
@@ -139,7 +195,7 @@ module Guard
     # when the command is empty (just pressing enter on the
     # beginning of a line).
     #
-    def create_run_all_command
+    def _create_run_all_command
       Pry.commands.block_command /^$/, 'Hit enter to run all' do
         Pry.run_command 'all'
       end
@@ -149,7 +205,7 @@ module Guard
     # `help`, `reload`, `change`, `scope`, `notification`, `pause`, `exit` and `quit`,
     # which will be the first letter of the command.
     #
-    def create_command_aliases
+    def _create_command_aliases
       SHORTCUTS.each do |command, shortcut|
         Pry.commands.alias_command shortcut, command.to_s
       end
@@ -160,7 +216,7 @@ module Guard
     # when guard-rspec is available, then a command
     # `rspec` is created that runs `all rspec`.
     #
-    def create_guard_commands
+    def _create_guard_commands
       ::Guard.guards.each do |guard_plugin|
         Pry.commands.create_command guard_plugin.name, "Run all #{ guard_plugin.title }" do
           group 'Guard'
@@ -177,7 +233,7 @@ module Guard
     # when you have a group `frontend`, then a command
     # `frontend` is created that runs `all frontend`.
     #
-    def create_group_commands
+    def _create_group_commands
       ::Guard.groups.each do |group|
         next if group.name == :default
 
@@ -194,7 +250,7 @@ module Guard
     # Configure the pry prompt to see `guard` instead of
     # `pry`.
     #
-    def configure_prompt
+    def _configure_prompt
       Pry.config.prompt = [
         proc do |target_self, nest_level, pry|
           history = pry.input_array.size
@@ -229,81 +285,27 @@ module Guard
       ]
     end
 
-    # Start the line reader in its own thread and
-    # stop Guard on Ctrl-D.
-    #
-    def start
-      return if ENV['GUARD_ENV'] == 'test'
-
-      store_terminal_settings if stty_exists?
-
-      if !@thread || !@thread.alive?
-        ::Guard::UI.debug 'Start interactor'
-
-        @thread = Thread.new do
-          Pry.start
-          ::Guard.stop
-        end
-      end
-    end
-
-    # Kill interactor thread if not current
-    #
-    def stop
-      return if !@thread || ENV['GUARD_ENV'] == 'test'
-
-      unless Thread.current == @thread
-        ::Guard::UI.reset_line
-        ::Guard::UI.debug 'Stop interactor'
-        @thread.kill
-      end
-
-      restore_terminal_settings if stty_exists?
-    end
-
     # Detects whether or not the stty command exists
     # on the user machine.
     #
     # @return [Boolean] the status of stty
     #
-    def stty_exists?
+    def _stty_exists?
       @stty_exists ||= system('hash', 'stty')
     end
 
     # Stores the terminal settings so we can resore them
     # when stopping.
     #
-    def store_terminal_settings
+    def _store_terminal_settings
       @stty_save = `stty -g 2>#{ DEV_NULL }`.chomp
     end
 
     # Restore terminal settings
     #
-    def restore_terminal_settings
+    def _restore_terminal_settings
       system("stty #{ @stty_save } 2>#{ DEV_NULL }") if @stty_save
     end
 
-    # Converts and validates a plain text scope
-    # to a valid plugin or group scope.
-    #
-    # @param [Array<String>] entries the text scope
-    # @return [Hash, Array<String>] the plugin or group scope, the unknown entries
-    #
-    def self.convert_scope(entries)
-      scopes  = { :plugins => [], :groups => [] }
-      unknown = []
-
-      entries.each do |entry|
-        if plugin = ::Guard.guards(entry)
-          scopes[:plugins] << plugin
-        elsif group = ::Guard.groups(entry)
-          scopes[:groups] << group
-        else
-          unknown << entry
-        end
-      end
-
-      [scopes, unknown]
-    end
   end
 end

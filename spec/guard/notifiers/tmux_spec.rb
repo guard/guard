@@ -37,7 +37,7 @@ describe Guard::Notifier::Tmux do
     it 'should set the tmux status bar color to green on success' do
       subject.should_receive(:system).with 'tmux set status-left-bg green'
 
-      subject.notify('success', 'any title', 'any message', 'any image', { })
+      subject.notify('success', 'any title', 'any message', 'any image', {})
     end
 
     it 'should set the tmux status bar color to black on success when black is passed in as an option' do
@@ -49,19 +49,19 @@ describe Guard::Notifier::Tmux do
     it 'should set the tmux status bar color to red on failure' do
       subject.should_receive(:system).with 'tmux set status-left-bg red'
 
-      subject.notify('failed', 'any title', 'any message', 'any image', { })
+      subject.notify('failed', 'any title', 'any message', 'any image', {})
     end
 
     it 'should set the tmux status bar color to yellow on pending' do
       subject.should_receive(:system).with 'tmux set status-left-bg yellow'
 
-      subject.notify('pending', 'any title', 'any message', 'any image', { })
+      subject.notify('pending', 'any title', 'any message', 'any image', {})
     end
 
     it 'should set the tmux status bar color to green on notify' do
       subject.should_receive(:system).with 'tmux set status-left-bg green'
 
-      subject.notify('notify', 'any title', 'any message', 'any image', { })
+      subject.notify('notify', 'any title', 'any message', 'any image', {})
     end
 
     it 'should set the right tmux status bar color on success when the right status bar is passed in as an option' do
@@ -81,7 +81,7 @@ describe Guard::Notifier::Tmux do
       subject.stub :system => true
       subject.should_receive(:display_message).never
 
-      subject.notify('notify', 'any title', 'any message', 'any image', { })
+      subject.notify('notify', 'any title', 'any message', 'any image', {})
     end
   end
 

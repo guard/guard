@@ -22,7 +22,7 @@ module Guard
       # @param [String] image the path to the notification image
       # @param [Hash] options additional notification library options
       #
-      def notify(type, title, message, image, options = { })
+      def notify(type, title, message, image, options = {})
         first_line = message.sub(/^\n/, '').sub(/\n.*/m, '')
         puts("\e]2;[#{ title }] #{ first_line }\a")
       end
