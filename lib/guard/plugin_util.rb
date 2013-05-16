@@ -13,27 +13,23 @@ module Guard
 
     attr_accessor :name
 
-    class << self
-
-      # Returns a list of Guard plugin Gem names installed locally.
-      #
-      # @return [Array<String>] a list of Guard plugin gem names
-      #
-      def plugin_names
-        if Gem::Version.create(Gem::VERSION) >= Gem::Version.create('1.8.0')
-          Gem::Specification.find_all.select do |x|
-            if x.name =~ /^guard-/
-              true
-            elsif x.name != 'guard'
-              guard_plugin_path = File.join(x.full_gem_path, "lib/guard/#{ x.name }.rb")
-              File.exists?( guard_plugin_path )
-            end
+    # Returns a list of Guard plugin Gem names installed locally.
+    #
+    # @return [Array<String>] a list of Guard plugin gem names
+    #
+    def self.plugin_names
+      if Gem::Version.create(Gem::VERSION) >= Gem::Version.create('1.8.0')
+        Gem::Specification.find_all.select do |x|
+          if x.name =~ /^guard-/
+            true
+          elsif x.name != 'guard'
+            guard_plugin_path = File.join(x.full_gem_path, "lib/guard/#{ x.name }.rb")
+            File.exists?( guard_plugin_path )
           end
-        else
-          Gem.source_index.find_name(/^guard-/)
-        end.map { |x| x.name.sub(/^guard-/, '') }
-      end
-
+        end
+      else
+        Gem.source_index.find_name(/^guard-/)
+      end.map { |x| x.name.sub(/^guard-/, '') }
     end
 
     # Initializes a new `Guard::PluginUtil` object.
@@ -41,7 +37,7 @@ module Guard
     # @param [String] name the name of the Guard plugin
     #
     def initialize(name)
-      @name = name.to_s
+      @name = name.to_s.sub(/^guard-/, '')
     end
 
     # Initializes a new `Guard::Plugin` with the given `options` hash. This

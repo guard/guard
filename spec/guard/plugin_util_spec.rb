@@ -50,6 +50,16 @@ describe Guard::PluginUtil do
     end
   end
 
+  describe '#initialize' do
+    it 'accepts a name without guard-' do
+      described_class.new('rspec').name.should eq 'rspec'
+    end
+
+    it 'accepts a name with guard-' do
+      described_class.new('guard-rspec').name.should eq 'rspec'
+    end
+  end
+
   describe '#initialize_plugin' do
     let(:plugin_util) { described_class.new('rspec') }
 
