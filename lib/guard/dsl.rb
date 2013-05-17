@@ -1,22 +1,12 @@
+require 'guard/guardfile'
+require 'guard/interactor'
+require 'guard/notifier'
+require 'guard/ui'
+require 'guard/watcher'
+
 module Guard
 
-  # @deprecated
-  # @see DSL
-  #
-  class Dsl
-
-    # @deprecated Use `Guard::Guardfile::Evaluator.new(options).evaluate_guardfile` instead.
-    #
-    # @see https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0 How to upgrade for Guard 2.0
-    #
-    def self.evaluate_guardfile(options = {})
-      ::Guard::UI.deprecation(::Guard::Deprecator::EVALUATE_GUARDFILE_DEPRECATION)
-      ::Guard::Guardfile::Evaluator.new(options).evaluate_guardfile
-    end
-
-  end
-
-  # The DSL class provides the methods that are used in each `Guardfile` to describe
+  # The Dsl class provides the methods that are used in each `Guardfile` to describe
   # the behaviour of Guard.
   #
   # The main keywords of the DSL are `guard` and `watch`. These are necessary to define
@@ -47,13 +37,7 @@ module Guard
   #
   # @see https://github.com/guard/guard/wiki/Guardfile-examples
   #
-  class DSL
-
-    require 'guard/guardfile'
-    require 'guard/interactor'
-    require 'guard/notifier'
-    require 'guard/ui'
-    require 'guard/watcher'
+  class Dsl
 
     # @deprecated Use `Guard::Guardfile::Evaluator.new(options).evaluate_guardfile` instead.
     #
@@ -123,7 +107,7 @@ module Guard
     #
     # @see Guard.add_group
     # @see #guard
-    # @see Guard::DSLDescriber
+    # @see Guard::DslDescriber
     #
     def group(name, options = {})
       name = name.to_sym
@@ -162,7 +146,7 @@ module Guard
     # @see Guard.add_guard
     # @see #group
     # @see #watch
-    # @see Guard::DSLDescriber
+    # @see Guard::DslDescriber
     #
     def guard(name, options = {})
       @watchers  = []

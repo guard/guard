@@ -1,23 +1,21 @@
 require 'rbconfig'
-require 'thread'
-require 'listen'
+
+require 'guard/deprecator'
+require 'guard/dsl'
+require 'guard/group'
+require 'guard/guardfile'
+require 'guard/interactor'
+require 'guard/notifier'
+require 'guard/plugin_util'
+require 'guard/runner'
+require 'guard/setuper'
+require 'guard/ui'
+require 'guard/watcher'
 
 # Guard is the main module for all Guard related modules and classes.
 # Also Guard plugins should use this namespace.
 #
 module Guard
-
-  require 'guard/deprecator'
-  require 'guard/dsl'
-  require 'guard/guardfile'
-  require 'guard/group'
-  require 'guard/interactor'
-  require 'guard/notifier'
-  require 'guard/plugin_util'
-  require 'guard/runner'
-  require 'guard/setuper'
-  require 'guard/ui'
-  require 'guard/watcher'
 
   WINDOWS  = RbConfig::CONFIG['host_os'] =~ %r!(msdos|mswin|djgpp|mingw)!
   DEV_NULL = WINDOWS ? 'NUL' : '/dev/null'

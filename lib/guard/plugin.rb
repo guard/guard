@@ -1,3 +1,5 @@
+require 'guard/plugin/base'
+
 module Guard
 
   # Base class that every Guard plugin implementation must inherit from.
@@ -40,7 +42,6 @@ module Guard
   # the Guard::GuardName instance will be removed from the active guards.
   #
   class Plugin
-    require 'guard/plugin/base'
     include Base
 
     # Initializes a Guard plugin.

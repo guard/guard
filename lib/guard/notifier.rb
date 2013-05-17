@@ -2,6 +2,19 @@ require 'yaml'
 require 'rbconfig'
 require 'pathname'
 
+require 'guard/ui'
+require 'guard/notifiers/gntp'
+require 'guard/notifiers/growl'
+require 'guard/notifiers/growl_notify'
+require 'guard/notifiers/libnotify'
+require 'guard/notifiers/notifysend'
+require 'guard/notifiers/rb_notifu'
+require 'guard/notifiers/emacs'
+require 'guard/notifiers/terminal_notifier'
+require 'guard/notifiers/terminal_title'
+require 'guard/notifiers/tmux'
+require 'guard/notifiers/file_notifier'
+
 module Guard
 
   # The notifier handles sending messages to different notifiers. Currently the following
@@ -33,23 +46,11 @@ module Guard
   # `gntp` and `growl_notify` notifiers are able to register these types
   # at Growl and allows customization of each notification type.
   #
-  # Guard can be configured to make use of more than one notifier at once, @see Guard::DSL
+  # Guard can be configured to make use of more than one notifier at once
+  #
+  # @see Guard::Dsl
   #
   module Notifier
-
-    require 'guard'
-    require 'guard/ui'
-    require 'guard/notifiers/gntp'
-    require 'guard/notifiers/growl'
-    require 'guard/notifiers/growl_notify'
-    require 'guard/notifiers/libnotify'
-    require 'guard/notifiers/notifysend'
-    require 'guard/notifiers/rb_notifu'
-    require 'guard/notifiers/emacs'
-    require 'guard/notifiers/terminal_notifier'
-    require 'guard/notifiers/terminal_title'
-    require 'guard/notifiers/tmux'
-    require 'guard/notifiers/file_notifier'
 
     extend self
 
@@ -57,18 +58,18 @@ module Guard
     # a simpler Hash, because it maintains its order on Ruby 1.8.7 also.
     NOTIFIERS = [
       [
-        [:gntp,              ::Guard::Notifier::GNTP],
-        [:growl,             ::Guard::Notifier::Growl],
-        [:growl_notify,      ::Guard::Notifier::GrowlNotify],
-        [:terminal_notifier, ::Guard::Notifier::TerminalNotifier],
-        [:libnotify,         ::Guard::Notifier::Libnotify],
-        [:notifysend,        ::Guard::Notifier::NotifySend],
-        [:notifu,            ::Guard::Notifier::Notifu]
+        [:gntp,              GNTP],
+        [:growl,             Growl],
+        [:growl_notify,      GrowlNotify],
+        [:terminal_notifier, TerminalNotifier],
+        [:libnotify,         Libnotify],
+        [:notifysend,        NotifySend],
+        [:notifu,            Notifu]
       ],
-      [[:emacs,             ::Guard::Notifier::Emacs]],
-      [[:tmux,              ::Guard::Notifier::Tmux]],
-      [[:terminal_title,    ::Guard::Notifier::TerminalTitle]],
-      [[:file,              ::Guard::Notifier::FileNotifier]]
+      [[:emacs,             Emacs]],
+      [[:tmux,              Tmux]],
+      [[:terminal_title,    TerminalTitle]],
+      [[:file,              FileNotifier]]
     ]
 
     # Get the available notifications.

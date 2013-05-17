@@ -1,3 +1,5 @@
+require 'guard/plugin/base'
+
 module Guard
 
   # @deprecated Inheriting from Guard::Guard is deprecated, please inherit from
@@ -8,7 +10,6 @@ module Guard
   # @see https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0 How to upgrade for Guard 2.0
   #
   class Guard
-    require 'guard/plugin/base'
     include ::Guard::Plugin::Base
 
     # Initializes a Guard plugin.

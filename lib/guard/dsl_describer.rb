@@ -1,28 +1,23 @@
 # encoding: utf-8
 require 'formatador'
+
 require 'guard/guardfile/evaluator'
 require 'guard/ui'
 
 module Guard
 
-  # @deprecated
-  # @see DSLDescriber
+  # The DslDescriber evaluate the Guardfile and create an internal structure
+  # of it that is used in some inspection utility methods like the CLI commands
+  # `show` and `list`.
   #
-  class DslDescriber
-  end
-
-  # The DSLDescriber overrides methods to create an internal structure
-  # of the Guardfile that is used in some inspection utility methods
-  # like the CLI commands `show` and `list`.
-  #
-  # @see Guard::DSL
+  # @see Guard::Dsl
   # @see Guard::CLI
   #
-  class DSLDescriber
+  class DslDescriber
 
     attr_reader :options
 
-    # Initializes a new DSLDescriber object.
+    # Initializes a new DslDescriber object.
     #
     # @option options [String] guardfile the path to a valid Guardfile
     # @option options [String] guardfile_contents a string representing the content of a valid Guardfile

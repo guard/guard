@@ -1,3 +1,6 @@
+require 'thread'
+require 'listen'
+
 module Guard
 
   module Setuper
@@ -144,7 +147,7 @@ module Guard
     # specific plugin).
     #
     # @see CLI#start
-    # @see DSL#scope
+    # @see Dsl#scope
     #
     def _setup_scopes
       scope[:groups]  = options[:group].map { |g| ::Guard.groups(g) } if options[:group]

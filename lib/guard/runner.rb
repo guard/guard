@@ -1,14 +1,13 @@
+require 'lumberjack'
+
+require 'guard/ui'
+require 'guard/watcher'
+
 module Guard
 
   # The runner is responsible for running all methods defined on each guards.
   #
   class Runner
-
-    require 'guard'
-    require 'guard/ui'
-    require 'guard/watcher'
-
-    require 'lumberjack'
 
     # Runs a Guard-task on all registered guards.
     #

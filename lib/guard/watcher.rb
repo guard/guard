@@ -1,3 +1,5 @@
+require 'guard/ui'
+
 module Guard
 
   # The watcher defines a RegExp that will be matched against file system modifications.
@@ -5,8 +7,6 @@ module Guard
   # processing the file system change result.
   #
   class Watcher
-
-    require 'guard/ui'
 
     attr_accessor :pattern, :action
 

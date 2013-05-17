@@ -138,7 +138,7 @@ describe Guard::Guardfile::Evaluator do
     end
 
     describe 'correctly reads data from its valid data source' do
-      before { ::Guard::DSL.stub!(:instance_eval_guardfile) }
+      before { ::Guard::Dsl.stub!(:instance_eval_guardfile) }
       disable_user_config
 
       it 'reads correctly from a string' do
