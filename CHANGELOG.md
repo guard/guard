@@ -1,3 +1,7 @@
+## Master
+
+- [#443][] Escape `notify-send` arguments.  ([@netzpirat][])
+
 ## 1.8.0 - 20 April, 2013
 
 ### Improvements

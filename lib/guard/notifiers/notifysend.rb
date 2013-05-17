@@ -48,12 +48,12 @@ module Guard
       # @option options [Number] t the number of milliseconds to display (1000, 3000)
       #
       def notify(type, title, message, image, options = { })
-        command = "notify-send '#{title}' '#{message}'"
+        command = [title, message]
         options = DEFAULTS.merge(options).merge({
           :i => image
         })
         options[:u] ||= notifysend_urgency(type)
-        system(to_command_string(command, SUPPORTED, options))
+        system('notify-send', *to_arguments(command, SUPPORTED, options))
       end
 
       private
@@ -73,11 +73,11 @@ module Guard
       # @param [String] command the command execute
       # @param [Array] supported list of supported option flags
       # @param [Hash] options additional command options
-      # @return [String] the command and its options converted to a shell command.
+      # @return [Array<String>] the command and its options converted to a shell command.
       #
-      def to_command_string(command, supported, options = {})
+      def to_arguments(command, supported, options = {})
         options.reduce(command) do |cmd, (flag, value)|
-          supported.include?(flag) ? cmd + " -#{ flag } '#{ value }'" : cmd
+          supported.include?(flag) ? (cmd << "-#{ flag }" << value.to_s) : cmd
         end
       end
     end
