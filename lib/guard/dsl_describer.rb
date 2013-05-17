@@ -5,6 +5,12 @@ require 'guard/ui'
 
 module Guard
 
+  # @deprecated
+  # @see DSLDescriber
+  #
+  class DslDescriber
+  end
+
   # The DSLDescriber overrides methods to create an internal structure
   # of the Guardfile that is used in some inspection utility methods
   # like the CLI commands `show` and `list`.

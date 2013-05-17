@@ -1,5 +1,21 @@
 module Guard
 
+  # @deprecated
+  # @see DSL
+  #
+  class Dsl
+
+    # @deprecated Use `Guard::Guardfile::Evaluator.new(options).evaluate_guardfile` instead.
+    #
+    # @see https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0 How to upgrade for Guard 2.0
+    #
+    def self.evaluate_guardfile(options = {})
+      ::Guard::UI.deprecation(::Guard::Deprecator::EVALUATE_GUARDFILE_DEPRECATION)
+      ::Guard::Guardfile::Evaluator.new(options).evaluate_guardfile
+    end
+
+  end
+
   # The DSL class provides the methods that are used in each `Guardfile` to describe
   # the behaviour of Guard.
   #
