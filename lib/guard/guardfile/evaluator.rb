@@ -16,7 +16,7 @@ module Guard
       # @option options [String] guardfile_contents a string representing the content of a valid Guardfile
       #
       def initialize(options = {})
-        @options = options
+        @options = options.dup
       end
 
       # Evaluates the DSL methods in the `Guardfile`.
