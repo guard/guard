@@ -1,7 +1,7 @@
+require 'guard/ui'
+
 module Guard
   class Deprecator
-
-    require 'guard/ui'
 
     MORE_INFO_ON_UPGRADING_TO_GUARD_1_1 = <<-EOS.gsub(/^\s*/, '')
       For more information on how to update existing guards, please head over
@@ -42,9 +42,9 @@ module Guard
       #{MORE_INFO_ON_UPGRADING_TO_GUARD_2}
     EOS
 
-    # Deprecator message for the `Guard::DSL.evaluate_guardfile` method
+    # Deprecator message for the `Guard::Dsl.evaluate_guardfile` method
     EVALUATE_GUARDFILE_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
-      Starting with Guard 2.0 'Guard::DSL.evaluate_guardfile(options)' is deprecated.
+      Starting with Guard 2.0 'Guard::Dsl.evaluate_guardfile(options)' is deprecated.
 
       Please use 'Guard::Guardfile::Evaluator.new(options).evaluate_guardfile' instead.
 

@@ -2,9 +2,9 @@ module Guard
   module Guardfile
 
     # This class is responsible for evaluating the Guardfile. It delegates
-    # to Guard::DSL for the actual objects generation from the Guardfile content.
+    # to Guard::Dsl for the actual objects generation from the Guardfile content.
     #
-    # @see Guard::DSL
+    # @see Guard::Dsl
     #
     class Evaluator
 
@@ -16,7 +16,7 @@ module Guard
       # @option options [String] guardfile_contents a string representing the content of a valid Guardfile
       #
       def initialize(options = {})
-        @options = options
+        @options = options.dup
       end
 
       # Evaluates the DSL methods in the `Guardfile`.
@@ -50,7 +50,7 @@ module Guard
       #   > File.read('Guardfile')
       #   => "guard :rspec"
       #
-      #   > Guard::DSL.guardfile_include?('rspec)
+      #   > Guard::Dsl.guardfile_include?('rspec)
       #   => true
       #
       # @param [String] plugin_name the name of the Guard
@@ -66,17 +66,17 @@ module Guard
       #   > Dir.pwd
       #   => "/Users/remy/Code/github/guard"
       #
-      #   > Guard::DSL.evaluate_guardfile
+      #   > Guard::Dsl.evaluate_guardfile
       #   => nil
       #
-      #   > Guard::DSL.guardfile_path
+      #   > Guard::Dsl.guardfile_path
       #   => "/Users/remy/Code/github/guard/Guardfile"
       #
       # @example Gets the "path" of an inline Guardfile
-      #   > Guard::DSL.evaluate_guardfile(:guardfile_contents => 'guard :rspec')
+      #   > Guard::Dsl.evaluate_guardfile(:guardfile_contents => 'guard :rspec')
       #   => nil
       #
-      #   > Guard::DSL.guardfile_path
+      #   > Guard::Dsl.guardfile_path
       #   => "Inline Guardfile"
       #
       # @return [String] the path to the Guardfile or 'Inline Guardfile' if
@@ -90,7 +90,7 @@ module Guard
       # user configuration file.
       #
       # @example Programmatically get the content of the current Guardfile
-      #   Guard::DSL.guardfile_contents
+      #   Guard::Dsl.guardfile_contents
       #   #=> "guard :rspec"
       #
       # @return [String] the Guardfile content
@@ -124,7 +124,7 @@ module Guard
       # @param [String] contents the content to evaluate.
       #
       def instance_eval_guardfile(contents)
-        ::Guard::DSL.new.instance_eval(contents, options[:guardfile_path], 1)
+        ::Guard::Dsl.new.instance_eval(contents, options[:guardfile_path], 1)
       rescue
         ::Guard::UI.error "Invalid Guardfile, original error is:\n#{ $! }"
       end

@@ -131,6 +131,10 @@ describe Guard::Setuper do
       let(:options) { { :debug => true, :guardfile => File.join(@fixture_path, "Guardfile") } }
       subject { ::Guard.setup(options) }
 
+      before do
+        Guard.stub(:_debug_command_execution)
+      end
+
       it "logs command execution if the debug option is true" do
         ::Guard.should_receive(:_debug_command_execution)
         subject
@@ -443,34 +447,37 @@ describe Guard::Setuper do
   end
 
   describe '._debug_command_execution' do
-    subject { ::Guard.setup }
+    subject { Guard.setup }
 
     before do
       @original_system  = Kernel.method(:system)
-      @original_command = Kernel.method(:"`")
+      @original_command = Kernel.method(:`)
     end
 
     after do
-      Kernel.send(:remove_method, :system, :'`')
+      Kernel.send(:remove_method, :system, :`)
       Kernel.send(:define_method, :system, @original_system.to_proc)
-      Kernel.send(:define_method, :"`", @original_command.to_proc)
+      Kernel.send(:define_method, :`, @original_command.to_proc)
     end
 
     it "outputs Kernel.#system method parameters" do
-      ::Guard::UI.should_receive(:debug).with("Command execution: exit 0")
+      ::Guard::UI.should_receive(:debug).with("Command execution: echo test")
       subject.send :_debug_command_execution
-      system("exit", "0").should be_false
+
+      system('echo', 'test').should be_true
     end
 
     it "outputs Kernel.#` method parameters" do
       ::Guard::UI.should_receive(:debug).with("Command execution: echo test")
       subject.send :_debug_command_execution
+
       `echo test`.should eq "test\n"
     end
 
     it "outputs %x{} method parameters" do
       ::Guard::UI.should_receive(:debug).with("Command execution: echo test")
       subject.send :_debug_command_execution
+
       %x{echo test}.should eq "test\n"
     end
   end

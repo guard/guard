@@ -1,3 +1,5 @@
+require 'guard/ui'
+
 module Guard
 
   # This class contains useful methods to:
@@ -8,8 +10,6 @@ module Guard
   # * Add its template to the Guardfile.
   #
   class PluginUtil
-
-    require 'guard/ui'
 
     attr_accessor :name
 

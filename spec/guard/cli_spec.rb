@@ -4,7 +4,7 @@ require 'guard/cli'
 describe Guard::CLI do
   let(:guard)         { Guard }
   let(:ui)            { Guard::UI }
-  let(:dsl_describer) { double('DSLDescriber instance') }
+  let(:dsl_describer) { double('DslDescriber instance') }
 
   describe '#start' do
     before { Guard.stub(:start) }
@@ -73,7 +73,7 @@ describe Guard::CLI do
 
   describe '#list' do
     it 'outputs the Guard plugins list' do
-      ::Guard::DSLDescriber.should_receive(:new) { dsl_describer }
+      ::Guard::DslDescriber.should_receive(:new) { dsl_describer }
       dsl_describer.should_receive(:list)
 
       subject.list
@@ -168,8 +168,8 @@ describe Guard::CLI do
   end
 
   describe '#show' do
-    it 'outputs the Guard::DSLDescriber.list result' do
-      ::Guard::DSLDescriber.should_receive(:new) { dsl_describer }
+    it 'outputs the Guard::DslDescriber.list result' do
+      ::Guard::DslDescriber.should_receive(:new) { dsl_describer }
       dsl_describer.should_receive(:show)
 
       subject.show

@@ -1,5 +1,10 @@
 require 'thor'
 
+require 'guard'
+require 'guard/version'
+require 'guard/dsl_describer'
+require 'guard/guardfile'
+
 module Guard
 
   # Facade for the Guard command line interface managed by [Thor](https://github.com/wycats/thor).
@@ -7,11 +12,6 @@ module Guard
   # Do not put any logic in here, create a class and delegate instead.
   #
   class CLI < Thor
-
-    require 'guard'
-    require 'guard/version'
-    require 'guard/dsl_describer'
-    require 'guard/guardfile'
 
     default_task :start
 
@@ -121,10 +121,10 @@ module Guard
     # List the Guard plugins that are available for use in your system and marks
     # those that are currently used in your `Guardfile`.
     #
-    # @see Guard::DSLDescriber.list
+    # @see Guard::DslDescriber.list
     #
     def list
-      ::Guard::DSLDescriber.new(options).list
+      ::Guard::DslDescriber.new(options).list
     end
 
     desc 'version', 'Show the Guard version'
@@ -177,10 +177,10 @@ module Guard
     # Shows all Guard plugins and their options that are defined in
     # the `Guardfile`
     #
-    # @see Guard::DSLDescriber.show
+    # @see Guard::DslDescriber.show
     #
     def show
-      ::Guard::DSLDescriber.new(options).show
+      ::Guard::DslDescriber.new(options).show
     end
 
     private
