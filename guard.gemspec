@@ -1,25 +1,21 @@
-# -*- encoding: utf-8 -*-
-$:.unshift File.expand_path("../lib", __FILE__)
-require "guard/version"
+# encoding: utf-8
+Kernel.load File.expand_path('../lib/guard/version.rb', __FILE__)
 
 Gem::Specification.new do |s|
   s.name        = 'guard'
   s.version     = Guard::VERSION
   s.platform    = Gem::Platform::RUBY
-  s.authors     = ['Thibaud Guillaume-Gentil']
-  s.email       = ['thibaud@thibaud.me']
-  s.homepage    = 'https://github.com/guard/guard'
   s.summary     = 'Guard keeps an eye on your file modifications'
   s.description = 'Guard is a command line tool to easily handle events on file system modifications.'
+  s.author      = 'Thibaud Guillaume-Gentil'
+  s.email       = 'thibaud@thibaud.me'
+  s.homepage    = 'https://github.com/guard/guard'
 
-  s.required_rubygems_version = '>= 1.3.6'
-  s.rubyforge_project = 'guard'
-
-  s.add_dependency 'thor',       '>= 0.14.6'
-  s.add_dependency 'listen',     '>= 1.0.0'
-  s.add_dependency 'pry',        '>= 0.9.10'
-  s.add_dependency 'lumberjack', '>= 1.0.2'
-  s.add_dependency 'formatador', '>= 0.2.4'
+  s.add_runtime_dependency 'thor',       '>= 0.14.6'
+  s.add_runtime_dependency 'listen',     '>= 1.0.0'
+  s.add_runtime_dependency 'pry',        '>= 0.9.10'
+  s.add_runtime_dependency 'lumberjack', '>= 1.0.2'
+  s.add_runtime_dependency 'formatador', '>= 0.2.4'
 
   s.add_development_dependency 'bundler'
   s.add_development_dependency 'rspec',   '~> 2.13.0'

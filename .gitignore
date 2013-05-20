@@ -14,17 +14,7 @@ bundle
 Gemfile.lock
 bin/fsevent_watch_guard
 Makefile
-
 .guard_result
 coverage/
-
-## MAC OS
-.DS_Store
-.Trashes
-.com.apple.timemachine.supported
-.fseventsd
-Desktop DB
-Desktop DF
-
 .ruby-version
 .tm_properties
