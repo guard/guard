@@ -2,67 +2,67 @@ module Guard
 
   class Plugin
 
-    # Guard has a hook mechanism that allows you to insert callbacks for individual Guard plugins.
-    # By default, each of the Guard plugin instance methods has a "_begin" and an "_end" hook.
-    # For example, the Guard::Plugin#start method has a :start_begin hook that is runs immediately
-    # before Guard::Plugin#start, and a :start_end hook that runs immediately after Guard::Plugin#start.
+    # Guard has a hook mechanism that allows you to insert callbacks for
+    # individual Guard plugins.
+    # By default, each of the Guard plugin instance methods has a "_begin" and
+    # an "_end" hook.
+    # For example, the Guard::Plugin#start method has a :start_begin hook that
+    # is runs immediately before Guard::Plugin#start, and a :start_end hook
+    # that runs immediately after Guard::Plugin#start.
     #
-    # Read more about [hooks and callbacks on the wiki](https://github.com/guard/guard/wiki/Hooks-and-callbacks).
+    # Read more about [hooks and callbacks on the
+    # wiki](https://github.com/guard/guard/wiki/Hooks-and-callbacks).
     #
     module Hooker
 
       require 'guard/ui'
 
-      class << self
+      # Get all callbacks registered for all Guard plugins present in the
+      # Guardfile.
+      #
+      def self.callbacks
+        @callbacks ||= Hash.new { |hash, key| hash[key] = [] }
+      end
 
-        # Get all callbacks registered for all Guard plugins present in the
-        # Guardfile.
-        #
-        def callbacks
-          @callbacks ||= Hash.new { |hash, key| hash[key] = [] }
+      # Add a callback.
+      #
+      # @param [Block] listener the listener to notify
+      # @param [Guard::Plugin] guard_plugin the Guard plugin to add the callback
+      # @param [Array<Symbol>] events the events to register
+      #
+      def self.add_callback(listener, guard_plugin, events)
+        _events = events.is_a?(Array) ? events : [events]
+        _events.each do |event|
+          callbacks[[guard_plugin, event]] << listener
         end
+      end
 
-        # Add a callback.
-        #
-        # @param [Block] listener the listener to notify
-        # @param [Guard::Plugin] guard_plugin the Guard plugin to add the callback
-        # @param [Array<Symbol>] events the events to register
-        #
-        def add_callback(listener, guard_plugin, events)
-          _events = events.is_a?(Array) ? events : [events]
-          _events.each do |event|
-            callbacks[[guard_plugin, event]] << listener
-          end
+      # Checks if a callback has been registered.
+      #
+      # @param [Block] listener the listener to notify
+      # @param [Guard::Plugin] guard_plugin the Guard plugin to add the callback
+      # @param [Symbol] event the event to look for
+      #
+      def self.has_callback?(listener, guard_plugin, event)
+        callbacks[[guard_plugin, event]].include?(listener)
+      end
+
+      # Notify a callback.
+      #
+      # @param [Guard::Plugin] guard_plugin the Guard plugin to add the callback
+      # @param [Symbol] event the event to trigger
+      # @param [Array] args the arguments for the listener
+      #
+      def self.notify(guard_plugin, event, *args)
+        callbacks[[guard_plugin, event]].each do |listener|
+          listener.call(guard_plugin, event, *args)
         end
+      end
 
-        # Checks if a callback has been registered.
-        #
-        # @param [Block] listener the listener to notify
-        # @param [Guard::Plugin] guard_plugin the Guard plugin to add the callback
-        # @param [Symbol] event the event to look for
-        #
-        def has_callback?(listener, guard_plugin, event)
-          callbacks[[guard_plugin, event]].include?(listener)
-        end
-
-        # Notify a callback.
-        #
-        # @param [Guard::Plugin] guard_plugin the Guard plugin to add the callback
-        # @param [Symbol] event the event to trigger
-        # @param [Array] args the arguments for the listener
-        #
-        def notify(guard_plugin, event, *args)
-          callbacks[[guard_plugin, event]].each do |listener|
-            listener.call(guard_plugin, event, *args)
-          end
-        end
-
-        # Reset all callbacks.
-        #
-        def reset_callbacks!
-          @callbacks = nil
-        end
-
+      # Reset all callbacks.
+      #
+      def self.reset_callbacks!
+        @callbacks = nil
       end
 
       # When event is a Symbol, {#hook} will generate a hook name
@@ -75,8 +75,8 @@ module Guard
       #     hook :foo
       #   end
       #
-      # Here, when {Guard::Plugin::Base#run_all} is called, {#hook} will notify callbacks
-      # registered for the "run_all_foo" event.
+      # Here, when {Guard::Plugin::Base#run_all} is called, {#hook} will notify
+      # callbacks registered for the "run_all_foo" event.
       #
       # When event is a String, {#hook} will directly turn the String
       # into a Symbol.
@@ -87,11 +87,12 @@ module Guard
       #     hook "foo_bar"
       #   end
       #
-      # When {Guard::Plugin::Base#run_all} is called, {#hook} will notify callbacks
-      # registered for the "foo_bar" event.
+      # When {Guard::Plugin::Base#run_all} is called, {#hook} will notify
+      # callbacks registered for the "foo_bar" event.
       #
       # @param [Symbol, String] event the name of the Guard event
-      # @param [Array] args the parameters are passed as is to the callbacks registered for the given event.
+      # @param [Array] args the parameters are passed as is to the callbacks
+      #   registered for the given event.
       #
       def hook(event, *args)
         hook_name = if event.is_a? Symbol
@@ -111,7 +112,7 @@ module Guard
       # Add all the Guard::Plugin's callbacks to the global @callbacks array
       # that's used by Guard to know which callbacks to notify.
       #
-      def register_callbacks
+      def _register_callbacks
         callbacks.each do |callback|
           self.class.add_callback(callback[:listener], self, callback[:events])
         end

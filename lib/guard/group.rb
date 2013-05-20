@@ -1,9 +1,12 @@
 module Guard
 
-  # A group of Guard plugins. There are two reasons why you want to group your guards:
+  # A group of Guard plugins. There are two reasons why you want to group your
+  # guards:
   #
-  # - You can start only certain Groups from the command line by passing the `--group` option.
-  # - Abort task execution chain on failure within a group.
+  # * You can start only certain groups from the command line by passing the
+  #   `--group` option to `guard start`.
+  # * Abort task execution chain on failure within a group with the
+  #   `:halt_on_fail` option.
   #
   # @example Group that aborts on failure
   #

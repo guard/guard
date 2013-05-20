@@ -106,7 +106,7 @@ module Guard
     # @see Guard.start
     #
     def start
-      verify_bundler_presence unless options[:no_bundler_warning]
+      _verify_bundler_presence unless options[:no_bundler_warning]
       ::Guard.start(options)
 
       return if ENV['GUARD_ENV'] == 'test'
@@ -156,7 +156,7 @@ module Guard
     # @param [Array<String>] plugin_names the name of the Guard plugins to initialize
     #
     def init(*plugin_names)
-      verify_bundler_presence
+      _verify_bundler_presence
 
       ::Guard::Guardfile.create_guardfile(:abort_on_existence => options[:bare])
 
@@ -188,7 +188,7 @@ module Guard
     # Verifies if Guard is run with `bundle exec` and
     # shows a hint to do so if not.
     #
-    def verify_bundler_presence
+    def _verify_bundler_presence
       if File.exists?('Gemfile') && !ENV['BUNDLE_GEMFILE']
         ::Guard::UI.info <<EOF
 

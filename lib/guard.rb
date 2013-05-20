@@ -41,6 +41,7 @@ module Guard
     # @option options [Array<String>] group the list of groups to start
     # @option options [String] watchdir the director to watch
     # @option options [String] guardfile the path to the Guardfile
+    # @see CLI#start
     #
     def start(options = {})
       setup(options)
@@ -193,6 +194,7 @@ module Guard
     # @option options [Array<Watcher>] watchers the list of declared watchers
     # @option options [Array<Hash>] callbacks the list of callbacks
     # @return [Plugin] the added Guard plugin
+    # @see Plugin
     #
     def add_guard(name, options = {})
       guard_plugin_instance = ::Guard::PluginUtil.new(name).initialize_plugin(options)
@@ -210,6 +212,8 @@ module Guard
     # @return [Group] the group added (or retrieved from the `@groups`
     #   variable if already present)
     #
+    # @see Group
+    #
     def add_group(name, options = {})
       group = groups(name)
       if group.nil?
@@ -223,10 +227,11 @@ module Guard
     # blocked and execution is synchronized
     # to avoid state inconsistency.
     #
-    # @param [Boolean] restart_interactor whether to restart the interactor or not
+    # @param [Boolean] restart_interactor whether to restart the interactor or
+    #   not
     # @yield the block to run
     #
-    def within_preserved_state(restart_interactor = true)
+    def within_preserved_state
       lock.synchronize do
         begin
           interactor.stop if interactor
@@ -241,9 +246,12 @@ module Guard
       @result
     end
 
-    # @deprecated Use `Guard::PluginUtil.new(name).plugin_class(:fail_gracefully => fail_gracefully)` instead.
+    # @deprecated Use
+    #   `Guard::PluginUtil.new(name).plugin_class(:fail_gracefully =>
+    #   fail_gracefully)` instead.
     #
-    # @see https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0 How to upgrade for Guard 2.0
+    # @see https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0 How to
+    #   upgrade for Guard 2.0
     #
     def get_guard_class(name, fail_gracefully = false)
       ::Guard::UI.deprecation(::Guard::Deprecator::GET_GUARD_CLASS_DEPRECATION)
@@ -252,7 +260,8 @@ module Guard
 
     # @deprecated Use `Guard::PluginUtil.new(name).plugin_location` instead.
     #
-    # @see https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0 How to upgrade for Guard 2.0
+    # @see https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0 How to
+    #   upgrade for Guard 2.0
     #
     def locate_guard(name)
       ::Guard::UI.deprecation(::Guard::Deprecator::LOCATE_GUARD_DEPRECATION)
@@ -261,7 +270,8 @@ module Guard
 
     # @deprecated Use `Guard::PluginUtil.plugin_names` instead.
     #
-    # @see https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0 How to upgrade for Guard 2.0
+    # @see https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0 How to
+    #   upgrade for Guard 2.0
     #
     def guard_gem_names
       ::Guard::UI.deprecation(::Guard::Deprecator::GUARD_GEM_NAMES_DEPRECATION)
@@ -271,9 +281,13 @@ module Guard
     private
 
     # Given an array, returns either:
-    #   - nil if it's empty
-    #   - the first element if there's only one element
-    #   - the whole array otherwise
+    #
+    #   * nil if `results` is empty,
+    #   * the first element of `results` if `results` has only one
+    #     element,
+    #   * `results` otherwise.
+    #
+    # @return [nil, Object, Array<Object>]
     #
     def _smart_accessor_return_value(results)
       if results.empty?

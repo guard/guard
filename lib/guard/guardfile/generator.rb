@@ -1,8 +1,8 @@
 module Guard
   module Guardfile
 
-    # This class is responsible for generating the Guardfile
-    # and adding Guard' plugins' templates into it.
+    # This class is responsible for generating the Guardfile and adding Guard'
+    # plugins' templates into it.
     #
     # @see Guard::CLI
     #
@@ -19,6 +19,12 @@ module Guard
       # The location of user defined templates
       HOME_TEMPLATES = File.expand_path('~/.guard/templates')
 
+      # Initialize a new `Guard::Guardfile::Generator` object.
+      #
+      # @param [Hash] options The options for creating a Guardfile
+      # @option options [Boolean] :abort_on_existence Whether to abort or not
+      #   when a Guardfile already exists
+      #
       def initialize(options = {})
         @options = options
       end
@@ -26,10 +32,7 @@ module Guard
       # Creates the initial Guardfile template when it does not
       # already exist.
       #
-      # @see Guard::CLI.init
-      #
-      # @param [Hash] options The options for creating a Guardfile
-      # @option options [Boolean] :abort_on_existence Whether to abort or not when a Guardfile already exists
+      # @see Guard::CLI#init
       #
       def create_guardfile
         if !File.exist?('Guardfile')
@@ -43,9 +46,10 @@ module Guard
 
       # Adds the Guardfile template of a Guard plugin to an existing Guardfile.
       #
-      # @see Guard::CLI.init
+      # @see Guard::CLI#init
       #
-      # @param [String] plugin_name the name of the Guard plugin or template to initialize
+      # @param [String] plugin_name the name of the Guard plugin or template to
+      #   initialize
       #
       def initialize_template(plugin_name)
         plugin_util = ::Guard::PluginUtil.new(plugin_name)
@@ -70,10 +74,10 @@ module Guard
         end
       end
 
-      # Adds the templates of all installed Guard implementations
-      # to an existing Guardfile.
+      # Adds the templates of all installed Guard implementations to an
+      # existing Guardfile.
       #
-      # @see Guard::CLI.init
+      # @see Guard::CLI#init
       #
       def initialize_all_templates
         ::Guard::PluginUtil.plugin_names.each { |g| initialize_template(g) }

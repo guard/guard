@@ -3,8 +3,6 @@
 --markup markdown
 --markup-provider redcarpet
 --output-dir ./doc
---protected
---private
 lib/**/*.rb
 -
 CHANGELOG.md

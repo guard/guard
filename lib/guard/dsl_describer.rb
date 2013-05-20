@@ -6,7 +6,7 @@ require 'guard/ui'
 
 module Guard
 
-  # The DslDescriber evaluate the Guardfile and create an internal structure
+  # The DslDescriber evaluates the Guardfile and creates an internal structure
   # of it that is used in some inspection utility methods like the CLI commands
   # `show` and `list`.
   #
@@ -81,6 +81,9 @@ module Guard
 
     private
 
+    # Evaluates the Guardfile by delegating to
+    #   {Guardfile::Evaluator#evaluate_guardfile}.
+    #
     def _evaluate_guardfile
       ::Guard::Guardfile::Evaluator.new(options).evaluate_guardfile
     end

@@ -4,15 +4,15 @@ require 'guard/ui'
 
 module Guard
 
-  # @deprecated Use instance methods of `Guard::Guardfile::Evaluator` and
-  #   `Guard::Guardfile::Generator` instead.
+  # @deprecated Use instance methods of {Guardfile::Evaluator} and
+  #  {Guardfile::Generator} instead.
   #
   # @see Guardfile::Evaluator
   # @see Guardfile::Generator
   #
   module Guardfile
 
-    # @deprecated Use `Guard::Guardfile::Generator.new(options).create_guardfile` instead.
+    # @deprecated Use {Guardfile::Generator#create_guardfile} instead.
     #
     # @see https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0 How to upgrade for Guard 2.0
     #
@@ -21,7 +21,7 @@ module Guard
       Generator.new(options).create_guardfile
     end
 
-    # @deprecated Use `Guard::Guardfile::Generator.new.initialize_template(plugin_name)` instead.
+    # @deprecated Use {Guardfile::Generator#initialize_template} instead.
     #
     # @see https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0 How to upgrade for Guard 2.0
     #
@@ -30,7 +30,7 @@ module Guard
       Generator.new.initialize_template(plugin_name)
     end
 
-    # @deprecated Use `Guard::Guardfile::Generator.new.initialize_all_templates` instead.
+    # @deprecated Use {Guardfile::Generator#initialize_all_templates} instead.
     #
     # @see https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0 How to upgrade for Guard 2.0
     #

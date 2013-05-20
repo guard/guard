@@ -2,9 +2,10 @@ require 'guard/ui'
 
 module Guard
 
-  # The watcher defines a RegExp that will be matched against file system modifications.
-  # When a watcher matches a change, an optional action block is executed to enable
-  # processing the file system change result.
+  # The watcher defines a RegExp that will be matched against file system
+  # modifications.
+  # When a watcher matches a change, an optional action block is executed to
+  # enable processing the file system change result.
   #
   class Watcher
 
@@ -12,8 +13,10 @@ module Guard
 
     # Initializes a file watcher.
     #
-    # @param [String, Regexp] pattern the pattern to be watched by the Guard plugin
-    # @param [Block] action the action to execute before passing the result to the Guard plugin
+    # @param [String, Regexp] pattern the pattern to be watched by the Guard
+    #   plugin
+    # @param [Block] action the action to execute before passing the result to
+    #   the Guard plugin
     #
     def initialize(pattern, action = nil)
       @pattern, @action = pattern, action
@@ -67,7 +70,8 @@ module Guard
 
     # Tests if a file would be matched by any of the Guard plugin watchers.
     #
-    # @param [Array<Guard::Plugin>] guards the Guard plugins to use the watchers from
+    # @param [Array<Guard::Plugin>] guards the Guard plugins to use the
+    #   watchers from
     # @param [Array<String>] files the files to test
     # @return [Boolean] Whether a file matches
     #
@@ -91,7 +95,8 @@ module Guard
     # Test the watchers pattern against a file.
     #
     # @param [String] file the file to test
-    # @return [Array<String>] an array of matches (or containing a single path if the pattern is a string)
+    # @return [Array<String>] an array of matches (or containing a single path
+    #   if the pattern is a string)
     #
     def match(file)
       f = file
@@ -108,7 +113,7 @@ module Guard
       end
     end
 
-    # @deprecated Use `.match` instead
+    # @deprecated Use {#match} instead
     #
     def match_file?(file)
       ::Guard::UI.deprecation 'Guard::Watcher.match_file? is deprecated, please use Guard::Watcher.match instead.'
@@ -117,7 +122,8 @@ module Guard
 
     # Executes a watcher action.
     #
-    # @param [String, MatchData] matches the matched path or the match from the Regex
+    # @param [String, MatchData] matches the matched path or the match from the
+    #   Regex
     # @return [String] the final paths
     #
     def call_action(matches)
