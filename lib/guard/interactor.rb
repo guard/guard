@@ -150,6 +150,8 @@ module Guard
       _restore_terminal_settings if _stty_exists?
     end
 
+    private
+
     # Add Pry hooks:
     #
     # * Load `~/.guardrc` within each new Pry session.

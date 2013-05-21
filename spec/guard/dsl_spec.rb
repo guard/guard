@@ -210,7 +210,7 @@ describe Guard::Dsl do
   describe '#callback' do
     it 'creates callbacks for the guard' do
       class MyCustomCallback
-        def self.call(guard_class, event, args)
+        def self.call(plugin, event, args)
           # do nothing
         end
       end
@@ -222,9 +222,10 @@ describe Guard::Dsl do
         options[:callbacks][1][:events].should eq [:start_begin, :run_all_begin]
         options[:callbacks][1][:listener].should eq MyCustomCallback
       end
+
       described_class.evaluate_guardfile(:guardfile_contents => '
         guard :dummy do
-          callback(:start_end) { |guard_class, event, args| "#{guard_class} executed \'#{event}\' hook with #{args}!" }
+          callback(:start_end) { |plugin, event, args| "#{plugin} executed \'#{event}\' hook with #{args}!" }
           callback(MyCustomCallback, [:start_begin, :run_all_begin])
         end')
     end

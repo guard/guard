@@ -5,6 +5,8 @@ module Guard
 
   module Setuper
 
+    DEFAULT_GROUPS = [:default]
+
     # Initializes the Guard singleton:
     #
     # * Initialize the internal Guard state;
@@ -54,10 +56,10 @@ module Guard
 
     # Initializes the groups array with the default group(s).
     #
-    # @see #_default_groups
+    # @see DEFAULT_GROUPS
     #
     def reset_groups
-      @groups = _default_groups
+      @groups = DEFAULT_GROUPS.map { |name| Group.new(name) }
     end
 
     # Initializes the guards array to an empty array.
@@ -170,17 +172,6 @@ module Guard
       unless options[:no_interactions] || !::Guard::Interactor.enabled
         @interactor = ::Guard::Interactor.new
       end
-    end
-
-    # Returns an array of the default group(s) when Guard starts or when
-    # `Guard.reset` is called.
-    #
-    # @see #reset_groups
-    #
-    # @return [Array<Guard::Group>] the default groups
-    #
-    def _default_groups
-      [Group.new(:default)]
     end
 
     # Adds a command logger in debug mode. This wraps common command

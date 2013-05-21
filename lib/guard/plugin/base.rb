@@ -22,8 +22,8 @@ module Guard
         #
         #
         # @example Non-namespaced class name for Guard::RSpec
-        #   > Guard::RSpec.non_namespaced_classname
-        #   => "RSpec"
+        #   Guard::RSpec.non_namespaced_classname
+        #   #=> "RSpec"
         #
         # @return [String]
         #
@@ -35,8 +35,8 @@ module Guard
         #
         #
         # @example Non-namespaced name for Guard::RSpec
-        #   > Guard::RSpec.non_namespaced_name
-        #   => "rspec"
+        #   Guard::RSpec.non_namespaced_name
+        #   #=> "rspec"
         #
         # @return [String]
         #
@@ -54,14 +54,16 @@ module Guard
         end
       end
 
-      # Called once when Guard starts. Please override initialize method to init stuff.
+      # Called once when Guard starts. Please override initialize method to
+      # init stuff.
       #
       # @raise [:task_has_failed] when start has failed
       # @return [Object] the task result
       #
       # @!method start
 
-      # Called when `stop|quit|exit|s|q|e + enter` is pressed (when Guard quits).
+      # Called when `stop|quit|exit|s|q|e + enter` is pressed (when Guard
+      # quits).
       #
       # @raise [:task_has_failed] when stop has failed
       # @return [Object] the task result
@@ -69,15 +71,17 @@ module Guard
       # @!method stop
 
       # Called when `reload|r|z + enter` is pressed.
-      # This method should be mainly used for "reload" (really!) actions like reloading passenger/spork/bundler/...
+      # This method should be mainly used for "reload" (really!) actions like
+      # reloading passenger/spork/bundler/...
       #
       # @raise [:task_has_failed] when reload has failed
       # @return [Object] the task result
       #
-      # @!method  reload
+      # @!method reload
 
       # Called when just `enter` is pressed
-      # This method should be principally used for long action like running all specs/tests/...
+      # This method should be principally used for long action like running all
+      # specs/tests/...
       #
       # @raise [:task_has_failed] when run_all has failed
       # @return [Object] the task result
@@ -143,8 +147,8 @@ module Guard
       # String representation of the plugin.
       #
       # @example String representation of an instance of the Guard::RSpec plugin
-      #   > Guard::RSpec.new.title
-      #   => "#<Guard::RSpec @name=rspec @group=#<Guard::Group @name=default @options={}> @watchers=[] @callbacks=[] @options={:all_after_pass=>true}>"
+      #   Guard::RSpec.new.title
+      #   #=> "#<Guard::RSpec @name=rspec @group=#<Guard::Group @name=default @options={}> @watchers=[] @callbacks=[] @options={:all_after_pass=>true}>"
       #
       # @return [String] the string representation
       #
@@ -161,7 +165,7 @@ module Guard
       #
       # @see Guard::Plugin.initialize
       #
-      def set_instance_variables_from_options(options)
+      def _set_instance_variables_from_options(options)
         group_name = options.delete(:group) { :default }
         @group = ::Guard.groups(group_name) || ::Guard.add_group(group_name)
         @watchers  = options.delete(:watchers) { [] }

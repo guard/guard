@@ -26,7 +26,7 @@ describe Guard::Guardfile::Evaluator do
     end
 
     it 'displays an error message when no Guardfile is found' do
-      guardfile_evaluator.stub(:guardfile_default_path).and_return('no_guardfile_here')
+      guardfile_evaluator.stub(:_guardfile_default_path).and_return('no_guardfile_here')
       Guard::UI.should_receive(:error).with('No Guardfile found, please create one with `guard init`.')
 
       lambda { guardfile_evaluator.evaluate_guardfile }.should raise_error
@@ -34,7 +34,7 @@ describe Guard::Guardfile::Evaluator do
 
     it 'doesn\'t display an error message when no Guard plugins are defined in Guardfile' do
       guardfile_evaluator = described_class.new(:guardfile_contents => valid_guardfile_string)
-      guardfile_evaluator.stub!(:instance_eval_guardfile)
+      guardfile_evaluator.stub(:_instance_eval_guardfile)
       ::Guard.stub!(:guards).and_return([])
       Guard::UI.should_not_receive(:error)
 
@@ -42,7 +42,7 @@ describe Guard::Guardfile::Evaluator do
     end
 
     describe 'correctly throws errors when initializing with invalid data' do
-      before { Guard::Guardfile::Evaluator.any_instance.stub(:instance_eval_guardfile) }
+      before { Guard::Guardfile::Evaluator.any_instance.stub(:_instance_eval_guardfile) }
 
       it 'raises error when there\'s a problem reading a file' do
         File.stub!(:exist?).with('/def/Guardfile') { true }
@@ -79,7 +79,7 @@ describe Guard::Guardfile::Evaluator do
     end
 
     describe 'it should select the correct data source for Guardfile' do
-      before { Guard::Guardfile::Evaluator.any_instance.stub(:instance_eval_guardfile) }
+      before { Guard::Guardfile::Evaluator.any_instance.stub(:_instance_eval_guardfile) }
       disable_user_config
 
       it 'should use a string for initializing' do
@@ -138,7 +138,7 @@ describe Guard::Guardfile::Evaluator do
     end
 
     describe 'correctly reads data from its valid data source' do
-      before { ::Guard::Dsl.stub!(:instance_eval_guardfile) }
+      before { ::Guard::Dsl.stub(:_instance_eval_guardfile) }
       disable_user_config
 
       it 'reads correctly from a string' do
@@ -191,7 +191,7 @@ describe Guard::Guardfile::Evaluator do
 
   describe '.reevaluate_guardfile' do
     before do
-      guardfile_evaluator.stub!(:instance_eval_guardfile)
+      guardfile_evaluator.stub(:_instance_eval_guardfile)
       ::Guard.runner.stub(:run)
     end
 
@@ -289,25 +289,25 @@ describe Guard::Guardfile::Evaluator do
 
   describe '.guardfile_include?' do
     it 'detects a guard specified by a string with double quotes' do
-      guardfile_evaluator.stub(:guardfile_contents_without_user_config => 'guard "test" {watch("c")}')
+      guardfile_evaluator.stub(:_guardfile_contents_without_user_config => 'guard "test" {watch("c")}')
 
       guardfile_evaluator.guardfile_include?('test').should be_true
     end
 
     it 'detects a guard specified by a string with single quote' do
-      guardfile_evaluator.stub(:guardfile_contents_without_user_config => 'guard \'test\' {watch("c")}')
+      guardfile_evaluator.stub(:_guardfile_contents_without_user_config => 'guard \'test\' {watch("c")}')
 
       guardfile_evaluator.guardfile_include?('test').should be_true
     end
 
     it 'detects a guard specified by a symbol' do
-      guardfile_evaluator.stub(:guardfile_contents_without_user_config => 'guard :test {watch("c")}')
+      guardfile_evaluator.stub(:_guardfile_contents_without_user_config => 'guard :test {watch("c")}')
 
       guardfile_evaluator.guardfile_include?('test').should be_true
     end
 
     it 'detects a guard wrapped in parentheses' do
-      guardfile_evaluator.stub(:guardfile_contents_without_user_config => 'guard(:test) {watch("c")}')
+      guardfile_evaluator.stub(:_guardfile_contents_without_user_config => 'guard(:test) {watch("c")}')
 
       guardfile_evaluator.guardfile_include?('test').should be_true
     end

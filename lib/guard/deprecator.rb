@@ -137,24 +137,20 @@ module Guard
       Documentation on the README: https://github.com/guard/guard#ignore
     EOS
 
-    class << self
+    # Displays a warning for each deprecated options used when starting Guard.
+    #
+    def self.deprecated_options_warning(options)
+      ::Guard::UI.deprecation(WATCH_ALL_MODIFICATIONS_DEPRECATION) if options[:watch_all_modifications]
+      ::Guard::UI.deprecation(NO_VENDOR_DEPRECATION) if options[:no_vendor]
+    end
 
-      # Displays a warning for each deprecated options used.
-      #
-      def deprecated_options_warning(options)
-        ::Guard::UI.deprecation(WATCH_ALL_MODIFICATIONS_DEPRECATION) if options[:watch_all_modifications]
-        ::Guard::UI.deprecation(NO_VENDOR_DEPRECATION) if options[:no_vendor]
+    # Displays a warning for each deprecated method used is any registered Guard plugin.
+    #
+    def self.deprecated_plugin_methods_warning
+      ::Guard.guards.each do |guard|
+        ::Guard::UI.deprecation(RUN_ON_CHANGE_DEPRECATION % guard.class.name)   if guard.respond_to?(:run_on_change)
+        ::Guard::UI.deprecation(RUN_ON_DELETION_DEPRECATION % guard.class.name) if guard.respond_to?(:run_on_deletion)
       end
-
-      # Displays a warning for each deprecated-method used is any registered guard.
-      #
-      def deprecated_plugin_methods_warning
-        ::Guard.guards.each do |guard|
-          ::Guard::UI.deprecation(RUN_ON_CHANGE_DEPRECATION % guard.class.name)   if guard.respond_to?(:run_on_change)
-          ::Guard::UI.deprecation(RUN_ON_DELETION_DEPRECATION % guard.class.name) if guard.respond_to?(:run_on_deletion)
-        end
-      end
-
     end
 
   end
