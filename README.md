@@ -83,7 +83,10 @@ Without interactor, `Ctrl-C` exits Guard and `Ctrl-D` is ignored.
 
 ## System notifications
 
-You can configure Guard to make use of the following system notification libraries:
+You can configure Guard to notify plugin results throgh one or more channels described below. If you
+do not specify a specific notification channel with the
+[notification](https://github.com/guard/guard#notification) DSL method, then Guard auto-detects all
+available channels and makes use of them.
 
 #### Ruby GNTP
 
@@ -707,7 +710,7 @@ plural and the singular option, the plural has precedence.
 ### notification
 
 If you don't specify any notification configuration in your `Guardfile`, Guard goes through the list of available
-notifiers and takes the first that is available. If you specify your preferred library, auto detection will not take
+notifiers and enables all that are available. If you specify your preferred library, auto detection will not take
 place:
 
 ```ruby
