@@ -39,7 +39,7 @@ Installation
 
 The simplest way to install Guard is to use [Bundler](http://gembundler.com/).
 
-Add Guard to your `Gemfile`:
+Add Guard (and any other dependencies) to a `Gemfile` in your project’s root:
 
 ```ruby
 group :development do
@@ -47,7 +47,7 @@ group :development do
 end
 ```
 
-and install it by running Bundler:
+then install it by running Bundler:
 
 ```bash
 $ bundle
@@ -57,6 +57,12 @@ Generate an empty `Guardfile` with:
 
 ```bash
 $ guard init
+```
+
+Run Guard through Bundler with:
+
+```bash
+$ bundle exec guard
 ```
 
 **It's important that you always run Guard through Bundler to avoid errors.** If you're getting sick of typing
