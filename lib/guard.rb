@@ -196,11 +196,11 @@ module Guard
     # @return [Plugin] the added Guard plugin
     # @see Plugin
     #
-    def add_guard(name, options = {})
-      guard_plugin_instance = ::Guard::PluginUtil.new(name).initialize_plugin(options)
-      @guards << guard_plugin_instance
+    def add_plugin(name, options = {})
+      plugin_instance = ::Guard::PluginUtil.new(name).initialize_plugin(options)
+      @plugins << plugin_instance
 
-      guard_plugin_instance
+      plugin_instance
     end
 
     # Add a Guard plugin group.

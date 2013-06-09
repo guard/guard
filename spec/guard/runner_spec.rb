@@ -11,9 +11,9 @@ describe Guard::Runner do
 
     @backend_group  = guard.add_group(:backend)
     @frontend_group = guard.add_group(:frontend)
-    @foo_guard      = guard.add_guard(:foo, { :group => :backend })
-    @bar_guard      = guard.add_guard(:bar, { :group => :frontend })
-    @baz_guard      = guard.add_guard(:baz, { :group => :frontend })
+    @foo_guard      = guard.add_plugin(:foo, { :group => :backend })
+    @bar_guard      = guard.add_plugin(:bar, { :group => :frontend })
+    @baz_guard      = guard.add_plugin(:baz, { :group => :frontend })
   end
 
   describe '#run' do

@@ -53,10 +53,10 @@ describe Guard do
     before do
       stub_const 'Guard::FooBar', Class.new(Guard::Plugin)
       stub_const 'Guard::FooBaz', Class.new(Guard::Plugin)
-      @guard_foo_bar_backend = described_class.add_guard('foo_bar', :group => 'backend')
-      @guard_foo_baz_backend = described_class.add_guard('foo_baz', :group => 'backend')
-      @guard_foo_bar_frontend = described_class.add_guard('foo_bar', :group => 'frontend')
-      @guard_foo_baz_frontend = described_class.add_guard('foo_baz', :group => 'frontend')
+      @guard_foo_bar_backend = described_class.add_plugin('foo_bar', :group => 'backend')
+      @guard_foo_baz_backend = described_class.add_plugin('foo_baz', :group => 'backend')
+      @guard_foo_bar_frontend = described_class.add_plugin('foo_bar', :group => 'frontend')
+      @guard_foo_baz_frontend = described_class.add_plugin('foo_baz', :group => 'frontend')
     end
 
     it "return @plugins without any argument" do
@@ -242,11 +242,11 @@ describe Guard do
     it 'delegates the plugin instantiation to Guard::PluginUtil' do
       plugin_util.should_receive(:initialize_plugin).with(:watchers => ['watcher'], :group => 'foo')
 
-      ::Guard.add_guard('rspec', :watchers => ['watcher'], :group => 'foo')
+      ::Guard.add_plugin('rspec', :watchers => ['watcher'], :group => 'foo')
     end
 
-    it "adds guard to the @guards array" do
-      ::Guard.add_guard('rspec')
+    it "adds guard to the @plugins array" do
+      ::Guard.add_plugin('rspec')
 
       ::Guard.plugins.should eq [guard_rspec]
     end

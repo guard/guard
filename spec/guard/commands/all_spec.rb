@@ -5,7 +5,7 @@ describe 'Guard::Interactor::ALL' do
 
   let(:guard)     { ::Guard.setup }
   let(:foo_group) { guard.add_group(:foo) }
-  let(:bar_guard) { guard.add_guard(:bar, :group => :foo) }
+  let(:bar_guard) { guard.add_plugin(:bar, :group => :foo) }
 
   before do
     Guard.stub(:run_all)
