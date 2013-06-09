@@ -19,7 +19,7 @@ describe Guard::Runner do
   describe '#run' do
     let(:scopes) { { :group => @backend_group } }
 
-    it 'executes a supervised task on all registered guards implementing that task' do
+    it 'executes a supervised task on all registered plugins implementing that task' do
       [@foo_guard, @bar_guard].each do |g|
         g.stub(:my_task)
         subject.should_receive(:run_supervised_task).with(g, :my_task)
@@ -76,7 +76,7 @@ describe Guard::Runner do
     let(:watcher_module) { ::Guard::Watcher }
 
     before do
-      subject.stub(:_scoped_guards).and_yield(@foo_guard)
+      subject.stub(:_scoped_plugins).and_yield(@foo_guard)
       subject.stub(:_clearable?) { false }
       watcher_module.stub(:match_files) { [] }
     end
@@ -204,7 +204,7 @@ describe Guard::Runner do
         it 'does not remove the Guard' do
           expect {
             subject.run_supervised_task(@foo_guard, :regular_without_arg)
-          }.to_not change(::Guard.guards, :size)
+          }.to_not change(::Guard.plugins, :size)
         end
 
         it 'returns the result of the task' do
@@ -231,7 +231,7 @@ describe Guard::Runner do
         it 'does not remove the Guard' do
           expect {
             subject.run_supervised_task(@foo_guard, :regular_with_arg, 'given_path')
-          }.to_not change(::Guard.guards, :size)
+          }.to_not change(::Guard.plugins, :size)
         end
 
         it 'returns the result of the task' do
@@ -276,9 +276,9 @@ describe Guard::Runner do
       it 'removes the Guard' do
         expect {
           subject.run_supervised_task(@foo_guard, :failing)
-        }.to change(::Guard.guards, :size).by(-1)
+        }.to change(::Guard.plugins, :size).by(-1)
 
-        ::Guard.guards.should_not include(@foo_guard)
+        ::Guard.plugins.should_not include(@foo_guard)
       end
 
       it 'display an error to the user' do

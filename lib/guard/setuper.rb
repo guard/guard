@@ -40,7 +40,7 @@ module Guard
       _setup_signal_traps
 
       reset_groups
-      reset_guards
+      reset_plugins
       evaluate_guardfile
 
       _setup_scopes
@@ -62,12 +62,12 @@ module Guard
       @groups = DEFAULT_GROUPS.map { |name| Group.new(name) }
     end
 
-    # Initializes the guards array to an empty array.
+    # Initializes the plugins array to an empty array.
     #
-    # @see Guard.guards
+    # @see Guard.plugins
     #
-    def reset_guards
-      @guards = []
+    def reset_plugins
+      @plugins = []
     end
 
     # Evaluates the Guardfile content. It displays an error message if no
@@ -77,7 +77,7 @@ module Guard
     #
     def evaluate_guardfile
       evaluator.evaluate_guardfile
-      ::Guard::UI.error 'No guards found in Guardfile, please add at least one.' if guards.empty?
+      ::Guard::UI.error 'No plugins found in Guardfile, please add at least one.' if plugins.empty?
     end
 
     private
@@ -153,7 +153,7 @@ module Guard
     #
     def _setup_scopes
       scope[:groups]  = options[:group].map { |g| ::Guard.groups(g) } if options[:group]
-      scope[:plugins] = options[:plugin].map { |p| ::Guard.guards(p) } if options[:plugin]
+      scope[:plugins] = options[:plugin].map { |p| ::Guard.plugins(p) } if options[:plugin]
     end
 
     # Enables or disables the notifier based on user's configurations.

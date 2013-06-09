@@ -19,7 +19,7 @@ describe Guard::Setuper do
     end
 
     it "initializes the plugins" do
-      subject.guards.should eq []
+      subject.plugins.should eq []
     end
 
     it "initializes the groups" do
@@ -61,7 +61,7 @@ describe Guard::Setuper do
     end
 
     it 'displays an error message when no guard are defined in Guardfile' do
-      Guard::UI.should_receive(:error).with('No guards found in Guardfile, please add at least one.')
+      Guard::UI.should_receive(:error).with('No plugins found in Guardfile, please add at least one.')
 
       subject
     end
@@ -164,21 +164,21 @@ describe Guard::Setuper do
     end
   end
 
-  describe '.reset_guards' do
+  describe '.reset_plugins' do
     before { class Guard::FooBar < Guard::Plugin; end }
     subject do
-      ::Guard.setup(:guardfile => File.join(@fixture_path, "Guardfile")).tap { |g| g.add_guard(:foo_bar) }
+      ::Guard.setup(:guardfile => File.join(@fixture_path, "Guardfile")).tap { |g| g.add_plugin(:foo_bar) }
     end
     after do
       ::Guard.instance_eval { remove_const(:FooBar) }
     end
 
-    it "return clear the guards array" do
-      subject.guards.should have(1).item
+    it "return clear the plugins array" do
+      subject.plugins.should have(1).item
 
-      subject.reset_guards
+      subject.reset_plugins
 
-      subject.guards.should be_empty
+      subject.plugins.should be_empty
     end
   end
 

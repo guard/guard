@@ -242,15 +242,15 @@ describe Guard::Watcher do
     before(:all) do
       @guard1 = Guard::Plugin.new(:watchers => [described_class.new(/.*_spec\.rb/)])
       @guard2 = Guard::Plugin.new(:watchers => [described_class.new('spec_helper.rb', 'spec')])
-      @guards = [@guard1, @guard2]
+      @plugins = [@guard1, @guard2]
     end
 
     context "with a watcher that matches a file" do
-      specify { described_class.match_files?(@guards, ['lib/my_wonderful_lib.rb', 'guard_rocks_spec.rb']).should be_true }
+      specify { described_class.match_files?(@plugins, ['lib/my_wonderful_lib.rb', 'guard_rocks_spec.rb']).should be_true }
     end
 
     context "with no watcher that matches a file" do
-      specify { described_class.match_files?(@guards, ['lib/my_wonderful_lib.rb']).should be_false }
+      specify { described_class.match_files?(@plugins, ['lib/my_wonderful_lib.rb']).should be_false }
     end
   end
 

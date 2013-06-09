@@ -49,7 +49,7 @@ describe Guard do
     end
   end
 
-  describe '.guards' do
+  describe '.plugins' do
     before do
       stub_const 'Guard::FooBar', Class.new(Guard::Plugin)
       stub_const 'Guard::FooBaz', Class.new(Guard::Plugin)
@@ -59,64 +59,64 @@ describe Guard do
       @guard_foo_baz_frontend = described_class.add_guard('foo_baz', :group => 'frontend')
     end
 
-    it "return @guards without any argument" do
-      described_class.guards.should eq subject.instance_variable_get("@guards")
+    it "return @plugins without any argument" do
+      described_class.plugins.should eq subject.instance_variable_get("@plugins")
     end
 
     context "find a guard by as string/symbol" do
       it "find a guard by a string" do
-        described_class.guards('foo-bar').should eq [@guard_foo_bar_backend, @guard_foo_bar_frontend]
+        described_class.plugins('foo-bar').should eq [@guard_foo_bar_backend, @guard_foo_bar_frontend]
       end
 
       it "find a guard by a symbol" do
-        described_class.guards(:'foo-bar').should eq [@guard_foo_bar_backend, @guard_foo_bar_frontend]
+        described_class.plugins(:'foo-bar').should eq [@guard_foo_bar_backend, @guard_foo_bar_frontend]
       end
 
       it "returns nil if guard is not found" do
-        described_class.guards('foo-foo').should eq nil
+        described_class.plugins('foo-foo').should eq nil
       end
     end
 
-    context "find guards matching a regexp" do
+    context "find plugins matching a regexp" do
       it "with matches" do
-        described_class.guards(/^foobar/).should eq [@guard_foo_bar_backend, @guard_foo_bar_frontend]
+        described_class.plugins(/^foobar/).should eq [@guard_foo_bar_backend, @guard_foo_bar_frontend]
       end
 
       it "without matches" do
-        described_class.guards(/foo$/).should eq nil
+        described_class.plugins(/foo$/).should eq nil
       end
     end
 
-    context "find guards by their group" do
+    context "find plugins by their group" do
       it "group name is a string" do
-        described_class.guards(:group => 'backend').should eq [@guard_foo_bar_backend, @guard_foo_baz_backend]
+        described_class.plugins(:group => 'backend').should eq [@guard_foo_bar_backend, @guard_foo_baz_backend]
       end
 
       it "group name is a symbol" do
-        described_class.guards(:group => :frontend).should eq [@guard_foo_bar_frontend, @guard_foo_baz_frontend]
+        described_class.plugins(:group => :frontend).should eq [@guard_foo_bar_frontend, @guard_foo_baz_frontend]
       end
 
       it "returns nil if guard is not found" do
-        described_class.guards(:group => :unknown).should eq nil
+        described_class.plugins(:group => :unknown).should eq nil
       end
     end
 
-    context "find guards by their group & name" do
+    context "find plugins by their group & name" do
       it "group name is a string" do
-        described_class.guards(:group => 'backend', :name => 'foo-bar').should eq @guard_foo_bar_backend
+        described_class.plugins(:group => 'backend', :name => 'foo-bar').should eq @guard_foo_bar_backend
       end
 
       it "group name is a symbol" do
-        described_class.guards(:group => :frontend, :name => :'foo-baz').should eq @guard_foo_baz_frontend
+        described_class.plugins(:group => :frontend, :name => :'foo-baz').should eq @guard_foo_baz_frontend
       end
 
       it "returns nil if guard is not found" do
-        described_class.guards(:group => :unknown, :name => :'foo-baz').should eq nil
+        described_class.plugins(:group => :unknown, :name => :'foo-baz').should eq nil
       end
     end
   end
 
-  describe ".groups" do
+  describe '.groups' do
     subject do
       guard           = ::Guard.setup
       @group_backend  = guard.add_group(:backend)
@@ -228,7 +228,7 @@ describe Guard do
     end
   end
 
-  describe '.add_guard' do
+  describe '.add_plugin' do
     let(:plugin_util) { double('Guard::PluginUtil') }
     let(:guard_rspec) { double('Guard::RSpec instance') }
 
@@ -236,7 +236,7 @@ describe Guard do
       ::Guard::PluginUtil.should_receive(:new).with('rspec') { plugin_util }
       plugin_util.stub!(:initialize_plugin) { guard_rspec }
 
-      ::Guard.reset_guards
+      ::Guard.reset_plugins
     end
 
     it 'delegates the plugin instantiation to Guard::PluginUtil' do
@@ -248,7 +248,7 @@ describe Guard do
     it "adds guard to the @guards array" do
       ::Guard.add_guard('rspec')
 
-      ::Guard.guards.should eq [guard_rspec]
+      ::Guard.plugins.should eq [guard_rspec]
     end
   end
 
