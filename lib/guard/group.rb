@@ -1,7 +1,7 @@
 module Guard
 
   # A group of Guard plugins. There are two reasons why you want to group your
-  # guards:
+  # Guard plugins:
   #
   # * You can start only certain groups from the command line by passing the
   #   `--group` option to `guard start`.

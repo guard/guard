@@ -4,7 +4,7 @@ module Guard
   class Deprecator
 
     MORE_INFO_ON_UPGRADING_TO_GUARD_1_1 = <<-EOS.gsub(/^\s*/, '')
-      For more information on how to update existing guards, please head over
+      For more information on how to update existing Guard plugins, please head over
       to: https://github.com/guard/guard/wiki/Upgrade-guide-for-existing-guards-to-Guard-v1.1
     EOS
 
@@ -163,9 +163,9 @@ module Guard
     # Displays a warning for each deprecated method used is any registered Guard plugin.
     #
     def self.deprecated_plugin_methods_warning
-      ::Guard.guards.each do |guard|
-        ::Guard::UI.deprecation(RUN_ON_CHANGE_DEPRECATION % guard.class.name)   if guard.respond_to?(:run_on_change)
-        ::Guard::UI.deprecation(RUN_ON_DELETION_DEPRECATION % guard.class.name) if guard.respond_to?(:run_on_deletion)
+      ::Guard.plugins.each do |plugin|
+        ::Guard::UI.deprecation(RUN_ON_CHANGE_DEPRECATION % plugin.class.name)   if plugin.respond_to?(:run_on_change)
+        ::Guard::UI.deprecation(RUN_ON_DELETION_DEPRECATION % plugin.class.name) if plugin.respond_to?(:run_on_deletion)
       end
     end
 
