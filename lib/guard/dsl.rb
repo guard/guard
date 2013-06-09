@@ -152,7 +152,7 @@ module Guard
     # @yield a block where you can declare several watch patterns and actions
     #
     # @see Plugin
-    # @see Guard.add_guard
+    # @see Guard.add_plugin
     # @see #watch
     # @see #group
     #
@@ -164,7 +164,7 @@ module Guard
       yield if block_given?
 
       options.merge!(:group => @current_group, :watchers => @watchers, :callbacks => @callbacks)
-      ::Guard.add_guard(name, options)
+      ::Guard.add_plugin(name, options)
     end
 
     # Defines a pattern to be watched in order to run actions on file modification.

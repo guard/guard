@@ -144,11 +144,11 @@ describe Guard::Dsl do
     end
 
     it 'evaluates all groups' do
-      ::Guard.should_receive(:add_guard).with(:pow,   { :watchers => [], :callbacks => [], :group => :default })
-      ::Guard.should_receive(:add_guard).with(:test,  { :watchers => [], :callbacks => [], :group => :w })
-      ::Guard.should_receive(:add_guard).with(:rspec, { :watchers => [], :callbacks => [], :group => :x })
-      ::Guard.should_receive(:add_guard).with(:ronn,  { :watchers => [], :callbacks => [], :group => :x })
-      ::Guard.should_receive(:add_guard).with(:less,  { :watchers => [], :callbacks => [], :group => :y })
+      ::Guard.should_receive(:add_plugin).with(:pow,   { :watchers => [], :callbacks => [], :group => :default })
+      ::Guard.should_receive(:add_plugin).with(:test,  { :watchers => [], :callbacks => [], :group => :w })
+      ::Guard.should_receive(:add_plugin).with(:rspec, { :watchers => [], :callbacks => [], :group => :x })
+      ::Guard.should_receive(:add_plugin).with(:ronn,  { :watchers => [], :callbacks => [], :group => :x })
+      ::Guard.should_receive(:add_plugin).with(:less,  { :watchers => [], :callbacks => [], :group => :y })
 
       described_class.evaluate_guardfile(:guardfile_contents => valid_guardfile_string)
     end
@@ -158,31 +158,31 @@ describe Guard::Dsl do
     disable_user_config
 
     it 'loads a guard specified as a quoted string from the DSL' do
-      ::Guard.should_receive(:add_guard).with('test', { :watchers => [], :callbacks => [], :group => :default })
+      ::Guard.should_receive(:add_plugin).with('test', { :watchers => [], :callbacks => [], :group => :default })
 
       described_class.evaluate_guardfile(:guardfile_contents => 'guard \'test\'')
     end
 
     it 'loads a guard specified as a double quoted string from the DSL' do
-      ::Guard.should_receive(:add_guard).with('test', { :watchers => [], :callbacks => [], :group => :default })
+      ::Guard.should_receive(:add_plugin).with('test', { :watchers => [], :callbacks => [], :group => :default })
 
       described_class.evaluate_guardfile(:guardfile_contents => 'guard "test"')
     end
 
     it 'loads a guard specified as a symbol from the DSL' do
-      ::Guard.should_receive(:add_guard).with(:test, { :watchers => [], :callbacks => [], :group => :default })
+      ::Guard.should_receive(:add_plugin).with(:test, { :watchers => [], :callbacks => [], :group => :default })
 
       described_class.evaluate_guardfile(:guardfile_contents => 'guard :test')
     end
 
     it 'loads a guard specified as a symbol and called with parens from the DSL' do
-      ::Guard.should_receive(:add_guard).with(:test, { :watchers => [], :callbacks => [], :group => :default })
+      ::Guard.should_receive(:add_plugin).with(:test, { :watchers => [], :callbacks => [], :group => :default })
 
       described_class.evaluate_guardfile(:guardfile_contents => 'guard(:test)')
     end
 
     it 'receives options when specified, from normal arg' do
-      ::Guard.should_receive(:add_guard).with('test', { :watchers => [], :callbacks => [], :opt_a => 1, :opt_b => 'fancy', :group => :default })
+      ::Guard.should_receive(:add_plugin).with('test', { :watchers => [], :callbacks => [], :opt_a => 1, :opt_b => 'fancy', :group => :default })
 
       described_class.evaluate_guardfile(:guardfile_contents => 'guard \'test\', :opt_a => 1, :opt_b => \'fancy\'')
     end
@@ -192,7 +192,7 @@ describe Guard::Dsl do
     disable_user_config
 
     it 'should receive watchers when specified' do
-      ::Guard.should_receive(:add_guard).with(:dummy, { :watchers => [anything, anything], :callbacks => [], :group => :default }) do |_, options|
+      ::Guard.should_receive(:add_plugin).with(:dummy, { :watchers => [anything, anything], :callbacks => [], :group => :default }) do |_, options|
         options[:watchers].size.should eq 2
         options[:watchers][0].pattern.should eq 'a'
         options[:watchers][0].action.call.should eq proc { 'b' }.call
@@ -215,7 +215,7 @@ describe Guard::Dsl do
         end
       end
 
-      ::Guard.should_receive(:add_guard).with(:dummy, { :watchers => [], :callbacks => [anything, anything], :group => :default }) do |_, options|
+      ::Guard.should_receive(:add_plugin).with(:dummy, { :watchers => [], :callbacks => [anything, anything], :group => :default }) do |_, options|
         options[:callbacks].should have(2).items
         options[:callbacks][0][:events].should    eq :start_end
         options[:callbacks][0][:listener].call(Guard::Dummy, :start_end, 'foo').should eq 'Guard::Dummy executed \'start_end\' hook with foo!'
