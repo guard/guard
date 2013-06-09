@@ -3,6 +3,7 @@
 ### Removals & deprecations
 
 - Remove `Guard::Guardfile.duplicate_definitions?`. ([@rymai][])
+- Deprecate `Guard.guards(filter)` in favor of `Guard.plugins(filter)`. ([@rymai][])
 - Deprecate `Guard.get_guard_class(name, fail_gracefully)` in favor of `Guard::PluginUtil.new(name).plugin_class(:fail_gracefully => fail_gracefully)`. ([@rymai][])
 - Deprecate `Guard.locate_guard(name)` in favor of `Guard::PluginUtil.new(name).plugin_location`. ([@rymai][])
 - Deprecate `Guard.guard_gem_names` in favor of `Guard::PluginUtil.plugin_names`. ([@rymai][])

@@ -117,51 +117,51 @@ module Guard
     # @see Guard.groups
     #
     # @example Filter Guard plugins by String or Symbol
-    #   Guard.guards('rspec')
-    #   Guard.guards(:rspec)
+    #   Guard.plugins('rspec')
+    #   Guard.plugins(:rspec)
     #
     # @example Filter Guard plugins by Regexp
-    #   Guard.guards(/rsp.+/)
+    #   Guard.plugins(/rsp.+/)
     #
     # @example Filter Guard plugins by Hash
-    #   Guard.guards(:name => 'rspec', :group => 'backend')
+    #   Guard.plugins(:name => 'rspec', :group => 'backend')
     #
     # @param [String, Symbol, Regexp, Hash] filter the filter to apply to the Guard plugins
     # @return [Plugin, Array<Plugin>] the filtered Guard plugin(s)
     #
-    def guards(filter = nil)
-      @guards ||= []
+    def plugins(filter = nil)
+      @plugins ||= []
 
-      return @guards if filter.nil?
+      return @plugins if filter.nil?
 
-      filtered_guards = case filter
+      filtered_plugins = case filter
                         when String, Symbol
-                          @guards.find_all do |guard_plugin|
-                            guard_plugin.name == filter.to_s.downcase.gsub('-', '')
+                          @plugins.find_all do |plugin|
+                            plugin.name == filter.to_s.downcase.gsub('-', '')
                           end
                         when Regexp
-                          @guards.find_all do |guard_plugin|
-                            guard_plugin.name =~ filter
+                          @plugins.find_all do |plugin|
+                            plugin.name =~ filter
                           end
                         when Hash
-                          @guards.find_all do |guard_plugin|
+                          @plugins.find_all do |plugin|
                             filter.all? do |k, v|
                               case k
                               when :name
-                                guard_plugin.name == v.to_s.downcase.gsub('-', '')
+                                plugin.name == v.to_s.downcase.gsub('-', '')
                               when :group
-                                guard_plugin.group.name == v.to_sym
+                                plugin.group.name == v.to_sym
                               end
                             end
                           end
                         end
 
-      _smart_accessor_return_value(filtered_guards)
+      _smart_accessor_return_value(filtered_plugins)
     end
 
     # Smart accessor for retrieving a specific plugin group or several plugin groups at once.
     #
-    # @see Guard.guards
+    # @see Guard.plugins
     #
     # @example Filter groups by String or Symbol
     #   Guard.groups('backend')
@@ -174,8 +174,6 @@ module Guard
     # @return [Group, Array<Group>] the filtered group(s)
     #
     def groups(filter = nil)
-      @groups ||= default_groups
-
       return @groups if filter.nil?
 
       filtered_groups = case filter

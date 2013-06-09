@@ -70,14 +70,14 @@ module Guard
 
     # Tests if a file would be matched by any of the Guard plugin watchers.
     #
-    # @param [Array<Guard::Plugin>] guards the Guard plugins to use the
+    # @param [Array<Guard::Plugin>] plugins the Guard plugins to use the
     #   watchers from
     # @param [Array<String>] files the files to test
     # @return [Boolean] Whether a file matches
     #
-    def self.match_files?(guards, files)
-      guards.any? do |guard|
-        guard.watchers.any? do |watcher|
+    def self.match_files?(plugins, files)
+      plugins.any? do |plugin|
+        plugin.watchers.any? do |watcher|
           files.any? { |file| watcher.match(file) }
         end
       end

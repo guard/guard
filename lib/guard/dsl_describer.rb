@@ -28,7 +28,7 @@ module Guard
       @options = options
       ::Guard.options = { :plugin => [], :group => [] }
       ::Guard.reset_groups
-      ::Guard.reset_guards
+      ::Guard.reset_plugins
     end
 
     # List the Guard plugins that are available for use in your system and marks
@@ -40,7 +40,7 @@ module Guard
       _evaluate_guardfile
 
       rows = ::Guard::PluginUtil.plugin_names.sort.uniq.inject([]) do |rows, name|
-        rows << { :Plugin => name.capitalize, :Guardfile => ::Guard.guards(name) ? '✔' : '✘' }
+        rows << { :Plugin => name.capitalize, :Guardfile => ::Guard.plugins(name) ? '✔' : '✘' }
       end
 
       Formatador.display_compact_table(rows, [:Plugin, :Guardfile])
@@ -55,7 +55,7 @@ module Guard
       _evaluate_guardfile
 
       rows = ::Guard.groups.inject([]) do |rows, group|
-        Array(::Guard.guards({ :group => group.name })).each do |plugin|
+        Array(::Guard.plugins(:group => group.name)).each do |plugin|
           options = plugin.options.inject({}) { |o, (k, v)| o[k.to_s] = v; o }.sort
 
           if options.empty?

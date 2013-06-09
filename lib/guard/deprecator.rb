@@ -13,6 +13,14 @@ module Guard
       to: https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0
     EOS
 
+    GUARDS_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
+      Starting with Guard 2.0 'Guard.guards(filter)' is deprecated.
+
+      Please use 'Guard.plugins(filter)' instead.
+
+      #{MORE_INFO_ON_UPGRADING_TO_GUARD_2}
+    EOS
+
     # Deprecator message for the `Guard.get_guard_class` method
     GET_GUARD_CLASS_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
       Starting with Guard 2.0 'Guard.get_guard_class(name, fail_gracefully =

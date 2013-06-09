@@ -26,7 +26,7 @@ describe Guard::Deprecator do
     end
 
     describe '.deprecated_plugin_methods_warning' do
-      before { ::Guard.stub(:guards) { [foo_guard] } }
+      before { ::Guard.stub(:plugins) { [foo_guard] } }
 
       context 'when neither run_on_change nor run_on_deletion is implemented in a guard' do
         it 'does not display a deprecation warning to the user' do

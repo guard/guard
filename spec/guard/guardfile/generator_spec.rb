@@ -96,13 +96,13 @@ describe Guard::Guardfile::Generator do
   end
 
   describe '#initialize_all_templates' do
-    let(:guards) { ['rspec', 'spork', 'phpunit'] }
+    let(:plugins) { ['rspec', 'spork', 'phpunit'] }
 
-    before { ::Guard::PluginUtil.should_receive(:plugin_names).and_return(guards) }
+    before { ::Guard::PluginUtil.should_receive(:plugin_names).and_return(plugins) }
 
-    it "calls Guard.initialize_template on all installed guards" do
+    it "calls Guard.initialize_template on all installed plugins" do
       guardfile_generator = described_class.new
-      guards.each do |g|
+      plugins.each do |g|
         guardfile_generator.should_receive(:initialize_template).with(g)
       end
 

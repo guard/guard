@@ -179,7 +179,7 @@ module Guard
       def _before_reevaluate_guardfile
         ::Guard.runner.run(:stop)
         ::Guard.reset_groups
-        ::Guard.reset_guards
+        ::Guard.reset_plugins
         ::Guard::Notifier.clear_notifications
 
         options.delete(:guardfile_contents)
@@ -191,8 +191,8 @@ module Guard
       def _after_reevaluate_guardfile
         ::Guard::Notifier.turn_on if ::Guard::Notifier.enabled?
 
-        if ::Guard.guards.empty?
-          ::Guard::Notifier.notify('No guards found in Guardfile, please add at least one.', :title => 'Guard re-evaluate', :image => :failed)
+        if ::Guard.plugins.empty?
+          ::Guard::Notifier.notify('No plugins found in Guardfile, please add at least one.', :title => 'Guard re-evaluate', :image => :failed)
         else
           msg = 'Guardfile has been re-evaluated.'
           ::Guard::UI.info(msg)

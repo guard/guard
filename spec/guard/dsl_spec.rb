@@ -11,7 +11,7 @@ describe Guard::Dsl do
     stub_const 'Guard::Dummy', Class.new(Guard::Plugin)
     ::Guard.stub(:setup_interactor)
     ::Guard.setup
-    ::Guard.stub(:guards).and_return([mock('Guard::Dummy')])
+    ::Guard.stub(:plugins).and_return([mock('Guard::Dummy')])
     ::Guard::Notifier.stub(:notify)
   end
 

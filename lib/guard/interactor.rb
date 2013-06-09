@@ -84,7 +84,7 @@ module Guard
       unknown = []
 
       entries.each do |entry|
-        if plugin = ::Guard.guards(entry)
+        if plugin = ::Guard.plugins(entry)
           scopes[:plugins] << plugin
         elsif group = ::Guard.groups(entry)
           scopes[:groups] << group
@@ -213,7 +213,7 @@ module Guard
     # `rspec` is created that runs `all rspec`.
     #
     def _create_guard_commands
-      ::Guard.guards.each do |guard_plugin|
+      ::Guard.plugins.each do |guard_plugin|
         Pry.commands.create_command guard_plugin.name, "Run all #{ guard_plugin.title }" do
           group 'Guard'
 

@@ -10,7 +10,7 @@ describe Guard::Guardfile::Evaluator do
     stub_const 'Guard::Dummy', Class.new(Guard::Plugin)
     ::Guard.stub(:setup_interactor)
     ::Guard.setup
-    ::Guard.stub(:guards).and_return([mock('Guard::Dummy')])
+    ::Guard.stub(:plugins).and_return([mock('Guard::Dummy')])
     ::Guard::Notifier.stub(:notify)
   end
 
@@ -35,7 +35,7 @@ describe Guard::Guardfile::Evaluator do
     it 'doesn\'t display an error message when no Guard plugins are defined in Guardfile' do
       guardfile_evaluator = described_class.new(:guardfile_contents => valid_guardfile_string)
       guardfile_evaluator.stub(:_instance_eval_guardfile)
-      ::Guard.stub!(:guards).and_return([])
+      ::Guard.stub!(:plugins).and_return([])
       Guard::UI.should_not_receive(:error)
 
       guardfile_evaluator.evaluate_guardfile
@@ -208,7 +208,7 @@ describe Guard::Guardfile::Evaluator do
     end
 
     it 'reset all Guard plugins' do
-      ::Guard.should_receive(:reset_guards)
+      ::Guard.should_receive(:reset_plugins)
 
       guardfile_evaluator.reevaluate_guardfile
     end
@@ -277,10 +277,10 @@ describe Guard::Guardfile::Evaluator do
     end
 
     context 'without Guards afterwards' do
-      before { ::Guard.stub(:guards).and_return([]) }
+      before { ::Guard.stub(:plugins).and_return([]) }
 
       it 'shows a failure notification' do
-        ::Guard::Notifier.should_receive(:notify).with('No guards found in Guardfile, please add at least one.', :title => 'Guard re-evaluate', :image => :failed)
+        ::Guard::Notifier.should_receive(:notify).with('No plugins found in Guardfile, please add at least one.', :title => 'Guard re-evaluate', :image => :failed)
 
         guardfile_evaluator.reevaluate_guardfile
       end

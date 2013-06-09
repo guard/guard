@@ -31,7 +31,7 @@ RSpec.configure do |config|
     ::Guard::UI.stub(:deprecation)
 
     ::Guard.reset_groups
-    ::Guard.reset_guards
+    ::Guard.reset_plugins
   end
 
   config.before(:all) do

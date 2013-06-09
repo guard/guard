@@ -113,15 +113,13 @@ module Guard
     #
     # @param [Symbol, String] name the group name called from the CLI
     # @param [Hash] options the options accepted by the group
-    # @yield a block where you can declare several guards
+    # @yield a block where you can declare several Guard plugins
     #
     # @see Group
     # @see Guard.add_group
     # @see #guard
     #
     def group(name, options = {})
-      name = name.to_sym
-
       if block_given?
         ::Guard.add_group(name, options)
         @current_group = name
