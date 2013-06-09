@@ -102,7 +102,7 @@ module Guard
       listener_callback = lambda do |modified, added, removed|
         evaluator.reevaluate_guardfile if ::Guard::Watcher.match_guardfile?(modified)
 
-        ::Guard.within_preserved_state do
+        within_preserved_state do
           runner.run_on_changes(modified, added, removed)
         end
       end
