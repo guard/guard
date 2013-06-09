@@ -75,7 +75,7 @@ module Guard
                   :type => :boolean,
                   :default => false,
                   :aliases => '-i',
-                  :banner => 'Turn off completely any guard terminal interactions'
+                  :banner => 'Turn off completely any Guard terminal interactions'
 
     method_option :no_bundler_warning,
                   :type => :boolean,
@@ -116,7 +116,7 @@ module Guard
       end
     end
 
-    desc 'list', 'Lists guards that can be used with init'
+    desc 'list', 'Lists Guard plugins that can be used with init'
 
     # List the Guard plugins that are available for use in your system and marks
     # those that are currently used in your `Guardfile`.
@@ -138,13 +138,13 @@ module Guard
       puts "Guard version #{ ::Guard::VERSION }"
     end
 
-    desc 'init [GUARDS]', 'Generates a Guardfile at the current directory (if it is not already there) and adds all installed guards or the given GUARDS into it'
+    desc 'init [GUARDS]', 'Generates a Guardfile at the current directory (if it is not already there) and adds all installed Guard plugins or the given GUARDS into it'
 
     method_option :bare,
                   :type => :boolean,
                   :default => false,
                   :aliases => '-b',
-                  :banner => 'Generate a bare Guardfile without adding any installed guard into it'
+                  :banner => 'Generate a bare Guardfile without adding any installed plugin into it'
 
     # Initializes the templates of all installed Guard plugins and adds them
     # to the `Guardfile` when no Guard name is passed. When passing
@@ -165,8 +165,8 @@ module Guard
       if plugin_names.empty?
         ::Guard::Guardfile.initialize_all_templates
       else
-        plugin_names.each do |guard_name|
-          ::Guard::Guardfile.initialize_template(guard_name)
+        plugin_names.each do |plugin_name|
+          ::Guard::Guardfile.initialize_template(plugin_name)
         end
       end
     end
