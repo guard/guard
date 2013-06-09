@@ -1,5 +1,6 @@
 require 'rbconfig'
 
+require 'guard/deprecated_methods'
 require 'guard/deprecator'
 require 'guard/dsl'
 require 'guard/group'
@@ -20,10 +21,11 @@ module Guard
   WINDOWS  = RbConfig::CONFIG['host_os'] =~ %r!(msdos|mswin|djgpp|mingw)!
   DEV_NULL = WINDOWS ? 'NUL' : '/dev/null'
 
+  extend DeprecatedMethods
+  extend Setuper
+
   class << self
     attr_accessor :options, :evaluator, :interactor, :runner, :listener, :lock, :scope, :running
-
-    include Setuper
 
     # Start Guard by evaluating the `Guardfile`, initializing declared Guard plugins
     # and starting the available file change listener.
@@ -245,46 +247,12 @@ module Guard
 
       @result
     end
-
-    # @deprecated Use
-    #   `Guard::PluginUtil.new(name).plugin_class(:fail_gracefully =>
-    #   fail_gracefully)` instead.
-    #
-    # @see https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0 How to
-    #   upgrade for Guard 2.0
-    #
-    def get_guard_class(name, fail_gracefully = false)
-      ::Guard::UI.deprecation(::Guard::Deprecator::GET_GUARD_CLASS_DEPRECATION)
-      ::Guard::PluginUtil.new(name).plugin_class(:fail_gracefully => fail_gracefully)
-    end
-
-    # @deprecated Use `Guard::PluginUtil.new(name).plugin_location` instead.
-    #
-    # @see https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0 How to
-    #   upgrade for Guard 2.0
-    #
-    def locate_guard(name)
-      ::Guard::UI.deprecation(::Guard::Deprecator::LOCATE_GUARD_DEPRECATION)
-      ::Guard::PluginUtil.new(name).plugin_location
-    end
-
-    # @deprecated Use `Guard::PluginUtil.plugin_names` instead.
-    #
-    # @see https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0 How to
-    #   upgrade for Guard 2.0
-    #
-    def guard_gem_names
-      ::Guard::UI.deprecation(::Guard::Deprecator::GUARD_GEM_NAMES_DEPRECATION)
-      ::Guard::PluginUtil.plugin_names
-    end
-
     private
 
     # Given an array, returns either:
     #
     #   * nil if `results` is empty,
-    #   * the first element of `results` if `results` has only one
-    #     element,
+    #   * the first element of `results` if `results` has only one element,
     #   * `results` otherwise.
     #
     # @return [nil, Object, Array<Object>]
