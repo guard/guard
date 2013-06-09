@@ -3,6 +3,38 @@ require 'guard/plugin'
 
 describe Guard::Interactor do
 
+  describe '.enabled & .enabled=' do
+    before { described_class.enabled = nil }
+
+    it 'returns true by default' do
+      described_class.enabled.should be_true
+    end
+
+    context 'intreactor not enabled' do
+      before { described_class.enabled = false }
+
+      it 'returns false' do
+        described_class.enabled.should be_false
+      end
+    end
+  end
+
+  describe '.options & .options=' do
+    before { described_class.options = nil }
+
+    it 'returns {} by default' do
+      described_class.options.should eq({})
+    end
+
+    context 'options set to { :foo => :bar }' do
+      before { described_class.options = { :foo => :bar } }
+
+      it 'returns { :foo => :bar }' do
+        described_class.options.should eq({ :foo => :bar })
+      end
+    end
+  end
+
   describe '.convert_scope' do
     before do
       guard = ::Guard.setup

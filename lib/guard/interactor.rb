@@ -17,7 +17,7 @@ module Guard
   class Interactor
 
     # The default Ruby script to configure Guard Pry if the option `:guard_rc` is not defined.
-    GUARD_RC     = '~/.guardrc'
+    GUARD_RC = '~/.guardrc'
 
     # The default Guard Pry history file if the option `:history_file` is not defined.
     HISTORY_FILE = '~/.guard_history'
@@ -37,7 +37,6 @@ module Guard
     }
 
     attr_accessor :thread
-
 
     # Get the interactor options
     #
@@ -62,7 +61,7 @@ module Guard
     # @return [Boolean] true if enabled
     #
     def self.enabled
-      @enabled.nil? ? true : @enabled
+      @enabled || @enabled.nil?
     end
 
     # Set the enabled status for the interactor
@@ -96,7 +95,7 @@ module Guard
       [scopes, unknown]
     end
 
-    # Initialize the interactor. This configures
+    # Initializes the interactor. This configures
     # Pry and creates some custom commands and aliases
     # for Guard.
     #
@@ -247,38 +246,28 @@ module Guard
     # `pry`.
     #
     def _configure_prompt
-      Pry.config.prompt = [
-        proc do |target_self, nest_level, pry|
-          history = pry.input_array.size
-          process = ::Guard.listener.paused? ? 'pause' : 'guard'
-          clip    = Pry.view_clip(target_self)
-          level = ":#{ nest_level }" unless nest_level.zero?
-          scope = if !::Guard.scope[:plugins].empty?
-                    "{#{ ::Guard.scope[:plugins].map(&:title).join(',') }} "
-                  elsif !::Guard.scope[:groups].empty?
-                    "{#{ ::Guard.scope[:groups].map(&:title).join(',') }} "
-                  else
-                    ''
-                  end
+      Pry.config.prompt = [_prompt('>'), _prompt('*')]
+    end
 
-          "[#{ history }] #{ scope }#{ process }(#{ clip })#{ level }> "
-        end,
-        proc do |target_self, nest_level, pry|
-          history = pry.input_array.size
-          process = ::Guard.listener.paused? ? 'pause' : 'guard'
-          clip    = Pry.view_clip(target_self)
-          level = ":#{ nest_level }" unless nest_level.zero?
-          scope = if !::Guard.scope[:plugins].empty?
-                    "{#{ ::Guard.scope[:plugins].map(&:title).join }} "
-                  elsif !::Guard.scope[:groups].empty?
-                    "{#{ ::Guard.scope[:groups].map(&:title).join }} "
-                  else
-                    ''
-                  end
+    # Returns a proc that will return itself a string ending with the given
+    # `ending_char` when called.
+    #
+    def _prompt(ending_char)
+      proc do |target_self, nest_level, pry|
+        history = pry.input_array.size
+        process = ::Guard.listener.paused? ? 'pause' : 'guard'
+        clip    = Pry.view_clip(target_self)
+        level = ":#{ nest_level }" unless nest_level.zero?
+        scope = if !::Guard.scope[:plugins].empty?
+                  "{#{ ::Guard.scope[:plugins].map(&:title).join(',') }} "
+                elsif !::Guard.scope[:groups].empty?
+                  "{#{ ::Guard.scope[:groups].map(&:title).join(',') }} "
+                else
+                  ''
+                end
 
-          "[#{ history }] #{ scope }#{ process }(#{ clip })#{ level }* "
-        end
-      ]
+        "[#{ history }] #{ scope }#{ process }(#{ clip })#{ level }#{ending_char} "
+      end
     end
 
     # Detects whether or not the stty command exists
