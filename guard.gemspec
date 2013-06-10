@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.authors     = ['Thibaud Guillaume-Gentil']
   s.email       = ['thibaud@thibaud.me']
-  s.homepage    = 'https://github.com/guard/guard'
+  s.homepage    = 'http://guardgem.org'
   s.summary     = 'Guard keeps an eye on your file modifications'
   s.description = 'Guard is a command line tool to easily handle events on file system modifications.'
 
