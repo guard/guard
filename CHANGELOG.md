@@ -1,6 +1,8 @@
 ## Master
 
+- [#443][] Escape `notify-send` arguments.  ([@netzpirat][])
 - [#460][], [#463][] Better Windows support. ([@cablegram][])
+- [#450][] Allow multiple watch directories.  ([@timmfin][])
 
 ## 1.8.1 - 17 June, 2013
 
@@ -54,7 +56,7 @@
 - [#386][] Replace Pry's reset command. ([@envygeeks][])
 
 ### Bug fixes
-
+t
 - [#389][] Fix `list` and `show` commands. ([@netzpirat][])
 - [#387][] Load the users defined guardrc file. ([@envygeeks][])
 
@@ -776,6 +778,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [#414]: https://github.com/guard/guard/issues/414
 [#416]: https://github.com/guard/guard/issues/416
 [#443]: https://github.com/guard/guard/issues/443
+[#450]: https://github.com/guard/guard/issues/450
 [#453]: https://github.com/guard/guard/issues/453
 [#460]: https://github.com/guard/guard/issues/460
 [#463]: https://github.com/guard/guard/issues/463
