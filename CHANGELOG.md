@@ -56,7 +56,7 @@
 - [#386][] Replace Pry's reset command. ([@envygeeks][])
 
 ### Bug fixes
-t
+
 - [#389][] Fix `list` and `show` commands. ([@netzpirat][])
 - [#387][] Load the users defined guardrc file. ([@envygeeks][])
 
