@@ -101,7 +101,7 @@ configuration.
 Guard supports multiple notification channels for customizing each notification type. For Growl on Mac OS X you need
 to have at least version 1.3 installed.
 
-To use `ruby_gntp` you have to add it to your `Gemfile` and run bundler:
+To use `ruby_gntp` you have to add it to your `Gemfile` and run Bundler:
 
 ```ruby
 group :development do
@@ -121,7 +121,7 @@ channels.
 
 You have to download the installer for `growlnotify` from the [Growl download section](http://growl.info/downloads).
 
-To use `growl` you have to add it to your `Gemfile` and run bundler:
+To use `growl` you have to add it to your `Gemfile` and run Bundler:
 
 ```ruby
 group :development do
@@ -138,7 +138,7 @@ The [libnotify](https://rubygems.org/gems/libnotify) gem supports the Gnome libn
 used on other window managers as well. You have to install the `libnotify-bin` package with your favorite package
 manager.
 
-To use `libnotify` you have to add it to your `Gemfile` and run bundler:
+To use `libnotify` you have to add it to your `Gemfile` and run Bundler:
 
 ```ruby
 group :development do
@@ -157,7 +157,7 @@ also has a built in notifier - `notifysend` - that shells out to the
 
 The [rb-notifu](https://rubygems.org/gems/rb-notifu) gem supports Windows system tray notifications.
 
-To use `rb-notifu` you have to add it to your `Gemfile` and run bundler:
+To use `rb-notifu` you have to add it to your `Gemfile` and run Bundler:
 
 ```ruby
 group :development do
@@ -178,7 +178,7 @@ The gem needs a native C extension to make use of AppleScript and does not run o
 Guard supports multiple notification channels for customizing each notification type and you need to have at least
 Growl version 1.3 installed.
 
-To use `growl_notify` you have to add it to your `Gemfile` and run bundler:
+To use `growl_notify` you have to add it to your `Gemfile` and run Bundler:
 
 ```ruby
 group :development do
@@ -193,7 +193,7 @@ end
 The [terminal-notifier-guard](https://github.com/Springest/terminal-notifier-guard) sends notifications to the OS X
 Notification Center.
 
-To use `terminal-notifier-guard` you have to add it to your `Gemfile` and run bundler:
+To use `terminal-notifier-guard` you have to add it to your `Gemfile` and run Bundler:
 
 ```ruby
 group :development do
@@ -302,7 +302,7 @@ You can always get help on the available tasks with the `help` task:
 $ guard help
 ```
 
-To request more detailed help on a specific task is simple: just appending the task name to the help task.
+Requesting more detailed help on a specific task is simple: just append the task name to the help task.
 For example, to get help for the `start` task, simply run:
 
 ```bash
