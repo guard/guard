@@ -170,6 +170,8 @@ module Guard
     # @option options [String] title the notification title
     #
     def notify(message, options = { })
+      turn_on if ENV['GUARD_NOTIFY'].nil? # Fixes notifications not showing when using Zeus.
+
       if enabled?
         type  = notification_type(options[:image] || :success)
         image = image_path(options.delete(:image) || :success)
