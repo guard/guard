@@ -131,7 +131,8 @@ module Guard
         listener_options[option.to_sym] = options[option] if options.key?(option)
       end
 
-      @listener = Listen.to(*@watchdirs, listener_options).change(&listener_callback)
+      listen_args = @watchdirs + [listener_options]
+      @listener = Listen.to(*listen_args).change(&listener_callback)
     end
 
     # Sets up traps to catch signals used to control Guard.
