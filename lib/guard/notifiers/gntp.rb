@@ -13,7 +13,7 @@ module Guard
     # * [Growl](http://growl.info)
     # * [Growl for Windows](http://www.growlforwindows.com)
     # * [Growl for Linux](http://mattn.github.com/growl-for-linux)
-    # * [Snarl](https://sites.google.com/site/snarlapp/)
+    # * [Snarl](https://sites.google.com/site/snarlapp)
     #
     # @example Add the `ruby_gntp` gem to your `Gemfile`
     #   group :development
@@ -116,4 +116,3 @@ module Guard
     end
   end
 end
-

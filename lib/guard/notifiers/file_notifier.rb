@@ -39,14 +39,15 @@ module Guard
         if options[:path]
           format = options.fetch(:format, DEFAULTS[:format])
 
-          write(options[:path], format % [type, title, message])
+          _write(options[:path], format % [type, title, message])
         else
           ::Guard::UI.error ':file notifier requires a :path option'
         end
       end
 
       private
-      def write(path, contents)
+
+      def _write(path, contents)
         File.write(path, contents)
       end
     end

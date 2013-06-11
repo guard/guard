@@ -1,16 +1,11 @@
 require 'spec_helper'
 
 describe Guard::Notifier::Libnotify do
-
-  let(:fake_libnotify) do
-    Class.new do
-      def self.show(options) end
-    end
-  end
+  let(:notifier) { described_class.new }
 
   before do
     subject.stub(:require)
-    stub_const 'Libnotify', fake_libnotify
+    stub_const 'Libnotify', stub
   end
 
   describe '.available?' do
@@ -53,53 +48,56 @@ describe Guard::Notifier::Libnotify do
 
     context 'without additional options' do
       it 'shows the notification with the default options' do
-        ::Libnotify.should_receive(:show).with({
-            :transient => false,
-            :append    => true,
-            :timeout   => 3,
-            :urgency   => :low,
-            :summary   => 'Welcome',
-            :body      => 'Welcome to Guard',
-            :icon_path => '/tmp/welcome.png'
-        })
-        subject.notify('success', 'Welcome', 'Welcome to Guard', '/tmp/welcome.png', {})
+        ::Libnotify.should_receive(:show).with(
+          :transient => false,
+          :append    => true,
+          :timeout   => 3,
+          :urgency   => :low,
+          :summary   => 'Welcome',
+          :body      => 'Welcome to Guard',
+          :icon_path => '/tmp/welcome.png'
+        )
+
+        notifier.notify('success', 'Welcome', 'Welcome to Guard', '/tmp/welcome.png')
       end
     end
 
     context 'with additional options' do
       it 'can override the default options' do
-        ::Libnotify.should_receive(:show).with({
-            :transient => true,
-            :append    => false,
-            :timeout   => 5,
-            :urgency   => :critical,
-            :summary   => 'Waiting',
-            :body      => 'Waiting for something',
-            :icon_path => '/tmp/wait.png'
-        })
-        subject.notify('pending', 'Waiting', 'Waiting for something', '/tmp/wait.png', {
-            :transient => true,
-            :append    => false,
-            :timeout   => 5,
-            :urgency   => :critical
-        })
+        ::Libnotify.should_receive(:show).with(
+          :transient => true,
+          :append    => false,
+          :timeout   => 5,
+          :urgency   => :critical,
+          :summary   => 'Waiting',
+          :body      => 'Waiting for something',
+          :icon_path => '/tmp/wait.png'
+        )
+
+        notifier.notify('pending', 'Waiting', 'Waiting for something', '/tmp/wait.png',
+          :transient => true,
+          :append    => false,
+          :timeout   => 5,
+          :urgency   => :critical
+        )
       end
 
       it 'cannot override the core options' do
-        ::Libnotify.should_receive(:show).with({
-            :transient => false,
-            :append    => true,
-            :timeout   => 3,
-            :urgency   => :normal,
-            :summary   => 'Failed',
-            :body      => 'Something failed',
-            :icon_path => '/tmp/fail.png'
-        })
-        subject.notify('failed', 'Failed', 'Something failed', '/tmp/fail.png', {
-            :summary   => 'Duplicate title',
-            :body      => 'Duplicate body',
-            :icon_path => 'Duplicate icon'
-        })
+        ::Libnotify.should_receive(:show).with(
+          :transient => false,
+          :append    => true,
+          :timeout   => 3,
+          :urgency   => :normal,
+          :summary   => 'Failed',
+          :body      => 'Something failed',
+          :icon_path => '/tmp/fail.png'
+        )
+
+        notifier.notify('failed', 'Failed', 'Something failed', '/tmp/fail.png',
+          :summary   => 'Duplicate title',
+          :body      => 'Duplicate body',
+          :icon_path => 'Duplicate icon'
+        )
       end
     end
   end

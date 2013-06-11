@@ -3,17 +3,17 @@ require 'rbconfig'
 require 'pathname'
 
 require 'guard/ui'
+require 'guard/notifiers/emacs'
+require 'guard/notifiers/file_notifier'
 require 'guard/notifiers/gntp'
-require 'guard/notifiers/growl'
 require 'guard/notifiers/growl_notify'
+require 'guard/notifiers/growl'
 require 'guard/notifiers/libnotify'
 require 'guard/notifiers/notifysend'
 require 'guard/notifiers/rb_notifu'
-require 'guard/notifiers/emacs'
 require 'guard/notifiers/terminal_notifier'
 require 'guard/notifiers/terminal_title'
 require 'guard/notifiers/tmux'
-require 'guard/notifiers/file_notifier'
 
 module Guard
 
@@ -46,7 +46,7 @@ module Guard
   # `gntp` and `growl_notify` notifiers are able to register these types
   # at Growl and allows customization of each notification type.
   #
-  # Guard can be configured to make use of more than one notifier at once
+  # Guard can be configured to make use of more than one notifier at once.
   #
   # @see Guard::Dsl
   #
@@ -66,10 +66,10 @@ module Guard
         [:notifysend,        NotifySend],
         [:notifu,            Notifu]
       ],
-      [[:emacs,             Emacs]],
-      [[:tmux,              Tmux]],
-      [[:terminal_title,    TerminalTitle]],
-      [[:file,              FileNotifier]]
+      [[:emacs,          Emacs]],
+      [[:tmux,           Tmux]],
+      [[:terminal_title, TerminalTitle]],
+      [[:file,           FileNotifier]]
     ]
 
     # Get the available notifications.
@@ -90,8 +90,8 @@ module Guard
 
     # Clear available notifications.
     #
-    def clear_notifications
       ENV['GUARD_NOTIFICATIONS'] = nil
+    def clear_notifiers
     end
 
     # Turn notifications on. If no notifications are defined
@@ -147,8 +147,8 @@ module Guard
     # Add a notification library to be used.
     #
     # @param [Symbol] name the name of the notifier to use
-    # @param [Boolean] silent disable any error message
     # @param [Hash] options the notifier options
+    # @option options [String] silent disable any error message
     # @return [Boolean] if the notification could be added
     #
     def add_notification(name, options = {}, silent = false)
@@ -172,9 +172,9 @@ module Guard
     #
     def notify(message, options = {})
       if enabled?
-        type  = _notification_type(options[:image] || :success)
-        image = _image_path(options.delete(:image) || :success)
-        title = options.delete(:title) || 'Guard'
+        type  = _notification_type(options.fetch(:image, :success))
+        image = _image_path(options.delete(:image) { :success })
+        title = options.delete(:title) { 'Guard' }
 
         notifications.each do |notification|
           begin
@@ -186,6 +186,14 @@ module Guard
       end
     end
 
+    # Paths where all Guard images are located
+    #
+    # @return [Pathname] the path to the images directory
+    #
+    def images_path
+      @images_path ||= Pathname.new(File.dirname(__FILE__)).join('../../images')
+    end
+
     private
 
     # Get the notifier module for the given name.
@@ -194,8 +202,9 @@ module Guard
     # @return [Module] the notifier module
     #
     def _get_notifier_module(name)
-      notifier = NOTIFIERS.flatten(1).detect { |n| n.first == name }
-      notifier ? notifier.last : notifier
+      if notifier = NOTIFIERS.flatten(1).detect { |n| n.first == name }
+        notifier.last
+      end
     end
 
     # Auto detect the available notification library. This goes through
@@ -208,7 +217,7 @@ module Guard
 
       NOTIFIERS.each do |group|
         added = group.map { |n| n.first }.find { |notifier| add_notification(notifier, {}, true) }
-        available = available || added
+        available ||= added
       end
 
       ::Guard::UI.info('Guard could not detect any of the supported notification libraries.') unless available
@@ -228,23 +237,11 @@ module Guard
     #
     def _image_path(image)
       case image
-        when :failed
-          _images_path.join('failed.png').to_s
-        when :pending
-          _images_path.join('pending.png').to_s
-        when :success
-          _images_path.join('success.png').to_s
-        else
-          image
+      when :failed, :pending, :success
+        images_path.join("#{image.to_s}.png").to_s
+      else
+        image
       end
-    end
-
-    # Paths where all Guard images are located
-    #
-    # @return [Pathname] the path to the images directory
-    #
-    def _images_path
-      @_images_path ||= Pathname.new(File.dirname(__FILE__)).join('../../images')
     end
 
     # Get the notification type depending on the
@@ -255,14 +252,10 @@ module Guard
     #
     def _notification_type(image)
       case image
-        when :failed
-          'failed'
-        when :pending
-          'pending'
-        when :success
-          'success'
-        else
-          'notify'
+      when :failed, :pending, :success
+        image.to_s
+      else
+        'notify'
       end
     end
   end

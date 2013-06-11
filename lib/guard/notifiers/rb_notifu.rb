@@ -73,7 +73,7 @@ module Guard
         require 'rb-notifu'
 
         ::Notifu.show(DEFAULTS.merge(options).merge({
-          :type    => notifu_type(type),
+          :type    => _notifu_type(type),
           :title   => title,
           :message => message
         }))
@@ -87,7 +87,7 @@ module Guard
       # @param [String] type the Guard notification type
       # @return [Symbol] the Notify notification type
       #
-      def notifu_type(type)
+      def _notifu_type(type)
         case type
         when 'failed'
           :error
