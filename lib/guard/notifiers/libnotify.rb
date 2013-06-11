@@ -70,8 +70,9 @@ module Guard
           :summary   => title,
           :body      => message,
           :icon_path => image
-        })
-        options[:urgency] ||= libnotify_urgency(type)
+        )
+        options[:urgency] ||= _libnotify_urgency(type)
+
         ::Libnotify.show(options)
       end
 
@@ -83,7 +84,7 @@ module Guard
       # @param [String] type the Guard notification type
       # @return [Symbol] the libnotify urgency
       #
-      def libnotify_urgency(type)
+      def _libnotify_urgency(type)
         case type
         when 'failed'
           :normal

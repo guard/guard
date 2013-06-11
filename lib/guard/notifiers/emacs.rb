@@ -58,7 +58,7 @@ module Guard
                :background "#{color}"
                :foreground "#{fontcolor}")
         EOF
-        run_cmd [ options[:client], '--eval', elisp ]
+        _run_cmd(options[:client], '--eval', elisp)
       end
 
       # Get the Emacs color for the notification type.
@@ -73,13 +73,13 @@ module Guard
       # @return [String] the name of the emacs color
       #
       def emacs_color(type, options = {})
-        default = options[:default] || DEFAULTS[:default]
+        default = options.fetch(:default, DEFAULTS[:default])
         options.fetch(type.to_sym, default)
       end
 
       private
 
-      def run_cmd(args)
+      def _run_cmd(*args)
         IO.popen(args).readlines
       end
     end

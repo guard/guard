@@ -1,6 +1,7 @@
 require 'spec_helper'
 
 describe Guard::Notifier::Growl do
+  let(:notifier) { described_class.new }
 
   let(:fake_growl) do
     Class.new do
@@ -68,45 +69,48 @@ describe Guard::Notifier::Growl do
 
     context 'without additional options' do
       it 'shows the notification with the default options' do
-        ::Growl.should_receive(:notify).with('Welcome to Guard', {
+        ::Growl.should_receive(:notify).with('Welcome to Guard',
           :sticky   => false,
           :priority => 0,
           :name     => 'Guard',
           :title    => 'Welcome',
           :image    => '/tmp/welcome.png'
-        })
-        subject.notify('success', 'Welcome', 'Welcome to Guard', '/tmp/welcome.png', {})
+        )
+
+        notifier.notify('success', 'Welcome', 'Welcome to Guard', '/tmp/welcome.png')
       end
     end
 
     context 'with additional options' do
       it 'can override the default options' do
-        ::Growl.should_receive(:notify).with('Waiting for something', {
-            :sticky   => true,
-            :priority => 2,
-            :name     => 'Guard',
-            :title    => 'Waiting',
-            :image    => '/tmp/wait.png'
-        })
-        subject.notify('pending', 'Waiting', 'Waiting for something', '/tmp/wait.png', {
-            :sticky   => true,
-            :priority => 2
-        })
+        ::Growl.should_receive(:notify).with('Waiting for something',
+          :sticky   => true,
+          :priority => 2,
+          :name     => 'Guard',
+          :title    => 'Waiting',
+          :image    => '/tmp/wait.png'
+        )
+
+        notifier.notify('pending', 'Waiting', 'Waiting for something', '/tmp/wait.png',
+          :sticky   => true,
+          :priority => 2
+        )
       end
 
       it 'cannot override the core options' do
-        ::Growl.should_receive(:notify).with('Something failed', {
+        ::Growl.should_receive(:notify).with('Something failed',
           :sticky   => false,
           :priority => 0,
           :name     => 'Guard',
           :title    => 'Failed',
           :image    => '/tmp/fail.png'
-        })
-        subject.notify('failed', 'Failed', 'Something failed', '/tmp/fail.png', {
-            :name  => 'custom',
-            :title => 'Duplicate title',
-            :image => 'Duplicate image'
-        })
+        )
+
+        notifier.notify('failed', 'Failed', 'Something failed', '/tmp/fail.png',
+          :name  => 'custom',
+          :title => 'Duplicate title',
+          :image => 'Duplicate image'
+        )
       end
     end
   end
