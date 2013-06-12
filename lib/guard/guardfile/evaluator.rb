@@ -180,7 +180,7 @@ module Guard
         ::Guard.runner.run(:stop)
         ::Guard.reset_groups
         ::Guard.reset_plugins
-        ::Guard::Notifier.clear_notifications
+        ::Guard::Notifier.clear_notifiers
 
         options.delete(:guardfile_contents)
       end

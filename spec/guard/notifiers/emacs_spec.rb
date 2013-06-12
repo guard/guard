@@ -11,33 +11,29 @@ describe Guard::Notifier::Emacs do
           command.should include(%{(set-face-attribute 'mode-line nil :background "ForestGreen" :foreground "White")})
         end
 
-        notifier.notify('success', 'any title', 'any message', 'any image', {})
+        notifier.notify('any message')
       end
     end
 
     context 'when a color option is specified for "success" notifications' do
-      let(:options) { { :success => 'Orange' } }
-
       it 'should set modeline color to the specified color using emacsclient' do
         notifier.should_receive(:_run_cmd).with do |*command|
           command.should include("emacsclient")
           command.should include(%{(set-face-attribute 'mode-line nil :background "Orange" :foreground "White")})
         end
 
-        notifier.notify('success', 'any title', 'any message', 'any image', options)
+        notifier.notify('any message', :success => 'Orange')
       end
     end
 
     context 'when a color option is specified for "pending" notifications' do
-      let(:options) { {:pending => 'Yellow'} }
-
       it 'should set modeline color to the specified color using emacsclient' do
         notifier.should_receive(:_run_cmd).with do |*command|
           command.should include("emacsclient")
           command.should include(%{(set-face-attribute 'mode-line nil :background "Yellow" :foreground "White")})
         end
 
-        notifier.notify('pending', 'any title', 'any message', 'any image', options)
+        notifier.notify('any message', :type => :pending, :pending => 'Yellow')
       end
     end
   end
