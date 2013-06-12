@@ -1,5 +1,4 @@
-require 'rbconfig'
-require 'guard/ui'
+require 'guard/notifiers/base'
 
 module Guard
   module Notifier
@@ -31,70 +30,68 @@ module Guard
     # @example Add the `:growl_notify` notifier with configuration options to your `Guardfile`
     #   notification :growl, :sticky => true, :host => '192.168.1.5', :password => 'secret'
     #
-    module Growl
-      extend self
+    class Growl < Base
 
-      # Default options for growl gem
+      # Default options for the growl notifications.
       DEFAULTS = {
         :sticky   => false,
         :priority => 0
       }
 
-      # Test if the notification library is available.
-      #
-      # @param [Boolean] silent true if no error messages should be shown
-      # @param [Hash] options notifier options
-      # @return [Boolean] the availability status
-      #
-      def available?(silent = false, options = {})
-        if RbConfig::CONFIG['host_os'] =~ /darwin/
-          require 'growl'
-
-          if ::Growl.installed?
-            true
-          else
-            ::Guard::UI.error "Please install the 'growlnotify' executable." unless silent
-            false
-          end
-
-        else
-          ::Guard::UI.error 'The :growl notifier runs only on Mac OS X.' unless silent
-          false
-        end
-
-      rescue LoadError, NameError
-        ::Guard::UI.error "Please add \"gem 'growl'\" to your Gemfile and run Guard with \"bundle exec\"." unless silent
-        false
+      def self.supported_hosts
+        %w[darwin]
       end
 
-      # Show a system notification.
-      #
-      # The documented options are for GrowlNotify 1.3, but the older options are
-      # also supported. Please see `growlnotify --help`.
-      #
-      # Priority can be one of the following named keys: `Very Low`, `Moderate`, `Normal`,
-      # `High`, `Emergency`. It can also be an int between -2 and 2.
-      #
-      # @param [String] type the notification type. Either 'success', 'pending', 'failed' or 'notify'
-      # @param [String] title the notification title
-      # @param [String] message the notification message body
-      # @param [String] image the path to the notification image
-      # @param [Hash] options additional notification library options
-      # @option options [Boolean] sticky make the notification sticky
-      # @option options [String, Integer] priority specify an int or named key (default is 0)
-      # @option options [String] host the hostname or IP address to which to send a remote notification
-      # @option options [String] password the password used for remote notifications
-      #
-      def notify(type, title, message, image, options = {})
-        require 'growl'
+      def self.available?(opts = {})
+        super
+        _register!(opts) if require_gem_safely(opts)
+      end
 
-        ::Growl.notify(message, DEFAULTS.merge(options).merge({
-            :name => 'Guard',
-            :title => title,
-            :image => image
-        }))
+      # Shows a system notification.
+      #
+      # The documented options are for GrowlNotify 1.3, but the older options
+      # are also supported. Please see `growlnotify --help`.
+      #
+      # Priority can be one of the following named keys: `Very Low`,
+      # `Moderate`, `Normal`, `High`, `Emergency`. It can also be an integer
+      # between -2 and 2.
+      #
+      # @param [String] message the notification message body
+      # @param [Hash] opts additional notification library options
+      # @option opts [String] type the notification type. Either 'success',
+      #   'pending', 'failed' or 'notify'
+      # @option opts [String] title the notification title
+      # @option opts [String] image the path to the notification image
+      # @option opts [Boolean] sticky make the notification sticky
+      # @option opts [String, Integer] priority specify an int or named key
+      #   (default is 0)
+      # @option opts [String] host the hostname or IP address to which to
+      #   send a remote notification
+      # @option opts [String] password the password used for remote
+      #   notifications
+      #
+      def notify(message, opts = {})
+        self.class.require_gem_safely
+        normalize_standard_options!(opts)
+        opts.delete(:type)
+
+        opts = DEFAULTS.merge(opts).merge(:name => 'Guard')
+
+        ::Growl.notify(message, opts)
+      end
+
+      # @private
+      #
+      def self._register!(options)
+        unless ::Growl.installed?
+          ::Guard::UI.error "Please install the 'growlnotify' executable." unless options[:silent]
+          return false
+        end
+
+        true
       end
 
     end
+
   end
 end

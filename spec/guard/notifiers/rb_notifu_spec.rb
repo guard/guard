@@ -1,113 +1,75 @@
 require 'spec_helper'
 
 describe Guard::Notifier::Notifu do
-
-  let(:fake_notifu) do
-    Class.new do
-      def self.show(options) end
-    end
-  end
+  let(:notifier) { described_class.new }
 
   before do
-    subject.stub(:require)
-    stub_const 'Notifu', fake_notifu
+    described_class.stub(:require_gem_safely).and_return(true)
+    stub_const 'Notifu', stub
+  end
+
+  describe '.supported_hosts' do
+    it { described_class.supported_hosts.should eq %w[mswin mingw] }
+  end
+
+  describe '.gem_name' do
+    it { described_class.gem_name.should eq 'rb-notifu' }
   end
 
   describe '.available?' do
-    context 'without the silent option' do
-      it 'shows an error message when not available on the host OS' do
-        ::Guard::UI.should_receive(:error).with 'The :notifu notifier runs only on Windows.'
-        RbConfig::CONFIG.should_receive(:[]).with('host_os').and_return 'os2'
-        subject.available?
-      end
+    it 'requires rb-notifu' do
+      described_class.should_receive(:require_gem_safely)
 
-      it 'shows an error message when the gem cannot be loaded' do
-        RbConfig::CONFIG.should_receive(:[]).with('host_os').and_return 'mswin'
-        ::Guard::UI.should_receive(:error).with "Please add \"gem 'rb-notifu'\" to your Gemfile and run Guard with \"bundle exec\"."
-        subject.should_receive(:require).with('rb-notifu').and_raise LoadError
-        subject.available?
-      end
-    end
-
-    context 'with the silent option' do
-      it 'does not show an error message when not available on the host OS' do
-        ::Guard::UI.should_not_receive(:error).with 'The :notifu notifier runs only on Windows.'
-        RbConfig::CONFIG.should_receive(:[]).with('host_os').and_return 'os2'
-        subject.available?(true)
-      end
-
-      it 'does not show an error message when the gem cannot be loaded' do
-        RbConfig::CONFIG.should_receive(:[]).with('host_os').and_return 'mswin'
-        ::Guard::UI.should_not_receive(:error).with "Please add \"gem 'rb-notifu'\" to your Gemfile and run Guard with \"bundle exec\"."
-        subject.should_receive(:require).with('rb-notifu').and_raise LoadError
-        subject.available?(true)
-      end
+      described_class.should be_available
     end
   end
 
-  describe '.nofify' do
-    it 'requires the library again' do
-      subject.should_receive(:require).with('rb-notifu').and_return true
-      subject.notify('success', 'Welcome', 'Welcome to Guard', '/tmp/welcome.png', {})
-    end
-
+  describe '#nofify' do
     context 'without additional options' do
       it 'shows the notification with the default options' do
-        ::Notifu.should_receive(:show).with({
-            :time    => 3,
-            :icon    => false,
-            :baloon  => false,
-            :nosound => false,
-            :noquiet => false,
-            :xp      => false,
-            :type    => :info,
-            :title   => 'Welcome',
-            :message => 'Welcome to Guard'
-        })
-        subject.notify('success', 'Welcome', 'Welcome to Guard', '/tmp/welcome.png', {})
+        ::Notifu.should_receive(:show).with(
+          :time    => 3,
+          :icon    => false,
+          :baloon  => false,
+          :nosound => false,
+          :noquiet => false,
+          :xp      => false,
+          :title   => 'Welcome',
+          :type    => :info,
+          :image   => '/tmp/welcome.png',
+          :message => 'Welcome to Guard'
+        )
+
+        notifier.notify('Welcome to Guard', :title => 'Welcome', :image => '/tmp/welcome.png')
       end
     end
 
     context 'with additional options' do
       it 'can override the default options' do
-        ::Notifu.should_receive(:show).with({
-            :time    => 5,
-            :icon    => true,
-            :baloon  => true,
-            :nosound => true,
-            :noquiet => true,
-            :xp      => true,
-            :type    => :warn,
-            :title   => 'Waiting',
-            :message => 'Waiting for something'
-        })
-        subject.notify('pending', 'Waiting', 'Waiting for something', '/tmp/wait.png', {
-            :time    => 5,
-            :icon    => true,
-            :baloon  => true,
-            :nosound => true,
-            :noquiet => true,
-            :xp      => true
-        })
-      end
+        ::Notifu.should_receive(:show).with(
+          :time    => 5,
+          :icon    => true,
+          :baloon  => true,
+          :nosound => true,
+          :noquiet => true,
+          :xp      => true,
+          :title   => 'Waiting',
+          :type    => :warn,
+          :image   => '/tmp/wait.png',
+          :message => 'Waiting for something'
+        )
 
-      it 'cannot override the core options' do
-        ::Notifu.should_receive(:show).with({
-            :time    => 3,
-            :icon    => false,
-            :baloon  => false,
-            :nosound => false,
-            :noquiet => false,
-            :xp      => false,
-            :type    => :error,
-            :title   => 'Failed',
-            :message => 'Something failed'
-        })
-        subject.notify('failed', 'Failed', 'Something failed', '/tmp/fail.png', {
-            :type    => :custom,
-            :title   => 'Duplicate title',
-            :message => 'Duplicate message'
-        })
+        notifier.notify('Waiting for something',
+          :time    => 5,
+          :icon    => true,
+          :baloon  => true,
+          :nosound => true,
+          :noquiet => true,
+          :xp      => true,
+          :title   => 'Waiting',
+          :type    => :pending,
+          :image   => '/tmp/wait.png'
+        )
       end
     end
   end

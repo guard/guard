@@ -1,126 +1,81 @@
 require 'spec_helper'
 
 describe Guard::Notifier::GNTP do
-
-  let(:fake_gntp) do
-    Class.new do
-      def self.notify(options) end
-    end
-  end
+  let(:notifier) { described_class.new }
+  let(:gntp) { mock('GNTP').as_null_object }
 
   before do
-    subject.stub(:require)
-    stub_const 'GNTP', fake_gntp
+    described_class.stub(:require_gem_safely).and_return(true)
+    stub_const 'GNTP', gntp
+  end
+
+  describe '.supported_hosts' do
+    it { described_class.supported_hosts.should eq %w[darwin linux freebsd openbsd sunos solaris mswin mingw cygwin] }
+  end
+
+  describe '.gem_name' do
+    it { described_class.gem_name.should eq 'ruby_gntp' }
   end
 
   describe '.available?' do
-    context 'without the silent option' do
-      it 'shows an error message when not available on the host OS' do
-        ::Guard::UI.should_receive(:error).with 'The :gntp notifier runs only on Mac OS X, Linux, FreeBSD, OpenBSD, Solaris and Windows.'
-        RbConfig::CONFIG.should_receive(:[]).with('host_os').and_return 'os2'
-        subject.available?
-      end
+    it 'requires ruby_gntp' do
+      described_class.should_receive(:require_gem_safely)
 
-      it 'shows an error message when the gem cannot be loaded' do
-        RbConfig::CONFIG.should_receive(:[]).with('host_os').and_return 'darwin'
-        ::Guard::UI.should_receive(:error).with "Please add \"gem 'ruby_gntp'\" to your Gemfile and run Guard with \"bundle exec\"."
-        subject.should_receive(:require).with('ruby_gntp').and_raise LoadError
-        subject.available?
-      end
-    end
-
-    context 'with the silent option' do
-      it 'does not show an error message when not available on the host OS' do
-        ::Guard::UI.should_not_receive(:error).with 'The :gntp notifier runs only on Mac OS X, Linux, FreeBSD, OpenBSD, Solaris and Windows.'
-        RbConfig::CONFIG.should_receive(:[]).with('host_os').and_return 'os2'
-        subject.available?(true)
-      end
-
-      it 'does not show an error message when the gem cannot be loaded' do
-        RbConfig::CONFIG.should_receive(:[]).with('host_os').and_return 'darwin'
-        ::Guard::UI.should_not_receive(:error).with "Please add \"gem 'ruby_gntp'\" to your Gemfile and run Guard with \"bundle exec\"."
-        subject.should_receive(:require).with('ruby_gntp').and_raise LoadError
-        subject.available?(true)
-      end
+      described_class.should be_available
     end
   end
 
-  describe '.nofify' do
-    let(:gntp) { mock('GNTP').as_null_object }
-
+  describe '#client' do
     before do
-      ::GNTP.stub(:new).and_return gntp
+      ::GNTP.stub(:new).and_return(gntp)
+      gntp.stub(:register)
     end
 
-    it 'requires the library again' do
-      subject.should_receive(:require).with('ruby_gntp').and_return true
-      subject.notify('success', 'Welcome', 'Welcome to Guard', '/tmp/welcome.png', {})
+    it 'creates a new GNTP client and memoize it' do
+      ::GNTP.should_receive(:new).with('Guard', '127.0.0.1', '', 23053).once.and_return(gntp)
+
+      notifier.send(:_client, described_class::DEFAULTS.dup)
+      notifier.send(:_client, described_class::DEFAULTS.dup) # 2nd call, memoized
     end
 
-    it 'opens GNTP as Guard application' do
-      ::GNTP.should_receive(:new).with('Guard', '127.0.0.1', '', 23053)
-      subject.notify('success', 'Welcome', 'Welcome to Guard', '/tmp/welcome.png', {})
+    it 'calls #register on the client and memoize it' do
+      ::GNTP.should_receive(:new).with('Guard', '127.0.0.1', '', 23053).once.and_return(gntp)
+      gntp.should_receive(:register).once
+
+      notifier.send(:_client, described_class::DEFAULTS.dup)
+      notifier.send(:_client, described_class::DEFAULTS.dup) # 2nd call, memoized
     end
+  end
 
-    context 'when not registered' do
-      before { Guard::Notifier::GNTP.instance_variable_set :@registered, false }
-
-      it 'registers the Guard notification types' do
-        gntp.should_receive(:register)
-        subject.notify('success', 'Welcome', 'Welcome to Guard', '/tmp/welcome.png', {})
-      end
-    end
-
-    context 'when already registered' do
-      before { Guard::Notifier::GNTP.instance_variable_set :@registered, true }
-
-      it 'registers the Guard notification types' do
-        gntp.should_not_receive(:register)
-        subject.notify('success', 'Welcome', 'Welcome to Guard', '/tmp/welcome.png', {})
-      end
-    end
+  describe '#notify' do
+    before { notifier.stub(:_client).and_return(gntp) }
 
     context 'without additional options' do
+
       it 'shows the notification with the default options' do
-        gntp.should_receive(:notify).with({
-            :sticky => false,
-            :name   => 'success',
-            :title  => 'Welcome',
-            :text   => 'Welcome to Guard',
-            :icon   => '/tmp/welcome.png'
-        })
-        subject.notify('success', 'Welcome', 'Welcome to Guard', '/tmp/welcome.png', {})
+        gntp.should_receive(:notify).with(
+          :sticky => false,
+          :name   => 'success',
+          :title  => 'Welcome',
+          :text   => 'Welcome to Guard',
+          :icon   => '/tmp/welcome.png'
+        )
+
+        notifier.notify('Welcome to Guard', :type => :success, :title => 'Welcome', :image => '/tmp/welcome.png')
       end
     end
 
     context 'with additional options' do
       it 'can override the default options' do
-        gntp.should_receive(:notify).with({
-            :sticky => true,
-            :name   => 'pending',
-            :title  => 'Waiting',
-            :text   => 'Waiting for something',
-            :icon   => '/tmp/wait.png'
-        })
-        subject.notify('pending', 'Waiting', 'Waiting for something', '/tmp/wait.png', {
-            :sticky => true,
-        })
-      end
+        gntp.should_receive(:notify).with(
+          :sticky => true,
+          :name   => 'pending',
+          :title  => 'Waiting',
+          :text   => 'Waiting for something',
+          :icon   => '/tmp/wait.png'
+        )
 
-      it 'cannot override the core options' do
-        gntp.should_receive(:notify).with({
-            :sticky => false,
-            :name   => 'failed',
-            :title  => 'Failed',
-            :text   => 'Something failed',
-            :icon   => '/tmp/fail.png'
-        })
-        subject.notify('failed', 'Failed', 'Something failed', '/tmp/fail.png', {
-            :name  => 'custom',
-            :title => 'Duplicate title',
-            :text  => 'Duplicate text',
-            :icon  => 'Duplicate icon'
-        })
+        notifier.notify('Waiting for something', :type => :pending, :title => 'Waiting', :image => '/tmp/wait.png', :sticky => true)
       end
     end
   end

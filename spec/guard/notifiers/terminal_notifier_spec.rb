@@ -1,54 +1,56 @@
 require 'spec_helper'
 
 describe Guard::Notifier::TerminalNotifier do
-
-  let(:fake_terminal_notifier) do
-    Module.new do
-      def self.execute(options) end
-    end
-  end
+  let(:notifier) { described_class.new }
 
   before do
-    subject.stub(:require)
-    stub_const 'TerminalNotifier::Guard', fake_terminal_notifier
+    described_class.stub(:require_gem_safely).and_return(true)
+    stub_const 'TerminalNotifier::Guard', stub(:available? => true)
+  end
+
+  describe '.supported_hosts' do
+    it { described_class.supported_hosts.should eq %w[darwin ] }
+  end
+
+  describe '.gem_name' do
+    it { described_class.gem_name.should eq 'terminal-notifier-guard' }
   end
 
   describe '.available?' do
-    context 'without the silent option' do
-      it 'shows an error message when not available on the host OS' do
-        ::Guard::UI.should_receive(:error).with 'The :terminal_notifier only runs on Mac OS X 10.8 and later.'
-        ::TerminalNotifier::Guard.stub(:available?).and_return(false)
-        subject.available?
-      end
+    it 'requires terminal-notifier-guard' do
+      described_class.should_receive(:require_gem_safely)
+
+      described_class.should be_available
     end
   end
 
-  describe '.notify' do
+  describe '#notify' do
     it 'should call the notifier.' do
-      ::TerminalNotifier::Guard.should_receive(:execute).with(
-        false,
-        { :title => 'any title', :type => :success, :message => 'any message' }
-      )
-      subject.notify('success', 'any title', 'any message', 'any image', {})
+      ::TerminalNotifier::Guard.should_receive(:execute).with(false,
+                                                              :title => 'any title',
+                                                              :type => :success,
+                                                              :message => 'any message')
+
+      notifier.notify('any message', :title => 'any title')
     end
 
     it "should allow the title to be customized" do
-      ::TerminalNotifier::Guard.should_receive(:execute).with(
-        false,
-        { :title => 'any title', :message => 'any message', :type => :error }
-      )
+      ::TerminalNotifier::Guard.should_receive(:execute).with(false,
+                                                              :title => 'any title',
+                                                              :message => 'any message',
+                                                              :type => :error)
 
-      subject.notify('error', 'any title', 'any message', 'any image', {})
+      notifier.notify('any message', :type => :error, :title => 'any title')
     end
 
     context 'without a title set' do
       it 'should show the app name in the title' do
-        ::TerminalNotifier::Guard.should_receive(:execute).with(
-          false,
-          { :title => 'FooBar Success', :type => :success, :message => 'any message' }
-        )
+        ::TerminalNotifier::Guard.should_receive(:execute).with(false,
+                                                                :title => 'FooBar Success',
+                                                                :type => :success,
+                                                                :message => 'any message')
 
-        subject.notify('success', nil, 'any message', 'any image', { :app_name => 'FooBar' })
+        notifier.notify('any message', :title => nil, :app_name => 'FooBar')
       end
     end
   end
