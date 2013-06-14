@@ -1,10 +1,10 @@
-require 'rbconfig'
-require 'guard/ui'
+require 'guard/notifiers/base'
 
 module Guard
   module Notifier
 
-    # System notifications using the [rb-notifu](https://github.com/stereobooster/rb-notifu) gem.
+    # System notifications using the
+    # [rb-notifu](https://github.com/stereobooster/rb-notifu) gem.
     #
     # This gem is available for Windows and sends system notifications to
     # [Notifu](http://www.paralint.com/projects/notifu/index.html):
@@ -20,10 +20,9 @@ module Guard
     # @example Add the `:notifu` notifier with configuration options to your `Guardfile`
     #   notification :notifu, :time => 5, :nosound => true, :xp => true
     #
-    module Notifu
-      extend self
+    class Notifu < Base
 
-      # Default options for rb-notifu gem
+      # Default options for the rb-notifu notifications.
       DEFAULTS = {
         :time    => 3,
         :icon    => false,
@@ -33,65 +32,65 @@ module Guard
         :xp      => false
       }
 
-      # Test if the notification library is available.
-      #
-      # @param [Boolean] silent true if no error messages should be shown
-      # @param [Hash] options notifier options
-      # @return [Boolean] the availability status
-      #
-      def available?(silent = false, options = {})
-        if RbConfig::CONFIG['host_os'] =~ /mswin|mingw/
-          require 'rb-notifu'
-
-          true
-
-        else
-          ::Guard::UI.error 'The :notifu notifier runs only on Windows.' unless silent
-          false
-        end
-
-      rescue LoadError
-        ::Guard::UI.error "Please add \"gem 'rb-notifu'\" to your Gemfile and run Guard with \"bundle exec\"." unless silent
-        false
+      def self.supported_hosts
+        %w[mswin mingw]
       end
 
-      # Show a system notification.
-      #
-      # @param [String] type the notification type. Either 'success', 'pending', 'failed' or 'notify'
-      # @param [String] title the notification title
-      # @param [String] message the notification message body
-      # @param [String] image the path to the notification image
-      # @param [Hash] options additional notification library options
-      # @option options [Number] time the number of seconds to display (0 for infinit)
-      # @option options [Boolean] icon specify an icon to use ("parent" uses the icon of the parent process)
-      # @option options [Boolean] baloon enable ballon tips in the registry (for this user only)
-      # @option options [Boolean] nosound do not play a sound when the tooltip is displayed
-      # @option options [Boolean] noquiet show the tooltip even if the user is in the quiet period that follows his very first login (Windows 7 and up)
-      # @option options [Boolean] xp use IUserNotification interface event when IUserNotification2 is available
-      #
-      def notify(type, title, message, image, options = {})
-        require 'rb-notifu'
+      def self.gem_name
+        'rb-notifu'
+      end
 
-        ::Notifu.show(DEFAULTS.merge(options).merge({
-          :type    => _notifu_type(type),
-          :title   => title,
+      def self.available?(opts = {})
+        super
+        require_gem_safely(opts)
+      end
+
+      # Shows a system notification.
+      #
+      # @param [String] message the notification message body
+      # @param [Hash] opts additional notification library options
+      # @option opts [String] type the notification type. Either 'success',
+      #   'pending', 'failed' or 'notify'
+      # @option opts [String] title the notification title
+      # @option opts [String] image the path to the notification image
+      # @option opts [Number] time the number of seconds to display (0 for
+      #   infinit)
+      # @option opts [Boolean] icon specify an icon to use ("parent" uses the
+      #   icon of the parent process)
+      # @option opts [Boolean] baloon enable ballon tips in the registry (for
+      #   this user only)
+      # @option opts [Boolean] nosound do not play a sound when the tooltip is
+      #   displayed
+      # @option opts [Boolean] noquiet show the tooltip even if the user is in
+      #   the quiet period that follows his very first login (Windows 7 and up)
+      # @option opts [Boolean] xp use IUserNotification interface event when
+      #   IUserNotification2 is available
+      #
+      def notify(message, opts = {})
+        self.class.require_gem_safely
+        normalize_standard_options!(opts)
+
+        opts = DEFAULTS.merge(
+          :type    => _notifu_type(opts.delete(:type)),
           :message => message
-        }))
+        ).merge(opts)
+
+        ::Notifu.show(opts)
       end
 
       private
 
-      # Convert Guards notification type to the best matching
+      # Converts Guards notification type to the best matching
       # Notifu type.
       #
       # @param [String] type the Guard notification type
       # @return [Symbol] the Notify notification type
       #
       def _notifu_type(type)
-        case type
-        when 'failed'
+        case type.to_sym
+        when :failed
           :error
-        when 'pending'
+        when :pending
           :warn
         else
           :info

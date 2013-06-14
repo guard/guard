@@ -1,31 +1,29 @@
-# Module for notifying test result to terminal title
+require 'guard/notifiers/base'
+
 module Guard
   module Notifier
-    module TerminalTitle
-      extend self
 
-      # Test if the notification library is available.
-      #
-      # @param [Boolean] silent true if no error messages should be shown
-      # @param [Hash] options notifier options
-      # @return [Boolean] the availability status
-      #
-      def available?(silent = false, options = {})
-        true
-      end
+    # Shows system notifications in the terminal title bar.
+    #
+    class TerminalTitle < Base
 
-      # Show a system notification.
+      # Shows a system notification.
       #
-      # @param [String] type the notification type. Either 'success', 'pending', 'failed' or 'notify'
-      # @param [String] title the notification title
-      # @param [String] message the notification message body
-      # @param [String] image the path to the notification image
-      # @param [Hash] options additional notification library options
+      # @param [Hash] opts additional notification library options
+      # @option opts [String] message the notification message body
+      # @option opts [String] type the notification type. Either 'success',
+      #   'pending', 'failed' or 'notify'
+      # @option opts [String] title the notification title
       #
-      def notify(type, title, message, image, options = {})
+      def notify(message, opts = {})
+        normalize_standard_options!(opts)
+
         first_line = message.sub(/^\n/, '').sub(/\n.*/m, '')
-        puts("\e]2;[#{ title }] #{ first_line }\a")
+
+        puts "\e]2;[#{ opts[:title] }] #{ first_line }\a"
       end
+
     end
+
   end
 end

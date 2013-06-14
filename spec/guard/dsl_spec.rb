@@ -100,13 +100,13 @@ describe Guard::Dsl do
     disable_user_config
 
     it 'adds a notification to the notifier' do
-      ::Guard::Notifier.should_receive(:add_notification).with(:growl, {}, false)
+      ::Guard::Notifier.should_receive(:add_notifier).with(:growl, { :silent => false })
       described_class.evaluate_guardfile(:guardfile_contents => 'notification :growl')
     end
 
     it 'adds multiple notification to the notifier' do
-      ::Guard::Notifier.should_receive(:add_notification).with(:growl, {}, false)
-      ::Guard::Notifier.should_receive(:add_notification).with(:ruby_gntp, { :host => '192.168.1.5' }, false)
+      ::Guard::Notifier.should_receive(:add_notifier).with(:growl, { :silent => false })
+      ::Guard::Notifier.should_receive(:add_notifier).with(:ruby_gntp, { :host => '192.168.1.5', :silent => false })
       described_class.evaluate_guardfile(:guardfile_contents => "notification :growl\nnotification :ruby_gntp, :host => '192.168.1.5'")
     end
   end

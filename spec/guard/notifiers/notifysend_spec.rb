@@ -3,35 +3,23 @@ require 'spec_helper'
 describe Guard::Notifier::NotifySend do
   let(:notifier) { described_class.new }
 
-  let(:fake_notifysend) do
-    Class.new do
-      def self.show(options) end
-    end
+  before do
+    stub_const 'NotifySend', stub
   end
 
-  before do
-    stub_const 'NotifySend', :fake_notifysend
+  describe '.supported_hosts' do
+    it { described_class.supported_hosts.should eq %w[linux freebsd openbsd sunos solaris] }
   end
 
   describe '.available?' do
-    context 'without the silent option' do
-      it 'shows an error message when not available on the host OS' do
-        ::Guard::UI.should_receive(:error).with 'The :notifysend notifier runs only on Linux, FreeBSD, OpenBSD and Solaris with the libnotify-bin package installed.'
-        RbConfig::CONFIG.should_receive(:[]).with('host_os').and_return 'darwin'
-        subject.available?
-      end
-    end
+    it 'checks if the binary is available' do
+      described_class.should_receive(:_notifysend_binary_available?)
 
-    context 'with the silent option' do
-      it 'does not show an error message when not available on the host OS' do
-        ::Guard::UI.should_not_receive(:error).with 'The :notifysend notifier runs only on Linux, FreeBSD, OpenBSD and Solaris with the libnotify-bin package installed.'
-        RbConfig::CONFIG.should_receive(:[]).with('host_os').and_return 'darwin'
-        subject.available?(true)
-      end
+      described_class.should be_available
     end
   end
 
-  describe '.notify' do
+  describe '#notify' do
     context 'without additional options' do
       it 'shows the notification with the default options' do
         notifier.should_receive(:system).with do |command|
@@ -42,7 +30,7 @@ describe Guard::Notifier::NotifySend do
           command.should include("-h 'int:transient:1'")
         end
 
-        notifier.notify('success', 'Welcome', 'Welcome to Guard', '/tmp/welcome.png')
+        notifier.notify('Welcome to Guard', :type => 'success', :title => 'Welcome', :image => '/tmp/welcome.png')
       end
     end
 
@@ -55,7 +43,7 @@ describe Guard::Notifier::NotifySend do
           command.should include("-t '5'")
         end
 
-        notifier.notify('pending', 'Waiting', 'Waiting for something', '/tmp/wait.png',
+        notifier.notify('Waiting for something', :type => :pending, :title => 'Waiting', :image => '/tmp/wait.png',
           :t => 5,
           :u => :critical
         )

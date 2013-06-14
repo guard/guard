@@ -194,6 +194,7 @@ describe Guard::Guardfile::Evaluator do
       guardfile_evaluator.stub(:_instance_eval_guardfile)
       ::Guard.runner.stub(:run)
     end
+    let(:growl) { { :name => :growl, :options => {} } }
 
     it 'evaluates the Guardfile' do
       guardfile_evaluator.should_receive(:evaluate_guardfile)
@@ -221,12 +222,12 @@ describe Guard::Guardfile::Evaluator do
 
     it 'clears the notifications' do
        ::Guard::Notifier.turn_off
-       ::Guard::Notifier.notifications = [{ :name => :growl }]
-       ::Guard::Notifier.notifications.should_not be_empty
+       ::Guard::Notifier.notifiers = [growl]
+       ::Guard::Notifier.notifiers.should_not be_empty
 
        guardfile_evaluator.reevaluate_guardfile
 
-       ::Guard::Notifier.notifications.should eq []
+       ::Guard::Notifier.notifiers.should be_empty
     end
 
     it 'removes the cached Guardfile content' do

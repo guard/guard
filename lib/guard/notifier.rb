@@ -17,7 +17,8 @@ require 'guard/notifiers/tmux'
 
 module Guard
 
-  # The notifier handles sending messages to different notifiers. Currently the following
+  # The notifier handles sending messages to different notifiers. Currently the
+  # following
   # libraries are supported:
   #
   # * Ruby GNTP
@@ -30,7 +31,8 @@ module Guard
   # * Terminal Title
   # * Tmux
   #
-  # Please see the documentation of each notifier for more information about the requirements
+  # Please see the documentation of each notifier for more information about
+  # the requirements
   # and configuration possibilities.
   #
   # Guard knows four different notification types:
@@ -54,8 +56,9 @@ module Guard
 
     extend self
 
-    # List of available notifiers, grouped by functionality. It needs to be a nested hash instead of
-    # a simpler Hash, because it maintains its order on Ruby 1.8.7 also.
+    # List of available notifiers, grouped by functionality. It needs to be a
+    # nested hash instead of a simpler Hash, because it maintains its order on
+    # Ruby 1.8.7 also.
     NOTIFIERS = [
       [
         [:gntp,              GNTP],
@@ -72,42 +75,34 @@ module Guard
       [[:file,           FileNotifier]]
     ]
 
-    # Get the available notifications.
-    #
-    # @return [Hash] the notifications
-    #
-    def notifications
-      ENV['GUARD_NOTIFICATIONS'] ? YAML::load(ENV['GUARD_NOTIFICATIONS']) : []
+    def notifiers
+      ENV['GUARD_NOTIFIERS'] ? YAML::load(ENV['GUARD_NOTIFIERS']) : []
     end
 
-    # Set the available notifications.
-    #
-    # @param [Array<Hash>] notifications the notifications
-    #
-    def notifications=(notifications)
-      ENV['GUARD_NOTIFICATIONS'] = YAML::dump(notifications)
+    def notifiers=(notifiers)
+      ENV['GUARD_NOTIFIERS'] = YAML::dump(notifiers)
     end
 
     # Clear available notifications.
     #
-      ENV['GUARD_NOTIFICATIONS'] = nil
     def clear_notifiers
+      ENV['GUARD_NOTIFIERS'] = nil
     end
 
-    # Turn notifications on. If no notifications are defined
-    # in the `Guardfile` Guard auto detects the first available
-    # library.
+    # Turn notifications on. If no notifications are defined in the `Guardfile`
+    # Guard auto detects the first available library.
     #
     def turn_on
-      _auto_detect_notification if notifications.empty? && (!::Guard.options || ::Guard.options[:notify])
+      _auto_detect_notification if notifiers.empty? && (!::Guard.options || ::Guard.options[:notify])
 
-      if notifications.empty?
-        ENV['GUARD_NOTIFY'] = 'false'
+      if notifiers.empty?
+        turn_off
       else
-        notifications.each do |notification|
-          notifier = _get_notifier_module(notification[:name])
-          ::Guard::UI.info "Guard uses #{ notifier.to_s.split('::').last } to send notifications."
-          notifier.turn_on(notification[:options]) if notifier.respond_to?(:turn_on)
+        notifiers.each do |notifier|
+          notifier_class = _get_notifier_module(notifier[:name])
+          ::Guard::UI.info "Guard uses #{ notifier_class.title } to send notifications."
+
+          notifier_class.turn_on if notifier_class.respond_to?(:turn_on)
         end
 
         ENV['GUARD_NOTIFY'] = 'true'
@@ -117,9 +112,10 @@ module Guard
     # Turn notifications off.
     #
     def turn_off
-      notifications.each do |notification|
-        notifier = _get_notifier_module(notification[:name])
-        notifier.turn_off(notification[:options]) if notifier.respond_to?(:turn_off)
+      notifiers.each do |notifier|
+        notifier_class = _get_notifier_module(notifier[:name])
+
+        notifier_class.turn_off if notifier_class.respond_to?(:turn_off)
       end
 
       ENV['GUARD_NOTIFY'] = 'false'
@@ -128,7 +124,7 @@ module Guard
     # Toggle the system notifications on/off
     #
     def toggle
-      if ENV['GUARD_NOTIFY'] == 'true'
+      if enabled?
         ::Guard::UI.info 'Turn off notifications'
         turn_off
       else
@@ -151,13 +147,13 @@ module Guard
     # @option options [String] silent disable any error message
     # @return [Boolean] if the notification could be added
     #
-    def add_notification(name, options = {}, silent = false)
+    def add_notifier(name, opts = {})
       return turn_off if name == :off
 
-      notifier = _get_notifier_module(name)
+      notifier_class = _get_notifier_module(name)
 
-      if notifier && notifier.available?(silent, options)
-        self.notifications = notifications << { :name => name, :options => options }
+      if notifier_class && notifier_class.available?(opts)
+        self.notifiers = notifiers << { :name => name, :options => opts }
         true
       else
         false
@@ -167,31 +163,21 @@ module Guard
     # Show a system notification with all configured notifiers.
     #
     # @param [String] message the message to show
-    # @option options [Symbol, String] image the image symbol or path to an image
-    # @option options [String] title the notification title
+    # @option opts [Symbol, String] image the image symbol or path to an image
+    # @option opts [String] title the notification title
     #
-    def notify(message, options = {})
-      if enabled?
-        type  = _notification_type(options.fetch(:image, :success))
-        image = _image_path(options.delete(:image) { :success })
-        title = options.delete(:title) { 'Guard' }
+    def notify(message, opts = {})
+      return unless enabled?
 
-        notifications.each do |notification|
-          begin
-            _get_notifier_module(notification[:name]).notify(type, title, message, image, options.merge(notification[:options]))
-          rescue Exception => e
-            ::Guard::UI.error "Error sending notification with #{ notification[:name] }: #{ e.message }"
-          end
+      notifiers.each do |notifier|
+        notifier = _get_notifier_module(notifier[:name]).new(notifier[:options])
+
+        begin
+          notifier.notify(message, opts)
+        rescue Exception => e
+          ::Guard::UI.error "Error sending notification with #{ notifier.name }: #{ e.message }"
         end
       end
-    end
-
-    # Paths where all Guard images are located
-    #
-    # @return [Pathname] the path to the images directory
-    #
-    def images_path
-      @images_path ||= Pathname.new(File.dirname(__FILE__)).join('../../images')
     end
 
     private
@@ -212,51 +198,15 @@ module Guard
     # is available in each notification group.
     #
     def _auto_detect_notification
+      self.notifiers = []
       available = nil
-      self.notifications = []
 
       NOTIFIERS.each do |group|
-        added = group.map { |n| n.first }.find { |notifier| add_notification(notifier, {}, true) }
+        added = group.map { |n| n.first }.find { |notifier| add_notifier(notifier, :silent => true) }
         available ||= added
       end
 
       ::Guard::UI.info('Guard could not detect any of the supported notification libraries.') unless available
-    end
-
-    # Get the image path for an image symbol for the following
-    # known image types:
-    #
-    # - failed
-    # - pending
-    # - success
-    #
-    # If the image is not a known symbol, it will be returned unmodified.
-    #
-    # @param [Symbol, String] image the image symbol or path to an image
-    # @return [String] the image path
-    #
-    def _image_path(image)
-      case image
-      when :failed, :pending, :success
-        images_path.join("#{image.to_s}.png").to_s
-      else
-        image
-      end
-    end
-
-    # Get the notification type depending on the
-    # image that has been selected for the notification.
-    #
-    # @param [Symbol, String] image the image symbol or path to an image
-    # @return [String] the notification type
-    #
-    def _notification_type(image)
-      case image
-      when :failed, :pending, :success
-        image.to_s
-      else
-        'notify'
-      end
     end
   end
 

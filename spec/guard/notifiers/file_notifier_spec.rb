@@ -17,13 +17,13 @@ describe Guard::Notifier::FileNotifier do
     it 'writes to a file on success' do
       File.should_receive(:write).with('tmp/guard_result', "success\nany title\nany message\n")
 
-      notifier.notify('success', 'any title', 'any message', 'any image', { :path => 'tmp/guard_result' })
+      notifier.notify('any message', :title => 'any title', :path => 'tmp/guard_result')
     end
 
     it 'also writes to a file on failure' do
       File.should_receive(:write).with('tmp/guard_result', "failed\nany title\nany message\n")
 
-      notifier.notify('failed', 'any title', 'any message', 'any image', { :path => 'tmp/guard_result' })
+      notifier.notify('any message',:type => :failed, :title => 'any title', :path => 'tmp/guard_result')
     end
 
     # We don't have a way to return false in .available? when no path is
@@ -32,7 +32,7 @@ describe Guard::Notifier::FileNotifier do
       File.should_not_receive(:write)
       ::Guard::UI.should_receive(:error).with ":file notifier requires a :path option"
 
-      notifier.notify('success', 'any title', 'any message', 'any image', {})
+      notifier.notify('any message')
     end
   end
 
