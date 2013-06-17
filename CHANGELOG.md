@@ -1,6 +1,10 @@
 ## Master
 
-- [#443][] Escape `notify-send` arguments.  ([@netzpirat][])
+### Bug fixes
+
+- [#453][] Fix a Guard error when calling `guard show` or `guard list` and
+  the Guardfile contains methods called directly on the listener. ([@rymai][])
+- [#443][] Escape `notify-send` arguments. ([@netzpirat][])
 
 ## 1.8.0 - 20 April, 2013
 
@@ -768,6 +772,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [#414]: https://github.com/guard/guard/issues/414
 [#416]: https://github.com/guard/guard/issues/416
 [#443]: https://github.com/guard/guard/issues/443
+[#453]: https://github.com/guard/guard/issues/453
 [@Gazer]: https://github.com/Gazer
 [@Maher4Ever]: https://github.com/Maher4Ever
 [@Nerian]: https://github.com/Nerian

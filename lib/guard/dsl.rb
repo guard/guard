@@ -409,7 +409,7 @@ module Guard
     # @param [Regexp] regexps a pattern for ignoring paths
     #
     def ignore(*regexps)
-      ::Guard.listener = ::Guard.listener.ignore(*regexps)
+      ::Guard.listener = ::Guard.listener.ignore(*regexps) if ::Guard.listener
     end
 
     # Replace ignored paths globally
@@ -420,7 +420,7 @@ module Guard
     # @param [Regexp] regexps a pattern for ignoring paths
     #
     def ignore!(*regexps)
-      ::Guard.listener = ::Guard.listener.ignore!(*regexps)
+      ::Guard.listener = ::Guard.listener.ignore!(*regexps) if ::Guard.listener
     end
 
     # Filter certain paths globally.
@@ -431,7 +431,7 @@ module Guard
     # @param [Regexp] regexps a pattern for filtering paths
     #
     def filter(*regexps)
-      ::Guard.listener = ::Guard.listener.filter(*regexps)
+      ::Guard.listener = ::Guard.listener.filter(*regexps) if ::Guard.listener
     end
 
     # Replace filtered paths globally.
@@ -442,7 +442,7 @@ module Guard
     # @param [Regexp] regexps a pattern for filtering paths
     #
     def filter!(*regexps)
-      ::Guard.listener = ::Guard.listener.filter!(*regexps)
+      ::Guard.listener = ::Guard.listener.filter!(*regexps) if ::Guard.listener
     end
 
     # Configure the Guard logger.
