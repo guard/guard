@@ -1,5 +1,9 @@
 ## Master
 
+No changes.
+
+## 1.8.1 - 17 June, 2013
+
 ### Bug fixes
 
 - [#453][] Fix a Guard error when calling `guard show` or `guard list` and
