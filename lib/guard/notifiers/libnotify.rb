@@ -1,12 +1,13 @@
-require 'rbconfig'
-require 'guard/ui'
+require 'guard/notifiers/base'
 
 module Guard
   module Notifier
 
-    # System notifications using the [libnotify](https://github.com/splattael/libnotify) gem.
+    # System notifications using the
+    # [libnotify](https://github.com/splattael/libnotify) gem.
     #
-    # This gem is available for Linux, FreeBSD, OpenBSD and Solaris and sends system notifications to
+    # This gem is available for Linux, FreeBSD, OpenBSD and Solaris and sends
+    # system notifications to
     # Gnome [libnotify](http://developer.gnome.org/libnotify):
     #
     # @example Add the `libnotify` gem to your `Gemfile`
@@ -20,59 +21,50 @@ module Guard
     # @example Add the `:libnotify` notifier with configuration options to your `Guardfile`
     #   notification :libnotify, :timeout => 5, :transient => true, :append => false, :urgency => :critical
     #
-    module Libnotify
-      extend self
+    class Libnotify < Base
 
-      # Default options for libnotify gem
+      # Default options for the libnotify notifications.
       DEFAULTS = {
         :transient => false,
         :append    => true,
         :timeout   => 3
       }
 
-      # Test if the notification library is available.
-      #
-      # @param [Boolean] silent true if no error messages should be shown
-      # @param [Hash] options notifier options
-      # @return [Boolean] the availability status
-      #
-      def available?(silent = false, options = {})
-        if RbConfig::CONFIG['host_os'] =~ /linux|freebsd|openbsd|sunos|solaris/
-          require 'libnotify'
-
-          true
-
-        else
-          ::Guard::UI.error 'The :libnotify notifier runs only on Linux, FreeBSD, OpenBSD and Solaris.' unless silent
-          false
-        end
-
-      rescue LoadError
-        ::Guard::UI.error "Please add \"gem 'libnotify'\" to your Gemfile and run Guard with \"bundle exec\"." unless silent
-        false
+      def self.supported_hosts
+        %w[linux freebsd openbsd sunos solaris]
       end
 
-      # Show a system notification.
-      #
-      # @param [String] type the notification type. Either 'success', 'pending', 'failed' or 'notify'
-      # @param [String] title the notification title
-      # @param [String] message the notification message body
-      # @param [String] image the path to the notification image
-      # @param [Hash] options additional notification library options
-      # @option options [Boolean] transient keep the notifications around after display
-      # @option options [Boolean] append append onto existing notification
-      # @option options [Number, Boolean] timeout the number of seconds to display (1.5 (s), 1000 (ms), false)
-      #
-      def notify(type, title, message, image, options = { })
-        require 'libnotify'
+      def self.available?(opts = {})
+        super
+        require_gem_safely(opts)
+      end
 
-        options = DEFAULTS.merge(options).merge({
-          :summary   => title,
+      # Shows a system notification.
+      #
+      # @param [String] message the notification message body
+      # @param [Hash] opts additional notification library options
+      # @option opts [String] type the notification type. Either 'success',
+      #   'pending', 'failed' or 'notify'
+      # @option opts [String] title the notification title
+      # @option opts [String] image the path to the notification image
+      # @option opts [Boolean] transient keep the notifications around after
+      #   display
+      # @option opts [Boolean] append append onto existing notification
+      # @option opts [Number, Boolean] timeout the number of seconds to display
+      #   (1.5 (s), 1000 (ms), false)
+      #
+      def notify(message, opts = {})
+        self.class.require_gem_safely
+        normalize_standard_options!(opts)
+
+        opts = DEFAULTS.merge(
+          :summary   => opts.delete(:title),
+          :icon_path => opts.delete(:image),
           :body      => message,
-          :icon_path => image
-        })
-        options[:urgency] ||= libnotify_urgency(type)
-        ::Libnotify.show(options)
+          :urgency   => _libnotify_urgency(opts.delete(:type))
+        ).merge(opts)
+
+        ::Libnotify.show(opts)
       end
 
       private
@@ -83,7 +75,7 @@ module Guard
       # @param [String] type the Guard notification type
       # @return [Symbol] the libnotify urgency
       #
-      def libnotify_urgency(type)
+      def _libnotify_urgency(type)
         case type
         when 'failed'
           :normal
@@ -93,5 +85,6 @@ module Guard
       end
 
     end
+
   end
 end

@@ -2,119 +2,56 @@ require 'spec_helper'
 
 describe Guard::Guardfile do
 
-  it "has a valid Guardfile template" do
-    File.exists?(Guard::GUARDFILE_TEMPLATE).should be_true
-  end
+  let(:guardfile_generator) { double('Guard::Guardfile::Generator') }
 
-  describe ".create_guardfile" do
-    before { Dir.stub(:pwd).and_return "/home/user" }
+  describe '.create_guardfile' do
+    it 'displays a deprecation warning to the user' do
+      ::Guard::UI.should_receive(:deprecation).with(::Guard::Deprecator::CREATE_GUARDFILE_DEPRECATION)
 
-    context "with an existing Guardfile" do
-      before { File.should_receive(:exist?).and_return true }
-
-      it "does not copy the Guardfile template or notify the user" do
-        ::Guard::UI.should_not_receive(:info)
-        FileUtils.should_not_receive(:cp)
-
-        described_class.create_guardfile
-      end
-
-      it "does not display any kind of error or abort" do
-        ::Guard::UI.should_not_receive(:error)
-        described_class.should_not_receive(:abort)
-        described_class.create_guardfile
-      end
-
-      context "with the :abort_on_existence option set to true" do
-        it "displays an error message and aborts the process" do
-          ::Guard::UI.should_receive(:error).with("Guardfile already exists at /home/user/Guardfile")
-          described_class.should_receive(:abort)
-          described_class.create_guardfile(:abort_on_existence => true)
-        end
-      end
+      described_class.create_guardfile
     end
 
-    context "without an existing Guardfile" do
-      before { File.should_receive(:exist?).and_return false }
+    it 'delegates to Guard::Guardfile::Generator' do
+      described_class::Generator.should_receive(:new).with(:foo => 'bar') { guardfile_generator }
+      guardfile_generator.should_receive(:create_guardfile)
 
-      it "copies the Guardfile template and notifies the user" do
-        ::Guard::UI.should_receive(:info)
-        FileUtils.should_receive(:cp)
-
-        described_class.create_guardfile
-      end
+      described_class.create_guardfile(:foo => 'bar')
     end
   end
 
-  describe ".duplicate_defintions?" do
-    context "that finds an existing Guardfile"  do
-      context "that has duplicate definitions" do
-        it "should return true" do
-          io = StringIO.new("guard 'rspec' do\nend\nguard 'rspec' do\nend\n")
-          Guard::Guardfile.duplicate_definitions?('rspec', io.string).should == true
-        end
-      end
+  describe '.initialize_template' do
+    before do
+      described_class::Generator.should_receive(:new) { guardfile_generator }
+      guardfile_generator.stub(:initialize_template)
+    end
 
-      context "that doesn't have duplicate definitions" do
-        it "should return false" do
-          io = StringIO.new("guard 'rspec' do\nend\n")
-          Guard::Guardfile.duplicate_definitions?('rspec', io.string).should == false
-        end
-      end
+    it 'displays a deprecation warning to the user' do
+      ::Guard::UI.should_receive(:deprecation).with(::Guard::Deprecator::INITIALIZE_TEMPLATE_DEPRECATION)
+
+      described_class.initialize_template('rspec')
+    end
+
+    it 'delegates to Guard::Guardfile::Generator' do
+      guardfile_generator.should_receive(:initialize_template).with('rspec')
+
+      described_class.initialize_template('rspec')
     end
   end
 
-  describe ".initialize_template" do
-    context 'with an installed Guard implementation' do
-      let(:foo_guard) { double('Guard::Foo').as_null_object }
-
-      before { ::Guard.should_receive(:get_guard_class).and_return(foo_guard) }
-
-      it "initializes the Guard" do
-        foo_guard.should_receive(:init)
-        described_class.initialize_template('foo')
-      end
+  describe '.initialize_all_templates' do
+    before do
+      described_class::Generator.should_receive(:new) { guardfile_generator }
+      guardfile_generator.stub(:initialize_all_templates)
     end
 
-    context "with a user defined template" do
-      let(:template) { File.join(Guard::HOME_TEMPLATES, '/bar') }
+    it 'displays a deprecation warning to the user' do
+      ::Guard::UI.should_receive(:deprecation).with(::Guard::Deprecator::INITIALIZE_ALL_TEMPLATES_DEPRECATION)
 
-      before { File.should_receive(:exist?).with(template).and_return true }
-
-      it "copies the Guardfile template and initializes the Guard" do
-        File.should_receive(:read).with('Guardfile').and_return 'Guardfile content'
-        File.should_receive(:read).with(template).and_return 'Template content'
-        io = StringIO.new
-        File.should_receive(:open).with('Guardfile', 'wb').and_yield io
-        described_class.initialize_template('bar')
-        io.string.should == "Guardfile content\n\nTemplate content\n"
-      end
+      described_class.initialize_all_templates
     end
 
-    context "when the passed guard can't be found" do
-      before do
-        ::Guard.should_receive(:get_guard_class).and_return nil
-        File.should_receive(:exist?).and_return false
-      end
-
-      it "notifies the user about the problem" do
-        ::Guard::UI.should_receive(:error).with(
-          "Could not load 'guard/foo' or '~/.guard/templates/foo' or find class Guard::Foo"
-        )
-        described_class.initialize_template('foo')
-      end
-    end
-  end
-
-  describe ".initialize_all_templates" do
-    let(:guards) { ['rspec', 'spork', 'phpunit'] }
-
-    before { ::Guard.should_receive(:guard_gem_names).and_return(guards) }
-
-    it "calls Guard.initialize_template on all installed guards" do
-      guards.each do |g|
-        described_class.should_receive(:initialize_template).with(g)
-      end
+    it 'delegates to Guard::Guardfile::Generator' do
+      guardfile_generator.should_receive(:initialize_all_templates)
 
       described_class.initialize_all_templates
     end

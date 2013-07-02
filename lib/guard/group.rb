@@ -1,9 +1,12 @@
 module Guard
 
-  # A group of Guard plugins. There are two reasons why you want to group your guards:
+  # A group of Guard plugins. There are two reasons why you want to group your
+  # Guard plugins:
   #
-  # - You can start only certain Groups from the command line by passing the `--group` option.
-  # - Abort task execution chain on failure within a group.
+  # * You can start only certain groups from the command line by passing the
+  #   `--group` option to `guard start`.
+  # * Abort task execution chain on failure within a group with the
+  #   `:halt_on_fail` option.
   #
   # @example Group that aborts on failure
   #
@@ -32,12 +35,28 @@ module Guard
       @options = options
     end
 
-    # String representation of the Guard group.
+    # Returns the group title.
     #
-    # @return [String] the group name
+    # @example Title for a group named 'backend'
+    #   > Guard::Group.new('backend').title
+    #   => "Backend"
+    #
+    # @return [String]
+    #
+    def title
+      @title ||= name.to_s.capitalize
+    end
+
+    # String representation of the group.
+    #
+    # @example String representation of a group named 'backend'
+    #   > Guard::Group.new('backend').to_s
+    #   => "#<Guard::Group @name=backend @options={}>"
+    #
+    # @return [String] the string representation
     #
     def to_s
-      @name.to_s.capitalize
+      "#<#{self.class} @name=#{name} @options=#{options}>"
     end
 
   end

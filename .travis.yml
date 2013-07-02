@@ -1,22 +1,15 @@
 language: ruby
 bundler_args: --without development
 rvm:
+  - 1.9.2
   - 1.9.3
   - 2.0.0
-  - ruby-head
   - jruby-19mode
-  - jruby-head
   - rbx-19mode
-  - rbx-head
-matrix:
-  allow_failures:
-    - rvm: ruby-head
-    - rvm: jruby-head
-    - rvm: rbx-head
 notifications:
   recipients:
     - thibaud@thibaud.me
     - remy@rymai.me
     - michi@netzpiraten.ch
     - maher@sallam.me
-  irc: "irc.freenode.org#guard"
+  irc: 'irc.freenode.org#guard'

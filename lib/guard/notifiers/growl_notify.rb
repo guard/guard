@@ -1,5 +1,4 @@
-require 'rbconfig'
-require 'guard/ui'
+require 'guard/notifiers/base'
 
 module Guard
   module Notifier
@@ -20,74 +19,70 @@ module Guard
     # @example Add the `:growl_notify` notifier with configuration options to your `Guardfile`
     #   notification :growl_notify, :sticky => true
     #
-    module GrowlNotify
-      extend self
+    class GrowlNotify < Base
 
-      # Default options for growl_notify gem
+      # Default options for the growl_notify notifications.
       DEFAULTS = {
         :sticky   => false,
         :priority => 0
       }
 
-      # Test if the notification library is available.
+      def self.supported_hosts
+        %w[darwin]
+      end
+
+      def self.available?(opts = {})
+        super
+        _register!(opts) if require_gem_safely(opts)
+      end
+
+      # Shows a system notification.
       #
-      # @param [Boolean] silent true if no error messages should be shown
-      # @param [Hash] options notifier options
-      # @return [Boolean] the availability status
+      # @param [String] message the notification message body
+      # @param [Hash] opts additional notification library options
+      # @option opts [String] type the notification type. Either 'success',
+      #   'pending', 'failed' or 'notify'
+      # @option opts [String] title the notification title
+      # @option opts [String] image the path to the notification image
+      # @option opts [Boolean] sticky if the message should stick to the screen
+      # @option opts [Integer] priority the importance of message from -2 (very
+      #   low) to 2 (emergency)
       #
-      def available?(silent = false, options = {})
-        if RbConfig::CONFIG['host_os'] =~ /darwin/
-          require 'growl_notify'
+      def notify(message, opts = {})
+        self.class.require_gem_safely
+        normalize_standard_options!(opts)
 
-          begin
-            if ::GrowlNotify.application_name != 'Guard'
-              ::GrowlNotify.config do |c|
-                c.notifications         = %w(success pending failed notify)
-                c.default_notifications = 'notify'
-                c.application_name      = 'Guard'
-              end
-            end
+        opts = DEFAULTS.merge(
+          :application_name => 'Guard',
+          :with_name        => opts.delete(:type).to_s,
+          :description      => message,
+          :icon             => opts.delete(:image)
+        ).merge(opts)
 
-            true
+        ::GrowlNotify.send_notification(opts)
+      end
 
-          rescue ::GrowlNotify::GrowlNotFound
-            ::Guard::UI.error 'Please install Growl from http://growl.info' unless silent
-            false
+      # @private
+      #
+      def self._register!(options)
+        if ::GrowlNotify.application_name != 'Guard'
+          ::GrowlNotify.config do |c|
+            c.notifications         = %w(success pending failed notify)
+            c.default_notifications = 'notify'
+            c.application_name      = 'Guard'
           end
-
-        else
-          ::Guard::UI.error 'The :growl_notify notifier runs only on Mac OS X.' unless silent
-          false
         end
 
-      rescue LoadError, NameError
-        ::Guard::UI.error "Please add \"gem 'growl_notify'\" to your Gemfile and run Guard with \"bundle exec\"." unless silent
+        true
+
+      rescue ::GrowlNotify::GrowlNotFound
+        unless options[:silent]
+          ::Guard::UI.error 'Please install Growl from http://growl.info'
+        end
         false
       end
 
-      # Show a system notification.
-      #
-      # @param [String] type the notification type. Either 'success', 'pending', 'failed' or 'notify'
-      # @param [String] title the notification title
-      # @param [String] message the notification message body
-      # @param [String] image the path to the notification image
-      # @param [Hash] options additional notification library options
-      # @option options [Boolean] sticky if the message should stick to the screen
-      # @option options [Integer] priority the importance of message from -2 (very low) to 2 (emergency)
-      #
-      def notify(type, title, message, image, options = { })
-        require 'growl_notify'
-
-        ::GrowlNotify.send_notification(DEFAULTS.merge(options).merge({
-            :application_name => 'Guard',
-            :with_name        => type,
-            :title            => title,
-            :description      => message,
-            :icon             => image
-        }))
-      end
-
     end
+
   end
 end
-

@@ -1,5 +1,7 @@
 require 'lumberjack'
 
+require 'guard/ui/colors'
+
 module Guard
 
   # The UI class helps to format messages for the user. Everything that is logged
@@ -10,6 +12,7 @@ module Guard
   # processing, please just write it to STDOUT with `puts`.
   #
   module UI
+    include Colors
 
     class << self
 
@@ -47,7 +50,7 @@ module Guard
       # @option options [Boolean] reset whether to clean the output before
       # @option options [String] plugin manually define the calling plugin
       #
-      def info(message, options = { })
+      def info(message, options = {})
         filter(options[:plugin]) do |plugin|
           reset_line if options[:reset]
           self.logger.info(message, plugin)
@@ -60,7 +63,7 @@ module Guard
       # @option options [Boolean] reset whether to clean the output before
       # @option options [String] plugin manually define the calling plugin
       #
-      def warning(message, options = { })
+      def warning(message, options = {})
         filter(options[:plugin]) do |plugin|
           reset_line if options[:reset]
           self.logger.warn(color(message, :yellow), plugin)
@@ -73,7 +76,7 @@ module Guard
       # @option options [Boolean] reset whether to clean the output before
       # @option options [String] plugin manually define the calling plugin
       #
-      def error(message, options = { })
+      def error(message, options = {})
         filter(options[:plugin]) do |plugin|
           reset_line if options[:reset]
           self.logger.error(color(message, :red), plugin)
@@ -87,7 +90,9 @@ module Guard
       # @option options [Boolean] reset whether to clean the output before
       # @option options [String] plugin manually define the calling plugin
       #
-      def deprecation(message, options = { })
+      def deprecation(message, options = {})
+        return unless ::Guard.options[:show_deprecations]
+
         filter(options[:plugin]) do |plugin|
           reset_line if options[:reset]
           self.logger.warn(color(message, :yellow), plugin)
@@ -100,7 +105,7 @@ module Guard
       # @option options [Boolean] reset whether to clean the output before
       # @option options [String] plugin manually define the calling plugin
       #
-      def debug(message, options = { })
+      def debug(message, options = {})
         filter(options[:plugin]) do |plugin|
           reset_line if options[:reset]
           self.logger.debug(color(message, :yellow), plugin)
@@ -142,8 +147,8 @@ module Guard
           groups  = ::Guard.scope[:groups] || []
         end
 
-        scope_message ||= plugins.join(',') unless plugins.empty?
-        scope_message ||= groups.join(',') unless groups.empty?
+        scope_message ||= plugins.map(&:title).join(', ') unless plugins.empty?
+        scope_message ||= groups.map(&:title).join(', ') unless groups.empty?
         scope_message ||= 'all'
 
         info "#{ action } #{ scope_message }"
@@ -179,13 +184,12 @@ module Guard
         name ? name[1].split('/').map { |part| part.split(/[^a-z0-9]/i).map { |word| word.capitalize }.join }.join('::') : 'Guard'
       end
 
-      # Reset a color sequence.
+      # @deprecated Reset a color sequence.
       #
-      # @deprecated
       # @param [String] text the text
       #
       def reset_color(text)
-        deprecation('UI.reset_color(text) is deprecated, please use color(text, ' ') instead.')
+        deprecation("UI.reset_color(text) is deprecated, please use color(text, ' ') instead.")
         color(text, '')
       end
 
@@ -242,57 +246,6 @@ module Guard
       end
 
     end
-
-    # Brighten the color
-    ANSI_ESCAPE_BRIGHT    = '1'
-
-    # Black foreground color
-    ANSI_ESCAPE_BLACK     = '30'
-
-    # Red foreground color
-    ANSI_ESCAPE_RED       = '31'
-
-    # Green foreground color
-    ANSI_ESCAPE_GREEN     = '32'
-
-    # Yellow foreground color
-    ANSI_ESCAPE_YELLOW    = '33'
-
-    # Blue foreground color
-    ANSI_ESCAPE_BLUE      = '34'
-
-    # Magenta foreground color
-    ANSI_ESCAPE_MAGENTA   = '35'
-
-    # Cyan foreground color
-    ANSI_ESCAPE_CYAN      = '36'
-
-    # White foreground color
-    ANSI_ESCAPE_WHITE     = '37'
-
-    # Black background color
-    ANSI_ESCAPE_BGBLACK   = '40'
-
-    # Red background color
-    ANSI_ESCAPE_BGRED     = '41'
-
-    # Green background color
-    ANSI_ESCAPE_BGGREEN   = '42'
-
-    # Yellow background color
-    ANSI_ESCAPE_BGYELLOW  = '43'
-
-    # Blue background color
-    ANSI_ESCAPE_BGBLUE    = '44'
-
-    # Magenta background color
-    ANSI_ESCAPE_BGMAGENTA = '45'
-
-    # Cyan background color
-    ANSI_ESCAPE_BGCYAN    = '46'
-
-    # White background color
-    ANSI_ESCAPE_BGWHITE   = '47'
 
   end
 end

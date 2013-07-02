@@ -1,5 +1,4 @@
-require 'rbconfig'
-require 'guard/ui'
+require 'guard/notifiers/base'
 
 module Guard
   module Notifier
@@ -10,76 +9,98 @@ module Guard
     # @example Add the `:notifysend` notifier to your `Guardfile`
     #   notification :notifysend
     #
-    module NotifySend
-      extend self
+    class NotifySend < Base
 
-      # Default options for the notify-send program
+      # Default options for the notify-send notifications.
       DEFAULTS = {
         :t => 3000, # Default timeout is 3000ms
         :h => 'int:transient:1' # Automatically close the notification
       }
 
-      # Full list of options supported by notify-send
+      # Full list of options supported by notify-send.
       SUPPORTED = [:u, :t, :i, :c, :h]
 
-      # Test if the notification program is available.
-      #
-      # @param [Boolean] silent true if no error messages should be shown
-      # @param [Hash] options notifier options
-      # @return [Boolean] the availability status
-      #
-      def available?(silent = false, options = {})
-        if (RbConfig::CONFIG['host_os'] =~ /linux|freebsd|openbsd|sunos|solaris/) and (not `which notify-send`.empty?)
-          true
-        else
-          ::Guard::UI.error 'The :notifysend notifier runs only on Linux, FreeBSD, OpenBSD and Solaris with the libnotify-bin package installed.' unless silent
-          false
-        end
+      def self.supported_hosts
+        %w[linux freebsd openbsd sunos solaris]
       end
 
-      # Show a system notification.
+      def self.available?(opts = {})
+        super
+        _register!(opts)
+      end
+
+      # Shows a system notification.
       #
-      # @param [String] type the notification type. Either 'success', 'pending', 'failed' or 'notify'
-      # @param [String] title the notification title
       # @param [String] message the notification message body
-      # @param [String] image the path to the notification image
-      # @param [Hash] options additional notification library options
-      # @option options [String] c the notification category
-      # @option options [Number] t the number of milliseconds to display (1000, 3000)
+      # @param [Hash] opts additional notification library options
+      # @option opts [String] type the notification type. Either 'success',
+      #   'pending', 'failed' or 'notify'
+      # @option opts [String] title the notification title
+      # @option opts [String] image the path to the notification image
+      # @option opts [String] c the notification category
+      # @option opts [Number] t the number of milliseconds to display (1000,
+      #   3000)
       #
-      def notify(type, title, message, image, options = { })
-        command = "notify-send '#{title}' '#{message}'"
-        options = DEFAULTS.merge(options).merge({
-          :i => image
-        })
-        options[:u] ||= notifysend_urgency(type)
-        system(to_command_string(command, SUPPORTED, options))
+      def notify(message, opts = {})
+        normalize_standard_options!(opts)
+
+        command = "notify-send '#{opts.delete(:title)}' '#{message}'"
+        opts = DEFAULTS.merge(
+          :i => opts.delete(:image),
+          :u => _notifysend_urgency(opts.delete(:type))
+        ).merge(opts)
+
+        system(_to_command_string(command, SUPPORTED, opts))
       end
 
       private
 
-      # Convert Guards notification type to the best matching
+      # Converts Guards notification type to the best matching
       # notify-send urgency.
       #
       # @param [String] type the Guard notification type
       # @return [String] the notify-send urgency
       #
-      def notifysend_urgency(type)
+      def _notifysend_urgency(type)
         { 'failed' => 'normal', 'pending' => 'low' }.fetch(type, 'low')
       end
 
-      # Build a shell command out of a command string and option hash.
+      # Builds a shell command out of a command string and option hash.
       #
       # @param [String] command the command execute
       # @param [Array] supported list of supported option flags
       # @param [Hash] options additional command options
-      # @return [String] the command and its options converted to a shell command.
+      # @return [String] the command and its options converted to a shell
+      #   command.
       #
-      def to_command_string(command, supported, options = {})
+      def _to_command_string(command, supported, options = {})
         options.reduce(command) do |cmd, (flag, value)|
           supported.include?(flag) ? cmd + " -#{ flag } '#{ value }'" : cmd
         end
       end
+
+      # @private
+      #
+      # @return [Boolean] whether or not the notify-send binary is available
+      #
+      def self._notifysend_binary_available?
+        !`which notify-send`.empty?
+      end
+
+      # @private
+      #
+      def self._register!(options)
+        unless _notifysend_binary_available?
+          unless options[:silent]
+            ::Guard::UI.error 'The :notifysend notifier runs only on Linux, FreeBSD, OpenBSD and Solaris with the libnotify-bin package installed.'
+          end
+          false
+        end
+
+        true
+      end
+
     end
+
   end
 end
