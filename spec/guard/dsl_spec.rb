@@ -11,8 +11,6 @@ describe Guard::Dsl do
     stub_const 'Guard::Dummy', Class.new(Guard::Plugin)
     ::Guard.stub(:setup_interactor)
     ::Guard.setup
-    ::Guard.stub(:plugins).and_return([mock('Guard::Dummy')])
-    ::Guard::Notifier.stub(:notify)
   end
 
   def self.disable_user_config
@@ -318,69 +316,68 @@ describe Guard::Dsl do
   describe '#scope' do
     context 'with an existing command line plugin scope' do
       before do
-        ::Guard.options[:plugin] = ['rspec']
-        ::Guard.options[:group] = []
+        ::Guard.scope[:plugins] = ['rspec']
       end
 
       it 'does not use the DSL scope plugin' do
         described_class.evaluate_guardfile(:guardfile_contents => 'scope :plugin => :baz')
-        ::Guard.options[:plugin].should eq ['rspec']
+        ::Guard.scope[:plugins].should eq ['rspec']
       end
 
       it 'does not use the DSL scope plugins' do
         described_class.evaluate_guardfile(:guardfile_contents => 'scope :plugins => [:foo, :bar]')
-        ::Guard.options[:plugin].should eq ['rspec']
+        ::Guard.scope[:plugins].should eq ['rspec']
       end
     end
 
     context 'without an existing command line plugin scope' do
       before do
-        ::Guard.options[:plugin] = []
-        ::Guard.options[:group] = []
+        ::Guard.scope[:plugins] = nil
+        ::Guard.scope[:groups] = nil
       end
 
       it 'does use the DSL scope plugin' do
         described_class.evaluate_guardfile(:guardfile_contents => 'scope :plugin => :baz')
-        ::Guard.options[:plugin].should eq [:baz]
+        ::Guard.scope[:plugins].should eq [:baz]
       end
 
       it 'does use the DSL scope plugins' do
         described_class.evaluate_guardfile(:guardfile_contents => 'scope :plugins => [:foo, :bar]')
-        ::Guard.options[:plugin].should eq [:foo, :bar]
+        ::Guard.scope[:plugins].should eq [:foo, :bar]
       end
     end
 
     context 'with an existing command line group scope' do
       before do
-        ::Guard.options[:plugin] = []
-        ::Guard.options[:group] = ['frontend']
+        ::Guard.scope[:plugins] = nil
+        ::Guard.scope[:groups] = ['frontend']
       end
 
       it 'does not use the DSL scope plugin' do
         described_class.evaluate_guardfile(:guardfile_contents => 'scope :group => :baz')
-        ::Guard.options[:group].should eq ['frontend']
+        ::Guard.scope[:groups].should eq ['frontend']
       end
 
       it 'does not use the DSL scope plugins' do
         described_class.evaluate_guardfile(:guardfile_contents => 'scope :groups => [:foo, :bar]')
-        ::Guard.options[:group].should eq ['frontend']
+        ::Guard.scope[:groups].should eq ['frontend']
       end
     end
 
     context 'without an existing command line group scope' do
       before do
-        ::Guard.options[:plugin] = []
-        ::Guard.options[:group] = []
+        ::Guard.scope[:plugins] = nil
+        ::Guard.scope[:groups] = nil
       end
 
       it 'does use the DSL scope group' do
         described_class.evaluate_guardfile(:guardfile_contents => 'scope :group => :baz')
-        ::Guard.options[:group].should eq [:baz]
+        ::Guard.scope[:groups].should eq [:baz]
       end
 
       it 'does use the DSL scope groups' do
         described_class.evaluate_guardfile(:guardfile_contents => 'scope :groups => [:foo, :bar]')
-        ::Guard.options[:group].should eq [:foo, :bar]
+        ::Guard.scope[:groups].should eq [:foo, :bar]
       end
     end
   end

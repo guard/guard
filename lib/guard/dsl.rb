@@ -351,15 +351,8 @@ module Guard
     # @param [Hash] scopes the scope for the groups and plugins
     #
     def scope(scopes = {})
-      if ::Guard.options[:plugin].empty?
-        ::Guard.options[:plugin] = [scopes[:plugin]] if scopes[:plugin]
-        ::Guard.options[:plugin] = scopes[:plugins]  if scopes[:plugins]
-      end
-
-      if ::Guard.options[:group].empty?
-        ::Guard.options[:group] = [scopes[:group]] if scopes[:group]
-        ::Guard.options[:group] = scopes[:groups]  if scopes[:groups]
-      end
+      ::Guard.scope[:plugins] ||= Array(scopes[:plugin] || scopes[:plugins]) if scopes[:plugin] || scopes[:plugins]
+      ::Guard.scope[:groups] ||= Array(scopes[:group] || scopes[:groups]) if scopes[:group] || scopes[:groups]
     end
 
   end

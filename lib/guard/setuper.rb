@@ -1,10 +1,25 @@
 require 'thread'
 require 'listen'
+require 'guard/options'
 
 module Guard
 
   module Setuper
 
+    DEFAULT_OPTIONS = {
+      clear: false,
+      notify: true,
+      debug: false,
+      group: [],
+      plugin: [],
+      watchdir: nil,
+      guardfile: nil,
+      no_interactions: false,
+      no_bundler_warning: false,
+      show_deprecations: false,
+      latency: nil,
+      force_polling: false
+    }
     DEFAULT_GROUPS = [:default]
 
     # Initializes the Guard singleton:
@@ -24,18 +39,18 @@ module Guard
     #
     # @return [Guard] the Guard singleton
     #
-    def setup(options = {})
+    def setup(opts = {})
       @running   = true
       @lock      = Mutex.new
-      @options   = options.dup
-      @watchdir  = (options[:watchdir] && File.expand_path(options[:watchdir])) || Dir.pwd
-      @evaluator = ::Guard::Guardfile::Evaluator.new(options)
+      @options   = ::Guard::Options.new(opts, DEFAULT_OPTIONS)
+      @watchdir  = (options.watchdir && File.expand_path(options.watchdir)) || Dir.pwd
+      @evaluator = ::Guard::Guardfile::Evaluator.new(opts)
       @runner    = ::Guard::Runner.new
-      @scope     = { :plugins => [], :groups => [] }
+      @scope     = { plugins: nil, groups: nil }
 
       Dir.chdir(@watchdir)
       ::Guard::UI.clear(:force => true)
-      _setup_debug if options[:debug]
+      _setup_debug if options.debug
       _setup_listener
       _setup_signal_traps
 
@@ -109,7 +124,7 @@ module Guard
 
       listener_options = { :relative_paths => true }
       %w[latency force_polling].each do |option|
-        listener_options[option.to_sym] = options[option] if options.key?(option)
+        listener_options[option.to_sym] = options.send(option) if options.send(option)
       end
 
       @listener = Listen.to(@watchdir, listener_options).change(&listener_callback)
@@ -152,14 +167,14 @@ module Guard
     # @see Dsl#scope
     #
     def _setup_scopes
-      scope[:groups]  = options[:group].map { |g| ::Guard.groups(g) } if options[:group]
-      scope[:plugins] = options[:plugin].map { |p| ::Guard.plugins(p) } if options[:plugin]
+      scope[:groups]  = options.group.map { |g| ::Guard.groups(g) }
+      scope[:plugins] = options.plugin.map { |p| ::Guard.plugins(p) }
     end
 
     # Enables or disables the notifier based on user's configurations.
     #
     def _setup_notifier
-      if options[:notify] && ENV['GUARD_NOTIFY'] != 'false'
+      if options.notify && ENV['GUARD_NOTIFY'] != 'false'
         ::Guard::Notifier.turn_on
       else
         ::Guard::Notifier.turn_off
@@ -169,7 +184,7 @@ module Guard
     # Initializes the interactor unless the user has specified not to.
     #
     def _setup_interactor
-      unless options[:no_interactions] || !::Guard::Interactor.enabled
+      unless options.no_interactions || !::Guard::Interactor.enabled
         @interactor = ::Guard::Interactor.new
       end
     end

@@ -233,7 +233,7 @@ describe Guard::Guardfile::Evaluator do
     it 'removes the cached Guardfile content' do
       guardfile_evaluator.reevaluate_guardfile
 
-      guardfile_evaluator.options.should_not have_key(:guardfile_content)
+      guardfile_evaluator.options.guardfile_content.should be_nil
     end
 
     context 'with notifications enabled' do

@@ -28,7 +28,7 @@ describe Guard::Setuper do
     end
 
     it "initializes the options" do
-      subject.options.should include(:my_opts)
+      subject.options.my_opts.should be_true
     end
 
     it "initializes the listener" do
@@ -332,7 +332,7 @@ describe Guard::Setuper do
     let(:listener) { stub.as_null_object }
 
     context "with latency option" do
-      before { ::Guard.stub(:options).and_return("latency" => 1.5) }
+      before { ::Guard.stub(:options).and_return(Guard::Options.new(latency: 1.5)) }
 
       it "pass option to listener" do
         Listen.should_receive(:to).with(anything, { :relative_paths => true, :latency => 1.5 }) { listener }
@@ -342,7 +342,7 @@ describe Guard::Setuper do
     end
 
     context "with force_polling option" do
-      before { ::Guard.stub(:options).and_return("force_polling" => true) }
+      before { ::Guard.stub(:options).and_return(Guard::Options.new(force_polling: true)) }
 
       it "pass option to listener" do
         Listen.should_receive(:to).with(anything, { :relative_paths => true, :force_polling => true }) { listener }
@@ -354,7 +354,7 @@ describe Guard::Setuper do
 
   describe '._setup_notifier' do
     context "with the notify option enabled" do
-      before { ::Guard.stub(:options).and_return(:notify => true) }
+      before { ::Guard.stub(:options).and_return(Guard::Options.new(notify: true)) }
 
       context 'without the environment variable GUARD_NOTIFY set' do
         before { ENV["GUARD_NOTIFY"] = nil }
@@ -376,9 +376,7 @@ describe Guard::Setuper do
     end
 
     context "with the notify option disabled" do
-      before do
-        ::Guard.stub(:options).and_return(:notify => false)
-      end
+      before { ::Guard.stub(:options).and_return(Guard::Options.new(notify: false)) }
 
       context 'without the environment variable GUARD_NOTIFY set' do
         before { ENV["GUARD_NOTIFY"] = nil }

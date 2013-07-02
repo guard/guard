@@ -16,6 +16,7 @@
 
 ### Improvements
 
+- Ensure Guard has sensible defaults. ([@rymai][])
 - New `#title` method for `Guard::Group` & `Guard::Plugin`. ([@rymai][])
 - Rename `Guard::Hook` to `Guard::Plugin::Hooker`. ([@rymai][])
 - New `Guard::Plugin::Base` module common to `Guard::Guard` (deprecated) & `Guard::Plugin`. ([@rymai][])
