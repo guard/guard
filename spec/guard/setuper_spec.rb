@@ -119,7 +119,7 @@ describe Guard::Setuper do
         stub_const 'Guard::CoffeeScript', Class.new(Guard::Plugin)
       end
 
-      it "initializes the plugin scope" do
+      it 'initializes the plugin scope' do
         subject.scope[:groups].should be_empty
         subject.scope[:plugins].count.should be 2
         subject.scope[:plugins][0].class.should eq ::Guard::Cucumber

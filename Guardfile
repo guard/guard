@@ -1,5 +1,3 @@
-scope :group => :specs
-
 group :specs do
   guard :rspec, :keep_failed => false, :cli => '--fail-fast --format doc' do
     watch(%r{^spec/.+_spec\.rb$})

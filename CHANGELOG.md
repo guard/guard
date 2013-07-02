@@ -16,6 +16,7 @@
 
 ### Improvements
 
+- Ensure Guard API calls are not order dependent. ([@rymai][])
 - Ensure Guard has sensible defaults. ([@rymai][])
 - New `#title` method for `Guard::Group` & `Guard::Plugin`. ([@rymai][])
 - Rename `Guard::Hook` to `Guard::Plugin::Hooker`. ([@rymai][])

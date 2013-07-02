@@ -46,7 +46,6 @@ module Guard
       @watchdir  = (options.watchdir && File.expand_path(options.watchdir)) || Dir.pwd
       @evaluator = ::Guard::Guardfile::Evaluator.new(opts)
       @runner    = ::Guard::Runner.new
-      @scope     = { plugins: nil, groups: nil }
 
       Dir.chdir(@watchdir)
       ::Guard::UI.clear(:force => true)
@@ -56,9 +55,11 @@ module Guard
 
       reset_groups
       reset_plugins
+      reset_scopes
+
       evaluate_guardfile
 
-      _setup_scopes
+      setup_scopes(groups: options.group, plugins: options.plugin)
 
       ::Guard::Deprecator.deprecated_options_warning(options)
       ::Guard::Deprecator.deprecated_plugin_methods_warning
@@ -83,6 +84,26 @@ module Guard
     #
     def reset_plugins
       @plugins = []
+    end
+
+    # Initializes the scope hash to `{ groups: [], plugins: [] }`.
+    #
+    # @see Guard.setup_scopes
+    #
+    def reset_scopes
+      @scope = { groups: [], plugins: [] }
+    end
+
+    # Stores the scopes defined by the user via the `--group` / `-g` option (to run
+    # only a specific group) or the `--plugin` / `-P` option (to run only a
+    # specific plugin).
+    #
+    # @see CLI#start
+    # @see Dsl#scope
+    #
+    def setup_scopes(scopes)
+      scope[:groups]  = scopes[:groups].map { |g| ::Guard.add_group(g) } unless scopes[:groups].empty?
+      scope[:plugins] = scopes[:plugins].map { |p| ::Guard.plugins(p) } unless scopes[:plugins].empty?
     end
 
     # Evaluates the Guardfile content. It displays an error message if no
@@ -157,18 +178,6 @@ module Guard
           end
         end
       end
-    end
-
-    # Stores the scopes defined by the user via the `--group` / `-g` option (to run
-    # only a specific group) or the `--plugin` / `-P` option (to run only a
-    # specific plugin).
-    #
-    # @see CLI#start
-    # @see Dsl#scope
-    #
-    def _setup_scopes
-      scope[:groups]  = options.group.map { |g| ::Guard.groups(g) }
-      scope[:plugins] = options.plugin.map { |p| ::Guard.plugins(p) }
     end
 
     # Enables or disables the notifier based on user's configurations.

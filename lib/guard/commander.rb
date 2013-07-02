@@ -21,7 +21,7 @@ module Guard
     # @see CLI#start
     #
     def start(options = {})
-      setup(options)
+      setup(options) unless running
 
       within_preserved_state do
         ::Guard::UI.debug 'Guard starts all plugins'
@@ -34,6 +34,8 @@ module Guard
     # Stop Guard listening to file changes.
     #
     def stop
+      setup unless running
+
       within_preserved_state do
         ::Guard::UI.debug 'Guard stops all plugins'
         runner.run(:stop)
@@ -51,6 +53,8 @@ module Guard
     # @param [Hash] scopes hash with a Guard plugin or a group scope
     #
     def reload(scopes = {})
+      setup unless running
+
       within_preserved_state do
         ::Guard::UI.clear(:force => true)
         ::Guard::UI.action_with_scopes('Reload', scopes)
@@ -68,6 +72,8 @@ module Guard
     # @param [Hash] scopes hash with a Guard plugin or a group scope
     #
     def run_all(scopes = {})
+      setup unless running
+
       within_preserved_state do
         ::Guard::UI.clear(:force => true)
         ::Guard::UI.action_with_scopes('Run', scopes)
@@ -86,7 +92,7 @@ module Guard
         listener.pause
       end
     end
-    
+
     # Runs a block where the interactor is
     # blocked and execution is synchronized
     # to avoid state inconsistency.
@@ -109,7 +115,7 @@ module Guard
 
       @result
     end
-    
+
   end
 
 end

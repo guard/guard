@@ -2,6 +2,86 @@ require 'spec_helper'
 require 'guard/plugin'
 
 describe Guard::Commander do
+  describe '.start' do
+    before do
+      ::Guard.stub(:setup)
+      ::Guard.stub(:listener => mock('listener', :start => true))
+      ::Guard.stub(:runner => mock('runner', :run => true))
+      ::Guard.stub(:within_preserved_state).and_yield
+    end
+
+    context 'Guard has not been setuped' do
+      before { ::Guard.stub(:running) { false } }
+
+      it "setup Guard" do
+        ::Guard.should_receive(:setup).with(:foo => 'bar')
+
+        ::Guard.start(:foo => 'bar')
+      end
+    end
+
+    it "displays an info message" do
+      ::Guard.instance_variable_set('@watchdir', '/foo/bar')
+      ::Guard::UI.should_receive(:info).with("Guard is now watching at '/foo/bar'")
+
+      ::Guard.start
+    end
+
+    it "tell the runner to run the :start task" do
+      ::Guard.runner.should_receive(:run).with(:start)
+
+      ::Guard.start
+    end
+
+    it "start the listener" do
+      ::Guard.listener.should_receive(:start)
+
+      ::Guard.start
+    end
+  end
+
+  describe '.stop' do
+    before do
+      ::Guard.stub(:setup)
+      ::Guard.stub(:listener => mock('listener', :stop => true))
+      ::Guard.stub(:runner => mock('runner', :run => true))
+      ::Guard.stub(:within_preserved_state).and_yield
+    end
+
+    context 'Guard has not been setuped' do
+      before { ::Guard.stub(:running) { false } }
+
+      it "setup Guard" do
+        ::Guard.should_receive(:setup)
+
+        ::Guard.stop
+      end
+    end
+
+    it "turns the notifier off" do
+      ::Guard::Notifier.should_receive(:turn_off)
+
+      ::Guard.stop
+    end
+
+    it "tell the runner to run the :stop task" do
+      ::Guard.runner.should_receive(:run).with(:stop)
+
+      ::Guard.stop
+    end
+
+    it "stops the listener" do
+      ::Guard.listener.should_receive(:stop)
+
+      ::Guard.stop
+    end
+
+    it "sets the running state to false" do
+      ::Guard.running = true
+      ::Guard.stop
+      ::Guard.running.should be_false
+    end
+  end
 
   describe '.reload' do
     let(:runner) { stub(:run => true) }
@@ -13,6 +93,16 @@ describe Guard::Commander do
       ::Guard.stub(:within_preserved_state).and_yield
       ::Guard::UI.stub(:info)
       ::Guard::UI.stub(:clear)
+    end
+
+    context 'Guard has not been setuped' do
+      before { ::Guard.stub(:running) { false } }
+
+      it "setup Guard" do
+        ::Guard.should_receive(:setup)
+
+        ::Guard.reload
+      end
     end
 
     it 'clears the screen' do
@@ -50,70 +140,15 @@ describe Guard::Commander do
     end
   end
 
-  describe '.start' do
-    before do
-      ::Guard.stub(:setup)
-      ::Guard.stub(:listener => mock('listener', :start => true))
-      ::Guard.stub(:runner => mock('runner', :run => true))
-      ::Guard.stub(:within_preserved_state).and_yield
-    end
+  describe '.run_all' do
+    context 'Guard has not been setuped' do
+      before { ::Guard.stub(:running) { false } }
 
-    it "setup Guard" do
-      ::Guard.should_receive(:setup).with(:foo => 'bar')
+      it "setup Guard" do
+        ::Guard.should_receive(:setup)
 
-      ::Guard.start(:foo => 'bar')
-    end
-
-    it "displays an info message" do
-      ::Guard.instance_variable_set('@watchdir', '/foo/bar')
-      ::Guard::UI.should_receive(:info).with("Guard is now watching at '/foo/bar'")
-
-      ::Guard.start
-    end
-
-    it "tell the runner to run the :start task" do
-      ::Guard.runner.should_receive(:run).with(:start)
-
-      ::Guard.start
-    end
-
-    it "start the listener" do
-      ::Guard.listener.should_receive(:start)
-
-      ::Guard.start
-    end
-  end
-
-  describe '.stop' do
-    before do
-      ::Guard.stub(:setup)
-      ::Guard.stub(:listener => mock('listener', :stop => true))
-      ::Guard.stub(:runner => mock('runner', :run => true))
-      ::Guard.stub(:within_preserved_state).and_yield
-    end
-
-    it "turns the notifier off" do
-      ::Guard::Notifier.should_receive(:turn_off)
-
-      ::Guard.stop
-    end
-
-    it "tell the runner to run the :stop task" do
-      ::Guard.runner.should_receive(:run).with(:stop)
-
-      ::Guard.stop
-    end
-
-    it "stops the listener" do
-      ::Guard.listener.should_receive(:stop)
-
-      ::Guard.stop
-    end
-
-    it "sets the running state to false" do
-      ::Guard.running = true
-      ::Guard.stop
-      ::Guard.running.should be_false
+        ::Guard.run_all
+      end
     end
   end
 
