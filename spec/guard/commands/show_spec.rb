@@ -8,4 +8,5 @@ describe 'Guard::Interactor::SHOW' do
       Pry.run_command 'show'
     end
   end
+
 end

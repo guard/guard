@@ -1,5 +1,10 @@
 require 'thor'
 
+require 'guard'
+require 'guard/version'
+require 'guard/dsl_describer'
+require 'guard/guardfile'
+
 module Guard
 
   # Facade for the Guard command line interface managed by [Thor](https://github.com/wycats/thor).
@@ -7,11 +12,6 @@ module Guard
   # Do not put any logic in here, create a class and delegate instead.
   #
   class CLI < Thor
-
-    require 'guard'
-    require 'guard/version'
-    require 'guard/dsl_describer'
-    require 'guard/guardfile'
 
     default_task :start
 
@@ -75,7 +75,7 @@ module Guard
                   :type => :boolean,
                   :default => false,
                   :aliases => '-i',
-                  :banner => 'Turn off completely any guard terminal interactions'
+                  :banner => 'Turn off completely any Guard terminal interactions'
 
     method_option :no_bundler_warning,
                   :type => :boolean,
@@ -106,7 +106,7 @@ module Guard
     # @see Guard.start
     #
     def start
-      verify_bundler_presence unless options[:no_bundler_warning]
+      _verify_bundler_presence unless options[:no_bundler_warning]
       ::Guard.start(options)
 
       return if ENV['GUARD_ENV'] == 'test'
@@ -116,7 +116,7 @@ module Guard
       end
     end
 
-    desc 'list', 'Lists guards that can be used with init'
+    desc 'list', 'Lists Guard plugins that can be used with init'
 
     # List the Guard plugins that are available for use in your system and marks
     # those that are currently used in your `Guardfile`.
@@ -124,7 +124,7 @@ module Guard
     # @see Guard::DslDescriber.list
     #
     def list
-      ::Guard::DslDescriber.list(options)
+      ::Guard::DslDescriber.new(options).list
     end
 
     desc 'version', 'Show the Guard version'
@@ -138,35 +138,35 @@ module Guard
       puts "Guard version #{ ::Guard::VERSION }"
     end
 
-    desc 'init [GUARDS]', 'Generates a Guardfile at the current directory (if it is not already there) and adds all installed guards or the given GUARDS into it'
+    desc 'init [GUARDS]', 'Generates a Guardfile at the current directory (if it is not already there) and adds all installed Guard plugins or the given GUARDS into it'
 
     method_option :bare,
                   :type => :boolean,
                   :default => false,
                   :aliases => '-b',
-                  :banner => 'Generate a bare Guardfile without adding any installed guard into it'
+                  :banner => 'Generate a bare Guardfile without adding any installed plugin into it'
 
     # Initializes the templates of all installed Guard plugins and adds them
     # to the `Guardfile` when no Guard name is passed. When passing
     # Guard plugin names it does the same but only for those Guard plugins.
     #
-    # @see Guard::Guard.initialize_template
-    # @see Guard::Guard.initialize_all_templates
+    # @see Guard::Guardfile.initialize_template
+    # @see Guard::Guardfile.initialize_all_templates
     #
-    # @param [Array<String>] guard_names the name of the Guard plugins to initialize
+    # @param [Array<String>] plugin_names the name of the Guard plugins to initialize
     #
-    def init(*guard_names)
-      verify_bundler_presence
+    def init(*plugin_names)
+      _verify_bundler_presence
 
       ::Guard::Guardfile.create_guardfile(:abort_on_existence => options[:bare])
 
       return if options[:bare]
 
-      if guard_names.empty?
+      if plugin_names.empty?
         ::Guard::Guardfile.initialize_all_templates
       else
-        guard_names.each do |guard_name|
-          ::Guard::Guardfile.initialize_template(guard_name)
+        plugin_names.each do |plugin_name|
+          ::Guard::Guardfile.initialize_template(plugin_name)
         end
       end
     end
@@ -180,7 +180,7 @@ module Guard
     # @see Guard::DslDescriber.show
     #
     def show
-      ::Guard::DslDescriber.show(options)
+      ::Guard::DslDescriber.new(options).show
     end
 
     private
@@ -188,7 +188,7 @@ module Guard
     # Verifies if Guard is run with `bundle exec` and
     # shows a hint to do so if not.
     #
-    def verify_bundler_presence
+    def _verify_bundler_presence
       if File.exists?('Gemfile') && !ENV['BUNDLE_GEMFILE']
         ::Guard::UI.info <<EOF
 

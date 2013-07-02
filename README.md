@@ -24,16 +24,16 @@ Features
 
 * File system changes handled by our awesome [Listen](https://github.com/guard/listen) gem.
 * Support for visual system notifications.
-* Huge eco-system with [more than 190](https://rubygems.org/search?query=guard-) guard plugins.
-* Tested against Ruby 1.8.7, 1.9.2, 1.9.3, 2.0.0, REE and the latest versions of JRuby & Rubinius.
+* Huge eco-system with [more than 190](https://rubygems.org/search?query=guard-) Guard plugins.
+* Tested against Ruby 1.9.2, 1.9.3, 2.0.0, JRuby (1.8 mode & 1.9 mode) & Rubinius (1.8 mode & 1.9 mode).
 
 Screencast
 ----------
 
-Two nice introduction screen casts to Guard are available that helps you get started:
+Two nice screencasts are available to help you get started:
 
-* [Guard is Your Best Friend](http://net.tutsplus.com/tutorials/tools-and-tips/guard-is-your-best-friend) on Net Tuts+
-* [Guard](http://railscasts.com/episodes/264-guard) on RailsCast
+* [Guard](http://railscasts.com/episodes/264-guard) on RailsCast.
+* [Guard is Your Best Friend](http://net.tutsplus.com/tutorials/tools-and-tips/guard-is-your-best-friend) on Net Tuts+.
 
 Installation
 ------------
@@ -65,37 +65,6 @@ $ guard init
 
 If you are on Mac OS X and have problems with either Guard not reacting to file changes or Pry behaving strange, then
 you should [add proper Readline support to Ruby on Mac OS X](https://github.com/guard/guard/wiki/Add-proper-Readline-support-to-Ruby-on-Mac-OS-X).
-
-## Efficient Filesystem Handling
-
-Various operating systems are willing to notify you of changes to files, but the API to register/receive updates varies
-(see [rb-fsevent](https://github.com/thibaudgg/rb-fsevent) for OS X, [rb-inotify](https://github.com/nex3/rb-inotify)
-for Linux, and [rb-fchange](https://github.com/stereobooster/rb-fchange) for Windows). If you do not supply one of the
-supported gems for these methods, Guard will fall back to polling, and give you a warning about it doing so.
-
-A challenge arises when trying to make these dependencies work with [Bundler](http://gembundler.com/). If you simply put
-one of these dependencies into you `Gemfile`, even if it is conditional on a platform match, the platform-specific gem
-will end up in the `Gemfile.lock`, and developers will thrash the file back and forth.
-
-There is a good solution. All three gems will successfully, quietly install on all three operating systems, and
-`guard/listen` will only pull in the one you need. This is a more proper `Gemfile`:
-
-```Ruby
-group :development do
-  gem 'rb-inotify', :require => false
-  gem 'rb-fsevent', :require => false
-  gem 'rb-fchange', :require => false
-end
-```
-
-If you're using Windows and at least Ruby 1.9.2, then [Windows Directory Monitor](https://github.com/Maher4Ever/wdm) is
-more efficient than using `rb-fchange`.
-
-```Ruby
-group :development do
-  gem 'wdm', :platforms => [:mswin, :mingw], :require => false
-end
-```
 
 ## Windows Colors
 
@@ -132,7 +101,7 @@ configuration.
 Guard supports multiple notification channels for customizing each notification type. For Growl on Mac OS X you need
 to have at least version 1.3 installed.
 
-To use `ruby_gntp` you have to add it to your `Gemfile` and run bundler:
+To use `ruby_gntp` you have to add it to your `Gemfile` and run Bundler:
 
 ```ruby
 group :development do
@@ -152,7 +121,7 @@ channels.
 
 You have to download the installer for `growlnotify` from the [Growl download section](http://growl.info/downloads).
 
-To use `growl` you have to add it to your `Gemfile` and run bundler:
+To use `growl` you have to add it to your `Gemfile` and run Bundler:
 
 ```ruby
 group :development do
@@ -169,7 +138,7 @@ The [libnotify](https://rubygems.org/gems/libnotify) gem supports the Gnome libn
 used on other window managers as well. You have to install the `libnotify-bin` package with your favorite package
 manager.
 
-To use `libnotify` you have to add it to your `Gemfile` and run bundler:
+To use `libnotify` you have to add it to your `Gemfile` and run Bundler:
 
 ```ruby
 group :development do
@@ -188,7 +157,7 @@ also has a built in notifier - `notifysend` - that shells out to the
 
 The [rb-notifu](https://rubygems.org/gems/rb-notifu) gem supports Windows system tray notifications.
 
-To use `rb-notifu` you have to add it to your `Gemfile` and run bundler:
+To use `rb-notifu` you have to add it to your `Gemfile` and run Bundler:
 
 ```ruby
 group :development do
@@ -209,7 +178,7 @@ The gem needs a native C extension to make use of AppleScript and does not run o
 Guard supports multiple notification channels for customizing each notification type and you need to have at least
 Growl version 1.3 installed.
 
-To use `growl_notify` you have to add it to your `Gemfile` and run bundler:
+To use `growl_notify` you have to add it to your `Gemfile` and run Bundler:
 
 ```ruby
 group :development do
@@ -224,7 +193,7 @@ end
 The [terminal-notifier-guard](https://github.com/Springest/terminal-notifier-guard) sends notifications to the OS X
 Notification Center.
 
-To use `terminal-notifier-guard` you have to add it to your `Gemfile` and run bundler:
+To use `terminal-notifier-guard` you have to add it to your `Gemfile` and run Bundler:
 
 ```ruby
 group :development do
@@ -333,7 +302,7 @@ You can always get help on the available tasks with the `help` task:
 $ guard help
 ```
 
-To request more detailed help on a specific task is simple: just appending the task name to the help task.
+Requesting more detailed help on a specific task is simple: just append the task name to the help task.
 For example, to get help for the `start` task, simply run:
 
 ```bash

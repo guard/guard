@@ -41,7 +41,7 @@ describe Guard::UI do
   describe '.options=' do
     it 'sets the logger options' do
       Guard::UI.options = { :hi => :ho }
-      Guard::UI.options.should eql({ :hi => :ho })
+      Guard::UI.options.should eq({ :hi => :ho })
     end
   end
 
@@ -166,41 +166,54 @@ describe Guard::UI do
   end
 
   describe '.deprecation' do
-    it 'resets the line with the :reset option' do
-      Guard::UI.should_receive :reset_line
-      Guard::UI.deprecation('Deprecation message', { :reset => true })
-    end
+    context 'with the :show_deprecation option set to false (default)' do
+      before { Guard.options = { :show_deprecations => false } }
 
-    it 'logs the message to with the warn severity' do
-      Guard::UI.logger.should_receive(:warn).with("\e[0;33mDeprecation message\e[0m", 'Guard::UiSpec')
-      Guard::UI.deprecation 'Deprecation message'
-    end
-
-    context 'with the :only option' do
-      before { Guard::UI.options[:only] = /A/ }
-
-      it 'shows only the matching messages' do
-        Guard::UI.logger.should_receive(:warn).with("\e[0;33mDeprecation message\e[0m", 'A')
-        Guard::UI.logger.should_not_receive(:warn).with("\e[0;33mDeprecation message\e[0m", 'B')
-        Guard::UI.logger.should_not_receive(:warn).with("\e[0;33mDeprecation message\e[0m", 'C')
-
-        Guard::UI.deprecation 'Deprecation message', :plugin => 'A'
-        Guard::UI.deprecation 'Deprecation message', :plugin => 'B'
-        Guard::UI.deprecation 'Deprecation message', :plugin => 'C'
+      it 'do not log' do
+        Guard::UI.logger.should_not_receive(:warn)
+        Guard::UI.deprecation 'Deprecator message'
       end
     end
 
-    context 'with the :except option' do
-      before { Guard::UI.options[:except] = /A/ }
+    context 'with the :show_deprecation option set to true' do
+      before { Guard.options = { :show_deprecations => true } }
 
-      it 'shows only the matching messages' do
-        Guard::UI.logger.should_not_receive(:warn).with("\e[0;33mDeprecation message\e[0m", 'A')
-        Guard::UI.logger.should_receive(:warn).with("\e[0;33mDeprecation message\e[0m", 'B')
-        Guard::UI.logger.should_receive(:warn).with("\e[0;33mDeprecation message\e[0m", 'C')
+      it 'resets the line with the :reset option' do
+        Guard::UI.should_receive :reset_line
+        Guard::UI.deprecation('Deprecator message', { :reset => true })
+      end
 
-        Guard::UI.deprecation 'Deprecation message', :plugin => 'A'
-        Guard::UI.deprecation 'Deprecation message', :plugin => 'B'
-        Guard::UI.deprecation 'Deprecation message', :plugin => 'C'
+      it 'logs the message to with the warn severity' do
+        Guard::UI.logger.should_receive(:warn).with("\e[0;33mDeprecator message\e[0m", 'Guard::UiSpec')
+        Guard::UI.deprecation 'Deprecator message'
+      end
+
+      context 'with the :only option' do
+        before { Guard::UI.options[:only] = /A/ }
+
+        it 'shows only the matching messages' do
+          Guard::UI.logger.should_receive(:warn).with("\e[0;33mDeprecator message\e[0m", 'A')
+          Guard::UI.logger.should_not_receive(:warn).with("\e[0;33mDeprecator message\e[0m", 'B')
+          Guard::UI.logger.should_not_receive(:warn).with("\e[0;33mDeprecator message\e[0m", 'C')
+
+          Guard::UI.deprecation 'Deprecator message', :plugin => 'A'
+          Guard::UI.deprecation 'Deprecator message', :plugin => 'B'
+          Guard::UI.deprecation 'Deprecator message', :plugin => 'C'
+        end
+      end
+
+      context 'with the :except option' do
+        before { Guard::UI.options[:except] = /A/ }
+
+        it 'shows only the matching messages' do
+          Guard::UI.logger.should_not_receive(:warn).with("\e[0;33mDeprecator message\e[0m", 'A')
+          Guard::UI.logger.should_receive(:warn).with("\e[0;33mDeprecator message\e[0m", 'B')
+          Guard::UI.logger.should_receive(:warn).with("\e[0;33mDeprecator message\e[0m", 'C')
+
+          Guard::UI.deprecation 'Deprecator message', :plugin => 'A'
+          Guard::UI.deprecation 'Deprecator message', :plugin => 'B'
+          Guard::UI.deprecation 'Deprecator message', :plugin => 'C'
+        end
       end
     end
   end
@@ -281,33 +294,37 @@ describe Guard::UI do
   end
 
   describe '.action_with_scopes' do
+    let(:rspec) { stub('Guard::Rspec', title: 'Rspec') }
+    let(:jasmine) { stub('Guard::Jasmine', title: 'Jasmine') }
+    let(:group) { stub('Guard::Group frontend', title: 'Frontend') }
+
     context 'with a plugins scope' do
       it 'shows the plugin scoped action' do
-        Guard::UI.should_receive(:info).with('Reload rspec,jasmine')
-        Guard::UI.action_with_scopes('Reload', { :plugins => [:rspec, :jasmine] })
+        Guard::UI.should_receive(:info).with('Reload Rspec, Jasmine')
+        Guard::UI.action_with_scopes('Reload', { :plugins => [rspec, jasmine] })
       end
     end
 
     context 'with a groups scope' do
       it 'shows the group scoped action' do
-        Guard::UI.should_receive(:info).with('Reload frontend')
-        Guard::UI.action_with_scopes('Reload', { :groups => [:frontend] })
+        Guard::UI.should_receive(:info).with('Reload Frontend')
+        Guard::UI.action_with_scopes('Reload', { :groups => [group] })
       end
     end
 
     context 'without a scope' do
       context 'with a global plugin scope' do
         it 'shows the global plugin scoped action' do
-          Guard.scope = { :groups => [:test] }
-          Guard::UI.should_receive(:info).with('Reload test')
+          Guard.scope = { :plugins => [rspec, jasmine] }
+          Guard::UI.should_receive(:info).with('Reload Rspec, Jasmine')
           Guard::UI.action_with_scopes('Reload', {})
         end
       end
 
       context 'with a global group scope' do
         it 'shows the global group scoped action' do
-          Guard.scope = { :groups => [:backend] }
-          Guard::UI.should_receive(:info).with('Reload backend')
+          Guard.scope = { :groups => [group] }
+          Guard::UI.should_receive(:info).with('Reload Frontend')
           Guard::UI.action_with_scopes('Reload', {})
         end
       end

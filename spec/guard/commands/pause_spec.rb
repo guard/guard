@@ -12,4 +12,5 @@ describe 'Guard::Interactor::PAUSE' do
       Pry.run_command 'pause'
     end
   end
+
 end

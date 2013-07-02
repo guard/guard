@@ -2,9 +2,8 @@ require 'spec_helper'
 
 describe 'Guard::Interactor::CHANGE' do
 
-  let!(:guard) { ::Guard.setup }
-
   before do
+    ::Guard.setup
     Guard.runner.stub(:run_on_changes)
     Pry.output.stub(:puts)
   end
@@ -31,4 +30,5 @@ describe 'Guard::Interactor::CHANGE' do
       end
     end
   end
+
 end
