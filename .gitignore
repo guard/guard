@@ -18,3 +18,5 @@ Makefile
 coverage/
 .ruby-version
 .tm_properties
+man/guard
+man/guard.html
