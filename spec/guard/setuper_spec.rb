@@ -142,7 +142,7 @@ describe Guard::Setuper do
 
       it "sets the log level to :debug if the debug option is true" do
         subject
-        ::Guard::UI.options[:level].should eq :debug
+        ::Guard::UI.options.level.should eq :debug
       end
     end
   end

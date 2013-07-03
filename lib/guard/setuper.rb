@@ -133,7 +133,7 @@ module Guard
     #
     def _setup_debug
       Thread.abort_on_exception = true
-      ::Guard::UI.options[:level] = :debug
+      ::Guard::UI.options.level = :debug
       _debug_command_execution
     end
 
