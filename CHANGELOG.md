@@ -16,6 +16,7 @@
 
 ### Improvements
 
+- Allow to pass symbols or actual Guard plugins / groups for the `scope` parameter to `Guard::Runner#run`. ([@rymai][])
 - Ensure Guard API calls are not order dependent. ([@rymai][])
 - Ensure Guard has sensible defaults. ([@rymai][])
 - New `#title` method for `Guard::Group` & `Guard::Plugin`. ([@rymai][])

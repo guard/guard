@@ -16,9 +16,9 @@ module Guard
     #
     # @see self.run_supervised_task
     #
-    def run(task, scopes = {})
+    def run(task, scope = {})
       Lumberjack.unit_of_work do
-        _scoped_plugins(scopes) do |guard|
+        _scoped_plugins(scope) do |guard|
           run_supervised_task(guard, task) if guard.respond_to?(task)
         end
       end
@@ -169,13 +169,11 @@ module Guard
     # @param [Hash] scopes hash with a local plugins or a groups scope
     # @return [Array<Guard::Plugin>] the plugins to scope to
     #
-    def _current_plugins_scope(scopes)
-      if scopes[:plugins] && !scopes[:plugins].empty?
-        scopes[:plugins]
-
-      elsif !::Guard.scope[:plugins].empty?
-        ::Guard.scope[:plugins]
-
+    def _current_plugins_scope(scope)
+      if plugins = _find_non_empty_plugins_scope(scope)
+        Array(plugins).map do |plugin|
+          plugin.is_a?(Symbol) ? ::Guard.plugins(plugin) : plugin
+        end
       else
         nil
       end
@@ -188,16 +186,33 @@ module Guard
     # @param [Hash] scopes hash with a local plugins or a groups scope
     # @return [Array<Guard::Group>] the groups to scope to
     #
-    def _current_groups_scope(scopes)
-      if scopes[:groups] && !scopes[:groups].empty?
-        scopes[:groups]
-
-      elsif !::Guard.scope[:groups].empty?
-        ::Guard.scope[:groups]
-
-      else
-        ::Guard.groups
+    def _current_groups_scope(scope)
+      Array(_find_non_empty_groups_scope(scope)).map do |group|
+        group.is_a?(Symbol) ? ::Guard.groups(group) : group
       end
+    end
+
+    # Find the first non empty element in the given possibilities
+    #
+    def _find_non_empty_scope(type, local_scope, *additional_possibilities)
+      [
+        local_scope[:"#{type}s"],
+        local_scope[type.to_sym],
+        ::Guard.scope[:"#{type}s"],
+        additional_possibilities.flatten
+      ].compact.find { |a| !Array(a).empty? }
+    end
+
+    # Find the first non empty plugins scope
+    #
+    def _find_non_empty_plugins_scope(scope)
+      _find_non_empty_scope(:plugin, scope)
+    end
+
+    # Find the first non empty groups scope
+    #
+    def _find_non_empty_groups_scope(scope)
+      _find_non_empty_scope(:group, scope, ::Guard.groups)
     end
   end
 end
