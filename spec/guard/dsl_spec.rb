@@ -330,7 +330,7 @@ describe Guard::Dsl do
       ::Guard.scope[:plugins].should eq [::Guard.plugins(:baz)]
     end
 
-    it 'does use the DSL scope plugins', :focus do
+    it 'does use the DSL scope plugins' do
       described_class.evaluate_guardfile(:guardfile_contents => 'scope :plugins => [:foo, :bar]')
       ::Guard.scope[:plugins].should eq [::Guard.plugins(:foo), ::Guard.plugins(:bar)]
     end
