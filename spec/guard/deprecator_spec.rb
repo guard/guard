@@ -13,7 +13,7 @@ describe Guard::Deprecator do
       it 'displays a deprecation warning to the user' do
         ::Guard::UI.should_receive(:deprecation).with(described_class::WATCH_ALL_MODIFICATIONS_DEPRECATION)
 
-        described_class.deprecated_options_warning(:watch_all_modifications => true)
+        described_class.deprecated_options_warning(Guard::Options.new(watch_all_modifications: true))
       end
     end
 
@@ -21,7 +21,7 @@ describe Guard::Deprecator do
       it 'displays a deprecation warning to the user' do
         ::Guard::UI.should_receive(:deprecation).with(described_class::NO_VENDOR_DEPRECATION)
 
-        described_class.deprecated_options_warning(:no_vendor => true)
+        described_class.deprecated_options_warning(Guard::Options.new(no_vendor: true))
       end
     end
 
