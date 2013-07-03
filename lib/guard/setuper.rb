@@ -102,8 +102,13 @@ module Guard
     # @see Dsl#scope
     #
     def setup_scope(new_scope)
-      scope[:groups]  = new_scope[:groups].map { |g| ::Guard.add_group(g) } if new_scope[:groups] && new_scope[:groups].any?
-      scope[:plugins] = new_scope[:plugins].map { |p| ::Guard.plugins(p) } if new_scope[:plugins] && new_scope[:plugins].any?
+      if new_scope[:groups] && new_scope[:groups].any?
+        scope[:groups]  = new_scope[:groups].map { |group| ::Guard.add_group(group) }
+      end
+
+      if new_scope[:plugins] && new_scope[:plugins].any?
+        scope[:plugins] = new_scope[:plugins].map { |plugin| ::Guard.plugins(plugin) }
+      end
     end
 
     # Evaluates the Guardfile content. It displays an error message if no
