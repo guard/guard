@@ -26,7 +26,6 @@ module Guard
     #
     def initialize(options = {})
       @options = options
-      ::Guard.options = { :plugin => [], :group => [] }
       ::Guard.reset_groups
       ::Guard.reset_plugins
     end
