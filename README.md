@@ -705,6 +705,8 @@ scope :groups => [:docs, :frontend]
 If you define both the plugin and group scope, the plugin scope has precedence. If you use both the
 plural and the singular option, the plural has precedence.
 
+**Please be sure to call the `scope` method after you've declared your Guard plugins!**
+
 ### notification
 
 If you don't specify any notification configuration in your `Guardfile`, Guard goes through the list of available
