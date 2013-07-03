@@ -6,8 +6,6 @@ module Guard
   #
   class Options < OpenStruct
 
-    attr_accessor :options
-
     # Initializes an Guard::Options object. `default_opts` is merged into
     # `opts`.
     #
@@ -15,9 +13,7 @@ module Guard
     # @param [Hash] default_opts the default options
     #
     def initialize(opts = {}, default_opts = {})
-      opts = default_opts.dup.merge(opts.dup)
-
-      super(opts)
+      super(default_opts.dup.merge(opts.dup))
     end
 
   end

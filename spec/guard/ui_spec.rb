@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Guard::UI do
-  after { Guard::UI.options = ::Guard::Options.new(level: :info, device: $stderr, template: ':time - :severity - :message', time_format: '%H:%M:%S') }
+  after { Guard::UI.options = { level: :info, device: $stderr, template: ':time - :severity - :message', time_format: '%H:%M:%S' } }
 
   before do
     # The spec helper stubs all UI classes, so other specs doesn't have
@@ -40,7 +40,7 @@ describe Guard::UI do
 
   describe '.options=' do
     it 'sets the logger options' do
-      Guard::UI.options = ::Guard::Options.new(hi: :ho)
+      Guard::UI.options = { hi: :ho }
       Guard::UI.options.hi.should eq :ho
     end
   end

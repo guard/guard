@@ -20,8 +20,8 @@ module Guard
       #
       def logger
         @logger ||= begin
-          options = self.options.dup
-          Lumberjack::Logger.new(options.delete(:device) || $stderr, options)
+          opts = options.marshal_dump
+          Lumberjack::Logger.new(opts.delete(:device) { $stderr }, opts)
         end
       end
 
@@ -30,7 +30,7 @@ module Guard
       # @return [Hash] the logger options
       #
       def options
-        @options ||= { :level => :info, :template => ':time - :severity - :message', :time_format => '%H:%M:%S' }
+        @options ||= ::Guard::Options.new(level: :info, template: ':time - :severity - :message', time_format: '%H:%M:%S')
       end
 
       # Set the logger options
@@ -41,7 +41,7 @@ module Guard
       # @option options [String] time_format the time format
       #
       def options=(options)
-        @options = options
+        @options = ::Guard::Options.new(options)
       end
 
       # Show an info message.
@@ -53,7 +53,7 @@ module Guard
       def info(message, options = {})
         filter(options[:plugin]) do |plugin|
           reset_line if options[:reset]
-          self.logger.info(message, plugin)
+          logger.info(message, plugin)
         end
       end
 
@@ -66,7 +66,7 @@ module Guard
       def warning(message, options = {})
         filter(options[:plugin]) do |plugin|
           reset_line if options[:reset]
-          self.logger.warn(color(message, :yellow), plugin)
+          logger.warn(color(message, :yellow), plugin)
         end
       end
 
@@ -79,7 +79,7 @@ module Guard
       def error(message, options = {})
         filter(options[:plugin]) do |plugin|
           reset_line if options[:reset]
-          self.logger.error(color(message, :red), plugin)
+          logger.error(color(message, :red), plugin)
         end
       end
 
@@ -95,7 +95,7 @@ module Guard
 
         filter(options[:plugin]) do |plugin|
           reset_line if options[:reset]
-          self.logger.warn(color(message, :yellow), plugin)
+          logger.warn(color(message, :yellow), plugin)
         end
       end
 
@@ -108,7 +108,7 @@ module Guard
       def debug(message, options = {})
         filter(options[:plugin]) do |plugin|
           reset_line if options[:reset]
-          self.logger.debug(color(message, :yellow), plugin)
+          logger.debug(color(message, :yellow), plugin)
         end
       end
 
@@ -164,8 +164,8 @@ module Guard
       # @yieldparam [String] param the calling plugin name
       #
       def filter(plugin)
-        only   = self.options[:only]
-        except = self.options[:except]
+        only   = options.only
+        except = options.except
         plugin = plugin || calling_plugin_name
 
         if (!only && !except) || (only && only.match(plugin)) || (except && !except.match(plugin))

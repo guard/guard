@@ -232,57 +232,57 @@ describe Guard::Dsl do
   end
 
   describe '#logger' do
-    after { Guard::UI.options = { :level => :info, :template => ':time - :severity - :message', :time_format => '%H:%M:%S' } }
+    after { Guard::UI.options = { level: :info, template: ':time - :severity - :message', time_format: '%H:%M:%S' } }
 
     context 'with valid options' do
       it 'sets the logger log level' do
         described_class.evaluate_guardfile(:guardfile_contents => 'logger :level => :error')
-        Guard::UI.options[:level].should eq :error
+        Guard::UI.options.level.should eq :error
       end
 
       it 'sets the logger log level and convert to a symbol' do
         described_class.evaluate_guardfile(:guardfile_contents => 'logger :level => \'error\'')
-        Guard::UI.options[:level].should eq :error
+        Guard::UI.options.level.should eq :error
       end
 
       it 'sets the logger template' do
         described_class.evaluate_guardfile(:guardfile_contents => 'logger :template => \':message - :severity\'')
-        Guard::UI.options[:template].should eq ':message - :severity'
+        Guard::UI.options.template.should eq ':message - :severity'
       end
 
       it 'sets the logger time format' do
         described_class.evaluate_guardfile(:guardfile_contents => 'logger :time_format => \'%Y\'')
-        Guard::UI.options[:time_format].should eq '%Y'
+        Guard::UI.options.time_format.should eq '%Y'
       end
 
       it 'sets the logger only filter from a symbol' do
         described_class.evaluate_guardfile(:guardfile_contents => 'logger :only => :cucumber')
-        Guard::UI.options[:only].should eq(/cucumber/i)
+        Guard::UI.options.only.should eq(/cucumber/i)
       end
 
       it 'sets the logger only filter from a string' do
         described_class.evaluate_guardfile(:guardfile_contents => 'logger :only => \'jasmine\'')
-        Guard::UI.options[:only].should eq(/jasmine/i)
+        Guard::UI.options.only.should eq(/jasmine/i)
       end
 
       it 'sets the logger only filter from an array of symbols and string' do
         described_class.evaluate_guardfile(:guardfile_contents => 'logger :only => [:rspec, \'cucumber\']')
-        Guard::UI.options[:only].should eq(/rspec|cucumber/i)
+        Guard::UI.options.only.should eq(/rspec|cucumber/i)
       end
 
       it 'sets the logger except filter from a symbol' do
         described_class.evaluate_guardfile(:guardfile_contents => 'logger :except => :jasmine')
-        Guard::UI.options[:except].should eq(/jasmine/i)
+        Guard::UI.options.except.should eq(/jasmine/i)
       end
 
       it 'sets the logger except filter from a string' do
         described_class.evaluate_guardfile(:guardfile_contents => 'logger :except => \'jasmine\'')
-        Guard::UI.options[:except].should eq(/jasmine/i)
+        Guard::UI.options.except.should eq(/jasmine/i)
       end
 
       it 'sets the logger except filter from an array of symbols and string' do
         described_class.evaluate_guardfile(:guardfile_contents => 'logger :except => [:rspec, \'cucumber\', :jasmine]')
-        Guard::UI.options[:except].should eq(/rspec|cucumber|jasmine/i)
+        Guard::UI.options.except.should eq(/rspec|cucumber|jasmine/i)
       end
     end
 
@@ -295,7 +295,7 @@ describe Guard::Dsl do
 
         it 'does not set the invalid value' do
           described_class.evaluate_guardfile(:guardfile_contents => 'logger :level => :baz')
-          Guard::UI.options[:level].should eq :info
+          Guard::UI.options.level.should eq :info
         end
       end
 
@@ -307,8 +307,8 @@ describe Guard::Dsl do
 
         it 'removes the options' do
           described_class.evaluate_guardfile(:guardfile_contents => 'logger :only => :jasmine, :except => :rspec')
-          Guard::UI.options[:only].should be_nil
-          Guard::UI.options[:except].should be_nil
+          Guard::UI.options.only.should be_nil
+          Guard::UI.options.except.should be_nil
         end
       end
 
