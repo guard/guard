@@ -91,7 +91,7 @@ module Guard
       # @option options [String] plugin manually define the calling plugin
       #
       def deprecation(message, options = {})
-        return unless ::Guard.options[:show_deprecations]
+        return unless ::Guard.options.show_deprecations
 
         filter(options[:plugin]) do |plugin|
           reset_line if options[:reset]
@@ -121,7 +121,7 @@ module Guard
       # Clear the output if clearable.
       #
       def clear(options = {})
-        if ::Guard.options[:clear] && (@clearable || options[:force])
+        if ::Guard.options.clear && (@clearable || options[:force])
           @clearable = false
           system('clear;')
         end

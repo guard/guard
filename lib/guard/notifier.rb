@@ -93,7 +93,7 @@ module Guard
     # Guard auto detects the first available library.
     #
     def turn_on
-      _auto_detect_notification if notifiers.empty? && (!::Guard.options || ::Guard.options[:notify])
+      _auto_detect_notification if notifiers.empty? && (!::Guard.options || ::Guard.options.notify)
 
       if notifiers.empty?
         turn_off

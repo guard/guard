@@ -38,8 +38,8 @@ describe Guard::Notifier do
 
       context 'when notifications are globally enabled' do
         before do
-          ::Guard.options = {}
-          ::Guard.options.should_receive(:[]).with(:notify).and_return true
+          ::Guard.options = ::Guard::Options.new
+          ::Guard.options.should_receive(:notify).and_return true
         end
 
         it 'tries to add each available notification silently' do
@@ -102,8 +102,8 @@ describe Guard::Notifier do
 
       context 'when notifications are globally disabled' do
         before do
-          ::Guard.options = {}
-          ::Guard.options.should_receive(:[]).with(:notify).and_return false
+          ::Guard.options = ::Guard::Options.new
+          ::Guard.options.should_receive(:notify).and_return false
         end
 
         it 'does not try to add each available notification silently' do
