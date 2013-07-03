@@ -60,10 +60,7 @@ describe Guard::DslDescriber do
     end
 
     it 'lists the available Guards when they\'re declared as strings or symbols' do
-      ::Guard::DslDescriber.new(:guardfile_contents => guardfile).list
-
-      # Drop the calls to delete when drop Ruby 1.8.7 support
-      @output.delete(' ').should eq result.delete(' ')
+      ::Guard::DslDescriber.new(guardfile_contents: guardfile).list
     end
   end
 
@@ -85,7 +82,7 @@ describe Guard::DslDescriber do
     end
 
     it 'shows the Guards and their options' do
-      ::Guard::DslDescriber.new(:guardfile_contents => guardfile).show
+      ::Guard::DslDescriber.new(guardfile_contents: guardfile).show
 
       @output.should eq result
     end
