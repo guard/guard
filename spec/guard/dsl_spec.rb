@@ -320,17 +320,17 @@ describe Guard::Dsl do
       ::Guard.add_plugin(:foo)
       ::Guard.add_plugin(:bar)
       ::Guard.add_plugin(:baz)
-      ::Guard.setup_scopes(plugins: nil, groups: nil)
+      ::Guard.setup_scope(plugins: nil, groups: nil)
     end
 
     it 'does use the DSL scope plugin' do
       described_class.evaluate_guardfile(:guardfile_contents => 'scope :plugin => :baz')
       ::Guard.scope[:plugins].should eq [::Guard.plugins(:baz)]
-      ::Guard.setup_scopes(plugins: [], groups: [])
+      ::Guard.setup_scope(plugins: [], groups: [])
       ::Guard.scope[:plugins].should eq [::Guard.plugins(:baz)]
     end
 
-    it 'does use the DSL scope plugins' do
+    it 'does use the DSL scope plugins', :focus do
       described_class.evaluate_guardfile(:guardfile_contents => 'scope :plugins => [:foo, :bar]')
       ::Guard.scope[:plugins].should eq [::Guard.plugins(:foo), ::Guard.plugins(:bar)]
     end

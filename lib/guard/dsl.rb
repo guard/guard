@@ -350,10 +350,10 @@ module Guard
     #
     # @param [Hash] scopes the scope for the groups and plugins
     #
-    def scope(scopes = {})
-      scopes[:plugins] = Array(scopes[:plugin] || scopes[:plugins] || [])
-      scopes[:groups] = Array(scopes[:group] || scopes[:groups] || [])
-      ::Guard.setup_scopes(scopes)
+    def scope(scope = {})
+      scope[:plugins] = Array(scope[:plugin] || scope[:plugins] || [])
+      scope[:groups] = Array(scope[:group] || scope[:groups] || [])
+      ::Guard.setup_scope(scope)
     end
 
   end

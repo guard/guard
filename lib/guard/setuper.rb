@@ -55,11 +55,11 @@ module Guard
 
       reset_groups
       reset_plugins
-      reset_scopes
+      reset_scope
 
       evaluate_guardfile
 
-      setup_scopes(groups: options.group, plugins: options.plugin)
+      setup_scope(groups: options.group, plugins: options.plugin)
 
       ::Guard::Deprecator.deprecated_options_warning(options)
       ::Guard::Deprecator.deprecated_plugin_methods_warning
@@ -88,9 +88,9 @@ module Guard
 
     # Initializes the scope hash to `{ groups: [], plugins: [] }`.
     #
-    # @see Guard.setup_scopes
+    # @see Guard.setup_scope
     #
-    def reset_scopes
+    def reset_scope
       @scope = { groups: [], plugins: [] }
     end
 
@@ -101,9 +101,9 @@ module Guard
     # @see CLI#start
     # @see Dsl#scope
     #
-    def setup_scopes(scopes)
-      scope[:groups]  = scopes[:groups].map { |g| ::Guard.add_group(g) } unless scopes[:groups].empty?
-      scope[:plugins] = scopes[:plugins].map { |p| ::Guard.plugins(p) } unless scopes[:plugins].empty?
+    def setup_scope(new_scope)
+      scope[:groups]  = new_scope[:groups].map { |g| ::Guard.add_group(g) } if new_scope[:groups] && new_scope[:groups].any?
+      scope[:plugins] = new_scope[:plugins].map { |p| ::Guard.plugins(p) } if new_scope[:plugins] && new_scope[:plugins].any?
     end
 
     # Evaluates the Guardfile content. It displays an error message if no
