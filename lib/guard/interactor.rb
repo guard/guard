@@ -240,7 +240,7 @@ module Guard
 
       store_terminal_settings if stty_exists?
 
-      if !@thread || !@thread.alive?
+      if !@thread || !['sleep', 'run'].include?(@thread.status)
         ::Guard::UI.debug 'Start interactor'
 
         @thread = Thread.new do
