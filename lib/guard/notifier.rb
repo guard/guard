@@ -104,7 +104,7 @@ module Guard
         ENV['GUARD_NOTIFY'] = 'false'
       else
         notifications.each do |notification|
-          ::Guard::UI.info "Guard uses #{ get_notifier_module(notification[:name]).to_s.split('::').last } to send notifications."
+          ::Guard::UI.info "Guard is using #{ get_notifier_module(notification[:name]).to_s.split('::').last } to send notifications."
           notifier = get_notifier_module(notification[:name])
           notifier.turn_on(notification[:options]) if notifier.respond_to?(:turn_on)
         end
