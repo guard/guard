@@ -9,7 +9,7 @@ describe Guard::Notifier do
       end
 
       it 'shows the used notifications' do
-        Guard::UI.should_receive(:info).with 'Guard uses GNTP to send notifications.'
+        Guard::UI.should_receive(:info).with 'Guard is using GNTP to send notifications.'
         Guard::Notifier.turn_on
       end
 
