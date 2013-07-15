@@ -66,25 +66,25 @@ describe Guard::Notifier do
         end
 
         it 'does enable the notifications when a library is available' do
-          Guard::Notifier.should_receive(:add_notification) do
+          Guard::Notifier.stub(:add_notification) do
             Guard::Notifier.notifications = [{ :name => :gntp, :options => { } }]
             true
-          end.any_number_of_times
+          end
           Guard::Notifier.turn_on
           Guard::Notifier.should be_enabled
         end
 
         it 'does turn on the notification module for libraries that are available' do
           ::Guard::Notifier::GNTP.should_receive(:turn_on)
-          Guard::Notifier.should_receive(:add_notification) do
+          Guard::Notifier.stub(:add_notification) do
             Guard::Notifier.notifications = [{ :name => :gntp, :options => { } }]
             true
-          end.any_number_of_times
+          end
           Guard::Notifier.turn_on
         end
 
         it 'does not enable the notifications when no library is available' do
-          Guard::Notifier.should_receive(:add_notification).any_number_of_times.and_return false
+          Guard::Notifier.stub(:add_notification).and_return false
           Guard::Notifier.turn_on
           Guard::Notifier.should_not be_enabled
         end

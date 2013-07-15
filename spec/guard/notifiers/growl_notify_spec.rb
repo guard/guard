@@ -46,7 +46,7 @@ describe Guard::Notifier::GrowlNotify do
     end
 
     context 'when the application name is not Guard' do
-      let(:config) { mock('config') }
+      let(:config) { double('config') }
 
       it 'does configure GrowlNotify' do
         RbConfig::CONFIG.should_receive(:[]).with('host_os').and_return 'darwin'

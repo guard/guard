@@ -14,7 +14,7 @@ describe Guard::Dsl do
     ::Guard.setup
 
     ::Guard.stub(:options).and_return(:debug => true)
-    ::Guard.stub(:guards).and_return([mock('Guard')])
+    ::Guard.stub(:guards).and_return([double('Guard')])
 
     ::Guard::Notifier.stub(:notify)
   end
@@ -24,7 +24,7 @@ describe Guard::Dsl do
   end
 
   describe 'it should select the correct data source for Guardfile' do
-    before(:each) { ::Guard::Dsl.stub!(:instance_eval_guardfile) }
+    before(:each) { ::Guard::Dsl.stub(:instance_eval_guardfile) }
     disable_user_config
 
     it 'should use a string for initializing' do
@@ -84,14 +84,14 @@ describe Guard::Dsl do
   end
 
   it 'doesn\'t display an error message when no Guard plugins are defined in Guardfile' do
-    ::Guard::Dsl.stub!(:instance_eval_guardfile)
-    ::Guard.stub!(:guards).and_return([])
+    ::Guard::Dsl.stub(:instance_eval_guardfile)
+    ::Guard.stub(:guards).and_return([])
     Guard::UI.should_not_receive(:error)
     described_class.evaluate_guardfile(:guardfile_contents => valid_guardfile_string)
   end
 
   describe 'correctly reads data from its valid data source' do
-    before(:each) { ::Guard::Dsl.stub!(:instance_eval_guardfile) }
+    before(:each) { ::Guard::Dsl.stub(:instance_eval_guardfile) }
     disable_user_config
 
     it 'reads correctly from a string' do
@@ -115,26 +115,26 @@ describe Guard::Dsl do
   end
 
   describe 'correctly throws errors when initializing with invalid data' do
-    before(:each) { ::Guard::Dsl.stub!(:instance_eval_guardfile) }
+    before(:each) { ::Guard::Dsl.stub(:instance_eval_guardfile) }
 
     it 'raises error when there\'s a problem reading a file' do
-      File.stub!(:exist?).with('/def/Guardfile') { true }
-      File.stub!(:read).with('/def/Guardfile')   { raise Errno::EACCES.new('permission error') }
+      File.stub(:exist?).with('/def/Guardfile') { true }
+      File.stub(:read).with('/def/Guardfile')   { raise Errno::EACCES.new('permission error') }
 
       Guard::UI.should_receive(:error).with(/^Error reading file/)
       lambda { described_class.evaluate_guardfile(:guardfile => '/def/Guardfile') }.should raise_error
     end
 
     it 'raises error when given Guardfile doesn\'t exist' do
-      File.stub!(:exist?).with('/def/Guardfile') { false }
+      File.stub(:exist?).with('/def/Guardfile') { false }
 
       Guard::UI.should_receive(:error).with(/No Guardfile exists at/)
       lambda { described_class.evaluate_guardfile(:guardfile => '/def/Guardfile') }.should raise_error
     end
 
     it 'raises error when resorting to use default, finds no default' do
-      File.stub!(:exist?).with(@local_guardfile_path) { false }
-      File.stub!(:exist?).with(@home_guardfile_path) { false }
+      File.stub(:exist?).with(@local_guardfile_path) { false }
+      File.stub(:exist?).with(@home_guardfile_path) { false }
 
       Guard::UI.should_receive(:error).with('No Guardfile found, please create one with `guard init`.')
       lambda { described_class.evaluate_guardfile }.should raise_error
@@ -158,7 +158,7 @@ describe Guard::Dsl do
   end
 
   describe '.reevaluate_guardfile' do
-    before(:each) { ::Guard::Dsl.stub!(:instance_eval_guardfile) }
+    before(:each) { ::Guard::Dsl.stub(:instance_eval_guardfile) }
 
     it 'executes the before hook' do
       ::Guard::Dsl.should_receive(:evaluate_guardfile)
@@ -333,7 +333,7 @@ describe Guard::Dsl do
 
   describe '#ignore' do
     disable_user_config
-    let(:listener) { stub }
+    let(:listener) { double }
 
     it 'add ignored regexps to the listener' do
       ::Guard.stub(:listener) { listener }
@@ -346,7 +346,7 @@ describe Guard::Dsl do
 
   describe '#ignore!' do
     disable_user_config
-    let(:listener) { stub }
+    let(:listener) { double }
 
     it 'replace ignored regexps in the listener' do
       ::Guard.stub(:listener) { listener }
@@ -359,7 +359,7 @@ describe Guard::Dsl do
 
   describe '#filter' do
     disable_user_config
-    let(:listener) { stub }
+    let(:listener) { double }
 
     it 'add ignored regexps to the listener' do
       ::Guard.stub(:listener) { listener }
@@ -372,7 +372,7 @@ describe Guard::Dsl do
 
   describe '#filter!' do
     disable_user_config
-    let(:listener) { stub }
+    let(:listener) { double }
 
     it 'replace ignored regexps in the listener' do
       ::Guard.stub(:listener) { listener }
@@ -666,8 +666,8 @@ describe Guard::Dsl do
   private
 
   def fake_guardfile(name, contents)
-    File.stub!(:exist?).with(name) { true }
-    File.stub!(:read).with(name)   { contents }
+    File.stub(:exist?).with(name) { true }
+    File.stub(:read).with(name)   { contents }
   end
 
   def valid_guardfile_string

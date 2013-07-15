@@ -46,7 +46,7 @@ describe Guard::Notifier::GNTP do
   end
 
   describe '.nofify' do
-    let(:gntp) { mock('GNTP').as_null_object }
+    let(:gntp) { double('GNTP').as_null_object }
 
     before do
       ::GNTP.stub(:new).and_return gntp

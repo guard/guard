@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Guard::Notifier::TerminalTitle do
 
   before do
-    subject.stub!(:puts)
+    subject.stub(:puts)
   end
 
   describe '.available?' do

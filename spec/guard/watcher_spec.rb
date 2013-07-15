@@ -21,7 +21,7 @@ describe Guard::Watcher do
       end
 
       context "that is a string looking like a regex (deprecated)" do
-        before(:each) { Guard::UI.should_receive(:info).any_number_of_times }
+        before(:each) { Guard::UI.stub(:info) }
 
         it "converts the string automatically to a regex" do
           described_class.new('^spec_helper.rb').pattern.should eq(/^spec_helper.rb/)

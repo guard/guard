@@ -110,7 +110,7 @@ describe Guard do
     context 'when deprecations should be shown' do
       let(:options) { { :show_deprecations => true, :guardfile => File.join(@fixture_path, "Guardfile") } }
       subject { ::Guard.setup(options) }
-      let(:runner) { mock('runner') }
+      let(:runner) { double('runner') }
 
       it 'calls the runner show deprecations' do
         ::Guard::Runner.should_receive(:new).and_return runner
@@ -195,7 +195,7 @@ describe Guard do
         end
 
         context 'with an interactor' do
-          let(:interactor) { mock('interactor', :thread => mock('thread')) }
+          let(:interactor) { double('interactor', :thread => double('thread')) }
           before { ::Guard.should_receive(:interactor).twice.and_return interactor }
 
           it 'delegates to the Pry thread' do
@@ -267,7 +267,7 @@ describe Guard do
   end
 
   describe ".setup_listener" do
-    let(:listener) { stub.as_null_object }
+    let(:listener) { double.as_null_object }
 
     context "with latency option" do
       before { ::Guard.stub(:options).and_return("latency" => 1.5) }
@@ -383,7 +383,7 @@ describe Guard do
   end
 
   describe '#reload' do
-    let(:runner) { stub(:run => true) }
+    let(:runner) { double(:run => true) }
     subject { ::Guard.setup }
 
     before do
@@ -604,8 +604,8 @@ describe Guard do
   describe ".start" do
     before do
       ::Guard.stub(:setup)
-      ::Guard.stub(:listener => mock('listener', :start => true))
-      ::Guard.stub(:runner => mock('runner', :run => true))
+      ::Guard.stub(:listener => double('listener', :start => true))
+      ::Guard.stub(:runner => double('runner', :run => true))
       ::Guard.stub(:within_preserved_state).and_yield
     end
 
@@ -638,8 +638,8 @@ describe Guard do
   describe ".stop" do
     before do
       ::Guard.stub(:setup)
-      ::Guard.stub(:listener => mock('listener', :stop => true))
-      ::Guard.stub(:runner => mock('runner', :run => true))
+      ::Guard.stub(:listener => double('listener', :stop => true))
+      ::Guard.stub(:runner => double('runner', :run => true))
       ::Guard.stub(:within_preserved_state).and_yield
     end
 
@@ -673,7 +673,7 @@ describe Guard do
       @guard_rspec_class = double('Guard::RSpec')
       @guard_rspec       = double('Guard::RSpec', :is_a? => true)
 
-      ::Guard.stub!(:get_guard_class) { @guard_rspec_class }
+      ::Guard.stub(:get_guard_class) { @guard_rspec_class }
 
       ::Guard.setup_guards
       ::Guard.setup_groups
@@ -760,7 +760,7 @@ describe Guard do
 
   describe '.within_preserved_state' do
     subject { ::Guard.setup }
-    before { subject.interactor = stub('interactor').as_null_object }
+    before { subject.interactor = double('interactor').as_null_object }
 
     it 'disallows running the block concurrently to avoid inconsistent states' do
       subject.lock.should_receive(:synchronize)
@@ -896,8 +896,8 @@ describe Guard do
       end
 
       it "returns the path of a Guard gem" do
-        gems_source_index = stub
-        gems_found = [stub(:full_gem_path => 'gems/guard-rspec')]
+        gems_source_index = double
+        gems_found = [double(:full_gem_path => 'gems/guard-rspec')]
         Gem.should_receive(:source_index) { gems_source_index }
         gems_source_index.should_receive(:find_name).with('guard-rspec') { gems_found }
 
@@ -912,7 +912,7 @@ describe Guard do
       end
 
       it "returns the path of a Guard gem" do
-        Gem::Specification.should_receive(:find_by_name).with('guard-rspec') { stub(:full_gem_path => 'gems/guard-rspec') }
+        Gem::Specification.should_receive(:find_by_name).with('guard-rspec') { double(:full_gem_path => 'gems/guard-rspec') }
 
         Guard.locate_guard('rspec').should eq 'gems/guard-rspec'
       end
@@ -924,9 +924,9 @@ describe Guard do
       before do
         Gem::Version.should_receive(:create).with(Gem::VERSION) { rubygems_version_1_7_2 }
         Gem::Version.should_receive(:create).with('1.8.0') { rubygems_version_1_8_0 }
-        gems_source_index = stub
+        gems_source_index = double
         Gem.should_receive(:source_index) { gems_source_index }
-        gems_source_index.should_receive(:find_name).with(/^guard-/) { [stub(:name => 'guard-rspec')] }
+        gems_source_index.should_receive(:find_name).with(/^guard-/) { [double(:name => 'guard-rspec')] }
       end
 
       it 'returns the list of guard gems' do
@@ -939,10 +939,10 @@ describe Guard do
         Gem::Version.should_receive(:create).with(Gem::VERSION) { rubygems_version_1_8_0 }
         Gem::Version.should_receive(:create).with('1.8.0') { rubygems_version_1_8_0 }
         gems = [
-          stub(:name => 'guard'),
-          stub(:name => 'guard-rspec'),
-          stub(:name => 'gem1', :full_gem_path => '/gem1'),
-          stub(:name => 'gem2', :full_gem_path => '/gem2'),
+          double(:name => 'guard'),
+          double(:name => 'guard-rspec'),
+          double(:name => 'gem1', :full_gem_path => '/gem1'),
+          double(:name => 'gem2', :full_gem_path => '/gem2'),
         ]
         File.stub(:exists?).with('/gem1/lib/guard/gem1.rb') { false }
         File.stub(:exists?).with('/gem2/lib/guard/gem2.rb') { true }

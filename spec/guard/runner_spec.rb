@@ -348,14 +348,14 @@ describe Guard::Runner do
   end
 
   describe '.stopping_symbol_for' do
-    let(:guard_implmentation) { mock(Guard::Guard).as_null_object }
+    let(:guard_implmentation) { double(Guard::Guard).as_null_object }
 
     it 'returns :task_has_failed when the group is missing' do
       described_class.stopping_symbol_for(guard_implmentation).should == :task_has_failed
     end
 
     context 'for a group with :halt_on_fail' do
-      let(:group) { mock(Guard::Group) }
+      let(:group) { double(Guard::Group) }
 
       before do
         guard_implmentation.stub(:group).and_return :foo
@@ -369,7 +369,7 @@ describe Guard::Runner do
     end
 
     context 'for a group without :halt_on_fail' do
-      let(:group) { mock(Guard::Group) }
+      let(:group) { double(Guard::Group) }
 
       before do
         guard_implmentation.stub(:group).and_return :foo
