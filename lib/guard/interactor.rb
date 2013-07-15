@@ -89,6 +89,7 @@ module Guard
       Pry.config.should_load_local_rc = false
       Pry.config.history.file         = File.expand_path(self.class.options[:history_file] || HISTORY_FILE)
 
+      @stty_exists = nil
       add_hooks
 
       replace_reset_command
@@ -270,7 +271,8 @@ module Guard
     # @return [Boolean] the status of stty
     #
     def stty_exists?
-      @stty_exists ||= system('hash', 'stty')
+      @stty_exists ||= system('hash', 'stty') ? true : false if @stty_exists.nil?
+      @stty_exists
     end
 
     # Stores the terminal settings so we can resore them
