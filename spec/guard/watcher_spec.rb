@@ -78,7 +78,7 @@ describe Guard::Watcher do
             described_class.new('hash.rb',        lambda { Hash[:foo, 'bar'] }),
             described_class.new('array.rb',       lambda { ['foo', 'bar'] }),
             described_class.new('blank.rb',       lambda { '' }),
-            described_class.new(/^uptime\.rb/,    lambda { `uptime > /dev/null` })
+            described_class.new(/^uptime\.rb/,    lambda { `uptime > #{ DEV_NULL }` })
           ]
         end
 
@@ -115,7 +115,7 @@ describe Guard::Watcher do
             described_class.new('hash.rb',        lambda { Hash[:foo, 'bar'] }),
             described_class.new('array.rb',       lambda { ['foo', 'bar'] }),
             described_class.new('blank.rb',       lambda { '' }),
-            described_class.new(/^uptime\.rb/,    lambda { `uptime > /dev/null` })
+            described_class.new(/^uptime\.rb/,    lambda { `uptime > #{ DEV_NULL }` })
           ]
         end
 
@@ -156,7 +156,7 @@ describe Guard::Watcher do
              described_class.new('hash.rb',          lambda { |m| Hash[:foo, 'bar'] }),
              described_class.new(/array(.*)\.rb/,    lambda { |m| ['foo', 'bar'] }),
              described_class.new(/blank(.*)\.rb/,    lambda { |m| '' }),
-             described_class.new(/uptime(.*)\.rb/,   lambda { |m| `uptime > /dev/null` })
+             described_class.new(/uptime(.*)\.rb/,   lambda { |m| `uptime > #{ DEV_NULL }` })
            ]
          end
 
@@ -193,7 +193,7 @@ describe Guard::Watcher do
             described_class.new('hash.rb',          lambda { |m| Hash[:foo, 'bar', :file_name, m[0]] }),
             described_class.new(/array(.*)\.rb/,    lambda { |m| ['foo', 'bar', m[0]] }),
             described_class.new(/blank(.*)\.rb/,    lambda { |m| '' }),
-            described_class.new(/uptime(.*)\.rb/,   lambda { |m| `uptime > /dev/null` })
+            described_class.new(/uptime(.*)\.rb/,   lambda { |m| `uptime > #{ DEV_NULL }` })
           ]
         end
 
