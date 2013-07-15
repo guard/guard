@@ -141,8 +141,8 @@ describe Guard::Watcher do
           described_class.match_files(@guard_any_return, ['blank.rb']).should == ['']
         end
 
-        it "returns nothing if the action returns empty string" do
-          described_class.match_files(@guard_any_return, ['uptime.rb']).should == ['']
+        it "returns nothing if the action returns is DEV_NULL" do
+          described_class.match_files(@guard_any_return, ['uptime.rb']).should == [nil]
         end
       end
     end
@@ -217,8 +217,8 @@ describe Guard::Watcher do
           described_class.match_files(@guard_any_return, ['blank.rb']).should == ['']
         end
 
-        it "returns nothing if the action returns empty string" do
-          described_class.match_files(@guard_any_return, ['uptime.rb']).should == ['']
+        it "returns nothing if the action returns is DEV_NULL" do
+          described_class.match_files(@guard_any_return, ['uptime.rb']).should == [nil]
         end
       end
     end
