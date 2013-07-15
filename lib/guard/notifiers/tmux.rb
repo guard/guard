@@ -164,7 +164,7 @@ module Guard
       private
 
       def system(args)
-        args += " >/dev/null 2>&1" if ENV['GUARD_ENV'] == 'test'
+        args += " >#{ DEV_NULL } 2>&1" if ENV['GUARD_ENV'] == 'test'
         super
       end
 
