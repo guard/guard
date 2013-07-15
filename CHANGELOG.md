@@ -1,6 +1,6 @@
 ## Master
 
-No changes.
+- [#460][], [#463][] Better Windows support. ([@cablegram][])
 
 ## 1.8.1 - 17 June, 2013
 
@@ -777,6 +777,8 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [#416]: https://github.com/guard/guard/issues/416
 [#443]: https://github.com/guard/guard/issues/443
 [#453]: https://github.com/guard/guard/issues/453
+[#460]: https://github.com/guard/guard/issues/460
+[#463]: https://github.com/guard/guard/issues/463
 [@Gazer]: https://github.com/Gazer
 [@Maher4Ever]: https://github.com/Maher4Ever
 [@Nerian]: https://github.com/Nerian
