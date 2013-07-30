@@ -50,13 +50,11 @@ module Guard
       @runner    = ::Guard::Runner.new
       @scope     = { :plugins => [], :groups => [] }
 
-      @watchdirs = [ Dir.pwd ]
+      @watchdirs = [Dir.pwd]
 
       if options[:watchdir]
         # Ensure we have an array
-        options[:watchdir] = [ options[:watchdir] ] unless options[:watchdir].is_a? Enumerable
-
-        @watchdirs = options[:watchdir].map { |dir| File.expand_path dir }
+        @watchdirs = Array(options[:watchdir]).map { |dir| File.expand_path dir }
       end
 
       ::Guard::UI.clear(:force => true)
