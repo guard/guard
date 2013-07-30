@@ -37,9 +37,10 @@ describe Guard do
       ::Guard.listener.directories.should eq ['/usr']
     end
 
-    it "changes the current work dir to the watchdir" do
-      Dir.should_receive(:chdir).with('/tmp')
-      ::Guard.setup(:watchdir => '/tmp')
+    it "respect the watchdir option with multiple directories" do
+      ::Guard.setup(:watchdir => ['/usr', '/bin'])
+
+      ::Guard.listener.directories.should eq ['/usr', '/bin']
     end
 
     it "call setup_signal_traps" do
@@ -273,7 +274,7 @@ describe Guard do
       before { ::Guard.stub(:options).and_return("latency" => 1.5) }
 
       it "pass option to listener" do
-        Listen.should_receive(:to).with(anything, { :relative_paths => true, :latency => 1.5 }) { listener }
+        Listen.should_receive(:to).with(anything, { :latency => 1.5 }) { listener }
         ::Guard.setup_listener
       end
     end
@@ -282,7 +283,7 @@ describe Guard do
       before { ::Guard.stub(:options).and_return("force_polling" => true) }
 
       it "pass option to listener" do
-        Listen.should_receive(:to).with(anything, { :relative_paths => true, :force_polling => true }) { listener }
+        Listen.should_receive(:to).with(anything, { :force_polling => true }) { listener }
         ::Guard.setup_listener
       end
     end
@@ -616,7 +617,7 @@ describe Guard do
     end
 
     it "displays an info message" do
-      ::Guard.instance_variable_set('@watchdir', '/foo/bar')
+      ::Guard.instance_variable_set('@watchdirs', ['/foo/bar'])
       ::Guard::UI.should_receive(:info).with("Guard is now watching at '/foo/bar'")
 
       ::Guard.start
