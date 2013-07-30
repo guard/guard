@@ -1,6 +1,15 @@
 ## Master
 
+No changes yet.
+
+## 1.8.2 - 30 July, 2013
+
+### Bug fix
+
 - [#443][] Escape `notify-send` arguments.  ([@netzpirat][])
+
+### Improvements
+
 - [#460][], [#463][] Better Windows support. ([@cablegram][])
 - [#450][] Allow multiple watch directories.  ([@timmfin][])
 
@@ -865,6 +874,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [@tarsolya]: https://github.com/tarsolya
 [@thibaudgg]: https://github.com/thibaudgg
 [@thierryhenrio]: https://github.com/thierryhenrio
+[@timmfin]: https://github.com/timmfin
 [@tinogomes]: https://github.com/tinogomes
 [@tomas-zemres]: https://github.com/tomas-zemres
 [@tpope]: https://github.com/tpope
