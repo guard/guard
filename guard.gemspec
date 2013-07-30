@@ -1,11 +1,12 @@
 # -*- encoding: utf-8 -*-
-$:.unshift File.expand_path("../lib", __FILE__)
-require "guard/version"
+$:.unshift File.expand_path('../lib', __FILE__)
+require 'guard/version'
 
 Gem::Specification.new do |s|
   s.name        = 'guard'
   s.version     = Guard::VERSION
   s.platform    = Gem::Platform::RUBY
+  s.license     = 'MIT'
   s.authors     = ['Thibaud Guillaume-Gentil']
   s.email       = ['thibaud@thibaud.me']
   s.homepage    = 'http://guardgem.org'
