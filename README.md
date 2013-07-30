@@ -218,10 +218,11 @@ $ guard -d # shortcut
 
 #### `-w`/`--watchdir` option
 
-Guard can watch any directory instead of the current directory:
+Guard can watch any number of directories instead of only the current directory:
 
 ```bash
 $ guard --watchdir ~/your/fancy/project
+$ guard -w ~/your/fancy/project ~/your/fancier/project2 #multiple directories
 $ guard -w ~/your/fancy/project # shortcut
 ```
 
