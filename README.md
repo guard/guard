@@ -16,7 +16,7 @@ the following places:
 Information on advanced topics like creating your own Guard plugin, programatic use of Guard, hooks and callbacks and
 more can be found in the [Guard wiki](https://github.com/guard/guard/wiki).
 
-Before you file an issue, make sure you have read the _[known issues](#known-issues)_ and _[file an issue](#file-an-issue)_ sections that contains some important information.
+Before you file an issue, make sure you have read the _[known issues](#issues)_ and _[file an issue](#file-an-issue)_ sections that contains some important information.
 
 #### Features
 
@@ -312,7 +312,7 @@ $ guard show
 ```
 
 This shows the internal structure of the evaluated `Guardfile` or `.Guardfile`, with the `.guard.rb` file. You can
-read more about these files in the [shared configuration section](https://github.com/guard/guard#shared-configurations).
+read more about these files in the [shared configuration section](https://github.com/guard/guard/wiki/Shared-configurations).
 
 Interactions
 ------------
@@ -585,7 +585,7 @@ This comes in handy when you have large amounts of non-source data in you projec
 are ignored.
 
 Please note that method only accept regexps. More on the
-[Listen README](https://github.com/guard/listen#the-patterns-for-filtering-and-ignoring-paths).
+[Listen README](https://github.com/guard/listen#note-on-the-patterns-for-ignoring-and-filtering-paths).
 
 To append to the default ignored files and directories, use the `ignore` method:
 
@@ -606,7 +606,7 @@ The `filter` method allows you to focus by filtering files and directories witho
 the `filter` method.
 
 Please note that method only accept regexps. More on the
-[Listen README](https://github.com/guard/listen#the-patterns-for-filtering-and-ignoring-paths).
+[Listen README](https://github.com/guard/listen#note-on-the-patterns-for-ignoring-and-filtering-paths).
 
 ```ruby
 filter /\.txt$/, /.*\.zip/
