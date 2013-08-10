@@ -1,5 +1,6 @@
 ## Master
 
+- [#456][] Fix notifu notifier. ([@netzpirat][])
 - [#435][] Fix pressing `C-c` when interactor thread is not started. ([@netzpirat][])
 
 ## 1.8.2 - 30 July, 2013
@@ -786,9 +787,11 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [#413]: https://github.com/guard/guard/issues/413
 [#414]: https://github.com/guard/guard/issues/414
 [#416]: https://github.com/guard/guard/issues/416
+[#435]: https://github.com/guard/guard/issues/435
 [#443]: https://github.com/guard/guard/issues/443
 [#450]: https://github.com/guard/guard/issues/450
 [#453]: https://github.com/guard/guard/issues/453
+[#456]: https://github.com/guard/guard/issues/456
 [#460]: https://github.com/guard/guard/issues/460
 [#463]: https://github.com/guard/guard/issues/463
 [@Gazer]: https://github.com/Gazer

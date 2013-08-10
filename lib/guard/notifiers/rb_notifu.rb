@@ -72,11 +72,12 @@ module Guard
       def notify(type, title, message, image, options = { })
         require 'rb-notifu'
 
+        # The empty block is needed until https://github.com/stereobooster/rb-notifu/pull/1 is merged
         ::Notifu.show(DEFAULTS.merge(options).merge({
           :type    => notifu_type(type),
           :title   => title,
           :message => message
-        }))
+        })) {}
       end
 
       private
