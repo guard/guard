@@ -1,6 +1,6 @@
 ## Master
 
-No changes yet.
+- [#435][] Fix pressing `C-c` when interactor thread is not started. ([@netzpirat][])
 
 ## 1.8.2 - 30 July, 2013
 

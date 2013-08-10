@@ -152,7 +152,7 @@ module Guard
 
         if Signal.list.keys.include?('INT')
           Signal.trap('INT') do
-            if interactor
+            if interactor && interactor.thread
               interactor.thread.raise(Interrupt)
             else
               ::Guard.stop

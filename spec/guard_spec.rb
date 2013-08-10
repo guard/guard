@@ -197,7 +197,7 @@ describe Guard do
 
         context 'with an interactor' do
           let(:interactor) { double('interactor', :thread => double('thread')) }
-          before { ::Guard.should_receive(:interactor).twice.and_return interactor }
+          before { allow(Guard).to receive(:interactor).and_return(interactor) }
 
           it 'delegates to the Pry thread' do
             interactor.thread.should_receive(:raise).with Interrupt
