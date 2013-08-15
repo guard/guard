@@ -107,12 +107,12 @@ describe Guard::Guardfile do
   end
 
   describe ".initialize_all_templates" do
-    let(:guards) { ['rspec', 'spork', 'phpunit'] }
+    let(:guards) { ['rspec', 'rspec', 'spork', 'phpunit'] }
 
     before { ::Guard.should_receive(:guard_gem_names).and_return(guards) }
 
-    it "calls Guard.initialize_template on all installed guards" do
-      guards.each do |g|
+    it "calls Guard.initialize_template on all installed guards (once only)" do
+      guards.uniq.each do |g|
         described_class.should_receive(:initialize_template).with(g)
       end
 

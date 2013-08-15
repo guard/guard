@@ -86,7 +86,7 @@ module Guard
       # @see Guard::CLI.init
       #
       def initialize_all_templates
-        ::Guard.guard_gem_names.each { |g| initialize_template(g) }
+        ::Guard.guard_gem_names.uniq.each { |g| initialize_template(g) }
       end
 
     end
