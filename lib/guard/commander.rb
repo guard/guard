@@ -26,7 +26,7 @@ module Guard
       within_preserved_state do
         ::Guard::UI.debug 'Guard starts all plugins'
         runner.run(:start)
-        ::Guard::UI.info "Guard is now watching at '#{ @watchdir }'"
+        ::Guard::UI.info "Guard is now watching at '#{ @watchdirs.join "', '" }'"
         listener.start
       end
     end

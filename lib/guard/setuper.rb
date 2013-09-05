@@ -32,7 +32,7 @@ module Guard
     # @option options [Boolean] notify if system notifications should be shown
     # @option options [Boolean] debug if debug output should be shown
     # @option options [Array<String>] group the list of groups to start
-    # @option options [String] watchdir the director to watch
+    # @option options [Array<String>] watchdir the directories to watch
     # @option options [String] guardfile the path to the Guardfile
     # @option options [Boolean] watch_all_modifications **[deprecated]** watches all file modifications if true
     # @option options [Boolean] no_vendor **[deprecated]** ignore vendored dependencies
@@ -43,11 +43,15 @@ module Guard
       @running   = true
       @lock      = Mutex.new
       @options   = ::Guard::Options.new(opts, DEFAULT_OPTIONS)
-      @watchdir  = (options.watchdir && File.expand_path(options.watchdir)) || Dir.pwd
+      @watchdirs = [Dir.pwd]
       @evaluator = ::Guard::Guardfile::Evaluator.new(opts)
       @runner    = ::Guard::Runner.new
 
-      Dir.chdir(@watchdir)
+     if options[:watchdir]
+       # Ensure we have an array
+       @watchdirs = Array(options[:watchdir]).map { |dir| File.expand_path dir }
+     end
+
       ::Guard::UI.clear(:force => true)
       _setup_debug if options.debug
       _setup_listener
@@ -141,6 +145,18 @@ module Guard
     #
     def _setup_listener
       listener_callback = lambda do |modified, added, removed|
+        # Convert to relative paths (respective to the watchdir it came from)
+        @watchdirs.each do |watchdir|
+          [modified, added, removed].each do |paths|
+            paths.map! do |path|
+              if path.start_with? watchdir
+                path.sub "#{watchdir}#{File::SEPARATOR}", ''
+              else
+                path
+              end
+            end
+          end
+        end
         evaluator.reevaluate_guardfile if ::Guard::Watcher.match_guardfile?(modified)
 
         within_preserved_state do
@@ -148,12 +164,13 @@ module Guard
         end
       end
 
-      listener_options = { :relative_paths => true }
+      listener_options = {}
       %w[latency force_polling].each do |option|
         listener_options[option.to_sym] = options.send(option) if options.send(option)
       end
 
-      @listener = Listen.to(@watchdir, listener_options).change(&listener_callback)
+      listen_args = @watchdirs + [listener_options]
+      @listener = Listen.to(*listen_args).change(&listener_callback)
     end
 
     # Sets up traps to catch signals used to control Guard.

@@ -21,7 +21,7 @@ describe Guard::Commander do
     end
 
     it "displays an info message" do
-      ::Guard.instance_variable_set('@watchdir', '/foo/bar')
+      ::Guard.instance_variable_set('@watchdirs', ['/foo/bar'])
       ::Guard::UI.should_receive(:info).with("Guard is now watching at '/foo/bar'")
 
       ::Guard.start

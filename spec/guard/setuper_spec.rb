@@ -41,10 +41,10 @@ describe Guard::Setuper do
       Guard.listener.directories.should eq ['/usr']
     end
 
-    it "changes the current work dir to the watchdir" do
-      Dir.should_receive(:chdir).with('/tmp')
+    it "respect the watchdir option with multiple directories" do
+      ::Guard.setup(:watchdir => ['/usr', '/bin'])
 
-      Guard.setup(:watchdir => '/tmp')
+      ::Guard.listener.directories.should eq ['/usr', '/bin']
     end
 
     it 'call setup_signal_traps' do
@@ -251,7 +251,7 @@ describe Guard::Setuper do
         end
 
         context 'with an interactor' do
-          let(:interactor) { mock('interactor', :thread => mock('thread')) }
+          let(:interactor) { double('interactor', :thread => double('thread')) }
           before { allow(Guard).to receive(:interactor).and_return(interactor) }
 
           it 'delegates to the Pry thread' do
@@ -335,7 +335,7 @@ describe Guard::Setuper do
       before { ::Guard.stub(:options).and_return(Guard::Options.new(latency: 1.5)) }
 
       it "pass option to listener" do
-        Listen.should_receive(:to).with(anything, { :relative_paths => true, :latency => 1.5 }) { listener }
+        Listen.should_receive(:to).with(anything, { :latency => 1.5 }) { listener }
 
         ::Guard.send :_setup_listener
       end
@@ -345,7 +345,7 @@ describe Guard::Setuper do
       before { ::Guard.stub(:options).and_return(Guard::Options.new(force_polling: true)) }
 
       it "pass option to listener" do
-        Listen.should_receive(:to).with(anything, { :relative_paths => true, :force_polling => true }) { listener }
+        Listen.should_receive(:to).with(anything, { :force_polling => true }) { listener }
 
         ::Guard.send :_setup_listener
       end
