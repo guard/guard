@@ -22,7 +22,7 @@ describe Guard::Watcher do
       end
 
       context "that is a string looking like a regex (deprecated)" do
-        before(:each) { Guard::UI.should_receive(:info).any_number_of_times }
+        before(:each) { Guard::UI.stub(:info) }
 
         it "converts the string automatically to a regex" do
           described_class.new('^spec_helper.rb').pattern.should eq(/^spec_helper.rb/)
@@ -79,7 +79,7 @@ describe Guard::Watcher do
             described_class.new('hash.rb',        lambda { Hash[:foo, 'bar'] }),
             described_class.new('array.rb',       lambda { ['foo', 'bar'] }),
             described_class.new('blank.rb',       lambda { '' }),
-            described_class.new(/^uptime\.rb/,    lambda { `uptime > /dev/null` })
+            described_class.new(/^uptime\.rb/,    lambda { `uptime > #{ DEV_NULL }` })
           ]
         end
 
@@ -116,7 +116,7 @@ describe Guard::Watcher do
             described_class.new('hash.rb',        lambda { Hash[:foo, 'bar'] }),
             described_class.new('array.rb',       lambda { ['foo', 'bar'] }),
             described_class.new('blank.rb',       lambda { '' }),
-            described_class.new(/^uptime\.rb/,    lambda { `uptime > /dev/null` })
+            described_class.new(/^uptime\.rb/,    lambda { `uptime > #{ DEV_NULL }` })
           ]
         end
 
@@ -142,8 +142,8 @@ describe Guard::Watcher do
           described_class.match_files(@guard_plugin_any_return, ['blank.rb']).should eq ['']
         end
 
-        it "returns nothing if the action returns empty string" do
-          described_class.match_files(@guard_plugin_any_return, ['uptime.rb']).should eq ['']
+        it "returns nothing if the action returns is DEV_NULL" do
+          described_class.match_files(@guard_plugin_any_return, ['uptime.rb']).should eq [nil]
         end
       end
     end
@@ -157,7 +157,7 @@ describe Guard::Watcher do
              described_class.new('hash.rb',          lambda { |m| Hash[:foo, 'bar'] }),
              described_class.new(/array(.*)\.rb/,    lambda { |m| ['foo', 'bar'] }),
              described_class.new(/blank(.*)\.rb/,    lambda { |m| '' }),
-             described_class.new(/uptime(.*)\.rb/,   lambda { |m| `uptime > /dev/null` })
+             described_class.new(/uptime(.*)\.rb/,   lambda { |m| `uptime > #{ DEV_NULL }` })
            ]
          end
 
@@ -194,7 +194,7 @@ describe Guard::Watcher do
             described_class.new('hash.rb',          lambda { |m| Hash[:foo, 'bar', :file_name, m[0]] }),
             described_class.new(/array(.*)\.rb/,    lambda { |m| ['foo', 'bar', m[0]] }),
             described_class.new(/blank(.*)\.rb/,    lambda { |m| '' }),
-            described_class.new(/uptime(.*)\.rb/,   lambda { |m| `uptime > /dev/null` })
+            described_class.new(/uptime(.*)\.rb/,   lambda { |m| `uptime > #{ DEV_NULL }` })
           ]
         end
 
@@ -218,8 +218,8 @@ describe Guard::Watcher do
           described_class.match_files(@guard_plugin_any_return, ['blank.rb']).should eq ['']
         end
 
-        it "returns nothing if the action returns empty string" do
-          described_class.match_files(@guard_plugin_any_return, ['uptime.rb']).should eq ['']
+        it "returns nothing if the action returns is DEV_NULL" do
+          described_class.match_files(@guard_plugin_any_return, ['uptime.rb']).should eq [nil]
         end
       end
     end

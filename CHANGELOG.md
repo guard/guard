@@ -1,4 +1,4 @@
-## git master
+## Master 2.X
 
 ### Removals & deprecations
 
@@ -25,6 +25,33 @@
 - New `Guard::PluginUtil` that contains useful methods to find and instantiate Guard plugins. ([@rymai][])
 - Move setup stuff into a new `Guard::Setuper` module. ([@rymai][])
 - Move deprecation stuff inside a new `Guard::Deprecator` class. ([@rymai][])
+
+## Master 1.X
+
+### Bug fixes
+
+- [#471][] Only init once per plugin when running `guard init` (reported by [@simon-ohara][], fixed by [@thibaudgg][])
+- [#456][] Fix notifu notifier. ([@netzpirat][])
+- [#435][] Fix pressing `C-c` when interactor thread is not started. ([@netzpirat][])
+
+## 1.8.2 - 30 July, 2013
+
+### Bug fix
+
+- [#443][] Escape `notify-send` arguments.  ([@netzpirat][])
+
+### Improvements
+
+- [#460][], [#463][] Better Windows support. ([@cablegram][])
+- [#450][] Allow multiple watch directories.  ([@timmfin][])
+
+## 1.8.1 - 17 June, 2013
+
+### Bug fixes
+
+- [#453][] Fix a Guard error when calling `guard show` or `guard list` and
+  the Guardfile contains methods called directly on the listener. ([@rymai][])
+- [#443][] Escape `notify-send` arguments. ([@netzpirat][])
 
 ## 1.8.0 - 20 April, 2013
 
@@ -792,6 +819,14 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [#413]: https://github.com/guard/guard/issues/413
 [#414]: https://github.com/guard/guard/issues/414
 [#416]: https://github.com/guard/guard/issues/416
+[#435]: https://github.com/guard/guard/issues/435
+[#443]: https://github.com/guard/guard/issues/443
+[#450]: https://github.com/guard/guard/issues/450
+[#453]: https://github.com/guard/guard/issues/453
+[#456]: https://github.com/guard/guard/issues/456
+[#460]: https://github.com/guard/guard/issues/460
+[#463]: https://github.com/guard/guard/issues/463
+[#471]: https://github.com/guard/guard/issues/471
 [@Gazer]: https://github.com/Gazer
 [@Maher4Ever]: https://github.com/Maher4Ever
 [@Nerian]: https://github.com/Nerian
@@ -866,6 +901,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [@schmurfy]: https://github.com/schmurfy
 [@scottdavis]: https://github.com/scottdavis
 [@semperos]: https://github.com/semperos
+[@simon-ohara]: https://github.com/simon-ohara
 [@spadin]: https://github.com/spadin
 [@steakknife]: https://github.com/steakknife
 [@stereobooster]: https://github.com/stereobooster
@@ -875,6 +911,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [@tarsolya]: https://github.com/tarsolya
 [@thibaudgg]: https://github.com/thibaudgg
 [@thierryhenrio]: https://github.com/thierryhenrio
+[@timmfin]: https://github.com/timmfin
 [@tinogomes]: https://github.com/tinogomes
 [@tomas-zemres]: https://github.com/tomas-zemres
 [@tpope]: https://github.com/tpope

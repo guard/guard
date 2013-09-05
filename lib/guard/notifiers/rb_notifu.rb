@@ -75,7 +75,8 @@ module Guard
           :message => message
         ).merge(opts)
 
-        ::Notifu.show(opts)
+        # The empty block is needed until https://github.com/stereobooster/rb-notifu/pull/1 is merged
+        ::Notifu.show(opts) {}
       end
 
       private

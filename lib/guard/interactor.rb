@@ -106,6 +106,7 @@ module Guard
       Pry.config.should_load_local_rc = false
       Pry.config.history.file         = File.expand_path(self.class.options[:history_file] || HISTORY_FILE)
 
+      @stty_exists = nil
       _add_hooks
 
       _replace_reset_command
@@ -125,7 +126,7 @@ module Guard
 
       _store_terminal_settings if _stty_exists?
 
-      if !@thread || !@thread.alive?
+      if !@thread || !['sleep', 'run'].include?(@thread.status)
         ::Guard::UI.debug 'Start interactor'
 
         @thread = Thread.new do
@@ -171,7 +172,7 @@ module Guard
 
       if _stty_exists?
         Pry.config.hooks.add_hook :after_eval, :restore_visibility do
-          system('stty echo 2>/dev/null')
+          system("stty echo 2>#{ DEV_NULL }")
         end
       end
     end
@@ -276,7 +277,8 @@ module Guard
     # @return [Boolean] the status of stty
     #
     def _stty_exists?
-      @stty_exists ||= system('hash', 'stty')
+      @stty_exists ||= system('hash', 'stty') ? true : false if @stty_exists.nil?
+      @stty_exists
     end
 
     # Stores the terminal settings so we can resore them

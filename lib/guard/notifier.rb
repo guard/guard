@@ -100,7 +100,7 @@ module Guard
       else
         notifiers.each do |notifier|
           notifier_class = _get_notifier_module(notifier[:name])
-          ::Guard::UI.info "Guard uses #{ notifier_class.title } to send notifications."
+          ::Guard::UI.info "Guard is using #{ notifier_class.title } to send notifications."
 
           notifier_class.turn_on if notifier_class.respond_to?(:turn_on)
         end

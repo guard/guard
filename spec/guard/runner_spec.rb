@@ -384,7 +384,7 @@ describe Guard::Runner do
   end
 
   describe '.stopping_symbol_for' do
-    let(:guard_plugin) { mock(Guard::Plugin).as_null_object }
+    let(:guard_plugin) { double(Guard::Plugin).as_null_object }
 
     context 'for a group with :halt_on_fail' do
       before do

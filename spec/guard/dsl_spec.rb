@@ -46,7 +46,7 @@ describe Guard::Dsl do
 
   describe '#ignore' do
     disable_user_config
-    let(:listener) { stub }
+    let(:listener) { double }
 
     it 'add ignored regexps to the listener' do
       ::Guard.stub(:listener) { listener }
@@ -59,7 +59,7 @@ describe Guard::Dsl do
 
   describe '#ignore!' do
     disable_user_config
-    let(:listener) { stub }
+    let(:listener) { double }
 
     it 'replace ignored regexps in the listener' do
       ::Guard.stub(:listener) { listener }
@@ -72,7 +72,7 @@ describe Guard::Dsl do
 
   describe '#filter' do
     disable_user_config
-    let(:listener) { stub }
+    let(:listener) { double }
 
     it 'add ignored regexps to the listener' do
       ::Guard.stub(:listener) { listener }
@@ -85,7 +85,7 @@ describe Guard::Dsl do
 
   describe '#filter!' do
     disable_user_config
-    let(:listener) { stub }
+    let(:listener) { double }
 
     it 'replace ignored regexps in the listener' do
       ::Guard.stub(:listener) { listener }

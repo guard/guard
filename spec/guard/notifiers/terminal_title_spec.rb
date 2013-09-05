@@ -4,7 +4,7 @@ describe Guard::Notifier::TerminalTitle do
   let(:notifier) { described_class.new }
 
   before do
-    subject.stub!(:puts)
+    subject.stub(:puts)
   end
 
   describe '.available?' do

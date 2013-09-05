@@ -48,9 +48,9 @@ module Guard
                   :banner  => 'Run only the passed plugins'
 
     method_option :watchdir,
-                  :type    => :string,
+                  :type    => :array,
                   :aliases => '-w',
-                  :banner  => 'Specify the directory to watch'
+                  :banner  => 'Specify the directories to watch'
 
     method_option :guardfile,
                   :type    => :string,

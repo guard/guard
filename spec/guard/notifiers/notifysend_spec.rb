@@ -22,12 +22,12 @@ describe Guard::Notifier::NotifySend do
   describe '#notify' do
     context 'without additional options' do
       it 'shows the notification with the default options' do
-        notifier.should_receive(:system).with do |command|
-          command.should include("notify-send 'Welcome' 'Welcome to Guard'")
-          command.should include("-i '/tmp/welcome.png'")
-          command.should include("-u 'low'")
-          command.should include("-t '3000'")
-          command.should include("-h 'int:transient:1'")
+        notifier.should_receive(:system).with do |command, *arguments|
+          command.should eql 'notify-send'
+          arguments.should include '-i', '/tmp/welcome.png'
+          arguments.should include '-u', 'low'
+          arguments.should include '-t', '3000'
+          arguments.should include '-h', 'int:transient:1'
         end
 
         notifier.notify('Welcome to Guard', :type => 'success', :title => 'Welcome', :image => '/tmp/welcome.png')
@@ -36,11 +36,11 @@ describe Guard::Notifier::NotifySend do
 
     context 'with additional options' do
       it 'can override the default options' do
-        notifier.should_receive(:system).with do |command|
-          command.should include("notify-send 'Waiting' 'Waiting for something'")
-          command.should include("-i '/tmp/wait.png'")
-          command.should include("-u 'critical'")
-          command.should include("-t '5'")
+        notifier.should_receive(:system).with do |command, *arguments|
+          command.should eql 'notify-send'
+          arguments.should include '-i', '/tmp/wait.png'
+          arguments.should include '-u', 'critical'
+          arguments.should include '-t', '5'
         end
 
         notifier.notify('Waiting for something', :type => :pending, :title => 'Waiting', :image => '/tmp/wait.png',
@@ -49,6 +49,7 @@ describe Guard::Notifier::NotifySend do
         )
       end
     end
+
   end
 
 end

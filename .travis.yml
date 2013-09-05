@@ -13,3 +13,4 @@ notifications:
     - michi@netzpiraten.ch
     - maher@sallam.me
   irc: 'irc.freenode.org#guard'
+  webhooks: https://www.buildheroes.com/api/projects/870763b3173212e1df41d8825927256e18bbaba1/builds

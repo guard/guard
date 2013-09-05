@@ -7,6 +7,7 @@ describe Guard::DslDescriber do
 
   let(:guardfile) do
     <<-GUARDFILE
+      ignore! %r{tmp/}
       guard :test, :a => :b, :c => :d do
         watch('c')
       end
