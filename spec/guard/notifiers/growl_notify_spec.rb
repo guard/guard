@@ -5,7 +5,7 @@ describe Guard::Notifier::GrowlNotify do
 
   before do
     described_class.stub(:require_gem_safely).and_return(true)
-    stub_const 'GrowlNotify', stub
+    stub_const 'GrowlNotify', double
   end
 
   describe '.supported_hosts' do

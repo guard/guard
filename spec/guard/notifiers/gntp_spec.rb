@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Guard::Notifier::GNTP do
   let(:notifier) { described_class.new }
-  let(:gntp) { mock('GNTP').as_null_object }
+  let(:gntp) { double('GNTP').as_null_object }
 
   before do
     described_class.stub(:require_gem_safely).and_return(true)

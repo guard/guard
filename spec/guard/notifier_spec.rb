@@ -87,14 +87,14 @@ describe Guard::Notifier do
           Guard::Notifier.stub(:add_notifier) do
             Guard::Notifier.notifiers = [{ :name => :tmux, :options => {} }]
             true
-          end.any_number_of_times
+          end
           Guard::Notifier::Tmux.should_receive(:turn_on)
 
           Guard::Notifier.turn_on
         end
 
         it 'does not enable the notifications when no library is available' do
-          Guard::Notifier.stub(:add_notifier).any_number_of_times.and_return false
+          Guard::Notifier.stub(:add_notifier).and_return false
           Guard::Notifier.turn_on
           Guard::Notifier.should_not be_enabled
         end

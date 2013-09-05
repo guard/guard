@@ -294,9 +294,9 @@ describe Guard::UI do
   end
 
   describe '.action_with_scopes' do
-    let(:rspec) { stub('Guard::Rspec', title: 'Rspec') }
-    let(:jasmine) { stub('Guard::Jasmine', title: 'Jasmine') }
-    let(:group) { stub('Guard::Group frontend', title: 'Frontend') }
+    let(:rspec) { double('Guard::Rspec', title: 'Rspec') }
+    let(:jasmine) { double('Guard::Jasmine', title: 'Jasmine') }
+    let(:group) { double('Guard::Group frontend', title: 'Frontend') }
 
     context 'with a plugins scope' do
       it 'shows the plugin scoped action' do

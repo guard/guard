@@ -5,7 +5,7 @@ describe Guard::Notifier::TerminalNotifier do
 
   before do
     described_class.stub(:require_gem_safely).and_return(true)
-    stub_const 'TerminalNotifier::Guard', stub(:available? => true)
+    stub_const 'TerminalNotifier::Guard', double(:available? => true)
   end
 
   describe '.supported_hosts' do

@@ -82,7 +82,7 @@ describe Guard::Guardfile::Generator do
     context "when the passed guard can't be found" do
       before do
         ::Guard::PluginUtil.should_receive(:new) { plugin_util }
-        plugin_util.stub!(:plugin_class) { nil }
+        plugin_util.stub(:plugin_class) { nil }
         File.should_receive(:exist?).and_return false
       end
 

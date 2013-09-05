@@ -5,7 +5,7 @@ describe Guard::Notifier::Notifu do
 
   before do
     described_class.stub(:require_gem_safely).and_return(true)
-    stub_const 'Notifu', stub
+    stub_const 'Notifu', double
   end
 
   describe '.supported_hosts' do

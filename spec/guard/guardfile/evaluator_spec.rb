@@ -10,7 +10,7 @@ describe Guard::Guardfile::Evaluator do
     stub_const 'Guard::Dummy', Class.new(Guard::Plugin)
     ::Guard.stub(:setup_interactor)
     ::Guard.setup
-    ::Guard.stub(:plugins).and_return([mock('Guard::Dummy')])
+    ::Guard.stub(:plugins).and_return([double('Guard::Dummy')])
     ::Guard::Notifier.stub(:notify)
   end
 
@@ -35,7 +35,7 @@ describe Guard::Guardfile::Evaluator do
     it 'doesn\'t display an error message when no Guard plugins are defined in Guardfile' do
       guardfile_evaluator = described_class.new(:guardfile_contents => valid_guardfile_string)
       guardfile_evaluator.stub(:_instance_eval_guardfile)
-      ::Guard.stub!(:plugins).and_return([])
+      ::Guard.stub(:plugins).and_return([])
       Guard::UI.should_not_receive(:error)
 
       guardfile_evaluator.evaluate_guardfile
@@ -45,23 +45,23 @@ describe Guard::Guardfile::Evaluator do
       before { Guard::Guardfile::Evaluator.any_instance.stub(:_instance_eval_guardfile) }
 
       it 'raises error when there\'s a problem reading a file' do
-        File.stub!(:exist?).with('/def/Guardfile') { true }
-        File.stub!(:read).with('/def/Guardfile')   { raise Errno::EACCES.new('permission error') }
+        File.stub(:exist?).with('/def/Guardfile') { true }
+        File.stub(:read).with('/def/Guardfile')   { raise Errno::EACCES.new('permission error') }
 
         Guard::UI.should_receive(:error).with(/^Error reading file/)
         lambda { described_class.new(:guardfile => '/def/Guardfile').evaluate_guardfile }.should raise_error
       end
 
       it 'raises error when given Guardfile doesn\'t exist' do
-        File.stub!(:exist?).with('/def/Guardfile') { false }
+        File.stub(:exist?).with('/def/Guardfile') { false }
 
         Guard::UI.should_receive(:error).with(/No Guardfile exists at/)
         lambda { described_class.new(:guardfile => '/def/Guardfile').evaluate_guardfile }.should raise_error
       end
 
       it 'raises error when resorting to use default, finds no default' do
-        File.stub!(:exist?).with(local_guardfile) { false }
-        File.stub!(:exist?).with(home_guardfile) { false }
+        File.stub(:exist?).with(local_guardfile) { false }
+        File.stub(:exist?).with(home_guardfile) { false }
 
         Guard::UI.should_receive(:error).with('No Guardfile found, please create one with `guard init`.')
         lambda { described_class.new.evaluate_guardfile }.should raise_error
@@ -167,7 +167,7 @@ describe Guard::Guardfile::Evaluator do
 
       context 'with a home Guardfile only' do
         it 'reads correctly from it' do
-          File.stub!(:exist?).with(local_guardfile) { false }
+          File.stub(:exist?).with(local_guardfile) { false }
           fake_guardfile(home_guardfile, valid_guardfile_string)
 
           lambda { guardfile_evaluator.evaluate_guardfile }.should_not raise_error
@@ -317,8 +317,8 @@ describe Guard::Guardfile::Evaluator do
   private
 
   def fake_guardfile(name, contents)
-    File.stub!(:exist?).with(name) { true }
-    File.stub!(:read).with(name)   { contents }
+    File.stub(:exist?).with(name) { true }
+    File.stub(:read).with(name)   { contents }
   end
 
   def valid_guardfile_string

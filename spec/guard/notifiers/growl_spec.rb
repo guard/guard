@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Guard::Notifier::Growl do
   let(:notifier) { described_class.new }
-  let(:growl) { mock('Growl', :installed? => true) }
+  let(:growl) { double('Growl', :installed? => true) }
 
   before do
     described_class.stub(:require_gem_safely).and_return(true)

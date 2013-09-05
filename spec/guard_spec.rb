@@ -120,7 +120,7 @@ describe Guard do
 
     before do
       ::Guard::PluginUtil.should_receive(:new).with('rspec') { plugin_util }
-      plugin_util.stub!(:initialize_plugin) { guard_rspec }
+      plugin_util.stub(:initialize_plugin) { guard_rspec }
 
       ::Guard.reset_plugins
     end

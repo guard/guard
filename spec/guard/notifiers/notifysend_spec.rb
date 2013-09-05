@@ -4,7 +4,7 @@ describe Guard::Notifier::NotifySend do
   let(:notifier) { described_class.new }
 
   before do
-    stub_const 'NotifySend', stub
+    stub_const 'NotifySend', double
   end
 
   describe '.supported_hosts' do

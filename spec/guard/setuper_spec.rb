@@ -329,7 +329,7 @@ describe Guard::Setuper do
   end
 
   describe '._setup_listener' do
-    let(:listener) { stub.as_null_object }
+    let(:listener) { double.as_null_object }
 
     context "with latency option" do
       before { ::Guard.stub(:options).and_return(Guard::Options.new(latency: 1.5)) }

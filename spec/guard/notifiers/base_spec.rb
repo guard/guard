@@ -1,8 +1,8 @@
 require 'spec_helper'
 
 describe Guard::Notifier::Base do
-  let(:gntp)  { mock('GNTP notifier', :name => 'gntp', :title => 'GNTP', :options => {}) }
-  let(:growl) { mock('Growl notifier', :name => 'growl', :title => 'Growl', :options => {}) }
+  let(:gntp)  { double('GNTP notifier', :name => 'gntp', :title => 'GNTP', :options => {}) }
+  let(:growl) { double('Growl notifier', :name => 'growl', :title => 'Growl', :options => {}) }
 
   class Guard::Notifier::FooBar < described_class
     def self.supported_hosts

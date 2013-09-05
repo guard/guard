@@ -5,8 +5,8 @@ describe Guard::Commander do
   describe '.start' do
     before do
       ::Guard.stub(:setup)
-      ::Guard.stub(:listener => mock('listener', :start => true))
-      ::Guard.stub(:runner => mock('runner', :run => true))
+      ::Guard.stub(:listener => double('listener', :start => true))
+      ::Guard.stub(:runner => double('runner', :run => true))
       ::Guard.stub(:within_preserved_state).and_yield
     end
 
@@ -43,8 +43,8 @@ describe Guard::Commander do
   describe '.stop' do
     before do
       ::Guard.stub(:setup)
-      ::Guard.stub(:listener => mock('listener', :stop => true))
-      ::Guard.stub(:runner => mock('runner', :run => true))
+      ::Guard.stub(:listener => double('listener', :stop => true))
+      ::Guard.stub(:runner => double('runner', :run => true))
       ::Guard.stub(:within_preserved_state).and_yield
     end
 
@@ -84,7 +84,7 @@ describe Guard::Commander do
   end
 
   describe '.reload' do
-    let(:runner) { stub(:run => true) }
+    let(:runner) { double(:run => true) }
     let(:group) { ::Guard::Group.new('frontend') }
     subject { ::Guard.setup }
 
@@ -154,7 +154,7 @@ describe Guard::Commander do
 
   describe '.within_preserved_state' do
     subject { ::Guard.setup }
-    before { subject.interactor = stub('interactor').as_null_object }
+    before { subject.interactor = double('interactor').as_null_object }
 
     it 'disallows running the block concurrently to avoid inconsistent states' do
       subject.lock.should_receive(:synchronize)

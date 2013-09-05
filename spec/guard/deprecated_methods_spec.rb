@@ -40,7 +40,7 @@ describe Guard::DeprecatedMethods do
   end
 
   describe '.get_guard_class' do
-    let(:plugin_util) { stub('Guard::PluginUtil', plugin_class: true) }
+    let(:plugin_util) { double('Guard::PluginUtil', plugin_class: true) }
     before { ::Guard::PluginUtil.stub(:new).and_return(plugin_util) }
 
     it 'displays a deprecation warning to the user' do
@@ -67,7 +67,7 @@ describe Guard::DeprecatedMethods do
   end
 
   describe '.locate_guard' do
-    let(:plugin_util) { stub('Guard::PluginUtil', plugin_location: true) }
+    let(:plugin_util) { double('Guard::PluginUtil', plugin_location: true) }
     before { ::Guard::PluginUtil.stub(:new).and_return(plugin_util) }
 
     it 'displays a deprecation warning to the user' do

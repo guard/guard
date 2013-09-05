@@ -5,7 +5,7 @@ describe Guard::Notifier::Libnotify do
 
   before do
     described_class.stub(:require_gem_safely).and_return(true)
-    stub_const 'Libnotify', stub
+    stub_const 'Libnotify', double
   end
 
   describe '.supported_hosts' do

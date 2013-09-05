@@ -4,7 +4,7 @@ module Guard
   module Notifier
 
     # System notifications using the
-    # [terminal-notifier-guard](https://github.com/Springest/terminal-notifier-guard
+    # [terminal-notifier-guard](https://github.com/Springest/terminal-notifier-guard)
     # gem.
     #
     # This gem is available for OS X 10.8 Mountain Lion and sends notifications
