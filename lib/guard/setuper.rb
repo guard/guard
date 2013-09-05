@@ -47,9 +47,9 @@ module Guard
       @evaluator = ::Guard::Guardfile::Evaluator.new(opts)
       @runner    = ::Guard::Runner.new
 
-     if options[:watchdir]
+     if options.watchdir
        # Ensure we have an array
-       @watchdirs = Array(options[:watchdir]).map { |dir| File.expand_path dir }
+       @watchdirs = Array(options.watchdir).map { |dir| File.expand_path dir }
      end
 
       ::Guard::UI.clear(:force => true)
