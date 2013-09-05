@@ -252,7 +252,7 @@ describe Guard::Setuper do
 
         context 'with an interactor' do
           let(:interactor) { mock('interactor', :thread => mock('thread')) }
-          before { Guard.should_receive(:interactor).exactly(3).times.and_return(interactor) }
+          before { allow(Guard).to receive(:interactor).and_return(interactor) }
 
           it 'delegates to the Pry thread' do
             Guard.interactor.thread.should_receive(:raise).with Interrupt
