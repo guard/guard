@@ -15,13 +15,13 @@ describe Guard::PluginUtil do
       before do
         Gem::Version.should_receive(:create).with(Gem::VERSION) { rubygems_version_1_7_2 }
         Gem::Version.should_receive(:create).with('1.8.0') { rubygems_version_1_8_0 }
-        gems_source_index = stub
+        gems_source_index = double
         Gem.should_receive(:source_index) { gems_source_index }
-        gems_source_index.should_receive(:find_name).with(/^guard-/) { [stub(:name => 'guard-rspec')] }
+        gems_source_index.should_receive(:find_name).with(/^guard-/) { [double(:name => 'guard-rspec'), double(:name => 'guard-rspec')] }
       end
 
       it 'returns the list of guard gems' do
-        described_class.plugin_names.should include('rspec')
+        described_class.plugin_names.should eq ['rspec']
       end
     end
 
@@ -30,10 +30,10 @@ describe Guard::PluginUtil do
         Gem::Version.should_receive(:create).with(Gem::VERSION) { rubygems_version_1_8_0 }
         Gem::Version.should_receive(:create).with('1.8.0') { rubygems_version_1_8_0 }
         gems = [
-          stub(:name => 'guard'),
-          stub(:name => 'guard-rspec'),
-          stub(:name => 'gem1', :full_gem_path => '/gem1'),
-          stub(:name => 'gem2', :full_gem_path => '/gem2'),
+          double(:name => 'guard'),
+          double(:name => 'guard-rspec'),
+          double(:name => 'gem1', :full_gem_path => '/gem1'),
+          double(:name => 'gem2', :full_gem_path => '/gem2'),
         ]
         File.stub(:exists?).with('/gem1/lib/guard/gem1.rb') { false }
         File.stub(:exists?).with('/gem2/lib/guard/gem2.rb') { true }
@@ -96,8 +96,8 @@ describe Guard::PluginUtil do
       end
 
       it "returns the path of a Guard gem" do
-        gems_source_index = stub
-        gems_found = [stub(:full_gem_path => 'gems/guard-rspec')]
+        gems_source_index = double
+        gems_found = [double(:full_gem_path => 'gems/guard-rspec')]
         Gem.should_receive(:source_index) { gems_source_index }
         gems_source_index.should_receive(:find_name).with('guard-rspec') { gems_found }
 
@@ -112,7 +112,7 @@ describe Guard::PluginUtil do
       end
 
       it "returns the path of a Guard gem" do
-        Gem::Specification.should_receive(:find_by_name).with('guard-rspec') { stub(:full_gem_path => 'gems/guard-rspec') }
+        Gem::Specification.should_receive(:find_by_name).with('guard-rspec') { double(:full_gem_path => 'gems/guard-rspec') }
 
         described_class.new('rspec').plugin_location.should eq 'gems/guard-rspec'
       end

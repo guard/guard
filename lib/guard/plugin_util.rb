@@ -29,7 +29,7 @@ module Guard
         end
       else
         Gem.source_index.find_name(/^guard-/)
-      end.map { |x| x.name.sub(/^guard-/, '') }
+      end.map { |x| x.name.sub(/^guard-/, '') }.uniq
     end
 
     # Initializes a new `Guard::PluginUtil` object.
