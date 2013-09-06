@@ -34,8 +34,8 @@ module Guard
 
       # Default options for the growl notifications.
       DEFAULTS = {
-        :sticky   => false,
-        :priority => 0
+        sticky:   false,
+        priority: 0
       }
 
       def self.supported_hosts
@@ -75,7 +75,7 @@ module Guard
         normalize_standard_options!(opts)
         opts.delete(:type)
 
-        opts = DEFAULTS.merge(opts).merge(:name => 'Guard')
+        opts = DEFAULTS.merge(opts).merge(name: 'Guard')
 
         ::Growl.notify(message, opts)
       end

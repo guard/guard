@@ -5,7 +5,7 @@ describe Guard::Deprecator do
 
   let!(:foo_guard) do
     stub_const 'Guard::Foo', Class.new(Guard::Plugin)
-    ::Guard.setup.add_plugin(:foo, :group => :foo)
+    ::Guard.setup.add_plugin(:foo, group: :foo)
   end
 
   describe '.deprecated_options_warning' do

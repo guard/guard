@@ -153,7 +153,7 @@ module Guard
       notifier_class = _get_notifier_module(name)
 
       if notifier_class && notifier_class.available?(opts)
-        self.notifiers = notifiers << { :name => name, :options => opts }
+        self.notifiers = notifiers << { name: name, options: opts }
         true
       else
         false
@@ -202,7 +202,7 @@ module Guard
       available = nil
 
       NOTIFIERS.each do |group|
-        added = group.map { |n| n.first }.find { |notifier| add_notifier(notifier, :silent => true) }
+        added = group.map { |n| n.first }.find { |notifier| add_notifier(notifier, silent: true) }
         available ||= added
       end
 

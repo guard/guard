@@ -12,7 +12,7 @@ describe Guard::Group do
     end
 
     it "accepts options and provides an accessor for it" do
-      described_class.new('foo', :halt_on_fail => true).options.should eq({ :halt_on_fail => true })
+      described_class.new('foo', halt_on_fail: true).options.should eq({ halt_on_fail: true })
     end
   end
 

@@ -54,28 +54,28 @@ describe Guard::Notifier::GNTP do
 
       it 'shows the notification with the default options' do
         gntp.should_receive(:notify).with(
-          :sticky => false,
-          :name   => 'success',
-          :title  => 'Welcome',
-          :text   => 'Welcome to Guard',
-          :icon   => '/tmp/welcome.png'
+          sticky: false,
+          name:   'success',
+          title:  'Welcome',
+          text:   'Welcome to Guard',
+          icon:   '/tmp/welcome.png'
         )
 
-        notifier.notify('Welcome to Guard', :type => :success, :title => 'Welcome', :image => '/tmp/welcome.png')
+        notifier.notify('Welcome to Guard', type: :success, title: 'Welcome', image: '/tmp/welcome.png')
       end
     end
 
     context 'with additional options' do
       it 'can override the default options' do
         gntp.should_receive(:notify).with(
-          :sticky => true,
-          :name   => 'pending',
-          :title  => 'Waiting',
-          :text   => 'Waiting for something',
-          :icon   => '/tmp/wait.png'
+          sticky: true,
+          name:   'pending',
+          title:  'Waiting',
+          text:   'Waiting for something',
+          icon:   '/tmp/wait.png'
         )
 
-        notifier.notify('Waiting for something', :type => :pending, :title => 'Waiting', :image => '/tmp/wait.png', :sticky => true)
+        notifier.notify('Waiting for something', type: :pending, title: 'Waiting', image: '/tmp/wait.png', sticky: true)
       end
     end
   end

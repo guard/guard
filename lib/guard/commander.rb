@@ -40,7 +40,7 @@ module Guard
         ::Guard::UI.debug 'Guard stops all plugins'
         runner.run(:stop)
         ::Guard::Notifier.turn_off
-        ::Guard::UI.info 'Bye bye...', :reset => true
+        ::Guard::UI.info 'Bye bye...', reset: true
         listener.stop
         @running = false
       end
@@ -56,7 +56,7 @@ module Guard
       setup unless running
 
       within_preserved_state do
-        ::Guard::UI.clear(:force => true)
+        ::Guard::UI.clear(force: true)
         ::Guard::UI.action_with_scopes('Reload', scopes)
 
         if scopes.empty?
@@ -75,7 +75,7 @@ module Guard
       setup unless running
 
       within_preserved_state do
-        ::Guard::UI.clear(:force => true)
+        ::Guard::UI.clear(force: true)
         ::Guard::UI.action_with_scopes('Run', scopes)
         runner.run(:run_all, scopes)
       end
@@ -85,10 +85,10 @@ module Guard
     #
     def pause
       if listener.paused?
-        ::Guard::UI.info 'Un-paused files modification listening', :reset => true
+        ::Guard::UI.info 'Un-paused files modification listening', reset: true
         listener.unpause
       else
-        ::Guard::UI.info 'Paused files modification listening', :reset => true
+        ::Guard::UI.info 'Paused files modification listening', reset: true
         listener.pause
       end
     end

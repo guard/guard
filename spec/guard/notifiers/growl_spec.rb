@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Guard::Notifier::Growl do
   let(:notifier) { described_class.new }
-  let(:growl) { double('Growl', :installed? => true) }
+  let(:growl) { double('Growl', installed?: true) }
 
   before do
     described_class.stub(:require_gem_safely).and_return(true)
@@ -25,30 +25,30 @@ describe Guard::Notifier::Growl do
     context 'without additional options' do
       it 'shows the notification with the default options' do
         ::Growl.should_receive(:notify).with('Welcome to Guard',
-          :sticky   => false,
-          :priority => 0,
-          :name     => 'Guard',
-          :title    => 'Welcome',
-          :image    => '/tmp/welcome.png'
+          sticky:   false,
+          priority: 0,
+          name:     'Guard',
+          title:    'Welcome',
+          image:    '/tmp/welcome.png'
         )
 
-        notifier.notify('Welcome to Guard', :title => 'Welcome', :image => '/tmp/welcome.png')
+        notifier.notify('Welcome to Guard', title: 'Welcome', image: '/tmp/welcome.png')
       end
     end
 
     context 'with additional options' do
       it 'can override the default options' do
         ::Growl.should_receive(:notify).with('Waiting for something',
-          :sticky   => true,
-          :priority => 2,
-          :name     => 'Guard',
-          :title    => 'Waiting',
-          :image    => '/tmp/wait.png'
+          sticky:   true,
+          priority: 2,
+          name:     'Guard',
+          title:    'Waiting',
+          image:    '/tmp/wait.png'
         )
 
-        notifier.notify('Waiting for something', :type => :pending, :title => 'Waiting', :image => '/tmp/wait.png',
-          :sticky   => true,
-          :priority => 2
+        notifier.notify('Waiting for something', type: :pending, title: 'Waiting', image: '/tmp/wait.png',
+          sticky:   true,
+          priority: 2
         )
       end
     end

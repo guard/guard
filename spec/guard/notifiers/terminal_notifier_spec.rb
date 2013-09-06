@@ -5,7 +5,7 @@ describe Guard::Notifier::TerminalNotifier do
 
   before do
     described_class.stub(:require_gem_safely).and_return(true)
-    stub_const 'TerminalNotifier::Guard', double(:available? => true)
+    stub_const 'TerminalNotifier::Guard', double(available?: true)
   end
 
   describe '.supported_hosts' do
@@ -27,30 +27,30 @@ describe Guard::Notifier::TerminalNotifier do
   describe '#notify' do
     it 'should call the notifier.' do
       ::TerminalNotifier::Guard.should_receive(:execute).with(false,
-                                                              :title => 'any title',
-                                                              :type => :success,
-                                                              :message => 'any message')
+                                                              title: 'any title',
+                                                              type: :success,
+                                                              message: 'any message')
 
-      notifier.notify('any message', :title => 'any title')
+      notifier.notify('any message', title: 'any title')
     end
 
     it "should allow the title to be customized" do
       ::TerminalNotifier::Guard.should_receive(:execute).with(false,
-                                                              :title => 'any title',
-                                                              :message => 'any message',
-                                                              :type => :error)
+                                                              title: 'any title',
+                                                              message: 'any message',
+                                                              type: :error)
 
-      notifier.notify('any message', :type => :error, :title => 'any title')
+      notifier.notify('any message', type: :error, title: 'any title')
     end
 
     context 'without a title set' do
       it 'should show the app name in the title' do
         ::TerminalNotifier::Guard.should_receive(:execute).with(false,
-                                                                :title => 'FooBar Success',
-                                                                :type => :success,
-                                                                :message => 'any message')
+                                                                title: 'FooBar Success',
+                                                                type: :success,
+                                                                message: 'any message')
 
-        notifier.notify('any message', :title => nil, :app_name => 'FooBar')
+        notifier.notify('any message', title: nil, app_name: 'FooBar')
       end
     end
   end

@@ -49,7 +49,7 @@ describe Guard::CLI do
 
         it 'does not show the Bundler warning with the :no_bundler_warning flag' do
           Guard::UI.should_not_receive(:info).with(/Guard here!/)
-          subject.options = { :no_bundler_warning => true }
+          subject.options = { no_bundler_warning: true }
           subject.start
         end
       end
@@ -89,16 +89,16 @@ describe Guard::CLI do
   end
 
   describe '#init' do
-    let(:options) { { :bare => false } }
+    let(:options) { { bare: false } }
 
     before do
-      subject.stub(:options => options)
+      subject.stub(options: options)
       Guard::Guardfile.stub(:create_guardfile)
       Guard::Guardfile.stub(:initialize_all_templates)
     end
 
     it 'creates a Guardfile by delegating to Guardfile.create_guardfile' do
-      Guard::Guardfile.should_receive(:create_guardfile).with(:abort_on_existence => options[:bare])
+      Guard::Guardfile.should_receive(:create_guardfile).with(abort_on_existence: options[:bare])
 
       subject.init
     end
@@ -125,7 +125,7 @@ describe Guard::CLI do
     end
 
     context 'with the bare option' do
-      let(:options) { {:bare => true} }
+      let(:options) { {bare: true} }
 
       it 'Only creates the Guardfile and does not initialize any Guard template' do
         Guard::Guardfile.should_receive(:create_guardfile)

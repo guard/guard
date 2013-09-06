@@ -93,7 +93,7 @@ module Guard
     # @return [Class, nil] the loaded class
     #
     def plugin_class(options = {})
-      options = { :fail_gracefully => false }.merge(options)
+      options = { fail_gracefully: false }.merge(options)
 
       try_require = false
       begin

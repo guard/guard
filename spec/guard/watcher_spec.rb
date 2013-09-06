@@ -126,7 +126,7 @@ describe Guard::Watcher do
         end
 
         it "returns multiple files specified within the action" do
-          described_class.match_files(@guard_plugin_any_return, ['hash.rb']).should eq [{:foo => 'bar'}]
+          described_class.match_files(@guard_plugin_any_return, ['hash.rb']).should eq [{foo: 'bar'}]
         end
 
         it "returns multiple files by combining the results of different actions" do
@@ -203,7 +203,7 @@ describe Guard::Watcher do
         end
 
         it "returns a hash specified within the action" do
-          described_class.match_files(@guard_plugin_any_return, ['hash.rb']).should eq [{:foo => 'bar', :file_name => 'hash.rb'}]
+          described_class.match_files(@guard_plugin_any_return, ['hash.rb']).should eq [{foo: 'bar', file_name: 'hash.rb'}]
         end
 
         it "returns multiple files by combining the results of different actions" do
@@ -240,8 +240,8 @@ describe Guard::Watcher do
 
   describe ".match_files?" do
     before(:all) do
-      @guard1 = Guard::Plugin.new(:watchers => [described_class.new(/.*_spec\.rb/)])
-      @guard2 = Guard::Plugin.new(:watchers => [described_class.new('spec_helper.rb', 'spec')])
+      @guard1 = Guard::Plugin.new(watchers: [described_class.new(/.*_spec\.rb/)])
+      @guard2 = Guard::Plugin.new(watchers: [described_class.new('spec_helper.rb', 'spec')])
       @plugins = [@guard1, @guard2]
     end
 

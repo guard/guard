@@ -11,7 +11,7 @@ describe Guard::Setuper do
   end
 
   describe '.setup' do
-    let(:options) { { :my_opts => true, :guardfile => File.join(@fixture_path, "Guardfile") } }
+    let(:options) { { my_opts: true, guardfile: File.join(@fixture_path, "Guardfile") } }
     subject { Guard.setup(options) }
 
     it "returns itself for chaining" do
@@ -36,13 +36,13 @@ describe Guard::Setuper do
     end
 
     it "respect the watchdir option" do
-      Guard.setup(:watchdir => '/usr')
+      Guard.setup(watchdir: '/usr')
 
       Guard.listener.directories.should eq ['/usr']
     end
 
     it "respect the watchdir option with multiple directories" do
-      ::Guard.setup(:watchdir => ['/usr', '/bin'])
+      ::Guard.setup(watchdir: ['/usr', '/bin'])
 
       ::Guard.listener.directories.should eq ['/usr', '/bin']
     end
@@ -87,14 +87,14 @@ describe Guard::Setuper do
 
     context 'without the group or plugin option' do
       it "initializes the empty scope" do
-        subject.scope.should eq({ :groups => [], :plugins => [] })
+        subject.scope.should eq({ groups: [], plugins: [] })
       end
     end
 
     context 'with the group option' do
       let(:options) { {
-        :group              => %w[backend frontend],
-        :guardfile_contents => "group :backend do; end; group :frontend do; end; group :excluded do; end"
+        group:              %w[backend frontend],
+        guardfile_contents: "group :backend do; end; group :frontend do; end; group :excluded do; end"
       } }
 
       it 'initializes the group scope' do
@@ -108,8 +108,8 @@ describe Guard::Setuper do
     context 'with the plugin option' do
       let(:options) do
         {
-          :plugin             => ['cucumber', 'jasmine'],
-          :guardfile_contents => "guard :jasmine do; end; guard :cucumber do; end; guard :coffeescript do; end"
+          plugin:             ['cucumber', 'jasmine'],
+          guardfile_contents: "guard :jasmine do; end; guard :cucumber do; end; guard :coffeescript do; end"
         }
       end
 
@@ -128,7 +128,7 @@ describe Guard::Setuper do
     end
 
     context 'with the debug mode turned on' do
-      let(:options) { { :debug => true, :guardfile => File.join(@fixture_path, "Guardfile") } }
+      let(:options) { { debug: true, guardfile: File.join(@fixture_path, "Guardfile") } }
       subject { ::Guard.setup(options) }
 
       before do
@@ -149,7 +149,7 @@ describe Guard::Setuper do
 
   describe '.reset_groups' do
     subject do
-      guard           = Guard.setup(:guardfile => File.join(@fixture_path, "Guardfile"))
+      guard           = Guard.setup(guardfile: File.join(@fixture_path, "Guardfile"))
       @group_backend  = guard.add_group(:backend)
       @group_backflip = guard.add_group(:backflip)
       guard
@@ -167,7 +167,7 @@ describe Guard::Setuper do
   describe '.reset_plugins' do
     before { class Guard::FooBar < Guard::Plugin; end }
     subject do
-      ::Guard.setup(:guardfile => File.join(@fixture_path, "Guardfile")).tap { |g| g.add_plugin(:foo_bar) }
+      ::Guard.setup(guardfile: File.join(@fixture_path, "Guardfile")).tap { |g| g.add_plugin(:foo_bar) }
     end
     after do
       ::Guard.instance_eval { remove_const(:FooBar) }
@@ -191,7 +191,7 @@ describe Guard::Setuper do
     end
   end
 
-  describe '._setup_signal_traps', :speed => 'slow' do
+  describe '._setup_signal_traps', speed: 'slow' do
     before { ::Guard.stub(:evaluate_guardfile) }
 
     unless windows? || defined?(JRUBY_VERSION)
@@ -251,7 +251,7 @@ describe Guard::Setuper do
         end
 
         context 'with an interactor' do
-          let(:interactor) { double('interactor', :thread => double('thread')) }
+          let(:interactor) { double('interactor', thread: double('thread')) }
           before { allow(Guard).to receive(:interactor).and_return(interactor) }
 
           it 'delegates to the Pry thread' do
@@ -270,7 +270,7 @@ describe Guard::Setuper do
         it "turns on the notifier on" do
           ::Guard::Notifier.should_receive(:turn_on)
 
-          ::Guard.setup(:notify => true)
+          ::Guard.setup(notify: true)
         end
       end
 
@@ -280,7 +280,7 @@ describe Guard::Setuper do
         it "turns on the notifier on" do
           ::Guard::Notifier.should_receive(:turn_on)
 
-          ::Guard.setup(:notify => true)
+          ::Guard.setup(notify: true)
         end
       end
 
@@ -290,7 +290,7 @@ describe Guard::Setuper do
         it "turns on the notifier off" do
           ::Guard::Notifier.should_receive(:turn_off)
 
-          ::Guard.setup(:notify => true)
+          ::Guard.setup(notify: true)
         end
       end
     end
@@ -302,7 +302,7 @@ describe Guard::Setuper do
         it "turns on the notifier off" do
           ::Guard::Notifier.should_receive(:turn_off)
 
-          ::Guard.setup(:notify => false)
+          ::Guard.setup(notify: false)
         end
       end
 
@@ -312,7 +312,7 @@ describe Guard::Setuper do
         it "turns on the notifier on" do
           ::Guard::Notifier.should_receive(:turn_off)
 
-          ::Guard.setup(:notify => false)
+          ::Guard.setup(notify: false)
         end
       end
 
@@ -322,7 +322,7 @@ describe Guard::Setuper do
         it "turns on the notifier off" do
           ::Guard::Notifier.should_receive(:turn_off)
 
-          ::Guard.setup(:notify => false)
+          ::Guard.setup(notify: false)
         end
       end
     end
@@ -335,7 +335,7 @@ describe Guard::Setuper do
       before { ::Guard.stub(:options).and_return(Guard::Options.new(latency: 1.5)) }
 
       it "pass option to listener" do
-        Listen.should_receive(:to).with(anything, { :latency => 1.5 }) { listener }
+        Listen.should_receive(:to).with(anything, { latency: 1.5 }) { listener }
 
         ::Guard.send :_setup_listener
       end
@@ -345,7 +345,7 @@ describe Guard::Setuper do
       before { ::Guard.stub(:options).and_return(Guard::Options.new(force_polling: true)) }
 
       it "pass option to listener" do
-        Listen.should_receive(:to).with(anything, { :force_polling => true }) { listener }
+        Listen.should_receive(:to).with(anything, { force_polling: true }) { listener }
 
         ::Guard.send :_setup_listener
       end
@@ -408,13 +408,13 @@ describe Guard::Setuper do
       after { Guard::Interactor.enabled = @enabled }
 
       context 'with interactions enabled' do
-        before { Guard.setup(:no_interactions => false) }
+        before { Guard.setup(no_interactions: false) }
 
         it_should_behave_like 'interactor enabled'
       end
 
       context "with interactions disabled" do
-        before { Guard.setup(:no_interactions => true) }
+        before { Guard.setup(no_interactions: true) }
 
         it_should_behave_like 'interactor disabled'
       end

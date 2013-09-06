@@ -30,7 +30,7 @@ describe Guard::Notifier::NotifySend do
           arguments.should include '-h', 'int:transient:1'
         end
 
-        notifier.notify('Welcome to Guard', :type => 'success', :title => 'Welcome', :image => '/tmp/welcome.png')
+        notifier.notify('Welcome to Guard', type: 'success', title: 'Welcome', image: '/tmp/welcome.png')
       end
     end
 
@@ -43,9 +43,9 @@ describe Guard::Notifier::NotifySend do
           arguments.should include '-t', '5'
         end
 
-        notifier.notify('Waiting for something', :type => :pending, :title => 'Waiting', :image => '/tmp/wait.png',
-          :t => 5,
-          :u => :critical
+        notifier.notify('Waiting for something', type: :pending, title: 'Waiting', image: '/tmp/wait.png',
+          t: 5,
+          u: :critical
         )
       end
     end

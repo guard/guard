@@ -24,12 +24,12 @@ module Guard
 
       # Default options for the rb-notifu notifications.
       DEFAULTS = {
-        :time    => 3,
-        :icon    => false,
-        :baloon  => false,
-        :nosound => false,
-        :noquiet => false,
-        :xp      => false
+        time:    3,
+        icon:    false,
+        baloon:  false,
+        nosound: false,
+        noquiet: false,
+        xp:      false
       }
 
       def self.supported_hosts
@@ -71,8 +71,8 @@ module Guard
         normalize_standard_options!(opts)
 
         opts = DEFAULTS.merge(
-          :type    => _notifu_type(opts.delete(:type)),
-          :message => message
+          type:    _notifu_type(opts.delete(:type)),
+          message: message
         ).merge(opts)
 
         # The empty block is needed until https://github.com/stereobooster/rb-notifu/pull/1 is merged

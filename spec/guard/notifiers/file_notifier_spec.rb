@@ -5,7 +5,7 @@ describe Guard::Notifier::FileNotifier do
 
   describe '.available?' do
     it 'is true if there is a file in options' do
-      described_class.should be_available(:path => '.guard_result')
+      described_class.should be_available(path: '.guard_result')
     end
 
     it 'is false if there is no path in options' do
@@ -17,13 +17,13 @@ describe Guard::Notifier::FileNotifier do
     it 'writes to a file on success' do
       File.should_receive(:write).with('tmp/guard_result', "success\nany title\nany message\n")
 
-      notifier.notify('any message', :title => 'any title', :path => 'tmp/guard_result')
+      notifier.notify('any message', title: 'any title', path: 'tmp/guard_result')
     end
 
     it 'also writes to a file on failure' do
       File.should_receive(:write).with('tmp/guard_result', "failed\nany title\nany message\n")
 
-      notifier.notify('any message',:type => :failed, :title => 'any title', :path => 'tmp/guard_result')
+      notifier.notify('any message',type: :failed, title: 'any title', path: 'tmp/guard_result')
     end
 
     # We don't have a way to return false in .available? when no path is

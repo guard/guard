@@ -1,8 +1,8 @@
 require 'spec_helper'
 
 describe Guard::Notifier::Base do
-  let(:gntp)  { double('GNTP notifier', :name => 'gntp', :title => 'GNTP', :options => {}) }
-  let(:growl) { double('Growl notifier', :name => 'growl', :title => 'Growl', :options => {}) }
+  let(:gntp)  { double('GNTP notifier', name: 'gntp', title: 'GNTP', options: {}) }
+  let(:growl) { double('Growl notifier', name: 'growl', title: 'Growl', options: {}) }
 
   class Guard::Notifier::FooBar < described_class
     def self.supported_hosts
@@ -60,7 +60,7 @@ describe Guard::Notifier::Base do
     end
 
     context ':title given' do
-      let(:opts) { { :title => 'Hi' } }
+      let(:opts) { { title: 'Hi' } }
 
       it 'returns the passed :title' do
         described_class.new.normalize_standard_options!(opts)
@@ -70,7 +70,7 @@ describe Guard::Notifier::Base do
     end
 
     context ':type given' do
-      let(:opts) { { :type => :foo } }
+      let(:opts) { { type: :foo } }
 
       it 'returns the passed :type' do
         described_class.new.normalize_standard_options!(opts)
@@ -80,7 +80,7 @@ describe Guard::Notifier::Base do
     end
 
     context ':image => :failed given' do
-      let(:opts) { { :image => :failed } }
+      let(:opts) { { image: :failed } }
 
       it 'sets the "failed" type for a :failed image' do
         described_class.new.normalize_standard_options!(opts)
@@ -90,7 +90,7 @@ describe Guard::Notifier::Base do
     end
 
     context ':image => :pending given' do
-      let(:opts) { { :image => :pending } }
+      let(:opts) { { image: :pending } }
 
       it 'sets the "pending" type for a :pending image' do
         described_class.new.normalize_standard_options!(opts)
@@ -100,7 +100,7 @@ describe Guard::Notifier::Base do
     end
 
     context ':image => :success given' do
-      let(:opts) { { :image => :success } }
+      let(:opts) { { image: :success } }
 
       it 'sets the "success" type for a :success image' do
         described_class.new.normalize_standard_options!(opts)
@@ -110,7 +110,7 @@ describe Guard::Notifier::Base do
     end
 
     context ':image => "foo.png" given' do
-      let(:opts) { { :image => 'foo.png' } }
+      let(:opts) { { image: 'foo.png' } }
 
       it 'sets the "success" type for a :success image' do
         described_class.new.normalize_standard_options!(opts)
@@ -153,7 +153,7 @@ describe Guard::Notifier::Base do
           ::Guard::UI.should_not_receive(:error).with "Please add \"gem 'growl_notify'\" to your Gemfile and run Guard with \"bundle exec\"."
           Guard::Notifier::FooBar.should_receive(:require).with('foo_bar').and_raise LoadError
 
-          Guard::Notifier::FooBar.require_gem_safely(:silent => true).should be_false
+          Guard::Notifier::FooBar.require_gem_safely(silent: true).should be_false
         end
       end
     end

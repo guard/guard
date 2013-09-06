@@ -12,10 +12,10 @@ describe Guard::Guardfile do
     end
 
     it 'delegates to Guard::Guardfile::Generator' do
-      described_class::Generator.should_receive(:new).with(:foo => 'bar') { guardfile_generator }
+      described_class::Generator.should_receive(:new).with(foo: 'bar') { guardfile_generator }
       guardfile_generator.should_receive(:create_guardfile)
 
-      described_class.create_guardfile(:foo => 'bar')
+      described_class.create_guardfile(foo: 'bar')
     end
   end
 

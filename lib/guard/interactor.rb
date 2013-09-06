@@ -24,16 +24,16 @@ module Guard
 
     # List of shortcuts for each interactor command
     SHORTCUTS = {
-      :help         => 'h',
-      :all          => 'a',
-      :reload       => 'r',
-      :change       => 'c',
-      :show         => 's',
-      :scope        => 'o',
-      :notification => 'n',
-      :pause        => 'p',
-      :exit         => 'e',
-      :quit         => 'q'
+      help:         'h',
+      all:          'a',
+      reload:       'r',
+      change:       'c',
+      show:         's',
+      scope:        'o',
+      notification: 'n',
+      pause:        'p',
+      exit:         'e',
+      quit:         'q'
     }
 
     attr_accessor :thread
@@ -79,7 +79,7 @@ module Guard
     # @return [Hash, Array<String>] the plugin or group scope, the unknown entries
     #
     def self.convert_scope(entries)
-      scopes  = { :plugins => [], :groups => [] }
+      scopes  = { plugins: [], groups: [] }
       unknown = []
 
       entries.each do |entry|

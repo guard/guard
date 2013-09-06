@@ -11,11 +11,11 @@ module Guard
     class Emacs < Base
 
       DEFAULTS = {
-        :client    => 'emacsclient',
-        :success   => 'ForestGreen',
-        :failed    => 'Firebrick',
-        :default   => 'Black',
-        :fontcolor => 'White',
+        client:    'emacsclient',
+        success:   'ForestGreen',
+        failed:    'Firebrick',
+        default:   'Black',
+        fontcolor: 'White',
       }
 
       def self.available?(opts = {})

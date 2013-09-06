@@ -29,7 +29,7 @@ describe Guard::Notifier::Tmux do
 
       context 'with the silent option' do
         it 'returns false' do
-          described_class.should_not be_available(:silent => true)
+          described_class.should_not be_available(silent: true)
         end
       end
     end
@@ -39,48 +39,48 @@ describe Guard::Notifier::Tmux do
     it 'should set the tmux status bar color to green on success' do
       notifier.should_receive(:system).with 'tmux set status-left-bg green'
 
-      notifier.notify('any message', :type => :success)
+      notifier.notify('any message', type: :success)
     end
 
     it 'should set the tmux status bar color to black on success when black is passed in as an option' do
       notifier.should_receive(:system).with "tmux set status-left-bg black"
 
-      notifier.notify('any message', :type => :success, :success => 'black')
+      notifier.notify('any message', type: :success, success: 'black')
     end
 
     it 'should set the tmux status bar color to red on failure' do
       notifier.should_receive(:system).with 'tmux set status-left-bg red'
 
-      notifier.notify('any message', :type => :failed)
+      notifier.notify('any message', type: :failed)
     end
 
     it 'should set the tmux status bar color to yellow on pending' do
       notifier.should_receive(:system).with 'tmux set status-left-bg yellow'
 
-      notifier.notify('any message', :type => :pending)
+      notifier.notify('any message', type: :pending)
     end
 
     it 'should set the tmux status bar color to green on notify' do
       notifier.should_receive(:system).with 'tmux set status-left-bg green'
 
-      notifier.notify('any message', :type => :notify)
+      notifier.notify('any message', type: :notify)
     end
 
     it 'should set the right tmux status bar color on success when the right status bar is passed in as an option' do
       notifier.should_receive(:system).with 'tmux set status-right-bg green'
 
-      notifier.notify('any message', :color_location => 'status-right-bg')
+      notifier.notify('any message', color_location: 'status-right-bg')
     end
 
     it 'calls display_message if the display_message flag is set' do
-      notifier.stub :system => true
-      notifier.should_receive(:display_message).with('notify', 'Guard', 'any message', :display_message => true)
+      notifier.stub system: true
+      notifier.should_receive(:display_message).with('notify', 'Guard', 'any message', display_message: true)
 
-      notifier.notify('any message', :type => :notify, :display_message => true)
+      notifier.notify('any message', type: :notify, display_message: true)
     end
 
     it 'does not call display message if the display_message flag is not set' do
-      notifier.stub :system => true
+      notifier.stub system: true
       notifier.should_receive(:display_message).never
 
       notifier.notify('any message')
@@ -89,13 +89,13 @@ describe Guard::Notifier::Tmux do
 
   describe '#display_message' do
     before do
-      notifier.stub :system => true
+      notifier.stub system: true
     end
 
     it 'sets the display-time' do
       notifier.should_receive(:system).with('tmux set display-time 3000')
 
-      notifier.display_message 'success', 'any title', 'any message', :timeout => 3
+      notifier.display_message 'success', 'any title', 'any message', timeout: 3
     end
 
     it 'displays the message' do
@@ -107,26 +107,26 @@ describe Guard::Notifier::Tmux do
     it 'handles line-breaks' do
       notifier.should_receive(:system).with('tmux display-message \'any title - any message xx line two\'').once
 
-      notifier.display_message 'success', 'any title', "any message\nline two", :line_separator => ' xx '
+      notifier.display_message 'success', 'any title', "any message\nline two", line_separator: ' xx '
     end
 
     context 'with success message type options' do
       it 'formats the message' do
         notifier.should_receive(:system).with('tmux display-message \'[any title] => any message - line two\'').once
 
-        notifier.display_message 'success', 'any title', "any message\nline two", :success_message_format => '[%s] => %s', :default_message_format => '(%s) -> %s'
+        notifier.display_message 'success', 'any title', "any message\nline two", success_message_format: '[%s] => %s', default_message_format: '(%s) -> %s'
       end
 
       it 'sets the foreground color based on the type for success' do
         notifier.should_receive(:system).with('tmux set message-fg green')
 
-        notifier.display_message 'success', 'any title', 'any message', { :success_message_color => 'green' }
+        notifier.display_message 'success', 'any title', 'any message', { success_message_color: 'green' }
       end
 
       it 'sets the background color' do
         notifier.should_receive(:system).with('tmux set message-bg blue')
 
-        notifier.display_message 'success', 'any title', 'any message', { :success => :blue }
+        notifier.display_message 'success', 'any title', 'any message', { success: :blue }
       end
     end
 
@@ -134,19 +134,19 @@ describe Guard::Notifier::Tmux do
       it 'formats the message' do
         notifier.should_receive(:system).with('tmux display-message \'[any title] === any message - line two\'').once
 
-        notifier.display_message 'pending', 'any title', "any message\nline two", :pending_message_format => '[%s] === %s', :default_message_format => '(%s) -> %s'
+        notifier.display_message 'pending', 'any title', "any message\nline two", pending_message_format: '[%s] === %s', default_message_format: '(%s) -> %s'
       end
 
       it 'sets the foreground color' do
         notifier.should_receive(:system).with('tmux set message-fg blue')
 
-        notifier.display_message 'pending', 'any title', 'any message', :pending_message_color => 'blue'
+        notifier.display_message 'pending', 'any title', 'any message', pending_message_color: 'blue'
       end
 
       it 'sets the background color' do
         notifier.should_receive(:system).with('tmux set message-bg white')
 
-        notifier.display_message 'pending', 'any title', 'any message', :pending => :white
+        notifier.display_message 'pending', 'any title', 'any message', pending: :white
       end
     end
 
@@ -154,17 +154,17 @@ describe Guard::Notifier::Tmux do
       it 'formats the message' do
         notifier.should_receive(:system).with('tmux display-message \'[any title] <=> any message - line two\'').once
 
-        notifier.display_message 'failed', 'any title', "any message\nline two", :failed_message_format => '[%s] <=> %s', :default_message_format => '(%s) -> %s'
+        notifier.display_message 'failed', 'any title', "any message\nline two", failed_message_format: '[%s] <=> %s', default_message_format: '(%s) -> %s'
       end
 
       it 'sets the foreground color' do
         notifier.should_receive(:system).with('tmux set message-fg red')
-        notifier.display_message 'failed', 'any title', 'any message', :failed_message_color => 'red'
+        notifier.display_message 'failed', 'any title', 'any message', failed_message_color: 'red'
       end
 
       it 'sets the background color' do
         notifier.should_receive(:system).with('tmux set message-bg black')
-        notifier.display_message 'failed', 'any title', 'any message', :failed => :black
+        notifier.display_message 'failed', 'any title', 'any message', failed: :black
       end
     end
 
@@ -173,7 +173,7 @@ describe Guard::Notifier::Tmux do
   describe '.turn_on' do
     before do
       notifier.stub(:`).and_return("option1 setting1\noption2 setting2\n")
-      notifier.stub :system => true
+      notifier.stub system: true
     end
 
     it 'quiets the tmux output' do
@@ -222,7 +222,7 @@ describe Guard::Notifier::Tmux do
   describe '.turn_off' do
     before do
       notifier.stub(:`).and_return("option1 setting1\noption2 setting2\n")
-      notifier.stub :system => true
+      notifier.stub system: true
     end
 
     context 'when on' do

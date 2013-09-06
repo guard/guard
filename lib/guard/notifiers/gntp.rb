@@ -30,14 +30,14 @@ module Guard
 
       # Default options for the ruby gtnp notifications.
       DEFAULTS = {
-        :sticky => false
+        sticky: false
       }
 
       # Default options for the ruby gtnp client.
       CLIENT_DEFAULTS = {
-        :host     => '127.0.0.1',
-        :password => '',
-        :port     => 23053
+        host:     '127.0.0.1',
+        password: '',
+        port:     23053
       }
 
       def self.supported_hosts
@@ -73,9 +73,9 @@ module Guard
         normalize_standard_options!(opts)
 
         opts = DEFAULTS.merge(
-          :name  => opts.delete(:type).to_s,
-          :text  => message,
-          :icon  => opts.delete(:image)
+          name: opts.delete(:type).to_s,
+          text: message,
+          icon: opts.delete(:image)
         ).merge(opts)
 
         _client(opts).notify(opts)
@@ -85,12 +85,12 @@ module Guard
 
       def _register!(gntp_client)
         gntp_client.register(
-          :app_icon => images_path.join('guard.png').to_s,
-          :notifications => [
-            { :name => 'notify', :enabled => true },
-            { :name => 'failed', :enabled => true },
-            { :name => 'pending', :enabled => true },
-            { :name => 'success', :enabled => true }
+          app_icon: images_path.join('guard.png').to_s,
+          notifications: [
+            { name: 'notify', enabled: true },
+            { name: 'failed', enabled: true },
+            { name: 'pending', enabled: true },
+            { name: 'success', enabled: true }
           ]
         )
       end

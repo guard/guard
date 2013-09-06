@@ -10,13 +10,13 @@ describe Guard::Guard do
     end
 
     it 'assigns the defined options' do
-      options = { :a => 1, :b => 2 }
+      options = { a: 1, b: 2 }
       Guard::Guard.new([], options).options.should eq options
     end
 
     context 'with a group in the options' do
       it 'assigns the given group' do
-        Guard::Guard.new([], :group => :test).group.should eq Guard.groups(:test)
+        Guard::Guard.new([], group: :test).group.should eq Guard.groups(:test)
       end
     end
 

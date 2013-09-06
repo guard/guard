@@ -17,9 +17,9 @@ describe Guard::DeprecatedMethods do
     end
 
     it 'delegates to Guard.plugins' do
-      TestModule.should_receive(:plugins).with(:group => 'backend')
+      TestModule.should_receive(:plugins).with(group: 'backend')
 
-      TestModule.guards(:group => 'backend')
+      TestModule.guards(group: 'backend')
     end
   end
 
@@ -33,9 +33,9 @@ describe Guard::DeprecatedMethods do
     end
 
     it 'delegates to Guard.plugins' do
-      TestModule.should_receive(:add_plugin).with('rspec', :group => 'backend')
+      TestModule.should_receive(:add_plugin).with('rspec', group: 'backend')
 
-      TestModule.add_guard('rspec', :group => 'backend')
+      TestModule.add_guard('rspec', group: 'backend')
     end
   end
 
@@ -51,7 +51,7 @@ describe Guard::DeprecatedMethods do
 
     it 'delegates to Guard::PluginUtil' do
       ::Guard::PluginUtil.should_receive(:new).with('rspec') { plugin_util }
-      plugin_util.should_receive(:plugin_class).with(:fail_gracefully => false)
+      plugin_util.should_receive(:plugin_class).with(fail_gracefully: false)
 
       TestModule.get_guard_class('rspec')
     end
@@ -59,7 +59,7 @@ describe Guard::DeprecatedMethods do
     describe ':fail_gracefully' do
       it 'pass it to get_guard_class' do
         ::Guard::PluginUtil.should_receive(:new).with('rspec') { plugin_util }
-        plugin_util.should_receive(:plugin_class).with(:fail_gracefully => true)
+        plugin_util.should_receive(:plugin_class).with(fail_gracefully: true)
 
         TestModule.get_guard_class('rspec', true)
       end

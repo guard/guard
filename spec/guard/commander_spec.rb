@@ -5,8 +5,8 @@ describe Guard::Commander do
   describe '.start' do
     before do
       ::Guard.stub(:setup)
-      ::Guard.stub(:listener => double('listener', :start => true))
-      ::Guard.stub(:runner => double('runner', :run => true))
+      ::Guard.stub(listener: double('listener', start: true))
+      ::Guard.stub(runner: double('runner', run: true))
       ::Guard.stub(:within_preserved_state).and_yield
     end
 
@@ -14,9 +14,9 @@ describe Guard::Commander do
       before { ::Guard.stub(:running) { false } }
 
       it "setup Guard" do
-        ::Guard.should_receive(:setup).with(:foo => 'bar')
+        ::Guard.should_receive(:setup).with(foo: 'bar')
 
-        ::Guard.start(:foo => 'bar')
+        ::Guard.start(foo: 'bar')
       end
     end
 
@@ -43,8 +43,8 @@ describe Guard::Commander do
   describe '.stop' do
     before do
       ::Guard.stub(:setup)
-      ::Guard.stub(:listener => double('listener', :stop => true))
-      ::Guard.stub(:runner => double('runner', :run => true))
+      ::Guard.stub(listener: double('listener', stop: true))
+      ::Guard.stub(runner: double('runner', run: true))
       ::Guard.stub(:within_preserved_state).and_yield
     end
 
@@ -84,7 +84,7 @@ describe Guard::Commander do
   end
 
   describe '.reload' do
-    let(:runner) { double(:run => true) }
+    let(:runner) { double(run: true) }
     let(:group) { ::Guard::Group.new('frontend') }
     subject { ::Guard.setup }
 
@@ -115,13 +115,13 @@ describe Guard::Commander do
       it 'does not re-evaluate the Guardfile' do
         Guard::Guardfile::Evaluator.any_instance.should_not_receive(:reevaluate_guardfile)
 
-        subject.reload({ :groups => [group] })
+        subject.reload({ groups: [group] })
       end
 
       it 'reloads Guard' do
-        runner.should_receive(:run).with(:reload, { :groups => [group] })
+        runner.should_receive(:run).with(:reload, { groups: [group] })
 
-        subject.reload({ :groups => [group] })
+        subject.reload({ groups: [group] })
       end
     end
 

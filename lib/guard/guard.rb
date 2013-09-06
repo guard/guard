@@ -34,7 +34,7 @@ module Guard
     def initialize(watchers = [], options = {})
       ::Guard::UI.deprecation(::Guard::Deprecator::GUARD_GUARD_DEPRECATION % self.to_s)
 
-      _set_instance_variables_from_options(options.merge(:watchers => watchers))
+      _set_instance_variables_from_options(options.merge(watchers: watchers))
       _register_callbacks
     end
 

@@ -17,7 +17,7 @@ describe Guard::Notifier::TerminalTitle do
     it 'set title + first line of message to terminal title' do
       notifier.should_receive(:puts).with("\e]2;[any title] first line\a")
 
-      notifier.notify("first line\nsecond line\nthird", :title => 'any title')
+      notifier.notify("first line\nsecond line\nthird", title: 'any title')
     end
   end
 

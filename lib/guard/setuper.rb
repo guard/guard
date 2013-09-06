@@ -52,7 +52,7 @@ module Guard
        @watchdirs = Array(options.watchdir).map { |dir| File.expand_path dir }
      end
 
-      ::Guard::UI.clear(:force => true)
+      ::Guard::UI.clear(force: true)
       _setup_debug if options.debug
       _setup_listener
       _setup_signal_traps

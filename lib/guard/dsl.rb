@@ -71,7 +71,7 @@ module Guard
     # @see Guard::Notifier for available notifier and its options.
     #
     def notification(notifier, options = {})
-      ::Guard::Notifier.add_notifier(notifier.to_sym, options.merge(:silent => false))
+      ::Guard::Notifier.add_notifier(notifier.to_sym, options.merge(silent: false))
     end
 
     # Sets the interactor options or disable the interactor.
@@ -163,7 +163,7 @@ module Guard
 
       yield if block_given?
 
-      options.merge!(:group => @current_group, :watchers => @watchers, :callbacks => @callbacks)
+      options.merge!(group: @current_group, watchers: @watchers, callbacks: @callbacks)
       ::Guard.add_plugin(name, options)
     end
 
@@ -213,7 +213,7 @@ module Guard
       else
         [block, args[0]]
       end
-      @callbacks << { :events => events, :listener => block }
+      @callbacks << { events: events, listener: block }
     end
 
     # @deprecated Use `ignore` or `ignore!` instead.

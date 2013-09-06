@@ -54,7 +54,7 @@ module Guard
       _evaluate_guardfile
 
       rows = ::Guard.groups.inject([]) do |rows, group|
-        Array(::Guard.plugins(:group => group.name)).each do |plugin|
+        Array(::Guard.plugins(group: group.name)).each do |plugin|
           options = plugin.options.inject({}) { |o, (k, v)| o[k.to_s] = v; o }.sort
 
           if options.empty?

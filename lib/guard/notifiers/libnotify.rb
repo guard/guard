@@ -25,9 +25,9 @@ module Guard
 
       # Default options for the libnotify notifications.
       DEFAULTS = {
-        :transient => false,
-        :append    => true,
-        :timeout   => 3
+        transient: false,
+        append:    true,
+        timeout:   3
       }
 
       def self.supported_hosts
@@ -58,10 +58,10 @@ module Guard
         normalize_standard_options!(opts)
 
         opts = DEFAULTS.merge(
-          :summary   => opts.delete(:title),
-          :icon_path => opts.delete(:image),
-          :body      => message,
-          :urgency   => _libnotify_urgency(opts.delete(:type))
+          summary:   opts.delete(:title),
+          icon_path: opts.delete(:image),
+          body:      message,
+          urgency:   _libnotify_urgency(opts.delete(:type))
         ).merge(opts)
 
         ::Libnotify.show(opts)

@@ -193,11 +193,11 @@ module Guard
         ::Guard::Notifier.turn_on if ::Guard::Notifier.enabled?
 
         if ::Guard.plugins.empty?
-          ::Guard::Notifier.notify('No plugins found in Guardfile, please add at least one.', :title => 'Guard re-evaluate', :image => :failed)
+          ::Guard::Notifier.notify('No plugins found in Guardfile, please add at least one.', title: 'Guard re-evaluate', image: :failed)
         else
           msg = 'Guardfile has been re-evaluated.'
           ::Guard::UI.info(msg)
-          ::Guard::Notifier.notify(msg, :title => 'Guard re-evaluate')
+          ::Guard::Notifier.notify(msg, title: 'Guard re-evaluate')
 
           ::Guard.runner.run(:start)
         end

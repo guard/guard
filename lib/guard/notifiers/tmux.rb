@@ -19,18 +19,18 @@ module Guard
 
       # Default options for the tmux notifications.
       DEFAULTS = {
-        :client                 => 'tmux',
-        :tmux_environment       => 'TMUX',
-        :success                => 'green',
-        :failed                 => 'red',
-        :pending                => 'yellow',
-        :default                => 'green',
-        :timeout                => 5,
-        :display_message        => false,
-        :default_message_format => '%s - %s',
-        :default_message_color  => 'white',
-        :line_separator         => ' - ',
-        :color_location         => 'status-left-bg'
+        client:                 'tmux',
+        tmux_environment:       'TMUX',
+        success:                'green',
+        failed:                 'red',
+        pending:                'yellow',
+        default:                'green',
+        timeout:                5,
+        display_message:        false,
+        default_message_format: '%s - %s',
+        default_message_color:  'white',
+        line_separator:         ' - ',
+        color_location:         'status-left-bg'
       }
 
       def self.available?(opts = {})

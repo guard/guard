@@ -57,7 +57,7 @@ module Guard
         opts.delete(:image)
         opts[:title] = title || [opts.delete(:app_name) { 'Guard' }, opts[:type].downcase.capitalize].join(' ')
 
-        ::TerminalNotifier::Guard.execute(false, opts.merge(:message => message))
+        ::TerminalNotifier::Guard.execute(false, opts.merge(message: message))
       end
 
       # @private

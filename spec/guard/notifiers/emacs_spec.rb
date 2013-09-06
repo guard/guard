@@ -22,7 +22,7 @@ describe Guard::Notifier::Emacs do
           command.should include(%{(set-face-attribute 'mode-line nil :background "Orange" :foreground "White")})
         end
 
-        notifier.notify('any message', :success => 'Orange')
+        notifier.notify('any message', success: 'Orange')
       end
     end
 
@@ -33,7 +33,7 @@ describe Guard::Notifier::Emacs do
           command.should include(%{(set-face-attribute 'mode-line nil :background "Yellow" :foreground "White")})
         end
 
-        notifier.notify('any message', :type => :pending, :pending => 'Yellow')
+        notifier.notify('any message', type: :pending, pending: 'Yellow')
       end
     end
   end

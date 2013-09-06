@@ -9,15 +9,15 @@ module Guard
     class Base
 
       HOSTS = {
-        :darwin  => 'Mac OS X',
-        :linux   => 'Linux',
-        :freebsd => 'FreeBSD',
-        :openbsd => 'OpenBSD',
-        :sunos   => 'SunOS',
-        :solaris => 'Solaris',
-        :mswin   => 'Windows',
-        :mingw   => 'Windows',
-        :cygwin  => 'Windows'
+        darwin:  'Mac OS X',
+        linux:   'Linux',
+        freebsd: 'FreeBSD',
+        openbsd: 'OpenBSD',
+        sunos:   'SunOS',
+        solaris: 'Solaris',
+        mswin:   'Windows',
+        mingw:   'Windows',
+        cygwin:  'Windows'
       }
 
       attr_reader :options
@@ -43,7 +43,7 @@ module Guard
       # @return [Boolean] the availability status
       #
       def self.available?(opts = {})
-        options = { :silent => false }.merge(opts)
+        options = { silent: false }.merge(opts)
 
         unless _supported_host?
           hosts = supported_hosts.map { |host| HOSTS[host.to_sym] }.join(', ')

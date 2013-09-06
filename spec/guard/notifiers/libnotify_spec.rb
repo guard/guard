@@ -24,36 +24,36 @@ describe Guard::Notifier::Libnotify do
     context 'without additional options' do
       it 'shows the notification with the default options' do
         ::Libnotify.should_receive(:show).with(
-          :transient => false,
-          :append    => true,
-          :timeout   => 3,
-          :urgency   => :low,
-          :summary   => 'Welcome',
-          :body      => 'Welcome to Guard',
-          :icon_path => '/tmp/welcome.png'
+          transient: false,
+          append:    true,
+          timeout:   3,
+          urgency:   :low,
+          summary:   'Welcome',
+          body:      'Welcome to Guard',
+          icon_path: '/tmp/welcome.png'
         )
 
-        notifier.notify('Welcome to Guard', :title => 'Welcome', :image => '/tmp/welcome.png')
+        notifier.notify('Welcome to Guard', title: 'Welcome', image: '/tmp/welcome.png')
       end
     end
 
     context 'with additional options' do
       it 'can override the default options' do
         ::Libnotify.should_receive(:show).with(
-          :transient => true,
-          :append    => false,
-          :timeout   => 5,
-          :urgency   => :critical,
-          :summary   => 'Waiting',
-          :body      => 'Waiting for something',
-          :icon_path => '/tmp/wait.png'
+          transient: true,
+          append:    false,
+          timeout:   5,
+          urgency:   :critical,
+          summary:   'Waiting',
+          body:      'Waiting for something',
+          icon_path: '/tmp/wait.png'
         )
 
-        notifier.notify('Waiting for something', :type => :pending, :title => 'Waiting', :image => '/tmp/wait.png',
-          :transient => true,
-          :append    => false,
-          :timeout   => 5,
-          :urgency   => :critical
+        notifier.notify('Waiting for something', type: :pending, title: 'Waiting', image: '/tmp/wait.png',
+          transient: true,
+          append:    false,
+          timeout:   5,
+          urgency:   :critical
         )
       end
     end

@@ -11,7 +11,7 @@ module Guard
     class FileNotifier < Base
 
       DEFAULTS = {
-        :format => "%s\n%s\n%s\n"
+        format: "%s\n%s\n%s\n"
       }
 
       # @param [Hash] opts some options

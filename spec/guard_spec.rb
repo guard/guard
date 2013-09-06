@@ -6,10 +6,10 @@ describe Guard do
     before do
       stub_const 'Guard::FooBar', Class.new(Guard::Plugin)
       stub_const 'Guard::FooBaz', Class.new(Guard::Plugin)
-      @guard_foo_bar_backend = described_class.add_plugin('foo_bar', :group => 'backend')
-      @guard_foo_baz_backend = described_class.add_plugin('foo_baz', :group => 'backend')
-      @guard_foo_bar_frontend = described_class.add_plugin('foo_bar', :group => 'frontend')
-      @guard_foo_baz_frontend = described_class.add_plugin('foo_baz', :group => 'frontend')
+      @guard_foo_bar_backend = described_class.add_plugin('foo_bar', group: 'backend')
+      @guard_foo_baz_backend = described_class.add_plugin('foo_baz', group: 'backend')
+      @guard_foo_bar_frontend = described_class.add_plugin('foo_bar', group: 'frontend')
+      @guard_foo_baz_frontend = described_class.add_plugin('foo_baz', group: 'frontend')
     end
 
     it "return @plugins without any argument" do
@@ -42,29 +42,29 @@ describe Guard do
 
     context "find plugins by their group" do
       it "group name is a string" do
-        described_class.plugins(:group => 'backend').should eq [@guard_foo_bar_backend, @guard_foo_baz_backend]
+        described_class.plugins(group: 'backend').should eq [@guard_foo_bar_backend, @guard_foo_baz_backend]
       end
 
       it "group name is a symbol" do
-        described_class.plugins(:group => :frontend).should eq [@guard_foo_bar_frontend, @guard_foo_baz_frontend]
+        described_class.plugins(group: :frontend).should eq [@guard_foo_bar_frontend, @guard_foo_baz_frontend]
       end
 
       it "returns nil if guard is not found" do
-        described_class.plugins(:group => :unknown).should eq nil
+        described_class.plugins(group: :unknown).should eq nil
       end
     end
 
     context "find plugins by their group & name" do
       it "group name is a string" do
-        described_class.plugins(:group => 'backend', :name => 'foo-bar').should eq @guard_foo_bar_backend
+        described_class.plugins(group: 'backend', name: 'foo-bar').should eq @guard_foo_bar_backend
       end
 
       it "group name is a symbol" do
-        described_class.plugins(:group => :frontend, :name => :'foo-baz').should eq @guard_foo_baz_frontend
+        described_class.plugins(group: :frontend, name: :'foo-baz').should eq @guard_foo_baz_frontend
       end
 
       it "returns nil if guard is not found" do
-        described_class.plugins(:group => :unknown, :name => :'foo-baz').should eq nil
+        described_class.plugins(group: :unknown, name: :'foo-baz').should eq nil
       end
     end
   end
@@ -126,9 +126,9 @@ describe Guard do
     end
 
     it 'delegates the plugin instantiation to Guard::PluginUtil' do
-      plugin_util.should_receive(:initialize_plugin).with(:watchers => ['watcher'], :group => 'foo')
+      plugin_util.should_receive(:initialize_plugin).with(watchers: ['watcher'], group: 'foo')
 
-      ::Guard.add_plugin('rspec', :watchers => ['watcher'], :group => 'foo')
+      ::Guard.add_plugin('rspec', watchers: ['watcher'], group: 'foo')
     end
 
     it "adds guard to the @plugins array" do
@@ -155,10 +155,10 @@ describe Guard do
     end
 
     it "accepts options" do
-      ::Guard.add_group(:backend, { :halt_on_fail => true })
+      ::Guard.add_group(:backend, { halt_on_fail: true })
 
       ::Guard.groups[0].options.should eq({})
-      ::Guard.groups[1].options.should eq({ :halt_on_fail => true })
+      ::Guard.groups[1].options.should eq({ halt_on_fail: true })
     end
   end
 

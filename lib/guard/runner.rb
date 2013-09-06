@@ -135,7 +135,7 @@ module Guard
         _current_groups_scope(scopes).each do |group|
           current_plugin = nil
           block_return = catch :task_has_failed do
-            Array(::Guard.plugins(:group => group.name)).each do |guard|
+            Array(::Guard.plugins(group: group.name)).each do |guard|
               current_plugin = guard
               yield(guard)
             end

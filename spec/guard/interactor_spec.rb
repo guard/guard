@@ -27,10 +27,10 @@ describe Guard::Interactor do
     end
 
     context 'options set to { :foo => :bar }' do
-      before { described_class.options = { :foo => :bar } }
+      before { described_class.options = { foo: :bar } }
 
       it 'returns { :foo => :bar }' do
-        described_class.options.should eq({ :foo => :bar })
+        described_class.options.should eq({ foo: :bar })
       end
     end
   end
@@ -44,37 +44,37 @@ describe Guard::Interactor do
 
       @backend_group  = guard.add_group(:backend)
       @frontend_group = guard.add_group(:frontend)
-      @foo_guard      = guard.add_plugin(:foo, { :group => :backend })
-      @bar_guard      = guard.add_plugin(:bar, { :group => :frontend })
+      @foo_guard      = guard.add_plugin(:foo, { group: :backend })
+      @bar_guard      = guard.add_plugin(:bar, { group: :frontend })
     end
 
     it 'returns a group scope' do
       scopes, _ = Guard::Interactor.convert_scope %w(backend)
-      scopes.should eq({ :groups => [@backend_group], :plugins => [] })
+      scopes.should eq({ groups: [@backend_group], plugins: [] })
       scopes, _ = Guard::Interactor.convert_scope %w(frontend)
-      scopes.should eq({ :groups => [@frontend_group], :plugins => [] })
+      scopes.should eq({ groups: [@frontend_group], plugins: [] })
     end
 
     it 'returns a plugin scope' do
       scopes, _ = Guard::Interactor.convert_scope %w(foo)
-      scopes.should eq({ :plugins => [@foo_guard], :groups => [] })
+      scopes.should eq({ plugins: [@foo_guard], groups: [] })
       scopes, _ = Guard::Interactor.convert_scope %w(bar)
-      scopes.should eq({ :plugins => [@bar_guard], :groups => [] })
+      scopes.should eq({ plugins: [@bar_guard], groups: [] })
     end
 
     it 'returns multiple group scopes' do
       scopes, _ = Guard::Interactor.convert_scope %w(backend frontend)
-      scopes.should eq({ :groups => [@backend_group, @frontend_group], :plugins => [] })
+      scopes.should eq({ groups: [@backend_group, @frontend_group], plugins: [] })
     end
 
     it 'returns multiple plugin scopes' do
       scopes, _ = Guard::Interactor.convert_scope %w(foo bar)
-      scopes.should eq({ :plugins => [@foo_guard, @bar_guard], :groups => [] })
+      scopes.should eq({ plugins: [@foo_guard, @bar_guard], groups: [] })
     end
 
     it 'returns a plugin and group scope' do
       scopes, _ = Guard::Interactor.convert_scope %w(foo backend)
-      scopes.should eq({ :plugins => [@foo_guard], :groups => [@backend_group] })
+      scopes.should eq({ plugins: [@foo_guard], groups: [@backend_group] })
     end
 
     it 'returns the unkown scopes' do

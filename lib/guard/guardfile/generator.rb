@@ -53,7 +53,7 @@ module Guard
       #
       def initialize_template(plugin_name)
         plugin_util = ::Guard::PluginUtil.new(plugin_name)
-        if plugin_util.plugin_class(:fail_gracefully => true)
+        if plugin_util.plugin_class(fail_gracefully: true)
           plugin_util.add_to_guardfile
 
           @options[:guardfile] = File.read('Guardfile') if File.exists?('Guardfile')

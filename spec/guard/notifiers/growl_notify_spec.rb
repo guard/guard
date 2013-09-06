@@ -43,34 +43,34 @@ describe Guard::Notifier::GrowlNotify do
     context 'without additional options' do
       it 'shows the notification with the default options' do
         ::GrowlNotify.should_receive(:send_notification).with(
-          :sticky           => false,
-          :priority         => 0,
-          :application_name => 'Guard',
-          :with_name        => 'success',
-          :title            => 'Welcome',
-          :description      => 'Welcome to Guard',
-          :icon             => '/tmp/welcome.png'
+          sticky:           false,
+          priority:         0,
+          application_name: 'Guard',
+          with_name:        'success',
+          title:            'Welcome',
+          description:      'Welcome to Guard',
+          icon:             '/tmp/welcome.png'
         )
 
-        notifier.notify('Welcome to Guard', :type => :success, :title => 'Welcome', :image => '/tmp/welcome.png')
+        notifier.notify('Welcome to Guard', type: :success, title: 'Welcome', image: '/tmp/welcome.png')
       end
     end
 
     context 'with additional options' do
       it 'can override the default options' do
         ::GrowlNotify.should_receive(:send_notification).with(
-          :sticky           => true,
-          :priority         => -2,
-          :application_name => 'Guard',
-          :with_name        => 'pending',
-          :title            => 'Waiting',
-          :description      => 'Waiting for something',
-          :icon             => '/tmp/wait.png'
+          sticky:           true,
+          priority:         -2,
+          application_name: 'Guard',
+          with_name:        'pending',
+          title:            'Waiting',
+          description:      'Waiting for something',
+          icon:             '/tmp/wait.png'
         )
 
-        notifier.notify('Waiting for something', :type => :pending, :title => 'Waiting', :image => '/tmp/wait.png',
-          :sticky   => true,
-          :priority => -2
+        notifier.notify('Waiting for something', type: :pending, title: 'Waiting', image: '/tmp/wait.png',
+          sticky:   true,
+          priority: -2
         )
       end
     end

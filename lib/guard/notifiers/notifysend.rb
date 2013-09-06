@@ -13,8 +13,8 @@ module Guard
 
       # Default options for the notify-send notifications.
       DEFAULTS = {
-        :t => 3000, # Default timeout is 3000ms
-        :h => 'int:transient:1' # Automatically close the notification
+        t: 3000, # Default timeout is 3000ms
+        h: 'int:transient:1' # Automatically close the notification
       }
 
       # Full list of options supported by notify-send.
@@ -46,8 +46,8 @@ module Guard
 
         command = [title, message]
         opts = DEFAULTS.merge(
-          :i => opts.delete(:image),
-          :u => _notifysend_urgency(opts.delete(:type))
+          i: opts.delete(:image),
+          u: _notifysend_urgency(opts.delete(:type))
         ).merge(opts)
 
         system('notify-send', *_to_arguments(command, SUPPORTED, opts))

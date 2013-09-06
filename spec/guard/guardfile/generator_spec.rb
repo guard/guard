@@ -30,7 +30,7 @@ describe Guard::Guardfile::Generator do
 
       context "with the :abort_on_existence option set to true" do
         it "displays an error message and aborts the process" do
-          guardfile_generator = described_class.new(:abort_on_existence => true)
+          guardfile_generator = described_class.new(abort_on_existence: true)
           ::Guard::UI.should_receive(:error).with("Guardfile already exists at /home/user/Guardfile")
           guardfile_generator.should_receive(:abort)
 

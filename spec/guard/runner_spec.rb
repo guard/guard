@@ -11,9 +11,9 @@ describe Guard::Runner do
 
     @backend_group  = guard.add_group(:backend)
     @frontend_group = guard.add_group(:frontend)
-    @foo_guard      = guard.add_plugin(:foo, { :group => :backend })
-    @bar_guard      = guard.add_plugin(:bar, { :group => :frontend })
-    @baz_guard      = guard.add_plugin(:baz, { :group => :frontend })
+    @foo_guard      = guard.add_plugin(:foo, { group: :backend })
+    @bar_guard      = guard.add_plugin(:bar, { group: :frontend })
+    @baz_guard      = guard.add_plugin(:baz, { group: :frontend })
 
     @foo_guard.stub(:my_task)
     @bar_guard.stub(:my_task)
@@ -48,7 +48,7 @@ describe Guard::Runner do
 
     context 'with a plugin as scope' do
       context 'passed as a symbol' do
-        let(:scope) { { :plugin => :bar } }
+        let(:scope) { { plugin: :bar } }
 
         it 'executes the supervised task on the specified plugin only' do
           subject.should_receive(:run_supervised_task).with(@bar_guard, :my_task)
@@ -61,7 +61,7 @@ describe Guard::Runner do
       end
 
       context 'passed as a Guard::Plugin object' do
-        let(:scope) { { :plugin => @bar_guard } }
+        let(:scope) { { plugin: @bar_guard } }
 
         it 'executes the supervised task on the specified plugin only' do
           subject.should_receive(:run_supervised_task).with(@bar_guard, :my_task)
@@ -76,7 +76,7 @@ describe Guard::Runner do
 
     context 'with an array of plugins as scope' do
       context 'passed as a symbol' do
-        let(:scope) { { :plugins => [:foo, :bar] } }
+        let(:scope) { { plugins: [:foo, :bar] } }
 
         it 'executes the supervised task on the specified plugins only' do
           @bar_guard.stub(:my_task)
@@ -90,7 +90,7 @@ describe Guard::Runner do
       end
 
       context 'passed as a Guard::Plugin objects' do
-        let(:scope) { { :plugins => [@foo_guard, @bar_guard] } }
+        let(:scope) { { plugins: [@foo_guard, @bar_guard] } }
 
         it 'executes the supervised task on the specified plugins only' do
           subject.should_receive(:run_supervised_task).with(@foo_guard, :my_task)
@@ -105,7 +105,7 @@ describe Guard::Runner do
 
     context 'with a group as scope' do
       context 'passed as a symbol' do
-        let(:scope) { { :group => :frontend } }
+        let(:scope) { { group: :frontend } }
 
         it 'executes the supervised task on the specified plugin only' do
           subject.should_receive(:run_supervised_task).with(@bar_guard, :my_task)
@@ -118,7 +118,7 @@ describe Guard::Runner do
       end
 
       context 'passed as a Guard::Group object' do
-        let(:scope) { { :group => @frontend_group } }
+        let(:scope) { { group: @frontend_group } }
 
         it 'executes the supervised task on the specified plugin only' do
           subject.should_receive(:run_supervised_task).with(@bar_guard, :my_task)
@@ -133,7 +133,7 @@ describe Guard::Runner do
 
     context 'with an array of plugins as scope' do
       context 'passed as a symbol' do
-        let(:scope) { { :groups => [:frontend, :backend] } }
+        let(:scope) { { groups: [:frontend, :backend] } }
 
         it 'executes the supervised task on the specified plugins only' do
           subject.should_receive(:run_supervised_task).with(@foo_guard, :my_task)
@@ -145,7 +145,7 @@ describe Guard::Runner do
       end
 
       context 'passed as a Guard::Group objects' do
-        let(:scope) { { :groups => [@frontend_group, @backend_group] } }
+        let(:scope) { { groups: [@frontend_group, @backend_group] } }
 
         it 'executes the supervised task on the specified plugins only' do
           subject.should_receive(:run_supervised_task).with(@foo_guard, :my_task)
@@ -388,7 +388,7 @@ describe Guard::Runner do
 
     context 'for a group with :halt_on_fail' do
       before do
-        guard_plugin.group.stub(:options).and_return({ :halt_on_fail => true })
+        guard_plugin.group.stub(:options).and_return({ halt_on_fail: true })
       end
 
       it 'returns :no_catch' do
@@ -398,7 +398,7 @@ describe Guard::Runner do
 
     context 'for a group without :halt_on_fail' do
       before do
-        guard_plugin.group.stub(:options).and_return({ :halt_on_fail => false })
+        guard_plugin.group.stub(:options).and_return({ halt_on_fail: false })
       end
 
       it 'returns :task_has_failed' do

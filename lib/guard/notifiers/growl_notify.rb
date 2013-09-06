@@ -23,8 +23,8 @@ module Guard
 
       # Default options for the growl_notify notifications.
       DEFAULTS = {
-        :sticky   => false,
-        :priority => 0
+        sticky:   false,
+        priority: 0
       }
 
       def self.supported_hosts
@@ -53,10 +53,10 @@ module Guard
         normalize_standard_options!(opts)
 
         opts = DEFAULTS.merge(
-          :application_name => 'Guard',
-          :with_name        => opts.delete(:type).to_s,
-          :description      => message,
-          :icon             => opts.delete(:image)
+          application_name: 'Guard',
+          with_name:        opts.delete(:type).to_s,
+          description:      message,
+          icon:             opts.delete(:image)
         ).merge(opts)
 
         ::GrowlNotify.send_notification(opts)

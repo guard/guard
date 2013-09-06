@@ -28,47 +28,47 @@ describe Guard::Notifier::Notifu do
     context 'without additional options' do
       it 'shows the notification with the default options' do
         ::Notifu.should_receive(:show).with(
-          :time    => 3,
-          :icon    => false,
-          :baloon  => false,
-          :nosound => false,
-          :noquiet => false,
-          :xp      => false,
-          :title   => 'Welcome',
-          :type    => :info,
-          :image   => '/tmp/welcome.png',
-          :message => 'Welcome to Guard'
+          time:    3,
+          icon:    false,
+          baloon:  false,
+          nosound: false,
+          noquiet: false,
+          xp:      false,
+          title:   'Welcome',
+          type:    :info,
+          image:   '/tmp/welcome.png',
+          message: 'Welcome to Guard'
         )
 
-        notifier.notify('Welcome to Guard', :title => 'Welcome', :image => '/tmp/welcome.png')
+        notifier.notify('Welcome to Guard', title: 'Welcome', image: '/tmp/welcome.png')
       end
     end
 
     context 'with additional options' do
       it 'can override the default options' do
         ::Notifu.should_receive(:show).with(
-          :time    => 5,
-          :icon    => true,
-          :baloon  => true,
-          :nosound => true,
-          :noquiet => true,
-          :xp      => true,
-          :title   => 'Waiting',
-          :type    => :warn,
-          :image   => '/tmp/wait.png',
-          :message => 'Waiting for something'
+          time:    5,
+          icon:    true,
+          baloon:  true,
+          nosound: true,
+          noquiet: true,
+          xp:      true,
+          title:   'Waiting',
+          type:    :warn,
+          image:   '/tmp/wait.png',
+          message: 'Waiting for something'
         )
 
         notifier.notify('Waiting for something',
-          :time    => 5,
-          :icon    => true,
-          :baloon  => true,
-          :nosound => true,
-          :noquiet => true,
-          :xp      => true,
-          :title   => 'Waiting',
-          :type    => :pending,
-          :image   => '/tmp/wait.png'
+          time:    5,
+          icon:    true,
+          baloon:  true,
+          nosound: true,
+          noquiet: true,
+          xp:      true,
+          title:   'Waiting',
+          type:    :pending,
+          image:   '/tmp/wait.png'
         )
       end
     end

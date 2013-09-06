@@ -31,7 +31,7 @@ module Guard
     #
     def get_guard_class(name, fail_gracefully = false)
       ::Guard::UI.deprecation(::Guard::Deprecator::GET_GUARD_CLASS_DEPRECATION)
-      ::Guard::PluginUtil.new(name).plugin_class(:fail_gracefully => fail_gracefully)
+      ::Guard::PluginUtil.new(name).plugin_class(fail_gracefully: fail_gracefully)
     end
 
     # @deprecated Use `Guard::PluginUtil.new(name).plugin_location` instead.

@@ -17,7 +17,7 @@ describe Guard::PluginUtil do
         Gem::Version.should_receive(:create).with('1.8.0') { rubygems_version_1_8_0 }
         gems_source_index = double
         Gem.should_receive(:source_index) { gems_source_index }
-        gems_source_index.should_receive(:find_name).with(/^guard-/) { [double(:name => 'guard-rspec'), double(:name => 'guard-rspec')] }
+        gems_source_index.should_receive(:find_name).with(/^guard-/) { [double(name: 'guard-rspec'), double(name: 'guard-rspec')] }
       end
 
       it 'returns the list of guard gems' do
@@ -30,10 +30,10 @@ describe Guard::PluginUtil do
         Gem::Version.should_receive(:create).with(Gem::VERSION) { rubygems_version_1_8_0 }
         Gem::Version.should_receive(:create).with('1.8.0') { rubygems_version_1_8_0 }
         gems = [
-          double(:name => 'guard'),
-          double(:name => 'guard-rspec'),
-          double(:name => 'gem1', :full_gem_path => '/gem1'),
-          double(:name => 'gem2', :full_gem_path => '/gem2'),
+          double(name: 'guard'),
+          double(name: 'guard-rspec'),
+          double(name: 'gem1', full_gem_path: '/gem1'),
+          double(name: 'gem2', full_gem_path: '/gem2'),
         ]
         File.stub(:exists?).with('/gem1/lib/guard/gem1.rb') { false }
         File.stub(:exists?).with('/gem2/lib/guard/gem2.rb') { true }
@@ -71,9 +71,9 @@ describe Guard::PluginUtil do
       before { guard_rspec_class.should_receive(:superclass) { ::Guard::Guard } }
 
       it 'instantiate the plugin using the old API' do
-        guard_rspec_class.should_receive(:new).with(['watcher'], :group => 'foo').and_return(guard_rspec)
+        guard_rspec_class.should_receive(:new).with(['watcher'], group: 'foo').and_return(guard_rspec)
 
-        plugin_util.initialize_plugin(:watchers => ['watcher'], :group => 'foo').should eq guard_rspec
+        plugin_util.initialize_plugin(watchers: ['watcher'], group: 'foo').should eq guard_rspec
       end
     end
 
@@ -81,9 +81,9 @@ describe Guard::PluginUtil do
       before { guard_rspec_class.should_receive(:superclass) { ::Guard::Plugin } }
 
       it 'instantiate the plugin using the new API' do
-        guard_rspec_class.should_receive(:new).with(:watchers => ['watcher'], :group => 'foo').and_return(guard_rspec)
+        guard_rspec_class.should_receive(:new).with(watchers: ['watcher'], group: 'foo').and_return(guard_rspec)
 
-        plugin_util.initialize_plugin(:watchers => ['watcher'], :group => 'foo').should eq guard_rspec
+        plugin_util.initialize_plugin(watchers: ['watcher'], group: 'foo').should eq guard_rspec
       end
     end
   end
@@ -97,7 +97,7 @@ describe Guard::PluginUtil do
 
       it "returns the path of a Guard gem" do
         gems_source_index = double
-        gems_found = [double(:full_gem_path => 'gems/guard-rspec')]
+        gems_found = [double(full_gem_path: 'gems/guard-rspec')]
         Gem.should_receive(:source_index) { gems_source_index }
         gems_source_index.should_receive(:find_name).with('guard-rspec') { gems_found }
 
@@ -112,7 +112,7 @@ describe Guard::PluginUtil do
       end
 
       it "returns the path of a Guard gem" do
-        Gem::Specification.should_receive(:find_by_name).with('guard-rspec') { double(:full_gem_path => 'gems/guard-rspec') }
+        Gem::Specification.should_receive(:find_by_name).with('guard-rspec') { double(full_gem_path: 'gems/guard-rspec') }
 
         described_class.new('rspec').plugin_location.should eq 'gems/guard-rspec'
       end
@@ -205,7 +205,7 @@ describe Guard::PluginUtil do
     context 'when set to fail gracefully' do
       it 'does not print error messages on fail' do
         ::Guard::UI.should_not_receive(:error)
-        described_class.new('notAGuardClass').plugin_class(:fail_gracefully => true).should be_nil
+        described_class.new('notAGuardClass').plugin_class(fail_gracefully: true).should be_nil
       end
     end
   end

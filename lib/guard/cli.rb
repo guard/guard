@@ -18,87 +18,87 @@ module Guard
     desc 'start', 'Starts Guard'
 
     method_option :clear,
-                  :type    => :boolean,
-                  :default => false,
-                  :aliases => '-c',
-                  :banner  => 'Auto clear shell before each action'
+                  type:    :boolean,
+                  default: false,
+                  aliases: '-c',
+                  banner:  'Auto clear shell before each action'
 
     method_option :notify,
-                  :type    => :boolean,
-                  :default => true,
-                  :aliases => '-n',
-                  :banner  => 'Notifications feature'
+                  type:    :boolean,
+                  default: true,
+                  aliases: '-n',
+                  banner:  'Notifications feature'
 
     method_option :debug,
-                  :type    => :boolean,
-                  :default => false,
-                  :aliases => '-d',
-                  :banner  => 'Show debug information'
+                  type:    :boolean,
+                  default: false,
+                  aliases: '-d',
+                  banner:  'Show debug information'
 
     method_option :group,
-                  :type    => :array,
-                  :default => [],
-                  :aliases => '-g',
-                  :banner  => 'Run only the passed groups'
+                  type:    :array,
+                  default: [],
+                  aliases: '-g',
+                  banner:  'Run only the passed groups'
 
     method_option :plugin,
-                  :type    => :array,
-                  :default => [],
-                  :aliases => '-P',
-                  :banner  => 'Run only the passed plugins'
+                  type:    :array,
+                  default: [],
+                  aliases: '-P',
+                  banner:  'Run only the passed plugins'
 
     method_option :watchdir,
-                  :type    => :array,
-                  :aliases => '-w',
-                  :banner  => 'Specify the directories to watch'
+                  type:    :array,
+                  aliases: '-w',
+                  banner:  'Specify the directories to watch'
 
     method_option :guardfile,
-                  :type    => :string,
-                  :aliases => '-G',
-                  :banner  => 'Specify a Guardfile'
+                  type:    :string,
+                  aliases: '-G',
+                  banner:  'Specify a Guardfile'
 
     # DEPRECATED
     method_option :no_vendor,
-                  :type    => :boolean,
-                  :default => false,
-                  :aliases => '-I',
-                  :banner  => 'DEPRECATED: Ignore vendored dependencies'
+                  type:    :boolean,
+                  default: false,
+                  aliases: '-I',
+                  banner:  'DEPRECATED: Ignore vendored dependencies'
 
     # DEPRECATED
     method_option :watch_all_modifications,
-                  :type => :boolean,
-                  :default => false,
-                  :aliases => '-A',
-                  :banner => 'DEPRECATED: Watch for all file modifications including moves and deletions'
+                  type: :boolean,
+                  default: false,
+                  aliases: '-A',
+                  banner: 'DEPRECATED: Watch for all file modifications including moves and deletions'
 
     method_option :no_interactions,
-                  :type => :boolean,
-                  :default => false,
-                  :aliases => '-i',
-                  :banner => 'Turn off completely any Guard terminal interactions'
+                  type: :boolean,
+                  default: false,
+                  aliases: '-i',
+                  banner: 'Turn off completely any Guard terminal interactions'
 
     method_option :no_bundler_warning,
-                  :type => :boolean,
-                  :default => false,
-                  :aliases => '-B',
-                  :banner => 'Turn off warning when Bundler is not present'
+                  type: :boolean,
+                  default: false,
+                  aliases: '-B',
+                  banner: 'Turn off warning when Bundler is not present'
 
     method_option :show_deprecations,
-                  :type => :boolean,
-                  :default => false,
-                  :banner => 'Turn on deprecation warnings'
+                  type: :boolean,
+                  default: false,
+                  banner: 'Turn on deprecation warnings'
 
     # Listen options
     method_option :latency,
-                  :type    => :numeric,
-                  :aliases => '-l',
-                  :banner  => 'Overwrite Listen\'s default latency'
+                  type:    :numeric,
+                  aliases: '-l',
+                  banner:  'Overwrite Listen\'s default latency'
 
     method_option :force_polling,
-                  :type    => :boolean,
-                  :default => false,
-                  :aliases => '-p',
-                  :banner  => 'Force usage of the Listen polling listener'
+                  type:    :boolean,
+                  default: false,
+                  aliases: '-p',
+                  banner:  'Force usage of the Listen polling listener'
 
     # Start Guard by initializing the defined Guard plugins and watch the file system.
     # This is the default task, so calling `guard` is the same as calling `guard start`.
@@ -141,10 +141,10 @@ module Guard
     desc 'init [GUARDS]', 'Generates a Guardfile at the current directory (if it is not already there) and adds all installed Guard plugins or the given GUARDS into it'
 
     method_option :bare,
-                  :type => :boolean,
-                  :default => false,
-                  :aliases => '-b',
-                  :banner => 'Generate a bare Guardfile without adding any installed plugin into it'
+                  type: :boolean,
+                  default: false,
+                  aliases: '-b',
+                  banner: 'Generate a bare Guardfile without adding any installed plugin into it'
 
     # Initializes the templates of all installed Guard plugins and adds them
     # to the `Guardfile` when no Guard name is passed. When passing
@@ -158,7 +158,7 @@ module Guard
     def init(*plugin_names)
       _verify_bundler_presence
 
-      ::Guard::Guardfile.create_guardfile(:abort_on_existence => options[:bare])
+      ::Guard::Guardfile.create_guardfile(abort_on_existence: options[:bare])
 
       return if options[:bare]
 

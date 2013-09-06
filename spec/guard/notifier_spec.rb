@@ -1,8 +1,8 @@
 require 'spec_helper'
 
 describe Guard::Notifier do
-  let(:gntp)  { { :name => :gntp, :options => {} } }
-  let(:growl) { { :name => :growl, :options => {} } }
+  let(:gntp)  { { name: :gntp, options: {} } }
+  let(:growl) { { name: :growl, options: {} } }
   let(:gntp_object) { double('GNTP').as_null_object }
   let(:growl_object) { double('Growl').as_null_object }
 
@@ -43,33 +43,33 @@ describe Guard::Notifier do
         end
 
         it 'tries to add each available notification silently' do
-          Guard::Notifier.should_receive(:add_notifier).with(:gntp, :silent => true).and_return false
-          Guard::Notifier.should_receive(:add_notifier).with(:growl, :silent => true).and_return false
-          Guard::Notifier.should_receive(:add_notifier).with(:growl_notify, :silent => true).and_return false
-          Guard::Notifier.should_receive(:add_notifier).with(:terminal_notifier, :silent => true).and_return false
-          Guard::Notifier.should_receive(:add_notifier).with(:libnotify, :silent => true).and_return false
-          Guard::Notifier.should_receive(:add_notifier).with(:notifysend, :silent => true).and_return false
-          Guard::Notifier.should_receive(:add_notifier).with(:notifu, :silent => true).and_return false
-          Guard::Notifier.should_receive(:add_notifier).with(:emacs, :silent => true).and_return false
-          Guard::Notifier.should_receive(:add_notifier).with(:terminal_title, :silent => true).and_return false
-          Guard::Notifier.should_receive(:add_notifier).with(:tmux, :silent => true).and_return false
-          Guard::Notifier.should_receive(:add_notifier).with(:file, :silent => true).and_return false
+          Guard::Notifier.should_receive(:add_notifier).with(:gntp, silent: true).and_return false
+          Guard::Notifier.should_receive(:add_notifier).with(:growl, silent: true).and_return false
+          Guard::Notifier.should_receive(:add_notifier).with(:growl_notify, silent: true).and_return false
+          Guard::Notifier.should_receive(:add_notifier).with(:terminal_notifier, silent: true).and_return false
+          Guard::Notifier.should_receive(:add_notifier).with(:libnotify, silent: true).and_return false
+          Guard::Notifier.should_receive(:add_notifier).with(:notifysend, silent: true).and_return false
+          Guard::Notifier.should_receive(:add_notifier).with(:notifu, silent: true).and_return false
+          Guard::Notifier.should_receive(:add_notifier).with(:emacs, silent: true).and_return false
+          Guard::Notifier.should_receive(:add_notifier).with(:terminal_title, silent: true).and_return false
+          Guard::Notifier.should_receive(:add_notifier).with(:tmux, silent: true).and_return false
+          Guard::Notifier.should_receive(:add_notifier).with(:file, silent: true).and_return false
 
           Guard::Notifier.turn_on
         end
 
         it 'adds only the first notification per group' do
-          Guard::Notifier.should_receive(:add_notifier).with(:gntp, :silent => true).and_return false
-          Guard::Notifier.should_receive(:add_notifier).with(:growl, :silent => true).and_return false
-          Guard::Notifier.should_receive(:add_notifier).with(:growl_notify, :silent => true).and_return true
-          Guard::Notifier.should_not_receive(:add_notifier).with(:terminal_notifier, :silent => true)
-          Guard::Notifier.should_not_receive(:add_notifier).with(:libnotify, :silent => true)
-          Guard::Notifier.should_not_receive(:add_notifier).with(:notifysend, :silent => true)
-          Guard::Notifier.should_not_receive(:add_notifier).with(:notifu, :silent => true)
-          Guard::Notifier.should_receive(:add_notifier).with(:emacs, :silent => true)
-          Guard::Notifier.should_receive(:add_notifier).with(:terminal_title, :silent => true)
-          Guard::Notifier.should_receive(:add_notifier).with(:tmux, :silent => true)
-          Guard::Notifier.should_receive(:add_notifier).with(:file, :silent => true)
+          Guard::Notifier.should_receive(:add_notifier).with(:gntp, silent: true).and_return false
+          Guard::Notifier.should_receive(:add_notifier).with(:growl, silent: true).and_return false
+          Guard::Notifier.should_receive(:add_notifier).with(:growl_notify, silent: true).and_return true
+          Guard::Notifier.should_not_receive(:add_notifier).with(:terminal_notifier, silent: true)
+          Guard::Notifier.should_not_receive(:add_notifier).with(:libnotify, silent: true)
+          Guard::Notifier.should_not_receive(:add_notifier).with(:notifysend, silent: true)
+          Guard::Notifier.should_not_receive(:add_notifier).with(:notifu, silent: true)
+          Guard::Notifier.should_receive(:add_notifier).with(:emacs, silent: true)
+          Guard::Notifier.should_receive(:add_notifier).with(:terminal_title, silent: true)
+          Guard::Notifier.should_receive(:add_notifier).with(:tmux, silent: true)
+          Guard::Notifier.should_receive(:add_notifier).with(:file, silent: true)
 
           Guard::Notifier.turn_on
         end
@@ -85,7 +85,7 @@ describe Guard::Notifier do
 
         it 'does turn on the notification module for libraries that are available' do
           Guard::Notifier.stub(:add_notifier) do
-            Guard::Notifier.notifiers = [{ :name => :tmux, :options => {} }]
+            Guard::Notifier.notifiers = [{ name: :tmux, options: {} }]
             true
           end
           Guard::Notifier::Tmux.should_receive(:turn_on)
@@ -125,7 +125,7 @@ describe Guard::Notifier do
 
     context 'when turned on with available notifications' do
       before do
-        Guard::Notifier.notifiers = [{ :name => :tmux, :options => {} }]
+        Guard::Notifier.notifiers = [{ name: :tmux, options: {} }]
       end
 
       it 'turns off each notifier' do
@@ -192,18 +192,18 @@ describe Guard::Notifier do
     context 'for a supported notification library' do
       context 'that is available' do
         it 'adds the notifier to the notifications' do
-          Guard::Notifier::GNTP.should_receive(:available?).with(:param => 1).and_return(true)
+          Guard::Notifier::GNTP.should_receive(:available?).with(param: 1).and_return(true)
 
-          Guard::Notifier.add_notifier(:gntp, :param => 1)
+          Guard::Notifier.add_notifier(:gntp, param: 1)
 
-          Guard::Notifier.notifiers.should eq [{ :name => :gntp, :options => { :param => 1 } }]
+          Guard::Notifier.notifiers.should eq [{ name: :gntp, options: { param: 1 } }]
         end
       end
 
       context 'that is not available' do
         it 'does not add the notifier to the notifications' do
-          Guard::Notifier::GNTP.should_receive(:available?).with(:param => 1).and_return(false)
-          Guard::Notifier.add_notifier(:gntp, :param => 1)
+          Guard::Notifier::GNTP.should_receive(:available?).with(param: 1).and_return(false)
+          Guard::Notifier.add_notifier(:gntp, param: 1)
 
           Guard::Notifier.notifiers.should be_empty
         end
@@ -224,10 +224,10 @@ describe Guard::Notifier do
 
       it 'sends the notification to multiple notifier' do
         Guard::Notifier.notifiers = [gntp, growl]
-        gntp_object.should_receive(:notify).with('Hi to everyone', :foo => 'bar')
-        growl_object.should_receive(:notify).with('Hi to everyone', :foo => 'bar')
+        gntp_object.should_receive(:notify).with('Hi to everyone', foo: 'bar')
+        growl_object.should_receive(:notify).with('Hi to everyone', foo: 'bar')
 
-        ::Guard::Notifier.notify('Hi to everyone', :foo => 'bar')
+        ::Guard::Notifier.notify('Hi to everyone', foo: 'bar')
       end
     end
 
