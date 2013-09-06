@@ -85,7 +85,7 @@ module Guard
       entries.each do |entry|
         if plugin = ::Guard.plugin(entry)
           scopes[:plugins] << plugin
-        elsif group = ::Guard.groups(entry)
+        elsif group = ::Guard.group(entry)
           scopes[:groups] << group
         else
           unknown << entry

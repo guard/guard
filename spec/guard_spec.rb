@@ -147,20 +147,20 @@ describe Guard do
     end
 
     context 'with a string argument' do
-      it 'returns a single group' do
-        subject.groups('backend').should eq @group_backend
+      it "returns an array of groups if plugins are found" do
+        subject.groups('backend').should eq [@group_backend]
       end
     end
 
     context 'with a symbol argument matching a group' do
-      it 'returns a single group' do
-        subject.groups(:backend).should eq @group_backend
+      it "returns an array of groups if plugins are found" do
+        subject.groups(:backend).should eq [@group_backend]
       end
     end
 
     context 'with a symbol argument not matching a group' do
-      it 'returns nil' do
-        subject.groups(:foo).should eq nil
+      it "returns an empty array when no group is found" do
+        subject.groups(:foo).should be_empty
       end
     end
 
@@ -171,8 +171,47 @@ describe Guard do
     end
 
     context 'with a regexp argument not matching a group' do
-      it 'returns nil' do
-        subject.groups(/back$/).should eq nil
+      it "returns an empty array when no group is found" do
+        subject.groups(/back$/).should be_empty
+      end
+    end
+  end
+
+  describe '.group' do
+    subject do
+      guard           = ::Guard.setup
+      @group_backend  = guard.add_group(:backend)
+      @group_backflip = guard.add_group(:backflip)
+      guard
+    end
+
+    context 'with a string argument' do
+      it "returns the first group found" do
+        subject.group('backend').should eq @group_backend
+      end
+    end
+
+    context 'with a symbol argument' do
+      it "returns the first group found" do
+        subject.group(:backend).should eq @group_backend
+      end
+    end
+
+    context 'with a symbol argument not matching a group' do
+      it "returns nil when no group is found" do
+        subject.group(:foo).should be_nil
+      end
+    end
+
+    context 'with a regexp argument matching a group' do
+      it "returns the first group found" do
+        subject.group(/^back/).should eq @group_backend
+      end
+    end
+
+    context 'with a regexp argument not matching a group' do
+      it "returns nil when no group is found" do
+        subject.group(/back$/).should be_nil
       end
     end
   end

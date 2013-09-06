@@ -29,22 +29,24 @@ module Guard
   class << self
     attr_accessor :options, :evaluator, :interactor, :runner, :listener, :lock, :scope, :running
 
-    # Smart accessor for retrieving a specific Guard plugin or several Guard plugins at once.
+    # Smart accessor for retrieving specific plugins at once.
     #
+    # @see Guard.plugin
+    # @see Guard.group
     # @see Guard.groups
     #
-    # @example Filter Guard plugins by String or Symbol
+    # @example Filter plugins by String or Symbol
     #   Guard.plugins('rspec')
     #   Guard.plugins(:rspec)
     #
-    # @example Filter Guard plugins by Regexp
+    # @example Filter plugins by Regexp
     #   Guard.plugins(/rsp.+/)
     #
-    # @example Filter Guard plugins by Hash
+    # @example Filter plugins by Hash
     #   Guard.plugins(name: 'rspec', group: 'backend')
     #
-    # @param [String, Symbol, Regexp, Hash] filter the filter to apply to the Guard plugins
-    # @return [Plugin, Array<Plugin>] the filtered Guard plugin(s)
+    # @param [String, Symbol, Regexp, Hash] filter the filter to apply to the plugins
+    # @return [Plugin, Array<Plugin>] the filtered plugin(s)
     #
     def plugins(filter = nil)
       @plugins ||= []
@@ -73,7 +75,7 @@ module Guard
                           end
                         end
 
-      _smart_accessor_return_value(filtered_plugins)
+      filtered_plugins
     end
 
     # Smart accessor for retrieving a specific plugin.
@@ -100,6 +102,11 @@ module Guard
       plugins(filter).first
     end
 
+    # Smart accessor for retrieving specific groups at once.
+    #
+    # @see Guard.plugin
+    # @see Guard.plugins
+    # @see Guard.group
     #
     # @example Filter groups by String or Symbol
     #   Guard.groups('backend')
@@ -109,7 +116,7 @@ module Guard
     #   Guard.groups(/(back|front)end/)
     #
     # @param [String, Symbol, Regexp] filter the filter to apply to the Groups
-    # @return [Group, Array<Group>] the filtered group(s)
+    # @return [Array<Group>] the filtered group(s)
     #
     def groups(filter = nil)
       return @groups if filter.nil?
@@ -121,7 +128,27 @@ module Guard
                           @groups.find_all { |group| group.name.to_s =~ filter }
                         end
 
-      _smart_accessor_return_value(filtered_groups)
+      filtered_groups
+    end
+
+    # Smart accessor for retrieving a specific group.
+    #
+    # @see Guard.plugin
+    # @see Guard.plugins
+    # @see Guard.groups
+    #
+    # @example Find a group by String or Symbol
+    #   Guard.group('backend')
+    #   Guard.group(:backend)
+    #
+    # @example Find a group by Regexp
+    #   Guard.group(/(back|front)end/)
+    #
+    # @param [String, Symbol, Regexp] filter the filter for finding the group
+    # @return [Group] the group found, nil otherwise
+    #
+    def group(filter)
+      groups(filter).first
     end
 
     # Add a Guard plugin to use.
@@ -153,32 +180,12 @@ module Guard
     # @see Group
     #
     def add_group(name, options = {})
-      group = groups(name)
-      if group.nil?
+      unless group = group(name)
         group = ::Guard::Group.new(name, options)
         @groups << group
       end
+
       group
-    end
-
-    private
-
-    # Given an array, returns either:
-    #
-    #   * nil if `results` is empty,
-    #   * the first element of `results` if `results` has only one element,
-    #   * `results` otherwise.
-    #
-    # @return [nil, Object, Array<Object>]
-    #
-    def _smart_accessor_return_value(results)
-      if results.empty?
-        nil
-      elsif results.one?
-        results[0]
-      else
-        results
-      end
     end
 
   end

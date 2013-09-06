@@ -167,7 +167,7 @@ module Guard
       #
       def _set_instance_variables_from_options(options)
         group_name = options.delete(:group) { :default }
-        @group = ::Guard.groups(group_name) || ::Guard.add_group(group_name)
+        @group = ::Guard.add_group(group_name)
         @watchers  = options.delete(:watchers) { [] }
         @callbacks = options.delete(:callbacks) { [] }
         @options   = options

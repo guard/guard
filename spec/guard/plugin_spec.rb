@@ -16,13 +16,13 @@ describe Guard::Plugin do
 
     context 'with a group in the options' do
       it 'assigns the given group' do
-        Guard::Plugin.new(group: :test).group.should eq Guard.groups(:test)
+        Guard::Plugin.new(group: :test).group.should eq Guard.group(:test)
       end
     end
 
     context 'without a group in the options' do
       it 'assigns a default group' do
-        Guard::Plugin.new.group.should eq Guard.groups(:default)
+        Guard::Plugin.new.group.should eq Guard.group(:default)
       end
     end
   end

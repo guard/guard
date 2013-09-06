@@ -16,13 +16,13 @@ describe Guard::Guard do
 
     context 'with a group in the options' do
       it 'assigns the given group' do
-        Guard::Guard.new([], group: :test).group.should eq Guard.groups(:test)
+        Guard::Guard.new([], group: :test).group.should eq Guard.group(:test)
       end
     end
 
     context 'without a group in the options' do
       it 'assigns a default group' do
-        Guard::Guard.new.group.should eq Guard.groups(:default)
+        Guard::Guard.new.group.should eq Guard.group(:default)
       end
     end
   end

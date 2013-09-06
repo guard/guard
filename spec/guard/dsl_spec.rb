@@ -337,12 +337,12 @@ describe Guard::Dsl do
 
     it 'does use the DSL scope group' do
       described_class.evaluate_guardfile(guardfile_contents: 'scope group: :baz')
-      ::Guard.scope[:groups].should eq [::Guard.groups(:baz)]
+      ::Guard.scope[:groups].should eq ::Guard.groups(:baz)
     end
 
     it 'does use the DSL scope groups' do
       described_class.evaluate_guardfile(guardfile_contents: 'scope groups: [:foo, :bar]')
-      ::Guard.scope[:groups].should eq [::Guard.groups(:foo), ::Guard.groups(:bar)]
+      ::Guard.scope[:groups].should eq [::Guard.group(:foo), ::Guard.group(:bar)]
     end
   end
 

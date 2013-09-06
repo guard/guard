@@ -135,7 +135,7 @@ module Guard
         _current_groups_scope(scopes).each do |group|
           current_plugin = nil
           block_return = catch :task_has_failed do
-            Array(::Guard.plugins(group: group.name)).each do |guard|
+            ::Guard.plugins(group: group.name).each do |guard|
               current_plugin = guard
               yield(guard)
             end
@@ -188,7 +188,7 @@ module Guard
     #
     def _current_groups_scope(scope)
       Array(_find_non_empty_groups_scope(scope)).map do |group|
-        group.is_a?(Symbol) ? ::Guard.groups(group) : group
+        group.is_a?(Symbol) ? ::Guard.group(group) : group
       end
     end
 
