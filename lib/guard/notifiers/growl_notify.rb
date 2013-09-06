@@ -17,7 +17,7 @@ module Guard
     #   notification :growl_notify
     #
     # @example Add the `:growl_notify` notifier with configuration options to your `Guardfile`
-    #   notification :growl_notify, :sticky => true
+    #   notification :growl_notify, sticky: true
     #
     class GrowlNotify < Base
 

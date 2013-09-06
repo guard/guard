@@ -386,14 +386,14 @@ The `guard` method allows you to add a Guard plugin to your toolchain and config
 options after the name of the plugin:
 
 ```ruby
-guard :coffeescript, :input => 'coffeescripts', :output => 'javascripts'
+guard :coffeescript, input: 'coffeescripts', output: 'javascripts'
 ```
 
 You can define the same plugin more than once:
 
 ```ruby
-guard :coffeescript, :input => 'coffeescripts', :output => 'javascripts'
-guard :coffeescript, :input => 'specs', :output => 'specs'
+guard :coffeescript, input: 'coffeescripts', output: 'javascripts'
+guard :coffeescript, input: 'specs', output: 'specs'
 ```
 
 ### watch
@@ -473,7 +473,7 @@ to make this work, the group needs to have the `halt_on_fail` option enabled and
 needs to throw `:task_has_failed` to indicate that the action was not successful.
 
 ```ruby
-group :specs, :halt_on_fail => true do
+group :specs, halt_on_fail: true do
   guard :rspec do
     watch(/.../)
   end
@@ -493,15 +493,15 @@ the DSL scope configuration.
 You can define either a single plugin or group:
 
 ```ruby
-scope :plugin => :rspec
-scope :group => :docs
+scope plugin: :rspec
+scope group: :docs
 ```
 
 or specify multiple plugins or groups.
 
 ```ruby
-scope :plugins => [:test, :jasmine]
-scope :groups => [:docs, :frontend]
+scope plugins: [:test, :jasmine]
+scope groups: [:docs, :frontend]
 ```
 
 If you define both the plugin and group scope, the plugin scope has precedence. If you use both the
@@ -522,17 +522,17 @@ notification :growl
 will select the `growl` gem for notifications. You can also set options for a notifier:
 
 ```ruby
-notification :growl, :sticky => true
+notification :growl, sticky: true
 ```
 
 Each notifier has a slightly different set of supported options:
 
 ```ruby
-notification :growl, :sticky => true, :host => '192.168.1.5', :password => 'secret'
-notification :gntp, :sticky => true, :host => '192.168.1.5', :password => 'secret'
-notification :growl_notify, :sticky => true, :priority => 0
-notification :libnotify, :timeout => 5, :transient => true, :append => false, :urgency => :critical
-notification :notifu, :time => 5, :nosound => true, :xp => true
+notification :growl, sticky: true, host: '192.168.1.5', password: 'secret'
+notification :gntp, sticky: true, host: '192.168.1.5', password: 'secret'
+notification :growl_notify, sticky: true, priority: 0
+notification :libnotify, timeout: 5, transient: true, append: false, urgency: :critical
+notification :notifu, time: 5, nosound: true, xp: true
 notification :emacs
 ```
 
@@ -551,7 +551,7 @@ notification :off
 You can customize the Pry interactor history and RC file like:
 
 ```ruby
-interactor :guard_rc => '~/.my_guard-rc', :history_file => '~/.my_guard_history_file'
+interactor guard_rc: '~/.my_guard-rc', history_file: '~/.my_guard_history_file'
 ```
 
 If you do not need the Pry interactions with Guard at all, you can turn it off:
@@ -627,12 +627,12 @@ The `logger` method allows you to customize the [Lumberjack](https://github.com/
 needs by specifying one or more options like:
 
 ```ruby
-logger :level       => :warn,
-       :template    => '[:severity - :time - :progname] :message',
-       :time_format => 'at %I:%M%p',
-       :only        => [:rspec, :jasmine, 'coffeescript'],
-       :except      => :jammit,
-       :device      => 'guard.log'
+logger level:       :warn,
+       template:    '[:severity - :time - :progname] :message',
+       time_format: 'at %I:%M%p',
+       only:        [:rspec, :jasmine, 'coffeescript'],
+       except:      :jammit,
+       device:      'guard.log'
 ```
 
 Log `:level` option must be either `:debug`, `:info`, `:warn` or `:error`. If Guard is started in debug mode, the log

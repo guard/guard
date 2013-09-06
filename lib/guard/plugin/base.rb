@@ -148,7 +148,7 @@ module Guard
       #
       # @example String representation of an instance of the Guard::RSpec plugin
       #   Guard::RSpec.new.title
-      #   #=> "#<Guard::RSpec @name=rspec @group=#<Guard::Group @name=default @options={}> @watchers=[] @callbacks=[] @options={:all_after_pass=>true}>"
+      #   #=> "#<Guard::RSpec @name=rspec @group=#<Guard::Group @name=default @options={}> @watchers=[] @callbacks=[] @options={all_after_pass: true}>"
       #
       # @return [String] the string representation
       #

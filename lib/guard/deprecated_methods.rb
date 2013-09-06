@@ -23,7 +23,7 @@ module Guard
     end
 
     # @deprecated Use
-    #   `Guard::PluginUtil.new(name).plugin_class(:fail_gracefully =>
+    #   `Guard::PluginUtil.new(name).plugin_class(fail_gracefully:
     #   fail_gracefully)` instead.
     #
     # @see https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0 How to

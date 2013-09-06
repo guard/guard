@@ -18,7 +18,7 @@ module Guard
     #   notification :notifu
     #
     # @example Add the `:notifu` notifier with configuration options to your `Guardfile`
-    #   notification :notifu, :time => 5, :nosound => true, :xp => true
+    #   notification :notifu, time: 5, nosound: true, xp: true
     #
     class Notifu < Base
 

@@ -10,8 +10,8 @@ module Guard
   #
   # @example Group that aborts on failure
   #
-  #   group :frontend, :halt_on_fail => true do
-  #     guard 'coffeescript', :input => 'spec/coffeescripts', :output => 'spec/javascripts'
+  #   group :frontend, halt_on_fail: true do
+  #     guard 'coffeescript', input: 'spec/coffeescripts', output: 'spec/javascripts'
   #     guard 'jasmine-headless-webkit' do
   #       watch(%r{^spec/javascripts/(.*)\..*}) { |m| newest_js_file("spec/javascripts/#{m[1]}_spec") }
   #     end

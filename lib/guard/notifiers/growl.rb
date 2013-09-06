@@ -28,7 +28,7 @@ module Guard
     #   notification :growl
     #
     # @example Add the `:growl_notify` notifier with configuration options to your `Guardfile`
-    #   notification :growl, :sticky => true, :host => '192.168.1.5', :password => 'secret'
+    #   notification :growl, sticky: true, host: '192.168.1.5', password: 'secret'
     #
     class Growl < Base
 

@@ -63,7 +63,7 @@ module Guard
     #
     # @example Define multiple notifications
     #   notification :growl_notify
-    #   notification :ruby_gntp, :host => '192.168.1.5'
+    #   notification :ruby_gntp, host: '192.168.1.5'
     #
     # @param [Symbol, String] notifier the name of the notifier to use
     # @param [Hash] options the notification library options
@@ -77,7 +77,7 @@ module Guard
     # Sets the interactor options or disable the interactor.
     #
     # @example Pass options to the interactor
-    #   interactor :option1 => 'value1', :option2 => 'value2'
+    #   interactor option1: 'value1', option2: 'value2'
     #
     # @example Turn off interactions
     #   interactor :off
@@ -283,19 +283,19 @@ module Guard
     # * The `:only` and `:except` options must be a `RegExp`.
     #
     # @example Set the log level
-    #   logger :level => :warn
+    #   logger level: :warn
     #
     # @example Set a custom log template
-    #   logger :template => '[Guard - :severity - :progname - :time] :message'
+    #   logger template: '[Guard - :severity - :progname - :time] :message'
     #
     # @example Set a custom time format
-    #   logger :time_format => '%h'
+    #   logger time_format: '%h'
     #
     # @example Limit logging to a Guard plugin
-    #   logger :only => :jasmine
+    #   logger only: :jasmine
     #
     # @example Log all but not the messages from a specific Guard plugin
-    #   logger :except => :jasmine
+    #   logger except: :jasmine
     #
     # @param [Hash] options the log options
     # @option options [String, Symbol] level the log level
@@ -337,16 +337,16 @@ module Guard
     # Sets the default scope on startup
     #
     # @example Scope Guard to a single group
-    #   scope :group => :frontend
+    #   scope group: :frontend
     #
     # @example Scope Guard to multiple groups
-    #   scope :groups => [:specs, :docs]
+    #   scope groups: [:specs, :docs]
     #
     # @example Scope Guard to a single plugin
-    #   scope :plugin => :test
+    #   scope plugin: :test
     #
     # @example Scope Guard to multiple plugins
-    #   scope :plugins => [:jasmine, :rspec]
+    #   scope plugins: [:jasmine, :rspec]
     #
     # @param [Hash] scopes the scope for the groups and plugins
     #

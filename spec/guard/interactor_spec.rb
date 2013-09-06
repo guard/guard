@@ -26,10 +26,10 @@ describe Guard::Interactor do
       described_class.options.should eq({})
     end
 
-    context 'options set to { :foo => :bar }' do
+    context 'options set to { foo: :bar }' do
       before { described_class.options = { foo: :bar } }
 
-      it 'returns { :foo => :bar }' do
+      it 'returns { foo: :bar }' do
         described_class.options.should eq({ foo: :bar })
       end
     end

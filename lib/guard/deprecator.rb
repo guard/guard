@@ -34,7 +34,7 @@ module Guard
       Starting with Guard 2.0 'Guard.get_guard_class(name, fail_gracefully =
       false)' is deprecated and is now always on.
 
-      Please use 'Guard::PluginUtil.new(name).plugin_class(:fail_gracefully =>
+      Please use 'Guard::PluginUtil.new(name).plugin_class(fail_gracefully:
       fail_gracefully)' instead.
 
       #{MORE_INFO_ON_UPGRADING_TO_GUARD_2}

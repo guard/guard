@@ -19,7 +19,7 @@ module Guard
     #   notification :libnotify
     #
     # @example Add the `:libnotify` notifier with configuration options to your `Guardfile`
-    #   notification :libnotify, :timeout => 5, :transient => true, :append => false, :urgency => :critical
+    #   notification :libnotify, timeout: 5, transient: true, append: false, urgency: :critical
     #
     class Libnotify < Base
 

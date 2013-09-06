@@ -25,10 +25,10 @@ module Guard
       #   Guard::Guardfile::Evaluator.new.evaluate_guardfile
       #
       # @example Programmatically evaluate a Guardfile with a custom Guardfile path
-      #   Guard::Guardfile::Evaluator.new(:guardfile => '/Users/guardfile/MyAwesomeGuardfile').evaluate_guardfile
+      #   Guard::Guardfile::Evaluator.new(guardfile: '/Users/guardfile/MyAwesomeGuardfile').evaluate_guardfile
       #
       # @example Programmatically evaluate a Guardfile with an inline Guardfile
-      #   Guard::Guardfile::Evaluator.new(:guardfile_contents => 'guard :rspec').evaluate_guardfile
+      #   Guard::Guardfile::Evaluator.new(guardfile_contents: 'guard :rspec').evaluate_guardfile
       #
       def evaluate_guardfile
         _fetch_guardfile_contents
@@ -74,7 +74,7 @@ module Guard
       #   #=> "/Users/remy/Code/github/guard/Guardfile"
       #
       # @example Gets the "path" of an inline Guardfile
-      #   > Guard::Guardfile::Evaluator.new(:guardfile_contents => 'guard :rspec').evaluate_guardfile
+      #   > Guard::Guardfile::Evaluator.new(guardfile_contents: 'guard :rspec').evaluate_guardfile
       #   => nil
       #
       #   > Guard::Guardfile::Evaluator.new.guardfile_path

@@ -10,10 +10,10 @@ module Guard
     #   notification :tmux
     #
     # @example Enable text messages
-    #   notification :tmux, :display_message => true
+    #   notification :tmux, display_message: true
     #
     # @example Customize the tmux status colored for notifications
-    #   notification :tmux, :color_location => 'status-right-bg'
+    #   notification :tmux, color_location: 'status-right-bg'
     #
     class Tmux < Base
 

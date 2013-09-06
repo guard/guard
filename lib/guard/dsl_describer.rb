@@ -39,7 +39,7 @@ module Guard
       _evaluate_guardfile
 
       rows = ::Guard::PluginUtil.plugin_names.sort.uniq.inject([]) do |rows, name|
-        rows << { :Plugin => name.capitalize, :Guardfile => ::Guard.plugins(name) ? '✔' : '✘' }
+        rows << { Plugin: name.capitalize, Guardfile: ::Guard.plugins(name) ? '✔' : '✘' }
       end
 
       Formatador.display_compact_table(rows, [:Plugin, :Guardfile])
@@ -59,14 +59,14 @@ module Guard
 
           if options.empty?
             rows << :split
-            rows << { :Group => group.title, :Plugin => plugin.title, :Option => '', :Value => '' }
+            rows << { Group: group.title, Plugin: plugin.title, Option: '', Value: '' }
           else
             options.each_with_index do |(option, value), index|
               if index == 0
                 rows << :split
-                rows << { :Group => group.title, :Plugin => plugin.title, :Option => option.to_s, :Value => value.inspect }
+                rows << { Group: group.title, Plugin: plugin.title, Option: option.to_s, Value: value.inspect }
               else
-                rows << { :Group => '', :Plugin => '', :Option => option.to_s, :Value => value.inspect }
+                rows << { Group: '', Plugin: '', Option: option.to_s, Value: value.inspect }
               end
             end
           end

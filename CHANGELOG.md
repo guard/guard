@@ -5,7 +5,7 @@
 - Remove `Guard::Guardfile.duplicate_definitions?`. ([@rymai][])
 - Deprecate `Guard.guards(filter)` in favor of `Guard.plugins(filter)`. ([@rymai][])
 - Deprecate `Guard.add_guard(name, options = {})` in favor of `Guard.add_plugin(name, options = {})`. ([@rymai][])
-- Deprecate `Guard.get_guard_class(name, fail_gracefully)` in favor of `Guard::PluginUtil.new(name).plugin_class(:fail_gracefully => fail_gracefully)`. ([@rymai][])
+- Deprecate `Guard.get_guard_class(name, fail_gracefully)` in favor of `Guard::PluginUtil.new(name).plugin_class(fail_gracefully: fail_gracefully)`. ([@rymai][])
 - Deprecate `Guard.locate_guard(name)` in favor of `Guard::PluginUtil.new(name).plugin_location`. ([@rymai][])
 - Deprecate `Guard.guard_gem_names` in favor of `Guard::PluginUtil.plugin_names`. ([@rymai][])
 - Deprecate `Guard::Guard` in favor of `Guard::Plugin`. ([@rymai][])
@@ -444,7 +444,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 ### New feature
 
 - [#136][] New CLI `:watch_all_modifications`/`-A` option to watch for deleted and moved files too. ([@limeyd][] and [@netzpirat][])
-- [#97][] Guard dependencies. Task execution can now be halted if a Guard throws `:task_has_failed` and `Guard::Dsl#group` options include `:halt_on_fail => true`. ([@rymai][])
+- [#97][] Guard dependencies. Task execution can now be halted if a Guard throws `:task_has_failed` and `Guard::Dsl#group` options include `halt_on_fail: true`. ([@rymai][])
 - [#121][] `Guard.guards` and `Guard.groups` are now smart accessors. Filters can be passed to find a specific Guard/group or several Guard plugins/groups that match (see YARDoc). ([@rymai][] and [@ches][])
 - New `Guard::Group` class to store groups defined in Guardfile (with `Guard::Dsl#group`). ([@rymai][])
 
@@ -515,7 +515,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 ### Improvements
 
 - [#99][] [OS X] Switch from growl gem to growl_notify gem. ([@johnbintz][])
-- [#115][] [Linux] Add `:transient => true` to default libnotify options. ([@zonque][])
+- [#115][] [Linux] Add `transient: true` to default libnotify options. ([@zonque][])
 - [#95][] Output system commands and options to be executed when in debug mode. ([@uk-ar][] and [@netzpirat][])
 - `Guard::Dsl.revaluate_guardfile` has been renamed to `Guard::Dsl.reevaluate_guardfile`. ([@rymai][])
 - New CLI options: ([@nestegg][])

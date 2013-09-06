@@ -8,12 +8,12 @@ describe Guard::DslDescriber do
   let(:guardfile) do
     <<-GUARDFILE
       ignore! %r{tmp/}
-      guard :test, :a => :b, :c => :d do
+      guard :test, a: :b, c: :d do
         watch('c')
       end
 
       group :a do
-        guard 'test', :x => 1, :y => 2 do
+        guard 'test', x: 1, y: 2 do
           watch('c')
         end
       end

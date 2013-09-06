@@ -79,7 +79,7 @@ describe Guard::Notifier::Base do
       end
     end
 
-    context ':image => :failed given' do
+    context 'image: :failed given' do
       let(:opts) { { image: :failed } }
 
       it 'sets the "failed" type for a :failed image' do
@@ -89,7 +89,7 @@ describe Guard::Notifier::Base do
       end
     end
 
-    context ':image => :pending given' do
+    context 'image: :pending given' do
       let(:opts) { { image: :pending } }
 
       it 'sets the "pending" type for a :pending image' do
@@ -99,7 +99,7 @@ describe Guard::Notifier::Base do
       end
     end
 
-    context ':image => :success given' do
+    context 'image: :success given' do
       let(:opts) { { image: :success } }
 
       it 'sets the "success" type for a :success image' do
@@ -109,7 +109,7 @@ describe Guard::Notifier::Base do
       end
     end
 
-    context ':image => "foo.png" given' do
+    context 'image: "foo.png" given' do
       let(:opts) { { image: 'foo.png' } }
 
       it 'sets the "success" type for a :success image' do

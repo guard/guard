@@ -41,7 +41,7 @@ module Guard
     #   Guard.plugins(/rsp.+/)
     #
     # @example Filter Guard plugins by Hash
-    #   Guard.plugins(:name => 'rspec', :group => 'backend')
+    #   Guard.plugins(name: 'rspec', group: 'backend')
     #
     # @param [String, Symbol, Regexp, Hash] filter the filter to apply to the Guard plugins
     # @return [Plugin, Array<Plugin>] the filtered Guard plugin(s)

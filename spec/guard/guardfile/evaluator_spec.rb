@@ -331,7 +331,7 @@ describe Guard::Guardfile::Evaluator do
       guard :test
     end
 
-    group :x, :halt_on_fail => true do
+    group :x, halt_on_fail: true do
       guard :rspec
       guard :ronn
     end

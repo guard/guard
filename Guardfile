@@ -1,5 +1,5 @@
 group :specs do
-  guard :rspec, :keep_failed => false, :cli => '--fail-fast --format doc' do
+  guard :rspec, keep_failed: false, cli: '--fail-fast --format doc' do
     watch(%r{^spec/.+_spec\.rb$})
     watch(%r{^lib/(.+)\.rb$})                { |m| "spec/#{m[1]}_spec.rb" }
     watch('lib/guard/notifier.rb')           { 'spec/guard/notifiers' }
