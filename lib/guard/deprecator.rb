@@ -69,7 +69,7 @@ module Guard
 
     # Deprecator message for the `Guardfile.create_guardfile` method
     CREATE_GUARDFILE_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
-      Starting with Guard 2.0 'Guardfile.create_guardfile(options)' is deprecated.
+      Starting with Guard 2.0 'Guard::Guardfile.create_guardfile(options)' is deprecated.
 
       Please use 'Guard::Guardfile::Generator.new(options).create_guardfile' instead.
 
@@ -78,7 +78,7 @@ module Guard
 
     # Deprecator message for the `Guardfile.initialize_template` method
     INITIALIZE_TEMPLATE_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
-      Starting with Guard 2.0 'Guardfile.initialize_template(plugin_name)' is deprecated.
+      Starting with Guard 2.0 'Guard::Guardfile.initialize_template(plugin_name)' is deprecated.
 
       Please use 'Guard::Guardfile::Generator.new.initialize_template(plugin_name)' instead.
 
@@ -87,7 +87,7 @@ module Guard
 
     # Deprecator message for the `Guardfile.initialize_all_templates` method
     INITIALIZE_ALL_TEMPLATES_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
-      Starting with Guard 2.0 'Guardfile.initialize_all_templates' is deprecated.
+      Starting with Guard 2.0 'Guard::Guardfile.initialize_all_templates' is deprecated.
 
       Please use 'Guard::Guardfile::Generator.new.initialize_all_templates' instead.
 
