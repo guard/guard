@@ -35,7 +35,6 @@ RSpec.configure do |config|
   end
 
   config.before(:all) do
-    ::Guard::Notifier.send(:_auto_detect_notification)
     @guard_notify ||= ENV['GUARD_NOTIFY']
     @guard_notifiers ||= ::Guard::Notifier.notifiers
   end

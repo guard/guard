@@ -60,19 +60,19 @@ module Guard
     # nested hash instead of a simpler Hash, because it maintains its order on
     # Ruby 1.8.7 also.
     NOTIFIERS = [
-      [
-        [:gntp,              GNTP],
-        [:growl,             Growl],
-        [:growl_notify,      GrowlNotify],
-        [:terminal_notifier, TerminalNotifier],
-        [:libnotify,         Libnotify],
-        [:notifysend,        NotifySend],
-        [:notifu,            Notifu]
-      ],
-      [[:emacs,          Emacs]],
-      [[:tmux,           Tmux]],
-      [[:terminal_title, TerminalTitle]],
-      [[:file,           FileNotifier]]
+      {
+        gntp: GNTP,
+        growl: Growl,
+        growl_notify: GrowlNotify,
+        terminal_notifier: TerminalNotifier,
+        libnotify: Libnotify,
+        notifysend: NotifySend,
+        notifu: Notifu
+      },
+      { emacs: Emacs },
+      { tmux: Tmux },
+      { terminal_title: TerminalTitle },
+      { file: FileNotifier }
     ]
 
     def notifiers
@@ -188,9 +188,13 @@ module Guard
     # @return [Module] the notifier module
     #
     def _get_notifier_module(name)
-      if notifier = NOTIFIERS.flatten(1).detect { |n| n.first == name }
-        notifier.last
+      NOTIFIERS.each do |group|
+        if notifier = group.find { |n, _| n == name }
+          return notifier.last
+        end
       end
+
+      nil
     end
 
     # Auto detect the available notification library. This goes through
@@ -202,8 +206,8 @@ module Guard
       available = nil
 
       NOTIFIERS.each do |group|
-        added = group.map { |n| n.first }.find { |notifier| add_notifier(notifier, silent: true) }
-        available ||= added
+        notifier_added = group.find { |name, klass| p name; add_notifier(name, silent: true) }
+        available ||= notifier_added
       end
 
       ::Guard::UI.info('Guard could not detect any of the supported notification libraries.') unless available
