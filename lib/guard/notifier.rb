@@ -206,7 +206,7 @@ module Guard
       available = nil
 
       NOTIFIERS.each do |group|
-        notifier_added = group.find { |name, klass| p name; add_notifier(name, silent: true) }
+        notifier_added = group.find { |name, klass| add_notifier(name, silent: true) }
         available ||= notifier_added
       end
 

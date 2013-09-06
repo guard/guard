@@ -24,6 +24,8 @@
 - Rename `Guard::Hook` to `Guard::Plugin::Hooker`. ([@rymai][])
 - New `Guard::Plugin::Base` module common to `Guard::Guard` (deprecated) & `Guard::Plugin`. ([@rymai][])
 - New `Guard::PluginUtil` that contains useful methods to find and instantiate Guard plugins. ([@rymai][])
+- New `Guard.plugin` method to find the first plugin matching a filter. ([@rymai][])
+- New `Guard.group` method to find the first group matching a filter. ([@rymai][])
 - Move setup stuff into a new `Guard::Setuper` module. ([@rymai][])
 - Move deprecation stuff inside a new `Guard::Deprecator` class. ([@rymai][])
 
