@@ -16,55 +16,118 @@ describe Guard do
       described_class.plugins.should eq subject.instance_variable_get("@plugins")
     end
 
-    context "find a guard by as string/symbol" do
-      it "find a guard by a string" do
+    context "find a plugin by as string" do
+      it "returns an array of plugins if plugins are found" do
         described_class.plugins('foo-bar').should eq [@guard_foo_bar_backend, @guard_foo_bar_frontend]
       end
+    end
 
-      it "find a guard by a symbol" do
+    context "find a plugin by as symbol" do
+      it "returns an array of plugins if plugins are found" do
         described_class.plugins(:'foo-bar').should eq [@guard_foo_bar_backend, @guard_foo_bar_frontend]
       end
 
-      it "returns nil if guard is not found" do
-        described_class.plugins('foo-foo').should eq nil
+      it "returns an empty array when no plugin is found" do
+        described_class.plugins('foo-foo').should be_empty
       end
     end
 
     context "find plugins matching a regexp" do
-      it "with matches" do
+      it "returns an array of plugins if plugins are found" do
         described_class.plugins(/^foobar/).should eq [@guard_foo_bar_backend, @guard_foo_bar_frontend]
       end
 
-      it "without matches" do
-        described_class.plugins(/foo$/).should eq nil
+      it "returns an empty array when no plugin is found" do
+        described_class.plugins(/foo$/).should be_empty
       end
     end
 
-    context "find plugins by their group" do
-      it "group name is a string" do
+    context "find plugins by their group as a string" do
+      it "returns an array of plugins if plugins are found" do
         described_class.plugins(group: 'backend').should eq [@guard_foo_bar_backend, @guard_foo_baz_backend]
       end
+    end
 
-      it "group name is a symbol" do
+    context "find plugins by their group as a symbol" do
+      it "returns an array of plugins if plugins are found" do
         described_class.plugins(group: :frontend).should eq [@guard_foo_bar_frontend, @guard_foo_baz_frontend]
       end
 
-      it "returns nil if guard is not found" do
-        described_class.plugins(group: :unknown).should eq nil
+      it "returns an empty array when no plugin is found" do
+        described_class.plugins(group: :unknown).should be_empty
       end
     end
 
     context "find plugins by their group & name" do
-      it "group name is a string" do
-        described_class.plugins(group: 'backend', name: 'foo-bar').should eq @guard_foo_bar_backend
+      it "returns an array of plugins if plugins are found" do
+        described_class.plugins(group: 'backend', name: 'foo-bar').should eq [@guard_foo_bar_backend]
       end
 
-      it "group name is a symbol" do
-        described_class.plugins(group: :frontend, name: :'foo-baz').should eq @guard_foo_baz_frontend
+      it "returns an empty array when no plugin is found" do
+        described_class.plugins(group: :unknown, name: :'foo-baz').should be_empty
+      end
+    end
+  end
+
+  describe '.plugin' do
+    before do
+      stub_const 'Guard::FooBar', Class.new(Guard::Plugin)
+      stub_const 'Guard::FooBaz', Class.new(Guard::Plugin)
+      @guard_foo_bar_backend = described_class.add_plugin('foo_bar', group: 'backend')
+      @guard_foo_baz_backend = described_class.add_plugin('foo_baz', group: 'backend')
+      @guard_foo_bar_frontend = described_class.add_plugin('foo_bar', group: 'frontend')
+      @guard_foo_baz_frontend = described_class.add_plugin('foo_baz', group: 'frontend')
+    end
+
+    context "find a plugin by a string" do
+      it "returns the first plugin found" do
+        described_class.plugin('foo-bar').should eq @guard_foo_bar_backend
+      end
+    end
+
+    context "find a plugin by a symbol" do
+      it "returns the first plugin found" do
+        described_class.plugin(:'foo-bar').should eq @guard_foo_bar_backend
       end
 
-      it "returns nil if guard is not found" do
-        described_class.plugins(group: :unknown, name: :'foo-baz').should eq nil
+      it "returns nil when no plugin is found" do
+        described_class.plugin('foo-foo').should be_nil
+      end
+    end
+
+    context "find plugins matching a regexp" do
+      it "returns the first plugin found" do
+        described_class.plugin(/^foobar/).should eq @guard_foo_bar_backend
+      end
+
+      it "returns nil when no plugin is found" do
+        described_class.plugin(/foo$/).should be_nil
+      end
+    end
+
+    context "find a plugin by its group as a string" do
+      it "returns the first plugin found" do
+        described_class.plugin(group: 'backend').should eq @guard_foo_bar_backend
+      end
+    end
+
+    context "find plugins by their group as a symbol" do
+      it "returns the first plugin found" do
+        described_class.plugin(group: :frontend).should eq @guard_foo_bar_frontend
+      end
+
+      it "returns nil when no plugin is found" do
+        described_class.plugin(group: :unknown).should be_nil
+      end
+    end
+
+    context "find plugins by their group & name" do
+      it "returns the first plugin found" do
+        described_class.plugin(group: 'backend', name: 'foo-bar').should eq @guard_foo_bar_backend
+      end
+
+      it "returns nil when no plugin is found" do
+        described_class.plugin(group: :unknown, name: :'foo-baz').should be_nil
       end
     end
   end

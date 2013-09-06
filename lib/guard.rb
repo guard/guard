@@ -76,9 +76,30 @@ module Guard
       _smart_accessor_return_value(filtered_plugins)
     end
 
-    # Smart accessor for retrieving a specific plugin group or several plugin groups at once.
+    # Smart accessor for retrieving a specific plugin.
     #
     # @see Guard.plugins
+    # @see Guard.group
+    # @see Guard.groups
+    #
+    # @example Find a plugin by String or Symbol
+    #   Guard.plugin('rspec')
+    #   Guard.plugin(:rspec)
+    #
+    # @example Find a plugin by Regexp
+    #   Guard.plugin(/rsp.+/)
+    #
+    # @example Find a plugin by Hash
+    #   Guard.plugin(name: 'rspec', group: 'backend')
+    #
+    # @param [String, Symbol, Regexp, Hash] filter the filter for finding the plugin
+    #   the Guard plugin
+    # @return [Plugin, nil] the plugin found, nil otherwise
+    #
+    def plugin(filter)
+      plugins(filter).first
+    end
+
     #
     # @example Filter groups by String or Symbol
     #   Guard.groups('backend')

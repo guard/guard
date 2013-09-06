@@ -111,7 +111,7 @@ module Guard
       end
 
       if new_scope[:plugins] && new_scope[:plugins].any?
-        scope[:plugins] = new_scope[:plugins].map { |plugin| ::Guard.plugins(plugin) }
+        scope[:plugins] = new_scope[:plugins].map { |plugin| ::Guard.plugin(plugin) }
       end
     end
 

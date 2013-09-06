@@ -172,7 +172,7 @@ module Guard
     def _current_plugins_scope(scope)
       if plugins = _find_non_empty_plugins_scope(scope)
         Array(plugins).map do |plugin|
-          plugin.is_a?(Symbol) ? ::Guard.plugins(plugin) : plugin
+          plugin.is_a?(Symbol) ? ::Guard.plugin(plugin) : plugin
         end
       else
         nil

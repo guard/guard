@@ -325,14 +325,14 @@ describe Guard::Dsl do
 
     it 'does use the DSL scope plugin' do
       described_class.evaluate_guardfile(guardfile_contents: 'scope plugin: :baz')
-      ::Guard.scope[:plugins].should eq [::Guard.plugins(:baz)]
+      ::Guard.scope[:plugins].should eq [::Guard.plugin(:baz)]
       ::Guard.setup_scope(plugins: [], groups: [])
-      ::Guard.scope[:plugins].should eq [::Guard.plugins(:baz)]
+      ::Guard.scope[:plugins].should eq [::Guard.plugin(:baz)]
     end
 
     it 'does use the DSL scope plugins' do
       described_class.evaluate_guardfile(guardfile_contents: 'scope plugins: [:foo, :bar]')
-      ::Guard.scope[:plugins].should eq [::Guard.plugins(:foo), ::Guard.plugins(:bar)]
+      ::Guard.scope[:plugins].should eq [::Guard.plugin(:foo), ::Guard.plugin(:bar)]
     end
 
     it 'does use the DSL scope group' do
