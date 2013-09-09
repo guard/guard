@@ -57,20 +57,6 @@ module Guard
                   aliases: '-G',
                   banner:  'Specify a Guardfile'
 
-    # DEPRECATED
-    method_option :no_vendor,
-                  type:    :boolean,
-                  default: false,
-                  aliases: '-I',
-                  banner:  'DEPRECATED: Ignore vendored dependencies'
-
-    # DEPRECATED
-    method_option :watch_all_modifications,
-                  type: :boolean,
-                  default: false,
-                  aliases: '-A',
-                  banner: 'DEPRECATED: Watch for all file modifications including moves and deletions'
-
     method_option :no_interactions,
                   type: :boolean,
                   default: false,

@@ -86,14 +86,11 @@ module Guard
     #   options
     #
     def interactor(options)
-      if options == :off
+      case options
+      when :off
         ::Guard::Interactor.enabled = false
-
-      elsif options.is_a?(Hash)
+      when Hash
         ::Guard::Interactor.options = options
-
-      else
-        ::Guard::UI.deprecation(::Guard::Deprecator::DSL_METHOD_INTERACTOR_DEPRECATION)
       end
     end
 
@@ -214,17 +211,6 @@ module Guard
         [block, args[0]]
       end
       @callbacks << { events: events, listener: block }
-    end
-
-    # @deprecated Use `ignore` or `ignore!` instead.
-    #
-    # @example Ignore some paths
-    #   ignore_paths '.git', '.svn'
-    #
-    # @param [Array] paths the list of paths to ignore
-    #
-    def ignore_paths(*paths)
-      ::Guard::UI.deprecation(::Guard::Deprecator::DSL_METHOD_IGNORE_PATHS_DEPRECATION)
     end
 
     # Ignores certain paths globally.

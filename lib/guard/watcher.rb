@@ -113,13 +113,6 @@ module Guard
       end
     end
 
-    # @deprecated Use {#match} instead
-    #
-    def match_file?(file)
-      ::Guard::UI.deprecation 'Guard::Watcher.match_file? is deprecated, please use Guard::Watcher.match instead.'
-      match(file)
-    end
-
     # Executes a watcher action.
     #
     # @param [String, MatchData] matches the matched path or the match from the

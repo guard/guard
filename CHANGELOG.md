@@ -3,6 +3,14 @@
 ### Removals & deprecations
 
 - Remove `Guard::Guardfile.duplicate_definitions?`. ([@rymai][])
+- Remove the deprecated `watch_all_modifications` start option. ([@rymai][])
+- Remove the deprecated `no_vendor` start option. ([@rymai][])
+- Remove the deprecated `reset_color` UI method. ([@rymai][])
+- Remove the deprecated `match_file?` Watcher method. ([@rymai][])
+- Remove the deprecated `ignore_paths` DSL method. ([@rymai][])
+- Remove the deprecation warning for the `interactor` DSL method. ([@rymai][])
+- Remove the deprecation warning for when a plugin defines the `run_on_change` method. ([@rymai][])
+- Remove the deprecation warning for when a plugin defines the `run_on_deletion` method. ([@rymai][])
 - Deprecate `Guard.guards(filter)` in favor of `Guard.plugins(filter)`. ([@rymai][])
 - Deprecate `Guard.add_guard(name, options = {})` in favor of `Guard.add_plugin(name, options = {})`. ([@rymai][])
 - Deprecate `Guard.get_guard_class(name, fail_gracefully)` in favor of `Guard::PluginUtil.new(name).plugin_class(fail_gracefully: fail_gracefully)`. ([@rymai][])

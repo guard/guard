@@ -78,13 +78,6 @@ describe Guard::Setuper do
       subject
     end
 
-    it 'show the deprecations' do
-      Guard::Deprecator.should_receive(:deprecated_options_warning)
-      Guard::Deprecator.should_receive(:deprecated_plugin_methods_warning)
-
-      subject
-    end
-
     context 'without the group or plugin option' do
       it "initializes the empty scope" do
         subject.scope.should eq({ groups: [], plugins: [] })

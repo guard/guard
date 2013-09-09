@@ -34,8 +34,6 @@ module Guard
     # @option options [Array<String>] group the list of groups to start
     # @option options [Array<String>] watchdir the directories to watch
     # @option options [String] guardfile the path to the Guardfile
-    # @option options [Boolean] watch_all_modifications **[deprecated]** watches all file modifications if true
-    # @option options [Boolean] no_vendor **[deprecated]** ignore vendored dependencies
     #
     # @return [Guard] the Guard singleton
     #
@@ -64,9 +62,6 @@ module Guard
       evaluate_guardfile
 
       setup_scope(groups: options.group, plugins: options.plugin)
-
-      ::Guard::Deprecator.deprecated_options_warning(options)
-      ::Guard::Deprecator.deprecated_plugin_methods_warning
 
       _setup_notifier
       _setup_interactor
