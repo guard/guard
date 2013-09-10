@@ -1,4 +1,4 @@
-## Master 2.X
+## Master
 
 ### Removals & deprecations
 
@@ -36,8 +36,6 @@
 - New `Guard.group` method to find the first group matching a filter. ([@rymai][])
 - Move setup stuff into a new `Guard::Setuper` module. ([@rymai][])
 - Move deprecation stuff inside a new `Guard::Deprecator` class. ([@rymai][])
-
-## Master 1.X
 
 ### Bug fixes
 
