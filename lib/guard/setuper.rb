@@ -40,15 +40,15 @@ module Guard
     def setup(opts = {})
       @running   = true
       @lock      = Mutex.new
-      @options   = ::Guard::Options.new(opts, DEFAULT_OPTIONS)
+      @opts      = opts
       @watchdirs = [Dir.pwd]
       @evaluator = ::Guard::Guardfile::Evaluator.new(opts)
       @runner    = ::Guard::Runner.new
 
-     if options.watchdir
-       # Ensure we have an array
-       @watchdirs = Array(options.watchdir).map { |dir| File.expand_path dir }
-     end
+      if options.watchdir
+        # Ensure we have an array
+        @watchdirs = Array(options.watchdir).map { |dir| File.expand_path dir }
+      end
 
       ::Guard::UI.clear(force: true)
       _setup_debug if options.debug
@@ -67,6 +67,12 @@ module Guard
       _setup_interactor
 
       self
+    end
+
+    # Lazy initializer for Guard's options hash
+    #
+    def options
+      @options ||= ::Guard::Options.new(@opts || {}, DEFAULT_OPTIONS)
     end
 
     # Initializes the groups array with the default group(s).
