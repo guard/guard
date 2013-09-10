@@ -101,11 +101,11 @@ Thibaud Guillaume-Gentil is the main author.
 A list of contributors based on all commits can be found here:
 https://github.com/guard/guard/contributors
 
-For an exhaustive list of all the contributors, please see the CHANGELOG:
-https://github.com/guard/guard/blob/master/CHANGELOG.md
+## CHANGELOG
+The changelog can be found at: https://github.com/guard/guard/blob/master/CHANGELOG.md
 
 This manual has been written by Remy Coutable.
 
 ## WWW
 
-https://github.com/guard/guard
+http://guardgem.org/

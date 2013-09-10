@@ -1,4 +1,43 @@
-## Master
+## Master 2.X
+
+### Removals & deprecations
+
+- Remove `Guard::Guardfile.duplicate_definitions?`. ([@rymai][])
+- Remove the deprecated `watch_all_modifications` start option. ([@rymai][])
+- Remove the deprecated `no_vendor` start option. ([@rymai][])
+- Remove the deprecated `reset_color` UI method. ([@rymai][])
+- Remove the deprecated `match_file?` Watcher method. ([@rymai][])
+- Remove the deprecated `ignore_paths` DSL method. ([@rymai][])
+- Remove the deprecation warning for the `interactor` DSL method. ([@rymai][])
+- Remove the deprecation warning for when a plugin defines the `run_on_change` method. ([@rymai][])
+- Remove the deprecation warning for when a plugin defines the `run_on_deletion` method. ([@rymai][])
+- Deprecate `Guard.guards(filter)` in favor of `Guard.plugins(filter)`. ([@rymai][])
+- Deprecate `Guard.add_guard(name, options = {})` in favor of `Guard.add_plugin(name, options = {})`. ([@rymai][])
+- Deprecate `Guard.get_guard_class(name, fail_gracefully)` in favor of `Guard::PluginUtil.new(name).plugin_class(fail_gracefully: fail_gracefully)`. ([@rymai][])
+- Deprecate `Guard.locate_guard(name)` in favor of `Guard::PluginUtil.new(name).plugin_location`. ([@rymai][])
+- Deprecate `Guard.guard_gem_names` in favor of `Guard::PluginUtil.plugin_names`. ([@rymai][])
+- Deprecate `Guard::Guard` in favor of `Guard::Plugin`. ([@rymai][])
+- Deprecate `Guard::Dsl.evaluate_guardfile(options)` in favor of `Guard::Guardfile::Evaluator.new(options).evaluate_guardfile`. ([@rymai][])
+- Deprecate `Guard::Guardfile.create_guardfile(options)` in favor of `Guard::Guardfile::Generator.new(options).create_guardfile`. ([@rymai][])
+- Deprecate `Guard::Guardfile.initialize_template(plugin_name)` in favor of `Guard::Guardfile::Generator.new.initialize_template(plugin_name)`. ([@rymai][])
+- Deprecate `Guard::Guardfile.initialize_all_templates` in favor of `Guard::Guardfile::Generator.new.initialize_all_templates`. ([@rymai][])
+
+### Improvements
+
+- Refactor `Guard::Notifier` and the whole notifiers system. ([@rymai][])
+- Allow to pass symbols or actual Guard plugins / groups for the `scope` parameter to `Guard::Runner#run`. ([@rymai][])
+- Ensure Guard API calls are not order dependent. ([@rymai][])
+- Ensure Guard has sensible defaults. ([@rymai][])
+- New `#title` method for `Guard::Group` & `Guard::Plugin`. ([@rymai][])
+- Rename `Guard::Hook` to `Guard::Plugin::Hooker`. ([@rymai][])
+- New `Guard::Plugin::Base` module common to `Guard::Guard` (deprecated) & `Guard::Plugin`. ([@rymai][])
+- New `Guard::PluginUtil` that contains useful methods to find and instantiate Guard plugins. ([@rymai][])
+- New `Guard.plugin` method to find the first plugin matching a filter. ([@rymai][])
+- New `Guard.group` method to find the first group matching a filter. ([@rymai][])
+- Move setup stuff into a new `Guard::Setuper` module. ([@rymai][])
+- Move deprecation stuff inside a new `Guard::Deprecator` class. ([@rymai][])
+
+## Master 1.X
 
 ### Bug fixes
 
@@ -29,6 +68,7 @@
 
 ### Improvements
 
+- Listen 1.0.0 support. ([@thibaudgg][])
 - [#416][] Support .guardrc file on the folder from which Guard is executed as well. ([@Nerian][])
 - Display an info message when a plugin throws `:task_has_failed`. ([@rymai][])
 - Ensure compatibility with new Listen's API. ([@rymai][])
@@ -83,10 +123,10 @@
 
 ### New features
 
-- Allow the Guard scope to be defined from the `Guardfile` with the `scope` DSL method. ([@netzpirat][])
+- Allow the Guard scope to be defined from the `Guardfile` with the `scope` Dsl method. ([@netzpirat][])
 - [#378][] Scope plugins and groups from CLI and interactor. ([@netzpirat][])
 - [#369][] Allow Guard plugins to specify their template location. ([@schmurfy][])
-- [#364][] Add `ignore!` and `filter!` DSL methods. ([@tarsolya][])
+- [#364][] Add `ignore!` and `filter!` Dsl methods. ([@tarsolya][])
 - [#362][] Add interactor options `:history_file` and `:guard_rc`. ([@netzpirat][])
 
 ### Improvements
@@ -314,7 +354,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 
 ### Improvements
 
-- Add `interactor` to DSL to allow switching Guard interaction implementation. ([@netzpirat][])
+- Add `interactor` to Dsl to allow switching Guard interaction implementation. ([@netzpirat][])
 - Add quit action to the interactor. ([@Maher4Ever][])
 
 ## 0.9.1 - December 19, 2011
@@ -414,7 +454,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 ### New feature
 
 - [#136][] New CLI `:watch_all_modifications`/`-A` option to watch for deleted and moved files too. ([@limeyd][] and [@netzpirat][])
-- [#97][] Guard dependencies. Task execution can now be halted if a Guard throws `:task_has_failed` and `Guard::Dsl#group` options include `:halt_on_fail => true`. ([@rymai][])
+- [#97][] Guard dependencies. Task execution can now be halted if a Guard throws `:task_has_failed` and `Guard::Dsl#group` options include `halt_on_fail: true`. ([@rymai][])
 - [#121][] `Guard.guards` and `Guard.groups` are now smart accessors. Filters can be passed to find a specific Guard/group or several Guard plugins/groups that match (see YARDoc). ([@rymai][] and [@ches][])
 - New `Guard::Group` class to store groups defined in Guardfile (with `Guard::Dsl#group`). ([@rymai][])
 
@@ -445,7 +485,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 
 ### New features
 
-- [#130][] Add `ignore_paths` method to DSL. ([@ianwhite][])
+- [#130][] Add `ignore_paths` method to Dsl. ([@ianwhite][])
 - [#128][] Users can add additional settings to `~/.guard.rb` that augment the existing Guardfile. ([@tpope][])
 
 ## 0.6.2 - August 17, 2011
@@ -485,7 +525,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 ### Improvements
 
 - [#99][] [OS X] Switch from growl gem to growl_notify gem. ([@johnbintz][])
-- [#115][] [Linux] Add `:transient => true` to default libnotify options. ([@zonque][])
+- [#115][] [Linux] Add `transient: true` to default libnotify options. ([@zonque][])
 - [#95][] Output system commands and options to be executed when in debug mode. ([@uk-ar][] and [@netzpirat][])
 - `Guard::Dsl.revaluate_guardfile` has been renamed to `Guard::Dsl.reevaluate_guardfile`. ([@rymai][])
 - New CLI options: ([@nestegg][])
@@ -541,7 +581,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 
 ### New features
 
-- [#73][] Allow DSL's `group` method to accept a Symbol as group name. ([@johnbintz][])
+- [#73][] Allow Dsl's `group` method to accept a Symbol as group name. ([@johnbintz][])
 - [#51][] Allow options (like `:priority`) to be passed through to the Notifier. ([@indirect][] and [@netzpirat][])
 
 ### Improvement
@@ -616,7 +656,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 ### New features
 
 - The whole directory is now watched during `run_on_change` to detect new files modifications. ([@thibaudgg][])
-- [#26][] New DSL method: `group` allows you to group several guards. New CLI option: `--group group_name` to specify certain groups of guards to start. ([@netzpirat][])
+- [#26][] New Dsl method: `group` allows you to group several guards. New CLI option: `--group group_name` to specify certain groups of guards to start. ([@netzpirat][])
 - `watch` patterns are now more strict: strings are matched with `String#==`, `Regexp` are matched with `Regexp#match`. ([@rymai][])
 - A deprecation warning is displayed if your `Guardfile` contains `String` that look like `Regexp` (bad!). ([@rymai][])
 - It's now possible to return an `Enumerable` in the `watch` optional blocks in the `Guardfile`. ([@rymai][])
@@ -624,7 +664,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 ### New specs
 
 - `Guard::Watcher`. ([@rymai][])
-- [#13][] `Guard::Dsl`. ([@oliamb][])
+- [#13][] `Guard::DSL`. ([@oliamb][])
 
 ## 0.2.2 - October 25, 2010
 

@@ -12,4 +12,5 @@ describe 'Guard::Interactor::NOTIFICATION' do
       Pry.run_command 'notification'
     end
   end
+
 end
