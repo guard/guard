@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Guard::UI do
-  after { Guard::UI.options = { :level => :info, :device => $stderr, :template => ':time - :severity - :message', :time_format => '%H:%M:%S' } }
+  after { Guard::UI.options = { level: :info, device: $stderr, template: ':time - :severity - :message', time_format: '%H:%M:%S' } }
 
   before do
     # The spec helper stubs all UI classes, so other specs doesn't have
@@ -40,15 +40,15 @@ describe Guard::UI do
 
   describe '.options=' do
     it 'sets the logger options' do
-      Guard::UI.options = { :hi => :ho }
-      Guard::UI.options.should eql({ :hi => :ho })
+      Guard::UI.options = { hi: :ho }
+      Guard::UI.options.hi.should eq :ho
     end
   end
 
   describe '.info' do
     it 'resets the line with the :reset option' do
       Guard::UI.should_receive :reset_line
-      Guard::UI.info('Info message', { :reset => true })
+      Guard::UI.info('Info message', { reset: true })
     end
 
     it 'logs the message to with the info severity' do
@@ -57,30 +57,30 @@ describe Guard::UI do
     end
 
     context 'with the :only option' do
-      before { Guard::UI.options[:only] = /A/ }
+      before { Guard::UI.options.only = /A/ }
 
       it 'shows only the matching messages' do
         Guard::UI.logger.should_receive(:info).with('Info message', 'A')
         Guard::UI.logger.should_not_receive(:info).with('Info message', 'B')
         Guard::UI.logger.should_not_receive(:info).with('Info message', 'C')
 
-        Guard::UI.info 'Info message', :plugin => 'A'
-        Guard::UI.info 'Info message', :plugin => 'B'
-        Guard::UI.info 'Info message', :plugin => 'C'
+        Guard::UI.info 'Info message', plugin: 'A'
+        Guard::UI.info 'Info message', plugin: 'B'
+        Guard::UI.info 'Info message', plugin: 'C'
       end
     end
 
     context 'with the :except option' do
-      before { Guard::UI.options[:except] = /A/ }
+      before { Guard::UI.options.except = /A/ }
 
       it 'shows only the matching messages' do
         Guard::UI.logger.should_not_receive(:info).with('Info message', 'A')
         Guard::UI.logger.should_receive(:info).with('Info message', 'B')
         Guard::UI.logger.should_receive(:info).with('Info message', 'C')
 
-        Guard::UI.info 'Info message', :plugin => 'A'
-        Guard::UI.info 'Info message', :plugin => 'B'
-        Guard::UI.info 'Info message', :plugin => 'C'
+        Guard::UI.info 'Info message', plugin: 'A'
+        Guard::UI.info 'Info message', plugin: 'B'
+        Guard::UI.info 'Info message', plugin: 'C'
       end
     end
   end
@@ -88,7 +88,7 @@ describe Guard::UI do
   describe '.warning' do
     it 'resets the line with the :reset option' do
       Guard::UI.should_receive :reset_line
-      Guard::UI.warning('Warn message', { :reset => true })
+      Guard::UI.warning('Warn message', { reset: true })
     end
 
     it 'logs the message to with the warn severity' do
@@ -97,30 +97,30 @@ describe Guard::UI do
     end
 
     context 'with the :only option' do
-      before { Guard::UI.options[:only] = /A/ }
+      before { Guard::UI.options.only = /A/ }
 
       it 'shows only the matching messages' do
         Guard::UI.logger.should_receive(:warn).with("\e[0;33mWarn message\e[0m", 'A')
         Guard::UI.logger.should_not_receive(:warn).with("\e[0;33mWarn message\e[0m", 'B')
         Guard::UI.logger.should_not_receive(:warn).with("\e[0;33mWarn message\e[0m", 'C')
 
-        Guard::UI.warning 'Warn message', :plugin => 'A'
-        Guard::UI.warning 'Warn message', :plugin => 'B'
-        Guard::UI.warning 'Warn message', :plugin => 'C'
+        Guard::UI.warning 'Warn message', plugin: 'A'
+        Guard::UI.warning 'Warn message', plugin: 'B'
+        Guard::UI.warning 'Warn message', plugin: 'C'
       end
     end
 
     context 'with the :except option' do
-      before { Guard::UI.options[:except] = /A/ }
+      before { Guard::UI.options.except = /A/ }
 
       it 'shows only the matching messages' do
         Guard::UI.logger.should_not_receive(:warn).with("\e[0;33mWarn message\e[0m", 'A')
         Guard::UI.logger.should_receive(:warn).with("\e[0;33mWarn message\e[0m", 'B')
         Guard::UI.logger.should_receive(:warn).with("\e[0;33mWarn message\e[0m", 'C')
 
-        Guard::UI.warning 'Warn message', :plugin => 'A'
-        Guard::UI.warning 'Warn message', :plugin => 'B'
-        Guard::UI.warning 'Warn message', :plugin => 'C'
+        Guard::UI.warning 'Warn message', plugin: 'A'
+        Guard::UI.warning 'Warn message', plugin: 'B'
+        Guard::UI.warning 'Warn message', plugin: 'C'
       end
     end
   end
@@ -128,7 +128,7 @@ describe Guard::UI do
   describe '.error' do
     it 'resets the line with the :reset option' do
       Guard::UI.should_receive :reset_line
-      Guard::UI.error('Error message', { :reset => true })
+      Guard::UI.error('Error message', { reset: true })
     end
 
     it 'logs the message to with the error severity' do
@@ -137,70 +137,83 @@ describe Guard::UI do
     end
 
     context 'with the :only option' do
-      before { Guard::UI.options[:only] = /A/ }
+      before { Guard::UI.options.only = /A/ }
 
       it 'shows only the matching messages' do
         Guard::UI.logger.should_receive(:error).with("\e[0;31mError message\e[0m", 'A')
         Guard::UI.logger.should_not_receive(:error).with("\e[0;31mError message\e[0m", 'B')
         Guard::UI.logger.should_not_receive(:error).with("\e[0;31mError message\e[0m", 'C')
 
-        Guard::UI.error 'Error message', :plugin => 'A'
-        Guard::UI.error 'Error message', :plugin => 'B'
-        Guard::UI.error 'Error message', :plugin => 'C'
+        Guard::UI.error 'Error message', plugin: 'A'
+        Guard::UI.error 'Error message', plugin: 'B'
+        Guard::UI.error 'Error message', plugin: 'C'
       end
     end
 
     context 'with the :except option' do
-      before { Guard::UI.options[:except] = /A/ }
+      before { Guard::UI.options.except = /A/ }
 
       it 'shows only the matching messages' do
         Guard::UI.logger.should_not_receive(:error).with("\e[0;31mError message\e[0m", 'A')
         Guard::UI.logger.should_receive(:error).with("\e[0;31mError message\e[0m", 'B')
         Guard::UI.logger.should_receive(:error).with("\e[0;31mError message\e[0m", 'C')
 
-        Guard::UI.error 'Error message', :plugin => 'A'
-        Guard::UI.error 'Error message', :plugin => 'B'
-        Guard::UI.error 'Error message', :plugin => 'C'
+        Guard::UI.error 'Error message', plugin: 'A'
+        Guard::UI.error 'Error message', plugin: 'B'
+        Guard::UI.error 'Error message', plugin: 'C'
       end
     end
   end
 
   describe '.deprecation' do
-    it 'resets the line with the :reset option' do
-      Guard::UI.should_receive :reset_line
-      Guard::UI.deprecation('Deprecation message', { :reset => true })
-    end
+    context 'with the :show_deprecation option set to false (default)' do
+      before { Guard.options = ::Guard::Options.new(show_deprecations: false) }
 
-    it 'logs the message to with the warn severity' do
-      Guard::UI.logger.should_receive(:warn).with("\e[0;33mDeprecation message\e[0m", 'Guard::UiSpec')
-      Guard::UI.deprecation 'Deprecation message'
-    end
-
-    context 'with the :only option' do
-      before { Guard::UI.options[:only] = /A/ }
-
-      it 'shows only the matching messages' do
-        Guard::UI.logger.should_receive(:warn).with("\e[0;33mDeprecation message\e[0m", 'A')
-        Guard::UI.logger.should_not_receive(:warn).with("\e[0;33mDeprecation message\e[0m", 'B')
-        Guard::UI.logger.should_not_receive(:warn).with("\e[0;33mDeprecation message\e[0m", 'C')
-
-        Guard::UI.deprecation 'Deprecation message', :plugin => 'A'
-        Guard::UI.deprecation 'Deprecation message', :plugin => 'B'
-        Guard::UI.deprecation 'Deprecation message', :plugin => 'C'
+      it 'do not log' do
+        Guard::UI.logger.should_not_receive(:warn)
+        Guard::UI.deprecation 'Deprecator message'
       end
     end
 
-    context 'with the :except option' do
-      before { Guard::UI.options[:except] = /A/ }
+    context 'with the :show_deprecation option set to true' do
+      before { Guard.options = ::Guard::Options.new(show_deprecations: true) }
 
-      it 'shows only the matching messages' do
-        Guard::UI.logger.should_not_receive(:warn).with("\e[0;33mDeprecation message\e[0m", 'A')
-        Guard::UI.logger.should_receive(:warn).with("\e[0;33mDeprecation message\e[0m", 'B')
-        Guard::UI.logger.should_receive(:warn).with("\e[0;33mDeprecation message\e[0m", 'C')
+      it 'resets the line with the :reset option' do
+        Guard::UI.should_receive :reset_line
+        Guard::UI.deprecation('Deprecator message', { reset: true })
+      end
 
-        Guard::UI.deprecation 'Deprecation message', :plugin => 'A'
-        Guard::UI.deprecation 'Deprecation message', :plugin => 'B'
-        Guard::UI.deprecation 'Deprecation message', :plugin => 'C'
+      it 'logs the message to with the warn severity' do
+        Guard::UI.logger.should_receive(:warn).with("\e[0;33mDeprecator message\e[0m", 'Guard::UiSpec')
+        Guard::UI.deprecation 'Deprecator message'
+      end
+
+      context 'with the :only option' do
+        before { Guard::UI.options.only = /A/ }
+
+        it 'shows only the matching messages' do
+          Guard::UI.logger.should_receive(:warn).with("\e[0;33mDeprecator message\e[0m", 'A')
+          Guard::UI.logger.should_not_receive(:warn).with("\e[0;33mDeprecator message\e[0m", 'B')
+          Guard::UI.logger.should_not_receive(:warn).with("\e[0;33mDeprecator message\e[0m", 'C')
+
+          Guard::UI.deprecation 'Deprecator message', plugin: 'A'
+          Guard::UI.deprecation 'Deprecator message', plugin: 'B'
+          Guard::UI.deprecation 'Deprecator message', plugin: 'C'
+        end
+      end
+
+      context 'with the :except option' do
+        before { Guard::UI.options.except = /A/ }
+
+        it 'shows only the matching messages' do
+          Guard::UI.logger.should_not_receive(:warn).with("\e[0;33mDeprecator message\e[0m", 'A')
+          Guard::UI.logger.should_receive(:warn).with("\e[0;33mDeprecator message\e[0m", 'B')
+          Guard::UI.logger.should_receive(:warn).with("\e[0;33mDeprecator message\e[0m", 'C')
+
+          Guard::UI.deprecation 'Deprecator message', plugin: 'A'
+          Guard::UI.deprecation 'Deprecator message', plugin: 'B'
+          Guard::UI.deprecation 'Deprecator message', plugin: 'C'
+        end
       end
     end
   end
@@ -208,7 +221,7 @@ describe Guard::UI do
   describe '.debug' do
     it 'resets the line with the :reset option' do
       Guard::UI.should_receive :reset_line
-      Guard::UI.debug('Debug message', { :reset => true })
+      Guard::UI.debug('Debug message', { reset: true })
     end
 
     it 'logs the message to with the debug severity' do
@@ -217,37 +230,37 @@ describe Guard::UI do
     end
 
     context 'with the :only option' do
-      before { Guard::UI.options[:only] = /A/ }
+      before { Guard::UI.options.only = /A/ }
 
       it 'shows only the matching messages' do
         Guard::UI.logger.should_receive(:debug).with("\e[0;33mDebug message\e[0m", 'A')
         Guard::UI.logger.should_not_receive(:debug).with("\e[0;33mDebug message\e[0m", 'B')
         Guard::UI.logger.should_not_receive(:debug).with("\e[0;33mDebug message\e[0m", 'C')
 
-        Guard::UI.debug 'Debug message', :plugin => 'A'
-        Guard::UI.debug 'Debug message', :plugin => 'B'
-        Guard::UI.debug 'Debug message', :plugin => 'C'
+        Guard::UI.debug 'Debug message', plugin: 'A'
+        Guard::UI.debug 'Debug message', plugin: 'B'
+        Guard::UI.debug 'Debug message', plugin: 'C'
       end
     end
 
     context 'with the :except option' do
-      before { Guard::UI.options[:except] = /A/ }
+      before { Guard::UI.options.except = /A/ }
 
       it 'shows only the matching messages' do
         Guard::UI.logger.should_not_receive(:debug).with("\e[0;33mDebug message\e[0m", 'A')
         Guard::UI.logger.should_receive(:debug).with("\e[0;33mDebug message\e[0m", 'B')
         Guard::UI.logger.should_receive(:debug).with("\e[0;33mDebug message\e[0m", 'C')
 
-        Guard::UI.debug 'Debug message', :plugin => 'A'
-        Guard::UI.debug 'Debug message', :plugin => 'B'
-        Guard::UI.debug 'Debug message', :plugin => 'C'
+        Guard::UI.debug 'Debug message', plugin: 'A'
+        Guard::UI.debug 'Debug message', plugin: 'B'
+        Guard::UI.debug 'Debug message', plugin: 'C'
       end
     end
   end
 
   describe '.clear' do
     context 'when the Guard clear option is enabled' do
-      before { ::Guard.stub(:options) { { :clear => true } } }
+      before { ::Guard.options = ::Guard::Options.new(clear: true) }
 
       it 'clears the outputs if clearable' do
         Guard::UI.clearable
@@ -266,12 +279,12 @@ describe Guard::UI do
         Guard::UI.stub(:system)
         Guard::UI.clear
         Guard::UI.should_receive(:system).with('clear;')
-        Guard::UI.clear(:force => true)
+        Guard::UI.clear(force: true)
       end
     end
 
     context 'when the Guard clear option is disabled' do
-      before { ::Guard.stub(:options) { { :clear => false } } }
+      before { ::Guard.options = ::Guard::Options.new(clear: false) }
 
       it 'does not clear the output' do
         Guard::UI.should_not_receive(:system).with('clear;')
@@ -281,33 +294,37 @@ describe Guard::UI do
   end
 
   describe '.action_with_scopes' do
+    let(:rspec) { double('Guard::Rspec', title: 'Rspec') }
+    let(:jasmine) { double('Guard::Jasmine', title: 'Jasmine') }
+    let(:group) { double('Guard::Group frontend', title: 'Frontend') }
+
     context 'with a plugins scope' do
       it 'shows the plugin scoped action' do
-        Guard::UI.should_receive(:info).with('Reload rspec,jasmine')
-        Guard::UI.action_with_scopes('Reload', { :plugins => [:rspec, :jasmine] })
+        Guard::UI.should_receive(:info).with('Reload Rspec, Jasmine')
+        Guard::UI.action_with_scopes('Reload', { plugins: [rspec, jasmine] })
       end
     end
 
     context 'with a groups scope' do
       it 'shows the group scoped action' do
-        Guard::UI.should_receive(:info).with('Reload frontend')
-        Guard::UI.action_with_scopes('Reload', { :groups => [:frontend] })
+        Guard::UI.should_receive(:info).with('Reload Frontend')
+        Guard::UI.action_with_scopes('Reload', { groups: [group] })
       end
     end
 
     context 'without a scope' do
       context 'with a global plugin scope' do
         it 'shows the global plugin scoped action' do
-          Guard.scope = { :groups => [:test] }
-          Guard::UI.should_receive(:info).with('Reload test')
+          Guard.scope = { plugins: [rspec, jasmine] }
+          Guard::UI.should_receive(:info).with('Reload Rspec, Jasmine')
           Guard::UI.action_with_scopes('Reload', {})
         end
       end
 
       context 'with a global group scope' do
         it 'shows the global group scoped action' do
-          Guard.scope = { :groups => [:backend] }
-          Guard::UI.should_receive(:info).with('Reload backend')
+          Guard.scope = { groups: [group] }
+          Guard::UI.should_receive(:info).with('Reload Frontend')
           Guard::UI.action_with_scopes('Reload', {})
         end
       end

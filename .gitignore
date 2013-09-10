@@ -14,9 +14,9 @@ bundle
 Gemfile.lock
 bin/fsevent_watch_guard
 Makefile
-
 .guard_result
 coverage/
-
 .ruby-version
 .tm_properties
+man/guard
+man/guard.html
