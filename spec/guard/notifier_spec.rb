@@ -38,7 +38,6 @@ describe Guard::Notifier do
 
       context 'when notifications are globally enabled' do
         before do
-          ::Guard.options = ::Guard::Options.new
           ::Guard.options.should_receive(:notify).and_return true
         end
 
@@ -102,7 +101,6 @@ describe Guard::Notifier do
 
       context 'when notifications are globally disabled' do
         before do
-          ::Guard.options = ::Guard::Options.new
           ::Guard.options.should_receive(:notify).and_return false
         end
 

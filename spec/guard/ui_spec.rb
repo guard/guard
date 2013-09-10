@@ -1,6 +1,7 @@
 require 'spec_helper'
 
 describe Guard::UI do
+  before { Guard.clear_options }
   after { Guard::UI.options = { level: :info, device: $stderr, template: ':time - :severity - :message', time_format: '%H:%M:%S' } }
 
   before do
@@ -167,7 +168,7 @@ describe Guard::UI do
 
   describe '.deprecation' do
     context 'with the :show_deprecation option set to false (default)' do
-      before { Guard.options = ::Guard::Options.new(show_deprecations: false) }
+      before { Guard.setup(show_deprecations: false) }
 
       it 'do not log' do
         Guard::UI.logger.should_not_receive(:warn)
@@ -176,7 +177,7 @@ describe Guard::UI do
     end
 
     context 'with the :show_deprecation option set to true' do
-      before { Guard.options = ::Guard::Options.new(show_deprecations: true) }
+      before { Guard.setup(show_deprecations: true) }
 
       it 'resets the line with the :reset option' do
         Guard::UI.should_receive :reset_line
@@ -230,7 +231,7 @@ describe Guard::UI do
     end
 
     context 'with the :only option' do
-      before { Guard::UI.options.only = /A/ }
+        before { Guard::UI.options.only = /A/ }
 
       it 'shows only the matching messages' do
         Guard::UI.logger.should_receive(:debug).with("\e[0;33mDebug message\e[0m", 'A')
@@ -244,7 +245,7 @@ describe Guard::UI do
     end
 
     context 'with the :except option' do
-      before { Guard::UI.options.except = /A/ }
+        before { Guard::UI.options.except = /A/ }
 
       it 'shows only the matching messages' do
         Guard::UI.logger.should_not_receive(:debug).with("\e[0;33mDebug message\e[0m", 'A')
@@ -260,7 +261,7 @@ describe Guard::UI do
 
   describe '.clear' do
     context 'when the Guard clear option is enabled' do
-      before { ::Guard.options = ::Guard::Options.new(clear: true) }
+      before { Guard.setup(clear: true) }
 
       it 'clears the outputs if clearable' do
         Guard::UI.clearable
@@ -284,7 +285,7 @@ describe Guard::UI do
     end
 
     context 'when the Guard clear option is disabled' do
-      before { ::Guard.options = ::Guard::Options.new(clear: false) }
+      before { Guard.setup(clear: false) }
 
       it 'does not clear the output' do
         Guard::UI.should_not_receive(:system).with('clear;')

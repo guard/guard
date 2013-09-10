@@ -75,6 +75,12 @@ module Guard
       @options ||= ::Guard::Options.new(@opts || {}, DEFAULT_OPTIONS)
     end
 
+    # Clear Guard's options hash
+    #
+    def clear_options
+      @options = nil
+    end
+
     # Initializes the groups array with the default group(s).
     #
     # @see DEFAULT_GROUPS

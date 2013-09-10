@@ -6,6 +6,7 @@ describe Guard::Setuper do
   let(:guardfile_evaluator) { double('Guard::Guardfile::Evaluator instance') }
 
   before do
+    Guard.clear_options
     Guard::Interactor.stub(:fabricate)
     Dir.stub(:chdir)
   end
