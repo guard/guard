@@ -6,8 +6,8 @@ gem 'rake'
 gem 'listen', github: 'guard/listen'
 
 group :development, :test do
+  # This plugin is required in the tests!
   gem 'guard-rspec', require: false
-  gem 'guard-ronn', require: false
 end
 
 # The development group will no be
@@ -17,6 +17,7 @@ group :development do
   gem 'yard'
   gem 'redcarpet'
   gem 'pimpmychangelog'
+  gem 'guard-ronn', require: false
 
   require 'rbconfig'
 

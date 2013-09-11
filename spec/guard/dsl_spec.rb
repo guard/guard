@@ -141,8 +141,7 @@ describe Guard::Dsl do
     it 'evaluates all groups' do
       ::Guard.should_receive(:add_plugin).with(:pow,   { watchers: [], callbacks: [], group: :default })
       ::Guard.should_receive(:add_plugin).with(:test,  { watchers: [], callbacks: [], group: :w })
-      ::Guard.should_receive(:add_plugin).with(:rspec, { watchers: [], callbacks: [], group: :x })
-      ::Guard.should_receive(:add_plugin).with(:ronn,  { watchers: [], callbacks: [], group: :x })
+      ::Guard.should_receive(:add_plugin).with(:rspec, { watchers: [], callbacks: [], group: :x }).twice
       ::Guard.should_receive(:add_plugin).with(:less,  { watchers: [], callbacks: [], group: :y })
 
       described_class.evaluate_guardfile(guardfile_contents: valid_guardfile_string)
@@ -355,7 +354,7 @@ describe Guard::Dsl do
 
     group :x, halt_on_fail: true do
       guard :rspec
-      guard :ronn
+      guard :rspec
     end
 
     group :y do
