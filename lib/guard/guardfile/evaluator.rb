@@ -126,8 +126,9 @@ module Guard
       #
       def _instance_eval_guardfile(contents)
         ::Guard::Dsl.new.instance_eval(contents, options.guardfile_path, 1)
-      rescue
+      rescue => ex
         ::Guard::UI.error "Invalid Guardfile, original error is:\n#{ $! }"
+        raise ex
       end
 
       # Gets the content to evaluate and stores it into

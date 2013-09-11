@@ -210,16 +210,16 @@ describe Guard::Dsl do
         end
       end
 
-      ::Guard.should_receive(:add_plugin).with(:dummy, { watchers: [], callbacks: [anything, anything], group: :default }) do |_, options|
+      ::Guard.should_receive(:add_plugin).with(:rspec, { watchers: [], callbacks: [anything, anything], group: :default }) do |_, options|
         options[:callbacks].should have(2).items
         options[:callbacks][0][:events].should    eq :start_end
-        options[:callbacks][0][:listener].call(Guard::Dummy, :start_end, 'foo').should eq 'Guard::Dummy executed \'start_end\' hook with foo!'
+        options[:callbacks][0][:listener].call(Guard::RSpec, :start_end, 'foo').should eq 'Guard::RSpec executed \'start_end\' hook with foo!'
         options[:callbacks][1][:events].should eq [:start_begin, :run_all_begin]
         options[:callbacks][1][:listener].should eq MyCustomCallback
       end
 
       described_class.evaluate_guardfile(guardfile_contents: '
-        guard :dummy do
+        guard :rspec do
           callback(:start_end) { |plugin, event, args| "#{plugin} executed \'#{event}\' hook with #{args}!" }
           callback(MyCustomCallback, [:start_begin, :run_all_begin])
         end')

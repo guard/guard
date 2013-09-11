@@ -7,10 +7,8 @@ describe Guard::Guardfile::Evaluator do
   let(:home_config) { File.expand_path(File.join('~', '.guard.rb')) }
   let(:guardfile_evaluator) { described_class.new }
   before do
-    stub_const 'Guard::Dummy', Class.new(Guard::Plugin)
     ::Guard.stub(:setup_interactor)
     ::Guard.setup
-    ::Guard.stub(:plugins).and_return([double('Guard::Dummy')])
     ::Guard::Notifier.stub(:notify)
   end
 
@@ -19,17 +17,17 @@ describe Guard::Guardfile::Evaluator do
   end
 
   describe '.evaluate' do
-    it 'displays an error message when Guardfile is not valid' do
+    it 'displays an error message when Guardfile is not valid and raise original exception' do
       Guard::UI.should_receive(:error).with(/Invalid Guardfile, original error is:/)
 
-      described_class.new(guardfile_contents: 'Bad Guardfile').evaluate_guardfile
+      expect { described_class.new(guardfile_contents: 'Bad Guardfile').evaluate_guardfile }.to raise_error(NoMethodError)
     end
 
     it 'displays an error message when no Guardfile is found' do
       guardfile_evaluator.stub(:_guardfile_default_path).and_return('no_guardfile_here')
       Guard::UI.should_receive(:error).with('No Guardfile found, please create one with `guard init`.')
 
-      lambda { guardfile_evaluator.evaluate_guardfile }.should raise_error
+      expect { guardfile_evaluator.evaluate_guardfile }.to raise_error
     end
 
     it 'doesn\'t display an error message when no Guard plugins are defined in Guardfile' do
@@ -49,14 +47,14 @@ describe Guard::Guardfile::Evaluator do
         File.stub(:read).with('/def/Guardfile')   { raise Errno::EACCES.new('permission error') }
 
         Guard::UI.should_receive(:error).with(/^Error reading file/)
-        lambda { described_class.new(guardfile: '/def/Guardfile').evaluate_guardfile }.should raise_error
+        expect { described_class.new(guardfile: '/def/Guardfile').evaluate_guardfile }.to raise_error
       end
 
       it 'raises error when given Guardfile doesn\'t exist' do
         File.stub(:exist?).with('/def/Guardfile') { false }
 
         Guard::UI.should_receive(:error).with(/No Guardfile exists at/)
-        lambda { described_class.new(guardfile: '/def/Guardfile').evaluate_guardfile }.should raise_error
+        expect { described_class.new(guardfile: '/def/Guardfile').evaluate_guardfile }.to raise_error
       end
 
       it 'raises error when resorting to use default, finds no default' do
@@ -64,7 +62,7 @@ describe Guard::Guardfile::Evaluator do
         File.stub(:exist?).with(home_guardfile) { false }
 
         Guard::UI.should_receive(:error).with('No Guardfile found, please create one with `guard init`.')
-        lambda { described_class.new.evaluate_guardfile }.should raise_error
+        expect { described_class.new.evaluate_guardfile }.to raise_error
       end
 
       it 'raises error when guardfile_content ends up empty or nil' do
@@ -74,7 +72,7 @@ describe Guard::Guardfile::Evaluator do
 
       it 'doesn\'t raise error when guardfile_content is nil (skipped)' do
         Guard::UI.should_not_receive(:error)
-        lambda { described_class.new(guardfile_contents: nil).evaluate_guardfile }.should_not raise_error
+        expect { described_class.new(guardfile_contents: nil).evaluate_guardfile }.to_not raise_error
       end
     end
 
@@ -85,7 +83,7 @@ describe Guard::Guardfile::Evaluator do
       it 'should use a string for initializing' do
         guardfile_evaluator = described_class.new(guardfile_contents: valid_guardfile_string)
         Guard::UI.should_not_receive(:error)
-        lambda { guardfile_evaluator.evaluate_guardfile }.should_not raise_error
+        expect { guardfile_evaluator.evaluate_guardfile }.to_not raise_error
         guardfile_evaluator.guardfile_contents.should eq valid_guardfile_string
       end
 
@@ -94,7 +92,7 @@ describe Guard::Guardfile::Evaluator do
         fake_guardfile('/abc/Guardfile', 'guard :foo')
 
         Guard::UI.should_not_receive(:error)
-        lambda { guardfile_evaluator.evaluate_guardfile }.should_not raise_error
+        expect { guardfile_evaluator.evaluate_guardfile }.to_not raise_error
         guardfile_evaluator.guardfile_contents.should eq 'guard :foo'
       end
 
@@ -102,7 +100,7 @@ describe Guard::Guardfile::Evaluator do
         fake_guardfile(local_guardfile, 'guard :bar')
 
         Guard::UI.should_not_receive(:error)
-        lambda { guardfile_evaluator.evaluate_guardfile }.should_not raise_error
+        expect { guardfile_evaluator.evaluate_guardfile }.to_not raise_error
         guardfile_evaluator.guardfile_contents.should eq 'guard :bar'
       end
 
@@ -112,7 +110,7 @@ describe Guard::Guardfile::Evaluator do
         fake_guardfile(local_guardfile, 'guard :bar')
 
         Guard::UI.should_not_receive(:error)
-        lambda { guardfile_evaluator.evaluate_guardfile }.should_not raise_error
+        expect { guardfile_evaluator.evaluate_guardfile }.to_not raise_error
         guardfile_evaluator.guardfile_contents.should eq valid_guardfile_string
       end
 
@@ -122,7 +120,7 @@ describe Guard::Guardfile::Evaluator do
         fake_guardfile(local_guardfile, 'guard :bar')
 
         Guard::UI.should_not_receive(:error)
-        lambda { guardfile_evaluator.evaluate_guardfile }.should_not raise_error
+        expect { guardfile_evaluator.evaluate_guardfile }.to_not raise_error
         guardfile_evaluator.guardfile_contents.should eq 'guard :foo'
       end
 
@@ -132,7 +130,7 @@ describe Guard::Guardfile::Evaluator do
         fake_guardfile(home_config, 'guard :bar')
 
         Guard::UI.should_not_receive(:error)
-        lambda { guardfile_evaluator.evaluate_guardfile }.should_not raise_error
+        expect { guardfile_evaluator.evaluate_guardfile }.to_not raise_error
         guardfile_evaluator.guardfile_contents.should eq "guard :foo\nguard :bar"
       end
     end
@@ -143,23 +141,23 @@ describe Guard::Guardfile::Evaluator do
 
       it 'reads correctly from a string' do
         guardfile_evaluator = described_class.new(guardfile_contents: valid_guardfile_string)
-        lambda { guardfile_evaluator.evaluate_guardfile }.should_not raise_error
+        expect { guardfile_evaluator.evaluate_guardfile }.to_not raise_error
         guardfile_evaluator.guardfile_contents.should eq valid_guardfile_string
       end
 
       it 'reads correctly from a Guardfile' do
         guardfile_evaluator = described_class.new(guardfile: '/abc/Guardfile')
-        fake_guardfile('/abc/Guardfile', 'guard :foo')
+        fake_guardfile('/abc/Guardfile', 'guard :rspec')
 
-        lambda { guardfile_evaluator.evaluate_guardfile }.should_not raise_error
-        guardfile_evaluator.guardfile_contents.should eq 'guard :foo'
+        expect { guardfile_evaluator.evaluate_guardfile }.to_not raise_error
+        guardfile_evaluator.guardfile_contents.should eq 'guard :rspec'
       end
 
       context 'with a local Guardfile only' do
         it 'reads correctly from it' do
           fake_guardfile(local_guardfile, valid_guardfile_string)
 
-          lambda { guardfile_evaluator.evaluate_guardfile }.should_not raise_error
+          expect { guardfile_evaluator.evaluate_guardfile }.to_not raise_error
           guardfile_evaluator.guardfile_path.should eq local_guardfile
           guardfile_evaluator.guardfile_contents.should eq valid_guardfile_string
         end
@@ -170,7 +168,7 @@ describe Guard::Guardfile::Evaluator do
           File.stub(:exist?).with(local_guardfile) { false }
           fake_guardfile(home_guardfile, valid_guardfile_string)
 
-          lambda { guardfile_evaluator.evaluate_guardfile }.should_not raise_error
+          expect { guardfile_evaluator.evaluate_guardfile }.to_not raise_error
           guardfile_evaluator.guardfile_path.should eq home_guardfile
           guardfile_evaluator.guardfile_contents.should eq valid_guardfile_string
         end
@@ -181,7 +179,7 @@ describe Guard::Guardfile::Evaluator do
           fake_guardfile(local_guardfile, valid_guardfile_string)
           fake_guardfile(home_guardfile, valid_guardfile_string)
 
-          lambda { guardfile_evaluator.evaluate_guardfile }.should_not raise_error
+          expect { guardfile_evaluator.evaluate_guardfile }.to_not raise_error
           guardfile_evaluator.guardfile_path.should eq local_guardfile
           guardfile_evaluator.guardfile_contents.should eq valid_guardfile_string
         end
@@ -257,8 +255,12 @@ describe Guard::Guardfile::Evaluator do
     end
 
     context 'with Guards afterwards' do
-      it 'shows a success message' do
+      before do
+        ::Guard.stub(:plugins).and_return([double('Guard::Dummy')])
         ::Guard.runner.stub(:run)
+      end
+
+      it 'shows a success message' do
         ::Guard::UI.should_receive(:info).with('Guardfile has been re-evaluated.')
 
         guardfile_evaluator.reevaluate_guardfile
@@ -278,7 +280,9 @@ describe Guard::Guardfile::Evaluator do
     end
 
     context 'without Guards afterwards' do
-      before { ::Guard.stub(:plugins).and_return([]) }
+      before do
+        ::Guard.stub(:plugins).and_return([])
+      end
 
       it 'shows a failure notification' do
         ::Guard::Notifier.should_receive(:notify).with('No plugins found in Guardfile, please add at least one.', title: 'Guard re-evaluate', image: :failed)
@@ -325,10 +329,10 @@ describe Guard::Guardfile::Evaluator do
     '
     notification :growl
 
-    guard :pow
+    guard :ronn
 
     group :w do
-      guard :test
+      guard :rspec
     end
 
     group :x, halt_on_fail: true do
@@ -337,7 +341,7 @@ describe Guard::Guardfile::Evaluator do
     end
 
     group :y do
-      guard :less
+      guard :rspec
     end
     '
   end
