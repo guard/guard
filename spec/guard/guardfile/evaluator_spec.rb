@@ -329,7 +329,7 @@ describe Guard::Guardfile::Evaluator do
     '
     notification :growl
 
-    guard :ronn
+    guard :rspec
 
     group :w do
       guard :rspec
@@ -337,7 +337,7 @@ describe Guard::Guardfile::Evaluator do
 
     group :x, halt_on_fail: true do
       guard :rspec
-      guard :ronn
+      guard :rspec
     end
 
     group :y do
