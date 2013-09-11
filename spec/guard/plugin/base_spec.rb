@@ -8,14 +8,12 @@ describe Guard::Plugin::Base do
 
   describe '.non_namespaced_classname' do
     it 'remove the Guard:: namespace' do
-      puts Guard::DuMmy.to_s
       Guard::DuMmy.non_namespaced_classname.should eq 'DuMmy'
     end
   end
 
   describe '.non_namespaced_name' do
     it 'remove the Guard:: namespace and downcase' do
-      puts Guard::DuMmy.to_s
       Guard::DuMmy.non_namespaced_name.should eq 'dummy'
     end
   end

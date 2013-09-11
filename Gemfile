@@ -5,12 +5,15 @@ gemspec
 gem 'rake'
 gem 'listen', github: 'guard/listen'
 
+group :development, :test do
+  gem 'guard-rspec', require: false
+  gem 'guard-ronn', require: false
+end
+
 # The development group will no be
 # installed on Travis CI.
 #
 group :development do
-  gem 'guard-rspec'
-  gem 'guard-ronn'
   gem 'yard'
   gem 'redcarpet'
   gem 'pimpmychangelog'
