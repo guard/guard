@@ -465,13 +465,6 @@ describe Guard::Setuper do
 
       `echo test`.should eq "test\n"
     end
-
-    it "outputs %x{} method parameters" do
-      ::Guard::UI.should_receive(:debug).with("Command execution: echo test")
-      subject.send :_debug_command_execution
-
-      %x{echo test}.should eq "test\n"
-    end
   end
 
 end
