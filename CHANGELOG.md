@@ -40,7 +40,8 @@
 
 ### Bug fixes
 
-- [#457][] Raise an exception when a group is called "all". Fixes [#457][]. (reported by [@rweng][], fixed by [@rymai][])
+- [#472][] Implement #turn_off for TerminalNotifier. (reported by [@shyam-habarakada][], fixed by [@rymai][])
+- [#457][] Raise an exception when a group is called "all". (reported by [@rweng][], fixed by [@rymai][])
 - [#471][] Only init once per plugin when running `guard init` (reported by [@simon-ohara][], fixed by [@thibaudgg][])
 - [#456][] Fix notifu notifier. ([@netzpirat][])
 - [#435][] Fix pressing `C-c` when interactor thread is not started. ([@netzpirat][])
@@ -839,6 +840,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [#460]: https://github.com/guard/guard/issues/460
 [#463]: https://github.com/guard/guard/issues/463
 [#471]: https://github.com/guard/guard/issues/471
+[#472]: https://github.com/guard/guard/issues/472
 [@Gazer]: https://github.com/Gazer
 [@Maher4Ever]: https://github.com/Maher4Ever
 [@Nerian]: https://github.com/Nerian
@@ -914,6 +916,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [@schmurfy]: https://github.com/schmurfy
 [@scottdavis]: https://github.com/scottdavis
 [@semperos]: https://github.com/semperos
+[@shyam-habarakada]: https://github.com/shyam-habarakada
 [@simon-ohara]: https://github.com/simon-ohara
 [@spadin]: https://github.com/spadin
 [@steakknife]: https://github.com/steakknife
