@@ -57,7 +57,13 @@ module Guard
         opts.delete(:image)
         opts[:title] = title || [opts.delete(:app_name) { 'Guard' }, opts[:type].downcase.capitalize].join(' ')
 
-        ::TerminalNotifier::Guard.execute(false, opts.merge(message: message))
+        ::TerminalNotifier::Guard.notify(message, opts)
+      end
+
+      # Notification stopping. Restore the previous Terminal title state.
+      #
+      def turn_off
+        ::TerminalNotifier::Guard.remove
       end
 
       # @private
