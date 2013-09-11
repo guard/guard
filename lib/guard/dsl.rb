@@ -117,6 +117,8 @@ module Guard
     # @see #guard
     #
     def group(name, options = {})
+      raise ArgumentError, "'all' is not an allowed group name!" if name.to_sym == :all
+
       if block_given?
         ::Guard.add_group(name, options)
         @current_group = name

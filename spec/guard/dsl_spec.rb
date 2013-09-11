@@ -126,6 +126,18 @@ describe Guard::Dsl do
       end
     end
 
+    context 'group named :all' do
+      it 'raises an error' do
+        expect { described_class.evaluate_guardfile(guardfile_contents: "group :all") }.to raise_error(ArgumentError, "'all' is not an allowed group name!")
+      end
+    end
+
+    context 'group named "all"' do
+      it 'raises an error' do
+        expect { described_class.evaluate_guardfile(guardfile_contents: "group 'all'") }.to raise_error(ArgumentError, "'all' is not an allowed group name!")
+      end
+    end
+
     it 'evaluates all groups' do
       ::Guard.should_receive(:add_plugin).with(:pow,   { watchers: [], callbacks: [], group: :default })
       ::Guard.should_receive(:add_plugin).with(:test,  { watchers: [], callbacks: [], group: :w })

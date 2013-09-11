@@ -39,6 +39,7 @@
 
 ### Bug fixes
 
+- [#457][] Raise an exception when a group is called "all". Fixes [#457][]. (reported by [@rweng][], fixed by [@rymai][])
 - [#471][] Only init once per plugin when running `guard init` (reported by [@simon-ohara][], fixed by [@thibaudgg][])
 - [#456][] Fix notifu notifier. ([@netzpirat][])
 - [#435][] Fix pressing `C-c` when interactor thread is not started. ([@netzpirat][])
@@ -833,6 +834,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [#450]: https://github.com/guard/guard/issues/450
 [#453]: https://github.com/guard/guard/issues/453
 [#456]: https://github.com/guard/guard/issues/456
+[#457]: https://github.com/guard/guard/issues/457
 [#460]: https://github.com/guard/guard/issues/460
 [#463]: https://github.com/guard/guard/issues/463
 [#471]: https://github.com/guard/guard/issues/471
@@ -906,6 +908,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [@royvandewater]: https://github.com/royvandewater
 [@rudicode]: https://github.com/rudicode
 [@rupert654]: https://github.com/rupert654
+[@rweng]: https://github.com/rweng
 [@rymai]: https://github.com/rymai
 [@schmurfy]: https://github.com/schmurfy
 [@scottdavis]: https://github.com/scottdavis
