@@ -5,6 +5,7 @@ describe Guard::Commander do
   describe '.start' do
     before do
       ::Guard.stub(:setup)
+      ::Guard.instance_variable_set('@watchdirs', [])
       ::Guard.stub(listener: double('listener', start: true))
       ::Guard.stub(runner: double('runner', run: true))
       ::Guard.stub(:within_preserved_state).and_yield
@@ -141,6 +142,17 @@ describe Guard::Commander do
   end
 
   describe '.run_all' do
+    let(:runner) { double(run: true) }
+    let(:group) { ::Guard::Group.new('frontend') }
+    subject { ::Guard.setup }
+
+    before do
+      ::Guard.stub(runner: runner)
+      ::Guard.stub(:within_preserved_state).and_yield
+      ::Guard::UI.stub(:action_with_scopes)
+      ::Guard::UI.stub(:clear)
+    end
+
     context 'Guard has not been setuped' do
       before { ::Guard.stub(:running) { false } }
 
@@ -148,6 +160,22 @@ describe Guard::Commander do
         ::Guard.should_receive(:setup)
 
         ::Guard.run_all
+      end
+    end
+
+    context 'with a given scope' do
+      it 'runs all with the scope' do
+        runner.should_receive(:run).with(:run_all, { groups: [group] })
+
+        subject.run_all({ groups: [group] })
+      end
+    end
+
+    context 'with an empty scope' do
+      it 'runs all' do
+        runner.should_receive(:run).with(:run_all, {})
+
+        subject.run_all
       end
     end
   end

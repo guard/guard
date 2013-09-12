@@ -209,8 +209,7 @@ module Guard
       # @return [Boolean] if the Guardfile is usable
       #
       def _guardfile_contents_usable?
-        # Smallest Guard definition
-        guardfile_contents && guardfile_contents.size >= 'guard :a'.size
+        guardfile_contents && guardfile_contents =~ /guard/m
       end
 
       # The path to the `Guardfile` that is located at
