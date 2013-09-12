@@ -14,6 +14,7 @@ No changes.
 
 ### Removals & deprecations
 
+- Drop support of Ruby 1.8. ([@rymai][])
 - Remove `Guard::Guardfile.duplicate_definitions?`. ([@rymai][])
 - Remove the deprecated `watch_all_modifications` start option. ([@rymai][])
 - Remove the deprecated `no_vendor` start option. ([@rymai][])
