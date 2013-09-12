@@ -28,6 +28,7 @@ No changes.
 
 ### Improvements
 
+- [#469][] List available notifiers. ([@netzpirat][])
 - Don't swallow exceptions when evaluating the Guardfile. ([@rymai][])
 - Refactor `Guard::Notifier` and the whole notifiers system. ([@rymai][])
 - Allow to pass symbols or actual Guard plugins / groups for the `scope` parameter to `Guard::Runner#run`. ([@rymai][])
@@ -843,6 +844,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [#457]: https://github.com/guard/guard/issues/457
 [#460]: https://github.com/guard/guard/issues/460
 [#463]: https://github.com/guard/guard/issues/463
+[#469]: https://github.com/guard/guard/issues/469
 [#471]: https://github.com/guard/guard/issues/471
 [#472]: https://github.com/guard/guard/issues/472
 [@Gazer]: https://github.com/Gazer

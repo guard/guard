@@ -315,6 +315,25 @@ $ guard show
 This shows the internal structure of the evaluated `Guardfile` or `.Guardfile`, with the `.guard.rb` file. You can
 read more about these files in the [shared configuration section](https://github.com/guard/guard/wiki/Shared-configurations).
 
+### Notifiers
+
+You can show the notifiers, their availablity and options with the `notifier` task:
+
+```bash
+$ guard notifiers
++-------------------+-----------+------+------------------------+-------------------+
+| Name              | Available | Used | Option                 | Value             |
++-------------------+-----------+------+------------------------+-------------------+
+| gntp              | ✔         | ✘    | sticky                 | false             |
++-------------------+-----------+------+------------------------+-------------------+
+| growl             | ✘         | ✘    | sticky                 | false             |
+|                   |           |      | priority               | 0                 |
++-------------------+-----------+------+------------------------+-------------------+
+```
+
+This shows if a notifier is available on the current system, it it's being used and the
+current options (which reflects your custom options merged into the default options).
+
 Interactions
 ------------
 

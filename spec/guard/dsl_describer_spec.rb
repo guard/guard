@@ -8,6 +8,8 @@ describe Guard::DslDescriber do
   let(:guardfile) do
     <<-GUARDFILE
       ignore! %r{tmp/}
+      notification :gntp, sticky: true
+
       guard :test, a: :b, c: :d do
         watch('c')
       end
@@ -91,4 +93,37 @@ describe Guard::DslDescriber do
     end
   end
 
+  describe '.notifiers' do
+    let(:result) do
+      <<-OUTPUT
+  +----------------+-----------+------+--------+-------+
+  | Name           | Available | Used | Option | Value |
+  +----------------+-----------+------+--------+-------+
+  | gntp           | ✔         | ✔    | sticky | true  |
+  +----------------+-----------+------+--------+-------+
+  | terminal_title | ✘         | ✘    |        |       |
+  +----------------+-----------+------+--------+-------+
+      OUTPUT
+    end
+
+    before do
+      stub_const 'Guard::Notifier::NOTIFIERS', [
+        { gntp: ::Guard::Notifier::GNTP },
+        { terminal_title: ::Guard::Notifier::TerminalTitle }
+      ]
+
+      ::Guard::Notifier::GNTP.stub(:available?).and_return true
+      ::Guard::Notifier::TerminalTitle.stub(:available?).and_return false
+
+      ::Guard::Notifier.stub(:notifiers).and_return [
+        { name: :gntp, options: { sticky: true } }
+      ]
+    end
+
+    it 'shows the notifiers and their options' do
+      ::Guard::DslDescriber.new(guardfile_contents: guardfile).notifiers
+
+      @output.should eq result
+    end
+  end
 end

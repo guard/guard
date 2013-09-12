@@ -78,10 +78,49 @@ module Guard
       Formatador.display_compact_table(rows.drop(1), [:Group, :Plugin, :Option, :Value])
     end
 
+    # Shows all notifiers and their options that are defined in
+    # the `Guardfile`.
+    #
+    # @see CLI#show
+    #
+    def notifiers
+      _evaluate_guardfile
+
+      rows = ::Guard::Notifier::NOTIFIERS.inject(:merge).inject([]) do |rows, definition|
+        name      = definition[0]
+        clazz     = definition[1]
+        available = clazz.available?(silent: true) ? '✔' : '✘'
+        notifier  = ::Guard::Notifier.notifiers.find{ |n| n[:name] == name }
+        used      = notifier ? '✔' : '✘'
+        options   = notifier ? notifier[:options] : {}
+        defaults  = clazz.const_defined?(:DEFAULTS) ? clazz.const_get(:DEFAULTS) : {}
+        options   = defaults.merge(options)
+        options.delete(:silent)
+
+        if options.empty?
+          rows << :split
+          rows << { Name: name, Available: available, Used: used, Option: '', Value: '' }
+        else
+          options.each_with_index do |(option, value), index|
+            if index == 0
+              rows << :split
+              rows << { Name: name, Available: available, Used: used, Option: option.to_s, Value: value.inspect }
+            else
+              rows << { Name: '', Available: '', Used: '', Option: option.to_s, Value: value.inspect }
+            end
+          end
+        end
+
+        rows
+      end
+
+      Formatador.display_compact_table(rows.drop(1), [:Name, :Available, :Used, :Option, :Value])
+    end
+
     private
 
-    # Evaluates the Guardfile by delegating to
-    #   {Guardfile::Evaluator#evaluate_guardfile}.
+    # Evaluates the `Guardfile` by delegating to
+    #   {Guard::Guardfile::Evaluator#evaluate_guardfile}.
     #
     def _evaluate_guardfile
       ::Guard::Guardfile::Evaluator.new(options).evaluate_guardfile

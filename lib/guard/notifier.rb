@@ -56,9 +56,7 @@ module Guard
 
     extend self
 
-    # List of available notifiers, grouped by functionality. It needs to be a
-    # nested hash instead of a simpler Hash, because it maintains its order on
-    # Ruby 1.8.7 also.
+    # List of available notifiers, grouped by functionality
     NOTIFIERS = [
       {
         gntp: GNTP,

@@ -113,6 +113,16 @@ module Guard
       ::Guard::DslDescriber.new(options).list
     end
 
+    desc 'notifiers', 'Lists notifiers and its options'
+
+    # List the Notifiers for use in your system.
+    #
+    # @see Guard::DslDescriber.notifiers
+    #
+    def notifiers
+      ::Guard::DslDescriber.new(options).notifiers
+    end
+
     desc 'version', 'Show the Guard version'
     map %w(-v --version) => :version
 

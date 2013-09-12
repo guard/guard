@@ -80,6 +80,15 @@ describe Guard::CLI do
     end
   end
 
+  describe '#notifiers' do
+    it 'outputs the notifiers list' do
+      ::Guard::DslDescriber.should_receive(:new) { dsl_describer }
+      dsl_describer.should_receive(:notifiers)
+
+      subject.notifiers
+    end
+  end
+
   describe '#version' do
     it 'shows the current version' do
       subject.should_receive(:puts).with(/#{ ::Guard::VERSION }/)
