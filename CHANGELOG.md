@@ -26,20 +26,20 @@ No changes.
 - Deprecate `Guard::Guardfile.initialize_template(plugin_name)` in favor of `Guard::Guardfile::Generator.new.initialize_template(plugin_name)`. ([@rymai][])
 - Deprecate `Guard::Guardfile.initialize_all_templates` in favor of `Guard::Guardfile::Generator.new.initialize_all_templates`. ([@rymai][])
 
-### Improvements
+### New features & improvements
 
 - [#469][] List available notifiers. ([@netzpirat][])
-- Don't swallow exceptions when evaluating the Guardfile. ([@rymai][])
 - Refactor `Guard::Notifier` and the whole notifiers system. ([@rymai][])
 - Allow to pass symbols or actual Guard plugins / groups for the `scope` parameter to `Guard::Runner#run`. ([@rymai][])
 - Ensure Guard API calls are not order dependent. ([@rymai][])
 - Ensure Guard has sensible defaults. ([@rymai][])
 - New `#title` method for `Guard::Group` & `Guard::Plugin`. ([@rymai][])
-- Rename `Guard::Hook` to `Guard::Plugin::Hooker`. ([@rymai][])
 - New `Guard::Plugin::Base` module common to `Guard::Guard` (deprecated) & `Guard::Plugin`. ([@rymai][])
 - New `Guard::PluginUtil` that contains useful methods to find and instantiate Guard plugins. ([@rymai][])
 - New `Guard.plugin` method to find the first plugin matching a filter. ([@rymai][])
 - New `Guard.group` method to find the first group matching a filter. ([@rymai][])
+- Don't swallow exceptions when evaluating the Guardfile. ([@rymai][])
+- Rename `Guard::Hook` to `Guard::Plugin::Hooker`. ([@rymai][])
 - Move setup stuff into a new `Guard::Setuper` module. ([@rymai][])
 - Move deprecation stuff inside a new `Guard::Deprecator` class. ([@rymai][])
 
