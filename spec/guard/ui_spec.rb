@@ -19,6 +19,9 @@ describe Guard::UI do
     Guard::UI.logger.stub(:error)
     Guard::UI.logger.stub(:deprecation)
     Guard::UI.logger.stub(:debug)
+
+    $stderr.stub(:print)
+    described_class.stub(:system)
   end
 
   after do

@@ -3,10 +3,6 @@ require 'spec_helper'
 describe Guard::Notifier::TerminalTitle do
   let(:notifier) { described_class.new }
 
-  before do
-    subject.stub(:puts)
-  end
-
   describe '.available?' do
     it 'returns true' do
       described_class.should be_available

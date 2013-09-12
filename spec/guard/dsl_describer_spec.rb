@@ -27,6 +27,8 @@ describe Guard::DslDescriber do
   end
 
   before do
+    Guard.setup
+
     stub_const 'Guard::Test', Class.new(Guard::Plugin)
     stub_const 'Guard::Another', Class.new(Guard::Plugin)
 

@@ -234,13 +234,13 @@ module Guard
       Kernel.send(:alias_method, :original_system, :system)
       Kernel.send(:define_method, :system) do |command, *args|
         ::Guard::UI.debug "Command execution: #{ command } #{ args.join(' ') }"
-        original_system command, *args
+        Kernel.send :original_system, command, *args
       end
 
       Kernel.send(:alias_method, :original_backtick, :'`')
       Kernel.send(:define_method, :'`') do |command|
         ::Guard::UI.debug "Command execution: #{ command }"
-        original_backtick command
+        Kernel.send :original_backtick, command
       end
     end
 

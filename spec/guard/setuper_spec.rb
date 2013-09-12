@@ -159,7 +159,11 @@ describe Guard::Setuper do
   end
 
   describe '.reset_plugins' do
-    before { class Guard::FooBar < Guard::Plugin; end }
+    before do
+      Guard.setup
+      class Guard::FooBar < Guard::Plugin; end
+    end
+
     subject do
       ::Guard.setup(guardfile: File.join(@fixture_path, "Guardfile")).tap { |g| g.add_plugin(:foo_bar) }
     end
@@ -186,7 +190,10 @@ describe Guard::Setuper do
   end
 
   describe '._setup_signal_traps', speed: 'slow' do
-    before { ::Guard.stub(:evaluate_guardfile) }
+    before do
+      ::Guard.stub(:evaluate_guardfile)
+      ::Guard.setup
+    end
 
     unless windows? || defined?(JRUBY_VERSION)
       context 'when receiving SIGUSR1' do
@@ -256,7 +263,9 @@ describe Guard::Setuper do
         end
       end
     end
+  end
 
+  describe '._setup_notifier' do
     context "with the notify option enabled" do
       context 'without the environment variable GUARD_NOTIFY set' do
         before { ENV["GUARD_NOTIFY"] = nil }
@@ -324,6 +333,7 @@ describe Guard::Setuper do
 
   describe '._setup_listener' do
     let(:listener) { double.as_null_object }
+    before { Guard.instance_variable_set '@watchdirs', ['/home/user/test'] }
 
     context "with latency option" do
       before { ::Guard.stub(:options).and_return(Guard::Options.new(latency: 1.5)) }
@@ -442,6 +452,9 @@ describe Guard::Setuper do
     subject { Guard.setup }
 
     before do
+      # Unstub global stub
+      Guard.unstub(:_debug_command_execution)
+
       @original_system  = Kernel.method(:system)
       @original_command = Kernel.method(:`)
     end
@@ -455,6 +468,7 @@ describe Guard::Setuper do
     it "outputs Kernel.#system method parameters" do
       ::Guard::UI.should_receive(:debug).with("Command execution: echo test")
       subject.send :_debug_command_execution
+      Kernel.should_receive(:original_system).with('echo', 'test').and_return true
 
       system('echo', 'test').should be_true
     end
@@ -462,6 +476,7 @@ describe Guard::Setuper do
     it "outputs Kernel.#` method parameters" do
       ::Guard::UI.should_receive(:debug).with("Command execution: echo test")
       subject.send :_debug_command_execution
+      Kernel.should_receive(:original_backtick).with('echo test').and_return "test\n"
 
       `echo test`.should eq "test\n"
     end

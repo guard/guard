@@ -10,6 +10,10 @@ describe Guard::PluginUtil do
   let(:guard_rspec) { double('Guard::RSpec instance') }
   let(:guardfile_evaluator) { double('Guard::Guardfile::Evaluator instance') }
 
+  before do
+    Guard.setup
+  end
+
   describe '.plugin_names' do
     context 'Rubygems < 1.8.0' do
       before do
