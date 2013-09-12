@@ -23,6 +23,12 @@ module Guard
         puts "\e]2;[#{ opts[:title] }] #{ first_line }\a"
       end
 
+      # Clears the terminal title
+      #
+      def self.turn_off
+        puts "\e]2;\a"
+      end
+
     end
 
   end
