@@ -1,5 +1,9 @@
 ## Master
 
+No changes.
+
+## 2.0.0.pre - 12 September, 2013
+
 ### Removals & deprecations
 
 - Remove `Guard::Guardfile.duplicate_definitions?`. ([@rymai][])
