@@ -40,6 +40,7 @@
 
 ### Bug fixes
 
+- [#472][] Clear terminal title notification on exit. Fixes [#472][]. ([@netzpirat][])
 - [#457][] Raise an exception when a group is called "all". Fixes [#457][]. (reported by [@rweng][], fixed by [@rymai][])
 - [#471][] Only init once per plugin when running `guard init` (reported by [@simon-ohara][], fixed by [@thibaudgg][])
 - [#456][] Fix notifu notifier. ([@netzpirat][])

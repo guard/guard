@@ -21,4 +21,12 @@ describe Guard::Notifier::TerminalTitle do
     end
   end
 
+  describe '.turn_off' do
+    it 'clears the terminal title' do
+      described_class.should_receive(:puts).with("\e]2;\a")
+
+      described_class.turn_off
+    end
+  end
+
 end
