@@ -4,6 +4,14 @@ No changes.
 
 ## 2.0.0.pre - 12 September, 2013
 
+### Bug fixes
+
+- [#472][] Clear terminal title notification on exit. ([@netzpirat][])
+- [#457][] Raise an exception when a group is called "all". (reported by [@rweng][], fixed by [@rymai][])
+- [#471][] Only init once per plugin when running `guard init`. (reported by [@simon-ohara][], fixed by [@thibaudgg][])
+- [#456][] Fix notifu notifier. ([@netzpirat][])
+- [#435][] Fix pressing `C-c` when interactor thread is not started. ([@netzpirat][])
+
 ### Removals & deprecations
 
 - Remove `Guard::Guardfile.duplicate_definitions?`. ([@rymai][])
@@ -42,14 +50,6 @@ No changes.
 - Rename `Guard::Hook` to `Guard::Plugin::Hooker`. ([@rymai][])
 - Move setup stuff into a new `Guard::Setuper` module. ([@rymai][])
 - Move deprecation stuff inside a new `Guard::Deprecator` class. ([@rymai][])
-
-### Bug fixes
-
-- [#472][] Clear terminal title notification on exit. Fixes [#472][]. ([@netzpirat][])
-- [#457][] Raise an exception when a group is called "all". Fixes [#457][]. (reported by [@rweng][], fixed by [@rymai][])
-- [#471][] Only init once per plugin when running `guard init` (reported by [@simon-ohara][], fixed by [@thibaudgg][])
-- [#456][] Fix notifu notifier. ([@netzpirat][])
-- [#435][] Fix pressing `C-c` when interactor thread is not started. ([@netzpirat][])
 
 ## 1.8.2 - 30 July, 2013
 
@@ -198,9 +198,13 @@ No changes.
 
 ## 1.4.0 - 26 September, 2012
 
+### New feature
+
 - [#331][] Add tmux notifier. ([@royvandewater][])
 
 ## 1.3.3 - 20 September, 2012
+
+### Improvements
 
 - Add Guard application icon to GNTP notifier. ([@netzpirat][])
 - [#324][] Allow Terminal Notifier title to be customizable. ([@mattgreen][])
@@ -230,7 +234,7 @@ No changes.
 - Add support for Emacs notifications ([@maio][])
 - Add support for multiple guards being passed to `guard init`. ([@jredville][])
 
-### 1.2.1 - 2 July, 2012
+### 1.2.3 - 2 July, 2012
 
 ### Bug fix
 
