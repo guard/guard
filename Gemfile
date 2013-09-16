@@ -3,7 +3,6 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'rake'
-gem 'listen', :github => 'guard/listen'
 
 # The development group will no be
 # installed on Travis CI.
