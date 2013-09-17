@@ -159,21 +159,35 @@ module Guard
     # * Restore prompt after each evaluation.
     #
     def _add_hooks
+      _add_load_guard_rc_hook
+      _add_load_project_guard_rc_hook
+      _add_restore_visibility_hook if _stty_exists?
+    end
+
+    # Add a `when_started` hook that loads a global .guardrc if it exists.
+    #
+    def _add_load_guard_rc_hook
       Pry.config.hooks.add_hook :when_started, :load_guard_rc do
         (self.class.options[:guard_rc] || GUARD_RC).tap do |p|
           load p if File.exist?(File.expand_path(p))
         end
       end
+    end
 
+    # Add a `when_started` hook that loads a project .guardrc if it exists.
+    #
+    def _add_load_project_guard_rc_hook
       Pry.config.hooks.add_hook :when_started, :load_project_guard_rc do
         project_guard_rc = Dir.pwd + '/.guardrc'
         load project_guard_rc if File.exist?(project_guard_rc)
       end
+    end
 
-      if _stty_exists?
-        Pry.config.hooks.add_hook :after_eval, :restore_visibility do
-          system("stty echo 2>#{ DEV_NULL }")
-        end
+    # Add a `after_eval` hook that restores visibility after a command is eval.
+    #
+    def _add_restore_visibility_hook
+      Pry.config.hooks.add_hook :after_eval, :restore_visibility do
+        system("stty echo 2>#{ DEV_NULL }")
       end
     end
 
@@ -243,11 +257,28 @@ module Guard
       end
     end
 
-    # Configure the pry prompt to see `guard` instead of
+    # Configures the pry prompt to see `guard` instead of
     # `pry`.
     #
     def _configure_prompt
       Pry.config.prompt = [_prompt('>'), _prompt('*')]
+    end
+
+    # Returns the plugins scope, or the groups scope ready for display in the
+    # prompt.
+    #
+    def _scope_for_prompt
+      [:plugins, :groups].each do |scope_name|
+        return _join_scope(scope_name) unless ::Guard.scope[scope_name].empty?
+      end
+
+      ''
+    end
+
+    # Joins the scope corresponding to the given scope name with commas.
+    #
+    def _join_scope_for_prompt(scope_name)
+      ::Guard.scope[scope_name].map(&:title).join(',')
     end
 
     # Returns a proc that will return itself a string ending with the given
@@ -258,16 +289,9 @@ module Guard
         history = pry.input_array.size
         process = ::Guard.listener.paused? ? 'pause' : 'guard'
         clip    = Pry.view_clip(target_self)
-        level = ":#{ nest_level }" unless nest_level.zero?
-        scope = if !::Guard.scope[:plugins].empty?
-                  "{#{ ::Guard.scope[:plugins].map(&:title).join(',') }} "
-                elsif !::Guard.scope[:groups].empty?
-                  "{#{ ::Guard.scope[:groups].map(&:title).join(',') }} "
-                else
-                  ''
-                end
+        level   = ":#{ nest_level }" unless nest_level.zero?
 
-        "[#{ history }] #{ scope }#{ process }(#{ clip })#{ level }#{ending_char} "
+        "[#{ history }] #{ _scope_for_prompt }#{ process }(#{ clip })#{ level }#{ ending_char } "
       end
     end
 
