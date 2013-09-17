@@ -38,10 +38,9 @@ describe Guard::Dsl do
     disable_user_config
     let(:listener) { double }
 
-    it 'add ignored regexps to the listener' do
+    it 'adds ignored regexps to the listener' do
       ::Guard.stub(:listener) { listener }
       ::Guard.listener.should_receive(:ignore).with(/^foo/,/bar/) { listener }
-      ::Guard.should_receive(:listener=).with(listener)
 
       described_class.evaluate_guardfile(guardfile_contents: 'ignore %r{^foo}, /bar/')
     end
@@ -51,12 +50,19 @@ describe Guard::Dsl do
     disable_user_config
     let(:listener) { double }
 
-    it 'replace ignored regexps in the listener' do
+    it 'replaces ignored regexps in the listener' do
       ::Guard.stub(:listener) { listener }
-      ::Guard.listener.should_receive(:ignore!).with(/^foo/,/bar/) { listener }
-      ::Guard.should_receive(:listener=).with(listener)
+      ::Guard.listener.should_receive(:ignore!).with([[/^foo/,/bar/]]) { listener }
 
       described_class.evaluate_guardfile(guardfile_contents: 'ignore! %r{^foo}, /bar/')
+    end
+
+    it 'replaces ignored regexps in the listener but keeps these setted by filter!' do
+      ::Guard.stub(:listener) { listener }
+      ::Guard.listener.stub(:ignore!)
+      ::Guard.listener.should_receive(:ignore!).with([[/.txt$/, /.*.zip/], [/^foo/]]) { listener }
+
+      described_class.evaluate_guardfile(guardfile_contents: "filter! %r{.txt$}, /.*.zip/\n ignore! %r{^foo}")
     end
   end
 
@@ -64,10 +70,9 @@ describe Guard::Dsl do
     disable_user_config
     let(:listener) { double }
 
-    it 'add ignored regexps to the listener' do
+    it 'adds ignored regexps to the listener' do
       ::Guard.stub(:listener) { listener }
-      ::Guard.listener.should_receive(:filter).with(/.txt$/, /.*.zip/) { listener }
-      ::Guard.should_receive(:listener=).with(listener)
+      ::Guard.listener.should_receive(:ignore).with(/.txt$/, /.*.zip/) { listener }
 
       described_class.evaluate_guardfile(guardfile_contents: 'filter %r{.txt$}, /.*.zip/')
     end
@@ -77,12 +82,19 @@ describe Guard::Dsl do
     disable_user_config
     let(:listener) { double }
 
-    it 'replace ignored regexps in the listener' do
+    it 'replaces ignored regexps in the listener' do
       ::Guard.stub(:listener) { listener }
-      ::Guard.listener.should_receive(:filter!).with(/.txt$/, /.*.zip/) { listener }
-      ::Guard.should_receive(:listener=).with(listener)
+      ::Guard.listener.should_receive(:ignore!).with([[/.txt$/, /.*.zip/]]) { listener }
 
       described_class.evaluate_guardfile(guardfile_contents: 'filter! %r{.txt$}, /.*.zip/')
+    end
+
+    it 'replaces ignored regexps in the listener but keeps these setted by ignore!' do
+      ::Guard.stub(:listener) { listener }
+      ::Guard.listener.stub(:ignore!)
+      ::Guard.listener.should_receive(:ignore!).with([[/^foo/], [/.txt$/, /.*.zip/]]) { listener }
+
+      described_class.evaluate_guardfile(guardfile_contents: "ignore! %r{^foo}\n filter! %r{.txt$}, /.*.zip/")
     end
   end
 
