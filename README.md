@@ -23,7 +23,7 @@ Before you file an issue, make sure you have read the _[known issues](#issues)_ 
 * File system changes handled by our awesome [Listen](https://github.com/guard/listen) gem.
 * Support for visual system notifications.
 * Huge eco-system with [more than 220](https://rubygems.org/search?query=guard-) Guard plugins.
-* Tested against Ruby 1.9.2, 1.9.3, 2.0.0, JRuby (1.9 mode) & Rubinius (1.9 mode).
+* Tested against Ruby 1.9.3, 2.0.0, JRuby (1.9 mode) & Rubinius (1.9 mode).
 
 #### Screencast
 
