@@ -119,6 +119,8 @@ module Guard
     # @return [Array<Group>] the filtered group(s)
     #
     def groups(filter = nil)
+      @groups ||= []
+
       return @groups if filter.nil?
 
       filtered_groups = case filter
