@@ -8,6 +8,7 @@ describe Guard::DslDescriber do
   let(:guardfile) do
     <<-GUARDFILE
       ignore! %r{tmp/}
+      filter! %r{\.log}
       notification :gntp, sticky: true
 
       guard :test, a: :b, c: :d do
