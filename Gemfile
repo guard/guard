@@ -3,7 +3,6 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'rake'
-gem 'listen', github: 'guard/listen'
 
 group :development, :test do
   # This plugin is required in the tests!

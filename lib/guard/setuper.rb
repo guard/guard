@@ -177,7 +177,7 @@ module Guard
       end
 
       listen_args = @watchdirs + [listener_options]
-      @listener = Listen.to(*listen_args).change(&listener_callback)
+      @listener = Listen.to(*listen_args, &listener_callback)
     end
 
     # Sets up traps to catch signals used to control Guard.

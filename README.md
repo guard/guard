@@ -603,11 +603,10 @@ used the `watch` method to monitor a directory, but you are not interested in ch
 the ignore method to exclude them.
 
 This comes in handy when you have large amounts of non-source data in you project. By default
-[`.rbx`, `.bundle`, `.git`, `.svn`, `log`, `tmp`, `vendor`](https://github.com/guard/listen/blob/master/lib/listen/directory_record.rb#L14)
+[`.rbx`, `.bundle`, `.DS_Store`, `.git`, `.hg` ,`.svn`, `bundle`, `log`, `tmp`, `vendor/bundle`](https://github.com/guard/listen/blob/master/lib/listen/silencer.rb#L5-L9)
 are ignored.
 
-Please note that method only accept regexps. More on the
-[Listen README](https://github.com/guard/listen#note-on-the-patterns-for-ignoring-and-filtering-paths).
+Please note that method only accept regexps. See [Listen README](https://github.com/guard/listen#ignore--ignore).
 
 To append to the default ignored files and directories, use the `ignore` method:
 
@@ -615,7 +614,7 @@ To append to the default ignored files and directories, use the `ignore` method:
 ignore %r{^ignored/path/}, /public/
 ```
 
-To _replace_ to default ignored files and directories, use the `ignore!` method:
+To _replace_ any existing ignored files and directories, use the `ignore!` method:
 
 ```ruby
 ignore! /data/
@@ -623,22 +622,7 @@ ignore! /data/
 
 ### filter
 
-The `filter` method allows you to focus by filtering files and directories without having to specify them by hand in the
-`watch` method. E.g. if you are watching multiple directories but only interested in changes to the Ruby files, then use
-the `filter` method.
-
-Please note that method only accept regexps. More on the
-[Listen README](https://github.com/guard/listen#note-on-the-patterns-for-ignoring-and-filtering-paths).
-
-```ruby
-filter /\.txt$/, /.*\.zip/
-```
-
-To _replace_ any existing filter, use the `filter!` method:
-
-```ruby
-filter! /\.js$/
-```
+Alias of the [ignore](https://github.com/guard/guard#ignore) method.
 
 ### logger
 

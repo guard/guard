@@ -223,8 +223,9 @@ module Guard
     # @param [Regexp] regexps a pattern (or list of patterns) for ignoring paths
     #
     def ignore(*regexps)
-      ::Guard.listener = ::Guard.listener.ignore(*regexps) if ::Guard.listener
+      ::Guard.listener.ignore(*regexps) if ::Guard.listener
     end
+    alias filter ignore
 
     # Replaces ignored paths globally
     #
@@ -234,32 +235,11 @@ module Guard
     # @param [Regexp] regexps a pattern (or list of patterns) for ignoring paths
     #
     def ignore!(*regexps)
-      ::Guard.listener = ::Guard.listener.ignore!(*regexps) if ::Guard.listener
+      @ignore_regexps ||= []
+      @ignore_regexps << regexps
+      ::Guard.listener.ignore!(@ignore_regexps) if ::Guard.listener
     end
-
-    # Filters certain paths globally.
-    #
-    # @example Filter some files
-    #   filter /\.txt$/, /.*\.zip/
-    #
-    # @param [Regexp] regexps a pattern (or list of patterns) for filtering
-    #   paths
-    #
-    def filter(*regexps)
-      ::Guard.listener = ::Guard.listener.filter(*regexps) if ::Guard.listener
-    end
-
-    # Replaces filtered paths globally.
-    #
-    # @example Filter only these files
-    #   filter! /\.txt$/, /.*\.zip/
-    #
-    # @param [Regexp] regexps a pattern (or list of patterns) for filtering
-    #   paths
-    #
-    def filter!(*regexps)
-      ::Guard.listener = ::Guard.listener.filter!(*regexps) if ::Guard.listener
-    end
+    alias filter! ignore!
 
     # Configures the Guard logger.
     #
