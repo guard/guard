@@ -51,10 +51,7 @@ module Guard
       # @option options [String] plugin manually define the calling plugin
       #
       def info(message, options = {})
-        filter(options[:plugin]) do |plugin|
-          reset_line if options[:reset]
-          logger.info(message, plugin)
-        end
+        _filtered_logger_message(message, :info, nil, options)
       end
 
       # Show a yellow warning message that is prefixed with WARNING.
@@ -64,10 +61,7 @@ module Guard
       # @option options [String] plugin manually define the calling plugin
       #
       def warning(message, options = {})
-        filter(options[:plugin]) do |plugin|
-          reset_line if options[:reset]
-          logger.warn(color(message, :yellow), plugin)
-        end
+        _filtered_logger_message(message, :warn, :yellow, options)
       end
 
       # Show a red error message that is prefixed with ERROR.
@@ -77,10 +71,7 @@ module Guard
       # @option options [String] plugin manually define the calling plugin
       #
       def error(message, options = {})
-        filter(options[:plugin]) do |plugin|
-          reset_line if options[:reset]
-          logger.error(color(message, :red), plugin)
-        end
+        _filtered_logger_message(message, :error, :red, options)
       end
 
       # Show a red deprecation message that is prefixed with DEPRECATION.
@@ -91,12 +82,7 @@ module Guard
       # @option options [String] plugin manually define the calling plugin
       #
       def deprecation(message, options = {})
-        return unless ::Guard.options.show_deprecations
-
-        filter(options[:plugin]) do |plugin|
-          reset_line if options[:reset]
-          logger.warn(color(message, :yellow), plugin)
-        end
+        warning(message, options) if ::Guard.options.show_deprecations
       end
 
       # Show a debug message that is prefixed with DEBUG and a timestamp.
@@ -106,10 +92,7 @@ module Guard
       # @option options [String] plugin manually define the calling plugin
       #
       def debug(message, options = {})
-        filter(options[:plugin]) do |plugin|
-          reset_line if options[:reset]
-          logger.debug(color(message, :yellow), plugin)
-        end
+        _filtered_logger_message(message, :debug, :yellow, options)
       end
 
       # Reset a line.
@@ -138,23 +121,26 @@ module Guard
       # @param [String] action the action to show
       # @param [Hash] scopes hash with a guard or a group scope
       #
-      def action_with_scopes(action, scopes)
-        plugins = scopes[:plugins] || []
-        groups  = scopes[:groups] || []
+      def action_with_scopes(action, scope)
+        first_non_blank_scope = _first_non_blank_scope(scope)
+        scope_message = first_non_blank_scope.map(&:title).join(', ') unless first_non_blank_scope.nil?
 
-        if plugins.empty? && groups.empty?
-          plugins = ::Guard.scope[:plugins] || []
-          groups  = ::Guard.scope[:groups] || []
-        end
-
-        scope_message ||= plugins.map(&:title).join(', ') unless plugins.empty?
-        scope_message ||= groups.map(&:title).join(', ') unless groups.empty?
-        scope_message ||= 'all'
-
-        info "#{ action } #{ scope_message }"
+        info "#{ action } #{ scope_message || 'all' }"
       end
 
       private
+
+      # Returns the first non-blank scope by searching in the given `scope`
+      # hash and in Guard.scope. Returns nil if no non-blank scope is found.
+      #
+      def _first_non_blank_scope(scope)
+        [:plugins, :groups].each do |scope_name|
+          s = scope[scope_name] || ::Guard.scope[scope_name]
+          return s if !s.nil? && !s.empty?
+        end
+
+        nil
+      end
 
       # Filters log messages depending on either the
       # `:only`` or `:except` option.
@@ -163,13 +149,29 @@ module Guard
       # @yield When the message should be logged
       # @yieldparam [String] param the calling plugin name
       #
-      def filter(plugin)
+      def _filter(plugin)
         only   = options.only
         except = options.except
         plugin = plugin || calling_plugin_name
 
         if (!only && !except) || (only && only.match(plugin)) || (except && !except.match(plugin))
           yield plugin
+        end
+      end
+
+      # Display a message of the type `method` and with the color `color_name`
+      # (no color by default) conditionnaly given a `plugin_name`.
+      #
+      # @param [String] plugin_name the calling plugin name
+      # @option options [Boolean] reset whether to clean the output before
+      # @option options [String] plugin manually define the calling plugin
+      #
+      def _filtered_logger_message(message, method, color_name, options = {})
+        message = color(message, color_name) if color_name
+
+        _filter(options[:plugin]) do |plugin|
+          reset_line if options[:reset]
+          logger.send(method, message, plugin)
         end
       end
 

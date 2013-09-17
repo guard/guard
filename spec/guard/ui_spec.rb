@@ -56,7 +56,7 @@ describe Guard::UI do
     end
 
     it 'logs the message to with the info severity' do
-      Guard::UI.logger.should_receive(:info).with('Info message', 'Guard::UiSpec')
+      Guard::UI.logger.should_receive(:info).with('Info message', 'Guard::Ui')
       Guard::UI.info 'Info message'
     end
 
@@ -96,7 +96,7 @@ describe Guard::UI do
     end
 
     it 'logs the message to with the warn severity' do
-      Guard::UI.logger.should_receive(:warn).with("\e[0;33mWarn message\e[0m", 'Guard::UiSpec')
+      Guard::UI.logger.should_receive(:warn).with("\e[0;33mWarn message\e[0m", 'Guard::Ui')
       Guard::UI.warning 'Warn message'
     end
 
@@ -136,7 +136,7 @@ describe Guard::UI do
     end
 
     it 'logs the message to with the error severity' do
-      Guard::UI.logger.should_receive(:error).with("\e[0;31mError message\e[0m", 'Guard::UiSpec')
+      Guard::UI.logger.should_receive(:error).with("\e[0;31mError message\e[0m", 'Guard::Ui')
       Guard::UI.error 'Error message'
     end
 
@@ -188,7 +188,7 @@ describe Guard::UI do
       end
 
       it 'logs the message to with the warn severity' do
-        Guard::UI.logger.should_receive(:warn).with("\e[0;33mDeprecator message\e[0m", 'Guard::UiSpec')
+        Guard::UI.logger.should_receive(:warn).with("\e[0;33mDeprecator message\e[0m", 'Guard::Ui')
         Guard::UI.deprecation 'Deprecator message'
       end
 
@@ -229,7 +229,7 @@ describe Guard::UI do
     end
 
     it 'logs the message to with the debug severity' do
-      Guard::UI.logger.should_receive(:debug).with("\e[0;33mDebug message\e[0m", 'Guard::UiSpec')
+      Guard::UI.logger.should_receive(:debug).with("\e[0;33mDebug message\e[0m", 'Guard::Ui')
       Guard::UI.debug 'Debug message'
     end
 
@@ -298,6 +298,8 @@ describe Guard::UI do
   end
 
   describe '.action_with_scopes' do
+    before { Guard.setup }
+
     let(:rspec) { double('Guard::Rspec', title: 'Rspec') }
     let(:jasmine) { double('Guard::Jasmine', title: 'Jasmine') }
     let(:group) { double('Guard::Group frontend', title: 'Frontend') }
