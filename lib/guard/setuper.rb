@@ -42,7 +42,6 @@ module Guard
       @lock      = Mutex.new
       @opts      = opts
       @watchdirs = [Dir.pwd]
-      @evaluator = ::Guard::Guardfile::Evaluator.new(opts)
       @runner    = ::Guard::Runner.new
 
       if options.watchdir
@@ -67,6 +66,12 @@ module Guard
       _setup_interactor
 
       self
+    end
+
+    # Lazy initializer for Guardfile evaluator
+    #
+    def evaluator
+      @evaluator ||= ::Guard::Guardfile::Evaluator.new(@opts || {})
     end
 
     # Lazy initializer for Guard's options hash
