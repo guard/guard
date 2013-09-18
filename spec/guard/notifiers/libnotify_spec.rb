@@ -9,21 +9,21 @@ describe Guard::Notifier::Libnotify do
   end
 
   describe '.supported_hosts' do
-    it { described_class.supported_hosts.should eq %w[linux freebsd openbsd sunos solaris] }
+    it { expect(described_class.supported_hosts).to eq %w[linux freebsd openbsd sunos solaris] }
   end
 
   describe '.available?' do
     it 'requires libnotify' do
-      described_class.should_receive(:require_gem_safely)
+      expect(described_class).to receive(:require_gem_safely)
 
-      described_class.should be_available
+      expect(described_class).to be_available
     end
   end
 
   describe '#notify' do
     context 'without additional options' do
       it 'shows the notification with the default options' do
-        ::Libnotify.should_receive(:show).with(
+        expect(::Libnotify).to receive(:show).with(
           transient: false,
           append:    true,
           timeout:   3,
@@ -39,7 +39,7 @@ describe Guard::Notifier::Libnotify do
 
     context 'with additional options' do
       it 'can override the default options' do
-        ::Libnotify.should_receive(:show).with(
+        expect(::Libnotify).to receive(:show).with(
           transient: true,
           append:    false,
           timeout:   5,

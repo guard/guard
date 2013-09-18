@@ -9,24 +9,24 @@ describe Guard::Notifier::TerminalNotifier do
   end
 
   describe '.supported_hosts' do
-    it { described_class.supported_hosts.should eq %w[darwin ] }
+    it { expect(described_class.supported_hosts).to eq %w[darwin ] }
   end
 
   describe '.gem_name' do
-    it { described_class.gem_name.should eq 'terminal-notifier-guard' }
+    it { expect(described_class.gem_name).to eq 'terminal-notifier-guard' }
   end
 
   describe '.available?' do
     it 'requires terminal-notifier-guard' do
-      described_class.should_receive(:require_gem_safely)
+      expect(described_class).to receive(:require_gem_safely)
 
-      described_class.should be_available
+      expect(described_class).to be_available
     end
   end
 
   describe '#notify' do
     it 'should call the notifier.' do
-      ::TerminalNotifier::Guard.should_receive(:execute).with(false,
+      expect(::TerminalNotifier::Guard).to receive(:execute).with(false,
                                                               title: 'any title',
                                                               type: :success,
                                                               message: 'any message')
@@ -35,7 +35,7 @@ describe Guard::Notifier::TerminalNotifier do
     end
 
     it "should allow the title to be customized" do
-      ::TerminalNotifier::Guard.should_receive(:execute).with(false,
+      expect(::TerminalNotifier::Guard).to receive(:execute).with(false,
                                                               title: 'any title',
                                                               message: 'any message',
                                                               type: :error)
@@ -45,7 +45,7 @@ describe Guard::Notifier::TerminalNotifier do
 
     context 'without a title set' do
       it 'should show the app name in the title' do
-        ::TerminalNotifier::Guard.should_receive(:execute).with(false,
+        expect(::TerminalNotifier::Guard).to receive(:execute).with(false,
                                                                 title: 'FooBar Success',
                                                                 type: :success,
                                                                 message: 'any message')

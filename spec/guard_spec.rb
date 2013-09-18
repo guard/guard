@@ -13,58 +13,58 @@ describe Guard do
     end
 
     it "return @plugins without any argument" do
-      described_class.plugins.should eq subject.instance_variable_get("@plugins")
+      expect(described_class.plugins).to eq subject.instance_variable_get("@plugins")
     end
 
     context "find a plugin by as string" do
       it "returns an array of plugins if plugins are found" do
-        described_class.plugins('foo-bar').should eq [@guard_foo_bar_backend, @guard_foo_bar_frontend]
+        expect(described_class.plugins('foo-bar')).to eq [@guard_foo_bar_backend, @guard_foo_bar_frontend]
       end
     end
 
     context "find a plugin by as symbol" do
       it "returns an array of plugins if plugins are found" do
-        described_class.plugins(:'foo-bar').should eq [@guard_foo_bar_backend, @guard_foo_bar_frontend]
+        expect(described_class.plugins(:'foo-bar')).to eq [@guard_foo_bar_backend, @guard_foo_bar_frontend]
       end
 
       it "returns an empty array when no plugin is found" do
-        described_class.plugins('foo-foo').should be_empty
+        expect(described_class.plugins('foo-foo')).to be_empty
       end
     end
 
     context "find plugins matching a regexp" do
       it "returns an array of plugins if plugins are found" do
-        described_class.plugins(/^foobar/).should eq [@guard_foo_bar_backend, @guard_foo_bar_frontend]
+        expect(described_class.plugins(/^foobar/)).to eq [@guard_foo_bar_backend, @guard_foo_bar_frontend]
       end
 
       it "returns an empty array when no plugin is found" do
-        described_class.plugins(/foo$/).should be_empty
+        expect(described_class.plugins(/foo$/)).to be_empty
       end
     end
 
     context "find plugins by their group as a string" do
       it "returns an array of plugins if plugins are found" do
-        described_class.plugins(group: 'backend').should eq [@guard_foo_bar_backend, @guard_foo_baz_backend]
+        expect(described_class.plugins(group: 'backend')).to eq [@guard_foo_bar_backend, @guard_foo_baz_backend]
       end
     end
 
     context "find plugins by their group as a symbol" do
       it "returns an array of plugins if plugins are found" do
-        described_class.plugins(group: :frontend).should eq [@guard_foo_bar_frontend, @guard_foo_baz_frontend]
+        expect(described_class.plugins(group: :frontend)).to eq [@guard_foo_bar_frontend, @guard_foo_baz_frontend]
       end
 
       it "returns an empty array when no plugin is found" do
-        described_class.plugins(group: :unknown).should be_empty
+        expect(described_class.plugins(group: :unknown)).to be_empty
       end
     end
 
     context "find plugins by their group & name" do
       it "returns an array of plugins if plugins are found" do
-        described_class.plugins(group: 'backend', name: 'foo-bar').should eq [@guard_foo_bar_backend]
+        expect(described_class.plugins(group: 'backend', name: 'foo-bar')).to eq [@guard_foo_bar_backend]
       end
 
       it "returns an empty array when no plugin is found" do
-        described_class.plugins(group: :unknown, name: :'foo-baz').should be_empty
+        expect(described_class.plugins(group: :unknown, name: :'foo-baz')).to be_empty
       end
     end
   end
@@ -81,53 +81,53 @@ describe Guard do
 
     context "find a plugin by a string" do
       it "returns the first plugin found" do
-        described_class.plugin('foo-bar').should eq @guard_foo_bar_backend
+        expect(described_class.plugin('foo-bar')).to eq @guard_foo_bar_backend
       end
     end
 
     context "find a plugin by a symbol" do
       it "returns the first plugin found" do
-        described_class.plugin(:'foo-bar').should eq @guard_foo_bar_backend
+        expect(described_class.plugin(:'foo-bar')).to eq @guard_foo_bar_backend
       end
 
       it "returns nil when no plugin is found" do
-        described_class.plugin('foo-foo').should be_nil
+        expect(described_class.plugin('foo-foo')).to be_nil
       end
     end
 
     context "find plugins matching a regexp" do
       it "returns the first plugin found" do
-        described_class.plugin(/^foobar/).should eq @guard_foo_bar_backend
+        expect(described_class.plugin(/^foobar/)).to eq @guard_foo_bar_backend
       end
 
       it "returns nil when no plugin is found" do
-        described_class.plugin(/foo$/).should be_nil
+        expect(described_class.plugin(/foo$/)).to be_nil
       end
     end
 
     context "find a plugin by its group as a string" do
       it "returns the first plugin found" do
-        described_class.plugin(group: 'backend').should eq @guard_foo_bar_backend
+        expect(described_class.plugin(group: 'backend')).to eq @guard_foo_bar_backend
       end
     end
 
     context "find plugins by their group as a symbol" do
       it "returns the first plugin found" do
-        described_class.plugin(group: :frontend).should eq @guard_foo_bar_frontend
+        expect(described_class.plugin(group: :frontend)).to eq @guard_foo_bar_frontend
       end
 
       it "returns nil when no plugin is found" do
-        described_class.plugin(group: :unknown).should be_nil
+        expect(described_class.plugin(group: :unknown)).to be_nil
       end
     end
 
     context "find plugins by their group & name" do
       it "returns the first plugin found" do
-        described_class.plugin(group: 'backend', name: 'foo-bar').should eq @guard_foo_bar_backend
+        expect(described_class.plugin(group: 'backend', name: 'foo-bar')).to eq @guard_foo_bar_backend
       end
 
       it "returns nil when no plugin is found" do
-        described_class.plugin(group: :unknown, name: :'foo-baz').should be_nil
+        expect(described_class.plugin(group: :unknown, name: :'foo-baz')).to be_nil
       end
     end
   end
@@ -142,37 +142,37 @@ describe Guard do
 
     context 'without no argument' do
       it 'returns all groups' do
-        subject.groups.should eq subject.instance_variable_get("@groups")
+        expect(subject.groups).to eq subject.instance_variable_get("@groups")
       end
     end
 
     context 'with a string argument' do
       it "returns an array of groups if plugins are found" do
-        subject.groups('backend').should eq [@group_backend]
+        expect(subject.groups('backend')).to eq [@group_backend]
       end
     end
 
     context 'with a symbol argument matching a group' do
       it "returns an array of groups if plugins are found" do
-        subject.groups(:backend).should eq [@group_backend]
+        expect(subject.groups(:backend)).to eq [@group_backend]
       end
     end
 
     context 'with a symbol argument not matching a group' do
       it "returns an empty array when no group is found" do
-        subject.groups(:foo).should be_empty
+        expect(subject.groups(:foo)).to be_empty
       end
     end
 
     context 'with a regexp argument matching a group' do
       it 'returns an array of groups' do
-        subject.groups(/^back/).should eq [@group_backend, @group_backflip]
+        expect(subject.groups(/^back/)).to eq [@group_backend, @group_backflip]
       end
     end
 
     context 'with a regexp argument not matching a group' do
       it "returns an empty array when no group is found" do
-        subject.groups(/back$/).should be_empty
+        expect(subject.groups(/back$/)).to be_empty
       end
     end
   end
@@ -187,31 +187,31 @@ describe Guard do
 
     context 'with a string argument' do
       it "returns the first group found" do
-        subject.group('backend').should eq @group_backend
+        expect(subject.group('backend')).to eq @group_backend
       end
     end
 
     context 'with a symbol argument' do
       it "returns the first group found" do
-        subject.group(:backend).should eq @group_backend
+        expect(subject.group(:backend)).to eq @group_backend
       end
     end
 
     context 'with a symbol argument not matching a group' do
       it "returns nil when no group is found" do
-        subject.group(:foo).should be_nil
+        expect(subject.group(:foo)).to be_nil
       end
     end
 
     context 'with a regexp argument matching a group' do
       it "returns the first group found" do
-        subject.group(/^back/).should eq @group_backend
+        expect(subject.group(/^back/)).to eq @group_backend
       end
     end
 
     context 'with a regexp argument not matching a group' do
       it "returns nil when no group is found" do
-        subject.group(/back$/).should be_nil
+        expect(subject.group(/back$/)).to be_nil
       end
     end
   end
@@ -221,14 +221,14 @@ describe Guard do
     let(:guard_rspec) { double('Guard::RSpec instance') }
 
     before do
-      ::Guard::PluginUtil.should_receive(:new).with('rspec') { plugin_util }
+      expect(::Guard::PluginUtil).to receive(:new).with('rspec') { plugin_util }
       plugin_util.stub(:initialize_plugin) { guard_rspec }
 
       ::Guard.reset_plugins
     end
 
     it 'delegates the plugin instantiation to Guard::PluginUtil' do
-      plugin_util.should_receive(:initialize_plugin).with(watchers: ['watcher'], group: 'foo')
+      expect(plugin_util).to receive(:initialize_plugin).with(watchers: ['watcher'], group: 'foo')
 
       ::Guard.add_plugin('rspec', watchers: ['watcher'], group: 'foo')
     end
@@ -236,7 +236,7 @@ describe Guard do
     it "adds guard to the @plugins array" do
       ::Guard.add_plugin('rspec')
 
-      ::Guard.plugins.should eq [guard_rspec]
+      expect(::Guard.plugins).to eq [guard_rspec]
     end
   end
 
@@ -245,22 +245,22 @@ describe Guard do
 
     it "accepts group name as string" do
       ::Guard.add_group('backend')
-      ::Guard.groups[0].name.should eq :default
-      ::Guard.groups[1].name.should eq :backend
+      expect(::Guard.groups[0].name).to eq :default
+      expect(::Guard.groups[1].name).to eq :backend
     end
 
     it "accepts group name as symbol" do
       ::Guard.add_group(:backend)
 
-      ::Guard.groups[0].name.should eq :default
-      ::Guard.groups[1].name.should eq :backend
+      expect(::Guard.groups[0].name).to eq :default
+      expect(::Guard.groups[1].name).to eq :backend
     end
 
     it "accepts options" do
       ::Guard.add_group(:backend, { halt_on_fail: true })
 
-      ::Guard.groups[0].options.should eq({})
-      ::Guard.groups[1].options.should eq({ halt_on_fail: true })
+      expect(::Guard.groups[0].options).to eq({})
+      expect(::Guard.groups[1].options).to eq({ halt_on_fail: true })
     end
   end
 

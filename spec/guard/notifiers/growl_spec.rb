@@ -10,21 +10,21 @@ describe Guard::Notifier::Growl do
   end
 
   describe '.supported_hosts' do
-    it { described_class.supported_hosts.should eq %w[darwin] }
+    it { expect(described_class.supported_hosts).to eq %w[darwin] }
   end
 
   describe '.available?' do
     it 'requires growl' do
-      described_class.should_receive(:require_gem_safely)
+      expect(described_class).to receive(:require_gem_safely)
 
-      described_class.should be_available
+      expect(described_class).to be_available
     end
   end
 
   describe '#notify' do
     context 'without additional options' do
       it 'shows the notification with the default options' do
-        ::Growl.should_receive(:notify).with('Welcome to Guard',
+        expect(::Growl).to receive(:notify).with('Welcome to Guard',
           sticky:   false,
           priority: 0,
           name:     'Guard',
@@ -38,7 +38,7 @@ describe Guard::Notifier::Growl do
 
     context 'with additional options' do
       it 'can override the default options' do
-        ::Growl.should_receive(:notify).with('Waiting for something',
+        expect(::Growl).to receive(:notify).with('Waiting for something',
           sticky:   true,
           priority: 2,
           name:     'Guard',

@@ -15,7 +15,7 @@ describe Guard::Commander do
       before { ::Guard.stub(:running) { false } }
 
       it "setup Guard" do
-        ::Guard.should_receive(:setup).with(foo: 'bar')
+        expect(::Guard).to receive(:setup).with(foo: 'bar')
 
         ::Guard.start(foo: 'bar')
       end
@@ -23,19 +23,19 @@ describe Guard::Commander do
 
     it "displays an info message" do
       ::Guard.instance_variable_set('@watchdirs', ['/foo/bar'])
-      ::Guard::UI.should_receive(:info).with("Guard is now watching at '/foo/bar'")
+      expect(::Guard::UI).to receive(:info).with("Guard is now watching at '/foo/bar'")
 
       ::Guard.start
     end
 
     it "tell the runner to run the :start task" do
-      ::Guard.runner.should_receive(:run).with(:start)
+      expect(::Guard.runner).to receive(:run).with(:start)
 
       ::Guard.start
     end
 
     it "start the listener" do
-      ::Guard.listener.should_receive(:start)
+      expect(::Guard.listener).to receive(:start)
 
       ::Guard.start
     end
@@ -53,26 +53,26 @@ describe Guard::Commander do
       before { ::Guard.stub(:running) { false } }
 
       it "setup Guard" do
-        ::Guard.should_receive(:setup)
+        expect(::Guard).to receive(:setup)
 
         ::Guard.stop
       end
     end
 
     it "turns the notifier off" do
-      ::Guard::Notifier.should_receive(:turn_off)
+      expect(::Guard::Notifier).to receive(:turn_off)
 
       ::Guard.stop
     end
 
     it "tell the runner to run the :stop task" do
-      ::Guard.runner.should_receive(:run).with(:stop)
+      expect(::Guard.runner).to receive(:run).with(:stop)
 
       ::Guard.stop
     end
 
     it "stops the listener" do
-      ::Guard.listener.should_receive(:stop)
+      expect(::Guard.listener).to receive(:stop)
 
       ::Guard.stop
     end
@@ -80,7 +80,7 @@ describe Guard::Commander do
     it "sets the running state to false" do
       ::Guard.running = true
       ::Guard.stop
-      ::Guard.running.should be_false
+      expect(::Guard.running).to be_false
     end
   end
 
@@ -100,27 +100,27 @@ describe Guard::Commander do
       before { ::Guard.stub(:running) { false } }
 
       it "setup Guard" do
-        ::Guard.should_receive(:setup)
+        expect(::Guard).to receive(:setup)
 
         ::Guard.reload
       end
     end
 
     it 'clears the screen' do
-      ::Guard::UI.should_receive(:clear)
+      expect(::Guard::UI).to receive(:clear)
 
       subject.reload
     end
 
     context 'with a given scope' do
       it 'does not re-evaluate the Guardfile' do
-        Guard::Guardfile::Evaluator.any_instance.should_not_receive(:reevaluate_guardfile)
+        ::Guard::Guardfile::Evaluator.any_instance.should_not_receive(:reevaluate_guardfile)
 
         subject.reload({ groups: [group] })
       end
 
       it 'reloads Guard' do
-        runner.should_receive(:run).with(:reload, { groups: [group] })
+        expect(runner).to receive(:run).with(:reload, { groups: [group] })
 
         subject.reload({ groups: [group] })
       end
@@ -134,7 +134,7 @@ describe Guard::Commander do
       end
 
       it 'does not reload Guard' do
-        runner.should_not_receive(:run).with(:reload, {})
+        expect(runner).to_not receive(:run).with(:reload, {})
 
         subject.reload
       end
@@ -157,7 +157,7 @@ describe Guard::Commander do
       before { ::Guard.stub(:running) { false } }
 
       it "setup Guard" do
-        ::Guard.should_receive(:setup)
+        expect(::Guard).to receive(:setup)
 
         ::Guard.run_all
       end
@@ -165,7 +165,7 @@ describe Guard::Commander do
 
     context 'with a given scope' do
       it 'runs all with the scope' do
-        runner.should_receive(:run).with(:run_all, { groups: [group] })
+        expect(runner).to receive(:run).with(:run_all, { groups: [group] })
 
         subject.run_all({ groups: [group] })
       end
@@ -173,7 +173,7 @@ describe Guard::Commander do
 
     context 'with an empty scope' do
       it 'runs all' do
-        runner.should_receive(:run).with(:run_all, {})
+        expect(runner).to receive(:run).with(:run_all, {})
 
         subject.run_all
       end
@@ -185,20 +185,20 @@ describe Guard::Commander do
     before { subject.interactor = double('interactor').as_null_object }
 
     it 'disallows running the block concurrently to avoid inconsistent states' do
-      subject.lock.should_receive(:synchronize)
+      expect(subject.lock).to receive(:synchronize)
       subject.within_preserved_state &Proc.new {}
     end
 
     it 'runs the passed block' do
       @called = false
       subject.within_preserved_state { @called = true }
-      @called.should be_true
+      expect(@called).to be_true
     end
 
     context '@running is true' do
       it 'stops the interactor before running the block and starts it again when done' do
-        subject.interactor.should_receive(:stop)
-        subject.interactor.should_receive(:start)
+        expect(subject.interactor).to receive(:stop)
+        expect(subject.interactor).to receive(:start)
         subject.within_preserved_state &Proc.new {}
       end
     end
@@ -207,8 +207,8 @@ describe Guard::Commander do
       before { ::Guard.stub(:running) { false } }
 
       it 'stops the interactor before running the block and do not starts it again when done' do
-        subject.interactor.should_receive(:stop)
-        subject.interactor.should_not_receive(:start)
+        expect(subject.interactor).to receive(:stop)
+        expect(subject.interactor).to_not receive(:start)
         subject.within_preserved_state &Proc.new {}
       end
     end

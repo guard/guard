@@ -9,25 +9,25 @@ describe Guard::Notifier::Notifu do
   end
 
   describe '.supported_hosts' do
-    it { described_class.supported_hosts.should eq %w[mswin mingw] }
+    it { expect(described_class.supported_hosts).to eq %w[mswin mingw] }
   end
 
   describe '.gem_name' do
-    it { described_class.gem_name.should eq 'rb-notifu' }
+    it { expect(described_class.gem_name).to eq 'rb-notifu' }
   end
 
   describe '.available?' do
     it 'requires rb-notifu' do
-      described_class.should_receive(:require_gem_safely)
+      expect(described_class).to receive(:require_gem_safely)
 
-      described_class.should be_available
+      expect(described_class).to be_available
     end
   end
 
   describe '#nofify' do
     context 'without additional options' do
       it 'shows the notification with the default options' do
-        ::Notifu.should_receive(:show).with(
+        expect(::Notifu).to receive(:show).with(
           time:    3,
           icon:    false,
           baloon:  false,
@@ -46,7 +46,7 @@ describe Guard::Notifier::Notifu do
 
     context 'with additional options' do
       it 'can override the default options' do
-        ::Notifu.should_receive(:show).with(
+        expect(::Notifu).to receive(:show).with(
           time:    5,
           icon:    true,
           baloon:  true,

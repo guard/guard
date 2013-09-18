@@ -4,7 +4,7 @@ describe 'Guard::Interactor::SHOW' do
 
   describe '#perform' do
     it 'outputs the DSL description' do
-      ::Guard::DslDescriber.should_receive(:show)
+      expect(::Guard::DslDescriber).to receive(:show)
       Pry.run_command 'show'
     end
   end

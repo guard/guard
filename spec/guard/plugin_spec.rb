@@ -6,23 +6,23 @@ describe Guard::Plugin do
   describe '#initialize' do
     it 'assigns the defined watchers' do
       watchers = [Guard::Watcher.new('*')]
-      Guard::Plugin.new(watchers: watchers).watchers.should eq watchers
+      expect(Guard::Plugin.new(watchers: watchers).watchers).to eq watchers
     end
 
     it 'assigns the defined options' do
       options = { a: 1, b: 2 }
-      Guard::Plugin.new(options).options.should eq options
+      expect(Guard::Plugin.new(options).options).to eq options
     end
 
     context 'with a group in the options' do
       it 'assigns the given group' do
-        Guard::Plugin.new(group: :test).group.should eq Guard.group(:test)
+        expect(Guard::Plugin.new(group: :test).group).to eq Guard.group(:test)
       end
     end
 
     context 'without a group in the options' do
       it 'assigns a default group' do
-        Guard::Plugin.new.group.should eq Guard.group(:default)
+        expect(Guard::Plugin.new.group).to eq Guard.group(:default)
       end
     end
   end

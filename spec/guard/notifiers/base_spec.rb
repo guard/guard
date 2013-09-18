@@ -14,25 +14,25 @@ describe Guard::Notifier::Base do
 
   describe '.name' do
     it 'un-modulizes the class, replaces "xY" with "x_Y" and downcase' do
-      Guard::Notifier::FooBar.name.should eq 'foo_bar'
+      expect(Guard::Notifier::FooBar.name).to eq 'foo_bar'
     end
   end
 
   describe '#name' do
     it 'delegates to the class' do
-      Guard::Notifier::FooBar.new.name.should eq Guard::Notifier::FooBar.name
+      expect(Guard::Notifier::FooBar.new.name).to eq Guard::Notifier::FooBar.name
     end
   end
 
   describe '.title' do
     it 'un-modulize the class' do
-      Guard::Notifier::FooBar.title.should eq 'FooBar'
+      expect(Guard::Notifier::FooBar.title).to eq 'FooBar'
     end
   end
 
   describe '#title' do
     it 'delegates to the class' do
-      Guard::Notifier::FooBar.new.title.should eq Guard::Notifier::FooBar.title
+      expect(Guard::Notifier::FooBar.new.title).to eq Guard::Notifier::FooBar.title
     end
   end
 
@@ -43,19 +43,19 @@ describe Guard::Notifier::Base do
       it 'returns the Guard title image when no :title is defined' do
         described_class.new.normalize_standard_options!(opts)
 
-        opts[:title].should eq 'Guard'
+        expect(opts[:title]).to eq 'Guard'
       end
 
       it 'returns the :success type when no :type is defined' do
         described_class.new.normalize_standard_options!(opts)
 
-        opts[:type].should eq :success
+        expect(opts[:type]).to eq :success
       end
 
       it 'returns the success.png image when no image is defined' do
         described_class.new.normalize_standard_options!(opts)
 
-        opts[:image].should =~ /success.png/
+        expect(opts[:image]).to match /success.png/
       end
     end
 
@@ -65,7 +65,7 @@ describe Guard::Notifier::Base do
       it 'returns the passed :title' do
         described_class.new.normalize_standard_options!(opts)
 
-        opts[:title].should eq 'Hi'
+        expect(opts[:title]).to eq 'Hi'
       end
     end
 
@@ -75,7 +75,7 @@ describe Guard::Notifier::Base do
       it 'returns the passed :type' do
         described_class.new.normalize_standard_options!(opts)
 
-        opts[:type].should eq :foo
+        expect(opts[:type]).to eq :foo
       end
     end
 
@@ -85,7 +85,7 @@ describe Guard::Notifier::Base do
       it 'sets the "failed" type for a :failed image' do
         described_class.new.normalize_standard_options!(opts)
 
-        opts[:image].should =~ /failed.png/
+        expect(opts[:image]).to match /failed.png/
       end
     end
 
@@ -95,7 +95,7 @@ describe Guard::Notifier::Base do
       it 'sets the "pending" type for a :pending image' do
         described_class.new.normalize_standard_options!(opts)
 
-        opts[:image].should =~ /pending.png/
+        expect(opts[:image]).to match /pending.png/
       end
     end
 
@@ -105,7 +105,7 @@ describe Guard::Notifier::Base do
       it 'sets the "success" type for a :success image' do
         described_class.new.normalize_standard_options!(opts)
 
-        opts[:image].should =~ /success.png/
+        expect(opts[:image]).to match /success.png/
       end
     end
 
@@ -115,7 +115,7 @@ describe Guard::Notifier::Base do
       it 'sets the "success" type for a :success image' do
         described_class.new.normalize_standard_options!(opts)
 
-        opts[:image].should eq 'foo.png'
+        expect(opts[:image]).to eq 'foo.png'
       end
     end
   end
@@ -123,8 +123,8 @@ describe Guard::Notifier::Base do
   describe '.available?' do
     context 'without the silent option' do
       it 'shows an error message when not available on the host OS' do
-        ::Guard::UI.should_receive(:error).with 'The :foo_bar notifier runs only on FreeBSD, Solaris.'
-        RbConfig::CONFIG.should_receive(:[]).with('host_os').and_return 'mswin'
+        expect(::Guard::UI).to receive(:error).with 'The :foo_bar notifier runs only on FreeBSD, Solaris.'
+        expect(RbConfig::CONFIG).to receive(:[]).with('host_os').and_return 'mswin'
 
         Guard::Notifier::FooBar.available?
       end
@@ -134,26 +134,26 @@ describe Guard::Notifier::Base do
   describe '.require_gem_safely' do
     context 'library loads normally' do
       it 'returns true' do
-        Guard::Notifier::FooBar.should_receive(:require).with('foo_bar')
+        expect(Guard::Notifier::FooBar).to receive(:require).with('foo_bar')
 
-        Guard::Notifier::FooBar.require_gem_safely.should be_true
+        expect(Guard::Notifier::FooBar.require_gem_safely).to be_true
       end
     end
 
     context 'library fails to load' do
       it 'shows an error message when the gem cannot be loaded' do
-        ::Guard::UI.should_receive(:error).with "Please add \"gem 'foo_bar'\" to your Gemfile and run Guard with \"bundle exec\"."
-        Guard::Notifier::FooBar.should_receive(:require).with('foo_bar').and_raise LoadError
+        expect(::Guard::UI).to receive(:error).with "Please add \"gem 'foo_bar'\" to your Gemfile and run Guard with \"bundle exec\"."
+        expect(Guard::Notifier::FooBar).to receive(:require).with('foo_bar').and_raise LoadError
 
-        Guard::Notifier::FooBar.require_gem_safely.should be_false
+        expect(Guard::Notifier::FooBar.require_gem_safely).to be_false
       end
 
       context 'with the silent option' do
         it 'does not show an error message when the gem cannot be loaded' do
-          ::Guard::UI.should_not_receive(:error).with "Please add \"gem 'growl_notify'\" to your Gemfile and run Guard with \"bundle exec\"."
-          Guard::Notifier::FooBar.should_receive(:require).with('foo_bar').and_raise LoadError
+          expect(::Guard::UI).to_not receive(:error).with "Please add \"gem 'growl_notify'\" to your Gemfile and run Guard with \"bundle exec\"."
+          expect(Guard::Notifier::FooBar).to receive(:require).with('foo_bar').and_raise LoadError
 
-          Guard::Notifier::FooBar.require_gem_safely(silent: true).should be_false
+          expect(Guard::Notifier::FooBar.require_gem_safely(silent: true)).to be_false
         end
       end
     end
