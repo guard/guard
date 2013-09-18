@@ -38,6 +38,7 @@ module Guard
     # @return [Guard] the Guard singleton
     #
     def setup(opts = {})
+      _reset_lazy_accessors
       @running   = true
       @lock      = Mutex.new
       @opts      = opts
@@ -138,6 +139,11 @@ module Guard
     end
 
     private
+
+    def _reset_lazy_accessors
+      @options   = nil
+      @evaluator = nil
+    end
 
     # Sets up various debug behaviors:
     #

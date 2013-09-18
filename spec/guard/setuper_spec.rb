@@ -28,8 +28,12 @@ describe Guard::Setuper do
       expect(subject.groups[0].options).to eq({})
     end
 
-    it "initializes the options" do
+    it 'lazily initializes the options' do
       expect(subject.options.my_opts).to be_true
+    end
+
+    it 'lazily initializes the evaluator' do
+      expect(subject.evaluator).to be_kind_of(Guard::Guardfile::Evaluator)
     end
 
     it "initializes the listener" do
@@ -54,8 +58,7 @@ describe Guard::Setuper do
       subject
     end
 
-    it 'create the evaluator and evaluate the Guardfile' do
-      expect(Guard::Guardfile::Evaluator).to receive(:new).with(options)
+    it 'evaluates the Guardfile' do
       expect(Guard).to receive(:evaluate_guardfile)
 
       subject
