@@ -269,7 +269,7 @@ module Guard
     #
     def _scope_for_prompt
       [:plugins, :groups].each do |scope_name|
-        return _join_scope(scope_name) unless ::Guard.scope[scope_name].empty?
+        return _join_scope_for_prompt(scope_name) unless ::Guard.scope[scope_name].empty?
       end
 
       ''
