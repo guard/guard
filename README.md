@@ -54,9 +54,8 @@ $ bundle
 Generate an empty `Guardfile` with:
 
 ```bash
-$ guard init
+$ bundle exec guard init
 ```
-
 
 Run Guard through Bundler with:
 
@@ -97,14 +96,14 @@ Guard is run from the command line. Please open your terminal and go to your pro
 You can always get help on the available tasks with the `help` task:
 
 ```bash
-$ guard help
+$ bundle exec guard help
 ```
 
 Requesting more detailed help on a specific task is simple: just append the task name to the help task.
 For example, to get help for the `start` task, simply run:
 
 ```bash
-$ guard help start
+$ bundle exec guard help start
 ```
 
 ### Init
@@ -113,28 +112,28 @@ You can generate a Guardfile and have all installed plugins be automatically add
 it by running the `init` task without any option:
 
 ```bash
-$ guard init
+$ bundle exec guard init
 ```
 
 You can also specify the name of an installed plugin to only get that plugin template
 in the generated Guardfile:
 
 ```bash
-$ guard init <guard-name>
+$ bundle exec guard init <guard-name>
 ```
 
 You can also specify the names of multiple plugins to only get those plugin templates
 in the generated Guardfile:
 
 ```bash
-$ guard init <guard1-name> <guard2-name>
+$ bundle exec guard init <guard1-name> <guard2-name>
 ```
 
 You can also define your own templates in `~/.guard/templates/` which can be appended in the same way to your existing
 `Guardfile`:
 
 ```bash
-$ guard init <template-name>
+$ bundle exec guard init <template-name>
 ```
 
 **Note**: If you already have a `Guardfile` in the current directory, the `init` task can be used
@@ -146,8 +145,8 @@ You can generate an empty `Guardfile` by running the `init` task with the bare
 option:
 
 ```bash
-$ guard init --bare
-$ guard init -b # shortcut
+$ bundle exec guard init --bare
+$ bundle exec guard init -b # shortcut
 ```
 
 ### Start
@@ -155,7 +154,7 @@ $ guard init -b # shortcut
 Just launch Guard inside your Ruby or Rails project with:
 
 ```bash
-$ guard
+$ bundle exec guard
 ```
 
 Guard will look for a `Guardfile` in your current directory. If it does not find one, it will look in your `$HOME`
@@ -166,8 +165,8 @@ directory for a `.Guardfile`.
 The shell can be cleared after each change:
 
 ```bash
-$ guard --clear
-$ guard -c # shortcut
+$ bundle exec guard --clear
+$ bundle exec guard -c # shortcut
 ```
 
 You can add the following snippet to your `~/.guardrc` to have the clear option always be enabled:
@@ -181,8 +180,8 @@ Guard.options.clear = true
 System notifications can be disabled:
 
 ```bash
-$ guard --notify false
-$ guard -n f # shortcut
+$ bundle exec guard --notify false
+$ bundle exec guard -n f # shortcut
 ```
 
 Notifications can also be disabled globally by setting a `GUARD_NOTIFY` environment variable to `false`.
@@ -192,8 +191,8 @@ Notifications can also be disabled globally by setting a `GUARD_NOTIFY` environm
 Scope Guard to certain plugin groups on start:
 
 ```bash
-$ guard --group group_name another_group_name
-$ guard -g group_name another_group_name # shortcut
+$ bundle exec guard --group group_name another_group_name
+$ bundle exec guard -g group_name another_group_name # shortcut
 ```
 
 See the Guardfile DSL below for creating groups.
@@ -203,8 +202,8 @@ See the Guardfile DSL below for creating groups.
 Scope Guard to certain plugins on start:
 
 ```bash
-$ guard --plugins plugin_name another_plugin_name
-$ guard -P plugin_name another_plugin_name # shortcut
+$ bundle exec guard --plugins plugin_name another_plugin_name
+$ bundle exec guard -P plugin_name another_plugin_name # shortcut
 ```
 
 #### `-d`/`--debug` option
@@ -213,8 +212,8 @@ Guard can display debug information which can be very usefull for plugins
 developers with:
 
 ```bash
-$ guard --debug
-$ guard -d # shortcut
+$ bundle exec guard --debug
+$ bundle exec guard -d # shortcut
 ```
 
 #### `-w`/`--watchdir` option
@@ -222,9 +221,9 @@ $ guard -d # shortcut
 Guard can watch any number of directories instead of only the current directory:
 
 ```bash
-$ guard --watchdir ~/your/fancy/project
-$ guard -w ~/your/fancy/project ~/your/fancier/project2 #multiple directories
-$ guard -w ~/your/fancy/project # shortcut
+$ bundle exec guard --watchdir ~/your/fancy/project
+$ bundle exec guard -w ~/your/fancy/project ~/your/fancier/project2 #multiple directories
+$ bundle exec guard -w ~/your/fancy/project # shortcut
 ```
 
 #### `-G`/`--guardfile` option
@@ -232,8 +231,8 @@ $ guard -w ~/your/fancy/project # shortcut
 Guard can use a `Guardfile` not located in the current directory:
 
 ```bash
-$ guard --guardfile ~/.your_global_guardfile
-$ guard -G ~/.your_global_guardfile # shortcut
+$ bundle exec guard --guardfile ~/.your_global_guardfile
+$ bundle exec guard -G ~/.your_global_guardfile # shortcut
 ```
 
 #### `-i`/`--no-interactions` option
@@ -241,8 +240,8 @@ $ guard -G ~/.your_global_guardfile # shortcut
 Turn off completely any Guard terminal interactions with:
 
 ```bash
-$ guard start -i
-$ guard start --no-interactions
+$ bundle exec guard start -i
+$ bundle exec guard start --no-interactions
 ```
 
 #### `-B`/`--no-bundler-warning` option
@@ -250,8 +249,8 @@ $ guard start --no-interactions
 Skip Bundler warning when a Gemfile exists in the project directory but Guard is not run with Bundler.
 
 ```bash
-$ guard start -B
-$ guard start --no-bundler-warning
+$ bundle exec guard start -B
+$ bundle exec guard start --no-bundler-warning
 ```
 
 #### `-l`/`--latency` option
@@ -259,8 +258,8 @@ $ guard start --no-bundler-warning
 Overwrite Listen's default latency, useful when your hard-drive / system is slow.
 
 ```bash
-$ guard start -l 1.5
-$ guard start --latency 1.5
+$ bundle exec guard start -l 1.5
+$ bundle exec guard start --latency 1.5
 ```
 
 #### `-p`/`--force-polling` option
@@ -268,8 +267,8 @@ $ guard start --latency 1.5
 Force Listen polling listener usage.
 
 ```bash
-$ guard start -p
-$ guard start --force-polling
+$ bundle exec guard start -p
+$ bundle exec guard start --force-polling
 ```
 
 ### List
@@ -277,7 +276,7 @@ $ guard start --force-polling
 You can list the available plugins with the `list` task:
 
 ```bash
-$ guard list
+$ bundle exec guard list
 +----------+--------------+
 | Plugin   | In Guardfile |
 +----------+--------------+
@@ -296,7 +295,7 @@ $ guard list
 You can show the structure of the groups and their plugins with the `show` task:
 
 ```bash
-$ guard show
+$ bundle exec guard show
 +---------+--------+-----------------+----------------------------+
 | Group   | Plugin | Option          | Value                      |
 +---------+--------+-----------------+----------------------------+
@@ -320,7 +319,7 @@ read more about these files in the [shared configuration section](https://github
 You can show the notifiers, their availablity and options with the `notifier` task:
 
 ```bash
-$ guard notifiers
+$ bundle exec guard notifiers
 +-------------------+-----------+------+------------------------+-------------------+
 | Name              | Available | Used | Option                 | Value             |
 +-------------------+-----------+------+------------------------+-------------------+
@@ -444,7 +443,7 @@ detected before sending it to the plugin for processing:
 
 ```ruby
 guard :rspec do
-  watch(%r{^lib/(.+)\.rb$})     { |m| "spec/lib/#{m[1]}_spec.rb" }
+  watch(%r{^lib/(.+)\.rb$}) { |m| "spec/lib/#{m[1]}_spec.rb" }
 end
 ```
 
@@ -482,7 +481,7 @@ end
 Groups to be run can be specified with the Guard DSL option `--group` (or `-g`):
 
 ```bash
-$ guard -g specs
+$ bundle exec guard -g specs
 ```
 
 Guard plugins that don't belong to a group are considered global and are always run.
@@ -697,7 +696,6 @@ Pull requests are very welcome! Please try to follow these simple rules if appli
 * Make sure your patches are well tested. All specs must pass on [Travis CI](https://travis-ci.org/guard/guard).
 * Update the [Yard](http://yardoc.org/) documentation.
 * Update the [README](https://github.com/guard/guard/blob/master/README.md).
-* Update the [CHANGELOG](https://github.com/guard/guard/blob/master/CHANGELOG.md) for noteworthy changes (don't forget to run `bundle exec pimpmychangelog` and watch the magic happen)!
 * Please **do not change** the version number.
 
 For questions please join us in our [Google group](http://groups.google.com/group/guard-dev) or on
@@ -720,9 +718,9 @@ Please try to follow these simple rules:
 #### Core Team
 
 * [Michael Kessler](https://github.com/netzpirat) ([@netzpirat](http://twitter.com/netzpirat), [mksoft.ch](https://mksoft.ch))
-* [Rémy Coutable](https://github.com/rymai) ([@rymai](http://twitter.com/rymai), [rymai.me](http://rymai.me))
+* [Rémy Coutable](https://github.com/rymai) ([@rymai](http://twitter.com/rymai), [rym.ai](http://rym.ai))
 * [Thibaud Guillaume-Gentil](https://github.com/thibaudgg) ([@thibaudgg](http://twitter.com/thibaudgg), [thibaud.me](http://thibaud.me/))
 
 #### Contributors
 
-[https://github.com/guard/guard/contributors](https://github.com/guard/guard/contributors)
+[https://github.com/guard/guard/graphs/contributors](https://github.com/guard/guard/graphs/contributors)
