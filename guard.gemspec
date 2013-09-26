@@ -13,14 +13,14 @@ Gem::Specification.new do |s|
   s.summary     = 'Guard keeps an eye on your file modifications'
   s.description = 'Guard is a command line tool to easily handle events on file system modifications.'
 
-  s.add_runtime_dependency 'thor',       '>= 0.14.6'
-  s.add_runtime_dependency 'listen',     '>= 2.0.0.beta.2'
-  s.add_runtime_dependency 'pry',        '>= 0.9.10'
-  s.add_runtime_dependency 'lumberjack', '>= 1.0.2'
+  s.add_runtime_dependency 'thor',       '>= 0.18.1'
+  s.add_runtime_dependency 'listen',     '~> 2.0.0.pre.1'
+  s.add_runtime_dependency 'pry',        '>= 0.9.12'
+  s.add_runtime_dependency 'lumberjack', '~> 1.0'
   s.add_runtime_dependency 'formatador', '>= 0.2.4'
 
   s.add_development_dependency 'bundler'
-  s.add_development_dependency 'rspec',   '>= 2.14.1'
+  s.add_development_dependency 'rspec', '~> 2.14'
 
   s.files        = Dir.glob('{bin,images,lib}/**/*') + %w[CHANGELOG.md LICENSE man/guard.1 man/guard.1.html README.md]
   s.executable   = 'guard'

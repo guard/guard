@@ -24,7 +24,7 @@ group :development do
     gem 'ruby_gntp', require: false
 
   elsif RbConfig::CONFIG['target_os'] =~ /linux/i
-    gem 'libnotify', '~> 0.8.0', require: false
+    gem 'libnotify', '>= 0.8.2', require: false
 
   elsif RbConfig::CONFIG['target_os'] =~ /mswin|mingw/i
     gem 'win32console', require: false
@@ -36,6 +36,6 @@ end
 # installed on Travis CI
 #
 group :test do
-  gem 'rspec', '>= 2.14.1'
+  gem 'rspec', '~> 2.14'
   gem 'coveralls', require: false
 end
