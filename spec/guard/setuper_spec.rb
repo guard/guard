@@ -43,13 +43,15 @@ describe Guard::Setuper do
     it "respect the watchdir option" do
       Guard.setup(watchdir: '/usr')
 
-      expect(Guard.listener.directories).to eq [Pathname.new('/usr')]
+      expect(Guard.listener.directories).to eq [Pathname.new(Guard::WINDOWS ? 'C:/usr' : '/usr' )]
     end
 
     it "respect the watchdir option with multiple directories" do
       ::Guard.setup(watchdir: ['/usr', '/bin'])
 
-      expect(::Guard.listener.directories).to eq [Pathname.new('/usr'), Pathname.new('/bin')]
+      expect(::Guard.listener.directories).to eq [
+        Pathname.new(Guard::WINDOWS ? 'C:/usr' : '/usr'),
+        Pathname.new(Guard::WINDOWS ? 'C:/bin' : '/bin')]
     end
 
     it 'call setup_signal_traps' do
