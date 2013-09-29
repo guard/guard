@@ -126,7 +126,7 @@ module Guard
 
       _store_terminal_settings if _stty_exists?
 
-      if !@thread || !['sleep', 'run'].include?(@thread.status)
+      unless @thread
         ::Guard::UI.debug 'Start interactor'
 
         @thread = Thread.new do
@@ -145,6 +145,7 @@ module Guard
         ::Guard::UI.reset_line
         ::Guard::UI.debug 'Stop interactor'
         @thread.kill
+        @thread = nil
       end
 
       _restore_terminal_settings if _stty_exists?
