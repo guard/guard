@@ -4,13 +4,17 @@ require 'guard/plugin'
 describe Guard::Interactor do
 
   describe '.enabled & .enabled=' do
-    before { described_class.enabled = nil }
+    before do
+      @interactor_enabled = described_class.enabled
+      described_class.enabled = nil
+    end
+    after { described_class.enabled = @interactor_enabled }
 
     it 'returns true by default' do
       expect(described_class.enabled).to be_true
     end
 
-    context 'intreactor not enabled' do
+    context 'interactor not enabled' do
       before { described_class.enabled = false }
 
       it 'returns false' do
@@ -80,6 +84,32 @@ describe Guard::Interactor do
     it 'returns the unkown scopes' do
       _, unkown = Guard::Interactor.convert_scope %w(unkown scope)
       expect(unkown).to eq %w(unkown scope)
+    end
+  end
+
+  describe '#start and #stop' do
+    before do
+      @interactor_enabled = described_class.enabled
+      described_class.enabled = nil
+      ENV['GUARD_ENV'] = 'interactor_test'
+      ::Guard.interactor.stop
+    end
+    after do
+      ::Guard.interactor.stop
+      ENV['GUARD_ENV'] = 'test'
+      described_class.enabled = @interactor_enabled
+    end
+
+    it 'instantiate @thread as an instance of a Thread on #start' do
+      ::Guard.interactor.start
+
+      expect(::Guard.interactor.thread).to be_a(Thread)
+    end
+
+    it 'sets @thread to nil on #stop' do
+      ::Guard.interactor.stop
+
+      expect(::Guard.interactor.thread).to be_nil
     end
   end
 
