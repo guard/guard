@@ -64,9 +64,14 @@ module Guard
       setup_scope(groups: options.group, plugins: options.plugin)
 
       _setup_notifier
-      _setup_interactor
 
       self
+    end
+
+    # Lazy initializer for Guard's options hash
+    #
+    def options
+      @options ||= ::Guard::Options.new(@opts || {}, DEFAULT_OPTIONS)
     end
 
     # Lazy initializer for Guardfile evaluator
@@ -75,10 +80,12 @@ module Guard
       @evaluator ||= ::Guard::Guardfile::Evaluator.new(@opts || {})
     end
 
-    # Lazy initializer for Guard's options hash
+    # Lazy initializer the interactor unless the user has specified not to.
     #
-    def options
-      @options ||= ::Guard::Options.new(@opts || {}, DEFAULT_OPTIONS)
+    def interactor
+      return if options.no_interactions || !::Guard::Interactor.enabled
+
+      @interactor ||= ::Guard::Interactor.new
     end
 
     # Clear Guard's options hash
@@ -141,8 +148,9 @@ module Guard
     private
 
     def _reset_lazy_accessors
-      @options   = nil
-      @evaluator = nil
+      @options    = nil
+      @evaluator  = nil
+      @interactor = nil
     end
 
     # Sets up various debug behaviors:
@@ -227,14 +235,6 @@ module Guard
         ::Guard::Notifier.turn_on
       else
         ::Guard::Notifier.turn_off
-      end
-    end
-
-    # Initializes the interactor unless the user has specified not to.
-    #
-    def _setup_interactor
-      unless options.no_interactions || !::Guard::Interactor.enabled
-        @interactor = ::Guard::Interactor.new
       end
     end
 

@@ -27,7 +27,7 @@ module Guard
   extend Setuper
 
   class << self
-    attr_accessor :interactor, :runner, :listener, :lock, :scope, :running
+    attr_accessor :runner, :listener, :lock, :scope, :running
 
     # Smart accessor for retrieving specific plugins at once.
     #

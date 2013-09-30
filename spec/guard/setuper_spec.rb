@@ -76,12 +76,6 @@ describe Guard::Setuper do
       subject
     end
 
-    it 'call setup_interactor' do
-      expect(Guard).to receive(:_setup_interactor)
-
-      subject
-    end
-
     context 'without the group or plugin option' do
       it "initializes the empty scope" do
         expect(subject.scope).to eq({ groups: [], plugins: [] })
@@ -405,14 +399,13 @@ describe Guard::Setuper do
     end
   end
 
-  describe '._setup_interactor' do
+  describe '.interactor' do
     context 'with CLI options' do
       before do
-        @enabled                  = Guard::Interactor.enabled
+        @interactor_enabled       = Guard::Interactor.enabled
         Guard::Interactor.enabled = true
       end
-
-      after { Guard::Interactor.enabled = @enabled }
+      after { Guard::Interactor.enabled = @interactor_enabled }
 
       context 'with interactions enabled' do
         before { Guard.setup(no_interactions: false) }
@@ -428,8 +421,8 @@ describe Guard::Setuper do
     end
 
     context 'with DSL options' do
-      before { @enabled = Guard::Interactor.enabled }
-      after { Guard::Interactor.enabled = @enabled }
+      before { @interactor_enabled = Guard::Interactor.enabled }
+      after { Guard::Interactor.enabled = @interactor_enabled }
 
       context "with interactions enabled" do
         before do

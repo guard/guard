@@ -182,7 +182,7 @@ describe Guard::Commander do
 
   describe '.within_preserved_state' do
     subject { ::Guard.setup }
-    before { subject.interactor = double('interactor').as_null_object }
+    before { subject.stub(interactor: double('interactor').as_null_object) }
 
     it 'disallows running the block concurrently to avoid inconsistent states' do
       expect(subject.lock).to receive(:synchronize)
