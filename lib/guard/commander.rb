@@ -110,7 +110,7 @@ module Guard
           # Bring back Pry when the block is halted with Ctrl-C
         end
 
-        interactor.start if running
+        interactor.start if interactor && running
       end
 
       @result
