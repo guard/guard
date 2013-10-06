@@ -30,6 +30,7 @@ module Guard
         default_message_format: '%s - %s',
         default_message_color:  'white',
         line_separator:         ' - ',
+        change_color:           true,
         color_location:         'status-left-bg'
       }
 
@@ -52,8 +53,10 @@ module Guard
       # use of a color based notification, changing the background color of the
       # `color_location` to the color defined in either the `success`,
       # `failed`, `pending` or `default`, depending on the notification type.
-      # If you also want display a text message, you have to enable it explicit
-      # by setting `display_message` to `true`.
+      # 
+      # You may enable an extra explicit message by setting `display_message`
+      # to true, and may further disable the colorization by setting
+      # `change_color` to false.
       #
       # @param [String] title the notification title
       # @param [Hash] opts additional notification library options
@@ -61,6 +64,8 @@ module Guard
       #   'pending', 'failed' or 'notify'
       # @option opts [String] message the notification message body
       # @option opts [String] image the path to the notification image
+      # @option opts [Boolean] change_color whether to show a color
+      #   notification
       # @option opts [String] color_location the location where to draw the
       #   color notification
       # @option opts [Boolean] display_message whether to display a message
@@ -69,11 +74,14 @@ module Guard
       def notify(message, opts = {})
         normalize_standard_options!(opts)
         opts.delete(:image)
+        opts.merge! @options
 
-        color_location = opts.fetch(:color_location, DEFAULTS[:color_location])
-        color = tmux_color(opts[:type], opts)
+        if opts.fetch(:change_color, DEFAULTS[:change_color])
+          color_location = opts.fetch(:color_location, DEFAULTS[:color_location])
+          color = tmux_color(opts[:type], opts)
 
-        _run_client "set #{ color_location } #{ color }"
+          _run_client "set #{ color_location } #{ color }"
+        end
 
         if opts.fetch(:display_message, DEFAULTS[:display_message])
           display_message(opts.delete(:type).to_s, opts.delete(:title), message, opts)

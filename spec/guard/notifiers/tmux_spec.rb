@@ -72,6 +72,12 @@ describe Guard::Notifier::Tmux do
       notifier.notify('any message', color_location: 'status-right-bg')
     end
 
+    it 'does not change colors when the change_color flag is disabled' do
+      expect(notifier).not_to receive(:system)
+
+      notifier.notify('any message', change_color: false)
+    end
+
     it 'calls display_message if the display_message flag is set' do
       notifier.stub system: true
       expect(notifier).to receive(:display_message).with('notify', 'Guard', 'any message', display_message: true)
