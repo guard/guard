@@ -21,6 +21,38 @@ describe Guard::Notifier::Libnotify do
   end
 
   describe '#notify' do
+    context 'with options passed at initialization' do
+      let(:notifier) { described_class.new(title: 'Hello') }
+
+      it 'uses these options by default' do
+        expect(::Libnotify).to receive(:show).with(
+          transient: false,
+          append:    true,
+          timeout:   3,
+          urgency:   :low,
+          summary:   'Hello',
+          body:      'Welcome to Guard',
+          icon_path: '/tmp/welcome.png'
+        )
+
+        notifier.notify('Welcome to Guard', image: '/tmp/welcome.png')
+      end
+
+      it 'overwrites object options with passed options' do
+        expect(::Libnotify).to receive(:show).with(
+          transient: false,
+          append:    true,
+          timeout:   3,
+          urgency:   :low,
+          summary:   'Welcome',
+          body:      'Welcome to Guard',
+          icon_path: '/tmp/welcome.png'
+        )
+
+        notifier.notify('Welcome to Guard', title: 'Welcome', image: '/tmp/welcome.png')
+      end
+    end
+
     context 'without additional options' do
       it 'shows the notification with the default options' do
         expect(::Libnotify).to receive(:show).with(

@@ -43,21 +43,20 @@ module Guard
       # @return [Boolean] the availability status
       #
       def self.available?(opts = {})
-        options = { silent: false }.merge(opts)
-
         unless _supported_host?
           hosts = supported_hosts.map { |host| HOSTS[host.to_sym] }.join(', ')
-          ::Guard::UI.error "The :#{name} notifier runs only on #{hosts}." unless options[:silent]
+          ::Guard::UI.error "The :#{name} notifier runs only on #{hosts}." unless opts.fetch(:silent) { false }
           return false
         end
 
         true
       end
 
-      # This method must be implemented.
+      # This method must be overriden.
       #
       def notify(message, opts = {})
-        raise NotImplementedError
+        opts.replace(options.merge(opts))
+        normalize_standard_options!(opts)
       end
 
       # Returns the title of the notifier.

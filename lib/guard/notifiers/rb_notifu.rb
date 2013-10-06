@@ -67,8 +67,8 @@ module Guard
       #   IUserNotification2 is available
       #
       def notify(message, opts = {})
+        super
         self.class.require_gem_safely
-        normalize_standard_options!(opts)
 
         opts = DEFAULTS.merge(
           type:    _notifu_type(opts.delete(:type)),

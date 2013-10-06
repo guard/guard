@@ -69,8 +69,8 @@ module Guard
       # @option opts [Boolean] sticky make the notification sticky
       #
       def notify(message, opts = {})
+        super
         self.class.require_gem_safely
-        normalize_standard_options!(opts)
 
         opts = DEFAULTS.merge(
           name: opts.delete(:type).to_s,

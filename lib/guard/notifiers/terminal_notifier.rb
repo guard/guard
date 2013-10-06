@@ -50,9 +50,9 @@ module Guard
       # @option opts [String] open some url or file
       #
       def notify(message, opts = {})
+        title = opts[:title] || options[:title]
+        super
         self.class.require_gem_safely
-        title = opts[:title]
-        normalize_standard_options!(opts)
 
         opts.delete(:image)
         opts[:title] = title || [opts.delete(:app_name) { 'Guard' }, opts[:type].downcase.capitalize].join(' ')

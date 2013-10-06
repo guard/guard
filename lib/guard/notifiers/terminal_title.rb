@@ -16,7 +16,7 @@ module Guard
       # @option opts [String] title the notification title
       #
       def notify(message, opts = {})
-        normalize_standard_options!(opts)
+        super
 
         first_line = message.sub(/^\n/, '').sub(/\n.*/m, '')
 

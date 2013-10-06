@@ -40,6 +40,38 @@ describe Guard::Notifier::GrowlNotify do
   end
 
   describe '#notify' do
+    context 'with options passed at initialization' do
+      let(:notifier) { described_class.new(title: 'Hello') }
+
+      it 'uses these options by default' do
+        expect(::GrowlNotify).to receive(:send_notification).with(
+          sticky:           false,
+          priority:         0,
+          application_name: 'Guard',
+          with_name:        'success',
+          title:            'Hello',
+          description:      'Welcome to Guard',
+          icon:             '/tmp/welcome.png'
+        )
+
+        notifier.notify('Welcome to Guard', type: :success, image: '/tmp/welcome.png')
+      end
+
+      it 'overwrites object options with passed options' do
+        expect(::GrowlNotify).to receive(:send_notification).with(
+          sticky:           false,
+          priority:         0,
+          application_name: 'Guard',
+          with_name:        'success',
+          title:            'Welcome',
+          description:      'Welcome to Guard',
+          icon:             '/tmp/welcome.png'
+        )
+
+        notifier.notify('Welcome to Guard', type: :success, title: 'Welcome', image: '/tmp/welcome.png')
+      end
+    end
+
     context 'without additional options' do
       it 'shows the notification with the default options' do
         expect(::GrowlNotify).to receive(:send_notification).with(

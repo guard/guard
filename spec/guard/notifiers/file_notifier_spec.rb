@@ -14,6 +14,22 @@ describe Guard::Notifier::FileNotifier do
   end
 
   describe '.notify' do
+    context 'with options passed at initialization' do
+      let(:notifier) { described_class.new(path: 'tmp/guard_result') }
+
+      it 'uses these options by default' do
+        expect(File).to receive(:write).with('tmp/guard_result', "success\nany title\nany message\n")
+
+        notifier.notify('any message', title: 'any title')
+      end
+
+      it 'overwrites object options with passed options' do
+        expect(File).to receive(:write).with('tmp/guard_result_final', "success\nany title\nany message\n")
+
+        notifier.notify('any message', title: 'any title', path: 'tmp/guard_result_final')
+      end
+    end
+
     it 'writes to a file on success' do
       expect(File).to receive(:write).with('tmp/guard_result', "success\nany title\nany message\n")
 
@@ -23,7 +39,7 @@ describe Guard::Notifier::FileNotifier do
     it 'also writes to a file on failure' do
       expect(File).to receive(:write).with('tmp/guard_result', "failed\nany title\nany message\n")
 
-      notifier.notify('any message',type: :failed, title: 'any title', path: 'tmp/guard_result')
+      notifier.notify('any message', type: :failed, title: 'any title', path: 'tmp/guard_result')
     end
 
     # We don't have a way to return false in .available? when no path is

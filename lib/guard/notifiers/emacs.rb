@@ -47,7 +47,7 @@ module Guard
       #   (default is 0)
       #
       def notify(message, opts = {})
-        normalize_standard_options!(opts)
+        super
 
         opts      = DEFAULTS.merge(opts)
         color     = emacs_color(opts[:type], opts)

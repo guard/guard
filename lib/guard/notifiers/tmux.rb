@@ -53,7 +53,7 @@ module Guard
       # use of a color based notification, changing the background color of the
       # `color_location` to the color defined in either the `success`,
       # `failed`, `pending` or `default`, depending on the notification type.
-      # 
+      #
       # You may enable an extra explicit message by setting `display_message`
       # to true, and may further disable the colorization by setting
       # `change_color` to false.
@@ -72,9 +72,8 @@ module Guard
       #   or not
       #
       def notify(message, opts = {})
-        normalize_standard_options!(opts)
+        super
         opts.delete(:image)
-        opts.merge! @options
 
         if opts.fetch(:change_color, DEFAULTS[:change_color])
           color_location = opts.fetch(:color_location, DEFAULTS[:color_location])

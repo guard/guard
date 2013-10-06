@@ -20,6 +20,34 @@ describe Guard::Notifier::NotifySend do
   end
 
   describe '#notify' do
+    context 'with options passed at initialization' do
+      let(:notifier) { described_class.new(image: '/tmp/hello.png') }
+
+      it 'uses these options by default' do
+        notifier.should_receive(:system).with do |command, *arguments|
+          expect(command).to eql 'notify-send'
+          expect(arguments).to include '-i', '/tmp/hello.png'
+          expect(arguments).to include '-u', 'low'
+          expect(arguments).to include '-t', '3000'
+          expect(arguments).to include '-h', 'int:transient:1'
+        end
+
+        notifier.notify('Welcome to Guard')
+      end
+
+      it 'overwrites object options with passed options' do
+        notifier.should_receive(:system).with do |command, *arguments|
+          expect(command).to eql 'notify-send'
+          expect(arguments).to include '-i', '/tmp/welcome.png'
+          expect(arguments).to include '-u', 'low'
+          expect(arguments).to include '-t', '3000'
+          expect(arguments).to include '-h', 'int:transient:1'
+        end
+
+        notifier.notify('Welcome to Guard', image: '/tmp/welcome.png')
+      end
+    end
+
     context 'without additional options' do
       it 'shows the notification with the default options' do
         notifier.should_receive(:system).with do |command, *arguments|
@@ -30,7 +58,7 @@ describe Guard::Notifier::NotifySend do
           expect(arguments).to include '-h', 'int:transient:1'
         end
 
-        notifier.notify('Welcome to Guard', type: 'success', title: 'Welcome', image: '/tmp/welcome.png')
+        notifier.notify('Welcome to Guard', image: '/tmp/welcome.png')
       end
     end
 
@@ -43,7 +71,7 @@ describe Guard::Notifier::NotifySend do
           expect(arguments).to include '-t', '5'
         end
 
-        notifier.notify('Waiting for something', type: :pending, title: 'Waiting', image: '/tmp/wait.png',
+        notifier.notify('Waiting for something', type: :pending, image: '/tmp/wait.png',
           t: 5,
           u: :critical
         )

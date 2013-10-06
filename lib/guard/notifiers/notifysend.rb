@@ -42,7 +42,7 @@ module Guard
       #   3000)
       #
       def notify(message, opts = {})
-        normalize_standard_options!(opts)
+        super
 
         command = [title, message]
         opts = DEFAULTS.merge(

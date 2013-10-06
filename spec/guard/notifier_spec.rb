@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Guard::Notifier do
-  let(:gntp)  { { name: :gntp, options: {} } }
+  let(:gntp)  { { name: :gntp, options: { color: true } } }
   let(:growl) { { name: :growl, options: {} } }
   let(:gntp_object) { double('GNTP').as_null_object }
   let(:growl_object) { double('Growl').as_null_object }
@@ -216,7 +216,7 @@ describe Guard::Notifier do
       before do
         Guard::Notifier.stub(:enabled?).and_return true
 
-        expect(Guard::Notifier::GNTP).to receive(:new).with({}).and_return(gntp_object)
+        expect(Guard::Notifier::GNTP).to receive(:new).with(color: true).and_return(gntp_object)
         expect(Guard::Notifier::Growl).to receive(:new).with({}).and_return(growl_object)
       end
 

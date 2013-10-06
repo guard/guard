@@ -25,6 +25,28 @@ describe Guard::Notifier::TerminalNotifier do
   end
 
   describe '#notify' do
+    context 'with options passed at initialization' do
+      let(:notifier) { described_class.new(title: 'Hello') }
+
+      it 'uses these options by default' do
+      expect(::TerminalNotifier::Guard).to receive(:execute).with(false,
+                                                              title: 'Hello',
+                                                              type: :success,
+                                                              message: 'any message')
+
+      notifier.notify('any message')
+      end
+
+      it 'overwrites object options with passed options' do
+      expect(::TerminalNotifier::Guard).to receive(:execute).with(false,
+                                                              title: 'Welcome',
+                                                              type: :success,
+                                                              message: 'any message')
+
+      notifier.notify('any message', title: 'Welcome')
+      end
+    end
+
     it 'should call the notifier.' do
       expect(::TerminalNotifier::Guard).to receive(:execute).with(false,
                                                               title: 'any title',

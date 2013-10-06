@@ -90,7 +90,7 @@ module Guard
         name      = definition[0]
         clazz     = definition[1]
         available = clazz.available?(silent: true) ? '✔' : '✘'
-        notifier  = ::Guard::Notifier.notifiers.find{ |n| n[:name] == name }
+        notifier  = ::Guard::Notifier.notifiers.find { |n| n[:name] == name }
         used      = notifier ? '✔' : '✘'
         options   = notifier ? notifier[:options] : {}
         defaults  = clazz.const_defined?(:DEFAULTS) ? clazz.const_get(:DEFAULTS) : {}

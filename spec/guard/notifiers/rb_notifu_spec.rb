@@ -25,6 +25,44 @@ describe Guard::Notifier::Notifu do
   end
 
   describe '#nofify' do
+    context 'with options passed at initialization' do
+      let(:notifier) { described_class.new(title: 'Hello') }
+
+      it 'uses these options by default' do
+        expect(::Notifu).to receive(:show).with(
+          time:    3,
+          icon:    false,
+          baloon:  false,
+          nosound: false,
+          noquiet: false,
+          xp:      false,
+          title:   'Hello',
+          type:    :info,
+          image:   '/tmp/welcome.png',
+          message: 'Welcome to Guard'
+        )
+
+        notifier.notify('Welcome to Guard', image: '/tmp/welcome.png')
+      end
+
+      it 'overwrites object options with passed options' do
+        expect(::Notifu).to receive(:show).with(
+          time:    3,
+          icon:    false,
+          baloon:  false,
+          nosound: false,
+          noquiet: false,
+          xp:      false,
+          title:   'Welcome',
+          type:    :info,
+          image:   '/tmp/welcome.png',
+          message: 'Welcome to Guard'
+        )
+
+        notifier.notify('Welcome to Guard', title: 'Welcome', image: '/tmp/welcome.png')
+      end
+    end
+
     context 'without additional options' do
       it 'shows the notification with the default options' do
         expect(::Notifu).to receive(:show).with(

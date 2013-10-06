@@ -49,8 +49,8 @@ module Guard
       #   low) to 2 (emergency)
       #
       def notify(message, opts = {})
+        super
         self.class.require_gem_safely
-        normalize_standard_options!(opts)
 
         opts = DEFAULTS.merge(
           application_name: 'Guard',

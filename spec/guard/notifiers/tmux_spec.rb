@@ -36,6 +36,22 @@ describe Guard::Notifier::Tmux do
   end
 
   describe '#notify' do
+    context 'with options passed at initialization' do
+      let(:notifier) { described_class.new(success: 'rainbow') }
+
+      it 'uses these options by default' do
+      expect(notifier).to receive(:system).with "tmux set status-left-bg rainbow"
+
+      notifier.notify('any message', type: :success)
+      end
+
+      it 'overwrites object options with passed options' do
+      expect(notifier).to receive(:system).with "tmux set status-left-bg black"
+
+      notifier.notify('any message', type: :success, success: 'black')
+      end
+    end
+
     it 'should set the tmux status bar color to green on success' do
       expect(notifier).to receive(:system).with 'tmux set status-left-bg green'
 

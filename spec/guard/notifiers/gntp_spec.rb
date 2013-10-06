@@ -50,8 +50,35 @@ describe Guard::Notifier::GNTP do
   describe '#notify' do
     before { notifier.stub(:_client).and_return(gntp) }
 
-    context 'without additional options' do
+    context 'with options passed at initialization' do
+      let(:notifier) { described_class.new(title: 'Hello') }
 
+      it 'uses these options by default' do
+        expect(gntp).to receive(:notify).with(
+          sticky: false,
+          name:   'success',
+          title:  'Hello',
+          text:   'Welcome to Guard',
+          icon:   '/tmp/welcome.png'
+        )
+
+        notifier.notify('Welcome to Guard', type: :success, image: '/tmp/welcome.png')
+      end
+
+      it 'overwrites object options with passed options' do
+        expect(gntp).to receive(:notify).with(
+          sticky: false,
+          name:   'success',
+          title:  'Welcome',
+          text:   'Welcome to Guard',
+          icon:   '/tmp/welcome.png'
+        )
+
+        notifier.notify('Welcome to Guard', type: :success, title: 'Welcome', image: '/tmp/welcome.png')
+      end
+    end
+
+    context 'without additional options' do
       it 'shows the notification with the default options' do
         expect(gntp).to receive(:notify).with(
           sticky: false,

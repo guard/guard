@@ -36,7 +36,7 @@ module Guard
       # @option opts [String] path the path of where to write the file
       #
       def notify(message, opts = {})
-        normalize_standard_options!(opts)
+        super
 
         if opts[:path]
           format = opts.fetch(:format, DEFAULTS[:format])

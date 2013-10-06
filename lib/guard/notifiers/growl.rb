@@ -71,9 +71,9 @@ module Guard
       #   notifications
       #
       def notify(message, opts = {})
-        self.class.require_gem_safely
-        normalize_standard_options!(opts)
+        super
         opts.delete(:type)
+        self.class.require_gem_safely
 
         opts = DEFAULTS.merge(opts).merge(name: 'Guard')
 
