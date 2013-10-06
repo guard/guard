@@ -54,7 +54,7 @@ module Guard
     #   Guard 2.0, please head over to: https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0
     #
     def initialize_plugin(options)
-      if plugin_class.superclass == ::Guard::Guard
+      if plugin_class.superclass.to_s == 'Guard::Guard'
         plugin_class.new(options.delete(:watchers), options)
       else
         plugin_class.new(options)
