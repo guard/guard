@@ -1,5 +1,6 @@
 require 'lumberjack'
 
+require 'guard/options'
 require 'guard/ui/colors'
 
 module Guard
