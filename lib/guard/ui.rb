@@ -21,8 +21,7 @@ module Guard
       #
       def logger
         @logger ||= begin
-          opts = options.marshal_dump
-          Lumberjack::Logger.new(opts.delete(:device) { $stderr }, opts)
+          Lumberjack::Logger.new(options.fetch(:device) { $stderr }, options)
         end
       end
 
@@ -83,7 +82,7 @@ module Guard
       # @option options [String] plugin manually define the calling plugin
       #
       def deprecation(message, options = {})
-        warning(message, options) if ::Guard.options.show_deprecations
+        warning(message, options) if ::Guard.options[:show_deprecations]
       end
 
       # Show a debug message that is prefixed with DEBUG and a timestamp.
@@ -105,7 +104,7 @@ module Guard
       # Clear the output if clearable.
       #
       def clear(options = {})
-        if ::Guard.options.clear && (@clearable || options[:force])
+        if ::Guard.options[:clear] && (@clearable || options[:force])
           @clearable = false
           system('clear;')
         end
@@ -151,8 +150,8 @@ module Guard
       # @yieldparam [String] param the calling plugin name
       #
       def _filter(plugin)
-        only   = options.only
-        except = options.except
+        only   = options[:only]
+        except = options[:except]
         plugin = plugin || calling_plugin_name
 
         if (!only && !except) || (only && only.match(plugin)) || (except && !except.match(plugin))

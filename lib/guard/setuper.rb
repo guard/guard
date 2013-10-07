@@ -45,13 +45,13 @@ module Guard
       @watchdirs = [Dir.pwd]
       @runner    = ::Guard::Runner.new
 
-      if options.watchdir
+      if options[:watchdir]
         # Ensure we have an array
-        @watchdirs = Array(options.watchdir).map { |dir| File.expand_path dir }
+        @watchdirs = Array(options[:watchdir]).map { |dir| File.expand_path dir }
       end
 
       ::Guard::UI.clear(force: true)
-      _setup_debug if options.debug
+      _setup_debug if options[:debug]
       _setup_listener
       _setup_signal_traps
 
@@ -61,7 +61,7 @@ module Guard
 
       evaluate_guardfile
 
-      setup_scope(groups: options.group, plugins: options.plugin)
+      setup_scope(groups: options[:group], plugins: options[:plugin])
 
       _setup_notifier
 
@@ -71,7 +71,7 @@ module Guard
     # Lazy initializer for Guard's options hash
     #
     def options
-      @options ||= ::Guard::Options.new(@opts || {}, DEFAULT_OPTIONS)
+      @options ||= ::Guard::Options.new(@opts, DEFAULT_OPTIONS)
     end
 
     # Lazy initializer for Guardfile evaluator
@@ -83,7 +83,7 @@ module Guard
     # Lazy initializer the interactor unless the user has specified not to.
     #
     def interactor
-      return if options.no_interactions || !::Guard::Interactor.enabled
+      return if options[:no_interactions] || !::Guard::Interactor.enabled
 
       @interactor ||= ::Guard::Interactor.new
     end
@@ -163,7 +163,7 @@ module Guard
     #
     def _setup_debug
       Thread.abort_on_exception = true
-      ::Guard::UI.options.level = :debug
+      ::Guard::UI.options[:level] = :debug
       _debug_command_execution
     end
 
@@ -191,8 +191,8 @@ module Guard
       end
 
       listener_options = {}
-      %w[latency force_polling].each do |option|
-        listener_options[option.to_sym] = options.send(option) if options.send(option)
+      [:latency, :force_polling].each do |option|
+        listener_options[option] = options[option] if options[option]
       end
 
       listen_args = @watchdirs + [listener_options]
@@ -231,7 +231,7 @@ module Guard
     # Enables or disables the notifier based on user's configurations.
     #
     def _setup_notifier
-      if options.notify && ENV['GUARD_NOTIFY'] != 'false'
+      if options[:notify] && ENV['GUARD_NOTIFY'] != 'false'
         ::Guard::Notifier.turn_on
       else
         ::Guard::Notifier.turn_off

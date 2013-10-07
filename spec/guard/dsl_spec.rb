@@ -243,52 +243,52 @@ describe Guard::Dsl do
     context 'with valid options' do
       it 'sets the logger log level' do
         described_class.evaluate_guardfile(guardfile_contents: 'logger level: :error')
-        expect(Guard::UI.options.level).to eq :error
+        expect(Guard::UI.options[:level]).to eq :error
       end
 
       it 'sets the logger log level and convert to a symbol' do
         described_class.evaluate_guardfile(guardfile_contents: 'logger level: \'error\'')
-        expect(Guard::UI.options.level).to eq :error
+        expect(Guard::UI.options[:level]).to eq :error
       end
 
       it 'sets the logger template' do
         described_class.evaluate_guardfile(guardfile_contents: 'logger template: \':message - :severity\'')
-        expect(Guard::UI.options.template).to eq ':message - :severity'
+        expect(Guard::UI.options[:template]).to eq ':message - :severity'
       end
 
       it 'sets the logger time format' do
         described_class.evaluate_guardfile(guardfile_contents: 'logger time_format: \'%Y\'')
-        expect(Guard::UI.options.time_format).to eq '%Y'
+        expect(Guard::UI.options[:time_format]).to eq '%Y'
       end
 
       it 'sets the logger only filter from a symbol' do
         described_class.evaluate_guardfile(guardfile_contents: 'logger only: :cucumber')
-        expect(Guard::UI.options.only).to eq(/cucumber/i)
+        expect(Guard::UI.options[:only]).to eq(/cucumber/i)
       end
 
       it 'sets the logger only filter from a string' do
         described_class.evaluate_guardfile(guardfile_contents: 'logger only: \'jasmine\'')
-        expect(Guard::UI.options.only).to eq(/jasmine/i)
+        expect(Guard::UI.options[:only]).to eq(/jasmine/i)
       end
 
       it 'sets the logger only filter from an array of symbols and string' do
         described_class.evaluate_guardfile(guardfile_contents: 'logger only: [:rspec, \'cucumber\']')
-        expect(Guard::UI.options.only).to eq(/rspec|cucumber/i)
+        expect(Guard::UI.options[:only]).to eq(/rspec|cucumber/i)
       end
 
       it 'sets the logger except filter from a symbol' do
         described_class.evaluate_guardfile(guardfile_contents: 'logger except: :jasmine')
-        expect(Guard::UI.options.except).to eq(/jasmine/i)
+        expect(Guard::UI.options[:except]).to eq(/jasmine/i)
       end
 
       it 'sets the logger except filter from a string' do
         described_class.evaluate_guardfile(guardfile_contents: 'logger except: \'jasmine\'')
-        expect(Guard::UI.options.except).to eq(/jasmine/i)
+        expect(Guard::UI.options[:except]).to eq(/jasmine/i)
       end
 
       it 'sets the logger except filter from an array of symbols and string' do
         described_class.evaluate_guardfile(guardfile_contents: 'logger except: [:rspec, \'cucumber\', :jasmine]')
-        expect(Guard::UI.options.except).to eq(/rspec|cucumber|jasmine/i)
+        expect(Guard::UI.options[:except]).to eq(/rspec|cucumber|jasmine/i)
       end
     end
 
@@ -301,7 +301,7 @@ describe Guard::Dsl do
 
         it 'does not set the invalid value' do
           described_class.evaluate_guardfile(guardfile_contents: 'logger level: :baz')
-          expect(Guard::UI.options.level).to eq :info
+          expect(Guard::UI.options[:level]).to eq :info
         end
       end
 
@@ -313,8 +313,8 @@ describe Guard::Dsl do
 
         it 'removes the options' do
           described_class.evaluate_guardfile(guardfile_contents: 'logger only: :jasmine, except: :rspec')
-          expect(Guard::UI.options.only).to be_nil
-          expect(Guard::UI.options.except).to be_nil
+          expect(Guard::UI.options[:only]).to be_nil
+          expect(Guard::UI.options[:except]).to be_nil
         end
       end
 

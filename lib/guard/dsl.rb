@@ -299,7 +299,7 @@ module Guard
         end
       end
 
-      ::Guard::UI.options = ::Guard::UI.options.marshal_dump.merge options
+      ::Guard::UI.options.merge!(options)
     end
 
     # Sets the default scope on startup

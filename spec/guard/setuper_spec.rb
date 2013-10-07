@@ -29,7 +29,7 @@ describe Guard::Setuper do
     end
 
     it 'lazily initializes the options' do
-      expect(subject.options.my_opts).to be_true
+      expect(subject.options[:my_opts]).to be_true
     end
 
     it 'lazily initializes the evaluator' do
@@ -135,7 +135,7 @@ describe Guard::Setuper do
 
       it "sets the log level to :debug if the debug option is true" do
         subject
-        expect(::Guard::UI.options.level).to eq :debug
+        expect(::Guard::UI.options[:level]).to eq :debug
       end
     end
   end

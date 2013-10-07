@@ -231,7 +231,7 @@ describe Guard::Guardfile::Evaluator do
     it 'removes the cached Guardfile content' do
       guardfile_evaluator.reevaluate_guardfile
 
-      expect(guardfile_evaluator.options.guardfile_content).to be_nil
+      expect(guardfile_evaluator.options[:guardfile_content]).to be_nil
     end
 
     context 'with notifications enabled' do

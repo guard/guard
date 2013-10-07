@@ -1,10 +1,8 @@
-require 'ostruct'
-
 module Guard
 
   # A class that holds options. Can be instantiated with default options.
   #
-  class Options < OpenStruct
+  class Options < Hash
 
     # Initializes an Guard::Options object. `default_opts` is merged into
     # `opts`.
@@ -13,7 +11,8 @@ module Guard
     # @param [Hash] default_opts the default options
     #
     def initialize(opts = {}, default_opts = {})
-      super(default_opts.dup.merge(opts.dup))
+      super()
+      self.replace default_opts.dup.merge((opts || {}).dup)
     end
 
   end

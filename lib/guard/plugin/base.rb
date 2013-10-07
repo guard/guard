@@ -123,8 +123,8 @@ module Guard
       # Returns the plugin's name (without "guard-").
       #
       # @example Name for Guard::RSpec
-      #   > Guard::RSpec.new.name
-      #   => "rspec"
+      #   Guard::RSpec.new.name
+      #   #=> "rspec"
       #
       # @return [String]
       #
@@ -135,8 +135,8 @@ module Guard
       # Returns the plugin's class name without the Guard:: namespace.
       #
       # @example Title for Guard::RSpec
-      #   > Guard::RSpec.new.title
-      #   => "RSpec"
+      #   Guard::RSpec.new.title
+      #   #=> "RSpec"
       #
       # @return [String]
       #

@@ -172,7 +172,7 @@ $ bundle exec guard -c # shortcut
 You can add the following snippet to your `~/.guardrc` to have the clear option always be enabled:
 
 ```
-Guard.options.clear = true
+Guard.options[:clear] = true
 ```
 
 #### `-n`/`--notify` option

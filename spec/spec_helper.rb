@@ -50,7 +50,7 @@ RSpec.configure do |config|
     Pry.config.hooks.delete_hook(:when_started, :load_guard_rc)
     Pry.config.hooks.delete_hook(:when_started, :load_project_guard_rc)
 
-    ::Guard.options.debug = false if ::Guard.options
+    ::Guard.options[:debug] = false if ::Guard.options
   end
 
   config.after(:all) do

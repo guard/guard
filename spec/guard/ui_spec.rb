@@ -45,7 +45,7 @@ describe Guard::UI do
   describe '.options=' do
     it 'sets the logger options' do
       Guard::UI.options = { hi: :ho }
-      expect(Guard::UI.options.hi).to eq :ho
+      expect(Guard::UI.options[:hi]).to eq :ho
     end
   end
 
@@ -61,7 +61,7 @@ describe Guard::UI do
     end
 
     context 'with the :only option' do
-      before { Guard::UI.options.only = /A/ }
+      before { Guard::UI.options[:only] = /A/ }
 
       it 'shows only the matching messages' do
         expect(Guard::UI.logger).to receive(:info).with('Info message', 'A')
@@ -75,7 +75,7 @@ describe Guard::UI do
     end
 
     context 'with the :except option' do
-      before { Guard::UI.options.except = /A/ }
+      before { Guard::UI.options[:except] = /A/ }
 
       it 'shows only the matching messages' do
         expect(Guard::UI.logger).to_not receive(:info).with('Info message', 'A')
@@ -101,7 +101,7 @@ describe Guard::UI do
     end
 
     context 'with the :only option' do
-      before { Guard::UI.options.only = /A/ }
+      before { Guard::UI.options[:only] = /A/ }
 
       it 'shows only the matching messages' do
         expect(Guard::UI.logger).to receive(:warn).with("\e[0;33mWarn message\e[0m", 'A')
@@ -115,7 +115,7 @@ describe Guard::UI do
     end
 
     context 'with the :except option' do
-      before { Guard::UI.options.except = /A/ }
+      before { Guard::UI.options[:except] = /A/ }
 
       it 'shows only the matching messages' do
         expect(Guard::UI.logger).to_not receive(:warn).with("\e[0;33mWarn message\e[0m", 'A')
@@ -141,7 +141,7 @@ describe Guard::UI do
     end
 
     context 'with the :only option' do
-      before { Guard::UI.options.only = /A/ }
+      before { Guard::UI.options[:only] = /A/ }
 
       it 'shows only the matching messages' do
         expect(Guard::UI.logger).to receive(:error).with("\e[0;31mError message\e[0m", 'A')
@@ -155,7 +155,7 @@ describe Guard::UI do
     end
 
     context 'with the :except option' do
-      before { Guard::UI.options.except = /A/ }
+      before { Guard::UI.options[:except] = /A/ }
 
       it 'shows only the matching messages' do
         expect(Guard::UI.logger).to_not receive(:error).with("\e[0;31mError message\e[0m", 'A')
@@ -193,7 +193,7 @@ describe Guard::UI do
       end
 
       context 'with the :only option' do
-        before { Guard::UI.options.only = /A/ }
+        before { Guard::UI.options[:only] = /A/ }
 
         it 'shows only the matching messages' do
           expect(Guard::UI.logger).to receive(:warn).with("\e[0;33mDeprecator message\e[0m", 'A')
@@ -207,7 +207,7 @@ describe Guard::UI do
       end
 
       context 'with the :except option' do
-        before { Guard::UI.options.except = /A/ }
+        before { Guard::UI.options[:except] = /A/ }
 
         it 'shows only the matching messages' do
           expect(Guard::UI.logger).to_not receive(:warn).with("\e[0;33mDeprecator message\e[0m", 'A')
@@ -234,7 +234,7 @@ describe Guard::UI do
     end
 
     context 'with the :only option' do
-        before { Guard::UI.options.only = /A/ }
+        before { Guard::UI.options[:only] = /A/ }
 
       it 'shows only the matching messages' do
         expect(Guard::UI.logger).to receive(:debug).with("\e[0;33mDebug message\e[0m", 'A')
@@ -248,7 +248,7 @@ describe Guard::UI do
     end
 
     context 'with the :except option' do
-        before { Guard::UI.options.except = /A/ }
+        before { Guard::UI.options[:except] = /A/ }
 
       it 'shows only the matching messages' do
         expect(Guard::UI.logger).to_not receive(:debug).with("\e[0;33mDebug message\e[0m", 'A')
