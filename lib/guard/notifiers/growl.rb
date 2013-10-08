@@ -43,8 +43,25 @@ module Guard
       end
 
       def self.available?(opts = {})
-        super
-        _register!(opts) if require_gem_safely(opts)
+        super and require_gem_safely(opts) and _register!(opts)
+      end
+
+      # @private
+      #
+      # Detects if the Growl gem is available and if not, displays an
+      # error message unless `opts[:silent]` is true.
+      #
+      # @return [Boolean] whether or not Growl is installed
+      #
+      def self._register!(opts)
+        if ::Growl.installed?
+          true
+        else
+          unless opts[:silent]
+            ::Guard::UI.error "Please install the 'growlnotify' executable (available by installing the 'growl' gem)."
+          end
+          false
+        end
       end
 
       # Shows a system notification.
@@ -78,17 +95,6 @@ module Guard
         opts = DEFAULTS.merge(opts).merge(name: 'Guard')
 
         ::Growl.notify(message, opts)
-      end
-
-      # @private
-      #
-      def self._register!(options)
-        unless ::Growl.installed?
-          ::Guard::UI.error "Please install the 'growlnotify' executable." unless options[:silent]
-          return false
-        end
-
-        true
       end
 
     end

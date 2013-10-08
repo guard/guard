@@ -4,11 +4,11 @@ describe Guard::Notifier::FileNotifier do
   let(:notifier) { described_class.new }
 
   describe '.available?' do
-    it 'is true if there is a file in options' do
+    it 'returns true if there is a file in options' do
       expect(described_class).to be_available(path: '.guard_result')
     end
 
-    it 'is false if there is no path in options' do
+    it 'returns false if there is no path in options' do
       expect(described_class).not_to be_available
     end
   end

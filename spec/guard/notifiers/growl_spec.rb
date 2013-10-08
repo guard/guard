@@ -14,10 +14,46 @@ describe Guard::Notifier::Growl do
   end
 
   describe '.available?' do
-    it 'requires growl' do
-      expect(described_class).to receive(:require_gem_safely)
+    context 'host is not supported' do
+      before { RbConfig::CONFIG.stub(:[]).with('host_os').and_return('mswin') }
 
-      expect(described_class).to be_available
+      it 'do not require growl' do
+        expect(described_class).to_not receive(:require_gem_safely)
+
+        expect(described_class).to_not be_available
+      end
+    end
+
+    context 'host is supported' do
+      before { RbConfig::CONFIG.stub(:[]).with('host_os').and_return('darwin') }
+
+      it 'requires growl' do
+        expect(described_class).to receive(:require_gem_safely) { true }
+        expect(described_class).to receive(:_register!) { true }
+
+        expect(described_class).to be_available
+      end
+
+      context '.require_gem_safely fails' do
+        before { expect(described_class).to receive(:require_gem_safely) { false } }
+
+        it 'requires growl' do
+          expect(described_class).to_not receive(:_register!)
+
+          expect(described_class).to_not be_available
+        end
+      end
+
+      context '._register! fails' do
+        before do
+          expect(described_class).to receive(:require_gem_safely) { true }
+          expect(described_class).to receive(:_register!) { false }
+        end
+
+        it 'requires growl' do
+          expect(described_class).to_not be_available
+        end
+      end
     end
   end
 

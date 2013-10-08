@@ -19,9 +19,15 @@ module Guard
       }
 
       def self.available?(opts = {})
-        super
-        result = `#{ opts.fetch(:client, DEFAULTS[:client]) } --eval '1' 2> #{DEV_NULL} || echo 'N/A'`
+        super and _emacs_client_available?(opts)
+      end
 
+      # @private
+      #
+      # @return [Boolean] whether or not the emacs client is available
+      #
+      def self._emacs_client_available?(opts)
+        result = `#{opts.fetch(:client, DEFAULTS[:client])} --eval '1' 2> #{DEV_NULL} || echo 'N/A'`
         !%w(N/A 'N/A').include?(result.chomp!)
       end
 

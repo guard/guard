@@ -35,15 +35,32 @@ module Guard
       }
 
       def self.available?(opts = {})
-        super
+        super and _register!(opts)
+      end
 
-        if ENV[opts.fetch(:tmux_environment, DEFAULTS[:tmux_environment])].nil?
+      # @private
+      #
+      # @return [Boolean] whether or not a TMUX environment is available
+      #
+      def self._tmux_environment_available?(opts)
+        !ENV[opts.fetch(:tmux_environment, DEFAULTS[:tmux_environment])].nil?
+      end
+
+      # @private
+      #
+      # Detects if a TMUX environment is available and if not,
+      # displays an error message unless `opts[:silent]` is true.
+      #
+      # @return [Boolean] whether or not a TMUX environment is available
+      #
+      def self._register!(opts)
+        if _tmux_environment_available?(opts)
+          true
+        else
           unless opts[:silent]
             ::Guard::UI.error 'The :tmux notifier runs only on when Guard is executed inside of a tmux session.'
           end
           false
-        else
-          true
         end
       end
 

@@ -18,10 +18,24 @@ describe Guard::Notifier::GNTP do
   end
 
   describe '.available?' do
-    it 'requires ruby_gntp' do
-      expect(described_class).to receive(:require_gem_safely)
+    context 'host is not supported' do
+      before { RbConfig::CONFIG.stub(:[]).with('host_os').and_return('foobar') }
 
-      expect(described_class).to be_available
+      it 'do not require ruby_gntp' do
+        expect(described_class).to_not receive(:require_gem_safely)
+
+        expect(described_class).to_not be_available
+      end
+    end
+
+    context 'host is supported' do
+      before { RbConfig::CONFIG.stub(:[]).with('host_os').and_return('darwin') }
+
+      it 'requires ruby_gntp' do
+        expect(described_class).to receive(:require_gem_safely) { true }
+
+        expect(described_class).to be_available
+      end
     end
   end
 

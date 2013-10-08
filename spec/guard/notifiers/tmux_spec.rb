@@ -4,10 +4,14 @@ describe Guard::Notifier::Tmux do
   let(:notifier) { described_class.new }
 
   describe '.available?' do
+    it 'checks if the binary is available' do
+      expect(described_class).to receive(:_tmux_environment_available?) { true }
+
+      expect(described_class).to be_available
+    end
+
     context 'when the TMUX environment variable is set' do
-      before :each do
-        ENV['TMUX'] = 'something'
-      end
+      before { ENV['TMUX'] = 'something' }
 
       it 'returns true' do
         expect(described_class).to be_available
@@ -15,9 +19,7 @@ describe Guard::Notifier::Tmux do
     end
 
     context 'when the TMUX environment variable is not set' do
-      before :each do
-        ENV['TMUX'] = nil
-      end
+      before { ENV['TMUX'] = nil }
 
       context 'without the silent option' do
         it 'shows an error message when the TMUX environment variable is not set' do

@@ -32,8 +32,33 @@ module Guard
       end
 
       def self.available?(opts = {})
-        super
-        _register!(opts) if require_gem_safely(opts)
+        super and require_gem_safely(opts) and _register!(opts)
+      end
+
+      # @private
+      #
+      # Detects if the GrowlNotify gem is available and if not, displays an
+      # error message unless `opts[:silent]` is true. If it's available,
+      # GrowlNotify is configured for Guard.
+      #
+      # @return [Boolean] whether or not GrowlNotify is available
+      #
+      def self._register!(options)
+        if ::GrowlNotify.application_name != 'Guard'
+          ::GrowlNotify.config do |c|
+            c.notifications         = %w(success pending failed notify)
+            c.default_notifications = 'notify'
+            c.application_name      = 'Guard'
+          end
+        end
+
+        true
+
+      rescue ::GrowlNotify::GrowlNotFound
+        unless options[:silent]
+          ::Guard::UI.error 'Please install Growl from http://growl.info'
+        end
+        false
       end
 
       # Shows a system notification.
@@ -60,26 +85,6 @@ module Guard
         ).merge(opts)
 
         ::GrowlNotify.send_notification(opts)
-      end
-
-      # @private
-      #
-      def self._register!(options)
-        if ::GrowlNotify.application_name != 'Guard'
-          ::GrowlNotify.config do |c|
-            c.notifications         = %w(success pending failed notify)
-            c.default_notifications = 'notify'
-            c.application_name      = 'Guard'
-          end
-        end
-
-        true
-
-      rescue ::GrowlNotify::GrowlNotFound
-        unless options[:silent]
-          ::Guard::UI.error 'Please install Growl from http://growl.info'
-        end
-        false
       end
 
     end

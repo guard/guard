@@ -25,8 +25,33 @@ module Guard
       end
 
       def self.available?(opts = {})
-        super
-        _register!(opts)
+        super and _register!(opts)
+      end
+
+      # @private
+      #
+      # @return [Boolean] whether or not the notify-send binary is available
+      #
+      def self._notifysend_binary_available?
+        !`which notify-send`.empty?
+      end
+
+      # @private
+      #
+      # Detects if the notify-send binary is available and if not, displays an
+      # error message unless `opts[:silent]` is true.
+      #
+      # @return [Boolean] whether or not the notify-send binary is available
+      #
+      def self._register!(opts)
+        if _notifysend_binary_available?
+          true
+        else
+          unless opts[:silent]
+            ::Guard::UI.error 'The :notifysend notifier runs only on Linux, FreeBSD, OpenBSD and Solaris with the libnotify-bin package installed.'
+          end
+          false
+        end
       end
 
       # Shows a system notification.
@@ -69,34 +94,13 @@ module Guard
       #
       # @param [String] command the command execute
       # @param [Array] supported list of supported option flags
-      # @param [Hash] options additional command options
+      # @param [Hash] opts additional command options
       # @return [Array<String>] the command and its options converted to a shell command.
       #
-      def _to_arguments(command, supported, options = {})
-        options.reduce(command) do |cmd, (flag, value)|
+      def _to_arguments(command, supported, opts = {})
+        opts.reduce(command) do |cmd, (flag, value)|
           supported.include?(flag) ? (cmd << "-#{ flag }" << value.to_s) : cmd
         end
-      end
-
-      # @private
-      #
-      # @return [Boolean] whether or not the notify-send binary is available
-      #
-      def self._notifysend_binary_available?
-        !`which notify-send`.empty?
-      end
-
-      # @private
-      #
-      def self._register!(options)
-        unless _notifysend_binary_available?
-          unless options[:silent]
-            ::Guard::UI.error 'The :notifysend notifier runs only on Linux, FreeBSD, OpenBSD and Solaris with the libnotify-bin package installed.'
-          end
-          false
-        end
-
-        true
       end
 
     end

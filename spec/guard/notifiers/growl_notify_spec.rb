@@ -13,30 +13,75 @@ describe Guard::Notifier::GrowlNotify do
   end
 
   describe '.available?' do
-    context 'when the application name is not Guard' do
-      let(:config) { double('config') }
+    context 'host is not supported' do
+      before { RbConfig::CONFIG.stub(:[]).with('host_os').and_return('mswin') }
 
-      it 'does configure GrowlNotify' do
-        expect(RbConfig::CONFIG).to receive(:[]).with('host_os').and_return 'darwin'
-        expect(::GrowlNotify).to receive(:application_name).and_return nil
-        expect(::GrowlNotify).to receive(:config).and_yield config
-        expect(config).to receive(:notifications=).with ['success', 'pending', 'failed', 'notify']
-        expect(config).to receive(:default_notifications=).with 'notify'
-        expect(config).to receive(:application_name=).with 'Guard'
+      it 'do not require growl_notify' do
+        expect(described_class).to_not receive(:require_gem_safely)
 
-        expect(described_class).to be_available
+        expect(described_class).to_not be_available
       end
     end
 
-    context 'when the application name is Guard' do
-      it 'does not configure GrowlNotify again' do
-        expect(RbConfig::CONFIG).to receive(:[]).with('host_os').and_return 'darwin'
-        expect(::GrowlNotify).to receive(:application_name).and_return 'Guard'
-        expect(::GrowlNotify).to_not receive(:config)
+    context 'host is supported' do
+      before { RbConfig::CONFIG.stub(:[]).with('host_os').and_return('darwin') }
+
+      it 'requires growl_notify' do
+        expect(described_class).to receive(:require_gem_safely) { true }
+        expect(described_class).to receive(:_register!) { true }
 
         expect(described_class).to be_available
       end
+
+      context 'when the application name is not Guard' do
+        let(:config) { double('config') }
+
+        it 'does configure GrowlNotify' do
+          expect(RbConfig::CONFIG).to receive(:[]).with('host_os').and_return 'darwin'
+          expect(::GrowlNotify).to receive(:application_name).and_return nil
+          expect(::GrowlNotify).to receive(:config).and_yield config
+          expect(config).to receive(:notifications=).with ['success', 'pending', 'failed', 'notify']
+          expect(config).to receive(:default_notifications=).with 'notify'
+          expect(config).to receive(:application_name=).with 'Guard'
+
+          expect(described_class).to be_available
+        end
+      end
+
+      context 'when the application name is Guard' do
+        it 'does not configure GrowlNotify again' do
+          expect(RbConfig::CONFIG).to receive(:[]).with('host_os').and_return 'darwin'
+          expect(::GrowlNotify).to receive(:application_name).and_return 'Guard'
+          expect(::GrowlNotify).to_not receive(:config)
+
+          expect(described_class).to be_available
+        end
+      end
+
+      context '.require_gem_safely fails' do
+        before { expect(described_class).to receive(:require_gem_safely) { false } }
+
+        it 'requires growl_notify' do
+          expect(described_class).to_not receive(:_register!)
+
+          expect(described_class).to_not be_available
+        end
+      end
+
+      context '._register! fails' do
+        before do
+          expect(described_class).to receive(:require_gem_safely) { true }
+          expect(described_class).to receive(:_register!) { false }
+        end
+
+        it 'requires growl_notify' do
+          expect(described_class).to_not be_available
+        end
+      end
     end
+  end
+
+  describe '.available?' do
   end
 
   describe '#notify' do

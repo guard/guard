@@ -43,13 +43,13 @@ module Guard
       # @return [Boolean] the availability status
       #
       def self.available?(opts = {})
-        unless _supported_host?
+        if _supported_host?
+          true
+        else
           hosts = supported_hosts.map { |host| HOSTS[host.to_sym] }.join(', ')
           ::Guard::UI.error "The :#{name} notifier runs only on #{hosts}." unless opts.fetch(:silent) { false }
-          return false
+          false
         end
-
-        true
       end
 
       # This method must be overriden.

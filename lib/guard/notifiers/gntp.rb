@@ -49,8 +49,7 @@ module Guard
       end
 
       def self.available?(opts = {})
-        super
-        require_gem_safely(opts)
+        super and require_gem_safely(opts)
       end
 
       # Shows a system notification.

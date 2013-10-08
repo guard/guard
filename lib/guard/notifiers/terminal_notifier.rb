@@ -32,8 +32,7 @@ module Guard
       end
 
       def self.available?(opts = {})
-        super
-        _register!(opts) if require_gem_safely(opts)
+        super and require_gem_safely(opts) and _register!(opts)
       end
 
       # Shows a system notification.
@@ -62,11 +61,16 @@ module Guard
 
       # @private
       #
-      def self._register!(options)
+      # Detects if the terminal-notifier-guard gem is available and if not,
+      # displays an error message unless `opts[:silent]` is true.
+      #
+      # @return [Boolean] whether or not the terminal-notifier-guard gem is available
+      #
+      def self._register!(opts)
         if ::TerminalNotifier::Guard.available?
           true
         else
-          unless options[:silent]
+          unless opts[:silent]
             ::Guard::UI.error 'The :terminal_notifier only runs on Mac OS X 10.8 and later.'
           end
           false

@@ -12,10 +12,24 @@ describe Guard::Notifier::NotifySend do
   end
 
   describe '.available?' do
-    it 'checks if the binary is available' do
-      expect(described_class).to receive(:_notifysend_binary_available?)
+    context 'host is not supported' do
+      before { RbConfig::CONFIG.stub(:[]).with('host_os').and_return('mswin') }
 
-      expect(described_class).to be_available
+      it 'do not check if the binary is available' do
+        expect(described_class).to_not receive(:_notifysend_binary_available?)
+
+        expect(described_class).to_not be_available
+      end
+    end
+
+    context 'host is supported' do
+      before { RbConfig::CONFIG.stub(:[]).with('host_os').and_return('linux') }
+
+      it 'checks if the binary is available' do
+        expect(described_class).to receive(:_notifysend_binary_available?) { true }
+
+        expect(described_class).to be_available
+      end
     end
   end
 

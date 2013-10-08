@@ -19,8 +19,7 @@ module Guard
       #   results will be written
       #
       def self.available?(opts = {})
-        super
-        opts.has_key?(:path)
+        super and opts.has_key?(:path)
       end
 
       # Writes the notification to a file. By default it writes type, title,

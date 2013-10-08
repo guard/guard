@@ -9,7 +9,7 @@ describe Guard::Notifier::TerminalNotifier do
   end
 
   describe '.supported_hosts' do
-    it { expect(described_class.supported_hosts).to eq %w[darwin ] }
+    it { expect(described_class.supported_hosts).to eq %w[darwin] }
   end
 
   describe '.gem_name' do
@@ -17,10 +17,46 @@ describe Guard::Notifier::TerminalNotifier do
   end
 
   describe '.available?' do
-    it 'requires terminal-notifier-guard' do
-      expect(described_class).to receive(:require_gem_safely)
+    context 'host is not supported' do
+      before { RbConfig::CONFIG.stub(:[]).with('host_os').and_return('mswin') }
 
-      expect(described_class).to be_available
+      it 'do not require terminal-notifier-guard' do
+        expect(described_class).to_not receive(:require_gem_safely)
+
+        expect(described_class).to_not be_available
+      end
+    end
+
+    context 'host is supported' do
+      before { RbConfig::CONFIG.stub(:[]).with('host_os').and_return('darwin') }
+
+      it 'requires terminal-notifier-guard' do
+        expect(described_class).to receive(:require_gem_safely) { true }
+        expect(described_class).to receive(:_register!) { true }
+
+        expect(described_class).to be_available
+      end
+
+      context '.require_gem_safely fails' do
+        before { expect(described_class).to receive(:require_gem_safely) { false } }
+
+        it 'requires terminal-notifier-guard' do
+          expect(described_class).to_not receive(:_register!)
+
+          expect(described_class).to_not be_available
+        end
+      end
+
+      context '._register! fails' do
+        before do
+          expect(described_class).to receive(:require_gem_safely) { true }
+          expect(described_class).to receive(:_register!) { false }
+        end
+
+        it 'requires terminal-notifier-guard' do
+          expect(described_class).to_not be_available
+        end
+      end
     end
   end
 

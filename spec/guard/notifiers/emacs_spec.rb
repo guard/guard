@@ -3,6 +3,14 @@ require 'spec_helper'
 describe Guard::Notifier::Emacs do
   let(:notifier) { described_class.new }
 
+  describe '.available?' do
+    it 'checks if the client is available' do
+      expect(described_class).to receive(:_emacs_client_available?) { true }
+
+      expect(described_class).to be_available
+    end
+  end
+
   describe '.notify' do
     context 'with options passed at initialization' do
       let(:notifier) { described_class.new(success: 'Green') }
