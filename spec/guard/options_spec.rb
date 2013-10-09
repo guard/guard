@@ -6,6 +6,16 @@ describe Guard::Options do
       expect { described_class.new(nil) }.to_not raise_error
     end
 
+    it 'has indifferent access' do
+      options = described_class.new({ foo: 'bar' }, { 'foo2' => 'baz' })
+
+      expect(options[:foo]).to eq 'bar'
+      expect(options['foo']).to eq 'bar'
+
+      expect(options[:foo2]).to eq 'baz'
+      expect(options['foo2']).to eq 'baz'
+    end
+
     it 'can be passed defaults' do
       options = described_class.new({}, { foo: 'bar' })
 

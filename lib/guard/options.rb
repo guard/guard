@@ -1,8 +1,10 @@
+require 'thor/core_ext/hash_with_indifferent_access'
+
 module Guard
 
   # A class that holds options. Can be instantiated with default options.
   #
-  class Options < Hash
+  class Options < Thor::CoreExt::HashWithIndifferentAccess
 
     # Initializes an Guard::Options object. `default_opts` is merged into
     # `opts`.
@@ -11,8 +13,7 @@ module Guard
     # @param [Hash] default_opts the default options
     #
     def initialize(opts = {}, default_opts = {})
-      super()
-      self.replace default_opts.dup.merge((opts || {}).dup)
+      super(default_opts.merge(opts || {}))
     end
 
   end
