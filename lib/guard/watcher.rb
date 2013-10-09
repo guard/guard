@@ -89,7 +89,7 @@ module Guard
     # @return [Boolean] whether one of these files is the Guardfile
     #
     def self.match_guardfile?(files)
-      files.any? { |file| "#{ Dir.pwd }/#{ file }" == ::Guard.evaluator.guardfile_path }
+      files.any? { |file| File.expand_path(file) == ::Guard.evaluator.guardfile_path }
     end
 
     # Test the watchers pattern against a file.

@@ -18,7 +18,7 @@ module Guard
       # @option opts [String] guardfile_contents a string representing the content of a valid Guardfile
       #
       def initialize(opts = {})
-        @options = ::Guard::Options.new([:guardfile, :guardfile_contents].reduce({}) { |h, key| h[key] = opts[key]; h })
+        @options = ::Guard::Options.new(opts.select { |k, _| [:guardfile, :guardfile_contents].include?(k.to_sym) })
       end
 
       # Evaluates the DSL methods in the `Guardfile`.
@@ -86,7 +86,7 @@ module Guard
       #   the Guardfile has been specified via the `:guardfile_contents` option.
       #
       def guardfile_path
-        options[:guardfile_path] or ''
+        options[:guardfile_path] || ''
       end
 
       # Gets the content of the `Guardfile` concatenated with the global
@@ -105,21 +105,12 @@ module Guard
 
       private
 
-      # Gets the default path of the `Guardfile`. This returns the `Guardfile`
-      # from the current directory when existing, or the global `~/.Guardfile`.
-      #
-      # @return [String] the path to the Guardfile
-      #
-      def _guardfile_default_path
-        File.exist?(_local_guardfile_path) ? _local_guardfile_path : _home_guardfile_path
-      end
-
       # Gets the content of the `Guardfile`.
       #
       # @return [String] the Guardfile content
       #
       def _guardfile_contents_without_user_config
-        options[:guardfile_contents] or ''
+        options[:guardfile_contents] || ''
       end
 
       # Evaluates the content of the `Guardfile`.
@@ -137,31 +128,56 @@ module Guard
       # the options as `:guardfile_contents`.
       #
       def _fetch_guardfile_contents
-        if options[:guardfile_contents]
-          ::Guard::UI.info 'Using inline Guardfile.'
-          options[:guardfile_path] = 'Inline Guardfile'
-
-        elsif options[:guardfile]
-          if File.exist?(options[:guardfile])
-            _read_guardfile(options[:guardfile])
-            ::Guard::UI.info "Using Guardfile at #{ options[:guardfile] }."
-          else
-            ::Guard::UI.error "No Guardfile exists at #{ options[:guardfile] }."
-            exit 1
-          end
-
-        else
-          if File.exist?(_guardfile_default_path)
-            _read_guardfile(_guardfile_default_path)
-          else
-            ::Guard::UI.error 'No Guardfile found, please create one with `guard init`.'
-            exit 1
-          end
-        end
+        _use_inline_guardfile || _use_provided_guardfile || _use_default_guardfile
 
         unless _guardfile_contents_usable?
           ::Guard::UI.error 'No Guard plugins found in Guardfile, please add at least one.'
         end
+      end
+
+      # Use the provided inline Guardfile if provided.
+      #
+      def _use_inline_guardfile
+        return false unless options[:guardfile_contents]
+
+        ::Guard::UI.info 'Using inline Guardfile.'
+        options[:guardfile_path] = 'Inline Guardfile'
+      end
+
+      # Try to use the provided Guardfile. Exits Guard if the Guardfile cannot
+      # be found.
+      #
+      def _use_provided_guardfile
+        return false unless options[:guardfile]
+
+        options[:guardfile] = File.expand_path(options[:guardfile])
+        if File.exist?(options[:guardfile])
+          _read_guardfile(options[:guardfile])
+          ::Guard::UI.info "Using Guardfile at #{ options[:guardfile] }."
+          true
+        else
+          ::Guard::UI.error "No Guardfile exists at #{ options[:guardfile] }."
+          exit 1
+        end
+      end
+
+      # Try to use one of the default Guardfiles (local or home Guardfile).
+      # Exits Guard if no Guardfile is found.
+      #
+      def _use_default_guardfile
+        if guardfile_path = _find_default_guardfile
+          _read_guardfile(guardfile_path)
+        else
+          ::Guard::UI.error 'No Guardfile found, please create one with `guard init`.'
+          exit 1
+        end
+      end
+
+      # Returns the first default Guardfile (either local or home Guardfile)
+      # or nil otherwise.
+      #
+      def _find_default_guardfile
+        [_local_guardfile_path, _home_guardfile_path].find { |path| File.exist?(path) }
       end
 
       # Reads the current `Guardfile` content.
@@ -184,9 +200,8 @@ module Guard
         ::Guard.runner.run(:stop)
         ::Guard.reset_groups
         ::Guard.reset_plugins
+        ::Guard.reset_scope
         ::Guard::Notifier.clear_notifiers
-
-        options[:guardfile_contents]
       end
 
       # Starts Guard and notification and show a message
@@ -220,7 +235,7 @@ module Guard
       # @return [String] the path to the local Guardfile
       #
       def _local_guardfile_path
-        File.join(Dir.pwd, 'Guardfile')
+        File.expand_path(File.join(Dir.pwd, 'Guardfile'))
       end
 
       # The path to the `.Guardfile` that is located at

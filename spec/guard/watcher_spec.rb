@@ -331,7 +331,7 @@ describe Guard::Watcher do
   end
 
   describe '.match_guardfile?' do
-    before { Guard.stub(:evaluator) { double(guardfile_path: Dir.pwd + '/Guardfile') } }
+    before { Guard.stub(:evaluator) { double(guardfile_path: File.expand_path('Guardfile')) } }
 
     context "with files that match the Guardfile" do
       specify { expect(described_class.match_guardfile?(['Guardfile', 'guard_rocks_spec.rb'])).to be_true }
