@@ -102,7 +102,7 @@ module Guard
                       event
                     end
 
-        ::Guard::UI.debug "Hook :#{ hook_name } executed for #{ self }"
+        ::Guard::UI.debug "Hook :#{ hook_name } executed for #{ self.class }"
 
         Hooker.notify(self, hook_name.to_sym, *args)
       end
