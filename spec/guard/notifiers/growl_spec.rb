@@ -59,7 +59,7 @@ describe Guard::Notifier::Growl do
 
   describe '#notify' do
     context 'with options passed at initialization' do
-      let(:notifier) { described_class.new(title: 'Hello') }
+      let(:notifier) { described_class.new(title: 'Hello', silent: true) }
 
       it 'uses these options by default' do
         expect(::Growl).to receive(:notify).with('Welcome to Guard',

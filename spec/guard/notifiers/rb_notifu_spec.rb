@@ -40,7 +40,7 @@ describe Guard::Notifier::Notifu do
 
   describe '#nofify' do
     context 'with options passed at initialization' do
-      let(:notifier) { described_class.new(title: 'Hello') }
+      let(:notifier) { described_class.new(title: 'Hello', silent: true) }
 
       it 'uses these options by default' do
         expect(::Notifu).to receive(:show).with(

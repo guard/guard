@@ -15,7 +15,7 @@ describe Guard::Notifier::FileNotifier do
 
   describe '.notify' do
     context 'with options passed at initialization' do
-      let(:notifier) { described_class.new(path: 'tmp/guard_result') }
+      let(:notifier) { described_class.new(path: 'tmp/guard_result', silent: true) }
 
       it 'uses these options by default' do
         expect(File).to receive(:write).with('tmp/guard_result', "success\nany title\nany message\n")

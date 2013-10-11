@@ -39,7 +39,7 @@ describe Guard::Notifier::Tmux do
 
   describe '#notify' do
     context 'with options passed at initialization' do
-      let(:notifier) { described_class.new(success: 'rainbow') }
+      let(:notifier) { described_class.new(success: 'rainbow', silent: true) }
 
       it 'uses these options by default' do
       expect(notifier).to receive(:system).with "tmux set status-left-bg rainbow"

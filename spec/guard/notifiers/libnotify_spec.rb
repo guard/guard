@@ -36,7 +36,7 @@ describe Guard::Notifier::Libnotify do
 
   describe '#notify' do
     context 'with options passed at initialization' do
-      let(:notifier) { described_class.new(title: 'Hello') }
+      let(:notifier) { described_class.new(title: 'Hello', silent: true) }
 
       it 'uses these options by default' do
         expect(::Libnotify).to receive(:show).with(

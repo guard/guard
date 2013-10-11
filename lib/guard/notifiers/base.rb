@@ -55,6 +55,7 @@ module Guard
       # This method must be overriden.
       #
       def notify(message, opts = {})
+        options.delete(:silent)
         opts.replace(options.merge(opts))
         normalize_standard_options!(opts)
       end

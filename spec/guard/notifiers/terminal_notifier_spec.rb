@@ -62,7 +62,7 @@ describe Guard::Notifier::TerminalNotifier do
 
   describe '#notify' do
     context 'with options passed at initialization' do
-      let(:notifier) { described_class.new(title: 'Hello') }
+      let(:notifier) { described_class.new(title: 'Hello', silent: true) }
 
       it 'uses these options by default' do
       expect(::TerminalNotifier::Guard).to receive(:execute).with(false,

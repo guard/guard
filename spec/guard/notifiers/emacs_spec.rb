@@ -13,7 +13,7 @@ describe Guard::Notifier::Emacs do
 
   describe '.notify' do
     context 'with options passed at initialization' do
-      let(:notifier) { described_class.new(success: 'Green') }
+      let(:notifier) { described_class.new(success: 'Green', silent: true) }
 
       it 'uses these options by default' do
         notifier.should_receive(:_run_cmd).with do |*command|

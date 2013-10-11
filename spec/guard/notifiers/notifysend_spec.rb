@@ -35,7 +35,7 @@ describe Guard::Notifier::NotifySend do
 
   describe '#notify' do
     context 'with options passed at initialization' do
-      let(:notifier) { described_class.new(image: '/tmp/hello.png') }
+      let(:notifier) { described_class.new(image: '/tmp/hello.png', silent: true) }
 
       it 'uses these options by default' do
         notifier.should_receive(:system).with do |command, *arguments|

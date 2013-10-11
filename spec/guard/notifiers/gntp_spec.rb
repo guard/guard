@@ -65,7 +65,7 @@ describe Guard::Notifier::GNTP do
     before { notifier.stub(:_client).and_return(gntp) }
 
     context 'with options passed at initialization' do
-      let(:notifier) { described_class.new(title: 'Hello') }
+      let(:notifier) { described_class.new(title: 'Hello', silent: true) }
 
       it 'uses these options by default' do
         expect(gntp).to receive(:notify).with(
