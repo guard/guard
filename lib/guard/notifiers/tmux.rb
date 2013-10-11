@@ -83,7 +83,7 @@ module Guard
       # @option opts [String] image the path to the notification image
       # @option opts [Boolean] change_color whether to show a color
       #   notification
-      # @option opts [String] color_location the location where to draw the
+      # @option opts [String,Array] color_location the location where to draw the
       #   color notification
       # @option opts [Boolean] display_message whether to display a message
       #   or not
@@ -93,10 +93,12 @@ module Guard
         opts.delete(:image)
 
         if opts.fetch(:change_color, DEFAULTS[:change_color])
-          color_location = opts.fetch(:color_location, DEFAULTS[:color_location])
+          color_locations = Array(opts.fetch(:color_location, DEFAULTS[:color_location]))
           color = tmux_color(opts[:type], opts)
 
-          _run_client "set #{ color_location } #{ color }"
+          color_locations.each do |color_location|
+            _run_client "set #{ color_location } #{ color }"
+          end
         end
 
         if opts.fetch(:display_message, DEFAULTS[:display_message])
