@@ -330,7 +330,7 @@ $ bundle exec guard notifiers
 +-------------------+-----------+------+------------------------+-------------------+
 ```
 
-This shows if a notifier is available on the current system, it it's being used and the
+This shows if a notifier is available on the current system, if it's being used and the
 current options (which reflects your custom options merged into the default options).
 
 Interactions
