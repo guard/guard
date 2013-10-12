@@ -109,6 +109,13 @@ describe Guard::Notifier::Tmux do
 
       notifier.notify('any message')
     end
+
+    it 'should set the color on multiple tmux settings when color_location is passed with an array' do
+      expect(notifier).to receive(:system).with 'tmux set status-left-bg green'
+      expect(notifier).to receive(:system).with 'tmux set pane-border-fg green'
+
+      notifier.notify('any message', color_location: %w[status-left-bg pane-border-fg])
+    end
   end
 
   describe '#display_message' do
