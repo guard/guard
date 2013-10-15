@@ -87,7 +87,7 @@ describe Guard::Interactor do
     end
   end
 
-  describe '#start and #stop' do
+  context 'interactor enabled' do
     before do
       @interactor_enabled = described_class.enabled
       described_class.enabled = nil
@@ -100,56 +100,58 @@ describe Guard::Interactor do
       described_class.enabled = @interactor_enabled
     end
 
-    it 'instantiate @thread as an instance of a Thread on #start' do
-      ::Guard.interactor.start
+    describe '#start and #stop' do
+      it 'instantiate @thread as an instance of a Thread on #start' do
+        ::Guard.interactor.start
 
-      expect(::Guard.interactor.thread).to be_a(Thread)
-    end
+        expect(::Guard.interactor.thread).to be_a(Thread)
+      end
 
-    it 'sets @thread to nil on #stop' do
-      ::Guard.interactor.stop
+      it 'sets @thread to nil on #stop' do
+        ::Guard.interactor.stop
 
-      expect(::Guard.interactor.thread).to be_nil
-    end
-  end
-
-  describe '#_prompt(ending_char)' do
-    before do
-      ::Guard.stub(:scope).and_return({})
-      ::Guard.scope.stub(:[]).with(:plugins).and_return([])
-      ::Guard.scope.stub(:[]).with(:groups).and_return([])
-      ::Guard.stub(:listener).and_return(double('listener', paused?: false))
-      expect(::Guard.interactor).to receive(:_clip_name).and_return('main')
-    end
-    let(:pry) { double(input_array: []) }
-
-    context 'Guard is not paused' do
-      it 'displays "guard"' do
-        expect(::Guard.interactor.send(:_prompt, '>').call(double, 0, pry)).to eq '[0] guard(main)> '
+        expect(::Guard.interactor.thread).to be_nil
       end
     end
 
-    context 'Guard is paused' do
-      before { ::Guard.stub(:listener).and_return(double('listener', paused?: true)) }
-
-      it 'displays "pause"' do
-        expect(::Guard.interactor.send(:_prompt, '>').call(double, 0, pry)).to eq '[0] pause(main)> '
+    describe '#_prompt(ending_char)' do
+      before do
+        ::Guard.stub(:scope).and_return({})
+        ::Guard.scope.stub(:[]).with(:plugins).and_return([])
+        ::Guard.scope.stub(:[]).with(:groups).and_return([])
+        ::Guard.stub(:listener).and_return(double('listener', paused?: false))
+        expect(::Guard.interactor).to receive(:_clip_name).and_return('main')
       end
-    end
+      let(:pry) { double(input_array: []) }
 
-    context 'with a groups scope' do
-      before { ::Guard.scope.stub(:[]).with(:groups).and_return([double(title: 'Backend'), double(title: 'Frontend')]) }
-
-      it 'displays the group scope title in the prompt' do
-        expect(::Guard.interactor.send(:_prompt, '>').call(double, 0, pry)).to eq '[0] Backend,Frontend guard(main)> '
+      context 'Guard is not paused' do
+        it 'displays "guard"' do
+          expect(::Guard.interactor.send(:_prompt, '>').call(double, 0, pry)).to eq '[0] guard(main)> '
+        end
       end
-    end
 
-    context 'with a plugins scope' do
-      before { ::Guard.scope.stub(:[]).with(:plugins).and_return([double(title: 'RSpec'), double(title: 'Ronn')]) }
+      context 'Guard is paused' do
+        before { ::Guard.stub(:listener).and_return(double('listener', paused?: true)) }
 
-      it 'displays the group scope title in the prompt' do
-        expect(::Guard.interactor.send(:_prompt, '>').call(double, 0, pry)).to eq '[0] RSpec,Ronn guard(main)> '
+        it 'displays "pause"' do
+          expect(::Guard.interactor.send(:_prompt, '>').call(double, 0, pry)).to eq '[0] pause(main)> '
+        end
+      end
+
+      context 'with a groups scope' do
+        before { ::Guard.scope.stub(:[]).with(:groups).and_return([double(title: 'Backend'), double(title: 'Frontend')]) }
+
+        it 'displays the group scope title in the prompt' do
+          expect(::Guard.interactor.send(:_prompt, '>').call(double, 0, pry)).to eq '[0] Backend,Frontend guard(main)> '
+        end
+      end
+
+      context 'with a plugins scope' do
+        before { ::Guard.scope.stub(:[]).with(:plugins).and_return([double(title: 'RSpec'), double(title: 'Ronn')]) }
+
+        it 'displays the group scope title in the prompt' do
+          expect(::Guard.interactor.send(:_prompt, '>').call(double, 0, pry)).to eq '[0] RSpec,Ronn guard(main)> '
+        end
       end
     end
   end
