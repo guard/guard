@@ -270,7 +270,7 @@ module Guard
     #
     def _scope_for_prompt
       [:plugins, :groups].each do |scope_name|
-        return _join_scope_for_prompt(scope_name) unless ::Guard.scope[scope_name].empty?
+        return "#{_join_scope_for_prompt(scope_name)} " unless ::Guard.scope[scope_name].empty?
       end
 
       ''
@@ -289,11 +289,14 @@ module Guard
       proc do |target_self, nest_level, pry|
         history = pry.input_array.size
         process = ::Guard.listener.paused? ? 'pause' : 'guard'
-        clip    = Pry.view_clip(target_self)
         level   = ":#{ nest_level }" unless nest_level.zero?
 
-        "[#{ history }] #{ _scope_for_prompt }#{ process }(#{ clip })#{ level }#{ ending_char } "
+        "[#{ history }] #{ _scope_for_prompt }#{ process }(#{ _clip_name(target_self) })#{ level }#{ ending_char } "
       end
+    end
+
+    def _clip_name(target)
+      Pry.view_clip(target)
     end
 
     # Detects whether or not the stty command exists
