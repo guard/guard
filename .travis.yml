@@ -5,6 +5,9 @@ rvm:
   - 2.0.0
   - jruby-19mode
   - rbx-19mode
+matrix:
+  allow_failures:
+    - rvm: rbx-19mode
 notifications:
   recipients:
     - thibaud@thibaud.me
