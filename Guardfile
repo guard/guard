@@ -9,8 +9,10 @@ group :specs do
   end
 end
 
-group :docs do
-  guard :ronn do
-    watch(%r{^man/.+\.ronn?$})
+if ENV['CI'] != 'true'
+  group :docs do
+    guard :ronn do
+      watch(%r{^man/.+\.ronn?$})
+    end
   end
 end
