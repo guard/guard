@@ -1,5 +1,5 @@
 group :specs do
-  guard :rspec, keep_failed: false, cli: '--fail-fast --format doc' do
+  guard :rspec, cmd: 'bundle exec rspec --fail-fast -f doc' do
     watch(%r{^spec/.+_spec\.rb$})
     watch(%r{^lib/(.+)\.rb$})                { |m| "spec/#{m[1]}_spec.rb" }
     watch('lib/guard/notifier.rb')           { 'spec/guard/notifiers' }
@@ -9,10 +9,8 @@ group :specs do
   end
 end
 
-if ENV['CI'] != 'true'
-  group :docs do
-    guard :ronn do
-      watch(%r{^man/.+\.ronn?$})
-    end
+group :docs do
+  guard :ronn do
+    watch(%r{^man/.+\.ronn?$})
   end
 end
