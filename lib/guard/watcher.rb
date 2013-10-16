@@ -122,8 +122,9 @@ module Guard
     def call_action(matches)
       begin
         @action.arity > 0 ? @action.call(matches) : @action.call
-      rescue Exception => e
-        ::Guard::UI.error "Problem with watch action!\n#{ e.message }\n\n#{ e.backtrace.join("\n") }"
+      rescue Exception => ex
+        ::Guard::UI.error "Problem with watch action!\n#{ ex.message }"
+        ::Guard::UI.error ex.backtrace.join("\n")
       end
     end
 

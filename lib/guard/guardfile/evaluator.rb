@@ -188,8 +188,9 @@ module Guard
         options[:guardfile_path]     = guardfile_path
         options[:guardfile_contents] = File.read(guardfile_path)
       rescue => ex
+        ::Guard::UI.error "Error reading file #{ guardfile_path }:"
         ::Guard::UI.error ex.inspect
-        ::Guard::UI.error("Error reading file #{ guardfile_path }")
+        ::Guard::UI.error ex.backtrace
         exit 1
       end
 

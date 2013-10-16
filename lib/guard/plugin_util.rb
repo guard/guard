@@ -100,9 +100,10 @@ module Guard
         require "guard/#{ name.downcase }" if try_require
 
         @plugin_class ||= ::Guard.const_get(_plugin_constant)
-      rescue TypeError
+      rescue TypeError => typeError
         if try_require
           ::Guard::UI.error "Could not find class Guard::#{ _constant_name }"
+          ::Guard::UI.error typeError.backtrace.join("\n")
         else
           try_require = true
           retry
@@ -110,7 +111,7 @@ module Guard
       rescue LoadError => loadError
         unless options[:fail_gracefully]
           ::Guard::UI.error "Could not load 'guard/#{ name.downcase }' or find class Guard::#{ _constant_name }"
-          ::Guard::UI.error loadError.to_s
+          ::Guard::UI.error loadError.backtrace.join("\n")
         end
       end
     end

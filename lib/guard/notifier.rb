@@ -174,6 +174,7 @@ module Guard
           notifier.notify(message, opts)
         rescue Exception => e
           ::Guard::UI.error "Error sending notification with #{ notifier.name }: #{ e.message }"
+          ::Guard::UI.debug e.backtrace.join("\n")
         end
       end
     end
