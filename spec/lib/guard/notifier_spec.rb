@@ -18,6 +18,12 @@ describe Guard::Notifier do
         Guard::Notifier.turn_on
       end
 
+      it 'does not shows the used notifications with silent option' do
+        expect(Guard::UI).to_not receive(:info)
+
+        Guard::Notifier.turn_on(silent: true)
+      end
+
       it 'enables the notifications' do
         Guard::Notifier.turn_on
 
