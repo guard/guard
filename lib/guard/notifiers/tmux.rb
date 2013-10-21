@@ -29,6 +29,8 @@ module Guard
         display_message:        false,
         default_message_format: '%s - %s',
         default_message_color:  'white',
+        display_title:          false,
+        default_title_format:   '%s - %s',
         line_separator:         ' - ',
         change_color:           true,
         color_location:         'status-left-bg'
@@ -101,9 +103,38 @@ module Guard
           end
         end
 
-        if opts.fetch(:display_message, DEFAULTS[:display_message])
-          display_message(opts.delete(:type).to_s, opts.delete(:title), message, opts)
+        type  = opts.delete(:type).to_s
+        title = opts.delete(:title)
+
+        if opts.fetch(:display_title, DEFAULTS[:display_title])
+          display_title(type, title, message, opts)
         end
+
+        if opts.fetch(:display_message, DEFAULTS[:display_message])
+          display_message(type, title, message, opts)
+        end
+      end
+
+      # Displays a message in the title bar of the terminal.
+      #
+      # @param [String] title the notification title
+      # @param [String] message the notification message body
+      # @param [Hash] options additional notification library options
+      # @option options [String] success_message_format a string to use as
+      #   formatter for the success message.
+      # @option options [String] failed_message_format a string to use as
+      #   formatter for the failed message.
+      # @option options [String] pending_message_format a string to use as
+      #   formatter for the pending message.
+      # @option options [String] default_message_format a string to use as
+      #   formatter when no format per type is defined.
+      #
+      def display_title(type, title, message, opts = {})
+        title_format   = opts.fetch("#{ type }_title_format".to_sym, opts.fetch(:default_title_format, DEFAULTS[:default_title_format]))
+        teaser_message = message.split("\n").first
+        display_title  = title_format % [title, teaser_message]
+
+        _run_client "set-option -q set-titles-string '#{ display_title }'"
       end
 
       # Displays a message in the status bar of tmux.

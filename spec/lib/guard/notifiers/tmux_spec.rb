@@ -103,9 +103,23 @@ describe Guard::Notifier::Tmux do
       notifier.notify('any message', type: :notify, display_message: true)
     end
 
-    it 'does not call display message if the display_message flag is not set' do
+    it 'does not call display_message if the display_message flag is not set' do
       notifier.stub system: true
       expect(notifier).to receive(:display_message).never
+
+      notifier.notify('any message')
+    end
+
+    it 'calls display_title if the display_title flag is set' do
+      notifier.stub system: true
+      expect(notifier).to receive(:display_title).with('notify', 'Guard', 'any message', display_title: true)
+
+      notifier.notify('any message', type: :notify, display_title: true)
+    end
+
+    it 'does not call display_title  if the display_title flag is not set' do
+      notifier.stub system: true
+      expect(notifier).to receive(:display_title).never
 
       notifier.notify('any message')
     end
@@ -115,6 +129,48 @@ describe Guard::Notifier::Tmux do
       expect(notifier).to receive(:system).with 'tmux set -q pane-border-fg green'
 
       notifier.notify('any message', color_location: %w[status-left-bg pane-border-fg])
+    end
+  end
+
+  describe '#display_title' do
+    before do
+      notifier.stub system: true
+    end
+
+    it 'displays the title' do
+      expect(notifier).to receive(:system).with('tmux set-option -q set-titles-string \'any title - any message\'').once
+
+      notifier.display_title 'success', 'any title', 'any message'
+    end
+
+    it 'shows only the first line of the message' do
+      expect(notifier).to receive(:system).with('tmux set-option -q set-titles-string \'any title - any message\'').once
+
+      notifier.display_title 'success', 'any title', "any message\nline two"
+    end
+
+    context 'with success message type options' do
+      it 'formats the message' do
+        expect(notifier).to receive(:system).with('tmux set-option -q set-titles-string \'[any title] => any message\'').once
+
+        notifier.display_title 'success', 'any title', "any message\nline two", success_title_format: '[%s] => %s', default_title_format: '(%s) -> %s'
+      end
+    end
+
+    context 'with pending message type options' do
+      it 'formats the message' do
+        expect(notifier).to receive(:system).with('tmux set-option -q set-titles-string \'[any title] === any message\'').once
+
+        notifier.display_title 'pending', 'any title', "any message\nline two", pending_title_format: '[%s] === %s', default_title_format: '(%s) -> %s'
+      end
+    end
+
+    context 'with failed message type options' do
+      it 'formats the message' do
+        expect(notifier).to receive(:system).with('tmux set-option -q set-titles-string \'[any title] <=> any message\'').once
+
+        notifier.display_title 'failed', 'any title', "any message\nline two", failed_title_format: '[%s] <=> %s', default_title_format: '(%s) -> %s'
+      end
     end
   end
 
