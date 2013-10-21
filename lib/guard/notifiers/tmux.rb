@@ -97,7 +97,7 @@ module Guard
           color = tmux_color(opts[:type], opts)
 
           color_locations.each do |color_location|
-            _run_client "set #{ color_location } #{ color }"
+            _run_client "set -q #{ color_location } #{ color }"
           end
         end
 
@@ -144,9 +144,9 @@ module Guard
         formatted_message = message.split("\n").join(separator)
         display_message = message_format % [title, formatted_message]
 
-        _run_client "set display-time #{ display_time * 1000 }"
-        _run_client "set message-fg #{ message_color }"
-        _run_client "set message-bg #{ color }"
+        _run_client "set -q display-time #{ display_time * 1000 }"
+        _run_client "set -q message-fg #{ message_color }"
+        _run_client "set -q message-bg #{ color }"
         _run_client "display-message '#{ display_message }'"
       end
 
@@ -176,8 +176,6 @@ module Guard
 
           @options_stored = true
         end
-
-        _run_client 'set quiet on'
       end
 
       # Notification stopping. Restore the previous Tmux state
@@ -188,15 +186,13 @@ module Guard
         if @options_stored
           @options_store.each do |key, value|
             if value
-              _run_client "set #{ key } #{ value }"
+              _run_client "set -q #{ key } #{ value }"
             else
-              _run_client "set -u #{ key }"
+              _run_client "set -q -u #{ key }"
             end
           end
           _reset_options_store
         end
-
-        _run_client 'set quiet off'
       end
 
       def options_store
