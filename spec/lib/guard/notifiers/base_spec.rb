@@ -69,7 +69,7 @@ describe Guard::Notifier::Base do
       end
     end
 
-    context ':type given' do
+    context 'type: :foo given' do
       let(:opts) { { type: :foo } }
 
       it 'returns the passed :type' do
@@ -79,10 +79,21 @@ describe Guard::Notifier::Base do
       end
     end
 
+    context 'image: nil given' do
+      let(:opts) { { image: nil } }
+
+      it 'sets the "notify" type' do
+        described_class.new.normalize_standard_options!(opts)
+
+        expect(opts[:type]).to eq :notify
+        expect(opts[:image]).to be_nil
+      end
+    end
+
     context 'image: :failed given' do
       let(:opts) { { image: :failed } }
 
-      it 'sets the "failed" type for a :failed image' do
+      it 'sets the "failed" type' do
         described_class.new.normalize_standard_options!(opts)
 
         expect(opts[:image]).to match /failed.png/
@@ -92,7 +103,7 @@ describe Guard::Notifier::Base do
     context 'image: :pending given' do
       let(:opts) { { image: :pending } }
 
-      it 'sets the "pending" type for a :pending image' do
+      it 'sets the "pending" type' do
         described_class.new.normalize_standard_options!(opts)
 
         expect(opts[:image]).to match /pending.png/
@@ -102,7 +113,7 @@ describe Guard::Notifier::Base do
     context 'image: :success given' do
       let(:opts) { { image: :success } }
 
-      it 'sets the "success" type for a :success image' do
+      it 'sets the "success" type' do
         described_class.new.normalize_standard_options!(opts)
 
         expect(opts[:image]).to match /success.png/
@@ -112,7 +123,7 @@ describe Guard::Notifier::Base do
     context 'image: "foo.png" given' do
       let(:opts) { { image: 'foo.png' } }
 
-      it 'sets the "success" type for a :success image' do
+      it 'sets the "success" type' do
         described_class.new.normalize_standard_options!(opts)
 
         expect(opts[:image]).to eq 'foo.png'

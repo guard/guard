@@ -190,7 +190,7 @@ module Guard
       # @return [String] the image path
       #
       def _image_path(image)
-        case image.to_sym
+        case image
         when :failed, :pending, :success
           images_path.join("#{image.to_s}.png").to_s
         else
@@ -206,9 +206,9 @@ module Guard
       # @return [String] the notification type
       #
       def _notification_type(image)
-        case image.to_sym
+        case image
         when :failed, :pending, :success
-          image.to_sym
+          image
         else
           :notify
         end
