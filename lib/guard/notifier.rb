@@ -174,7 +174,7 @@ module Guard
         notifier = _get_notifier_module(notifier[:name]).new(notifier[:options])
 
         begin
-          notifier.notify(message, opts)
+          notifier.notify(message, opts.dup)
         rescue Exception => e
           ::Guard::UI.error "Error sending notification with #{ notifier.name }: #{ e.message }"
           ::Guard::UI.debug e.backtrace.join("\n")
