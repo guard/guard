@@ -208,7 +208,11 @@ module Guard
           @options_stored = true
         end
 
-        _run_client 'set-option quiet on'
+        if _tmux_version >= 1.8
+          _run_client 'set-option quiet on'
+        else
+          _run_client 'set quiet on'
+        end
       end
 
       # Notification stopping. Restore the previous Tmux state
@@ -227,7 +231,11 @@ module Guard
           _reset_options_store
         end
 
-        _run_client 'set-option quiet off'
+        if _tmux_version >= 1.8
+          _run_client 'set-option quiet off'
+        else
+          _run_client 'set quiet off'
+        end
       end
 
       def options_store
@@ -258,6 +266,10 @@ module Guard
           'message-fg'      => nil,
           'display-time'    => nil
         }
+      end
+
+      def _tmux_version
+        @tmux_version ||= `tmux -V`.chomp.gsub(/[^0-9.]/,'').to_f
       end
 
     end

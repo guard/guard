@@ -263,10 +263,28 @@ describe Guard::Notifier::Tmux do
       notifier.stub system: true
     end
 
-    it 'quiets the tmux output' do
-      expect(notifier).to receive(:system).with 'tmux set-option quiet on'
+    context 'with tmux 1.8' do
+      before do
+        notifier.stub(:_tmux_version).and_return 1.8
+      end
 
-      notifier.turn_on
+      it 'quiets the tmux output' do
+        expect(notifier).to receive(:system).with 'tmux set-option quiet on'
+
+        notifier.turn_on
+      end
+    end
+
+    context 'with tmux 1.7' do
+      before do
+        notifier.stub(:_tmux_version).and_return 1.7
+      end
+
+      it 'quiets the tmux output' do
+        expect(notifier).to receive(:system).with 'tmux set quiet on'
+
+        notifier.turn_on
+      end
     end
 
     context 'when off' do
@@ -336,10 +354,28 @@ describe Guard::Notifier::Tmux do
         notifier.turn_off
       end
 
-      it 'unquiets the tmux output' do
-        expect(notifier).to receive(:system).with 'tmux set-option quiet off'
+      context 'with tmux 1.8' do
+        before do
+          notifier.stub(:_tmux_version).and_return 1.8
+        end
 
-        notifier.turn_off
+        it 'unquiets the tmux output' do
+          expect(notifier).to receive(:system).with 'tmux set-option quiet off'
+
+          notifier.turn_off
+        end
+      end
+
+      context 'with tmux 1.7' do
+        before do
+          notifier.stub(:_tmux_version).and_return 1.7
+        end
+
+        it 'unquiets the tmux output' do
+          expect(notifier).to receive(:system).with 'tmux set quiet off'
+
+          notifier.turn_off
+        end
       end
     end
 
@@ -365,10 +401,28 @@ describe Guard::Notifier::Tmux do
         notifier.turn_off
       end
 
-      it 'unquiets the tmux output' do
-        expect(notifier).to receive(:system).with 'tmux set-option quiet off'
+      context 'with tmux 1.8' do
+        before do
+          notifier.stub(:_tmux_version).and_return 1.8
+        end
 
-        notifier.turn_off
+        it 'unquiets the tmux output' do
+          expect(notifier).to receive(:system).with 'tmux set-option quiet off'
+
+          notifier.turn_off
+        end
+      end
+
+      context 'with tmux 1.7' do
+        before do
+          notifier.stub(:_tmux_version).and_return 1.7
+        end
+
+        it 'unquiets the tmux output' do
+          expect(notifier).to receive(:system).with 'tmux set quiet off'
+
+          notifier.turn_off
+        end
       end
     end
   end
