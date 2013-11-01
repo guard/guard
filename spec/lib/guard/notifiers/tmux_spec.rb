@@ -138,20 +138,20 @@ describe Guard::Notifier::Tmux do
     end
 
     it 'displays the title' do
-      expect(notifier).to receive(:system).with('tmux set-option -q set-titles-string \'any title - any message\'').once
+      expect(notifier).to receive(:system).with('tmux set-option set-titles-string \'any title - any message\'').once
 
       notifier.display_title 'success', 'any title', 'any message'
     end
 
     it 'shows only the first line of the message' do
-      expect(notifier).to receive(:system).with('tmux set-option -q set-titles-string \'any title - any message\'').once
+      expect(notifier).to receive(:system).with('tmux set-option set-titles-string \'any title - any message\'').once
 
       notifier.display_title 'success', 'any title', "any message\nline two"
     end
 
     context 'with success message type options' do
       it 'formats the message' do
-        expect(notifier).to receive(:system).with('tmux set-option -q set-titles-string \'[any title] => any message\'').once
+        expect(notifier).to receive(:system).with('tmux set-option set-titles-string \'[any title] => any message\'').once
 
         notifier.display_title 'success', 'any title', "any message\nline two", success_title_format: '[%s] => %s', default_title_format: '(%s) -> %s'
       end
@@ -159,7 +159,7 @@ describe Guard::Notifier::Tmux do
 
     context 'with pending message type options' do
       it 'formats the message' do
-        expect(notifier).to receive(:system).with('tmux set-option -q set-titles-string \'[any title] === any message\'').once
+        expect(notifier).to receive(:system).with('tmux set-option set-titles-string \'[any title] === any message\'').once
 
         notifier.display_title 'pending', 'any title', "any message\nline two", pending_title_format: '[%s] === %s', default_title_format: '(%s) -> %s'
       end
@@ -167,7 +167,7 @@ describe Guard::Notifier::Tmux do
 
     context 'with failed message type options' do
       it 'formats the message' do
-        expect(notifier).to receive(:system).with('tmux set-option -q set-titles-string \'[any title] <=> any message\'').once
+        expect(notifier).to receive(:system).with('tmux set-option set-titles-string \'[any title] <=> any message\'').once
 
         notifier.display_title 'failed', 'any title', "any message\nline two", failed_title_format: '[%s] <=> %s', default_title_format: '(%s) -> %s'
       end
@@ -264,7 +264,7 @@ describe Guard::Notifier::Tmux do
     end
 
     it 'quiets the tmux output' do
-      expect(notifier).to receive(:system).with 'tmux set quiet on'
+      expect(notifier).to receive(:system).with 'tmux set-option quiet on'
 
       notifier.turn_on
     end
@@ -337,7 +337,7 @@ describe Guard::Notifier::Tmux do
       end
 
       it 'unquiets the tmux output' do
-        expect(notifier).to receive(:system).with 'tmux set quiet off'
+        expect(notifier).to receive(:system).with 'tmux set-option quiet off'
 
         notifier.turn_off
       end
@@ -366,7 +366,7 @@ describe Guard::Notifier::Tmux do
       end
 
       it 'unquiets the tmux output' do
-        expect(notifier).to receive(:system).with 'tmux set quiet off'
+        expect(notifier).to receive(:system).with 'tmux set-option quiet off'
 
         notifier.turn_off
       end

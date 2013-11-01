@@ -134,7 +134,7 @@ module Guard
         teaser_message = message.split("\n").first
         display_title  = title_format % [title, teaser_message]
 
-        _run_client "set-option -q set-titles-string '#{ display_title }'"
+        _run_client "set-option set-titles-string '#{ display_title }'"
       end
 
       # Displays a message in the status bar of tmux.
@@ -208,7 +208,7 @@ module Guard
           @options_stored = true
         end
 
-        _run_client 'set quiet on'
+        _run_client 'set-option quiet on'
       end
 
       # Notification stopping. Restore the previous Tmux state
@@ -227,7 +227,7 @@ module Guard
           _reset_options_store
         end
 
-        _run_client 'set quiet off'
+        _run_client 'set-option quiet off'
       end
 
       def options_store
