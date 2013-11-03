@@ -42,50 +42,50 @@ describe Guard::Notifier::Tmux do
       let(:notifier) { described_class.new(success: 'rainbow', silent: true) }
 
       it 'uses these options by default' do
-      expect(notifier).to receive(:system).with "tmux set status-left-bg rainbow"
+      expect(notifier).to receive(:system).with "tmux set -q status-left-bg rainbow"
 
       notifier.notify('any message', type: :success)
       end
 
       it 'overwrites object options with passed options' do
-      expect(notifier).to receive(:system).with "tmux set status-left-bg black"
+      expect(notifier).to receive(:system).with "tmux set -q status-left-bg black"
 
       notifier.notify('any message', type: :success, success: 'black')
       end
     end
 
     it 'should set the tmux status bar color to green on success' do
-      expect(notifier).to receive(:system).with 'tmux set status-left-bg green'
+      expect(notifier).to receive(:system).with 'tmux set -q status-left-bg green'
 
       notifier.notify('any message', type: :success)
     end
 
     it 'should set the tmux status bar color to black on success when black is passed in as an option' do
-      expect(notifier).to receive(:system).with "tmux set status-left-bg black"
+      expect(notifier).to receive(:system).with "tmux set -q status-left-bg black"
 
       notifier.notify('any message', type: :success, success: 'black')
     end
 
     it 'should set the tmux status bar color to red on failure' do
-      expect(notifier).to receive(:system).with 'tmux set status-left-bg red'
+      expect(notifier).to receive(:system).with 'tmux set -q status-left-bg red'
 
       notifier.notify('any message', type: :failed)
     end
 
     it 'should set the tmux status bar color to yellow on pending' do
-      expect(notifier).to receive(:system).with 'tmux set status-left-bg yellow'
+      expect(notifier).to receive(:system).with 'tmux set -q status-left-bg yellow'
 
       notifier.notify('any message', type: :pending)
     end
 
     it 'should set the tmux status bar color to green on notify' do
-      expect(notifier).to receive(:system).with 'tmux set status-left-bg green'
+      expect(notifier).to receive(:system).with 'tmux set -q status-left-bg green'
 
       notifier.notify('any message', type: :notify)
     end
 
     it 'should set the right tmux status bar color on success when the right status bar is passed in as an option' do
-      expect(notifier).to receive(:system).with 'tmux set status-right-bg green'
+      expect(notifier).to receive(:system).with 'tmux set -q status-right-bg green'
 
       notifier.notify('any message', color_location: 'status-right-bg')
     end
@@ -117,7 +117,7 @@ describe Guard::Notifier::Tmux do
       notifier.notify('any message', type: :notify, display_title: true)
     end
 
-    it 'does not call display_title  if the display_title flag is not set' do
+    it 'does not call display_title if the display_title flag is not set' do
       notifier.stub system: true
       expect(notifier).to receive(:display_title).never
 
@@ -125,8 +125,8 @@ describe Guard::Notifier::Tmux do
     end
 
     it 'should set the color on multiple tmux settings when color_location is passed with an array' do
-      expect(notifier).to receive(:system).with 'tmux set status-left-bg green'
-      expect(notifier).to receive(:system).with 'tmux set pane-border-fg green'
+      expect(notifier).to receive(:system).with 'tmux set -q status-left-bg green'
+      expect(notifier).to receive(:system).with 'tmux set -q pane-border-fg green'
 
       notifier.notify('any message', color_location: %w[status-left-bg pane-border-fg])
     end
@@ -137,39 +137,57 @@ describe Guard::Notifier::Tmux do
       notifier.stub system: true
     end
 
-    it 'displays the title' do
-      expect(notifier).to receive(:system).with('tmux set-option set-titles-string \'any title - any message\'').once
+    context 'for tmux >= 1.7' do
+      before do
+        notifier.stub _tmux_version: 1.7
+      end
 
-      notifier.display_title 'success', 'any title', 'any message'
-    end
+      it 'displays the title' do
+        expect(notifier).to receive(:system).with('tmux set-option -q set-titles-string \'any title - any message\'').once
 
-    it 'shows only the first line of the message' do
-      expect(notifier).to receive(:system).with('tmux set-option set-titles-string \'any title - any message\'').once
+        notifier.display_title 'success', 'any title', 'any message'
+      end
 
-      notifier.display_title 'success', 'any title', "any message\nline two"
-    end
+      it 'shows only the first line of the message' do
+        expect(notifier).to receive(:system).with('tmux set-option -q set-titles-string \'any title - any message\'').once
 
-    context 'with success message type options' do
-      it 'formats the message' do
-        expect(notifier).to receive(:system).with('tmux set-option set-titles-string \'[any title] => any message\'').once
+        notifier.display_title 'success', 'any title', "any message\nline two"
+      end
 
-        notifier.display_title 'success', 'any title', "any message\nline two", success_title_format: '[%s] => %s', default_title_format: '(%s) -> %s'
+      context 'with success message type options' do
+        it 'formats the message' do
+          expect(notifier).to receive(:system).with('tmux set-option -q set-titles-string \'[any title] => any message\'').once
+
+          notifier.display_title 'success', 'any title', "any message\nline two", success_title_format: '[%s] => %s', default_title_format: '(%s) -> %s'
+        end
+      end
+
+      context 'with pending message type options' do
+        it 'formats the message' do
+          expect(notifier).to receive(:system).with('tmux set-option -q set-titles-string \'[any title] === any message\'').once
+
+          notifier.display_title 'pending', 'any title', "any message\nline two", pending_title_format: '[%s] === %s', default_title_format: '(%s) -> %s'
+        end
+      end
+
+      context 'with failed message type options' do
+        it 'formats the message' do
+          expect(notifier).to receive(:system).with('tmux set-option -q set-titles-string \'[any title] <=> any message\'').once
+
+          notifier.display_title 'failed', 'any title', "any message\nline two", failed_title_format: '[%s] <=> %s', default_title_format: '(%s) -> %s'
+        end
       end
     end
 
-    context 'with pending message type options' do
-      it 'formats the message' do
-        expect(notifier).to receive(:system).with('tmux set-option set-titles-string \'[any title] === any message\'').once
-
-        notifier.display_title 'pending', 'any title', "any message\nline two", pending_title_format: '[%s] === %s', default_title_format: '(%s) -> %s'
+    context 'for tmux <= 1.6' do
+      before do
+        notifier.stub _tmux_version: 1.6
       end
-    end
 
-    context 'with failed message type options' do
-      it 'formats the message' do
-        expect(notifier).to receive(:system).with('tmux set-option set-titles-string \'[any title] <=> any message\'').once
+      it 'does not add the quiet flag' do
+        expect(notifier).to receive(:system).with('tmux set-option set-titles-string \'any title - any message\'').once
 
-        notifier.display_title 'failed', 'any title', "any message\nline two", failed_title_format: '[%s] <=> %s', default_title_format: '(%s) -> %s'
+        notifier.display_title 'success', 'any title', 'any message'
       end
     end
   end
@@ -180,7 +198,7 @@ describe Guard::Notifier::Tmux do
     end
 
     it 'sets the display-time' do
-      expect(notifier).to receive(:system).with('tmux set display-time 3000')
+      expect(notifier).to receive(:system).with('tmux set -q display-time 3000')
 
       notifier.display_message 'success', 'any title', 'any message', timeout: 3
     end
@@ -205,13 +223,13 @@ describe Guard::Notifier::Tmux do
       end
 
       it 'sets the foreground color based on the type for success' do
-        expect(notifier).to receive(:system).with('tmux set message-fg green')
+        expect(notifier).to receive(:system).with('tmux set -q message-fg green')
 
         notifier.display_message 'success', 'any title', 'any message', { success_message_color: 'green' }
       end
 
       it 'sets the background color' do
-        expect(notifier).to receive(:system).with('tmux set message-bg blue')
+        expect(notifier).to receive(:system).with('tmux set -q message-bg blue')
 
         notifier.display_message 'success', 'any title', 'any message', { success: :blue }
       end
@@ -225,13 +243,13 @@ describe Guard::Notifier::Tmux do
       end
 
       it 'sets the foreground color' do
-        expect(notifier).to receive(:system).with('tmux set message-fg blue')
+        expect(notifier).to receive(:system).with('tmux set -q message-fg blue')
 
         notifier.display_message 'pending', 'any title', 'any message', pending_message_color: 'blue'
       end
 
       it 'sets the background color' do
-        expect(notifier).to receive(:system).with('tmux set message-bg white')
+        expect(notifier).to receive(:system).with('tmux set -q message-bg white')
 
         notifier.display_message 'pending', 'any title', 'any message', pending: :white
       end
@@ -245,12 +263,12 @@ describe Guard::Notifier::Tmux do
       end
 
       it 'sets the foreground color' do
-        expect(notifier).to receive(:system).with('tmux set message-fg red')
+        expect(notifier).to receive(:system).with('tmux set -q message-fg red')
         notifier.display_message 'failed', 'any title', 'any message', failed_message_color: 'red'
       end
 
       it 'sets the background color' do
-        expect(notifier).to receive(:system).with('tmux set message-bg black')
+        expect(notifier).to receive(:system).with('tmux set -q message-bg black')
         notifier.display_message 'failed', 'any title', 'any message', failed: :black
       end
     end
@@ -261,30 +279,6 @@ describe Guard::Notifier::Tmux do
     before do
       notifier.stub(:`).and_return("option1 setting1\noption2 setting2\n")
       notifier.stub system: true
-    end
-
-    context 'with tmux 1.8' do
-      before do
-        notifier.stub(:_tmux_version).and_return 1.8
-      end
-
-      it 'quiets the tmux output' do
-        expect(notifier).to receive(:system).with 'tmux set-option quiet on'
-
-        notifier.turn_on
-      end
-    end
-
-    context 'with tmux 1.7' do
-      before do
-        notifier.stub(:_tmux_version).and_return 1.7
-      end
-
-      it 'quiets the tmux output' do
-        expect(notifier).to receive(:system).with 'tmux set quiet on'
-
-        notifier.turn_on
-      end
     end
 
     context 'when off' do
@@ -336,14 +330,14 @@ describe Guard::Notifier::Tmux do
       end
 
       it 'restores the tmux options' do
-        expect(notifier).to receive(:system).with('tmux set option2 setting2')
-        expect(notifier).to receive(:system).with('tmux set -u status-left-bg')
-        expect(notifier).to receive(:system).with('tmux set option1 setting1')
-        expect(notifier).to receive(:system).with('tmux set -u status-right-bg')
-        expect(notifier).to receive(:system).with('tmux set -u status-right-fg')
-        expect(notifier).to receive(:system).with('tmux set -u status-left-fg')
-        expect(notifier).to receive(:system).with('tmux set -u message-fg')
-        expect(notifier).to receive(:system).with('tmux set -u message-bg')
+        expect(notifier).to receive(:system).with('tmux set -q option2 setting2')
+        expect(notifier).to receive(:system).with('tmux set -q -u status-left-bg')
+        expect(notifier).to receive(:system).with('tmux set -q option1 setting1')
+        expect(notifier).to receive(:system).with('tmux set -q -u status-right-bg')
+        expect(notifier).to receive(:system).with('tmux set -q -u status-right-fg')
+        expect(notifier).to receive(:system).with('tmux set -q -u status-left-fg')
+        expect(notifier).to receive(:system).with('tmux set -q -u message-fg')
+        expect(notifier).to receive(:system).with('tmux set -q -u message-bg')
 
         notifier.turn_off
       end
@@ -353,30 +347,6 @@ describe Guard::Notifier::Tmux do
 
         notifier.turn_off
       end
-
-      context 'with tmux 1.8' do
-        before do
-          notifier.stub(:_tmux_version).and_return 1.8
-        end
-
-        it 'unquiets the tmux output' do
-          expect(notifier).to receive(:system).with 'tmux set-option quiet off'
-
-          notifier.turn_off
-        end
-      end
-
-      context 'with tmux 1.7' do
-        before do
-          notifier.stub(:_tmux_version).and_return 1.7
-        end
-
-        it 'unquiets the tmux output' do
-          expect(notifier).to receive(:system).with 'tmux set quiet off'
-
-          notifier.turn_off
-        end
-      end
     end
 
     context 'when off' do
@@ -385,12 +355,12 @@ describe Guard::Notifier::Tmux do
       end
 
       it 'does not restore the tmux options' do
-        expect(notifier).to_not receive(:system).with('tmux set -u status-left-bg')
-        expect(notifier).to_not receive(:system).with('tmux set -u status-right-bg')
-        expect(notifier).to_not receive(:system).with('tmux set -u status-right-fg')
-        expect(notifier).to_not receive(:system).with('tmux set -u status-left-fg')
-        expect(notifier).to_not receive(:system).with('tmux set -u message-fg')
-        expect(notifier).to_not receive(:system).with('tmux set -u message-bg')
+        expect(notifier).to_not receive(:system).with('tmux set -q -u status-left-bg')
+        expect(notifier).to_not receive(:system).with('tmux set -q -u status-right-bg')
+        expect(notifier).to_not receive(:system).with('tmux set -q -u status-right-fg')
+        expect(notifier).to_not receive(:system).with('tmux set -q -u status-left-fg')
+        expect(notifier).to_not receive(:system).with('tmux set -q -u message-fg')
+        expect(notifier).to_not receive(:system).with('tmux set -q -u message-bg')
 
         notifier.turn_off
       end
@@ -399,30 +369,6 @@ describe Guard::Notifier::Tmux do
         expect(notifier).to_not receive(:_reset_options_store)
 
         notifier.turn_off
-      end
-
-      context 'with tmux 1.8' do
-        before do
-          notifier.stub(:_tmux_version).and_return 1.8
-        end
-
-        it 'unquiets the tmux output' do
-          expect(notifier).to receive(:system).with 'tmux set-option quiet off'
-
-          notifier.turn_off
-        end
-      end
-
-      context 'with tmux 1.7' do
-        before do
-          notifier.stub(:_tmux_version).and_return 1.7
-        end
-
-        it 'unquiets the tmux output' do
-          expect(notifier).to receive(:system).with 'tmux set quiet off'
-
-          notifier.turn_off
-        end
       end
     end
   end
