@@ -59,8 +59,11 @@ namespace :release do
 
       exit if input == 'n'
 
-      if gh_client.update_release(gh_release.url, draft: false)
+      if gh_client.update_release(gh_release.rels[:self].href, draft: false)
         puts "GitHub release #{tag_name} has been published!"
+        puts "\nPlease enjoy and spread the word!"
+        puts "Lack of inspiration? Here's a tweet you could improve:\n\n"
+        puts "Just released Guard #{Guard::VERSION}! #{gh_release.rels[:html].href}"
       else
         puts "GitHub release #{tag_name} couldn't be published!"
       end
