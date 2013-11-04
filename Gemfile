@@ -13,9 +13,14 @@ end
 # installed on Travis CI.
 #
 group :development do
-  gem 'yard'
-  gem 'redcarpet'
+  gem 'yard', require: false
+  gem 'redcarpet', require: false
   gem 'guard-ronn', require: false
+
+  # Used for release
+  gem 'gems', require: false
+  gem 'netrc', require: false
+  gem 'octokit', require: false
 
   require 'rbconfig'
 
