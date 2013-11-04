@@ -69,7 +69,7 @@ module Guard
       def notify(message, opts = {})
         super
 
-        command = [title, message]
+        command = [opts[:title], message]
         opts = DEFAULTS.merge(
           i: opts.delete(:image),
           u: _notifysend_urgency(opts.delete(:type))
