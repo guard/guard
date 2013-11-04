@@ -76,7 +76,7 @@ module Guard
 
       within_preserved_state do
         ::Guard::UI.clear(force: true)
-        ::Guard::UI.action_with_scopes('Run all', scopes)
+        ::Guard::UI.action_with_scopes('Run', scopes)
         runner.run(:run_all, scopes)
       end
     end
