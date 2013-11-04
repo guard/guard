@@ -60,6 +60,15 @@ describe Guard::Notifier::NotifySend do
 
         notifier.notify('Welcome to Guard', image: '/tmp/welcome.png')
       end
+
+      it 'uses the title provided in the options' do
+        notifier.should_receive(:system).with do |command, *arguments|
+          expect(command).to eql 'notify-send'
+          expect(arguments).to include 'Welcome to Guard'
+          expect(arguments).to include 'test title'
+        end
+        notifier.notify('Welcome to Guard', title: 'test title')
+      end
     end
 
     context 'without additional options' do
