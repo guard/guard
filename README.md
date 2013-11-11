@@ -478,13 +478,35 @@ group :docs do
 end
 ```
 
+Groups can be nested, reopened and can take muliple names to assign its plugin to multiple groups:
+
+```ruby
+group :desktop do
+  guard 'livereload' do
+    watch(%r{desktop/.+\.html})
+  end
+
+  group :mobile do
+    guard 'livereload' do
+      watch(%r{mobile/.+\.html})
+    end
+  end
+end
+
+group :mobile, :desktop do
+  guard 'livereload' do
+    watch(%r{both/.+\.html})
+  end
+end
+```
+
 Groups to be run can be specified with the Guard DSL option `--group` (or `-g`):
 
 ```bash
 $ bundle exec guard -g specs
 ```
 
-Guard plugins that don't belong to a group are considered global and are always run.
+Plugins that don't belong to a group are part of the `default` group.
 
 Another neat use of groups is to group dependant plugins and stop processing if one fails. In order
 to make this work, the group needs to have the `halt_on_fail` option enabled and the Guard plugin
