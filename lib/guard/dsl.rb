@@ -117,7 +117,7 @@ module Guard
     # @see #guard
     #
     def group(name, options = {})
-      groups = name.is_a?(Array) ? name : [name]
+      groups = Array(name)
 
       groups.each do |group|
         raise ArgumentError, "'all' is not an allowed group name!" if group.to_sym == :all
