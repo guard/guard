@@ -158,6 +158,13 @@ describe Guard::Dsl do
 
       described_class.evaluate_guardfile(guardfile_contents: valid_guardfile_string)
     end
+
+    it 'accepts multiple names' do
+      expect(::Guard).to receive(:add_group).with(:foo, {})
+      expect(::Guard).to receive(:add_group).with(:bar, {})
+
+      described_class.evaluate_guardfile(guardfile_contents: 'group :foo, :bar do; end')
+    end
   end
 
   describe '#guard' do
