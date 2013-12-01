@@ -478,7 +478,7 @@ group :docs do
 end
 ```
 
-Groups can be nested, reopened and can take muliple names to assign its plugin to multiple groups:
+Groups can be nested, reopened and can take multiple names to assign its plugin to multiple groups:
 
 ```ruby
 group :desktop do
