@@ -170,8 +170,8 @@ module Guard
 
       yield if block_given?
 
-      groups = @current_groups || [[:default]]
-      groups.last.each do |group|
+      groups = @current_groups && @current_groups.last || [:default]
+      groups.each do |group|
         options.merge!(group: group, watchers: @watchers, callbacks: @callbacks)
         ::Guard.add_plugin(name, options)
       end
