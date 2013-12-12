@@ -20,6 +20,10 @@ describe Guard::Plugin::Hooker do
         hook :begin, 'args'
         hook 'special_sauce', 'first_arg', 'second_arg'
       end
+
+      def run_on_modifications(paths)
+        hook :begin
+      end
     end
   end
   let(:dummy1) { fake_plugin.new }
@@ -37,6 +41,10 @@ describe Guard::Plugin::Hooker do
       expect(described_class.has_callback?(listener, dummy1, :start_begin)).to be_true
     end
 
+    it 'can add a run_on_modifications callback' do
+      expect(described_class.has_callback?(listener, dummy1, :run_on_modifications_begin)).to be_true
+    end
+
     it 'can add multiple callbacks' do
       described_class.add_callback(listener, dummy1, [:event1, :event2])
       expect(described_class.has_callback?(listener, dummy1, :event1)).to be_true
@@ -48,6 +56,11 @@ describe Guard::Plugin::Hooker do
     it "sends :call to the given Guard class's callbacks" do
       expect(listener).to receive(:call).with(dummy1, :start_begin, 'args')
       described_class.notify(dummy1, :start_begin, 'args')
+    end
+
+    it "sends :call to the given Guard class's run_on_modifications callback" do
+      expect(listener).to receive(:call).with(dummy1, :run_on_modifications_begin, 'args')
+      described_class.notify(dummy1, :run_on_modifications_begin, 'args')
     end
 
     it 'runs only the given callbacks' do
