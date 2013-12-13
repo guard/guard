@@ -56,13 +56,13 @@ describe Guard::Plugin::Hooker do
   end
 
   describe '.notify' do
-    it "sends :call to the given Guard class's callbacks" do
+    it "sends :call to the given Guard class's start_begin callback" do
       expect(listener).to receive(:call).with(dummy1, :start_begin, 'args')
 
       described_class.notify(dummy1, :start_begin, 'args')
     end
 
-    it "sends :call to the given Guard class's run_on_modifications callback" do
+    it "sends :call to the given Guard class's start_begin callback" do
       expect(listener).to receive(:call).with(dummy1, :start_begin, 'args')
 
       described_class.notify(dummy1, :start_begin, 'args')
