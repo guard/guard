@@ -207,9 +207,8 @@ module Guard
       def turn_on
         unless @options_stored
           _reset_options_store
-          _remove_old_clients
           clients.each do |client|
-            @options_store[client] ||= {}
+            options_store[client] ||= {}
             `#{ DEFAULTS[:client] } show -t #{ client }`.each_line do |line|
               option, _, setting = line.chomp.partition(' ')
               @options_store[client][option] = setting
@@ -225,7 +224,6 @@ module Guard
       #
       def turn_off
         if @options_stored
-          _remove_old_clients
           @options_store.each do |client, options|
             options.each do |key, value|
               if value
@@ -275,8 +273,9 @@ module Guard
       #
       def _reset_options_store
         @options_stored = false
-        @options_store.each do |client, options|
-          options = {
+        @options_store = {}
+        clients.each do | client |
+          @options_store[client] = {
             'status-left-bg'  => nil,
             'status-right-bg' => nil,
             'status-left-fg'  => nil,
@@ -291,8 +290,8 @@ module Guard
       # Remove clients which no longer exist from options store
       #
       def _remove_old_clients
-        (@options_store.keys - clients).each do | old_client |
-          @options_store.delete old_client
+        (options_store.keys - clients).each do | old_client |
+          options_store.delete old_client
         end
       end
 

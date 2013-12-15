@@ -278,6 +278,7 @@ describe Guard::Notifier::Tmux do
   describe '.turn_on' do
     before do
       notifier.stub(:`).and_return("option1 setting1\noption2 setting2\n")
+      notifier.stub(:clients).and_return(["tty"])
       notifier.stub system: true
     end
 
@@ -293,7 +294,7 @@ describe Guard::Notifier::Tmux do
       end
 
       it 'saves the current tmux options' do
-        expect(notifier).to receive(:`).with('tmux show')
+        expect(notifier).to receive(:`).with('tmux show -t tty')
 
         notifier.turn_on
       end
@@ -321,6 +322,7 @@ describe Guard::Notifier::Tmux do
   describe '.turn_off' do
     before do
       notifier.stub(:`).and_return("option1 setting1\noption2 setting2\n")
+      notifier.stub(:clients).and_return(["tty"])
       notifier.stub system: true
     end
 
@@ -330,14 +332,14 @@ describe Guard::Notifier::Tmux do
       end
 
       it 'restores the tmux options' do
-        expect(notifier).to receive(:system).with('tmux set -q option2 setting2')
-        expect(notifier).to receive(:system).with('tmux set -q -u status-left-bg')
-        expect(notifier).to receive(:system).with('tmux set -q option1 setting1')
-        expect(notifier).to receive(:system).with('tmux set -q -u status-right-bg')
-        expect(notifier).to receive(:system).with('tmux set -q -u status-right-fg')
-        expect(notifier).to receive(:system).with('tmux set -q -u status-left-fg')
-        expect(notifier).to receive(:system).with('tmux set -q -u message-fg')
-        expect(notifier).to receive(:system).with('tmux set -q -u message-bg')
+        expect(notifier).to receive(:`).with('tmux set -t tty -q option2 setting2')
+        expect(notifier).to receive(:`).with('tmux set -t tty -q -u status-left-bg')
+        expect(notifier).to receive(:`).with('tmux set -t tty -q option1 setting1')
+        expect(notifier).to receive(:`).with('tmux set -t tty -q -u status-right-bg')
+        expect(notifier).to receive(:`).with('tmux set -t tty -q -u status-right-fg')
+        expect(notifier).to receive(:`).with('tmux set -t tty -q -u status-left-fg')
+        expect(notifier).to receive(:`).with('tmux set -t tty -q -u message-fg')
+        expect(notifier).to receive(:`).with('tmux set -t tty -q -u message-bg')
 
         notifier.turn_off
       end
