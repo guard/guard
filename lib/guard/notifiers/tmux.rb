@@ -29,6 +29,7 @@ module Guard
         display_message:        false,
         default_message_format: '%s - %s',
         default_message_color:  'white',
+        display_on_all_clients: false,
         display_title:          false,
         default_title_format:   '%s - %s',
         line_separator:         ' - ',
@@ -89,6 +90,8 @@ module Guard
       #   color notification
       # @option opts [Boolean] display_message whether to display a message
       #   or not
+      # @option opts [Boolean] display_on_all_clients whether to display a
+      #   message on all tmux clients or not
       #
       def notify(message, opts = {})
         super
@@ -182,8 +185,13 @@ module Guard
         _run_client "set -q display-time #{ display_time * 1000 }"
         _run_client "set -q message-fg #{ message_color }"
         _run_client "set -q message-bg #{ color }"
-        _run_client "display-message '#{ display_message }'"
-      end
+
+        if opts.fetch(:display_on_all_clients, DEFAULTS[:display_on_all_clients])
+          _display_on_all_clients(display_message)
+        else
+          _run_client "display-message '#{ display_message }'"
+        end
+     end
 
       # Get the Tmux color for the notification type.
       # You can configure your own color by overwriting the defaults.
@@ -243,6 +251,13 @@ module Guard
 
       def _run_client(args)
         system("#{ DEFAULTS[:client] } #{args}")
+      end
+
+      def _display_on_all_clients(message)
+        clients = %x(tmux list-clients -F '\#{client_tty}').split(/\n/);
+        clients.each do |client|
+          _run_client "display-message -c #{client} '#{ message }'"
+        end
       end
 
       # Reset the internal Tmux options store defaults.
