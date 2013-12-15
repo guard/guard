@@ -254,9 +254,8 @@ module Guard
       end
 
       def _display_on_all_clients(message)
-        clients = %x(tmux list-clients -F '\#{client_tty}').split(/\n/);
-        clients.each do |client|
-          _run_client "display-message -c #{client} '#{ message }'"
+        `#{ DEFAULTS[:client] } list-clients -F '\#{client_tty}'`.each_line do |client|
+          _run_client "display-message -c #{ client.strip } '#{ message }'"
         end
       end
 
