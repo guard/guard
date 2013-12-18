@@ -29,6 +29,7 @@ module Guard
         display_message:        false,
         default_message_format: '%s - %s',
         default_message_color:  'white',
+        display_on_all_clients: false,
         display_title:          false,
         default_title_format:   '%s - %s',
         line_separator:         ' - ',
@@ -89,6 +90,8 @@ module Guard
       #   color notification
       # @option opts [Boolean] display_message whether to display a message
       #   or not
+      # @option opts [Boolean] display_on_all_clients whether to display a
+      #   message on all tmux clients or not
       #
       def notify(message, opts = {})
         super
@@ -99,7 +102,7 @@ module Guard
           color = tmux_color(opts[:type], opts)
 
           color_locations.each do |color_location|
-            _run_client "set -q #{ color_location } #{ color }"
+            _run_client "set","-q #{ color_location } #{ color }"
           end
         end
 
@@ -135,9 +138,9 @@ module Guard
         display_title  = title_format % [title, teaser_message]
 
         if _tmux_version >= 1.7
-          _run_client "set-option -q set-titles-string '#{ display_title }'"
+          _run_client "set-option","-q set-titles-string '#{ display_title }'"
         else
-          _run_client "set-option set-titles-string '#{ display_title }'"
+          _run_client "set-option", "set-titles-string '#{ display_title }'"
         end
       end
 
@@ -179,11 +182,11 @@ module Guard
         formatted_message = message.split("\n").join(separator)
         display_message = message_format % [title, formatted_message]
 
-        _run_client "set -q display-time #{ display_time * 1000 }"
-        _run_client "set -q message-fg #{ message_color }"
-        _run_client "set -q message-bg #{ color }"
-        _run_client "display-message '#{ display_message }'"
-      end
+        _run_client "set", "-q display-time #{ display_time * 1000 }"
+        _run_client "set", "-q message-fg #{ message_color }"
+        _run_client "set", "-q message-bg #{ color }"
+        _run_client "display-message", "'#{ display_message }'"
+     end
 
       # Get the Tmux color for the notification type.
       # You can configure your own color by overwriting the defaults.
@@ -204,11 +207,13 @@ module Guard
       def turn_on
         unless @options_stored
           _reset_options_store
-          `#{ DEFAULTS[:client] } show`.each_line do |line|
-            option, _, setting = line.chomp.partition(' ')
-            options_store[option] = setting
+          clients.each do |client|
+            options_store[client] ||= {}
+            `#{ DEFAULTS[:client] } show -t #{ client }`.each_line do |line|
+              option, _, setting = line.chomp.partition(' ')
+              @options_store[client][option] = setting
+            end
           end
-
           @options_stored = true
         end
       end
@@ -219,11 +224,13 @@ module Guard
       #
       def turn_off
         if @options_stored
-          @options_store.each do |key, value|
-            if value
-              _run_client "set -q #{ key } #{ value }"
-            else
-              _run_client "set -q -u #{ key }"
+          @options_store.each do |client, options|
+            options.each do |key, value|
+              if value
+                `#{ DEFAULTS[:client] } set -t #{ client } -q #{ key } #{ value }`
+              else
+                `#{ DEFAULTS[:client] } set -t #{ client } -q -u #{ key }`
+              end
             end
           end
           _reset_options_store
@@ -236,28 +243,56 @@ module Guard
 
       private
 
+      def clients
+        %x( #{DEFAULTS[:client]} list-clients -F '\#{client_tty}').split(/\n/);
+      end
+
       def system(args)
         args += " >#{ DEV_NULL } 2>&1" if ENV['GUARD_ENV'] == 'test'
         super
       end
 
-      def _run_client(args)
-        system("#{ DEFAULTS[:client] } #{args}")
+      def _run_client(cmd, args)
+        if @options.fetch(:display_on_all_clients, DEFAULTS[:display_on_all_clients])
+          clients.each do |client|
+            system("#{ DEFAULTS[:client] } #{cmd} #{_client_cmd_flag(cmd)} #{ client.strip } #{ args }")
+          end
+        else
+          system("#{ DEFAULTS[:client] } #{cmd} #{args}")
+        end
+      end
+
+      def _client_cmd_flag(cmd)
+        case cmd
+          when 'set', 'set-option' then '-t'
+          when 'display-message' then '-c'
+        end
       end
 
       # Reset the internal Tmux options store defaults.
       #
       def _reset_options_store
         @options_stored = false
-        @options_store = {
-          'status-left-bg'  => nil,
-          'status-right-bg' => nil,
-          'status-left-fg'  => nil,
-          'status-right-fg' => nil,
-          'message-bg'      => nil,
-          'message-fg'      => nil,
-          'display-time'    => nil
-        }
+        @options_store = {}
+        clients.each do | client |
+          @options_store[client] = {
+            'status-left-bg'  => nil,
+            'status-right-bg' => nil,
+            'status-left-fg'  => nil,
+            'status-right-fg' => nil,
+            'message-bg'      => nil,
+            'message-fg'      => nil,
+            'display-time'    => nil
+          }
+        end
+      end
+
+      # Remove clients which no longer exist from options store
+      #
+      def _remove_old_clients
+        (options_store.keys - clients).each do | old_client |
+          options_store.delete old_client
+        end
       end
 
       def _tmux_version
