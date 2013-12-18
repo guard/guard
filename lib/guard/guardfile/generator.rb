@@ -17,7 +17,12 @@ module Guard
       GUARDFILE_TEMPLATE = File.expand_path('../../../guard/templates/Guardfile', __FILE__)
 
       # The location of user defined templates
-      HOME_TEMPLATES = File.expand_path('~/.guard/templates')
+      begin
+        HOME_TEMPLATES = File.expand_path('~/.guard/templates')
+      rescue ArgumentError => e
+        # home isn't defined.  Set to the root of the drive.  Trust that there won't be user defined templates there
+        HOME_TEMPLATES = File.expand_path('/')
+      end
 
       # Initialize a new `Guard::Guardfile::Generator` object.
       #
