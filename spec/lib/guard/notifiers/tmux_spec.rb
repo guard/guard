@@ -278,7 +278,7 @@ describe Guard::Notifier::Tmux do
   describe '.turn_on' do
     before do
       notifier.stub(:`).and_return("option1 setting1\noption2 setting2\n")
-      notifier.stub(:clients).and_return(["tty"])
+      notifier.stub(:_clients).and_return(['tty'])
       notifier.stub system: true
     end
 
@@ -322,7 +322,7 @@ describe Guard::Notifier::Tmux do
   describe '.turn_off' do
     before do
       notifier.stub(:`).and_return("option1 setting1\noption2 setting2\n")
-      notifier.stub(:clients).and_return(["tty"])
+      notifier.stub(:_clients).and_return(['tty'])
       notifier.stub system: true
     end
 

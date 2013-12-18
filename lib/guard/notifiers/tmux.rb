@@ -138,7 +138,7 @@ module Guard
         display_title  = title_format % [title, teaser_message]
 
         if _tmux_version >= 1.7
-          _run_client "set-option","-q set-titles-string '#{ display_title }'"
+          _run_client "set-option", "-q set-titles-string '#{ display_title }'"
         else
           _run_client "set-option", "set-titles-string '#{ display_title }'"
         end
@@ -207,7 +207,7 @@ module Guard
       def turn_on
         unless @options_stored
           _reset_options_store
-          clients.each do |client|
+          _clients.each do |client|
             options_store[client] ||= {}
             `#{ DEFAULTS[:client] } show -t #{ client }`.each_line do |line|
               option, _, setting = line.chomp.partition(' ')
@@ -243,22 +243,22 @@ module Guard
 
       private
 
-      def clients
-        %x( #{DEFAULTS[:client]} list-clients -F '\#{client_tty}').split(/\n/);
-      end
-
       def system(args)
         args += " >#{ DEV_NULL } 2>&1" if ENV['GUARD_ENV'] == 'test'
         super
       end
 
+      def _clients
+        %x( #{DEFAULTS[:client]} list-clients -F '\#{client_tty}').split(/\n/);
+      end
+
       def _run_client(cmd, args)
         if @options.fetch(:display_on_all_clients, DEFAULTS[:display_on_all_clients])
-          clients.each do |client|
-            system("#{ DEFAULTS[:client] } #{cmd} #{_client_cmd_flag(cmd)} #{ client.strip } #{ args }")
+          _clients.each do |client|
+            system("#{ DEFAULTS[:client] } #{ cmd } #{ _client_cmd_flag(cmd) } #{ client.strip } #{ args }")
           end
         else
-          system("#{ DEFAULTS[:client] } #{cmd} #{args}")
+          system("#{ DEFAULTS[:client] } #{ cmd } #{ args }")
         end
       end
 
@@ -274,7 +274,7 @@ module Guard
       def _reset_options_store
         @options_stored = false
         @options_store = {}
-        clients.each do | client |
+        _clients.each do | client |
           @options_store[client] = {
             'status-left-bg'  => nil,
             'status-right-bg' => nil,
@@ -290,7 +290,7 @@ module Guard
       # Remove clients which no longer exist from options store
       #
       def _remove_old_clients
-        (options_store.keys - clients).each do | old_client |
+        (options_store.keys - _clients).each do | old_client |
           options_store.delete old_client
         end
       end
