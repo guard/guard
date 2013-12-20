@@ -295,7 +295,7 @@ describe Guard::Runner do
         end
 
         it 'returns the result of the task' do
-          expect(subject.run_supervised_task(@foo_guard, :regular_without_arg)).to be_true
+          expect(subject.run_supervised_task(@foo_guard, :regular_without_arg)).to be_truthy
         end
 
         it 'passes the args to the :begin hook' do

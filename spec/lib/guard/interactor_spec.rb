@@ -11,14 +11,14 @@ describe Guard::Interactor do
     after { described_class.enabled = @interactor_enabled }
 
     it 'returns true by default' do
-      expect(described_class.enabled).to be_true
+      expect(described_class.enabled).to be_truthy
     end
 
     context 'interactor not enabled' do
       before { described_class.enabled = false }
 
       it 'returns false' do
-        expect(described_class.enabled).to be_false
+        expect(described_class.enabled).to be_falsey
       end
     end
   end

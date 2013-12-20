@@ -385,25 +385,25 @@ describe Guard::Guardfile::Evaluator do
     it 'detects a guard specified by a string with double quotes' do
       guardfile_evaluator.stub(_guardfile_contents_without_user_config: 'guard "test" {watch("c")}')
 
-      expect(guardfile_evaluator.guardfile_include?('test')).to be_true
+      expect(guardfile_evaluator.guardfile_include?('test')).to be_truthy
     end
 
     it 'detects a guard specified by a string with single quote' do
       guardfile_evaluator.stub(_guardfile_contents_without_user_config: 'guard \'test\' {watch("c")}')
 
-      expect(guardfile_evaluator.guardfile_include?('test')).to be_true
+      expect(guardfile_evaluator.guardfile_include?('test')).to be_truthy
     end
 
     it 'detects a guard specified by a symbol' do
       guardfile_evaluator.stub(_guardfile_contents_without_user_config: 'guard :test {watch("c")}')
 
-      expect(guardfile_evaluator.guardfile_include?('test')).to be_true
+      expect(guardfile_evaluator.guardfile_include?('test')).to be_truthy
     end
 
     it 'detects a guard wrapped in parentheses' do
       guardfile_evaluator.stub(_guardfile_contents_without_user_config: 'guard(:test) {watch("c")}')
 
-      expect(guardfile_evaluator.guardfile_include?('test')).to be_true
+      expect(guardfile_evaluator.guardfile_include?('test')).to be_truthy
     end
   end
 

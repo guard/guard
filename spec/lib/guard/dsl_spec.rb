@@ -118,7 +118,7 @@ describe Guard::Dsl do
 
     it 'disables the interactions with :off' do
       described_class.evaluate_guardfile(guardfile_contents: 'interactor :off')
-      expect(Guard::Interactor.enabled).to be_false
+      expect(Guard::Interactor.enabled).to be_falsey
     end
 
     it 'passes the options to the interactor' do
@@ -242,8 +242,8 @@ describe Guard::Dsl do
       end
 
       expect(::Guard).to receive(:add_plugin).with(:rspec, { watchers: [], callbacks: [anything, anything], group: :default }) do |_, options|
-        expect(options[:callbacks]).to have(2).items
-        expect(options[:callbacks][0][:events]).to    eq :start_end
+        expect(options[:callbacks].size).to eq 2
+        expect(options[:callbacks][0][:events]).to eq :start_end
         expect(options[:callbacks][0][:listener].call(Guard::RSpec, :start_end, 'foo')).to eq 'Guard::RSpec executed \'start_end\' hook with foo!'
         expect(options[:callbacks][1][:events]).to eq [:start_begin, :run_all_begin]
         expect(options[:callbacks][1][:listener]).to eq MyCustomCallback

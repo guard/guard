@@ -29,7 +29,7 @@ describe Guard::Setuper do
     end
 
     it 'lazily initializes the options' do
-      expect(subject.options[:my_opts]).to be_true
+      expect(subject.options[:my_opts]).to be_truthy
     end
 
     it 'lazily initializes the evaluator' do
@@ -151,7 +151,7 @@ describe Guard::Setuper do
     it "initializes a default group" do
       subject.reset_groups
 
-      expect(subject.groups).to have(1).item
+      expect(subject.groups.size).to eq 1
       expect(subject.groups[0].name).to eq :default
       expect(subject.groups[0].options).to eq({})
     end
@@ -171,7 +171,7 @@ describe Guard::Setuper do
     end
 
     it "return clear the plugins array" do
-      expect(subject.plugins).to have(1).item
+      expect(subject.plugins.size).to eq 1
 
       subject.reset_plugins
 
@@ -468,7 +468,7 @@ describe Guard::Setuper do
       subject.send :_debug_command_execution
       expect(Kernel).to receive(:original_system).with('echo', 'test').and_return true
 
-      expect(system('echo', 'test')).to be_true
+      expect(system('echo', 'test')).to be_truthy
     end
 
     it "outputs Kernel.#` method parameters" do
