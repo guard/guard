@@ -18,8 +18,11 @@ module Guard
     # @example Add the `:terminal_notifier` notifier to your `Guardfile`
     #   notification :terminal_notifier
     #
-    # @example Add the `:terminal_notifier` notifier with configuration options to your `Guardfile`
-    #   notification :terminal_notifier, app_name: "MyApp"
+    # @example Display application name as subtitle
+    #   notification :terminal_notifier, subtitle: “MyApp"
+    #
+    # @example Use iTerm2 for notifications
+    #   notification :terminal_notifier, activate: "com.googlecode.iterm2"
     #
     class TerminalNotifier < Base
 
