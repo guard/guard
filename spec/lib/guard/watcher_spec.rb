@@ -122,7 +122,7 @@ describe Guard::Watcher do
 
         it "returns a single file specified within the action" do
           expect(described_class.match_files(@guard_plugin_any_return, ['spec_helper.rb']).class).to be Array
-          expect(described_class.match_files(@guard_plugin_any_return, ['spec_helper.rb']).empty?).to be_false
+          expect(described_class.match_files(@guard_plugin_any_return, ['spec_helper.rb']).empty?).to be_falsey
         end
 
         it "returns multiple files specified within the action" do
@@ -246,11 +246,11 @@ describe Guard::Watcher do
     end
 
     context "with a watcher that matches a file" do
-      specify { expect(described_class.match_files?(@plugins, ['lib/my_wonderful_lib.rb', 'guard_rocks_spec.rb'])).to be_true }
+      specify { expect(described_class.match_files?(@plugins, ['lib/my_wonderful_lib.rb', 'guard_rocks_spec.rb'])).to be_truthy }
     end
 
     context "with no watcher that matches a file" do
-      specify { expect(described_class.match_files?(@plugins, ['lib/my_wonderful_lib.rb'])).to be_false }
+      specify { expect(described_class.match_files?(@plugins, ['lib/my_wonderful_lib.rb'])).to be_falsey }
     end
   end
 
@@ -334,11 +334,11 @@ describe Guard::Watcher do
     before { Guard.stub(:evaluator) { double(guardfile_path: File.expand_path('Guardfile')) } }
 
     context "with files that match the Guardfile" do
-      specify { expect(described_class.match_guardfile?(['Guardfile', 'guard_rocks_spec.rb'])).to be_true }
+      specify { expect(described_class.match_guardfile?(['Guardfile', 'guard_rocks_spec.rb'])).to be_truthy }
     end
 
     context "with no files that match the Guardfile" do
-      specify { expect(described_class.match_guardfile?(['guard_rocks.rb', 'guard_rocks_spec.rb'])).to be_false }
+      specify { expect(described_class.match_guardfile?(['guard_rocks.rb', 'guard_rocks_spec.rb'])).to be_falsey }
     end
   end
 

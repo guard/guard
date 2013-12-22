@@ -80,7 +80,7 @@ describe Guard::Commander do
     it "sets the running state to false" do
       ::Guard.running = true
       ::Guard.stop
-      expect(::Guard.running).to be_false
+      expect(::Guard.running).to be_falsey
     end
   end
 
@@ -192,7 +192,7 @@ describe Guard::Commander do
     it 'runs the passed block' do
       @called = false
       subject.within_preserved_state { @called = true }
-      expect(@called).to be_true
+      expect(@called).to be_truthy
     end
 
     context '@running is true' do

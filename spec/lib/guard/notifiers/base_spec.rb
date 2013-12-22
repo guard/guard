@@ -147,7 +147,7 @@ describe Guard::Notifier::Base do
       it 'returns true' do
         expect(Guard::Notifier::FooBar).to receive(:require).with('foo_bar')
 
-        expect(Guard::Notifier::FooBar.require_gem_safely).to be_true
+        expect(Guard::Notifier::FooBar.require_gem_safely).to be_truthy
       end
     end
 
@@ -156,7 +156,7 @@ describe Guard::Notifier::Base do
         expect(::Guard::UI).to receive(:error).with "Please add \"gem 'foo_bar'\" to your Gemfile and run Guard with \"bundle exec\"."
         expect(Guard::Notifier::FooBar).to receive(:require).with('foo_bar').and_raise LoadError
 
-        expect(Guard::Notifier::FooBar.require_gem_safely).to be_false
+        expect(Guard::Notifier::FooBar.require_gem_safely).to be_falsey
       end
 
       context 'with the silent option' do
@@ -164,7 +164,7 @@ describe Guard::Notifier::Base do
           expect(::Guard::UI).to_not receive(:error).with "Please add \"gem 'growl_notify'\" to your Gemfile and run Guard with \"bundle exec\"."
           expect(Guard::Notifier::FooBar).to receive(:require).with('foo_bar').and_raise LoadError
 
-          expect(Guard::Notifier::FooBar.require_gem_safely(silent: true)).to be_false
+          expect(Guard::Notifier::FooBar.require_gem_safely(silent: true)).to be_falsey
         end
       end
     end

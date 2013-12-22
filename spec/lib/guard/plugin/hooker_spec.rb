@@ -38,20 +38,20 @@ describe Guard::Plugin::Hooker do
 
   describe '.add_callback' do
     it 'can add a single callback' do
-      expect(described_class.callbacks[[dummy1, :start_begin]].include?(listener)).to be_true
+      expect(described_class.callbacks[[dummy1, :start_begin]].include?(listener)).to be_truthy
     end
 
     it 'can add a run_on_modifications callback' do
       described_class.add_callback(listener, dummy1, :run_on_modifications_begin)
 
-      expect(described_class.callbacks[[dummy1, :run_on_modifications_begin]].include?(listener)).to be_true
+      expect(described_class.callbacks[[dummy1, :run_on_modifications_begin]].include?(listener)).to be_truthy
     end
 
     it 'can add multiple callbacks' do
       described_class.add_callback(listener, dummy1, [:event1, :event2])
 
-      expect(described_class.callbacks[[dummy1, :event1]].include?(listener)).to be_true
-      expect(described_class.callbacks[[dummy1, :event2]].include?(listener)).to be_true
+      expect(described_class.callbacks[[dummy1, :event1]].include?(listener)).to be_truthy
+      expect(described_class.callbacks[[dummy1, :event2]].include?(listener)).to be_truthy
     end
   end
 

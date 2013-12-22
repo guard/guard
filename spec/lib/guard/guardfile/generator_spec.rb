@@ -6,7 +6,7 @@ describe Guard::Guardfile::Generator do
   let(:guardfile_generator) { described_class.new }
 
   it "has a valid Guardfile template" do
-    expect(File.exists?(described_class::GUARDFILE_TEMPLATE)).to be_true
+    expect(File.exists?(described_class::GUARDFILE_TEMPLATE)).to be_truthy
   end
 
   describe '#create_guardfile' do

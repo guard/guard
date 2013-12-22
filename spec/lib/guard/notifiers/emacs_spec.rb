@@ -16,7 +16,7 @@ describe Guard::Notifier::Emacs do
       let(:notifier) { described_class.new(success: 'Green', silent: true) }
 
       it 'uses these options by default' do
-        notifier.should_receive(:_run_cmd).with do |*command|
+        notifier.should_receive(:_run_cmd) do |*command|
           expect(command).to include("emacsclient")
           expect(command).to include(%{(set-face-attribute 'mode-line nil :background "Green" :foreground "White")})
         end
@@ -25,7 +25,7 @@ describe Guard::Notifier::Emacs do
       end
 
       it 'overwrites object options with passed options' do
-        notifier.should_receive(:_run_cmd).with do |*command|
+        notifier.should_receive(:_run_cmd) do |*command|
           expect(command).to include("emacsclient")
           expect(command).to include(%{(set-face-attribute 'mode-line nil :background "LightGreen" :foreground "White")})
         end
@@ -36,7 +36,7 @@ describe Guard::Notifier::Emacs do
 
     context 'when no color options are specified' do
       it 'should set modeline color to the default color using emacsclient' do
-        notifier.should_receive(:_run_cmd).with do |*command|
+        notifier.should_receive(:_run_cmd) do |*command|
           expect(command).to include("emacsclient")
           expect(command).to include(%{(set-face-attribute 'mode-line nil :background "ForestGreen" :foreground "White")})
         end
@@ -47,7 +47,7 @@ describe Guard::Notifier::Emacs do
 
     context 'when a color option is specified for "success" notifications' do
       it 'should set modeline color to the specified color using emacsclient' do
-        notifier.should_receive(:_run_cmd).with do |*command|
+        notifier.should_receive(:_run_cmd) do |*command|
           expect(command).to include("emacsclient")
           expect(command).to include(%{(set-face-attribute 'mode-line nil :background "Orange" :foreground "White")})
         end
@@ -58,7 +58,7 @@ describe Guard::Notifier::Emacs do
 
     context 'when a color option is specified for "pending" notifications' do
       it 'should set modeline color to the specified color using emacsclient' do
-        notifier.should_receive(:_run_cmd).with do |*command|
+        notifier.should_receive(:_run_cmd) do |*command|
           expect(command).to include("emacsclient")
           expect(command).to include(%{(set-face-attribute 'mode-line nil :background "Yellow" :foreground "White")})
         end
