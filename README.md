@@ -197,12 +197,12 @@ $ bundle exec guard -g group_name another_group_name # shortcut
 
 See the Guardfile DSL below for creating groups.
 
-#### `-P`/`--plugins` option
+#### `-P`/`--plugin` option
 
 Scope Guard to certain plugins on start:
 
 ```bash
-$ bundle exec guard --plugins plugin_name another_plugin_name
+$ bundle exec guard --plugin plugin_name another_plugin_name
 $ bundle exec guard -P plugin_name another_plugin_name # shortcut
 ```
 
