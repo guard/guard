@@ -25,9 +25,6 @@ The following options are available:
   Notifications can be disabled globally by setting a GUARD_NOTIFY environment variable to false.
   FLAG can be `true`/`false` or `t`/`f`.
 
-`-d`, `--debug`
-  Runs Guard in debug mode.
-
 `-g`, `--group` <GROUP1> <GROUP2>...
   Scopes the Guard actions to the groups specified by GROUP1, GROUP2, etc.
   Group names should be separated by spaces.
@@ -36,6 +33,9 @@ The following options are available:
 `-P`, `--plugin` <PLUGIN1> <PLUGIN2>...
   Scopes the Guard actions to the plugins specified by PLUGIN1, PLUGIN2, etc.
   Plugin names should be separated by spaces.
+
+`-d`, `--debug`
+  Runs Guard in debug mode.
 
 `-w`, `--watchdir` <PATH>
   Tells Guard to watch PATH instead of `./`.
@@ -57,6 +57,9 @@ The following options are available:
 
 `-p`, `--force-polling`
   Force usage of the Listen polling listener.
+
+`-y`, `--wait-for-delay`
+  Overwrite Listen's default `wait_for_delay`, useful for kate-like editors through ssh access.
 
 ### init [GUARDS]
 

@@ -253,6 +253,10 @@ $ bundle exec guard start -B
 $ bundle exec guard start --no-bundler-warning
 ```
 
+#### `--show-deprecations`
+
+Turn on deprecation warnings.
+
 #### `-l`/`--latency` option
 
 Overwrite Listen's default latency, useful when your hard-drive / system is slow.

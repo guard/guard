@@ -98,9 +98,6 @@
   Notifications can be disabled globally by setting a GUARD_NOTIFY environment variable to false.
   FLAG can be <code>true</code>/<code>false</code> or <code>t</code>/<code>f</code>.</p>
 
-<p><code>-d</code>, <code>--debug</code>
-  Runs Guard in debug mode.</p>
-
 <p><code>-g</code>, <code>--group</code> <var>GROUP1</var> <var>GROUP2</var>...
   Scopes the Guard actions to the groups specified by GROUP1, GROUP2, etc.
   Group names should be separated by spaces.
@@ -109,6 +106,9 @@
 <p><code>-P</code>, <code>--plugin</code> <var>PLUGIN1</var> <var>PLUGIN2</var>...
   Scopes the Guard actions to the plugins specified by PLUGIN1, PLUGIN2, etc.
   Plugin names should be separated by spaces.</p>
+
+<p><code>-d</code>, <code>--debug</code>
+  Runs Guard in debug mode.</p>
 
 <p><code>-w</code>, <code>--watchdir</code> <var>PATH</var>
   Tells Guard to watch PATH instead of <code>./</code>.</p>
@@ -130,6 +130,9 @@
 
 <p><code>-p</code>, <code>--force-polling</code>
   Force usage of the Listen polling listener.</p>
+
+<p><code>-y</code>, <code>--wait-for-delay</code>
+  Overwrite Listen's default <code>wait_for_delay</code>, useful for kate-like editors through ssh access.</p>
 
 <h3 id="init-GUARDS-">init [GUARDS]</h3>
 
@@ -187,7 +190,7 @@ https://github.com/guard/guard/contributors</p>
 
   <ol class='man-decor man-foot man foot'>
     <li class='tl'></li>
-    <li class='tc'>September 2013</li>
+    <li class='tc'>January 2014</li>
     <li class='tr'>guard(1)</li>
   </ol>
 
