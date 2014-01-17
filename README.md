@@ -1,7 +1,7 @@
 Guard [![Gem Version](https://badge.fury.io/rb/guard.png)](http://badge.fury.io/rb/guard) [![Build Status](https://travis-ci.org/guard/guard.png?branch=master)](https://travis-ci.org/guard/guard) [![Dependency Status](https://gemnasium.com/guard/guard.png)](https://gemnasium.com/guard/guard) [![Code Climate](https://codeclimate.com/github/guard/guard.png)](https://codeclimate.com/github/guard/guard) [![Coverage Status](https://coveralls.io/repos/guard/guard/badge.png?branch=master)](https://coveralls.io/r/guard/guard)
 =====
 
-<img src="http://img515.imageshack.us/img515/1358/guardicon.png" alt="Guard Icon" align="right" />
+<img src="http://cl.ly/image/1k3o1r2Z3a0J/guard-Icon.png" alt="Guard Icon" align="right" />
 Guard is a command line tool to easily handle events on file system modifications.
 
 This document contains a lot of information, please take your time and read these instructions carefully. If you have
