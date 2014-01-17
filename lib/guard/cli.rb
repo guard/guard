@@ -86,6 +86,11 @@ module Guard
                   aliases: '-p',
                   banner:  'Force usage of the Listen polling listener'
 
+    method_option :wait_for_delay,
+                  type:    :numeric,
+                  aliases: '-y',
+                  banner:  'Overwrite Listen\'s default wait_for_delay'
+
     # Start Guard by initializing the defined Guard plugins and watch the file system.
     # This is the default task, so calling `guard` is the same as calling `guard start`.
     #

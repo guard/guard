@@ -271,6 +271,15 @@ $ bundle exec guard start -p
 $ bundle exec guard start --force-polling
 ```
 
+#### `-y`/`--wait-for-delay` option
+
+Overwrite Listen's default wait_for_delay, useful for kate-like editors through ssh access.
+
+```bash
+$ bundle exec guard start -y 1
+$ bundle exec guard start --wait-for-delay 1
+```
+
 ### List
 
 You can list the available plugins with the `list` task:

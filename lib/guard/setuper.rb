@@ -18,7 +18,8 @@ module Guard
       no_bundler_warning: false,
       show_deprecations: false,
       latency: nil,
-      force_polling: false
+      force_polling: false,
+      wait_for_delay: nil
     }
     DEFAULT_GROUPS = [:default]
 
@@ -191,7 +192,7 @@ module Guard
       end
 
       listener_options = {}
-      [:latency, :force_polling].each do |option|
+      [:latency, :force_polling, :wait_for_delay].each do |option|
         listener_options[option] = options[option] if options[option]
       end
 
