@@ -29,3 +29,12 @@ end
 group :test do
   gem 'coveralls', require: false
 end
+
+# Needed for Travis
+# See http://docs.travis-ci.com/user/languages/ruby/#Rubinius
+#
+platforms :rbx do
+  gem 'racc'
+  gem 'rubysl', '~> 2.0'
+  gem 'psych'
+end
