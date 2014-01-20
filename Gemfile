@@ -38,5 +38,5 @@ platforms :rbx do
   gem 'rubysl', '~> 2.0'
   gem 'psych'
   gem 'json'
-  gem 'coveralls', require: false
+  gem 'rubinius-coverage'
 end
