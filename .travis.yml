@@ -3,13 +3,9 @@ bundler_args: --without development
 rvm:
   - 1.9.3
   - 2.0.0
+  - 2.0.1
   - jruby-19mode
-  - rbx-19mode
-  - 2.1.0-preview2
-matrix:
-  allow_failures:
-    - rvm: rbx-19mode
-    - rvm: 2.1.0-preview2
+  - rbx
 notifications:
   recipients:
     - thibaud@thibaud.me
