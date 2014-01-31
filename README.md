@@ -437,7 +437,7 @@ guard :bundler do
 end
 ```
 
-String watch patterns are matched with [String#==](http://www.ruby-doc.org/core-1.9.2/String.html#method-i-3D-3D).
+String watch patterns are matched with [String#==](http://www.ruby-doc.org/core-1.9.3/String.html#method-i-3D-3D).
 You can also pass a regular expression to the watch method:
 
 ```ruby
@@ -454,7 +454,7 @@ You can easily test your watcher regular expressions with [Rubular](http://rubul
 When you add a block to the watch expression, you can modify the file name that has been
 detected before sending it to the plugin for processing:
 
-```ruby
+```rub
 guard :rspec do
   watch(%r{^lib/(.+)\.rb$}) { |m| "spec/lib/#{m[1]}_spec.rb" }
 end
@@ -462,7 +462,7 @@ end
 
 In this example the regular expression capture group `(.+)` is used to transform a file change
 in the `lib` folder to its test case in the `spec` folder. Regular expression watch patterns
-are matched with [Regexp#match](http://www.ruby-doc.org/core-1.9.2/Regexp.html#method-i-match).
+are matched with [Regexp#match](http://www.ruby-doc.org/core-1.9.3/Regexp.html#method-i-match).
 
 You can also launch any arbitrary command in the supplied block:
 
