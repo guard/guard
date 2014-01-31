@@ -454,7 +454,7 @@ You can easily test your watcher regular expressions with [Rubular](http://rubul
 When you add a block to the watch expression, you can modify the file name that has been
 detected before sending it to the plugin for processing:
 
-```rub
+```ruby
 guard :rspec do
   watch(%r{^lib/(.+)\.rb$}) { |m| "spec/lib/#{m[1]}_spec.rb" }
 end
