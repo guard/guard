@@ -437,7 +437,7 @@ guard :bundler do
 end
 ```
 
-String watch patterns are matched with [String#==](http://www.ruby-doc.org/core-1.9.2/String.html#method-i-3D-3D).
+String watch patterns are matched with [String#==](http://www.ruby-doc.org/core-1.9.3/String.html#method-i-3D-3D).
 You can also pass a regular expression to the watch method:
 
 ```ruby
@@ -462,7 +462,7 @@ end
 
 In this example the regular expression capture group `(.+)` is used to transform a file change
 in the `lib` folder to its test case in the `spec` folder. Regular expression watch patterns
-are matched with [Regexp#match](http://www.ruby-doc.org/core-1.9.2/Regexp.html#method-i-match).
+are matched with [Regexp#match](http://www.ruby-doc.org/core-1.9.3/Regexp.html#method-i-match).
 
 You can also launch any arbitrary command in the supplied block:
 
