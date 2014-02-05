@@ -40,7 +40,7 @@ describe Guard::Dsl do
 
     it 'adds ignored regexps to the listener' do
       ::Guard.stub(:listener) { listener }
-      expect(::Guard.listener).to receive(:ignore).with(/^foo/,/bar/) { listener }
+      expect(::Guard.listener).to receive(:ignore).with([/^foo/,/bar/]) { listener }
 
       described_class.evaluate_guardfile(guardfile_contents: 'ignore %r{^foo}, /bar/')
     end
@@ -72,7 +72,7 @@ describe Guard::Dsl do
 
     it 'adds ignored regexps to the listener' do
       ::Guard.stub(:listener) { listener }
-      expect(::Guard.listener).to receive(:ignore).with(/.txt$/, /.*.zip/) { listener }
+      expect(::Guard.listener).to receive(:ignore).with([/.txt$/, /.*.zip/]) { listener }
 
       described_class.evaluate_guardfile(guardfile_contents: 'filter %r{.txt$}, /.*.zip/')
     end
