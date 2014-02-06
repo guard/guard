@@ -234,7 +234,7 @@ module Guard
     # @param [Regexp] regexps a pattern (or list of patterns) for ignoring paths
     #
     def ignore(*regexps)
-      ::Guard.listener.ignore(*regexps) if ::Guard.listener
+      ::Guard.listener.ignore(regexps) if ::Guard.listener
     end
     alias filter ignore
 
