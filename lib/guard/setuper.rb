@@ -19,7 +19,8 @@ module Guard
       show_deprecations: false,
       latency: nil,
       force_polling: false,
-      wait_for_delay: nil
+      wait_for_delay: nil,
+      listen_on: nil
     }
     DEFAULT_GROUPS = [:default]
 
@@ -191,13 +192,16 @@ module Guard
         end
       end
 
-      listener_options = {}
-      [:latency, :force_polling, :wait_for_delay].each do |option|
-        listener_options[option] = options[option] if options[option]
+      if options[:listen_on]
+        @listener = Listen.on(options[:listen_on], &listener_callback)
+      else
+        listener_options = {}
+        [:latency, :force_polling, :wait_for_delay].each do |option|
+          listener_options[option] = options[option] if options[option]
+        end
+        listen_args = @watchdirs + [listener_options]
+        @listener = Listen.to(*listen_args, &listener_callback)
       end
-
-      listen_args = @watchdirs + [listener_options]
-      @listener = Listen.to(*listen_args, &listener_callback)
     end
 
     # Sets up traps to catch signals used to control Guard.

@@ -91,6 +91,12 @@ module Guard
                   aliases: '-y',
                   banner:  'Overwrite Listen\'s default wait_for_delay'
 
+    method_option :listen_on,
+                  type:    :string,
+                  aliases: '-o',
+                  default: '10.0.2.2:4000',
+                  banner:  'Specify a network address to Listen on for file change events (e.g. for use in VMs)'
+
     # Start Guard by initializing the defined Guard plugins and watch the file system.
     # This is the default task, so calling `guard` is the same as calling `guard start`.
     #
