@@ -284,6 +284,30 @@ $ bundle exec guard start -y 1
 $ bundle exec guard start --wait-for-delay 1
 ```
 
+#### `-o`/`--listen-on` option
+
+Use Listen's network functionality to receive file change events from the network. This is most useful for virtual machines (e.g. Vagrant) which have problems firing native filesystem events on the guest OS.
+
+##### Suggested use:
+
+On the host OS, you need to listen to filesystem events and forward them to your VM using the `listen` script:
+
+```bash
+$ listen -f 127.0.0.1:4000
+```
+
+Remember to configure your VM to forward the appropriate ports, e.g. in Vagrantfile:
+
+```ruby
+config.vm.network :forwarded_port, guest: 4000, host: 4000
+```
+
+Then, on your guest OS, listen to the network events but ensure you specify the *host* path
+
+```bash
+$ bundle exec guard -o '10.0.2.2:4000' -w '/projects/myproject'
+```
+
 ### List
 
 You can list the available plugins with the `list` task:
