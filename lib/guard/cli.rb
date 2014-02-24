@@ -94,7 +94,7 @@ module Guard
     method_option :listen_on,
                   type:    :string,
                   aliases: '-o',
-                  default: '10.0.2.2:4000',
+                  default: false,
                   banner:  'Specify a network address to Listen on for file change events (e.g. for use in VMs)'
 
     # Start Guard by initializing the defined Guard plugins and watch the file system.
