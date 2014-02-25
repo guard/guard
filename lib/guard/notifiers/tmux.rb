@@ -207,6 +207,7 @@ module Guard
       def self.turn_on
         unless @options_stored
           _reset_options_store
+
           _clients.each do |client|
             options_store[client] ||= {}
             `#{ DEFAULTS[:client] } show -t #{ client }`.each_line do |line|
@@ -214,6 +215,7 @@ module Guard
               @options_store[client][option] = setting
             end
           end
+
           @options_stored = true
         end
       end
@@ -249,7 +251,7 @@ module Guard
       end
 
       def self._clients
-        %x( #{DEFAULTS[:client]} list-clients -F '\#{client_tty}').split(/\n/);
+        `#{ DEFAULTS[:client] } list-clients -F '\#{ client_tty }'`.split(/\n/)
       end
 
       def _clients
@@ -278,7 +280,8 @@ module Guard
       def self._reset_options_store
         @options_stored = false
         @options_store = {}
-        _clients.each do | client |
+
+        _clients.each do |client|
           @options_store[client] = {
             'status-left-bg'  => nil,
             'status-right-bg' => nil,
@@ -292,7 +295,7 @@ module Guard
       end
 
       def _tmux_version
-        @tmux_version ||= `tmux -V`.chomp.gsub(/[^0-9.]/,'').to_f
+        @tmux_version ||= `tmux -V`.chomp.gsub(/[^0-9.]/, '').to_f
       end
 
     end
