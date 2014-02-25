@@ -204,7 +204,7 @@ module Guard
       # Notification starting, save the current Tmux settings
       # and quiet the Tmux output.
       #
-      def turn_on
+      def self.turn_on
         unless @options_stored
           _reset_options_store
           _clients.each do |client|
@@ -222,7 +222,7 @@ module Guard
       # if available (existing options are restored, new options
       # are unset) and unquiet the Tmux output.
       #
-      def turn_off
+      def self.turn_off
         if @options_stored
           @options_store.each do |client, options|
             options.each do |key, value|
@@ -237,7 +237,7 @@ module Guard
         end
       end
 
-      def options_store
+      def self.options_store
         @options_store ||= {}
       end
 
@@ -248,8 +248,12 @@ module Guard
         super
       end
 
-      def _clients
+      def self._clients
         %x( #{DEFAULTS[:client]} list-clients -F '\#{client_tty}').split(/\n/);
+      end
+
+      def _clients
+        self.class._client
       end
 
       def _run_client(cmd, args)
@@ -271,7 +275,7 @@ module Guard
 
       # Reset the internal Tmux options store defaults.
       #
-      def _reset_options_store
+      def self._reset_options_store
         @options_stored = false
         @options_store = {}
         _clients.each do | client |
@@ -284,14 +288,6 @@ module Guard
             'message-fg'      => nil,
             'display-time'    => nil
           }
-        end
-      end
-
-      # Remove clients which no longer exist from options store
-      #
-      def _remove_old_clients
-        (options_store.keys - _clients).each do | old_client |
-          options_store.delete old_client
         end
       end
 

@@ -275,102 +275,102 @@ describe Guard::Notifier::Tmux do
 
   end
 
-  describe '.turn_on' do
+  describe '#turn_on' do
     before do
-      notifier.stub(:`).and_return("option1 setting1\noption2 setting2\n")
-      notifier.stub(:_clients).and_return(['tty'])
-      notifier.stub system: true
+      described_class.stub(:`).and_return("option1 setting1\noption2 setting2\n")
+      described_class.stub(:_clients).and_return(['tty'])
+      described_class.stub system: true
     end
 
     context 'when off' do
       before do
-        notifier.turn_off
+        described_class.turn_off
       end
 
       it 'resets the options store' do
-        expect(notifier).to receive(:_reset_options_store)
+        expect(described_class).to receive(:_reset_options_store)
 
-        notifier.turn_on
+        described_class.turn_on
       end
 
       it 'saves the current tmux options' do
-        expect(notifier).to receive(:`).with('tmux show -t tty')
+        expect(described_class).to receive(:`).with('tmux show -t tty')
 
-        notifier.turn_on
+        described_class.turn_on
       end
     end
 
     context 'when on' do
       before do
-        notifier.turn_on
+        described_class.turn_on
       end
 
       it 'does not reset the options store' do
-        expect(notifier).to_not receive(:_reset_options_store)
+        expect(described_class).to_not receive(:_reset_options_store)
 
-        notifier.turn_on
+        described_class.turn_on
       end
 
       it 'does not save the current tmux options' do
-        expect(notifier).to_not receive(:`).with('tmux show')
+        expect(described_class).to_not receive(:`).with('tmux show')
 
-        notifier.turn_on
+        described_class.turn_on
       end
     end
   end
 
-  describe '.turn_off' do
+  describe '#turn_off' do
     before do
-      notifier.stub(:`).and_return("option1 setting1\noption2 setting2\n")
-      notifier.stub(:_clients).and_return(['tty'])
-      notifier.stub system: true
+      described_class.stub(:`).and_return("option1 setting1\noption2 setting2\n")
+      described_class.stub(:_clients).and_return(['tty'])
+      described_class.stub system: true
     end
 
     context 'when on' do
       before do
-        notifier.turn_on
+        described_class.turn_on
       end
 
       it 'restores the tmux options' do
-        expect(notifier).to receive(:`).with('tmux set -t tty -q option2 setting2')
-        expect(notifier).to receive(:`).with('tmux set -t tty -q -u status-left-bg')
-        expect(notifier).to receive(:`).with('tmux set -t tty -q option1 setting1')
-        expect(notifier).to receive(:`).with('tmux set -t tty -q -u status-right-bg')
-        expect(notifier).to receive(:`).with('tmux set -t tty -q -u status-right-fg')
-        expect(notifier).to receive(:`).with('tmux set -t tty -q -u status-left-fg')
-        expect(notifier).to receive(:`).with('tmux set -t tty -q -u message-fg')
-        expect(notifier).to receive(:`).with('tmux set -t tty -q -u message-bg')
+        expect(described_class).to receive(:`).with('tmux set -t tty -q option2 setting2')
+        expect(described_class).to receive(:`).with('tmux set -t tty -q -u status-left-bg')
+        expect(described_class).to receive(:`).with('tmux set -t tty -q option1 setting1')
+        expect(described_class).to receive(:`).with('tmux set -t tty -q -u status-right-bg')
+        expect(described_class).to receive(:`).with('tmux set -t tty -q -u status-right-fg')
+        expect(described_class).to receive(:`).with('tmux set -t tty -q -u status-left-fg')
+        expect(described_class).to receive(:`).with('tmux set -t tty -q -u message-fg')
+        expect(described_class).to receive(:`).with('tmux set -t tty -q -u message-bg')
 
-        notifier.turn_off
+        described_class.turn_off
       end
 
       it 'resets the options store' do
-        expect(notifier).to receive(:_reset_options_store)
+        expect(described_class).to receive(:_reset_options_store)
 
-        notifier.turn_off
+        described_class.turn_off
       end
     end
 
     context 'when off' do
       before do
-        notifier.turn_off
+        described_class.turn_off
       end
 
       it 'does not restore the tmux options' do
-        expect(notifier).to_not receive(:system).with('tmux set -q -u status-left-bg')
-        expect(notifier).to_not receive(:system).with('tmux set -q -u status-right-bg')
-        expect(notifier).to_not receive(:system).with('tmux set -q -u status-right-fg')
-        expect(notifier).to_not receive(:system).with('tmux set -q -u status-left-fg')
-        expect(notifier).to_not receive(:system).with('tmux set -q -u message-fg')
-        expect(notifier).to_not receive(:system).with('tmux set -q -u message-bg')
+        expect(described_class).to_not receive(:system).with('tmux set -q -u status-left-bg')
+        expect(described_class).to_not receive(:system).with('tmux set -q -u status-right-bg')
+        expect(described_class).to_not receive(:system).with('tmux set -q -u status-right-fg')
+        expect(described_class).to_not receive(:system).with('tmux set -q -u status-left-fg')
+        expect(described_class).to_not receive(:system).with('tmux set -q -u message-fg')
+        expect(described_class).to_not receive(:system).with('tmux set -q -u message-bg')
 
-        notifier.turn_off
+        described_class.turn_off
       end
 
       it 'does not reset the options store' do
-        expect(notifier).to_not receive(:_reset_options_store)
+        expect(described_class).to_not receive(:_reset_options_store)
 
-        notifier.turn_off
+        described_class.turn_off
       end
     end
   end
