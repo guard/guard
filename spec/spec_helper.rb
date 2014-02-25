@@ -23,18 +23,18 @@ RSpec.configure do |config|
     @fixture_path = Pathname.new(File.expand_path('../fixtures/', __FILE__))
 
     # Ensure debug command execution isn't used in the specs
-    Guard.stub(:_debug_command_execution)
+    allow(Guard).to receive(:_debug_command_execution)
 
     # Stub all UI methods, so no visible output appears for the UI class
-    ::Guard::UI.stub(:info)
-    ::Guard::UI.stub(:warning)
-    ::Guard::UI.stub(:error)
-    ::Guard::UI.stub(:debug)
-    ::Guard::UI.stub(:deprecation)
+    allow(::Guard::UI).to receive(:info)
+    allow(::Guard::UI).to receive(:warning)
+    allow(::Guard::UI).to receive(:error)
+    allow(::Guard::UI).to receive(:debug)
+    allow(::Guard::UI).to receive(:deprecation)
 
     # Avoid clobbering the terminal
-    Guard::Notifier::TerminalTitle.stub(:puts)
-    Pry.output.stub(:puts)
+    allow(Guard::Notifier::TerminalTitle).to receive(:puts)
+    allow(Pry.output).to receive(:puts)
 
     ::Guard.reset_groups
     ::Guard.reset_plugins
