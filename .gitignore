@@ -20,3 +20,4 @@ coverage/
 .tm_properties
 man/guard
 man/guard.html
+/tags
