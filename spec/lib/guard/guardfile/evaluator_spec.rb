@@ -60,7 +60,7 @@ describe Guard::Guardfile::Evaluator do
         end
       end
 
-      context 'with a problem reading a Guarfile' do
+      context 'with a problem reading a Guardfile' do
         before { File.stub(:read).with(File.expand_path('Guardfile')) { raise Errno::EACCES.new('permission error') } }
 
         it 'displays an error message and exits' do
