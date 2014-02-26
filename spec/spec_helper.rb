@@ -41,6 +41,16 @@ RSpec.configure do |config|
     ::Guard.reset_plugins
   end
 
+  config.before(:suite) do
+    # Use a fake home directory so that user configurations,
+    # such as their ~/.guard.rb file, won't impact the
+    # tests.
+    fake_home = File.expand_path('../fake-home', __FILE__)
+    FileUtils.rmtree fake_home
+    FileUtils.mkdir  fake_home
+    ENV['HOME'] = fake_home
+  end
+
   config.before(:all) do
     @guard_notify ||= ENV['GUARD_NOTIFY']
     @guard_notifiers ||= ::Guard::Notifier.notifiers
