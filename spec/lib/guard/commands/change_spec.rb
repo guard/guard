@@ -4,8 +4,8 @@ describe 'Guard::Interactor::CHANGE' do
 
   before do
     ::Guard.setup
-    Guard.runner.stub(:run_on_changes)
-    Pry.output.stub(:puts)
+    allow(Guard.runner).to receive(:run_on_changes)
+    allow(Pry.output).to receive(:puts)
   end
 
   describe '#perform' do

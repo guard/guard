@@ -97,28 +97,28 @@ describe Guard::Notifier::Tmux do
     end
 
     it 'calls display_message if the display_message flag is set' do
-      notifier.stub system: true
+      allow(notifier).to receive(:system).and_return(true)
       expect(notifier).to receive(:display_message).with('notify', 'Guard', 'any message', display_message: true)
 
       notifier.notify('any message', type: :notify, display_message: true)
     end
 
     it 'does not call display_message if the display_message flag is not set' do
-      notifier.stub system: true
+      allow(notifier).to receive(:system).and_return(true)
       expect(notifier).to receive(:display_message).never
 
       notifier.notify('any message')
     end
 
     it 'calls display_title if the display_title flag is set' do
-      notifier.stub system: true
+      allow(notifier).to receive(:system).and_return(true)
       expect(notifier).to receive(:display_title).with('notify', 'Guard', 'any message', display_title: true)
 
       notifier.notify('any message', type: :notify, display_title: true)
     end
 
     it 'does not call display_title if the display_title flag is not set' do
-      notifier.stub system: true
+      allow(notifier).to receive(:system).and_return(true)
       expect(notifier).to receive(:display_title).never
 
       notifier.notify('any message')
@@ -134,12 +134,12 @@ describe Guard::Notifier::Tmux do
 
   describe '#display_title' do
     before do
-      notifier.stub system: true
+      allow(notifier).to receive(:system).and_return(true)
     end
 
     context 'for tmux >= 1.7' do
       before do
-        notifier.stub _tmux_version: 1.7
+        allow(notifier).to receive(:_tmux_version).and_return(1.7)
       end
 
       it 'displays the title' do
@@ -181,7 +181,7 @@ describe Guard::Notifier::Tmux do
 
     context 'for tmux <= 1.6' do
       before do
-        notifier.stub _tmux_version: 1.6
+        expect(notifier).to receive(:_tmux_version).and_return(1.6)
       end
 
       it 'does not add the quiet flag' do
@@ -194,7 +194,7 @@ describe Guard::Notifier::Tmux do
 
   describe '#display_message' do
     before do
-      notifier.stub system: true
+      allow(notifier).to receive(:system).and_return(true)
     end
 
     it 'sets the display-time' do
@@ -277,9 +277,9 @@ describe Guard::Notifier::Tmux do
 
   describe '#turn_on' do
     before do
-      described_class.stub(:`).and_return("option1 setting1\noption2 setting2\n")
-      described_class.stub(:_clients).and_return(['tty'])
-      described_class.stub system: true
+      allow(described_class).to receive(:`).and_return("option1 setting1\noption2 setting2\n")
+      allow(described_class).to receive(:_clients).and_return(['tty'])
+      allow(described_class).to receive(:system).and_return(true)
     end
 
     context 'when off' do
@@ -321,9 +321,9 @@ describe Guard::Notifier::Tmux do
 
   describe '#turn_off' do
     before do
-      described_class.stub(:`).and_return("option1 setting1\noption2 setting2\n")
-      described_class.stub(:_clients).and_return(['tty'])
-      described_class.stub system: true
+      allow(described_class).to receive(:`).and_return("option1 setting1\noption2 setting2\n")
+      allow(described_class).to receive(:_clients).and_return(['tty'])
+      allow(described_class).to receive(:system).and_return(true)
     end
 
     context 'when on' do

@@ -39,8 +39,8 @@ describe Guard::PluginUtil do
           double(name: 'gem1', full_gem_path: '/gem1'),
           double(name: 'gem2', full_gem_path: '/gem2'),
         ]
-        File.stub(:exists?).with('/gem1/lib/guard/gem1.rb') { false }
-        File.stub(:exists?).with('/gem2/lib/guard/gem2.rb') { true }
+        allow(File).to receive(:exists?).with('/gem1/lib/guard/gem1.rb').and_return(false)
+        allow(File).to receive(:exists?).with('/gem2/lib/guard/gem2.rb').and_return(true)
         expect(Gem::Specification).to receive(:find_all) { gems }
       end
 
@@ -68,7 +68,9 @@ describe Guard::PluginUtil do
     let(:plugin_util) { described_class.new('rspec') }
 
     before do
-      described_class.any_instance.stub(:plugin_class).and_return(guard_rspec_class)
+      allow_any_instance_of(described_class)
+        .to receive(:plugin_class)
+        .and_return(guard_rspec_class)
     end
 
     context 'with a plugin inheriting from Guard::Guard (deprecated)' do
@@ -216,12 +218,12 @@ describe Guard::PluginUtil do
 
   describe '#add_to_guardfile' do
     before do
-      ::Guard.stub(:evaluator) { guardfile_evaluator }
+      allow(::Guard).to receive(:evaluator) { guardfile_evaluator }
     end
 
     context 'when the Guard is already in the Guardfile' do
       before do
-        guardfile_evaluator.stub(:guardfile_include?).and_return(true)
+        allow(guardfile_evaluator).to receive(:guardfile_include?).and_return(true)
       end
 
       it 'shows an info message' do
@@ -235,9 +237,9 @@ describe Guard::PluginUtil do
       let(:plugin_util) { described_class.new('myguard') }
       before do
         stub_const 'Guard::Myguard', Class.new(Guard::Plugin)
-        plugin_util.stub(:plugin_class) { Guard::Myguard }
+        allow(plugin_util).to receive(:plugin_class) { Guard::Myguard }
         expect(plugin_util).to receive(:plugin_location) { '/Users/me/projects/guard-myguard' }
-        guardfile_evaluator.stub(:guardfile_include?).and_return(false)
+        allow(guardfile_evaluator).to receive(:guardfile_include?).and_return(false)
       end
 
       it 'appends the template to the Guardfile' do

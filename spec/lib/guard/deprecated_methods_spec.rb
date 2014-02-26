@@ -8,7 +8,7 @@ describe Guard::DeprecatedMethods do
   end
 
   describe '.guards' do
-    before { TestModule.stub(:plugins) }
+    before { allow(TestModule).to receive(:plugins) }
 
     it 'displays a deprecation warning to the user' do
       expect(::Guard::UI).to receive(:deprecation).with(::Guard::Deprecator::GUARDS_DEPRECATION)
@@ -24,7 +24,7 @@ describe Guard::DeprecatedMethods do
   end
 
   describe '.add_guard' do
-    before { TestModule.stub(:add_plugin) }
+    before { allow(TestModule).to receive(:add_plugin) }
 
     it 'displays a deprecation warning to the user' do
       expect(::Guard::UI).to receive(:deprecation).with(::Guard::Deprecator::ADD_GUARD_DEPRECATION)
@@ -41,7 +41,7 @@ describe Guard::DeprecatedMethods do
 
   describe '.get_guard_class' do
     let(:plugin_util) { double('Guard::PluginUtil', plugin_class: true) }
-    before { ::Guard::PluginUtil.stub(:new).and_return(plugin_util) }
+    before { allow(::Guard::PluginUtil).to receive(:new).and_return(plugin_util) }
 
     it 'displays a deprecation warning to the user' do
       expect(::Guard::UI).to receive(:deprecation).with(::Guard::Deprecator::GET_GUARD_CLASS_DEPRECATION)
@@ -68,7 +68,7 @@ describe Guard::DeprecatedMethods do
 
   describe '.locate_guard' do
     let(:plugin_util) { double('Guard::PluginUtil', plugin_location: true) }
-    before { ::Guard::PluginUtil.stub(:new).and_return(plugin_util) }
+    before { allow(::Guard::PluginUtil).to receive(:new).and_return(plugin_util) }
 
     it 'displays a deprecation warning to the user' do
       expect(::Guard::UI).to receive(:deprecation).with(::Guard::Deprecator::LOCATE_GUARD_DEPRECATION)
@@ -85,7 +85,7 @@ describe Guard::DeprecatedMethods do
   end
 
   describe '.guard_gem_names' do
-    before { ::Guard::PluginUtil.stub(:plugin_names) }
+    before { allow(::Guard::PluginUtil).to receive(:plugin_names) }
 
     it 'displays a deprecation warning to the user' do
       expect(::Guard::UI).to receive(:deprecation).with(::Guard::Deprecator::GUARD_GEM_NAMES_DEPRECATION)

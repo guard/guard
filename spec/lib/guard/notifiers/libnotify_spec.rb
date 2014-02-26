@@ -4,7 +4,7 @@ describe Guard::Notifier::Libnotify do
   let(:notifier) { described_class.new }
 
   before do
-    described_class.stub(:require_gem_safely).and_return(true)
+    allow(described_class).to receive(:require_gem_safely).and_return(true)
     stub_const 'Libnotify', double
   end
 
@@ -14,7 +14,7 @@ describe Guard::Notifier::Libnotify do
 
   describe '.available?' do
     context 'host is not supported' do
-      before { RbConfig::CONFIG.stub(:[]).with('host_os').and_return('mswin') }
+      before { allow(RbConfig::CONFIG).to receive(:[]).with('host_os').and_return('mswin') }
 
       it 'do not require libnotify' do
         expect(described_class).to_not receive(:require_gem_safely)
@@ -24,7 +24,7 @@ describe Guard::Notifier::Libnotify do
     end
 
     context 'host is supported' do
-      before { RbConfig::CONFIG.stub(:[]).with('host_os').and_return('linux') }
+      before { allow(RbConfig::CONFIG).to receive(:[]).with('host_os').and_return('linux') }
 
       it 'requires libnotify' do
         expect(described_class).to receive(:require_gem_safely) { true }

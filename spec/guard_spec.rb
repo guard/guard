@@ -222,7 +222,7 @@ describe Guard do
 
     before do
       expect(::Guard::PluginUtil).to receive(:new).with('rspec') { plugin_util }
-      plugin_util.stub(:initialize_plugin) { guard_rspec }
+      allow(plugin_util).to receive(:initialize_plugin) { guard_rspec }
 
       ::Guard.reset_plugins
     end

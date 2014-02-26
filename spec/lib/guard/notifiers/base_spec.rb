@@ -10,7 +10,7 @@ describe Guard::Notifier::Base do
     end
   end
 
-  before { subject.stub(:require) }
+  before { allow(subject).to receive(:require) }
 
   describe '.name' do
     it 'un-modulizes the class, replaces "xY" with "x_Y" and downcase' do

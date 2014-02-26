@@ -22,7 +22,7 @@ describe Guard::Guardfile do
   describe '.initialize_template' do
     before do
       expect(described_class::Generator).to receive(:new) { guardfile_generator }
-      guardfile_generator.stub(:initialize_template)
+      allow(guardfile_generator).to receive(:initialize_template)
     end
 
     it 'displays a deprecation warning to the user' do
@@ -41,7 +41,7 @@ describe Guard::Guardfile do
   describe '.initialize_all_templates' do
     before do
       expect(described_class::Generator).to receive(:new) { guardfile_generator }
-      guardfile_generator.stub(:initialize_all_templates)
+      allow(guardfile_generator).to receive(:initialize_all_templates)
     end
 
     it 'displays a deprecation warning to the user' do
