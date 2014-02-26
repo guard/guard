@@ -7,8 +7,8 @@ describe Guard::Setuper do
 
   before do
     Guard.clear_options
-    Guard::Interactor.stub(:fabricate)
-    Dir.stub(:chdir)
+    allow(Guard::Interactor).to receive(:fabricate)
+    allow(Dir).to receive(:chdir)
   end
 
   describe '.setup' do
@@ -125,7 +125,7 @@ describe Guard::Setuper do
       subject { ::Guard.setup(options) }
 
       before do
-        Guard.stub(:_debug_command_execution)
+        allow(Guard).to receive(:_debug_command_execution)
       end
 
       it "logs command execution if the debug option is true" do
@@ -181,7 +181,7 @@ describe Guard::Setuper do
 
   describe '.evaluate_guardfile' do
     it 'evaluates the Guardfile' do
-      Guard.stub(:evaluator) { guardfile_evaluator }
+      allow(Guard).to receive(:evaluator) { guardfile_evaluator }
       expect(guardfile_evaluator).to receive(:evaluate_guardfile)
 
       Guard.evaluate_guardfile
@@ -190,7 +190,7 @@ describe Guard::Setuper do
 
   describe '._setup_signal_traps', speed: 'slow' do
     before do
-      ::Guard.stub(:evaluate_guardfile)
+      allow(::Guard).to receive(:evaluate_guardfile)
       ::Guard.setup
     end
 
@@ -335,7 +335,7 @@ describe Guard::Setuper do
     before { Guard.instance_variable_set '@watchdirs', ['/home/user/test'] }
 
     context "with latency option" do
-      before { ::Guard.stub(:options).and_return(Guard::Options.new(latency: 1.5)) }
+      before { allow(::Guard).to receive(:options).and_return(Guard::Options.new(latency: 1.5)) }
 
       it "pass option to listener" do
         expect(Listen).to receive(:to).with(anything, { latency: 1.5 }) { listener }
@@ -345,7 +345,7 @@ describe Guard::Setuper do
     end
 
     context "with force_polling option" do
-      before { ::Guard.stub(:options).and_return(Guard::Options.new(force_polling: true)) }
+      before { allow(::Guard).to receive(:options).and_return(Guard::Options.new(force_polling: true)) }
 
       it "pass option to listener" do
         expect(Listen).to receive(:to).with(anything, { force_polling: true }) { listener }
@@ -357,7 +357,7 @@ describe Guard::Setuper do
 
   describe '._setup_notifier' do
     context "with the notify option enabled" do
-      before { ::Guard.stub(:options).and_return(Guard::Options.new(notify: true)) }
+      before { allow(::Guard).to receive(:options).and_return(Guard::Options.new(notify: true)) }
 
       context 'without the environment variable GUARD_NOTIFY set' do
         before { ENV["GUARD_NOTIFY"] = nil }
@@ -379,7 +379,7 @@ describe Guard::Setuper do
     end
 
     context "with the notify option disabled" do
-      before { ::Guard.stub(:options).and_return(Guard::Options.new(notify: false)) }
+      before { allow(::Guard).to receive(:options).and_return(Guard::Options.new(notify: false)) }
 
       context 'without the environment variable GUARD_NOTIFY set' do
         before { ENV["GUARD_NOTIFY"] = nil }
@@ -451,7 +451,7 @@ describe Guard::Setuper do
 
     before do
       # Unstub global stub
-      Guard.unstub(:_debug_command_execution)
+      allow(Guard).to receive(:_debug_command_execution).and_call_original
 
       @original_system  = Kernel.method(:system)
       @original_command = Kernel.method(:`)

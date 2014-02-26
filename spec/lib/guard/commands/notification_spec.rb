@@ -3,7 +3,7 @@ require 'spec_helper'
 describe 'Guard::Interactor::NOTIFICATION' do
 
   before do
-    ::Guard::Notifier.stub(:toggle)
+    allow(::Guard::Notifier).to receive(:toggle)
   end
 
   describe '#perform' do

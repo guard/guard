@@ -8,9 +8,9 @@ describe 'Guard::Interactor::RELOAD' do
   let(:bar_guard) { guard.add_plugin(:bar, group: :foo) }
 
   before do
-    Guard.stub(:reload)
-    Guard.stub(:setup_interactor)
-    Pry.output.stub(:puts)
+    allow(Guard).to receive(:reload)
+    allow(Guard).to receive(:setup_interactor)
+    allow(Pry.output).to receive(:puts)
     stub_const 'Guard::Bar', Class.new(Guard::Plugin)
   end
 

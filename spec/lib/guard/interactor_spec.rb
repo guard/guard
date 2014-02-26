@@ -116,10 +116,10 @@ describe Guard::Interactor do
 
     describe '#_prompt(ending_char)' do
       before do
-        ::Guard.stub(:scope).and_return({})
-        ::Guard.scope.stub(:[]).with(:plugins).and_return([])
-        ::Guard.scope.stub(:[]).with(:groups).and_return([])
-        ::Guard.stub(:listener).and_return(double('listener', paused?: false))
+        allow(::Guard).to receive(:scope).and_return({})
+        allow(::Guard.scope).to receive(:[]).with(:plugins).and_return([])
+        allow(::Guard.scope).to receive(:[]).with(:groups).and_return([])
+        allow(::Guard).to receive(:listener).and_return(double('listener', paused?: false))
         expect(::Guard.interactor).to receive(:_clip_name).and_return('main')
       end
       let(:pry) { double(input_array: []) }
@@ -131,7 +131,7 @@ describe Guard::Interactor do
       end
 
       context 'Guard is paused' do
-        before { ::Guard.stub(:listener).and_return(double('listener', paused?: true)) }
+        before { allow(::Guard).to receive(:listener).and_return(double('listener', paused?: true)) }
 
         it 'displays "pause"' do
           expect(::Guard.interactor.send(:_prompt, '>').call(double, 0, pry)).to eq '[0] pause(main)> '
@@ -139,7 +139,7 @@ describe Guard::Interactor do
       end
 
       context 'with a groups scope' do
-        before { ::Guard.scope.stub(:[]).with(:groups).and_return([double(title: 'Backend'), double(title: 'Frontend')]) }
+        before { allow(::Guard.scope).to receive(:[]).with(:groups).and_return([double(title: 'Backend'), double(title: 'Frontend')]) }
 
         it 'displays the group scope title in the prompt' do
           expect(::Guard.interactor.send(:_prompt, '>').call(double, 0, pry)).to eq '[0] Backend,Frontend guard(main)> '
@@ -147,7 +147,7 @@ describe Guard::Interactor do
       end
 
       context 'with a plugins scope' do
-        before { ::Guard.scope.stub(:[]).with(:plugins).and_return([double(title: 'RSpec'), double(title: 'Ronn')]) }
+        before { allow(::Guard.scope).to receive(:[]).with(:plugins).and_return([double(title: 'RSpec'), double(title: 'Ronn')]) }
 
         it 'displays the group scope title in the prompt' do
           expect(::Guard.interactor.send(:_prompt, '>').call(double, 0, pry)).to eq '[0] RSpec,Ronn guard(main)> '

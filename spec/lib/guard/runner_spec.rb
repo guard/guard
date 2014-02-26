@@ -15,12 +15,12 @@ describe Guard::Runner do
     @bar_guard      = guard.add_plugin(:bar, { group: :frontend })
     @baz_guard      = guard.add_plugin(:baz, { group: :frontend })
 
-    @foo_guard.stub(:my_task)
-    @bar_guard.stub(:my_task)
-    @baz_guard.stub(:my_task)
+    allow(@foo_guard).to receive(:my_task)
+    allow(@bar_guard).to receive(:my_task)
+    allow(@baz_guard).to receive(:my_task)
 
-    @foo_guard.stub(:my_hard_task)
-    @bar_guard.stub(:my_hard_task)
+    allow(@foo_guard).to receive(:my_hard_task)
+    allow(@bar_guard).to receive(:my_hard_task)
   end
 
   describe '#run' do
@@ -37,7 +37,7 @@ describe Guard::Runner do
     end
 
     context 'with a failing task' do
-      before { subject.stub(:run_supervised_task) { throw :task_has_failed } }
+      before { allow(subject).to receive(:run_supervised_task) { throw :task_has_failed } }
 
       it 'catches the thrown symbol' do
         expect {
@@ -79,7 +79,7 @@ describe Guard::Runner do
         let(:scope) { { plugins: [:foo, :bar] } }
 
         it 'executes the supervised task on the specified plugins only' do
-          @bar_guard.stub(:my_task)
+          allow(@bar_guard).to receive(:my_task)
           expect(subject).to receive(:run_supervised_task).with(@foo_guard, :my_task)
           expect(subject).to receive(:run_supervised_task).with(@bar_guard, :my_task)
 
@@ -163,9 +163,9 @@ describe Guard::Runner do
     let(:watcher_module) { ::Guard::Watcher }
 
     before do
-      subject.stub(:_scoped_plugins).and_yield(@foo_guard)
-      subject.stub(:_clearable?) { false }
-      watcher_module.stub(:match_files) { [] }
+      allow(subject).to receive(:_scoped_plugins).and_yield(@foo_guard)
+      allow(subject).to receive(:_clearable?) { false }
+      allow(watcher_module).to receive(:match_files) { [] }
     end
 
     it "always calls UI.clearable" do
@@ -174,7 +174,7 @@ describe Guard::Runner do
     end
 
     context 'when clearable' do
-      before { subject.stub(:_clearable?) { true } }
+      before { allow(subject).to receive(:_clearable?) { true } }
 
       it "clear UI" do
         expect(Guard::UI).to receive(:clear)
@@ -285,7 +285,7 @@ describe Guard::Runner do
     context 'with a task that succeeds' do
       context 'without any arguments' do
         before do
-          @foo_guard.stub(:regular_without_arg) { true }
+          allow(@foo_guard).to receive(:regular_without_arg) { true }
         end
 
         it 'does not remove the Guard' do
@@ -312,7 +312,7 @@ describe Guard::Runner do
 
       context 'with arguments' do
         before do
-          @foo_guard.stub(:regular_with_arg).with('given_path') { "I'm a success" }
+          allow(@foo_guard).to receive(:regular_with_arg).with('given_path') { "I'm a success" }
         end
 
         it 'does not remove the Guard' do
@@ -334,7 +334,7 @@ describe Guard::Runner do
     end
 
     context 'with a task that throws :task_has_failed' do
-      before { @foo_guard.stub(:failing) { throw :task_has_failed } }
+      before { allow(@foo_guard).to receive(:failing) { throw :task_has_failed } }
 
       context 'for a guard in group that has the :halt_on_fail option set to true' do
         before { @backend_group.options[:halt_on_fail] = true }
@@ -358,7 +358,7 @@ describe Guard::Runner do
     end
 
     context 'with a task that raises an exception' do
-      before { @foo_guard.stub(:failing) { raise 'I break your system' } }
+      before { allow(@foo_guard).to receive(:failing) { raise 'I break your system' } }
 
       it 'removes the Guard' do
         expect {
@@ -388,7 +388,7 @@ describe Guard::Runner do
 
     context 'for a group with :halt_on_fail' do
       before do
-        guard_plugin.group.stub(:options).and_return({ halt_on_fail: true })
+        allow(guard_plugin.group).to receive(:options).and_return({ halt_on_fail: true })
       end
 
       it 'returns :no_catch' do
@@ -398,7 +398,7 @@ describe Guard::Runner do
 
     context 'for a group without :halt_on_fail' do
       before do
-        guard_plugin.group.stub(:options).and_return({ halt_on_fail: false })
+        allow(guard_plugin.group).to receive(:options).and_return({ halt_on_fail: false })
       end
 
       it 'returns :task_has_failed' do

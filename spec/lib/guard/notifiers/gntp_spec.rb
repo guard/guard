@@ -5,7 +5,7 @@ describe Guard::Notifier::GNTP do
   let(:gntp) { double('GNTP').as_null_object }
 
   before do
-    described_class.stub(:require_gem_safely).and_return(true)
+    allow(described_class).to receive(:require_gem_safely).and_return(true)
     stub_const 'GNTP', gntp
   end
 
@@ -19,7 +19,7 @@ describe Guard::Notifier::GNTP do
 
   describe '.available?' do
     context 'host is not supported' do
-      before { RbConfig::CONFIG.stub(:[]).with('host_os').and_return('foobar') }
+      before { allow(RbConfig::CONFIG).to receive(:[]).with('host_os').and_return('foobar') }
 
       it 'do not require ruby_gntp' do
         expect(described_class).to_not receive(:require_gem_safely)
@@ -29,7 +29,7 @@ describe Guard::Notifier::GNTP do
     end
 
     context 'host is supported' do
-      before { RbConfig::CONFIG.stub(:[]).with('host_os').and_return('darwin') }
+      before { allow(RbConfig::CONFIG).to receive(:[]).with('host_os').and_return('darwin') }
 
       it 'requires ruby_gntp' do
         expect(described_class).to receive(:require_gem_safely) { true }
@@ -41,8 +41,8 @@ describe Guard::Notifier::GNTP do
 
   describe '#client' do
     before do
-      ::GNTP.stub(:new).and_return(gntp)
-      gntp.stub(:register)
+      allow(::GNTP).to receive(:new).and_return(gntp)
+      allow(gntp).to receive(:register)
     end
 
     it 'creates a new GNTP client and memoize it' do
@@ -62,7 +62,7 @@ describe Guard::Notifier::GNTP do
   end
 
   describe '#notify' do
-    before { notifier.stub(:_client).and_return(gntp) }
+    before { allow(notifier).to receive(:_client).and_return(gntp) }
 
     context 'with options passed at initialization' do
       let(:notifier) { described_class.new(title: 'Hello', silent: true) }

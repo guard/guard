@@ -8,28 +8,28 @@ describe Guard::UI do
     # The spec helper stubs all UI classes, so other specs doesn't have
     # to explicit take care of it. We unstub and move the stubs one layer
     # down just for this spec.
-    Guard::UI.unstub(:info)
-    Guard::UI.unstub(:warning)
-    Guard::UI.unstub(:error)
-    Guard::UI.unstub(:deprecation)
-    Guard::UI.unstub(:debug)
+    allow(Guard::UI).to receive(:info).and_call_original
+    allow(Guard::UI).to receive(:warning).and_call_original
+    allow(Guard::UI).to receive(:error).and_call_original
+    allow(Guard::UI).to receive(:deprecation).and_call_original
+    allow(Guard::UI).to receive(:debug).and_call_original
 
-    Guard::UI.logger.stub(:info)
-    Guard::UI.logger.stub(:warn)
-    Guard::UI.logger.stub(:error)
-    Guard::UI.logger.stub(:deprecation)
-    Guard::UI.logger.stub(:debug)
+    allow(Guard::UI.logger).to receive(:info)
+    allow(Guard::UI.logger).to receive(:warn)
+    allow(Guard::UI.logger).to receive(:error)
+    allow(Guard::UI.logger).to receive(:deprecation)
+    allow(Guard::UI.logger).to receive(:debug)
 
-    $stderr.stub(:print)
-    described_class.stub(:system)
+    allow($stderr).to receive(:print)
+    allow(described_class).to receive(:system)
   end
 
   after do
-    ::Guard::UI.stub(:info)
-    ::Guard::UI.stub(:warning)
-    ::Guard::UI.stub(:error)
-    ::Guard::UI.stub(:debug)
-    ::Guard::UI.stub(:deprecation)
+    allow(::Guard::UI).to receive(:info)
+    allow(::Guard::UI).to receive(:warning)
+    allow(::Guard::UI).to receive(:error)
+    allow(::Guard::UI).to receive(:debug)
+    allow(::Guard::UI).to receive(:deprecation)
   end
 
   describe '.logger' do
@@ -273,14 +273,14 @@ describe Guard::UI do
       end
 
       it 'doesn not clear the output if already cleared' do
-        Guard::UI.stub(:system)
+        allow(Guard::UI).to receive(:system)
         Guard::UI.clear
         expect(Guard::UI).to_not receive(:system).with('clear;')
         Guard::UI.clear
       end
 
       it 'clears the outputs if forced' do
-        Guard::UI.stub(:system)
+        allow(Guard::UI).to receive(:system)
         Guard::UI.clear
         expect(Guard::UI).to receive(:system).with('clear;')
         Guard::UI.clear(force: true)

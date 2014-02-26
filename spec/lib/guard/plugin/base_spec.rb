@@ -20,7 +20,7 @@ describe Guard::Plugin::Base do
 
   describe '.template' do
     before do
-      File.stub(:read)
+      allow(File).to receive(:read)
     end
 
     it 'reads the default template' do

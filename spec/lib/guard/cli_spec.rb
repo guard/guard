@@ -7,7 +7,7 @@ describe Guard::CLI do
   let(:dsl_describer) { double('DslDescriber instance') }
 
   describe '#start' do
-    before { Guard.stub(:start) }
+    before { allow(Guard).to receive(:start) }
 
     it 'delegates to Guard.start' do
       expect(Guard).to receive(:start)
@@ -17,7 +17,7 @@ describe Guard::CLI do
 
     context 'with a Gemfile in the project dir' do
       before do
-        File.stub(:exists?).with('Gemfile').and_return true
+        allow(File).to receive(:exists?).with('Gemfile').and_return(true)
       end
 
       context 'when running with Bundler' do
@@ -101,9 +101,9 @@ describe Guard::CLI do
     let(:options) { { bare: false } }
 
     before do
-      subject.stub(options: options)
-      Guard::Guardfile.stub(:create_guardfile)
-      Guard::Guardfile.stub(:initialize_all_templates)
+      allow(subject).to receive(:options).and_return(options)
+      allow(Guard::Guardfile).to receive(:create_guardfile)
+      allow(Guard::Guardfile).to receive(:initialize_all_templates)
     end
 
     it 'creates a Guardfile by delegating to Guardfile.create_guardfile' do

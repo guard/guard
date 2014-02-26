@@ -38,11 +38,11 @@ describe Guard::DslDescriber do
     @output = ''
 
     # Strip escape sequences
-    STDOUT.stub(:tty?).and_return false
+    allow(STDOUT).to receive(:tty?).and_return(false)
 
     # Capture formatador output
     Thread.current[:formatador] = Formatador.new
-    Thread.current[:formatador].stub(:print) do |msg|
+    allow(Thread.current[:formatador]).to receive(:print) do |msg|
       @output << msg
     end
   end
@@ -62,7 +62,7 @@ describe Guard::DslDescriber do
     end
 
     before do
-      ::Guard::PluginUtil.stub(:plugin_names).and_return %w(test another even more)
+      allow(::Guard::PluginUtil).to receive(:plugin_names).and_return %w(test another even more)
     end
 
     it 'lists the available Guards when they\'re declared as strings or symbols' do
@@ -113,10 +113,10 @@ describe Guard::DslDescriber do
         { terminal_title: ::Guard::Notifier::TerminalTitle }
       ]
 
-      ::Guard::Notifier::GNTP.stub(:available?).and_return true
-      ::Guard::Notifier::TerminalTitle.stub(:available?).and_return false
+      allow(::Guard::Notifier::GNTP).to receive(:available?).and_return true
+      allow(::Guard::Notifier::TerminalTitle).to receive(:available?).and_return false
 
-      ::Guard::Notifier.stub(:notifiers).and_return [
+      allow(::Guard::Notifier).to receive(:notifiers).and_return [
         { name: :gntp, options: { sticky: true } }
       ]
     end

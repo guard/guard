@@ -17,12 +17,12 @@ describe Guard::Watcher do
 
       context "that is a regexp" do
         it "keeps the regex pattern unmodified" do
-          expect(described_class.new(/spec_helper\.rb/).pattern).to eq /spec_helper\.rb/
+          expect(described_class.new(/spec_helper\.rb/).pattern).to eq(/spec_helper\.rb/)
         end
       end
 
       context "that is a string looking like a regex (deprecated)" do
-        before(:each) { Guard::UI.stub(:info) }
+        before(:each) { allow(Guard::UI).to receive(:info) }
 
         it "converts the string automatically to a regex" do
           expect(described_class.new('^spec_helper.rb').pattern).to eq(/^spec_helper.rb/)
@@ -331,7 +331,7 @@ describe Guard::Watcher do
   end
 
   describe '.match_guardfile?' do
-    before { Guard.stub(:evaluator) { double(guardfile_path: File.expand_path('Guardfile')) } }
+    before { allow(Guard).to receive(:evaluator) { double(guardfile_path: File.expand_path('Guardfile')) } }
 
     context "with files that match the Guardfile" do
       specify { expect(described_class.match_guardfile?(['Guardfile', 'guard_rocks_spec.rb'])).to be_truthy }

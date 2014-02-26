@@ -4,7 +4,7 @@ describe Guard::Notifier::Notifu do
   let(:notifier) { described_class.new }
 
   before do
-    described_class.stub(:require_gem_safely).and_return(true)
+    allow(described_class).to receive(:require_gem_safely).and_return(true)
     stub_const 'Notifu', double
   end
 
@@ -18,7 +18,7 @@ describe Guard::Notifier::Notifu do
 
   describe '.available?' do
     context 'host is not supported' do
-      before { RbConfig::CONFIG.stub(:[]).with('host_os').and_return('darwin') }
+      before { allow(RbConfig::CONFIG).to receive(:[]).with('host_os').and_return('darwin') }
 
       it 'do not require rb-notifu' do
         expect(described_class).to_not receive(:require_gem_safely)
@@ -28,7 +28,7 @@ describe Guard::Notifier::Notifu do
     end
 
     context 'host is supported' do
-      before { RbConfig::CONFIG.stub(:[]).with('host_os').and_return('mswin') }
+      before { allow(RbConfig::CONFIG).to receive(:[]).with('host_os').and_return('mswin') }
 
       it 'requires rb-notifu' do
         expect(described_class).to receive(:require_gem_safely) { true }

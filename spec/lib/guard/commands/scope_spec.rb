@@ -8,9 +8,9 @@ describe 'Guard::Interactor::SCOPE' do
   let(:bar_guard) { guard.add_plugin(:bar, group: :foo) }
 
   before do
-    Guard.stub(:scope=)
-    Guard.stub(:setup_interactor)
-    Pry.output.stub(puts: true)
+    allow(Guard).to receive(:scope=)
+    allow(Guard).to receive(:setup_interactor)
+    allow(Pry.output).to receive(:puts).and_return(true)
     stub_const 'Guard::Bar', Class.new(Guard::Plugin)
   end
 

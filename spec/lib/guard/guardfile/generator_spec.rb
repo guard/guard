@@ -10,7 +10,7 @@ describe Guard::Guardfile::Generator do
   end
 
   describe '#create_guardfile' do
-    before { Dir.stub(:pwd).and_return "/home/user" }
+    before { allow(Dir).to receive(:pwd).and_return "/home/user" }
 
     context "with an existing Guardfile" do
       before { expect(File).to receive(:exist?) { true } }
@@ -82,7 +82,7 @@ describe Guard::Guardfile::Generator do
     context "when the passed guard can't be found" do
       before do
         expect(::Guard::PluginUtil).to receive(:new) { plugin_util }
-        plugin_util.stub(:plugin_class) { nil }
+        allow(plugin_util).to receive(:plugin_class) { nil }
         expect(File).to receive(:exist?).and_return false
       end
 

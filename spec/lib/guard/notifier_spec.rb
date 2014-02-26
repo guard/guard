@@ -80,7 +80,7 @@ describe Guard::Notifier do
         end
 
         it 'does enable the notifications when a library is available' do
-          Guard::Notifier.stub(:add_notifier) do
+          allow(Guard::Notifier).to receive(:add_notifier) do
             Guard::Notifier.notifiers = [gntp]
             true
           end
@@ -89,7 +89,7 @@ describe Guard::Notifier do
         end
 
         it 'does turn on the notification module for libraries that are available' do
-          Guard::Notifier.stub(:add_notifier) do
+          allow(Guard::Notifier).to receive(:add_notifier) do
             Guard::Notifier.notifiers = [{ name: :tmux, options: {} }]
             true
           end
@@ -99,7 +99,7 @@ describe Guard::Notifier do
         end
 
         it 'does not enable the notifications when no library is available' do
-          Guard::Notifier.stub(:add_notifier).and_return false
+          allow(Guard::Notifier).to receive(:add_notifier).and_return false
           Guard::Notifier.turn_on
           expect(Guard::Notifier).not_to be_enabled
         end
@@ -141,7 +141,7 @@ describe Guard::Notifier do
   end
 
   describe 'toggle_notification' do
-    before { ::Guard::UI.stub(:info) }
+    before { allow(::Guard::UI).to receive(:info) }
 
     it 'disables the notifications when enabled' do
       ENV['GUARD_NOTIFY'] = 'true'
@@ -220,7 +220,7 @@ describe Guard::Notifier do
 
     context 'when notifications are enabled' do
       before do
-        Guard::Notifier.stub(:enabled?).and_return true
+        allow(Guard::Notifier).to receive(:enabled?).and_return true
 
         expect(Guard::Notifier::GNTP).to receive(:new).with(color: true).and_return(gntp_object)
         expect(Guard::Notifier::Growl).to receive(:new).with({}).and_return(growl_object)
@@ -237,7 +237,7 @@ describe Guard::Notifier do
 
     context 'when notifications are disabled' do
       before do
-        Guard::Notifier.stub(:enabled?).and_return false
+        allow(Guard::Notifier).to receive(:enabled?).and_return false
       end
 
       it 'does not send any notifications to a notifier' do

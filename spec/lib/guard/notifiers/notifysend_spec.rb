@@ -13,7 +13,7 @@ describe Guard::Notifier::NotifySend do
 
   describe '.available?' do
     context 'host is not supported' do
-      before { RbConfig::CONFIG.stub(:[]).with('host_os').and_return('mswin') }
+      before { allow(RbConfig::CONFIG).to receive(:[]).with('host_os').and_return('mswin') }
 
       it 'do not check if the binary is available' do
         expect(described_class).to_not receive(:_notifysend_binary_available?)
@@ -23,7 +23,7 @@ describe Guard::Notifier::NotifySend do
     end
 
     context 'host is supported' do
-      before { RbConfig::CONFIG.stub(:[]).with('host_os').and_return('linux') }
+      before { allow(RbConfig::CONFIG).to receive(:[]).with('host_os').and_return('linux') }
 
       it 'checks if the binary is available' do
         expect(described_class).to receive(:_notifysend_binary_available?) { true }
@@ -38,7 +38,7 @@ describe Guard::Notifier::NotifySend do
       let(:notifier) { described_class.new(image: '/tmp/hello.png', silent: true) }
 
       it 'uses these options by default' do
-        notifier.should_receive(:system) do |command, *arguments|
+        expect(notifier).to receive(:system) do |command, *arguments|
           expect(command).to eql 'notify-send'
           expect(arguments).to include '-i', '/tmp/hello.png'
           expect(arguments).to include '-u', 'low'
@@ -50,7 +50,7 @@ describe Guard::Notifier::NotifySend do
       end
 
       it 'overwrites object options with passed options' do
-        notifier.should_receive(:system) do |command, *arguments|
+        expect(notifier).to receive(:system) do |command, *arguments|
           expect(command).to eql 'notify-send'
           expect(arguments).to include '-i', '/tmp/welcome.png'
           expect(arguments).to include '-u', 'low'
@@ -62,7 +62,7 @@ describe Guard::Notifier::NotifySend do
       end
 
       it 'uses the title provided in the options' do
-        notifier.should_receive(:system) do |command, *arguments|
+        expect(notifier).to receive(:system) do |command, *arguments|
           expect(command).to eql 'notify-send'
           expect(arguments).to include 'Welcome to Guard'
           expect(arguments).to include 'test title'
@@ -73,7 +73,7 @@ describe Guard::Notifier::NotifySend do
 
     context 'without additional options' do
       it 'shows the notification with the default options' do
-        notifier.should_receive(:system) do |command, *arguments|
+        expect(notifier).to receive(:system) do |command, *arguments|
           expect(command).to eql 'notify-send'
           expect(arguments).to include '-i', '/tmp/welcome.png'
           expect(arguments).to include '-u', 'low'
@@ -87,7 +87,7 @@ describe Guard::Notifier::NotifySend do
 
     context 'with additional options' do
       it 'can override the default options' do
-        notifier.should_receive(:system) do |command, *arguments|
+        expect(notifier).to receive(:system) do |command, *arguments|
           expect(command).to eql 'notify-send'
           expect(arguments).to include '-i', '/tmp/wait.png'
           expect(arguments).to include '-u', 'critical'
