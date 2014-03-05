@@ -10,7 +10,7 @@ group :development, :test do
   gem 'rspec', '~> 3.0.0.beta'
 end
 
-# The development group will no be
+# The development group will not be
 # installed on Travis CI.
 #
 group :development do
