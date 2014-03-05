@@ -22,7 +22,6 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'formatador', '>= 0.2.4'
 
   s.add_development_dependency 'bundler'
-  s.add_development_dependency 'rspec', '3.0.0.beta2'
 
   s.files        = Dir.glob('{bin,images,lib}/**/*') + %w[CHANGELOG.md LICENSE man/guard.1 man/guard.1.html README.md]
   s.executable   = 'guard'
