@@ -25,7 +25,7 @@ describe Guard::Guardfile::Evaluator do
       it 'uses the given Guardfile content' do
         guardfile_evaluator.evaluate_guardfile
 
-        expect(guardfile_evaluator.guardfile_path).to eq 'Inline Guardfile'
+        expect(guardfile_evaluator.guardfile_path).to be_nil
         expect(guardfile_evaluator.guardfile_source).to eq :inline
         expect(guardfile_evaluator.guardfile_contents).to eq valid_guardfile_string
       end
@@ -195,16 +195,16 @@ describe Guard::Guardfile::Evaluator do
       context 'with the :guardfile_contents option' do
         let(:guardfile_evaluator) { described_class.new(guardfile_contents: valid_guardfile_string) }
 
-        it 'stores guardfile_path as "Inline Guardfile"' do
         it 'stores guardfile_source as :default' do
           guardfile_evaluator.evaluate_guardfile
 
           expect(guardfile_evaluator.guardfile_source).to eq :inline
         end
 
+        it 'stores guardfile_path as nil' do
           guardfile_evaluator.evaluate_guardfile
 
-          expect(guardfile_evaluator.guardfile_path).to eq 'Inline Guardfile'
+          expect(guardfile_evaluator.guardfile_path).to be_nil
         end
 
         it 'stores guardfile_contents as expected' do
@@ -224,7 +224,7 @@ describe Guard::Guardfile::Evaluator do
           it 'has ultimate precedence' do
             guardfile_evaluator.evaluate_guardfile
 
-            expect(guardfile_evaluator.guardfile_path).to eq 'Inline Guardfile'
+            expect(guardfile_evaluator.guardfile_path).to be_nil
           end
         end
 

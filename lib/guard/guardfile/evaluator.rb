@@ -10,7 +10,7 @@ module Guard
     #
     class Evaluator
 
-      attr_reader :options, :guardfile_source
+      attr_reader :options, :guardfile_source, :guardfile_path
 
       # Initializes a new Guard::Guardfile::Evaluator object.
       #
@@ -65,33 +65,6 @@ module Guard
         _guardfile_contents_without_user_config.match(/^guard\s*\(?\s*['":]#{ plugin_name }['"]?/)
       end
 
-      # Gets the file path to the project `Guardfile`.
-      #
-      # @example Gets the path of the currently evaluated Guardfile
-      #   Dir.pwd
-      #   #=> "/Users/remy/Code/github/guard"
-      #
-      #   evaluator = Guard::Guardfile::Evaluator.new
-      #   evaluator.evaluate_guardfile
-      #   #=> nil
-      #
-      #   evaluator.guardfile_path
-      #   #=> "/Users/remy/Code/github/guard/Guardfile"
-      #
-      # @example Gets the "path" of an inline Guardfile
-      #   > Guard::Guardfile::Evaluator.new(guardfile_contents: 'guard :rspec').evaluate_guardfile
-      #   => nil
-      #
-      #   > Guard::Guardfile::Evaluator.new.guardfile_path
-      #   => "Inline Guardfile"
-      #
-      # @return [String] the path to the Guardfile or 'Inline Guardfile' if
-      #   the Guardfile has been specified via the `:guardfile_contents` option.
-      #
-      def guardfile_path
-        options[:guardfile_path] || ''
-      end
-
       # Gets the content of the `Guardfile` concatenated with the global
       # user configuration file.
       #
@@ -121,7 +94,7 @@ module Guard
       # @param [String] contents the content to evaluate.
       #
       def _instance_eval_guardfile(contents)
-        ::Guard::Dsl.new.instance_eval(contents, options[:guardfile_path], 1)
+        ::Guard::Dsl.new.instance_eval(contents, @guardfile_path || '', 1)
       rescue => ex
         ::Guard::UI.error "Invalid Guardfile, original error is:\n#{ $! }"
         raise ex
@@ -201,8 +174,8 @@ module Guard
       # @param [String] guardfile_path the path to the Guardfile
       #
       def _read_guardfile(guardfile_path)
-        options[:guardfile_path]     = guardfile_path
         options[:guardfile_contents] = File.read(guardfile_path)
+        @guardfile_path     = guardfile_path
       rescue => ex
         ::Guard::UI.error "Error reading file #{ guardfile_path }:"
         ::Guard::UI.error ex.inspect
