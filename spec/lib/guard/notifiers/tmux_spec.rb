@@ -272,7 +272,6 @@ describe Guard::Notifier::Tmux do
         notifier.display_message 'failed', 'any title', 'any message', failed: :black
       end
     end
-
   end
 
   describe '#turn_on' do
