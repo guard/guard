@@ -86,7 +86,7 @@ module Guard
       # @return [String] the Guardfile content
       #
       def _guardfile_contents_without_user_config
-        options[:guardfile_contents] || ''
+        @guardfile_contents || ''
       end
 
       # Evaluates the content of the `Guardfile`.
@@ -100,8 +100,7 @@ module Guard
         raise ex
       end
 
-      # Gets the content to evaluate and stores it into
-      # the options as `:guardfile_contents`.
+      # Gets the content to evaluate and stores it into @guardfile_contents.
       #
       def _fetch_guardfile_contents
         _use_inline_guardfile || _use_provided_guardfile || _use_default_guardfile
@@ -115,7 +114,9 @@ module Guard
       #
       def _use_inline_guardfile
         if (@guardfile_source.nil? && options[:guardfile_contents]) || @guardfile_source == :inline
+
           @guardfile_source   = :inline
+          @guardfile_contents = options[:guardfile_contents]
 
           ::Guard::UI.info 'Using inline Guardfile.'
 
@@ -174,8 +175,8 @@ module Guard
       # @param [String] guardfile_path the path to the Guardfile
       #
       def _read_guardfile(guardfile_path)
-        options[:guardfile_contents] = File.read(guardfile_path)
         @guardfile_path     = guardfile_path
+        @guardfile_contents = File.read(guardfile_path)
       rescue => ex
         ::Guard::UI.error "Error reading file #{ guardfile_path }:"
         ::Guard::UI.error ex.inspect

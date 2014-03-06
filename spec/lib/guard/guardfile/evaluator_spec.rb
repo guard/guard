@@ -304,10 +304,22 @@ describe Guard::Guardfile::Evaluator do
 
   describe '.reevaluate_guardfile' do
     before do
-      allow(guardfile_evaluator).to receive(:_instance_eval_guardfile)
       allow(::Guard.runner).to receive(:run)
+      guardfile_evaluator.evaluate_guardfile
     end
     let(:growl) { { name: :growl, options: {} } }
+
+    context 'with the :guardfile_contents option' do
+      let(:guardfile_evaluator) { described_class.new(guardfile_contents: valid_guardfile_string) }
+
+      it 'skips the reevaluation' do
+        expect(guardfile_evaluator).to_not receive(:_before_reevaluate_guardfile)
+        expect(guardfile_evaluator).to_not receive(:evaluate_guardfile)
+        expect(guardfile_evaluator).to_not receive(:_after_reevaluate_guardfile)
+
+        guardfile_evaluator.reevaluate_guardfile
+      end
+    end
 
     describe 'before reevaluation' do
       it 'stops all Guards' do
@@ -374,7 +386,7 @@ describe Guard::Guardfile::Evaluator do
 
       context 'with Guards afterwards' do
         before do
-          allow(::Guard).to receive(:plugins).and_return([double('Guard::Dummy')])
+          expect(guardfile_evaluator).to receive(:guardfile_contents).exactly(3) { 'guard :rspec' }
           allow(::Guard.runner).to receive(:run)
         end
 
@@ -401,11 +413,10 @@ describe Guard::Guardfile::Evaluator do
         it 'shows a failure notification' do
           expect(::Guard::Notifier).to receive(:notify).with('No plugins found in Guardfile, please add at least one.', title: 'Guard re-evaluate', image: :failed)
 
-          guardfile_evaluator.options[:guardfile_contents] = ''
+          expect(guardfile_evaluator).to receive(:guardfile_contents).exactly(3) { '' }
           guardfile_evaluator.reevaluate_guardfile
         end
       end
-
     end
   end
 
