@@ -7,10 +7,10 @@ gem 'rake'
 group :development, :test do
   # This plugin is required in the tests!
   gem 'guard-rspec', require: false
-  gem 'rspec', '>= 3.0.0.beta2'
+  gem 'rspec', '~> 3.0.0.beta'
 end
 
-# The development group will no be
+# The development group will not be
 # installed on Travis CI.
 #
 group :development do
