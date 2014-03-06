@@ -419,7 +419,6 @@ describe Guard::Notifier::Tmux do
                                  success: :blue)
       end
     end
-
   end
 
   describe '#turn_on' do

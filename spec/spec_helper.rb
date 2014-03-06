@@ -20,7 +20,7 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
 
-  config.before(:each) do
+  config.before(:each) do |example|
     @fixture_path = Pathname.new(File.expand_path('../fixtures/', __FILE__))
 
     # Ensure debug command execution isn't used in the specs
@@ -38,6 +38,13 @@ RSpec.configure do |config|
     allow(Guard::Notifier::Tmux).to receive(:system) { '' }
     allow(Guard::Notifier::Tmux).to receive(:`) { '' }
     allow(Pry.output).to receive(:puts)
+
+    unless example.metadata[:no_system_stub]
+      allow_any_instance_of(Object).to receive(:system) { puts 'Unstubbed Object.system()'; true }
+      allow_any_instance_of(Object).to receive(:`)      { puts 'Unstubbed Object.`()'; '' }
+      allow(Kernel).to receive(:system)                 { puts 'Unstubbed Kernel.system()'; true }
+      allow(Kernel).to receive(:`)                      { puts 'Unstubbed Kernel.`()'; '' }
+    end
 
     ::Guard.reset_groups
     ::Guard.reset_plugins

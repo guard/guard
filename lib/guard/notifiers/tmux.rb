@@ -258,11 +258,6 @@ module Guard
 
       private
 
-      def system(args)
-        args += " >#{ DEV_NULL } 2>&1" if ENV['GUARD_ENV'] == 'test'
-        super
-      end
-
       def self._clients
         ttys = `#{DEFAULTS[:client]} list-clients -F '\#{client_tty}'`
         ttys = ttys.split(/\n/)

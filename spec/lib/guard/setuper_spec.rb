@@ -479,7 +479,7 @@ describe Guard::Setuper do
     end
   end
 
-  describe '._debug_command_execution' do
+  describe '._debug_command_execution', :no_system_stub do
     subject { Guard.setup }
 
     before do
@@ -500,9 +500,10 @@ describe Guard::Setuper do
       expect(::Guard::UI).to receive(:debug).
         with('Command execution: echo test')
 
-      subject.send :_debug_command_execution
       expect(Kernel).to receive(:original_system).
         with('echo', 'test') { true }
+
+      subject.send :_debug_command_execution
 
       expect(system('echo', 'test')).to be_truthy
     end
@@ -511,13 +512,11 @@ describe Guard::Setuper do
       expect(::Guard::UI).to receive(:debug).
         with('Command execution: echo test')
 
-      subject.send :_debug_command_execution
-
       expect(Kernel).to receive(:original_backtick).
         with('echo test') { "test\n" }
 
+      subject.send :_debug_command_execution
       expect(`echo test`).to eq "test\n"
     end
   end
-
 end
