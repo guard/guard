@@ -26,6 +26,7 @@ describe Guard::Guardfile::Evaluator do
         guardfile_evaluator.evaluate_guardfile
 
         expect(guardfile_evaluator.guardfile_path).to eq 'Inline Guardfile'
+        expect(guardfile_evaluator.guardfile_source).to eq :inline
         expect(guardfile_evaluator.guardfile_contents).to eq valid_guardfile_string
       end
     end
@@ -38,6 +39,7 @@ describe Guard::Guardfile::Evaluator do
         guardfile_evaluator.evaluate_guardfile
 
         expect(guardfile_evaluator.guardfile_path).to eq File.expand_path('../relative_path_to_Guardfile')
+        expect(guardfile_evaluator.guardfile_source).to eq :custom
         expect(guardfile_evaluator.guardfile_contents).to eq valid_guardfile_string
       end
     end
@@ -115,6 +117,12 @@ describe Guard::Guardfile::Evaluator do
             expect(guardfile_evaluator.guardfile_path).to eq File.expand_path('Guardfile')
           end
 
+          it 'stores guardfile_source as :default' do
+            guardfile_evaluator.evaluate_guardfile
+
+            expect(guardfile_evaluator.guardfile_source).to eq :default
+          end
+
           it 'stores guardfile_path as expanded path' do
             guardfile_evaluator.evaluate_guardfile
 
@@ -154,6 +162,12 @@ describe Guard::Guardfile::Evaluator do
             fake_guardfile(home_guardfile, valid_guardfile_string)
           end
 
+          it 'stores guardfile_source as :default' do
+            guardfile_evaluator.evaluate_guardfile
+
+            expect(guardfile_evaluator.guardfile_source).to eq :default
+          end
+
           it 'stores guardfile_path as expanded path' do
             guardfile_evaluator.evaluate_guardfile
 
@@ -182,6 +196,12 @@ describe Guard::Guardfile::Evaluator do
         let(:guardfile_evaluator) { described_class.new(guardfile_contents: valid_guardfile_string) }
 
         it 'stores guardfile_path as "Inline Guardfile"' do
+        it 'stores guardfile_source as :default' do
+          guardfile_evaluator.evaluate_guardfile
+
+          expect(guardfile_evaluator.guardfile_source).to eq :inline
+        end
+
           guardfile_evaluator.evaluate_guardfile
 
           expect(guardfile_evaluator.guardfile_path).to eq 'Inline Guardfile'
@@ -224,6 +244,12 @@ describe Guard::Guardfile::Evaluator do
         before do
           fake_guardfile(File.expand_path('../relative_path_to_Guardfile'), valid_guardfile_string)
           fake_guardfile('/abc/Guardfile', 'guard :foo')
+        end
+
+        it 'stores guardfile_source as :custom' do
+          guardfile_evaluator.evaluate_guardfile
+
+          expect(guardfile_evaluator.guardfile_source).to eq :custom
         end
 
         context 'with a relative path to custom Guardfile' do

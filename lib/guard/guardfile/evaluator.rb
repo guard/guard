@@ -10,7 +10,7 @@ module Guard
     #
     class Evaluator
 
-      attr_reader :options
+      attr_reader :options, :guardfile_source
 
       # Initializes a new Guard::Guardfile::Evaluator object.
       #
@@ -41,6 +41,9 @@ module Guard
       # the current Guard configuration.
       #
       def reevaluate_guardfile
+        # Don't re-evaluate inline Guardfile
+        return if @guardfile_source == :inline
+
         _before_reevaluate_guardfile
         evaluate_guardfile
         _after_reevaluate_guardfile
@@ -50,10 +53,10 @@ module Guard
       #
       # @example Programmatically test if a Guardfile contains a specific Guard plugin
       #   File.read('Guardfile')
-      #   #=> "guard :rspec"
+      #   => "guard :rspec"
       #
       #   Guard::Guardfile::Evaluator.new.guardfile_include?('rspec)
-      #   #=> true
+      #   => true
       #
       # @param [String] plugin_name the name of the Guard
       # @return [Boolean] whether the Guard plugin has been declared
@@ -94,7 +97,7 @@ module Guard
       #
       # @example Programmatically get the content of the current Guardfile
       #   Guard::Guardfile::Evaluator.new.guardfile_contents
-      #   #=> "guard :rspec"
+      #   => "guard :rspec"
       #
       # @return [String] the Guardfile content
       #
@@ -138,26 +141,38 @@ module Guard
       # Use the provided inline Guardfile if provided.
       #
       def _use_inline_guardfile
-        return false unless options[:guardfile_contents]
+        if (@guardfile_source.nil? && options[:guardfile_contents]) || @guardfile_source == :inline
+          @guardfile_source   = :inline
 
-        ::Guard::UI.info 'Using inline Guardfile.'
-        options[:guardfile_path] = 'Inline Guardfile'
+          ::Guard::UI.info 'Using inline Guardfile.'
+
+          true
+        else
+          false
+        end
       end
 
       # Try to use the provided Guardfile. Exits Guard if the Guardfile cannot
       # be found.
       #
       def _use_provided_guardfile
-        return false unless options[:guardfile]
+        if (@guardfile_source.nil? && options[:guardfile]) || @guardfile_source == :custom
 
-        options[:guardfile] = File.expand_path(options[:guardfile])
-        if File.exist?(options[:guardfile])
-          _read_guardfile(options[:guardfile])
-          ::Guard::UI.info "Using Guardfile at #{ options[:guardfile] }."
+          @guardfile_source = :custom
+
+          options[:guardfile] = File.expand_path(options[:guardfile])
+          if File.exist?(options[:guardfile])
+            _read_guardfile(options[:guardfile])
+            ::Guard::UI.info "Using Guardfile at #{ options[:guardfile] }."
+            true
+          else
+            ::Guard::UI.error "No Guardfile exists at #{ options[:guardfile] }."
+            exit 1
+          end
+
           true
         else
-          ::Guard::UI.error "No Guardfile exists at #{ options[:guardfile] }."
-          exit 1
+          false
         end
       end
 
@@ -166,6 +181,7 @@ module Guard
       #
       def _use_default_guardfile
         if guardfile_path = _find_default_guardfile
+          @guardfile_source = :default
           _read_guardfile(guardfile_path)
         else
           ::Guard::UI.error 'No Guardfile found, please create one with `guard init`.'
