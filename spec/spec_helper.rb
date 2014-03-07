@@ -37,11 +37,13 @@ RSpec.configure do |config|
     allow(Guard::Notifier::TerminalTitle).to receive(:puts)
     allow(Pry.output).to receive(:puts)
 
-    unless example.metadata[:no_system_stub]
-      allow_any_instance_of(Object).to receive(:system) { puts 'Unstubbed Object.system()'; true }
-      allow_any_instance_of(Object).to receive(:`)      { puts 'Unstubbed Object.`()'; '' }
-      allow(Kernel).to receive(:system)                 { puts 'Unstubbed Kernel.system()'; true }
-      allow(Kernel).to receive(:`)                      { puts 'Unstubbed Kernel.`()'; '' }
+    unless example.metadata[:sheller_specs]
+      class Guard::Sheller
+        def run; self; end
+        def stdout; ''; end
+        def success?; true; end
+      end
+      # allow_any_instance_of(Guard::Sheller).to receive(:run) {}
     end
 
     ::Guard.reset_groups

@@ -106,7 +106,7 @@ module Guard
       def clear(options = {})
         if ::Guard.options[:clear] && (@clearable || options[:force])
           @clearable = false
-          system('clear;')
+          ::Guard::Sheller.run('clear;')
         end
       end
 

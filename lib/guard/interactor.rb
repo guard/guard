@@ -188,7 +188,7 @@ module Guard
     #
     def _add_restore_visibility_hook
       Pry.config.hooks.add_hook :after_eval, :restore_visibility do
-        system("stty echo 2>#{ DEV_NULL }")
+        ::Guard::Sheller.run("stty echo 2>#{ DEV_NULL }")
       end
     end
 
@@ -305,7 +305,7 @@ module Guard
     # @return [Boolean] the status of stty
     #
     def _stty_exists?
-      @stty_exists ||= system('hash', 'stty') ? true : false if @stty_exists.nil?
+      @stty_exists ||= ::Guard::Sheller.run('hash', 'stty') ? true : false if @stty_exists.nil?
       @stty_exists
     end
 
@@ -313,13 +313,13 @@ module Guard
     # when stopping.
     #
     def _store_terminal_settings
-      @stty_save = `stty -g 2>#{ DEV_NULL }`.chomp
+      @stty_save = ::Guard::Sheller.stdout("stty -g 2>#{ DEV_NULL }").chomp
     end
 
     # Restore terminal settings
     #
     def _restore_terminal_settings
-      system("stty #{ @stty_save } 2>#{ DEV_NULL }") if @stty_save
+      ::Guard::Sheller.run("stty #{ @stty_save } 2>#{ DEV_NULL }") if @stty_save
     end
 
   end

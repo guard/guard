@@ -21,7 +21,7 @@ describe Guard::UI do
     allow(Guard::UI.logger).to receive(:debug)
 
     allow($stderr).to receive(:print)
-    allow(described_class).to receive(:system)
+    allow(::Guard::Sheller).to receive(:new).and_call_original
   end
 
   after do
@@ -268,21 +268,19 @@ describe Guard::UI do
 
       it 'clears the outputs if clearable' do
         Guard::UI.clearable
-        expect(Guard::UI).to receive(:system).with('clear;')
+        expect(::Guard::Sheller).to receive(:run).with('clear;')
         Guard::UI.clear
       end
 
       it 'doesn not clear the output if already cleared' do
-        allow(Guard::UI).to receive(:system)
         Guard::UI.clear
-        expect(Guard::UI).to_not receive(:system).with('clear;')
+        expect(::Guard::Sheller).to_not receive(:run)
         Guard::UI.clear
       end
 
       it 'clears the outputs if forced' do
-        allow(Guard::UI).to receive(:system)
         Guard::UI.clear
-        expect(Guard::UI).to receive(:system).with('clear;')
+        expect(::Guard::Sheller).to receive(:run).with('clear;')
         Guard::UI.clear(force: true)
       end
     end
@@ -291,7 +289,7 @@ describe Guard::UI do
       before { Guard.setup(clear: false) }
 
       it 'does not clear the output' do
-        expect(Guard::UI).to_not receive(:system).with('clear;')
+        expect(::Guard::Sheller).to_not receive(:run)
         Guard::UI.clear
       end
     end
