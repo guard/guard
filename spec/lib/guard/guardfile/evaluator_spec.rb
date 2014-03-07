@@ -25,7 +25,8 @@ describe Guard::Guardfile::Evaluator do
       it 'uses the given Guardfile content' do
         guardfile_evaluator.evaluate_guardfile
 
-        expect(guardfile_evaluator.guardfile_path).to eq 'Inline Guardfile'
+        expect(guardfile_evaluator.guardfile_path).to be_nil
+        expect(guardfile_evaluator.guardfile_source).to eq :inline
         expect(guardfile_evaluator.guardfile_contents).to eq valid_guardfile_string
       end
     end
@@ -38,6 +39,7 @@ describe Guard::Guardfile::Evaluator do
         guardfile_evaluator.evaluate_guardfile
 
         expect(guardfile_evaluator.guardfile_path).to eq File.expand_path('../relative_path_to_Guardfile')
+        expect(guardfile_evaluator.guardfile_source).to eq :custom
         expect(guardfile_evaluator.guardfile_contents).to eq valid_guardfile_string
       end
     end
@@ -115,6 +117,12 @@ describe Guard::Guardfile::Evaluator do
             expect(guardfile_evaluator.guardfile_path).to eq File.expand_path('Guardfile')
           end
 
+          it 'stores guardfile_source as :default' do
+            guardfile_evaluator.evaluate_guardfile
+
+            expect(guardfile_evaluator.guardfile_source).to eq :default
+          end
+
           it 'stores guardfile_path as expanded path' do
             guardfile_evaluator.evaluate_guardfile
 
@@ -154,6 +162,12 @@ describe Guard::Guardfile::Evaluator do
             fake_guardfile(home_guardfile, valid_guardfile_string)
           end
 
+          it 'stores guardfile_source as :default' do
+            guardfile_evaluator.evaluate_guardfile
+
+            expect(guardfile_evaluator.guardfile_source).to eq :default
+          end
+
           it 'stores guardfile_path as expanded path' do
             guardfile_evaluator.evaluate_guardfile
 
@@ -181,10 +195,16 @@ describe Guard::Guardfile::Evaluator do
       context 'with the :guardfile_contents option' do
         let(:guardfile_evaluator) { described_class.new(guardfile_contents: valid_guardfile_string) }
 
-        it 'stores guardfile_path as "Inline Guardfile"' do
+        it 'stores guardfile_source as :default' do
           guardfile_evaluator.evaluate_guardfile
 
-          expect(guardfile_evaluator.guardfile_path).to eq 'Inline Guardfile'
+          expect(guardfile_evaluator.guardfile_source).to eq :inline
+        end
+
+        it 'stores guardfile_path as nil' do
+          guardfile_evaluator.evaluate_guardfile
+
+          expect(guardfile_evaluator.guardfile_path).to be_nil
         end
 
         it 'stores guardfile_contents as expected' do
@@ -204,7 +224,7 @@ describe Guard::Guardfile::Evaluator do
           it 'has ultimate precedence' do
             guardfile_evaluator.evaluate_guardfile
 
-            expect(guardfile_evaluator.guardfile_path).to eq 'Inline Guardfile'
+            expect(guardfile_evaluator.guardfile_path).to be_nil
           end
         end
 
@@ -224,6 +244,12 @@ describe Guard::Guardfile::Evaluator do
         before do
           fake_guardfile(File.expand_path('../relative_path_to_Guardfile'), valid_guardfile_string)
           fake_guardfile('/abc/Guardfile', 'guard :foo')
+        end
+
+        it 'stores guardfile_source as :custom' do
+          guardfile_evaluator.evaluate_guardfile
+
+          expect(guardfile_evaluator.guardfile_source).to eq :custom
         end
 
         context 'with a relative path to custom Guardfile' do
@@ -278,10 +304,22 @@ describe Guard::Guardfile::Evaluator do
 
   describe '.reevaluate_guardfile' do
     before do
-      allow(guardfile_evaluator).to receive(:_instance_eval_guardfile)
       allow(::Guard.runner).to receive(:run)
+      guardfile_evaluator.evaluate_guardfile
     end
     let(:growl) { { name: :growl, options: {} } }
+
+    context 'with the :guardfile_contents option' do
+      let(:guardfile_evaluator) { described_class.new(guardfile_contents: valid_guardfile_string) }
+
+      it 'skips the reevaluation' do
+        expect(guardfile_evaluator).to_not receive(:_before_reevaluate_guardfile)
+        expect(guardfile_evaluator).to_not receive(:evaluate_guardfile)
+        expect(guardfile_evaluator).to_not receive(:_after_reevaluate_guardfile)
+
+        guardfile_evaluator.reevaluate_guardfile
+      end
+    end
 
     describe 'before reevaluation' do
       it 'stops all Guards' do
@@ -348,7 +386,7 @@ describe Guard::Guardfile::Evaluator do
 
       context 'with Guards afterwards' do
         before do
-          allow(::Guard).to receive(:plugins).and_return([double('Guard::Dummy')])
+          expect(guardfile_evaluator).to receive(:guardfile_contents).exactly(3) { 'guard :rspec' }
           allow(::Guard.runner).to receive(:run)
         end
 
@@ -375,11 +413,10 @@ describe Guard::Guardfile::Evaluator do
         it 'shows a failure notification' do
           expect(::Guard::Notifier).to receive(:notify).with('No plugins found in Guardfile, please add at least one.', title: 'Guard re-evaluate', image: :failed)
 
-          guardfile_evaluator.options[:guardfile_contents] = ''
+          expect(guardfile_evaluator).to receive(:guardfile_contents).exactly(3) { '' }
           guardfile_evaluator.reevaluate_guardfile
         end
       end
-
     end
   end
 
