@@ -479,7 +479,7 @@ describe Guard::Setuper do
     end
   end
 
-  describe '._debug_command_execution', :no_system_stub do
+  describe '._debug_command_execution' do
     subject { Guard.setup }
 
     before do

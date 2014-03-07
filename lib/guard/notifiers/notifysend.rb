@@ -31,7 +31,7 @@ module Guard
       # @return [Boolean] whether or not the notify-send binary is available
       #
       def self._notifysend_binary_available?
-        !`which notify-send`.empty?
+        !::Guard::Sheller.stdout('which notify-send').empty?
       end
 
       # @private
@@ -75,7 +75,7 @@ module Guard
           u: _notifysend_urgency(opts.delete(:type))
         ).merge(opts)
 
-        system('notify-send', *_to_arguments(command, SUPPORTED, opts))
+        ::Guard::Sheller.run('notify-send', *_to_arguments(command, SUPPORTED, opts))
       end
 
       private

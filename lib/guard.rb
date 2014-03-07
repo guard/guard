@@ -11,6 +11,7 @@ require 'guard/notifier'
 require 'guard/plugin_util'
 require 'guard/runner'
 require 'guard/setuper'
+require 'guard/sheller'
 require 'guard/ui'
 require 'guard/watcher'
 

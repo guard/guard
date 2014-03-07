@@ -109,7 +109,7 @@ module Guard
       def clear(options = {})
         return unless ::Guard.options[:clear] && (@clearable || options[:force])
         @clearable = false
-        system('clear;')
+        ::Guard::Sheller.run('clear;')
       end
 
       # Allow the screen to be cleared again.
