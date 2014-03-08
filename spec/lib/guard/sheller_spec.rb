@@ -2,7 +2,13 @@ require 'spec_helper'
 
 describe Guard::Sheller, :sheller_specs do
   let(:sheller) { described_class.new('pwd') }
-  let(:fake_sheller) { o = double; o.stub(run: true, stdout: ''); o }
+  let(:fake_sheller) do
+    o = double
+    allow(o).to receive(:run).and_return(true)
+    allow(o).to receive(:stdout).and_return('')
+    o
+  end
+
   let(:pwd_stdout) { `pwd` }
 
   describe '.run' do
