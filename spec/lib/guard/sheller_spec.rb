@@ -1,95 +1,135 @@
 require 'spec_helper'
 
-describe Guard::Sheller, :sheller_specs do
-  let(:sheller) { described_class.new('pwd') }
-  let(:fake_sheller) { o = double; o.stub(run: true, stdout: ''); o }
-  let(:pwd_stdout) { `pwd` }
+include Guard
 
-  describe '.run' do
-    it 'instantiate a new Sheller object' do
-      expect(described_class).to receive(:new).with('pwd').and_return(fake_sheller)
-
-      described_class.run('pwd')
-    end
-
-    it 'calls #run on the new Sheller object' do
-      expect(described_class).to receive(:new).and_return(fake_sheller)
-      expect(fake_sheller).to receive(:run)
-
-      described_class.run('pwd')
+describe Sheller, :sheller_specs do
+  before do
+    allow(Kernel).to receive(:system) do |args|
+      fail "Stub called with: #{args.inspect}"
     end
   end
 
-  describe '.stdout' do
-    it 'instantiate a new Sheller object' do
-      expect(described_class).to receive(:new).with('pwd').and_return(fake_sheller)
+  subject { described_class }
 
-      described_class.stdout('pwd')
-    end
-
-    it 'calls #run on the new Sheller object' do
-      expect(described_class).to receive(:new).and_return(fake_sheller)
-      expect(fake_sheller).to receive(:stdout)
-
-      described_class.stdout('pwd')
+  context 'without a command' do
+    [:new, :run, :stdout, :stderr].each do |meth|
+      describe ".#{meth}" do
+        specify do
+          expect { subject.send(meth) }.
+            to raise_error ArgumentError, 'no command given'
+        end
+      end
     end
   end
 
-  describe '#new' do
-    it 'accepts a string arg' do
-      sheller = described_class.new('pwd')
-      expect(sheller).to receive(:`).with 'pwd'
-
-      sheller.run
+  context 'with shell (string) cmd returning success' do
+    let(:cmd) { 'ls -l' }
+    let(:output) { "foo.rb\n" }
+    let(:errors) { '' }
+    let(:result) do
+      [instance_double(Process::Status, success?: true), output, errors]
     end
 
-    it 'accepts a list of string args' do
-      sheller = described_class.new('ls', '-l')
-      expect(sheller).to receive(:`).with 'ls -l'
+    context 'when constructed with a cmd' do
+      subject { described_class.new(cmd) }
 
-      sheller.run
-    end
-
-    it 'accepts an array of string args' do
-      sheller = described_class.new(['ls', '-l'])
-      expect(sheller).to receive(:`).with 'ls -l'
-
-      sheller.run
+      describe '#run' do
+        it 'runs the command given to constructor' do
+          expect(described_class).to receive(:_system).with(cmd) { result }
+          subject.run
+        end
+      end
     end
   end
 
-  describe '#run' do
-    it 'runs the given command using `' do
-      expect(sheller).to receive(:`).with 'pwd'
-
-      sheller.run
+  context 'with array cmd returning success' do
+    let(:cmd) { %w(ls -l) }
+    let(:output) { "foo.rb\n" }
+    let(:errors) { '' }
+    let(:result) do
+      [instance_double(Process::Status, success?: true), output, errors]
     end
 
-    it 'exposes the command status' do
-      sheller.run
+    describe 'when used as class' do
+      describe '.run' do
+        it 'runs the given command' do
+          expect(described_class).to receive(:_system).with(*cmd) { result }
+          subject.run(*cmd)
+        end
+      end
 
-      expect(sheller.status).to be_a(Process::Status)
+      describe '.new' do
+        it 'does not run anything' do
+          expect(described_class).to_not receive(:_system)
+          subject
+        end
+      end
+
+      describe '.stdout' do
+        before do
+          allow(described_class).to receive(:_system).with(*cmd) { result }
+        end
+
+        it 'runs command and returns output' do
+          expect(subject.stdout(*cmd)).to eq "foo.rb\n"
+        end
+      end
+
+      describe '.stderr' do
+        before do
+          allow(described_class).to receive(:_system).with(*cmd) { result }
+        end
+
+        it 'runs command and returns errors' do
+          expect(subject.stderr(*cmd)).to eq ''
+        end
+      end
+    end
+
+    context 'when constructed with a cmd' do
+      subject { described_class.new(*cmd) }
+
+      it 'does not run anything' do
+        expect(described_class).to_not receive(:_system)
+        subject
+      end
+
+      describe '#run' do
+        it 'runs the command given to constructor' do
+          expect(described_class).to receive(:_system).with(*cmd) { result }
+          subject.run
+        end
+      end
+
+      describe '#stdout' do
+        before do
+          allow(described_class).to receive(:_system).with(*cmd) { result }
+        end
+
+        it 'runs command and returns output' do
+          expect(subject.stdout).to eq "foo.rb\n"
+        end
+      end
+
+      describe '#stderr' do
+        before do
+          allow(described_class).to receive(:_system).with(*cmd) { result }
+        end
+
+        it 'runs command and returns output' do
+          expect(subject.stderr).to eq ''
+        end
+      end
+
+      describe '#ok?' do
+        before do
+          allow(described_class).to receive(:_system).with(*cmd) { result }
+        end
+
+        it 'runs command and returns output' do
+          expect(subject).to be_ok
+        end
+      end
     end
   end
-
-  describe '#stdout' do
-    it 'returns the command output' do
-      sheller.run
-
-      expect(sheller.stdout).to eq pwd_stdout
-    end
-
-    it 'runs the command if not run yet and returns its output' do
-      expect(sheller.stdout).to eq pwd_stdout
-    end
-  end
-
-  describe '#success?' do
-    it 'returns the command success' do
-      sheller.run
-
-      expect(sheller).to be_success
-    end
-  end
-
 end

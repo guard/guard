@@ -1,10 +1,8 @@
 module Guard
-
   # The Guard sheller abstract the actual subshell
   # calls and allow easier stubbing.
   #
   class Sheller
-
     attr_reader :status
 
     # Creates a new Guard::Sheller object.
@@ -14,7 +12,9 @@ module Guard
     # @param [*String] args a list of command parts to run in a subshell
     #
     def initialize(*args)
-      @command = args.join(' ')
+      fail ArgumentError, 'no command given' if args.empty?
+      @command = args
+      @ran = false
     end
 
     # Shortcut for new(command).run
@@ -29,33 +29,42 @@ module Guard
       new(*args).stdout
     end
 
+    # Shortcut for new(command).run.stderr
+    #
+    def self.stderr(*args)
+      new(*args).stderr
+    end
+
     # Runs the command.
     #
     # @return [Boolean] whether or not the command succeeded.
     #
     def run
-      unless run?
-        @stdout = `#{@command}`
-        @status = $?
+      unless ran?
+        status, output, errors = self.class._system(*@command)
+        @ran = true
+        @stdout = output
+        @stderr = errors
+        @status = status
       end
 
-      success?
+      ok?
     end
 
     # Returns true if the command has already been run, false otherwise.
     #
     # @return [Boolean] whether or not the command has already been run
     #
-    def run?
-      !@status.nil?
+    def ran?
+      @ran
     end
 
     # Returns true if the command succeeded, false otherwise.
     #
     # @return [Boolean] whether or not the command succeeded
     #
-    def success?
-      run unless run?
+    def ok?
+      run unless ran?
 
       @status.success?
     end
@@ -65,11 +74,34 @@ module Guard
     # @return [String] the command output
     #
     def stdout
-      run unless run?
+      run unless ran?
 
       @stdout
     end
 
+    # Returns the command's error output.
+    #
+    # @return [String] the command output
+    #
+    def stderr
+      run unless ran?
+
+      @stderr
+    end
+
+    # Stubbed by tests
+    def self._system(*args)
+      out, wout = IO.pipe
+      err, werr = IO.pipe
+
+      _result = Kernel.system(*args, err: werr, out: wout)
+
+      [werr, wout].map(&:close)
+
+      output, errors = out.read, err.read
+      [out, err].map(&:close)
+
+      [$?.dup, output, errors]
+    end
   end
 end
-
