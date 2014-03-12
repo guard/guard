@@ -401,7 +401,7 @@ more detailed information. `help guard` will show all Guard related commands ava
 
 Pry supports the Ruby built-in Readline, [rb-readline](https://github.com/luislavena/rb-readline) and
 [Coolline](https://github.com/Mon-Ouie/coolline). Just install the readline implementation of your choice by adding it
-to your `Gemfile.
+to your `Gemfile`.
 
 You can also disable the interactions completely by running Guard with the `--no-interactions` option.
 
