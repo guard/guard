@@ -231,6 +231,14 @@ describe Guard::Dsl do
          watch(\'c\')
       end')
     end
+
+    it 'should require a guard block' do
+      expect {
+        described_class.evaluate_guardfile(guardfile_contents: '
+          watch(\'a\') { \'b\' }
+          watch(\'c\')')
+      }.to raise_error(/guard block/i)
+    end
   end
 
   describe '#callback' do
@@ -254,6 +262,14 @@ describe Guard::Dsl do
           callback(:start_end) { |plugin, event, args| "#{plugin} executed \'#{event}\' hook with #{args}!" }
           callback(MyCustomCallback, [:start_begin, :run_all_begin])
         end')
+    end
+
+    it 'should require a guard block' do
+      expect {
+        described_class.evaluate_guardfile(guardfile_contents: '
+          callback(:start_end) { |plugin, event, args| "#{plugin} executed \'#{event}\' hook with #{args}!" }
+          callback(MyCustomCallback, [:start_begin, :run_all_begin])')
+      }.to raise_error(/guard block/i)
     end
   end
 
