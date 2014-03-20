@@ -494,8 +494,15 @@ You can also launch any arbitrary command in the supplied block:
 
 ```ruby
 guard :shell do
-  watch('.*') { `git status` }
+  watch(/.*/) { `git status` }
 end
+```
+
+You can also define `watch`es outside of a `guard` plugin. This is useful to perform arbitrary Ruby
+logic (i.e. something project-specific).
+
+```ruby
+watch(/.*/) { |m| puts "#{m[0]} changed." }
 ```
 
 ### group

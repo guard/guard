@@ -186,6 +186,9 @@ module Guard
     #     watch(%r{^app/controllers/(.+).rb}) { |m| 'spec/acceptance/#{m[1]}s_spec.rb' }
     #   end
     #
+    # @example Declare global watchers outside of a Guard
+    #   watch(%r{^(.+)$}) { |m| puts "#{m[1]} changed." }
+    #
     # @param [String, Regexp] pattern the pattern that Guard must watch for modification
     # @yield a block to be run when the pattern is matched
     # @yieldparam [MatchData] m matches of the pattern
@@ -195,7 +198,9 @@ module Guard
     # @see #guard
     #
     def watch(pattern, &action)
-      fail "watch must be called within a guard block" unless @plugin_options
+      # Allow watches in the global scope (to execute arbitrary commands) by
+      # building a generic Guard::Plugin.
+      return guard(:plugin) { watch(pattern, &action) } unless @plugin_options
 
       @plugin_options[:watchers] << ::Guard::Watcher.new(pattern, action)
     end
