@@ -165,16 +165,16 @@ module Guard
     # @see #group
     #
     def guard(name, options = {})
-      @watchers  = []
-      @callbacks = []
+      @plugin_options = options.merge(watchers: [], callbacks: [])
 
       yield if block_given?
 
       groups = @current_groups && @current_groups.last || [:default]
       groups.each do |group|
-        options.merge!(group: group, watchers: @watchers, callbacks: @callbacks)
-        ::Guard.add_plugin(name, options)
+        ::Guard.add_plugin(name, @plugin_options.merge(group: group))
       end
+
+      @plugin_options = nil
     end
 
     # Defines a pattern to be watched in order to run actions on file modification.
@@ -186,6 +186,9 @@ module Guard
     #     watch(%r{^app/controllers/(.+).rb}) { |m| 'spec/acceptance/#{m[1]}s_spec.rb' }
     #   end
     #
+    # @example Declare global watchers outside of a Guard
+    #   watch(%r{^(.+)$}) { |m| puts "#{m[1]} changed." }
+    #
     # @param [String, Regexp] pattern the pattern that Guard must watch for modification
     # @yield a block to be run when the pattern is matched
     # @yieldparam [MatchData] m matches of the pattern
@@ -195,7 +198,11 @@ module Guard
     # @see #guard
     #
     def watch(pattern, &action)
-      @watchers << ::Guard::Watcher.new(pattern, action)
+      # Allow watches in the global scope (to execute arbitrary commands) by
+      # building a generic Guard::Plugin.
+      return guard(:plugin) { watch(pattern, &action) } unless @plugin_options
+
+      @plugin_options[:watchers] << ::Guard::Watcher.new(pattern, action)
     end
 
     # Defines a callback to execute arbitrary code before or after any of
@@ -216,6 +223,8 @@ module Guard
     # @see Guard::Hooker
     #
     def callback(*args, &block)
+      fail "callback must be called within a guard block" unless @plugin_options
+
       block, events = if args.size > 1
         # block must be the first argument in that case, the yielded block is
         # ignored
@@ -223,7 +232,7 @@ module Guard
       else
         [block, args[0]]
       end
-      @callbacks << { events: events, listener: block }
+      @plugin_options[:callbacks] << { events: events, listener: block }
     end
 
     # Ignores certain paths globally.
