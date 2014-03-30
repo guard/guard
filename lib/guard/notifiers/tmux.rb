@@ -186,7 +186,7 @@ module Guard
         _run_client "set", "-q message-fg #{ message_color }"
         _run_client "set", "-q message-bg #{ color }"
         _run_client "display-message", "'#{ display_message }'"
-     end
+      end
 
       # Get the Tmux color for the notification type.
       # You can configure your own color by overwriting the defaults.
