@@ -35,6 +35,8 @@ RSpec.configure do |config|
 
     # Avoid clobbering the terminal
     allow(Guard::Notifier::TerminalTitle).to receive(:puts)
+    allow(Guard::Notifier::Tmux).to receive(:system) { '' }
+    allow(Guard::Notifier::Tmux).to receive(:`) { '' }
     allow(Pry.output).to receive(:puts)
 
     ::Guard.reset_groups
@@ -59,6 +61,8 @@ RSpec.configure do |config|
   config.after(:each) do
     Pry.config.hooks.delete_hook(:when_started, :load_guard_rc)
     Pry.config.hooks.delete_hook(:when_started, :load_project_guard_rc)
+
+    Guard::Notifier.clear_notifiers
 
     ::Guard.options[:debug] = false if ::Guard.options
   end
