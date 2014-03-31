@@ -20,7 +20,7 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
 
-  config.before(:each) do
+  config.before(:each) do |example|
     @fixture_path = Pathname.new(File.expand_path('../fixtures/', __FILE__))
 
     # Ensure debug command execution isn't used in the specs
@@ -38,6 +38,15 @@ RSpec.configure do |config|
     allow(Guard::Notifier::Tmux).to receive(:system) { '' }
     allow(Guard::Notifier::Tmux).to receive(:`) { '' }
     allow(Pry.output).to receive(:puts)
+
+    unless example.metadata[:sheller_specs]
+      class Guard::Sheller
+        def run; self; end
+        def stdout; ''; end
+        def success?; true; end
+      end
+      # allow_any_instance_of(Guard::Sheller).to receive(:run) {}
+    end
 
     ::Guard.reset_groups
     ::Guard.reset_plugins

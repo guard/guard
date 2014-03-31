@@ -27,8 +27,10 @@ module Guard
       # @return [Boolean] whether or not the emacs client is available
       #
       def self._emacs_client_available?(opts)
-        result = `#{opts.fetch(:client, DEFAULTS[:client])} --eval '1' 2> #{DEV_NULL} || echo 'N/A'`
-        !%w(N/A 'N/A').include?(result.chomp!)
+        client_name = opts.fetch(:client, DEFAULTS[:client])
+        stdout = ::Guard::Sheller.stdout("#{client_name} --eval '1' 2> #{DEV_NULL} || echo 'N/A'")
+
+        !%w(N/A 'N/A').include?(stdout.chomp!)
       end
 
       # Shows a system notification.

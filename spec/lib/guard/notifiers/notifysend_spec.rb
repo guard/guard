@@ -38,7 +38,7 @@ describe Guard::Notifier::NotifySend do
       let(:notifier) { described_class.new(image: '/tmp/hello.png', silent: true) }
 
       it 'uses these options by default' do
-        expect(notifier).to receive(:system) do |command, *arguments|
+        expect(::Guard::Sheller).to receive(:run) do |command, *arguments|
           expect(command).to eql 'notify-send'
           expect(arguments).to include '-i', '/tmp/hello.png'
           expect(arguments).to include '-u', 'low'
@@ -50,7 +50,7 @@ describe Guard::Notifier::NotifySend do
       end
 
       it 'overwrites object options with passed options' do
-        expect(notifier).to receive(:system) do |command, *arguments|
+        expect(::Guard::Sheller).to receive(:run) do |command, *arguments|
           expect(command).to eql 'notify-send'
           expect(arguments).to include '-i', '/tmp/welcome.png'
           expect(arguments).to include '-u', 'low'
@@ -62,7 +62,7 @@ describe Guard::Notifier::NotifySend do
       end
 
       it 'uses the title provided in the options' do
-        expect(notifier).to receive(:system) do |command, *arguments|
+        expect(::Guard::Sheller).to receive(:run) do |command, *arguments|
           expect(command).to eql 'notify-send'
           expect(arguments).to include 'Welcome to Guard'
           expect(arguments).to include 'test title'
@@ -73,7 +73,7 @@ describe Guard::Notifier::NotifySend do
 
     context 'without additional options' do
       it 'shows the notification with the default options' do
-        expect(notifier).to receive(:system) do |command, *arguments|
+        expect(::Guard::Sheller).to receive(:run) do |command, *arguments|
           expect(command).to eql 'notify-send'
           expect(arguments).to include '-i', '/tmp/welcome.png'
           expect(arguments).to include '-u', 'low'
@@ -87,7 +87,7 @@ describe Guard::Notifier::NotifySend do
 
     context 'with additional options' do
       it 'can override the default options' do
-        expect(notifier).to receive(:system) do |command, *arguments|
+        expect(::Guard::Sheller).to receive(:run) do |command, *arguments|
           expect(command).to eql 'notify-send'
           expect(arguments).to include '-i', '/tmp/wait.png'
           expect(arguments).to include '-u', 'critical'

@@ -465,16 +465,16 @@ describe Guard::Setuper do
 
     it "outputs Kernel.#system method parameters" do
       expect(::Guard::UI).to receive(:debug).with("Command execution: echo test")
-      subject.send :_debug_command_execution
       expect(Kernel).to receive(:original_system).with('echo', 'test').and_return true
+      subject.send :_debug_command_execution
 
       expect(system('echo', 'test')).to be_truthy
     end
 
     it "outputs Kernel.#` method parameters" do
       expect(::Guard::UI).to receive(:debug).with("Command execution: echo test")
-      subject.send :_debug_command_execution
       expect(Kernel).to receive(:original_backtick).with('echo test').and_return "test\n"
+      subject.send :_debug_command_execution
 
       expect(`echo test`).to eq "test\n"
     end
