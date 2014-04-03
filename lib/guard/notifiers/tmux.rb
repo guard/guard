@@ -251,11 +251,11 @@ module Guard
       end
 
       def self._clients
-        `#{ DEFAULTS[:client] } list-clients -F '\#{ client_tty }'`.split(/\n/)
+        `#{ DEFAULTS[:client] } list-clients -F '\#{client_tty}'`.split(/\n/)
       end
 
       def _clients
-        self.class._client
+        self.class._clients
       end
 
       def _run_client(cmd, args)
