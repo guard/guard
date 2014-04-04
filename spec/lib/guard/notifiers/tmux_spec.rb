@@ -375,4 +375,13 @@ describe Guard::Notifier::Tmux do
     end
   end
 
+  describe '#clients' do
+    it 'removes null terminal' do
+      allow(described_class).to receive(:`).and_return("/dev/ttys001\n/dev/ttys000\n(null)\n")
+      expect(described_class._clients).to include '/dev/ttys001'
+      expect(described_class._clients).to include '/dev/ttys000'
+      expect(described_class._clients).not_to include '(null)'
+    end
+  end
+
 end
