@@ -87,7 +87,7 @@ module Guard
       # @return [String] the notify-send urgency
       #
       def _notifysend_urgency(type)
-        { 'failed' => 'normal', 'pending' => 'low' }.fetch(type, 'low')
+        { failed: 'normal', pending: 'low' }.fetch(type, 'low')
       end
 
       # Builds a shell command out of a command string and option hash.
