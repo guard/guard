@@ -785,7 +785,7 @@ Please try to follow these simple rules:
 
 #### Core Team
 
-* [Michael Kessler](https://github.com/netzpirat) ([@netzpirat](http://twitter.com/netzpirat), [flinkfinger.com](http://www.flinkfinger.com))
+* R.I.P. :broken_heart: [Michael Kessler](https://github.com/netzpirat) ([@netzpirat](http://twitter.com/netzpirat), [flinkfinger.com](http://www.flinkfinger.com))
 * [Rémy Coutable](https://github.com/rymai)
 * [Thibaud Guillaume-Gentil](https://github.com/thibaudgg) ([@thibaudgg](http://twitter.com/thibaudgg), [thibaud.gg](http://thibaud.gg/))
 
