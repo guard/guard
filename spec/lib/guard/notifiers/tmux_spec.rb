@@ -2,6 +2,11 @@ require 'spec_helper'
 
 describe Guard::Notifier::Tmux do
   let(:notifier) { described_class.new }
+  let(:tmux_version) { 1.7 }
+
+  before do
+    allow(notifier).to receive(:_tmux_version).and_return(tmux_version)
+  end
 
   describe '.available?' do
     it 'checks if the binary is available' do
@@ -130,6 +135,16 @@ describe Guard::Notifier::Tmux do
 
       notifier.notify('any message', color_location: %w[status-left-bg pane-border-fg])
     end
+
+    context 'with tmux <= 1.6' do
+      let(:tmux_version) { 1.6 }
+
+      it 'does not pass the -q option' do
+        expect(notifier).to receive(:system).with 'tmux set status-left-bg green'
+
+        notifier.notify('any message', type: :notify)
+      end
+    end
   end
 
   describe '#display_title' do
@@ -138,10 +153,6 @@ describe Guard::Notifier::Tmux do
     end
 
     context 'for tmux >= 1.7' do
-      before do
-        allow(notifier).to receive(:_tmux_version).and_return(1.7)
-      end
-
       it 'displays the title' do
         expect(notifier).to receive(:system).with('tmux set-option -q set-titles-string \'any title - any message\'').once
 
@@ -180,9 +191,7 @@ describe Guard::Notifier::Tmux do
     end
 
     context 'for tmux <= 1.6' do
-      before do
-        expect(notifier).to receive(:_tmux_version).and_return(1.6)
-      end
+      let(:tmux_version) { 1.6 }
 
       it 'does not add the quiet flag' do
         expect(notifier).to receive(:system).with('tmux set-option set-titles-string \'any title - any message\'').once
@@ -270,6 +279,18 @@ describe Guard::Notifier::Tmux do
       it 'sets the background color' do
         expect(notifier).to receive(:system).with('tmux set -q message-bg black')
         notifier.display_message 'failed', 'any title', 'any message', failed: :black
+      end
+    end
+
+    context 'with tmux <= 1.6' do
+      let(:tmux_version) { 1.6 }
+
+      it 'does not pass the -q option' do
+        expect(notifier).to receive(:system).with('tmux set display-time 3000')
+        expect(notifier).to receive(:system).with('tmux set message-fg green')
+        expect(notifier).to receive(:system).with('tmux set message-bg blue')
+
+        notifier.display_message 'success', 'any title', 'any message', { timeout: 3, success_message_color: 'green',  success: :blue }
       end
     end
 
