@@ -69,6 +69,24 @@ describe Guard::Notifier::NotifySend do
         end
         notifier.notify('Welcome to Guard', title: 'test title')
       end
+
+      it 'converts notification type failed to normal urgency' do
+        expect(notifier).to receive(:system) do |command, *arguments|
+          expect(command).to eql 'notify-send'
+          expect(arguments).to include '-u', 'normal'
+        end
+
+        notifier.notify('Welcome to Guard', type: :failed)
+      end
+
+      it 'converts notification type pending to low urgency' do
+        expect(notifier).to receive(:system) do |command, *arguments|
+          expect(command).to eql 'notify-send'
+          expect(arguments).to include '-u', 'low'
+        end
+
+        notifier.notify('Welcome to Guard', type: :pending)
+      end
     end
 
     context 'without additional options' do
