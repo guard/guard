@@ -102,7 +102,7 @@ module Guard
           color = tmux_color(opts[:type], opts)
 
           color_locations.each do |color_location|
-            _run_client "set","-q #{ color_location } #{ color }"
+            _run_client "set","#{_quiet_option}#{ color_location } #{ color }"
           end
         end
 
@@ -137,11 +137,7 @@ module Guard
         teaser_message = message.split("\n").first
         display_title  = title_format % [title, teaser_message]
 
-        if _tmux_version >= 1.7
-          _run_client "set-option", "-q set-titles-string '#{ display_title }'"
-        else
-          _run_client "set-option", "set-titles-string '#{ display_title }'"
-        end
+        _run_client "set-option", "#{_quiet_option}set-titles-string '#{ display_title }'"
       end
 
       # Displays a message in the status bar of tmux.
@@ -182,9 +178,9 @@ module Guard
         formatted_message = message.split("\n").join(separator)
         display_message = message_format % [title, formatted_message]
 
-        _run_client "set", "-q display-time #{ display_time * 1000 }"
-        _run_client "set", "-q message-fg #{ message_color }"
-        _run_client "set", "-q message-bg #{ color }"
+        _run_client "set", "#{_quiet_option}display-time #{ display_time * 1000 }"
+        _run_client "set", "#{_quiet_option}message-fg #{ message_color }"
+        _run_client "set", "#{_quiet_option}message-bg #{ color }"
         _run_client "display-message", "'#{ display_message }'"
       end
 
@@ -296,6 +292,10 @@ module Guard
 
       def _tmux_version
         @tmux_version ||= `tmux -V`.chomp.gsub(/[^0-9.]/, '').to_f
+      end
+
+      def _quiet_option
+        '-q ' if _tmux_version >= 1.7
       end
 
     end
