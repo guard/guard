@@ -247,11 +247,13 @@ module Guard
       end
 
       def self._clients
-        `#{ DEFAULTS[:client] } list-clients -F '\#{ client_tty }'`.split(/\n/)
+        ttys = `#{ DEFAULTS[:client] } list-clients -F '\#{client_tty}'`.split(/\n/)
+        ttys.delete('(null)') #if user is running 'tmux -C' remove this client from list
+        ttys
       end
 
       def _clients
-        self.class._client
+        self.class._clients
       end
 
       def _run_client(cmd, args)
