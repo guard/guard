@@ -175,6 +175,8 @@ module Guard
       _debug_command_execution
     end
     
+    # Treats absolute path of the other platform as is.
+    # 
     def _multi_platform_expand_path(path)
       if path.match(/^(\/|\w:\/)/)
         return path
