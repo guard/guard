@@ -46,6 +46,13 @@ describe Guard::Setuper do
       expect(Guard.listener.directories).to eq [Pathname.new(Guard::WINDOWS ? 'C:/usr' : '/usr' )]
     end
 
+    it "understands absolute paths of the other platform when using network functionality" do
+      Guard.setup(watchdir: ['/usr', 'C:/dir', 'rel/dir'] , listen_on: '127.0.0.1:4000')
+
+      expect(Guard.instance_variable_get("@watchdirs")).to eq [ '/usr', 'C:/dir', File.expand_path('rel/dir')]
+      expect(Guard.listener.directories).to be_empty
+    end
+
     it "respect the watchdir option with multiple directories" do
       ::Guard.setup(watchdir: ['/usr', '/bin'])
 

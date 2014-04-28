@@ -49,7 +49,13 @@ module Guard
 
       if options[:watchdir]
         # Ensure we have an array
-        @watchdirs = Array(options[:watchdir]).map { |dir| File.expand_path dir }
+        @watchdirs = Array(options[:watchdir]).map do |dir|
+          if options[:listen_on]
+            _multi_platform_expand_path(dir)
+          else
+            File.expand_path(dir)
+          end
+        end
       end
 
       ::Guard::UI.clear(force: true)
@@ -167,6 +173,13 @@ module Guard
       Thread.abort_on_exception = true
       ::Guard::UI.options[:level] = :debug
       _debug_command_execution
+    end
+    
+    def _multi_platform_expand_path(path)
+      if path.match(/^(\/|\w:\/)/)
+        return path
+      end
+      File.expand_path(path)
     end
 
     # Initializes the listener and registers a callback for changes.
