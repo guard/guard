@@ -100,6 +100,7 @@ module Guard
     # for Guard.
     #
     def initialize
+      @mutex = Mutex.new
       return if ENV['GUARD_ENV'] == 'test'
 
       Pry.config.should_load_rc       = false
@@ -115,7 +116,8 @@ module Guard
       _create_guard_commands
       _create_group_commands
 
-      _configure_prompt
+      #Temporarily disable to debug pry readline crash problems
+      #_configure_prompt
     end
 
     # Start the line reader in its own thread and
@@ -124,14 +126,18 @@ module Guard
     def start
       return if ENV['GUARD_ENV'] == 'test'
 
-      _store_terminal_settings if _stty_exists?
+      @mutex.synchronize do
+        unless @thread
+          @thread = 'allocated'
 
-      unless @thread
-        ::Guard::UI.debug 'Start interactor'
+          _store_terminal_settings if _stty_exists?
 
-        @thread = Thread.new do
-          Pry.start
-          ::Guard.stop
+          ::Guard::UI.debug 'Start interactor'
+
+          @thread = Thread.new do
+            Pry.start
+            ::Guard.stop
+          end
         end
       end
     end
@@ -139,16 +145,19 @@ module Guard
     # Kill interactor thread if not current
     #
     def stop
-      return if !@thread || ENV['GUARD_ENV'] == 'test'
+      return if ENV['GUARD_ENV'] == 'test'
+      @mutex.synchronize do
+        return if !@thread
 
-      unless Thread.current == @thread
-        ::Guard::UI.reset_line
-        ::Guard::UI.debug 'Stop interactor'
-        @thread.kill
-        @thread = nil
+        unless Thread.current == @thread
+          ::Guard::UI.reset_line
+          ::Guard::UI.debug 'Stop interactor'
+          @thread.kill
+          @thread = nil
+        end
+
+        _restore_terminal_settings if _stty_exists?
       end
-
-      _restore_terminal_settings if _stty_exists?
     end
 
     private
