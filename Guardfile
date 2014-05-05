@@ -1,5 +1,5 @@
 group :specs do
-  guard :rspec, cmd: 'bundle exec rspec --fail-fast -f doc' do
+  guard :rspec, cmd: 'bundle exec rspec', failed_mode: :keep do
     watch(%r{^spec/.+_spec\.rb$})
     watch(%r{^(lib/.+)\.rb$})                { |m| "spec/#{m[1]}_spec.rb" }
     watch('lib/guard/notifier.rb')           { 'spec/guard/notifiers' }
