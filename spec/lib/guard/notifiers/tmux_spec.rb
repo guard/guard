@@ -345,6 +345,9 @@ describe Guard::Notifier::Tmux do
       allow(described_class).to receive(:`).and_return("option1 setting1\noption2 setting2\n")
       allow(described_class).to receive(:_clients).and_return(['tty'])
       allow(described_class).to receive(:system).and_return(true)
+
+      # reset the state
+      described_class.turn_off
     end
 
     context 'when on' do
