@@ -214,20 +214,26 @@ module Guard
     def _setup_signal_traps
       unless defined?(JRUBY_VERSION)
         if Signal.list.keys.include?('USR1')
-          Signal.trap('USR1') { ::Guard.pause unless listener.paused? }
+          Signal.trap('USR1') do
+            Thread.new { ::Guard.pause unless listener.paused? }.join
+          end
         end
 
         if Signal.list.keys.include?('USR2')
-          Signal.trap('USR2') { ::Guard.pause if listener.paused? }
+          Signal.trap('USR2') do
+            Thread.new { ::Guard.pause if listener.paused? }.join
+          end
         end
 
         if Signal.list.keys.include?('INT')
           Signal.trap('INT') do
-            if interactor && interactor.thread
-              interactor.thread.raise(Interrupt)
-            else
-              ::Guard.stop
-            end
+            Thread.new do
+              if interactor && interactor.thread
+                interactor.thread.raise(Interrupt)
+              else
+                ::Guard.stop
+              end
+            end.join
           end
         end
       end
