@@ -70,7 +70,11 @@ module Guard
       begin
         catch self.class.stopping_symbol_for(guard) do
           guard.hook("#{ task }_begin", *args)
-          result = guard.send(task, *args)
+          begin
+            result = guard.send(task, *args)
+          rescue Interrupt
+            throw(:task_has_failed)
+          end
           guard.hook("#{ task }_end", result)
           result
         end
