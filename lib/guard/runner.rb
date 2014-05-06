@@ -37,6 +37,12 @@ module Guard
     #
     def run_on_changes(modified, added, removed)
       ::Guard::UI.clearable
+
+      #TODO: this should be handled like every other plugin
+      if ::Guard::Watcher.match_guardfile?(modified)
+        ::Guard.evaluator.reevaluate_guardfile
+      end
+
       _scoped_plugins do |guard|
         modified_paths = ::Guard::Watcher.match_files(guard, modified)
         added_paths    = ::Guard::Watcher.match_files(guard, added)

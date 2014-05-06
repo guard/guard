@@ -185,7 +185,6 @@ module Guard
             end
           end
         end
-        evaluator.reevaluate_guardfile if ::Guard::Watcher.match_guardfile?(modified)
 
         within_preserved_state do
           runner.run_on_changes(modified, added, removed)
