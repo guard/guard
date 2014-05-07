@@ -46,7 +46,7 @@ module Guard
     #   Guard.plugins(name: 'rspec', group: 'backend')
     #
     # @param [String, Symbol, Regexp, Hash] filter the filter to apply to the plugins
-    # @return [Plugin, Array<Plugin>] the filtered plugin(s)
+    # @return [Array<Plugin>] the filtered plugin(s)
     #
     def plugins(filter = nil)
       @plugins ||= []
