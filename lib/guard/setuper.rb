@@ -120,6 +120,8 @@ module Guard
       @scope = { groups: [], plugins: [] }
     end
 
+    attr_reader :watchdirs
+
     # Stores the scopes defined by the user via the `--group` / `-g` option (to run
     # only a specific group) or the `--plugin` / `-P` option (to run only a
     # specific plugin).
@@ -172,34 +174,15 @@ module Guard
     # Initializes the listener and registers a callback for changes.
     #
     def _setup_listener
-      listener_callback = lambda do |modified, added, removed|
-        # Convert to relative paths (respective to the watchdir it came from)
-        @watchdirs.each do |watchdir|
-          [modified, added, removed].each do |paths|
-            paths.map! do |path|
-              if path.start_with? watchdir
-                path.sub "#{watchdir}#{File::SEPARATOR}", ''
-              else
-                path
-              end
-            end
-          end
-        end
-
-        within_preserved_state do
-          runner.run_on_changes(modified, added, removed)
-        end
-      end
-
       if options[:listen_on]
-        @listener = Listen.on(options[:listen_on], &listener_callback)
+        @listener = Listen.on(options[:listen_on], &_listener_callback)
       else
         listener_options = {}
         [:latency, :force_polling, :wait_for_delay].each do |option|
           listener_options[option] = options[option] if options[option]
         end
-        listen_args = @watchdirs + [listener_options]
-        @listener = Listen.to(*listen_args, &listener_callback)
+        listen_args = watchdirs + [listener_options]
+        @listener = Listen.to(*listen_args, &_listener_callback)
       end
     end
 
@@ -267,5 +250,53 @@ module Guard
       end
     end
 
+    # Check if any of the changes are actually watched for
+    #
+    # NOTE: this is called from the listen thread - be careful to not
+    # modify any state
+    #
+    # TODO: move this to watcher class?
+    #
+    def _relevant_changes?(changes)
+      # TODO: make a Guardfile reloader "plugin" instead of a special case
+      return true if ::Guard::Watcher.match_guardfile?(changes[:modified])
+
+      # TODO: ignoring irrelevant files should be Listen's responsibility
+      all_files = changes.values.flatten(1)
+      runner.send(:_scoped_plugins) do |guard|
+        return true if ::Guard::Watcher.match_files?([guard], all_files)
+      end
+      false
+    end
+
+    def _relative_paths(changes)
+      # Convert to relative paths (respective to the watchdir it came from)
+      watchdirs.each do |watchdir|
+        changes.each do |type, paths|
+          paths.each do |path|
+            if path.start_with? watchdir
+              path.sub! "#{watchdir}#{File::SEPARATOR}", ''
+            end
+          end
+        end
+      end
+    end
+
+    def _listener_callback
+      lambda do |modified, added, removed|
+        all_changes = { modified: modified.dup,
+                        added: added.dup,
+                        removed: removed.dup }
+
+        # TODO: this should be Listen's responsibility
+        _relative_paths(all_changes)
+
+        if _relevant_changes?(all_changes)
+          within_preserved_state do
+            runner.run_on_changes(*all_changes.values)
+          end
+        end
+      end
+    end
   end
 end
