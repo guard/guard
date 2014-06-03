@@ -7,7 +7,7 @@ gem 'rake'
 group :development, :test do
   # This plugin is required in the tests!
   gem 'guard-rspec', require: false
-  gem 'rspec', '~> 3.0.0.beta'
+  gem 'rspec', '~> 3.0.0'
 end
 
 # The development group will not be
