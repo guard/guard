@@ -119,7 +119,7 @@ module Guard
       # Show a scoped action message.
       #
       # @param [String] action the action to show
-      # @param [Hash] scopes hash with a guard or a group scope
+      # @param [Hash] scope hash with a guard or a group scope
       #
       def action_with_scopes(action, scope)
         first_non_blank_scope = _first_non_blank_scope(scope)
