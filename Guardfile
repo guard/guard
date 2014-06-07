@@ -7,7 +7,13 @@ group :specs do
     watch(%r{^lib/guard/(guard|plugin).rb$}) { 'spec/guard/plugin' }
     watch('spec/spec_helper.rb')             { 'spec' }
   end
+
+  guard :rubocop, all_on_start: false, cli: '--rails' do
+    watch(%r{.+\.rb$}) { |m| m[0] }
+    watch(%r{(?:.+/)?\.rubocop\.yml$}) { |m| File.dirname(m[0]) }
+  end
 end
+
 
 if ENV['CI'] != 'true'
   group :docs do
