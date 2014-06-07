@@ -24,7 +24,8 @@ describe Guard::Plugin::Base do
     end
 
     it 'reads the default template' do
-      expect(File).to receive(:read).with('/guard-dummy/lib/guard/dummy/templates/Guardfile') { true }
+      expect(File).to receive(:read).
+        with('/guard-dummy/lib/guard/dummy/templates/Guardfile') { true }
 
       Guard::DuMmy.template('/guard-dummy')
     end
@@ -44,8 +45,10 @@ describe Guard::Plugin::Base do
 
   describe '#to_s' do
     it 'output the short plugin name' do
-      expect(Guard::DuMmy.new.to_s).to eq '#<Guard::DuMmy @name=dummy @group=#<Guard::Group @name=default @options={}> @watchers=[] @callbacks=[] @options={}>'
+      expect(Guard::DuMmy.new.to_s).
+        to eq '#<Guard::DuMmy @name=dummy '\
+      '@group=#<Guard::Group @name=default @options={}>'\
+      ' @watchers=[] @callbacks=[] @options={}>'
     end
   end
-
 end

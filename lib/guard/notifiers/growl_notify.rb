@@ -2,8 +2,8 @@ require 'guard/notifiers/base'
 
 module Guard
   module Notifier
-
-    # System notifications using the [GrowlNotify](https://github.com/scottdavis/growl_notify) gem.
+    # System notifications using the
+    # [GrowlNotify](https://github.com/scottdavis/growl_notify) gem.
     #
     # This gem is available for OS X and sends system notifications to
     # [Growl](http://growl.info) through AppleScript.
@@ -16,11 +16,10 @@ module Guard
     # @example Add the `:growl_notify` notifier to your `Guardfile`
     #   notification :growl_notify
     #
-    # @example Add the `:growl_notify` notifier with configuration options to your `Guardfile`
-    #   notification :growl_notify, sticky: true
+    # @example Add the `:growl_notify` notifier with configuration options to
+    #   your `Guardfile` notification :growl_notify, sticky: true
     #
     class GrowlNotify < Base
-
       # Default options for the growl_notify notifications.
       DEFAULTS = {
         sticky:   false,
@@ -28,11 +27,11 @@ module Guard
       }
 
       def self.supported_hosts
-        %w[darwin]
+        %w(darwin)
       end
 
       def self.available?(opts = {})
-        super and require_gem_safely(opts) and _register!(opts)
+        super && require_gem_safely(opts) && _register!(opts)
       end
 
       # @private
@@ -86,8 +85,6 @@ module Guard
 
         ::GrowlNotify.send_notification(opts)
       end
-
     end
-
   end
 end

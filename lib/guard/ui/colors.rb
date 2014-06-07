@@ -1,8 +1,6 @@
 module Guard
   module UI
-
     module Colors
-
       # Brighten the color
       ANSI_ESCAPE_BRIGHT    = '1'
 
@@ -53,8 +51,6 @@ module Guard
 
       # White background color
       ANSI_ESCAPE_BGWHITE   = '47'
-
     end
-
   end
 end

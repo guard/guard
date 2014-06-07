@@ -5,7 +5,6 @@ require 'guard/ui'
 require 'guard/watcher'
 
 module Guard
-
   # The Dsl class provides the methods that are used in each `Guardfile` to
   # describe the behaviour of Guard.
   #
@@ -44,6 +43,11 @@ module Guard
   # @see https://github.com/guard/guard/wiki/Guardfile-examples
   #
   class Dsl
+    WARN_INVALID_LOG_LEVEL = 'Invalid log level `%s` ignored. '\
+      'Please use either :debug, :info, :warn or :error.'
+
+    WARN_INVALID_LOG_OPTIONS = 'You cannot specify the logger options'\
+      ' :only and :except at the same time.'
 
     # @deprecated Use
     #   `Guard::Guardfile::Evaluator.new(options).evaluate_guardfile` instead.
@@ -52,8 +56,8 @@ module Guard
     #   upgrade for Guard 2.0
     #
     def self.evaluate_guardfile(options = {})
-      ::Guard::UI.deprecation(::Guard::Deprecator::EVALUATE_GUARDFILE_DEPRECATION)
-      ::Guard::Guardfile::Evaluator.new(options).evaluate_guardfile
+      UI.deprecation(Deprecator::EVALUATE_GUARDFILE_DEPRECATION)
+      Guardfile::Evaluator.new(options).evaluate_guardfile
     end
 
     # Set notification options for the system notifications.
@@ -71,7 +75,7 @@ module Guard
     # @see Guard::Notifier for available notifier and its options.
     #
     def notification(notifier, options = {})
-      ::Guard::Notifier.add_notifier(notifier.to_sym, options.merge(silent: false))
+      Notifier.add_notifier(notifier.to_sym, options.merge(silent: false))
     end
 
     # Sets the interactor options or disable the interactor.
@@ -108,7 +112,8 @@ module Guard
     #     guard :livereload
     #   end
     #
-    # @param [Symbol, String, Array<Symbol, String>] name the group name called from the CLI
+    # @param [Symbol, String, Array<Symbol, String>] name the group name called
+    #   from the CLI
     # @param [Hash] options the options accepted by the group
     # @yield a block where you can declare several Guard plugins
     #
@@ -121,7 +126,8 @@ module Guard
       groups = args
 
       groups.each do |group|
-        raise ArgumentError, "'all' is not an allowed group name!" if group.to_sym == :all
+        next unless group.to_sym == :all
+        fail ArgumentError, "'all' is not an allowed group name!"
       end
 
       if block_given?
@@ -136,7 +142,9 @@ module Guard
 
         @current_groups.pop
       else
-        ::Guard::UI.error "No Guard plugins found in the group '#{ groups.join(', ') }', please add at least one."
+        ::Guard::UI.error \
+          "No Guard plugins found in the group '#{ groups.join(', ') }',"\
+          ' please add at least one.'
       end
     end
 
@@ -169,6 +177,7 @@ module Guard
 
       yield if block_given?
 
+      @current_groups ||= []
       groups = @current_groups && @current_groups.last || [:default]
       groups.each do |group|
         ::Guard.add_plugin(name, @plugin_options.merge(group: group))
@@ -177,22 +186,28 @@ module Guard
       @plugin_options = nil
     end
 
-    # Defines a pattern to be watched in order to run actions on file modification.
+    # Defines a pattern to be watched in order to run actions on file
+    # modification.
     #
     # @example Declare watchers for a Guard
     #   guard :rspec do
     #     watch('spec/spec_helper.rb')
     #     watch(%r{^.+_spec.rb})
-    #     watch(%r{^app/controllers/(.+).rb}) { |m| 'spec/acceptance/#{m[1]}s_spec.rb' }
+    #     watch(%r{^app/controllers/(.+).rb}) do |m|
+    #       'spec/acceptance/#{m[1]}s_spec.rb'
+    #     end
     #   end
     #
     # @example Declare global watchers outside of a Guard
     #   watch(%r{^(.+)$}) { |m| puts "#{m[1]} changed." }
     #
-    # @param [String, Regexp] pattern the pattern that Guard must watch for modification
+    # @param [String, Regexp] pattern the pattern that Guard must watch for
+    # modification
+    #
     # @yield a block to be run when the pattern is matched
     # @yieldparam [MatchData] m matches of the pattern
-    # @yieldreturn a directory, a filename, an array of directories / filenames, or nothing (can be an arbitrary command)
+    # @yieldreturn a directory, a filename, an array of
+    #   directories / filenames, or nothing (can be an arbitrary command)
     #
     # @see Guard::Watcher
     # @see #guard
@@ -200,6 +215,7 @@ module Guard
     def watch(pattern, &action)
       # Allow watches in the global scope (to execute arbitrary commands) by
       # building a generic Guard::Plugin.
+      @plugin_options ||= nil
       return guard(:plugin) { watch(pattern, &action) } unless @plugin_options
 
       @plugin_options[:watchers] << ::Guard::Watcher.new(pattern, action)
@@ -213,8 +229,13 @@ module Guard
     # @example Define a callback that'll be called before the `reload` action.
     #   callback(:reload_begin) { puts "Let's reload!" }
     #
-    # @example Define a callback that'll be called before the `start` and `stop` actions.
-    #   my_lambda = lambda { |plugin, event, *args| puts "Let's #{event} #{plugin} with #{args}!" }
+    # @example Define a callback that'll be called before the `start` and
+    # `stop` actions.
+    #
+    #   my_lambda = lambda do |plugin, event, *args|
+    #     puts "Let's #{event} #{plugin} with #{args}!"
+    #   end
+    #
     #   callback(my_lambda, [:start_begin, :start_end])
     #
     # @param [Array] args the callback arguments
@@ -223,15 +244,16 @@ module Guard
     # @see Guard::Hooker
     #
     def callback(*args, &block)
-      fail "callback must be called within a guard block" unless @plugin_options
+      @plugin_options ||= nil
+      fail 'callback must be called within a guard block' unless @plugin_options
 
       block, events = if args.size > 1
-        # block must be the first argument in that case, the yielded block is
-        # ignored
-        args
-      else
-        [block, args[0]]
-      end
+                        # block must be the first argument in that case, the
+                        # yielded block is ignored
+                        args
+                      else
+                        [block, args[0]]
+                      end
       @plugin_options[:callbacks] << { events: events, listener: block }
     end
 
@@ -299,13 +321,13 @@ module Guard
         options[:level] = options[:level].to_sym
 
         unless [:debug, :info, :warn, :error].include? options[:level]
-          ::Guard::UI.warning "Invalid log level `#{ options[:level] }` ignored. Please use either :debug, :info, :warn or :error."
+          UI.warning WARN_INVALID_LOG_LEVEL % [options[:level]]
           options.delete :level
         end
       end
 
       if options[:only] && options[:except]
-        ::Guard::UI.warning 'You cannot specify the logger options :only and :except at the same time.'
+        UI.warning WARN_INVALID_LOG_OPTIONS
 
         options.delete :only
         options.delete :except
@@ -313,10 +335,13 @@ module Guard
 
       # Convert the :only and :except options to a regular expression
       [:only, :except].each do |name|
-        if options[name]
-          list = [].push(options[name]).flatten.map { |plugin| Regexp.escape(plugin.to_s) }.join('|')
-          options[name] = Regexp.new(list, Regexp::IGNORECASE)
+        next unless options[name]
+
+        list = [].push(options[name]).flatten.map do |plugin|
+          Regexp.escape(plugin.to_s)
         end
+
+        options[name] = Regexp.new(list.join('|'), Regexp::IGNORECASE)
       end
 
       ::Guard::UI.options.merge!(options)
@@ -343,6 +368,5 @@ module Guard
       scope[:groups] = Array(scope[:groups] || scope[:group] || [])
       ::Guard.setup_scope(scope)
     end
-
   end
 end

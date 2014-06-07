@@ -2,7 +2,6 @@ require 'guard/dsl_describer'
 
 module Guard
   class Interactor
-
     SHOW = Pry::CommandSet.new do
       create_command 'show' do
 
@@ -20,7 +19,6 @@ module Guard
         end
       end
     end
-
   end
 end
 

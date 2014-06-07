@@ -2,10 +2,13 @@ require 'guard/ui'
 
 module Guard
   class Deprecator
+    UPGRADE_WIKI = 'https://github.com/guard/guard/wiki'\
+      '/Upgrade-guide-for-existing-guards-to-Guard-v1.1'
 
     MORE_INFO_ON_UPGRADING_TO_GUARD_1_1 = <<-EOS.gsub(/^\s*/, '')
-      For more information on how to update existing Guard plugins, please head over
-      to: https://github.com/guard/guard/wiki/Upgrade-guide-for-existing-guards-to-Guard-v1.1
+      For more information on how to update existing Guard plugins, please head
+      over to:
+      #{UPGRADE_WIKI}
     EOS
 
     MORE_INFO_ON_UPGRADING_TO_GUARD_2 = <<-EOS.gsub(/^\s*/, '')
@@ -14,7 +17,8 @@ module Guard
     EOS
 
     ADD_GUARD_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
-      Starting with Guard 2.0 'Guard.add_guard(name, options = {})' is deprecated.
+      Starting with Guard 2.0 'Guard.add_guard(name, options = {})' is
+      deprecated.
 
       Please use 'Guard.add_plugin(name, options = {})' instead.
 
@@ -60,48 +64,59 @@ module Guard
 
     # Deprecator message for the `Guard::Dsl.evaluate_guardfile` method
     EVALUATE_GUARDFILE_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
-      Starting with Guard 2.0 'Guard::Dsl.evaluate_guardfile(options)' is deprecated.
+      Starting with Guard 2.0 'Guard::Dsl.evaluate_guardfile(options)' is
+      deprecated.
 
-      Please use 'Guard::Guardfile::Evaluator.new(options).evaluate_guardfile' instead.
+      Please use 'Guard::Guardfile::Evaluator.new(options).evaluate_guardfile'
+      instead.
 
       #{MORE_INFO_ON_UPGRADING_TO_GUARD_2 % '#deprecated-methods-1'}
     EOS
 
     # Deprecator message for the `Guardfile.create_guardfile` method
     CREATE_GUARDFILE_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
-      Starting with Guard 2.0 'Guard::Guardfile.create_guardfile(options)' is deprecated.
+      Starting with Guard 2.0 'Guard::Guardfile.create_guardfile(options)' is
+      deprecated.
 
-      Please use 'Guard::Guardfile::Generator.new(options).create_guardfile' instead.
+      Please use 'Guard::Guardfile::Generator.new(options).create_guardfile'
+      instead.
 
       #{MORE_INFO_ON_UPGRADING_TO_GUARD_2 % '#deprecated-methods-2'}
     EOS
 
     # Deprecator message for the `Guardfile.initialize_template` method
     INITIALIZE_TEMPLATE_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
-      Starting with Guard 2.0 'Guard::Guardfile.initialize_template(plugin_name)' is deprecated.
+      Starting with Guard 2.0
+      'Guard::Guardfile.initialize_template(plugin_name)' is deprecated.
 
-      Please use 'Guard::Guardfile::Generator.new.initialize_template(plugin_name)' instead.
+      Please use
+      'Guard::Guardfile::Generator.new.initialize_template(plugin_name)'
+      instead.
 
       #{MORE_INFO_ON_UPGRADING_TO_GUARD_2 % '#deprecated-methods-2'}
     EOS
 
     # Deprecator message for the `Guardfile.initialize_all_templates` method
     INITIALIZE_ALL_TEMPLATES_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
-      Starting with Guard 2.0 'Guard::Guardfile.initialize_all_templates' is deprecated.
+      Starting with Guard 2.0 'Guard::Guardfile.initialize_all_templates' is
+      deprecated.
 
-      Please use 'Guard::Guardfile::Generator.new.initialize_all_templates' instead.
+      Please use 'Guard::Guardfile::Generator.new.initialize_all_templates'
+      instead.
 
       #{MORE_INFO_ON_UPGRADING_TO_GUARD_2 % '#deprecated-methods-2'}
     EOS
 
     # Deprecator message for when a Guard plugin inherits from Guard::Guard
     GUARD_GUARD_DEPRECATION = <<-EOS.gsub(/^\s*/, '')
-      Starting with Guard 2.0, Guard::%s should inherit from Guard::Plugin instead of Guard::Guard.
+      Starting with Guard 2.0, Guard::%s should inherit from Guard::Plugin
+      instead of Guard::Guard.
 
-      Please note that the constructor signature has changed from Guard::Guard#initialize(watchers = [], options = {}) to Guard::Plugin#initialize(options = {}).
+      Please note that the constructor signature has changed from
+      Guard::Guard#initialize(watchers = [], options = {}) to
+      Guard::Plugin#initialize(options = {}).
 
       #{MORE_INFO_ON_UPGRADING_TO_GUARD_2 % '#changes-in-guardguard'}
     EOS
-
   end
 end

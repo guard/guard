@@ -4,25 +4,25 @@ require 'guard/options'
 require 'guard/ui/colors'
 
 module Guard
-
-  # The UI class helps to format messages for the user. Everything that is logged
-  # through this class is considered either as an error message or a diagnostic
-  # message and is written to standard error ($stderr).
+  # The UI class helps to format messages for the user. Everything that is
+  # logged through this class is considered either as an error message or a
+  # diagnostic message and is written to standard error ($stderr).
   #
-  # If your Guard plugin does some output that is piped into another process for further
-  # processing, please just write it to STDOUT with `puts`.
+  # If your Guard plugin does some output that is piped into another process
+  # for further processing, please just write it to STDOUT with `puts`.
   #
   module UI
     include Colors
 
     class << self
-
       # Get the Guard::UI logger instance
       #
       def logger
         @logger ||= begin
-          Lumberjack::Logger.new(options.fetch(:device) { $stderr }, options)
-        end
+                      Lumberjack::Logger.new(
+                        options.fetch(:device) { $stderr },
+                        options)
+                    end
       end
 
       # Get the logger options
@@ -30,7 +30,10 @@ module Guard
       # @return [Hash] the logger options
       #
       def options
-        @options ||= ::Guard::Options.new(level: :info, template: ':time - :severity - :message', time_format: '%H:%M:%S')
+        @options ||= ::Guard::Options.new(
+          level: :info,
+          template: ':time - :severity - :message',
+          time_format: '%H:%M:%S')
       end
 
       # Set the logger options
@@ -104,10 +107,9 @@ module Guard
       # Clear the output if clearable.
       #
       def clear(options = {})
-        if ::Guard.options[:clear] && (@clearable || options[:force])
-          @clearable = false
-          system('clear;')
-        end
+        return unless ::Guard.options[:clear] && (@clearable || options[:force])
+        @clearable = false
+        system('clear;')
       end
 
       # Allow the screen to be cleared again.
@@ -119,11 +121,13 @@ module Guard
       # Show a scoped action message.
       #
       # @param [String] action the action to show
-      # @param [Hash] scopes hash with a guard or a group scope
+      # @param [Hash] scope hash with a guard or a group scope
       #
       def action_with_scopes(action, scope)
         first_non_blank_scope = _first_non_blank_scope(scope)
-        scope_message = first_non_blank_scope.map(&:title).join(', ') unless first_non_blank_scope.nil?
+        unless first_non_blank_scope.nil?
+          scope_message = first_non_blank_scope.map(&:title).join(', ')
+        end
 
         info "#{ action } #{ scope_message || 'all' }"
       end
@@ -152,11 +156,13 @@ module Guard
       def _filter(plugin)
         only   = options[:only]
         except = options[:except]
-        plugin = plugin || calling_plugin_name
+        plugin ||= calling_plugin_name
 
-        if (!only && !except) || (only && only.match(plugin)) || (except && !except.match(plugin))
-          yield plugin
-        end
+        match = !(only || except)
+        match ||= (only && only.match(plugin))
+        match ||= (except && !except.match(plugin))
+        return unless match
+        yield plugin
       end
 
       # Display a message of the type `method` and with the color `color_name`
@@ -183,7 +189,10 @@ module Guard
       #
       def calling_plugin_name(depth = 2)
         name = /(guard\/[a-z_]*)(\/[a-z_]*)?.rb:/i.match(caller[depth])
-        name ? name[1].split('/').map { |part| part.split(/[^a-z0-9]/i).map { |word| word.capitalize }.join }.join('::') : 'Guard'
+        return 'Guard' unless name
+        name[1].split('/').map do |part|
+          part.split(/[^a-z0-9]/i).map(&:capitalize).join
+        end.join('::')
       end
 
       # Checks if color output can be enabled.
@@ -191,6 +200,9 @@ module Guard
       # @return [Boolean] whether color is enabled or not
       #
       def color_enabled?
+        @color_enabled_initialized ||= false
+        @color_enabled = nil unless @color_enabled_initialized
+        @color_enabled_initialized = true
         if @color_enabled.nil?
           if RbConfig::CONFIG['target_os'] =~ /mswin|mingw/i
             if ENV['ANSICON']
@@ -202,7 +214,7 @@ module Guard
                 @color_enabled = true
               rescue LoadError
                 @color_enabled = false
-                info "You must 'gem install win32console' to use color on Windows"
+                info "Run 'gem install win32console' to use color on Windows"
               end
             end
           else
@@ -228,17 +240,15 @@ module Guard
         color_code = ''
         color_options.each do |color_option|
           color_option = color_option.to_s
-          if color_option != ''
-            unless color_option =~ /\d+/
-              color_option = const_get("ANSI_ESCAPE_#{ color_option.upcase }")
-            end
-            color_code += ';' + color_option
+          next if color_option == ''
+
+          unless color_option =~ /\d+/
+            color_option = const_get("ANSI_ESCAPE_#{ color_option.upcase }")
           end
+          color_code += ';' + color_option
         end
         color_enabled? ? "\e[0#{ color_code }m#{ text }\e[0m" : text
       end
-
     end
-
   end
 end

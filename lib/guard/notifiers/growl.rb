@@ -2,19 +2,20 @@ require 'guard/notifiers/base'
 
 module Guard
   module Notifier
-
-    # System notifications using the [growl](https://github.com/visionmedia/growl) gem.
+    # System notifications using the
+    # [growl](https://github.com/visionmedia/growl) gem.
     #
     # This gem is available for OS X and sends system notifications to
-    # [Growl](http://growl.info) through the [GrowlNotify](http://growl.info/downloads)
-    # executable.
+    # [Growl](http://growl.info) through the
+    # [GrowlNotify](http://growl.info/downloads) executable.
     #
     # The `growlnotify` executable must be installed manually or by using
     # [Homebrew](http://mxcl.github.com/homebrew/).
     #
     # Sending notifications with this notifier will not show the different
-    # Guard notifications in the Growl preferences. Use the :gntp or :growl_notify
-    # notifiers if you want to customize each notification type in Growl.
+    # Guard notifications in the Growl preferences. Use the :gntp or
+    # :growl_notify notifiers if you want to customize each notification type
+    # in Growl.
     #
     # @example Install `growlnotify` with Homebrew
     #   brew install growlnotify
@@ -27,10 +28,13 @@ module Guard
     # @example Add the `:growl` notifier to your `Guardfile`
     #   notification :growl
     #
-    # @example Add the `:growl_notify` notifier with configuration options to your `Guardfile`
-    #   notification :growl, sticky: true, host: '192.168.1.5', password: 'secret'
+    # @example Add the `:growl_notify` notifier with configuration options to
+    # your `Guardfile` notification :growl, sticky: true, host: '192.168.1.5',
+    # password: 'secret'
     #
     class Growl < Base
+      ERROR_INSTALL_GROWLNOTIFY = "Please install the 'growlnotify' executable'\
+    ' (available by installing the 'growl' gem)."
 
       # Default options for the growl notifications.
       DEFAULTS = {
@@ -39,11 +43,11 @@ module Guard
       }
 
       def self.supported_hosts
-        %w[darwin]
+        %w(darwin)
       end
 
       def self.available?(opts = {})
-        super and require_gem_safely(opts) and _register!(opts)
+        super && require_gem_safely(opts) && _register!(opts)
       end
 
       # @private
@@ -58,7 +62,7 @@ module Guard
           true
         else
           unless opts[:silent]
-            ::Guard::UI.error "Please install the 'growlnotify' executable (available by installing the 'growl' gem)."
+            UI.error UI::ERROR_INSTALL_GROWLNOTIFY
           end
           false
         end
@@ -96,8 +100,6 @@ module Guard
 
         ::Growl.notify(message, opts)
       end
-
     end
-
   end
 end

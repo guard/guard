@@ -3,81 +3,86 @@ require 'guard/plugin'
 
 describe Guard::Commander do
   describe '.start' do
+    let(:runner) { double('runner', run: true) }
+    let(:listener) { double('listener', start: true, stop: true) }
     before do
       ::Guard.instance_variable_set('@watchdirs', [])
       allow(::Guard).to receive(:setup)
-      allow(::Guard).to receive(:listener).and_return(double('listener', start: true))
-      allow(::Guard).to receive(:runner).and_return(double('runner', run: true))
+      allow(::Guard).to receive(:listener) { listener }
+      allow(::Guard).to receive(:runner) { runner }
       allow(::Guard).to receive(:within_preserved_state).and_yield
     end
 
     context 'Guard has not been setuped' do
       before { allow(::Guard).to receive(:running).and_return(false) }
 
-      it "setup Guard" do
+      it 'setup Guard' do
         expect(::Guard).to receive(:setup).with(foo: 'bar')
 
         ::Guard.start(foo: 'bar')
       end
     end
 
-    it "displays an info message" do
+    it 'displays an info message' do
       ::Guard.instance_variable_set('@watchdirs', ['/foo/bar'])
-      expect(::Guard::UI).to receive(:info).with("Guard is now watching at '/foo/bar'")
+      expect(::Guard::UI).to receive(:info).
+        with("Guard is now watching at '/foo/bar'")
 
       ::Guard.start
     end
 
-    it "tell the runner to run the :start task" do
-      expect(::Guard.runner).to receive(:run).with(:start)
+    it 'tell the runner to run the :start task' do
+      expect(runner).to receive(:run).with(:start)
 
       ::Guard.start
     end
 
-    it "start the listener" do
-      expect(::Guard.listener).to receive(:start)
+    it 'start the listener' do
+      expect(listener).to receive(:start)
 
       ::Guard.start
     end
   end
 
   describe '.stop' do
+    let(:runner) { double('runner', run: true) }
+    let(:listener) { double('listener', stop: true) }
     before do
       allow(::Guard).to receive(:setup)
-      allow(::Guard).to receive(:listener).and_return(double('listener', stop: true))
-      allow(::Guard).to receive(:runner).and_return(double('runner', run: true))
+      allow(::Guard).to receive(:listener) { listener }
+      allow(::Guard).to receive(:runner) { runner }
       allow(::Guard).to receive(:within_preserved_state).and_yield
     end
 
     context 'Guard has not been setuped' do
-      before { allow(::Guard).to receive(:running).and_return(false) }
+      before { allow(::Guard).to receive(:running) { false } }
 
-      it "setup Guard" do
+      it 'setup Guard' do
         expect(::Guard).to receive(:setup)
 
         ::Guard.stop
       end
     end
 
-    it "turns the notifier off" do
+    it 'turns the notifier off' do
       expect(::Guard::Notifier).to receive(:turn_off)
 
       ::Guard.stop
     end
 
-    it "tell the runner to run the :stop task" do
-      expect(::Guard.runner).to receive(:run).with(:stop)
+    it 'tell the runner to run the :stop task' do
+      expect(runner).to receive(:run).with(:stop)
 
       ::Guard.stop
     end
 
-    it "stops the listener" do
-      expect(::Guard.listener).to receive(:stop)
+    it 'stops the listener' do
+      expect(listener).to receive(:stop)
 
       ::Guard.stop
     end
 
-    it "sets the running state to false" do
+    it 'sets the running state to false' do
       ::Guard.running = true
       ::Guard.stop
       expect(::Guard.running).to be_falsey
@@ -99,7 +104,7 @@ describe Guard::Commander do
     context 'Guard has not been setuped' do
       before { allow(::Guard).to receive(:running).and_return(false) }
 
-      it "setup Guard" do
+      it 'setup Guard' do
         expect(::Guard).to receive(:setup)
 
         ::Guard.reload
@@ -114,23 +119,23 @@ describe Guard::Commander do
 
     context 'with a given scope' do
       it 'does not re-evaluate the Guardfile' do
-        expect_any_instance_of(::Guard::Guardfile::Evaluator)
-          .to_not receive(:reevaluate_guardfile)
+        expect_any_instance_of(::Guard::Guardfile::Evaluator).
+          to_not receive(:reevaluate_guardfile)
 
-        subject.reload({ groups: [group] })
+        subject.reload(groups: [group])
       end
 
       it 'reloads Guard' do
-        expect(runner).to receive(:run).with(:reload, { groups: [group] })
+        expect(runner).to receive(:run).with(:reload,  groups: [group])
 
-        subject.reload({ groups: [group] })
+        subject.reload(groups: [group])
       end
     end
 
     context 'with an empty scope' do
       it 'does re-evaluate the Guardfile' do
-        expect_any_instance_of(::Guard::Guardfile::Evaluator)
-          .to receive(:reevaluate_guardfile)
+        expect_any_instance_of(::Guard::Guardfile::Evaluator).
+          to receive(:reevaluate_guardfile)
 
         subject.reload
       end
@@ -158,7 +163,7 @@ describe Guard::Commander do
     context 'Guard has not been setuped' do
       before { allow(::Guard).to receive(:running).and_return(false) }
 
-      it "setup Guard" do
+      it 'setup Guard' do
         expect(::Guard).to receive(:setup)
 
         ::Guard.run_all
@@ -167,9 +172,9 @@ describe Guard::Commander do
 
     context 'with a given scope' do
       it 'runs all with the scope' do
-        expect(runner).to receive(:run).with(:run_all, { groups: [group] })
+        expect(runner).to receive(:run).with(:run_all,  groups: [group])
 
-        subject.run_all({ groups: [group] })
+        subject.run_all(groups: [group])
       end
     end
 
@@ -185,12 +190,11 @@ describe Guard::Commander do
   describe '.within_preserved_state' do
     subject { ::Guard.setup }
     before do
-      allow(subject)
-        .to receive(:interactor)
-        .and_return(double('interactor').as_null_object)
+      allow(subject).to receive(:interactor).
+        and_return(double('interactor').as_null_object)
     end
 
-    it 'disallows running the block concurrently to avoid inconsistent states' do
+    it 'disallows concurrency to avoid inconsistency' do
       expect(subject.lock).to receive(:synchronize)
       subject.within_preserved_state(&Proc.new {})
     end
@@ -202,7 +206,7 @@ describe Guard::Commander do
     end
 
     context '@running is true' do
-      it 'stops the interactor before running the block and starts it again when done' do
+      it 'suspends the interactor while running the block' do
         expect(subject.interactor).to receive(:stop)
         expect(subject.interactor).to receive(:start)
         subject.within_preserved_state(&Proc.new {})
@@ -212,12 +216,11 @@ describe Guard::Commander do
     context '@running is false' do
       before { allow(::Guard).to receive(:running).and_return(false) }
 
-      it 'stops the interactor before running the block and do not starts it again when done' do
+      it 'stops the interactor before running the block' do
         expect(subject.interactor).to receive(:stop)
         expect(subject.interactor).to_not receive(:start)
         subject.within_preserved_state(&Proc.new {})
       end
     end
   end
-
 end

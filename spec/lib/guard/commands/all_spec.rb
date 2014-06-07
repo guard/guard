@@ -24,14 +24,16 @@ describe 'Guard::Interactor::ALL' do
 
     context 'with a valid Guard group scope' do
       it 'runs the :run_all action with the given scope' do
-        expect(Guard).to receive(:run_all).with(groups: [foo_group], plugins: [])
+        expect(Guard).to receive(:run_all).
+          with(groups: [foo_group], plugins: [])
         Pry.run_command 'all foo'
       end
     end
 
     context 'with a valid Guard plugin scope' do
       it 'runs the :run_all action with the given scope' do
-        expect(Guard).to receive(:run_all).with(plugins: [bar_guard], groups: [])
+        expect(Guard).to receive(:run_all).
+          with(plugins: [bar_guard], groups: [])
         Pry.run_command 'all bar'
       end
     end

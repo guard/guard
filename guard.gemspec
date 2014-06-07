@@ -1,5 +1,5 @@
 # encoding: utf-8
-$:.push File.expand_path('../lib', __FILE__)
+$LOAD_PATH.push File.expand_path('../lib', __FILE__)
 require 'guard/version'
 
 Gem::Specification.new do |s|
@@ -11,7 +11,8 @@ Gem::Specification.new do |s|
   s.email       = ['thibaud@thibaud.gg']
   s.homepage    = 'http://guardgem.org'
   s.summary     = 'Guard keeps an eye on your file modifications'
-  s.description = 'Guard is a command line tool to easily handle events on file system modifications.'
+  s.description = 'Guard is a command line tool to easily handle events'\
+    ' on file system modifications.'
 
   s.required_ruby_version = '>= 1.9.3'
 
@@ -21,7 +22,8 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'lumberjack', '~> 1.0'
   s.add_runtime_dependency 'formatador', '>= 0.2.4'
 
-  s.files        = Dir.glob('{bin,images,lib}/**/*') + %w[CHANGELOG.md LICENSE man/guard.1 man/guard.1.html README.md]
+  s.files        = Dir.glob('{bin,images,lib}/**/*') \
+    + %w(CHANGELOG.md LICENSE man/guard.2 man/guard.1.html README.md)
   s.executable   = 'guard'
   s.require_path = 'lib'
 end

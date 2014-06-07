@@ -1,33 +1,34 @@
 require 'spec_helper'
 
 describe Guard::Group do
+  subject { described_class.new(name, options) }
 
-  describe ".initialize" do
-    it "accepts a name as a string and provides an accessor for it (returning a symbol)" do
-      expect(described_class.new('foo').name).to eq :foo
+  let(:name) { :foo }
+  let(:options) { {} }
+
+  describe '#name' do
+    specify { expect(subject.name).to eq :foo }
+
+    context 'when initialized from a string' do
+      let(:name) { 'foo' }
+      specify { expect(subject.name).to eq :foo }
     end
+  end
 
-    it "accepts a name as a symbol and provides an accessor for it (returning a symbol)" do
-      expect(described_class.new(:foo).name).to eq :foo
-    end
-
-    it "accepts options and provides an accessor for it" do
-      expect(described_class.new('foo', halt_on_fail: true).options).to eq({ halt_on_fail: true })
+  describe '#options' do
+    context 'when provided' do
+      let(:options) { { halt_on_fail: true } }
+      specify { expect(subject.options).to eq options }
     end
   end
 
   describe '#title' do
-    it "output Group title properly" do
-      group = described_class.new(:foo)
-      expect(group.title).to eq 'Foo'
-    end
+    specify { expect(subject.title).to eq 'Foo' }
   end
 
   describe '#to_s' do
-    it "output Group properly" do
-      group = described_class.new(:foo)
-      expect(group.to_s).to eq '#<Guard::Group @name=foo @options={}>'
+    specify do
+      expect(subject.to_s).to eq '#<Guard::Group @name=foo @options={}>'
     end
   end
-
 end

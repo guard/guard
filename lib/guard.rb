@@ -18,8 +18,7 @@ require 'guard/watcher'
 # Also Guard plugins should use this namespace.
 #
 module Guard
-
-  WINDOWS  = RbConfig::CONFIG['host_os'] =~ %r!(msdos|mswin|djgpp|mingw)!
+  WINDOWS  = RbConfig::CONFIG['host_os'] =~ /(?:msdos|mswin|djgpp|mingw)/
   DEV_NULL = WINDOWS ? 'NUL' : '/dev/null'
 
   extend Commander
@@ -45,8 +44,9 @@ module Guard
     # @example Filter plugins by Hash
     #   Guard.plugins(name: 'rspec', group: 'backend')
     #
-    # @param [String, Symbol, Regexp, Hash] filter the filter to apply to the plugins
-    # @return [Array<Plugin>] the filtered plugin(s)
+    # @param [String, Symbol, Regexp, Hash] filter the filter to apply to the
+    # plugins
+    # @return [Plugin, Array<Plugin>] the filtered plugin(s)
     #
     def plugins(filter = nil)
       @plugins ||= []
@@ -54,26 +54,26 @@ module Guard
       return @plugins if filter.nil?
 
       filtered_plugins = case filter
-                        when String, Symbol
-                          @plugins.find_all do |plugin|
-                            plugin.name == filter.to_s.downcase.gsub('-', '')
-                          end
-                        when Regexp
-                          @plugins.find_all do |plugin|
-                            plugin.name =~ filter
-                          end
-                        when Hash
-                          @plugins.find_all do |plugin|
-                            filter.all? do |k, v|
-                              case k
-                              when :name
-                                plugin.name == v.to_s.downcase.gsub('-', '')
-                              when :group
-                                plugin.group.name == v.to_sym
-                              end
-                            end
-                          end
-                        end
+                         when String, Symbol
+                           @plugins.select do |plugin|
+                             plugin.name == filter.to_s.downcase.gsub('-', '')
+                           end
+                         when Regexp
+                           @plugins.select do |plugin|
+                             plugin.name =~ filter
+                           end
+                         when Hash
+                           @plugins.select do |plugin|
+                             filter.all? do |k, v|
+                               case k
+                               when :name
+                                 plugin.name == v.to_s.downcase.gsub('-', '')
+                               when :group
+                                 plugin.group.name == v.to_sym
+                               end
+                             end
+                           end
+                         end
 
       filtered_plugins
     end
@@ -94,8 +94,8 @@ module Guard
     # @example Find a plugin by Hash
     #   Guard.plugin(name: 'rspec', group: 'backend')
     #
-    # @param [String, Symbol, Regexp, Hash] filter the filter for finding the plugin
-    #   the Guard plugin
+    # @param [String, Symbol, Regexp, Hash] filter the filter for finding the
+    #   plugin the Guard plugin
     # @return [Plugin, nil] the plugin found, nil otherwise
     #
     def plugin(filter)
@@ -123,14 +123,12 @@ module Guard
 
       return @groups if filter.nil?
 
-      filtered_groups = case filter
-                        when String, Symbol
-                          @groups.find_all { |group| group.name == filter.to_sym }
-                        when Regexp
-                          @groups.find_all { |group| group.name.to_s =~ filter }
-                        end
-
-      filtered_groups
+      case filter
+      when String, Symbol
+        @groups.select { |group| group.name == filter.to_sym }
+      when Regexp
+        @groups.select { |group| group.name.to_s =~ filter }
+      end
     end
 
     # Smart accessor for retrieving a specific group.
@@ -156,18 +154,17 @@ module Guard
     # Add a Guard plugin to use.
     #
     # @param [String] name the Guard name
-    # @param [Hash] options the plugin options (see the given Guard documentation)
-    # @option options [String] group the group to which the Guard plugin belongs
+    # @param [Hash] options the plugin options (see Plugin documentation)
+    # @option options [String] group the group to which the plugin belongs
     # @option options [Array<Watcher>] watchers the list of declared watchers
     # @option options [Array<Hash>] callbacks the list of callbacks
     # @return [Plugin] the added Guard plugin
     # @see Plugin
     #
     def add_plugin(name, options = {})
-      plugin_instance = ::Guard::PluginUtil.new(name).initialize_plugin(options)
-      @plugins << plugin_instance
-
-      plugin_instance
+      instance = ::Guard::PluginUtil.new(name).initialize_plugin(options)
+      @plugins << instance
+      instance
     end
 
     # Add a Guard plugin group.
@@ -182,13 +179,12 @@ module Guard
     # @see Group
     #
     def add_group(name, options = {})
-      unless group = group(name)
+      unless (group = group(name))
         group = ::Guard::Group.new(name, options)
         @groups << group
       end
 
       group
     end
-
   end
 end

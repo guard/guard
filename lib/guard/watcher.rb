@@ -1,14 +1,12 @@
 require 'guard/ui'
 
 module Guard
-
   # The watcher defines a RegExp that will be matched against file system
   # modifications.
   # When a watcher matches a change, an optional action block is executed to
   # enable processing the file system change result.
   #
   class Watcher
-
     attr_accessor :pattern, :action
 
     # Initializes a file watcher.
@@ -23,20 +21,26 @@ module Guard
       @@warning_printed ||= false
 
       # deprecation warning
-      if @pattern.is_a?(String) && @pattern =~ /(^(\^))|(>?(\\\.)|(\.\*))|(\(.*\))|(\[.*\])|(\$$)/
-        unless @@warning_printed
-          ::Guard::UI.info "*"*20 + "\nDEPRECATION WARNING!\n" + "*"*20
-          ::Guard::UI.info <<-MSG
-            You have a string in your Guardfile watch patterns that seem to represent a Regexp.
-            Guard matches String with == and Regexp with Regexp#match.
-            You should either use plain String (without Regexp special characters) or real Regexp.
-          MSG
-          @@warning_printed = true
-        end
+      regexp = /(^(\^))|(>?(\\\.)|(\.\*))|(\(.*\))|(\[.*\])|(\$$)/
+      return unless @pattern.is_a?(String) && @pattern =~ regexp
 
-        ::Guard::UI.info "\"#{@pattern}\" has been converted to #{ Regexp.new(@pattern).inspect }\n"
-        @pattern = Regexp.new(@pattern)
+      unless @@warning_printed
+        ::Guard::UI.info '*' * 20 + "\nDEPRECATION WARNING!\n" + '*' * 20
+        ::Guard::UI.info <<-MSG
+            You have a string in your Guardfile watch patterns that seem to
+            represent a Regexp.
+
+            Guard matches String with == and Regexp with Regexp#match.
+
+            You should either use plain String (without Regexp special
+            characters) or real Regexp.
+        MSG
+        @@warning_printed = true
       end
+
+      new_regexp = Regexp.new(@pattern).inspect
+      ::Guard::UI.info "\"#{@pattern}\" has been converted to #{ new_regexp }\n"
+      @pattern = Regexp.new(@pattern)
     end
 
     # Finds the files that matches a Guard plugin.
@@ -50,17 +54,18 @@ module Guard
 
       guard.watchers.inject([]) do |paths, watcher|
         files.each do |file|
-          if matches = watcher.match(file)
-            if watcher.action
-              result = watcher.call_action(matches)
-              if guard.options[:any_return]
-                paths << result
-              elsif result.respond_to?(:empty?) && !result.empty?
-                paths << Array(result)
-              end
-            else
-              paths << matches[0]
+          matches = watcher.match(file)
+          next unless matches
+
+          if watcher.action
+            result = watcher.call_action(matches)
+            if guard.options[:any_return]
+              paths << result
+            elsif result.respond_to?(:empty?) && !result.empty?
+              paths << Array(result)
             end
+          else
+            paths << matches[0]
           end
         end
 
@@ -89,7 +94,8 @@ module Guard
     # @return [Boolean] whether one of these files is the Guardfile
     #
     def self.match_guardfile?(files)
-      files.any? { |file| File.expand_path(file) == ::Guard.evaluator.guardfile_path }
+      path = ::Guard.evaluator.guardfile_path
+      files.any? { |file| File.expand_path(file) == path }
     end
 
     # Test the watchers pattern against a file.
@@ -120,13 +126,10 @@ module Guard
     # @return [String] the final paths
     #
     def call_action(matches)
-      begin
-        @action.arity > 0 ? @action.call(matches) : @action.call
-      rescue Exception => ex
-        ::Guard::UI.error "Problem with watch action!\n#{ ex.message }"
-        ::Guard::UI.error ex.backtrace.join("\n")
-      end
+      @action.arity > 0 ? @action.call(matches) : @action.call
+    rescue => ex
+      ::Guard::UI.error "Problem with watch action!\n#{ ex.message }"
+      ::Guard::UI.error ex.backtrace.join("\n")
     end
-
   end
 end

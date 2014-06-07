@@ -2,13 +2,14 @@ require 'guard/notifiers/base'
 
 module Guard
   module Notifier
-
     # System notifications using the
     # [ruby_gntp](https://github.com/snaka/ruby_gntp) gem.
     #
     # This gem is available for OS X, Linux and Windows and sends system
     # notifications to the following system notification frameworks through the
-    # [Growl Network Transport Protocol](http://www.growlforwindows.com/gfw/help/gntp.aspx):
+    #
+    # [Growl Network Transport
+    # Protocol](http://www.growlforwindows.com/gfw/help/gntp.aspx):
     #
     # * [Growl](http://growl.info)
     # * [Growl for Windows](http://www.growlforwindows.com)
@@ -23,11 +24,11 @@ module Guard
     # @example Add the `:gntp` notifier to your `Guardfile`
     #   notification :gntp
     #
-    # @example Add the `:gntp` notifier with configuration options to your `Guardfile`
-    #   notification :gntp, sticky: true, host: '192.168.1.5', password: 'secret'
+    # @example Add the `:gntp` notifier with configuration options to your
+    #   `Guardfile` notification :gntp, sticky: true, host: '192.168.1.5',
+    #   password: 'secret'
     #
     class GNTP < Base
-
       # Default options for the ruby gtnp notifications.
       DEFAULTS = {
         sticky: false
@@ -41,7 +42,7 @@ module Guard
       }
 
       def self.supported_hosts
-        %w[darwin linux freebsd openbsd sunos solaris mswin mingw cygwin]
+        %w(darwin linux freebsd openbsd sunos solaris mswin mingw cygwin)
       end
 
       def self.gem_name
@@ -49,7 +50,7 @@ module Guard
       end
 
       def self.available?(opts = {})
-        super and require_gem_safely(opts)
+        super && require_gem_safely(opts)
       end
 
       # Shows a system notification.
@@ -96,16 +97,15 @@ module Guard
 
       def _client(opts = {})
         @_client ||= begin
-          gntp = ::GNTP.new('Guard',
-                            opts.delete(:host) { CLIENT_DEFAULTS[:host] },
-                            opts.delete(:password) { CLIENT_DEFAULTS[:password] },
-                            opts.delete(:port) { CLIENT_DEFAULTS[:port] })
+          gntp = ::GNTP.new(
+            'Guard',
+            opts.delete(:host) { CLIENT_DEFAULTS[:host] },
+            opts.delete(:password) { CLIENT_DEFAULTS[:password] },
+            opts.delete(:port) { CLIENT_DEFAULTS[:port] })
           _register!(gntp)
           gntp
         end
       end
-
     end
-
   end
 end

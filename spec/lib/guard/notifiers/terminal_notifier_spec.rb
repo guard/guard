@@ -4,12 +4,12 @@ describe Guard::Notifier::TerminalNotifier do
   let(:notifier) { described_class.new }
 
   before do
-    allow(described_class).to receive(:require_gem_safely).and_return(true)
+    allow(described_class).to receive(:require_gem_safely) { true }
     stub_const 'TerminalNotifier::Guard', double(available?: true)
   end
 
   describe '.supported_hosts' do
-    it { expect(described_class.supported_hosts).to eq %w[darwin] }
+    it { expect(described_class.supported_hosts).to eq %w(darwin) }
   end
 
   describe '.gem_name' do
@@ -18,7 +18,9 @@ describe Guard::Notifier::TerminalNotifier do
 
   describe '.available?' do
     context 'host is not supported' do
-      before { allow(RbConfig::CONFIG).to receive(:[]).with('host_os').and_return('mswin') }
+      before do
+        allow(RbConfig::CONFIG).to receive(:[]).with('host_os') { 'mswin' }
+      end
 
       it 'do not require terminal-notifier-guard' do
         expect(described_class).to_not receive(:require_gem_safely)
@@ -28,7 +30,9 @@ describe Guard::Notifier::TerminalNotifier do
     end
 
     context 'host is supported' do
-      before { allow(RbConfig::CONFIG).to receive(:[]).with('host_os').and_return('darwin') }
+      before do
+        allow(RbConfig::CONFIG).to receive(:[]).with('host_os') { 'darwin' }
+      end
 
       it 'requires terminal-notifier-guard' do
         expect(described_class).to receive(:require_gem_safely) { true }
@@ -38,7 +42,9 @@ describe Guard::Notifier::TerminalNotifier do
       end
 
       context '.require_gem_safely fails' do
-        before { expect(described_class).to receive(:require_gem_safely) { false } }
+        before do
+          expect(described_class).to receive(:require_gem_safely) { false }
+        end
 
         it 'requires terminal-notifier-guard' do
           expect(described_class).to_not receive(:_register!)
@@ -65,48 +71,47 @@ describe Guard::Notifier::TerminalNotifier do
       let(:notifier) { described_class.new(title: 'Hello', silent: true) }
 
       it 'uses these options by default' do
-      expect(::TerminalNotifier::Guard).to receive(:execute).with(false,
-                                                              title: 'Hello',
-                                                              type: :success,
-                                                              message: 'any message')
+        expect(::TerminalNotifier::Guard).to receive(:execute).
+          with(false, title: 'Hello', type: :success, message: 'any message')
 
-      notifier.notify('any message')
+        notifier.notify('any message')
       end
 
       it 'overwrites object options with passed options' do
-      expect(::TerminalNotifier::Guard).to receive(:execute).with(false,
-                                                              title: 'Welcome',
-                                                              type: :success,
-                                                              message: 'any message')
+        expect(::TerminalNotifier::Guard).to receive(:execute).
+          with(false, title: 'Welcome', type: :success, message: 'any message')
 
-      notifier.notify('any message', title: 'Welcome')
+        notifier.notify('any message', title: 'Welcome')
       end
     end
 
     it 'should call the notifier.' do
-      expect(::TerminalNotifier::Guard).to receive(:execute).with(false,
-                                                              title: 'any title',
-                                                              type: :success,
-                                                              message: 'any message')
+      expect(::TerminalNotifier::Guard).to receive(:execute).
+        with(false,
+             title: 'any title',
+             type: :success,
+             message: 'any message')
 
       notifier.notify('any message', title: 'any title')
     end
 
-    it "should allow the title to be customized" do
-      expect(::TerminalNotifier::Guard).to receive(:execute).with(false,
-                                                              title: 'any title',
-                                                              message: 'any message',
-                                                              type: :error)
+    it 'should allow the title to be customized' do
+      expect(::TerminalNotifier::Guard).to receive(:execute).
+        with(false,
+             title: 'any title',
+             message: 'any message',
+             type: :error)
 
       notifier.notify('any message', type: :error, title: 'any title')
     end
 
     context 'without a title set' do
       it 'should show the app name in the title' do
-        expect(::TerminalNotifier::Guard).to receive(:execute).with(false,
-                                                                title: 'FooBar Success',
-                                                                type: :success,
-                                                                message: 'any message')
+        expect(::TerminalNotifier::Guard).to receive(:execute).
+          with(false,
+               title: 'FooBar Success',
+               type: :success,
+               message: 'any message')
 
         notifier.notify('any message', title: nil, app_name: 'FooBar')
       end

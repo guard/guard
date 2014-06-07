@@ -2,7 +2,6 @@ require 'guard/notifiers/base'
 
 module Guard
   module Notifier
-
     # System notifications using the
     # [libnotify](https://github.com/splattael/libnotify) gem.
     #
@@ -18,11 +17,11 @@ module Guard
     # @example Add the `:libnotify` notifier to your `Guardfile`
     #   notification :libnotify
     #
-    # @example Add the `:libnotify` notifier with configuration options to your `Guardfile`
-    #   notification :libnotify, timeout: 5, transient: true, append: false, urgency: :critical
+    # @example Add the `:libnotify` notifier with configuration options to your
+    #   `Guardfile` notification :libnotify, timeout: 5, transient: true,
+    #   append: false, urgency: :critical
     #
     class Libnotify < Base
-
       # Default options for the libnotify notifications.
       DEFAULTS = {
         transient: false,
@@ -31,11 +30,11 @@ module Guard
       }
 
       def self.supported_hosts
-        %w[linux freebsd openbsd sunos solaris]
+        %w(linux freebsd openbsd sunos solaris)
       end
 
       def self.available?(opts = {})
-        super and require_gem_safely(opts)
+        super && require_gem_safely(opts)
       end
 
       # Shows a system notification.
@@ -82,8 +81,6 @@ module Guard
           :low
         end
       end
-
     end
-
   end
 end

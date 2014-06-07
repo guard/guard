@@ -34,7 +34,7 @@ describe Guard::Interactor do
       before { described_class.options = { foo: :bar } }
 
       it 'returns { foo: :bar }' do
-        expect(described_class.options).to eq({ foo: :bar })
+        expect(described_class.options).to eq(foo: :bar)
       end
     end
   end
@@ -48,37 +48,38 @@ describe Guard::Interactor do
 
       @backend_group  = guard.add_group(:backend)
       @frontend_group = guard.add_group(:frontend)
-      @foo_guard      = guard.add_plugin(:foo, { group: :backend })
-      @bar_guard      = guard.add_plugin(:bar, { group: :frontend })
+      @foo_guard      = guard.add_plugin(:foo,  group: :backend)
+      @bar_guard      = guard.add_plugin(:bar,  group: :frontend)
     end
 
     it 'returns a group scope' do
       scopes, _ = Guard::Interactor.convert_scope %w(backend)
-      expect(scopes).to eq({ groups: [@backend_group], plugins: [] })
+      expect(scopes).to eq(groups: [@backend_group], plugins: [])
       scopes, _ = Guard::Interactor.convert_scope %w(frontend)
-      expect(scopes).to eq({ groups: [@frontend_group], plugins: [] })
+      expect(scopes).to eq(groups: [@frontend_group], plugins: [])
     end
 
     it 'returns a plugin scope' do
       scopes, _ = Guard::Interactor.convert_scope %w(foo)
-      expect(scopes).to eq({ plugins: [@foo_guard], groups: [] })
+      expect(scopes).to eq(plugins: [@foo_guard], groups: [])
       scopes, _ = Guard::Interactor.convert_scope %w(bar)
-      expect(scopes).to eq({ plugins: [@bar_guard], groups: [] })
+      expect(scopes).to eq(plugins: [@bar_guard], groups: [])
     end
 
     it 'returns multiple group scopes' do
       scopes, _ = Guard::Interactor.convert_scope %w(backend frontend)
-      expect(scopes).to eq({ groups: [@backend_group, @frontend_group], plugins: [] })
+      expected = { groups: [@backend_group, @frontend_group], plugins: [] }
+      expect(scopes).to eq(expected)
     end
 
     it 'returns multiple plugin scopes' do
       scopes, _ = Guard::Interactor.convert_scope %w(foo bar)
-      expect(scopes).to eq({ plugins: [@foo_guard, @bar_guard], groups: [] })
+      expect(scopes).to eq(plugins: [@foo_guard, @bar_guard], groups: [])
     end
 
     it 'returns a plugin and group scope' do
       scopes, _ = Guard::Interactor.convert_scope %w(foo backend)
-      expect(scopes).to eq({ plugins: [@foo_guard], groups: [@backend_group] })
+      expect(scopes).to eq(plugins: [@foo_guard], groups: [@backend_group])
     end
 
     it 'returns the unkown scopes' do
@@ -119,41 +120,57 @@ describe Guard::Interactor do
         allow(::Guard).to receive(:scope).and_return({})
         allow(::Guard.scope).to receive(:[]).with(:plugins).and_return([])
         allow(::Guard.scope).to receive(:[]).with(:groups).and_return([])
-        allow(::Guard).to receive(:listener).and_return(double('listener', paused?: false))
+
+        allow(::Guard).to receive(:listener).
+          and_return(double('listener', paused?: false))
+
         expect(::Guard.interactor).to receive(:_clip_name).and_return('main')
       end
       let(:pry) { double(input_array: []) }
 
       context 'Guard is not paused' do
         it 'displays "guard"' do
-          expect(::Guard.interactor.send(:_prompt, '>').call(double, 0, pry)).to eq '[0] guard(main)> '
+          expect(::Guard.interactor.send(:_prompt, '>').call(double, 0, pry)).
+            to eq '[0] guard(main)> '
         end
       end
 
       context 'Guard is paused' do
-        before { allow(::Guard).to receive(:listener).and_return(double('listener', paused?: true)) }
+        before do
+          allow(::Guard).to receive(:listener).
+            and_return(double('listener', paused?: true))
+        end
 
         it 'displays "pause"' do
-          expect(::Guard.interactor.send(:_prompt, '>').call(double, 0, pry)).to eq '[0] pause(main)> '
+          expect(::Guard.interactor.send(:_prompt, '>').call(double, 0, pry)).
+            to eq '[0] pause(main)> '
         end
       end
 
       context 'with a groups scope' do
-        before { allow(::Guard.scope).to receive(:[]).with(:groups).and_return([double(title: 'Backend'), double(title: 'Frontend')]) }
+        before do
+          allow(::Guard.scope).to receive(:[]).with(:groups).
+            and_return([double(title: 'Backend'), double(title: 'Frontend')])
+        end
 
         it 'displays the group scope title in the prompt' do
-          expect(::Guard.interactor.send(:_prompt, '>').call(double, 0, pry)).to eq '[0] Backend,Frontend guard(main)> '
+          expect(::Guard.interactor.send(:_prompt, '>').call(double, 0, pry)).
+            to eq '[0] Backend,Frontend guard(main)> '
+
         end
       end
 
       context 'with a plugins scope' do
-        before { allow(::Guard.scope).to receive(:[]).with(:plugins).and_return([double(title: 'RSpec'), double(title: 'Ronn')]) }
+        before do
+          allow(::Guard.scope).to receive(:[]).with(:plugins).
+                 and_return([double(title: 'RSpec'), double(title: 'Ronn')])
+        end
 
         it 'displays the group scope title in the prompt' do
-          expect(::Guard.interactor.send(:_prompt, '>').call(double, 0, pry)).to eq '[0] RSpec,Ronn guard(main)> '
+          result = ::Guard.interactor.send(:_prompt, '>').call(double, 0, pry)
+          expect(result).to eq '[0] RSpec,Ronn guard(main)> '
         end
       end
     end
   end
-
 end

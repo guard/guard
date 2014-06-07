@@ -2,7 +2,6 @@ require 'guard/notifiers/base'
 
 module Guard
   module Notifier
-
     # System notifications using the
     # [rb-notifu](https://github.com/stereobooster/rb-notifu) gem.
     #
@@ -17,11 +16,10 @@ module Guard
     # @example Add the `:notifu` notifier to your `Guardfile`
     #   notification :notifu
     #
-    # @example Add the `:notifu` notifier with configuration options to your `Guardfile`
-    #   notification :notifu, time: 5, nosound: true, xp: true
+    # @example Add the `:notifu` notifier with configuration options to your
+    #   `Guardfile` notification :notifu, time: 5, nosound: true, xp: true
     #
     class Notifu < Base
-
       # Default options for the rb-notifu notifications.
       DEFAULTS = {
         time:    3,
@@ -33,7 +31,7 @@ module Guard
       }
 
       def self.supported_hosts
-        %w[mswin mingw]
+        %w(mswin mingw)
       end
 
       def self.gem_name
@@ -41,7 +39,7 @@ module Guard
       end
 
       def self.available?(opts = {})
-        super and require_gem_safely(opts)
+        super && require_gem_safely(opts)
       end
 
       # Shows a system notification.
@@ -74,7 +72,8 @@ module Guard
           message: message
         ).merge(opts)
 
-        # The empty block is needed until https://github.com/stereobooster/rb-notifu/pull/1 is merged
+        # The empty block is needed until
+        # https://github.com/stereobooster/rb-notifu/pull/1 is merged
         ::Notifu.show(opts) {}
       end
 
@@ -96,7 +95,6 @@ module Guard
           :info
         end
       end
-
     end
   end
 end

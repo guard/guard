@@ -4,11 +4,12 @@ Coveralls.wear!
 require 'guard'
 require 'rspec'
 
-ENV["GUARD_ENV"] = 'test'
+ENV['GUARD_ENV'] = 'test'
 
-Dir["#{File.expand_path('..', __FILE__)}/support/**/*.rb"].each { |f| require f }
+path = "#{File.expand_path('..', __FILE__)}/support/**/*.rb"
+Dir[path].each { |f| require f }
 
-puts "Please do not update/create files while tests are running."
+STDOUT.puts 'Please do not update/create files while tests are running.'
 
 RSpec.configure do |config|
   config.order = :random
@@ -48,7 +49,7 @@ RSpec.configure do |config|
     # tests.
     fake_home = File.expand_path('../fake-home', __FILE__)
     FileUtils.rmtree fake_home
-    FileUtils.mkdir  fake_home
+    FileUtils.mkdir fake_home
     ENV['HOME'] = fake_home
   end
 

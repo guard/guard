@@ -1,11 +1,11 @@
 module Guard
-
   class Plugin
-
     # Colection of shared methods between `Guard::Guard` (deprecated)
     # and `Guard::Plugin`.
     #
     module Base
+      TEMPLATE_FORMAT = '%s/lib/guard/%s/templates/Guardfile'
+
       require 'guard/ui'
       require 'guard/plugin/hooker'
 
@@ -28,7 +28,7 @@ module Guard
         # @return [String]
         #
         def non_namespaced_classname
-          self.to_s.sub('Guard::', '')
+          to_s.sub('Guard::', '')
         end
 
         # Returns the non-namespaced name of the plugin
@@ -50,7 +50,7 @@ module Guard
         # @param [String] plugin_location the plugin location
         #
         def template(plugin_location)
-          File.read("#{ plugin_location }/lib/guard/#{ non_namespaced_name }/templates/Guardfile")
+          File.read TEMPLATE_FORMAT % [plugin_location, non_namespaced_name]
         end
       end
 
@@ -147,13 +147,17 @@ module Guard
       # String representation of the plugin.
       #
       # @example String representation of an instance of the Guard::RSpec plugin
+      #
       #   Guard::RSpec.new.title
-      #   #=> "#<Guard::RSpec @name=rspec @group=#<Guard::Group @name=default @options={}> @watchers=[] @callbacks=[] @options={all_after_pass: true}>"
+      #   #=> "#<Guard::RSpec @name=rspec @group=#<Guard::Group @name=default
+      #   @options={}> @watchers=[] @callbacks=[] @options={all_after_pass:
+      #   true}>"
       #
       # @return [String] the string representation
       #
       def to_s
-        "#<#{self.class} @name=#{name} @group=#{group} @watchers=#{watchers} @callbacks=#{callbacks} @options=#{options}>"
+        "#<#{self.class} @name=#{name} @group=#{group} @watchers=#{watchers}"\
+        " @callbacks=#{callbacks} @options=#{options}>"
       end
 
       private
@@ -172,7 +176,6 @@ module Guard
         @callbacks = options.delete(:callbacks) { [] }
         @options   = options
       end
-
     end
   end
 end

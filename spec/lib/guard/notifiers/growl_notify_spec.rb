@@ -9,12 +9,14 @@ describe Guard::Notifier::GrowlNotify do
   end
 
   describe '.supported_hosts' do
-    it { expect(described_class.supported_hosts).to eq %w[darwin] }
+    it { expect(described_class.supported_hosts).to eq %w(darwin) }
   end
 
   describe '.available?' do
     context 'host is not supported' do
-      before { allow(RbConfig::CONFIG).to receive(:[]).with('host_os').and_return('mswin') }
+      before do
+        allow(RbConfig::CONFIG).to receive(:[]).with('host_os') { 'mswin' }
+      end
 
       it 'do not require growl_notify' do
         expect(described_class).to_not receive(:require_gem_safely)
@@ -24,7 +26,9 @@ describe Guard::Notifier::GrowlNotify do
     end
 
     context 'host is supported' do
-      before { allow(RbConfig::CONFIG).to receive(:[]).with('host_os').and_return('darwin') }
+      before do
+        allow(RbConfig::CONFIG).to receive(:[]).with('host_os') { 'darwin' }
+      end
 
       it 'requires growl_notify' do
         expect(described_class).to receive(:require_gem_safely) { true }
@@ -37,10 +41,14 @@ describe Guard::Notifier::GrowlNotify do
         let(:config) { double('config') }
 
         it 'does configure GrowlNotify' do
-          expect(RbConfig::CONFIG).to receive(:[]).with('host_os').and_return 'darwin'
-          expect(::GrowlNotify).to receive(:application_name).and_return nil
+          expect(RbConfig::CONFIG).to receive(:[]).with('host_os') { 'darwin' }
+
+          expect(::GrowlNotify).to receive(:application_name) { nil }
           expect(::GrowlNotify).to receive(:config).and_yield config
-          expect(config).to receive(:notifications=).with ['success', 'pending', 'failed', 'notify']
+
+          expect(config).to receive(:notifications=).
+            with %w(success pending failed notify)
+
           expect(config).to receive(:default_notifications=).with 'notify'
           expect(config).to receive(:application_name=).with 'Guard'
 
@@ -50,8 +58,8 @@ describe Guard::Notifier::GrowlNotify do
 
       context 'when the application name is Guard' do
         it 'does not configure GrowlNotify again' do
-          expect(RbConfig::CONFIG).to receive(:[]).with('host_os').and_return 'darwin'
-          expect(::GrowlNotify).to receive(:application_name).and_return 'Guard'
+          expect(RbConfig::CONFIG).to receive(:[]).with('host_os') { 'darwin' }
+          expect(::GrowlNotify).to receive(:application_name) { 'Guard' }
           expect(::GrowlNotify).to_not receive(:config)
 
           expect(described_class).to be_available
@@ -59,7 +67,9 @@ describe Guard::Notifier::GrowlNotify do
       end
 
       context '.require_gem_safely fails' do
-        before { expect(described_class).to receive(:require_gem_safely) { false } }
+        before do
+          expect(described_class).to receive(:require_gem_safely) { false }
+        end
 
         it 'requires growl_notify' do
           expect(described_class).to_not receive(:_register!)
@@ -99,7 +109,9 @@ describe Guard::Notifier::GrowlNotify do
           icon:             '/tmp/welcome.png'
         )
 
-        notifier.notify('Welcome to Guard', type: :success, image: '/tmp/welcome.png')
+        notifier.notify('Welcome to Guard',
+                        type: :success,
+                        image: '/tmp/welcome.png')
       end
 
       it 'overwrites object options with passed options' do
@@ -113,7 +125,10 @@ describe Guard::Notifier::GrowlNotify do
           icon:             '/tmp/welcome.png'
         )
 
-        notifier.notify('Welcome to Guard', type: :success, title: 'Welcome', image: '/tmp/welcome.png')
+        notifier.notify('Welcome to Guard',
+                        type: :success,
+                        title: 'Welcome',
+                        image: '/tmp/welcome.png')
       end
     end
 
@@ -129,7 +144,10 @@ describe Guard::Notifier::GrowlNotify do
           icon:             '/tmp/welcome.png'
         )
 
-        notifier.notify('Welcome to Guard', type: :success, title: 'Welcome', image: '/tmp/welcome.png')
+        notifier.notify('Welcome to Guard',
+                        type: :success,
+                        title: 'Welcome',
+                        image: '/tmp/welcome.png')
       end
     end
 
@@ -145,10 +163,13 @@ describe Guard::Notifier::GrowlNotify do
           icon:             '/tmp/wait.png'
         )
 
-        notifier.notify('Waiting for something', type: :pending, title: 'Waiting', image: '/tmp/wait.png',
-          sticky:   true,
-          priority: -2
-        )
+        notifier.notify('Waiting for something',
+                        type: :pending,
+                        title: 'Waiting',
+                        image: '/tmp/wait.png',
+                        sticky:   true,
+                        priority: -2
+                       )
       end
     end
   end

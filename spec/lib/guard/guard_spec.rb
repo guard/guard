@@ -16,7 +16,8 @@ describe Guard::Guard do
 
     context 'with a group in the options' do
       it 'assigns the given group' do
-        expect(Guard::Guard.new([], group: :test).group).to eq Guard.group(:test)
+        expect(Guard::Guard.new([], group: :test).group).
+          to eq Guard.group(:test)
       end
     end
 

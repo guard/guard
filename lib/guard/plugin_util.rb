@@ -1,7 +1,6 @@
 require 'guard/ui'
 
 module Guard
-
   # This class contains useful methods to:
   #
   # * Fetch all the Guard plugins names;
@@ -10,6 +9,11 @@ module Guard
   # * Add its template to the Guardfile.
   #
   class PluginUtil
+    ERROR_NO_GUARD_OR_CLASS = "Could not load 'guard/%s' or'\
+    ' find class Guard::%s"
+
+    INFO_ADDED_GUARD_TO_GUARDFILE = '%s guard added to Guardfile,'\
+      ' feel free to edit it'
 
     attr_accessor :name
 
@@ -23,8 +27,13 @@ module Guard
           if x.name =~ /^guard-/
             true
           elsif x.name != 'guard'
-            guard_plugin_path = File.join(x.full_gem_path, "lib/guard/#{ x.name }.rb")
-            File.exists?( guard_plugin_path )
+
+            guard_plugin_path = File.join(
+              x.full_gem_path,
+              "lib/guard/#{ x.name }.rb"
+            )
+
+            File.exist?(guard_plugin_path)
           end
         end
       else
@@ -45,13 +54,15 @@ module Guard
     # class as well as plugins that inherit from `Guard::Plugin`.
     #
     # @see Guard::Plugin
-    # @see https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0 How to upgrade for Guard 2.0
+    # @see https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0 How to
+    # upgrade for Guard 2.0
     #
     # @return [Guard::Plugin] the initialized plugin
     # @return [Guard::Guard] the initialized plugin. This return type is
     #   deprecated and the plugin's maintainer should update it to be
     #   compatible with Guard 2.0. For more information on how to upgrade for
-    #   Guard 2.0, please head over to: https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0
+    #   Guard 2.0, please head over to:
+    #   https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0
     #
     def initialize_plugin(options)
       if plugin_class.superclass.to_s == 'Guard::Guard'
@@ -89,7 +100,9 @@ module Guard
     #
     # * `rspec` will find a class `Guard::RSpec`
     #
-    # @option options [Boolean] fail_gracefully whether error messages should not be printed
+    # @option options [Boolean] fail_gracefully whether error messages should
+    # not be printed
+    #
     # @return [Class, nil] the loaded class
     #
     def plugin_class(options = {})
@@ -100,18 +113,18 @@ module Guard
         require "guard/#{ name.downcase }" if try_require
 
         @plugin_class ||= ::Guard.const_get(_plugin_constant)
-      rescue TypeError => typeError
+      rescue TypeError => error
         if try_require
           ::Guard::UI.error "Could not find class Guard::#{ _constant_name }"
-          ::Guard::UI.error typeError.backtrace.join("\n")
+          ::Guard::UI.error error.backtrace.join("\n")
         else
           try_require = true
           retry
         end
-      rescue LoadError => loadError
+      rescue LoadError => error
         unless options[:fail_gracefully]
-          ::Guard::UI.error "Could not load 'guard/#{ name.downcase }' or find class Guard::#{ _constant_name }"
-          ::Guard::UI.error loadError.backtrace.join("\n")
+          UI.error ERROR_NO_GUARD_OR_CLASS % [name.downcase, _constant_name]
+          UI.error error.backtrace.join("\n")
         end
       end
     end
@@ -129,7 +142,7 @@ module Guard
           f.puts(plugin_class.template(plugin_location))
         end
 
-        ::Guard::UI.info "#{ name } guard added to Guardfile, feel free to edit it"
+        UI.info INFO_ADDED_GUARD_TO_GUARDFILE % name
       end
     end
 
@@ -142,7 +155,9 @@ module Guard
     #   => Guard::RSpec
     #
     def _plugin_constant
-      @_plugin_constant ||= ::Guard.constants.find { |c| c.to_s.downcase == _constant_name.downcase }
+      @_plugin_constant ||= ::Guard.constants.detect do |c|
+        c.to_s.downcase == _constant_name.downcase
+      end
     end
 
     # Guesses the most probable name for the current plugin based on its name.
@@ -152,8 +167,8 @@ module Guard
     #   => "Rspec"
     #
     def _constant_name
-      @_constant_name ||= name.gsub(/\/(.?)/) { "::#{ $1.upcase }" }.gsub(/(?:^|[_-])(.)/) { $1.upcase }
+      @_constant_name ||= name.gsub(/\/(.?)/) { "::#{ $1.upcase }" }.
+        gsub(/(?:^|[_-])(.)/) { $1.upcase }
     end
-
   end
 end

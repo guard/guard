@@ -6,12 +6,10 @@ require 'rake/tasklib'
 require 'guard/cli'
 
 module Guard
-
   # Provides a method to define a Rake task that
   # runs the Guard plugins.
   #
   class RakeTask < ::Rake::TaskLib
-
     # Name of the main, top level task
     attr_accessor :name
 
@@ -42,6 +40,5 @@ module Guard
 
       end
     end
-
   end
 end

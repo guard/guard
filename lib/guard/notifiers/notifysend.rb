@@ -2,7 +2,6 @@ require 'guard/notifiers/base'
 
 module Guard
   module Notifier
-
     # System notifications using notify-send, a binary that ships with
     # the libnotify-bin package on many Debian-based distributions.
     #
@@ -10,7 +9,6 @@ module Guard
     #   notification :notifysend
     #
     class NotifySend < Base
-
       # Default options for the notify-send notifications.
       DEFAULTS = {
         t: 3000, # Default timeout is 3000ms
@@ -21,11 +19,11 @@ module Guard
       SUPPORTED = [:u, :t, :i, :c, :h]
 
       def self.supported_hosts
-        %w[linux freebsd openbsd sunos solaris]
+        %w(linux freebsd openbsd sunos solaris)
       end
 
       def self.available?(opts = {})
-        super and _register!(opts)
+        super && _register!(opts)
       end
 
       # @private
@@ -48,7 +46,9 @@ module Guard
           true
         else
           unless opts[:silent]
-            ::Guard::UI.error 'The :notifysend notifier runs only on Linux, FreeBSD, OpenBSD and Solaris with the libnotify-bin package installed.'
+            ::Guard::UI.error 'The :notifysend notifier runs only on Linux'\
+              ', FreeBSD, OpenBSD and Solaris with the libnotify-bin '\
+              'package installed.'
           end
           false
         end
@@ -95,15 +95,15 @@ module Guard
       # @param [String] command the command execute
       # @param [Array] supported list of supported option flags
       # @param [Hash] opts additional command options
-      # @return [Array<String>] the command and its options converted to a shell command.
+      #
+      # @return [Array<String>] the command and its options converted to a
+      # shell command.
       #
       def _to_arguments(command, supported, opts = {})
-        opts.reduce(command) do |cmd, (flag, value)|
+        opts.inject(command) do |cmd, (flag, value)|
           supported.include?(flag) ? (cmd << "-#{ flag }" << value.to_s) : cmd
         end
       end
-
     end
-
   end
 end

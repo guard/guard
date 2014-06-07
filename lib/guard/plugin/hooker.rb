@@ -1,7 +1,5 @@
 module Guard
-
   class Plugin
-
     # Guard has a hook mechanism that allows you to insert callbacks for
     # individual Guard plugins.
     # By default, each of the Guard plugin instance methods has a "_begin" and
@@ -14,7 +12,6 @@ module Guard
     # wiki](https://github.com/guard/guard/wiki/Hooks-and-callbacks).
     #
     module Hooker
-
       require 'guard/ui'
 
       # Get all callbacks registered for all Guard plugins present in the
@@ -106,7 +103,6 @@ module Guard
           Hooker.add_callback(callback[:listener], self, callback[:events])
         end
       end
-
     end
   end
 end

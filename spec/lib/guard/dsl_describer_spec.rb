@@ -62,10 +62,12 @@ describe Guard::DslDescriber do
     end
 
     before do
-      allow(::Guard::PluginUtil).to receive(:plugin_names).and_return %w(test another even more)
+      allow(::Guard::PluginUtil).to receive(:plugin_names) do
+        %w(test another even more)
+      end
     end
 
-    it 'lists the available Guards when they\'re declared as strings or symbols' do
+    it 'lists the available Guards declared as strings or symbols' do
       ::Guard::DslDescriber.new(guardfile_contents: guardfile).list
     end
   end
@@ -113,8 +115,8 @@ describe Guard::DslDescriber do
         { terminal_title: ::Guard::Notifier::TerminalTitle }
       ]
 
-      allow(::Guard::Notifier::GNTP).to receive(:available?).and_return true
-      allow(::Guard::Notifier::TerminalTitle).to receive(:available?).and_return false
+      allow(::Guard::Notifier::GNTP).to receive(:available?) { true }
+      allow(::Guard::Notifier::TerminalTitle).to receive(:available?) { false }
 
       allow(::Guard::Notifier).to receive(:notifiers).and_return [
         { name: :gntp, options: { sticky: true } }

@@ -8,12 +8,15 @@ describe Guard::Notifier::NotifySend do
   end
 
   describe '.supported_hosts' do
-    it { expect(described_class.supported_hosts).to eq %w[linux freebsd openbsd sunos solaris] }
+    let(:supported) { %w(linux freebsd openbsd sunos solaris) }
+    it { expect(described_class.supported_hosts).to eq supported }
   end
 
   describe '.available?' do
     context 'host is not supported' do
-      before { allow(RbConfig::CONFIG).to receive(:[]).with('host_os').and_return('mswin') }
+      before do
+        allow(RbConfig::CONFIG).to receive(:[]).with('host_os') { 'mswin' }
+      end
 
       it 'do not check if the binary is available' do
         expect(described_class).to_not receive(:_notifysend_binary_available?)
@@ -23,10 +26,13 @@ describe Guard::Notifier::NotifySend do
     end
 
     context 'host is supported' do
-      before { allow(RbConfig::CONFIG).to receive(:[]).with('host_os').and_return('linux') }
+      before do
+        allow(RbConfig::CONFIG).to receive(:[]).with('host_os') { 'linux' }
+      end
 
       it 'checks if the binary is available' do
-        expect(described_class).to receive(:_notifysend_binary_available?) { true }
+        expect(described_class).
+          to receive(:_notifysend_binary_available?) { true }
 
         expect(described_class).to be_available
       end
@@ -35,7 +41,9 @@ describe Guard::Notifier::NotifySend do
 
   describe '#notify' do
     context 'with options passed at initialization' do
-      let(:notifier) { described_class.new(image: '/tmp/hello.png', silent: true) }
+      let(:notifier) do
+        described_class.new(image: '/tmp/hello.png', silent: true)
+      end
 
       it 'uses these options by default' do
         expect(notifier).to receive(:system) do |command, *arguments|
@@ -112,7 +120,10 @@ describe Guard::Notifier::NotifySend do
           expect(arguments).to include '-t', '5'
         end
 
-        notifier.notify('Waiting for something', type: :pending, image: '/tmp/wait.png',
+        notifier.notify(
+          'Waiting for something',
+          type: :pending,
+          image: '/tmp/wait.png',
           t: 5,
           u: :critical
         )

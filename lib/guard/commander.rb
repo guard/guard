@@ -1,9 +1,8 @@
 module Guard
-
+  # Commands supported by guard
   module Commander
-
-    # Start Guard by evaluating the `Guardfile`, initializing declared Guard plugins
-    # and starting the available file change listener.
+    # Start Guard by evaluating the `Guardfile`, initializing declared Guard
+    # plugins and starting the available file change listener.
     # Main method for Guard that is called from the CLI when Guard starts.
     #
     # - Setup Guard internals
@@ -26,7 +25,7 @@ module Guard
       within_preserved_state do
         ::Guard::UI.debug 'Guard starts all plugins'
         runner.run(:start)
-        ::Guard::UI.info "Guard is now watching at '#{ @watchdirs.join "', '" }'"
+        ::Guard::UI.info "Guard is now watching at '#{@watchdirs.join "', '"}'"
         listener.start
       end
     end
@@ -115,7 +114,5 @@ module Guard
 
       @result
     end
-
   end
-
 end

@@ -11,14 +11,16 @@ describe 'Guard::Interactor::CHANGE' do
   describe '#perform' do
     context 'with a file' do
       it 'runs the :run_on_changes action with the given scope' do
-        expect(::Guard.runner).to receive(:run_on_changes).with(['foo'], [], [])
+        expect(::Guard.runner).to receive(:run_on_changes).
+          with(['foo'], [], [])
         Pry.run_command 'change foo'
       end
     end
 
     context 'with multiple files' do
       it 'runs the :run_on_changes action with the given scope' do
-        expect(::Guard.runner).to receive(:run_on_changes).with(['foo', 'bar', 'baz'], [], [])
+        expect(::Guard.runner).to receive(:run_on_changes).
+          with(%w(foo bar baz), [], [])
         Pry.run_command 'change foo bar baz'
       end
     end
@@ -30,5 +32,4 @@ describe 'Guard::Interactor::CHANGE' do
       end
     end
   end
-
 end

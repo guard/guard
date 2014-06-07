@@ -3,9 +3,8 @@ require 'listen'
 require 'guard/options'
 
 module Guard
-
+  # Sets up initial variables and options
   module Setuper
-
     DEFAULT_OPTIONS = {
       clear: false,
       notify: true,
@@ -49,7 +48,8 @@ module Guard
 
       if options[:watchdir]
         # Ensure we have an array
-        @watchdirs = Array(options[:watchdir]).map { |dir| File.expand_path dir }
+        dirs = Array(options[:watchdir])
+        @watchdirs = dirs.map { |dir| File.expand_path dir }
       end
 
       ::Guard::UI.clear(force: true)
@@ -122,20 +122,19 @@ module Guard
 
     attr_reader :watchdirs
 
-    # Stores the scopes defined by the user via the `--group` / `-g` option (to run
-    # only a specific group) or the `--plugin` / `-P` option (to run only a
+    # Stores the scopes defined by the user via the `--group` / `-g` option (to
+    # run only a specific group) or the `--plugin` / `-P` option (to run only a
     # specific plugin).
     #
     # @see CLI#start
     # @see Dsl#scope
     #
     def setup_scope(new_scope)
-      if new_scope[:groups] && new_scope[:groups].any?
-        scope[:groups]  = new_scope[:groups].map { |group| ::Guard.add_group(group) }
-      end
-
-      if new_scope[:plugins] && new_scope[:plugins].any?
-        scope[:plugins] = new_scope[:plugins].map { |plugin| ::Guard.plugin(plugin) }
+      { groups: :add_group, plugins: :plugin }.each do |type, meth|
+        next unless new_scope[type] && new_scope[type].any?
+        scope[type] = new_scope[type].map do |item|
+          ::Guard.send(meth, item)
+        end
       end
     end
 
@@ -146,7 +145,8 @@ module Guard
     #
     def evaluate_guardfile
       evaluator.evaluate_guardfile
-      ::Guard::UI.error 'No plugins found in Guardfile, please add at least one.' if plugins.empty?
+      msg = 'No plugins found in Guardfile, please add at least one.'
+      ::Guard::UI.error msg  if plugins.empty?
     end
 
     private
@@ -194,31 +194,31 @@ module Guard
     # - 'INT' which is delegated to Pry if active, otherwise stops Guard.
     #
     def _setup_signal_traps
-      unless defined?(JRUBY_VERSION)
-        if Signal.list.keys.include?('USR1')
-          Signal.trap('USR1') do
-            unless listener.paused?
-              Thread.new { within_preserved_state { ::Guard.pause } }
-            end
+      return if defined?(JRUBY_VERSION)
+
+      if Signal.list.keys.include?('USR1')
+        Signal.trap('USR1') do
+          unless listener.paused?
+            Thread.new { within_preserved_state { ::Guard.pause } }
           end
         end
+      end
 
-        if Signal.list.keys.include?('USR2')
-          Signal.trap('USR2') do
-            if listener.paused?
-              Thread.new { within_preserved_state { ::Guard.pause } }
-            end
+      if Signal.list.keys.include?('USR2')
+        Signal.trap('USR2') do
+          if listener.paused?
+            Thread.new { within_preserved_state { ::Guard.pause } }
           end
         end
+      end
 
-        if Signal.list.keys.include?('INT')
-          Signal.trap('INT') do
-            if interactor && interactor.thread
-              interactor.thread.raise(Interrupt)
-            else
-              ::Guard.stop
-            end
-          end
+      return unless Signal.list.keys.include?('INT')
+
+      Signal.trap('INT') do
+        if interactor && interactor.thread
+          interactor.thread.raise(Interrupt)
+        else
+          ::Guard.stop
         end
       end
     end
@@ -272,11 +272,10 @@ module Guard
     def _relative_paths(changes)
       # Convert to relative paths (respective to the watchdir it came from)
       watchdirs.each do |watchdir|
-        changes.each do |type, paths|
+        changes.each do |_type, paths|
           paths.each do |path|
-            if path.start_with? watchdir
-              path.sub! "#{watchdir}#{File::SEPARATOR}", ''
-            end
+            next unless path.start_with? watchdir
+            path.sub! "#{watchdir}#{File::SEPARATOR}", ''
           end
         end
       end

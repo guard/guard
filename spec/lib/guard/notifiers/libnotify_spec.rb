@@ -9,12 +9,15 @@ describe Guard::Notifier::Libnotify do
   end
 
   describe '.supported_hosts' do
-    it { expect(described_class.supported_hosts).to eq %w[linux freebsd openbsd sunos solaris] }
+    let(:supported) { %w(linux freebsd openbsd sunos solaris) }
+    it { expect(described_class.supported_hosts).to eq supported }
   end
 
   describe '.available?' do
     context 'host is not supported' do
-      before { allow(RbConfig::CONFIG).to receive(:[]).with('host_os').and_return('mswin') }
+      before do
+        allow(RbConfig::CONFIG).to receive(:[]).with('host_os') { 'mswin' }
+      end
 
       it 'do not require libnotify' do
         expect(described_class).to_not receive(:require_gem_safely)
@@ -24,7 +27,9 @@ describe Guard::Notifier::Libnotify do
     end
 
     context 'host is supported' do
-      before { allow(RbConfig::CONFIG).to receive(:[]).with('host_os').and_return('linux') }
+      before do
+        allow(RbConfig::CONFIG).to receive(:[]).with('host_os') { 'linux' }
+      end
 
       it 'requires libnotify' do
         expect(described_class).to receive(:require_gem_safely) { true }
@@ -63,7 +68,9 @@ describe Guard::Notifier::Libnotify do
           icon_path: '/tmp/welcome.png'
         )
 
-        notifier.notify('Welcome to Guard', title: 'Welcome', image: '/tmp/welcome.png')
+        notifier.notify('Welcome to Guard',
+                        title: 'Welcome',
+                        image: '/tmp/welcome.png')
       end
     end
 
@@ -79,7 +86,9 @@ describe Guard::Notifier::Libnotify do
           icon_path: '/tmp/welcome.png'
         )
 
-        notifier.notify('Welcome to Guard', title: 'Welcome', image: '/tmp/welcome.png')
+        notifier.notify('Welcome to Guard',
+                        title: 'Welcome',
+                        image: '/tmp/welcome.png')
       end
     end
 
@@ -95,11 +104,14 @@ describe Guard::Notifier::Libnotify do
           icon_path: '/tmp/wait.png'
         )
 
-        notifier.notify('Waiting for something', type: :pending, title: 'Waiting', image: '/tmp/wait.png',
-          transient: true,
-          append:    false,
-          timeout:   5,
-          urgency:   :critical
+        notifier.notify('Waiting for something',
+                        type: :pending,
+                        title: 'Waiting',
+                        image: '/tmp/wait.png',
+                        transient: true,
+                        append:    false,
+                        timeout:   5,
+                        urgency:   :critical
         )
       end
     end

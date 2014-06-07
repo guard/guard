@@ -1,6 +1,5 @@
 module Guard
   class Interactor
-
     PAUSE = Pry::CommandSet.new do
       create_command 'pause' do
 
@@ -21,7 +20,6 @@ module Guard
         end
       end
     end
-
   end
 end
 

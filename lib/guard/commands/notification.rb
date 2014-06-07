@@ -1,9 +1,9 @@
 require 'guard/notifier'
 
 module Guard
+  # Command to toggle notifications on and off
   class Interactor
-
-     NOTIFICATION = Pry::CommandSet.new do
+    NOTIFICATION = Pry::CommandSet.new do
       create_command 'notification' do
 
         group 'Guard'
@@ -20,7 +20,6 @@ module Guard
         end
       end
     end
-
   end
 end
 

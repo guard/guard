@@ -17,7 +17,7 @@ describe Guard::CLI do
 
     context 'with a Gemfile in the project dir' do
       before do
-        allow(File).to receive(:exists?).with('Gemfile').and_return(true)
+        allow(File).to receive(:exist?).with('Gemfile').and_return(true)
       end
 
       context 'when running with Bundler' do
@@ -47,17 +47,20 @@ describe Guard::CLI do
           subject.start
         end
 
-        it 'does not show the Bundler warning with the :no_bundler_warning flag' do
-          expect(Guard::UI).to_not receive(:info).with(/Guard here!/)
-          subject.options = { no_bundler_warning: true }
-          subject.start
+        context 'with :no_bundler_warning flag' do
+          before { subject.options = { no_bundler_warning: true } }
+
+          it 'does not show the Bundler warning' do
+            expect(Guard::UI).to_not receive(:info).with(/Guard here!/)
+            subject.start
+          end
         end
       end
     end
 
     context 'without a Gemfile in the project dir' do
       before do
-      expect(File).to receive(:exists?).with('Gemfile').and_return false
+        expect(File).to receive(:exist?).with('Gemfile').and_return false
         @bundler_env = ENV['BUNDLE_GEMFILE']
         ENV['BUNDLE_GEMFILE'] = nil
       end
@@ -91,7 +94,7 @@ describe Guard::CLI do
 
   describe '#version' do
     it 'shows the current version' do
-      expect(subject).to receive(:puts).with(/#{ ::Guard::VERSION }/)
+      expect(STDOUT).to receive(:puts).with(/#{ ::Guard::VERSION }/)
 
       subject.version
     end
@@ -107,26 +110,27 @@ describe Guard::CLI do
     end
 
     it 'creates a Guardfile by delegating to Guardfile.create_guardfile' do
-      expect(Guard::Guardfile).to receive(:create_guardfile).with(abort_on_existence: options[:bare])
+      expect(Guard::Guardfile).to receive(:create_guardfile).
+        with(abort_on_existence: options[:bare])
 
       subject.init
     end
 
-    it 'initializes the templates of all installed Guards by delegating to Guardfile.initialize_all_templates' do
+    it 'initializes templates of all installed Guards' do
       expect(Guard::Guardfile).to receive(:initialize_all_templates)
 
       subject.init
     end
 
-    it 'initializes each passed template by delegating to Guardfile.initialize_template' do
+    it 'initializes each passed template' do
       expect(Guard::Guardfile).to receive(:initialize_template).with('rspec')
       expect(Guard::Guardfile).to receive(:initialize_template).with('pow')
 
-      subject.init 'rspec','pow'
+      subject.init 'rspec', 'pow'
     end
 
     context 'when passed a guard name' do
-      it 'initializes the template of the passed Guard by delegating to Guardfile.initialize_template' do
+      it 'initializes the template of the passed Guard' do
         expect(Guard::Guardfile).to receive(:initialize_template).with('rspec')
 
         subject.init 'rspec'
@@ -134,9 +138,9 @@ describe Guard::CLI do
     end
 
     context 'with the bare option' do
-      let(:options) { {bare: true} }
+      let(:options) { { bare: true } }
 
-      it 'Only creates the Guardfile and does not initialize any Guard template' do
+      it 'Only creates the Guardfile without initialize any Guard template' do
         expect(Guard::Guardfile).to receive(:create_guardfile)
         expect(Guard::Guardfile).to_not receive(:initialize_template)
         expect(Guard::Guardfile).to_not receive(:initialize_all_templates)

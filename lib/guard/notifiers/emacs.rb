@@ -2,14 +2,13 @@ require 'guard/notifiers/base'
 
 module Guard
   module Notifier
-
-    # Send a notification to Emacs with emacsclient (http://www.emacswiki.org/emacs/EmacsClient).
+    # Send a notification to Emacs with emacsclient
+    # (http://www.emacswiki.org/emacs/EmacsClient).
     #
     # @example Add the `:emacs` notifier to your `Guardfile`
     #   notification :emacs
     #
     class Emacs < Base
-
       DEFAULTS = {
         client:    'emacsclient',
         success:   'ForestGreen',
@@ -19,7 +18,7 @@ module Guard
       }
 
       def self.available?(opts = {})
-        super and _emacs_client_available?(opts)
+        super && _emacs_client_available?(opts)
       end
 
       # @private
@@ -27,7 +26,8 @@ module Guard
       # @return [Boolean] whether or not the emacs client is available
       #
       def self._emacs_client_available?(opts)
-        result = `#{opts.fetch(:client, DEFAULTS[:client])} --eval '1' 2> #{DEV_NULL} || echo 'N/A'`
+        options = opts.fetch(:client, DEFAULTS[:client])
+        result = `#{options} --eval '1' 2> #{DEV_NULL} || echo 'N/A'`
         !%w(N/A 'N/A').include?(result.chomp!)
       end
 
@@ -72,10 +72,19 @@ module Guard
       #
       # @param [String] type the notification type
       # @param [Hash] options aditional notification options
-      # @option options [String] success the color to use for success notifications (default is 'ForestGreen')
-      # @option options [String] failed the color to use for failure notifications (default is 'Firebrick')
-      # @option options [String] pending the color to use for pending notifications
-      # @option options [String] default the default color to use (default is 'Black')
+      #
+      # @option options [String] success the color to use for success
+      # notifications (default is 'ForestGreen')
+      #
+      # @option options [String] failed the color to use for failure
+      # notifications (default is 'Firebrick')
+      #
+      # @option options [String] pending the color to use for pending
+      # notifications
+      #
+      # @option options [String] default the default color to use (default is
+      # 'Black')
+      #
       # @return [String] the name of the emacs color
       #
       def emacs_color(type, options = {})
@@ -90,8 +99,6 @@ module Guard
         p.readlines
         p.close
       end
-
     end
-
   end
 end
