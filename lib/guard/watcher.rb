@@ -52,8 +52,8 @@ module Guard
     def self.match_files(guard, files)
       return [] if files.empty?
 
-      guard.watchers.inject([]) do |paths, watcher|
-        files.each do |file|
+      files.inject([]) do |paths, file|
+        guard.watchers.each do |watcher|
           matches = watcher.match(file)
           next unless matches
 
@@ -63,10 +63,14 @@ module Guard
               paths << result
             elsif result.respond_to?(:empty?) && !result.empty?
               paths << Array(result)
+            else
+              next
             end
           else
             paths << matches[0]
           end
+
+          break if guard.options[:first_match]
         end
 
         guard.options[:any_return] ? paths : paths.flatten.map { |p| p.to_s }

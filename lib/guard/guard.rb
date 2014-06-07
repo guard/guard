@@ -29,6 +29,8 @@ module Guard
     # @option options [Symbol] group the group this Guard plugin belongs to
     # @option options [Boolean] any_return allow any object to be returned from
     #   a watcher
+    # @option options [Boolean] first_match stop after the first watcher that
+    #   returns a valid result
     #
     def initialize(watchers = [], options = {})
       UI.deprecation(Deprecator::GUARD_GUARD_DEPRECATION % title)
