@@ -35,18 +35,26 @@ RSpec.configure do |config|
 
     # Avoid clobbering the terminal
     allow(Guard::Notifier::TerminalTitle).to receive(:puts)
-    allow(Guard::Notifier::Tmux).to receive(:system) { '' }
-    allow(Guard::Notifier::Tmux).to receive(:`) { '' }
-    allow(Pry.output).to receive(:puts)
+
+    allow(Guard::Notifier::Tmux).to receive(:system) do |*args|
+      fail "stub for system() called with: #{args.inspect}"
+    end
+
+    allow(Guard::Notifier::Tmux).to receive(:`) do |*args|
+      fail "stub for `(backtick) called with: #{args.inspect}"
+    end
+
+    allow(Kernel).to receive(:system) do |*args|
+      fail "stub for Kernel.system() called with: #{args.inspect}"
+    end
 
     unless example.metadata[:sheller_specs]
-      class Guard::Sheller
-        def run; self; end
-        def stdout; ''; end
-        def success?; true; end
+      allow(Guard::Sheller).to receive(:run) do |args|
+        fail "stub for Sheller.run() called with: #{args.inspect}"
       end
-      # allow_any_instance_of(Guard::Sheller).to receive(:run) {}
     end
+
+    allow(Pry.output).to receive(:puts)
 
     ::Guard.reset_groups
     ::Guard.reset_plugins

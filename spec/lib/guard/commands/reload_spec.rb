@@ -11,6 +11,7 @@ describe 'Guard::Interactor::RELOAD' do
     allow(Guard).to receive(:reload)
     allow(Guard).to receive(:setup_interactor)
     allow(Pry.output).to receive(:puts)
+    allow(Guard::Notifier).to receive(:turn_on)
     stub_const 'Guard::Bar', Class.new(Guard::Plugin)
   end
 

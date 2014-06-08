@@ -27,7 +27,8 @@ module Guard
       #
       def self._emacs_client_available?(opts)
         client_name = opts.fetch(:client, DEFAULTS[:client])
-        stdout = Sheller.stdout("#{client_name} --eval '1' 2> #{DEV_NULL} || echo 'N/A'")
+        cmd = "#{client_name} --eval '1' 2> #{DEV_NULL} || echo 'N/A'"
+        stdout = Sheller.stdout(cmd)
         !%w(N/A 'N/A').include?(stdout.chomp!)
       end
 

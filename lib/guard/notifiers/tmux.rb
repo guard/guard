@@ -237,11 +237,11 @@ module Guard
         if @options_stored
           @options_store.each do |client, options|
             options.each do |key, value|
-              if value
-                Sheller.run("#{DEFAULTS[:client]} set -t #{client} -q #{key} #{value}")
-              else
-                Sheller.run("#{DEFAULTS[:client]} set -t #{client} -q -u #{key}")
-              end
+              args = [DEFAULTS[:client], 'set', '-t', client, '-q']
+              args << '-u' unless value
+              args << key
+              args << value if value
+              Sheller.run(args.join(' '))
             end
           end
           _reset_options_store
@@ -255,7 +255,8 @@ module Guard
       private
 
       def self._clients
-        ttys = Sheller.stdout("#{DEFAULTS[:client]} list-clients -F '\#{client_tty}'")
+        args = [DEFAULTS[:client], 'list-clients', '-F', "'\#{client_tty}'"]
+        ttys = Sheller.stdout(args.join(' '))
         ttys = ttys.split(/\n/)
 
         # if user is running 'tmux -C' remove this client from list
@@ -267,7 +268,9 @@ module Guard
       def self._options_for_client(client)
         options = {}
 
-        Sheller.stdout("#{ DEFAULTS[:client] } show -t #{ client }").each_line do |line|
+        lines = Sheller.stdout("#{DEFAULTS[:client]} show -t #{client}")
+
+        lines.each_line do |line|
           option, _, setting = line.chomp.partition(' ')
           options[option] = setting
         end
@@ -284,8 +287,12 @@ module Guard
         all_clients = @options.fetch(:display_on_all_clients, default)
         clients = all_clients ? _clients : [nil]
         clients.each do |client|
-          cmd_args = client ? "#{_client_cmd_flag(cmd)} #{client.strip} #{args}" : args
-         Sheller.run("#{DEFAULTS[:client]} #{cmd} #{cmd_args}")
+          cmd_args = if client
+                       "#{_client_cmd_flag(cmd)} #{client.strip} #{args}"
+                     else
+                       args
+                     end
+          Sheller.run("#{DEFAULTS[:client]} #{cmd} #{cmd_args}")
         end
       end
 
@@ -316,7 +323,7 @@ module Guard
       end
 
       def _tmux_version
-        @tmux_version ||= ::Guard::Sheller.stdout('tmux -V').chomp.gsub(/[^0-9.]/, '').to_f
+        @tmux_version ||= Float(Sheller.stdout('tmux -V')[/\d+\.\d+/])
       end
 
       def _quiet_option

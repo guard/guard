@@ -170,6 +170,7 @@ describe Guard do
 
   describe '.groups' do
     subject do
+      allow(Guard::Notifier).to receive(:turn_on)
       guard           = ::Guard.setup
       @group_backend  = guard.add_group(:backend)
       @group_backflip = guard.add_group(:backflip)
@@ -215,6 +216,7 @@ describe Guard do
 
   describe '.group' do
     subject do
+      allow(Guard::Notifier).to receive(:turn_on)
       guard           = ::Guard.setup
       @group_backend  = guard.add_group(:backend)
       @group_backflip = guard.add_group(:backflip)

@@ -4,6 +4,8 @@ require 'guard/plugin'
 describe Guard::Runner do
 
   before do
+    allow(Notifier).to receive(:turn_on) {}
+
     guard = ::Guard.setup
     stub_const 'Guard::Foo', Class.new(Guard::Plugin)
     stub_const 'Guard::Bar', Class.new(Guard::Plugin)

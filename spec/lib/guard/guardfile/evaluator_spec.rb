@@ -11,8 +11,9 @@ describe Guard::Guardfile::Evaluator do
 
   before do
     allow(::Guard).to receive(:setup_interactor)
+    allow(Guard::Notifier).to receive(:turn_on)
     ::Guard.setup
-    allow(::Guard::Notifier).to receive(:notify)
+    allow(Guard::Notifier).to receive(:notify)
   end
 
   def self.disable_user_config

@@ -14,6 +14,8 @@ describe UI do
   end
 
   before do
+    allow(Notifier).to receive(:turn_on) {}
+
     # The spec helper stubs all UI classes, so other specs doesn't have
     # to explicit take care of it. We unstub and move the stubs one layer
     # down just for this spec.
@@ -30,7 +32,6 @@ describe UI do
     allow(UI.logger).to receive(:debug)
 
     allow($stderr).to receive(:print)
-    allow(::Guard::Sheller).to receive(:new).and_call_original
   end
 
   after do
@@ -321,7 +322,10 @@ describe UI do
 
   describe '.clear' do
     context 'when the Guard clear option is enabled' do
-      before { Guard.setup(clear: true) }
+      before do
+        allow(Sheller).to receive(:run).with('clear;')
+        Guard.setup(clear: true)
+      end
 
       it 'clears the outputs if clearable' do
         UI.clearable

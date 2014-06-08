@@ -30,6 +30,7 @@ describe Guard::DslDescriber do
   end
 
   before do
+    allow(Guard::Notifier).to receive(:turn_on)
     Guard.setup
 
     stub_const 'Guard::Test', Class.new(Guard::Plugin)

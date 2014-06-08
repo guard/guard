@@ -3,6 +3,7 @@ require 'spec_helper'
 describe 'Guard::Interactor::CHANGE' do
 
   before do
+    allow(Guard::Notifier).to receive(:turn_on)
     ::Guard.setup
     allow(Guard.runner).to receive(:run_on_changes)
     allow(Pry.output).to receive(:puts)

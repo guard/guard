@@ -99,7 +99,9 @@ describe Guard::Watcher do
             klass.new('hash.rb', lambda { Hash[:foo, 'bar'] }),
             klass.new('array.rb', lambda { %w(foo bar) }),
             klass.new('blank.rb', lambda { '' }),
-            klass.new(/^uptime\.rb/, lambda { `uptime > #{ Guard::DEV_NULL }` })
+            klass.new(/^uptime\.rb/, lambda do
+              Guard::Sheller.stdout("uptime > #{ Guard::DEV_NULL }")
+            end)
           ]
         end
 
@@ -151,7 +153,9 @@ describe Guard::Watcher do
             klass.new('hash.rb', lambda { Hash[:foo, 'bar'] }),
             klass.new('array.rb', lambda { %w(foo bar) }),
             klass.new('blank.rb', lambda { '' }),
-            klass.new(/^uptime\.rb/, lambda { `uptime > #{ Guard::DEV_NULL }` })
+            klass.new(/^uptime\.rb/, lambda do
+              Guard::Sheller.stdout("uptime > #{ Guard::DEV_NULL }")
+            end)
           ]
         end
 
@@ -211,6 +215,9 @@ describe Guard::Watcher do
         end
 
         it 'returns nothing if the action returns is DEV_NULL' do
+          allow(Guard::Sheller).to receive(:stdout).
+            with("uptime > #{Guard::DEV_NULL}") { '' }
+
           result = described_class.match_files(
             @plugin_any_return,
             ['uptime.rb']
@@ -231,8 +238,9 @@ describe Guard::Watcher do
             klass.new('hash.rb',  lambda { |_m| Hash[:foo, 'bar'] }),
             klass.new(/array(.*)\.rb/, lambda { |_m| %w(foo bar) }),
             klass.new(/blank(.*)\.rb/, lambda { |_m| '' }),
-            klass.new(/uptime(.*)\.rb/,
-                      lambda { |_m| `uptime > #{Guard::DEV_NULL}` })
+            klass.new(/uptime(.*)\.rb/, lambda do |_m|
+              Guard::Sheller.stdout("uptime > #{Guard::DEV_NULL}")
+            end)
           ]
         end
 
@@ -284,7 +292,9 @@ describe Guard::Watcher do
             kl.new(/array(.*)\.rb/, lambda { |m| ['foo', 'bar', m[0]] }),
             kl.new(/blank(.*)\.rb/, lambda { |_m| '' }),
             kl.new(/uptime(.*)\.rb/,
-                   lambda { |_m| `uptime > #{Guard::DEV_NULL}` })
+                   lambda do |_m|
+              Guard::Sheller.stdout("uptime > #{ Guard::DEV_NULL }")
+            end)
           ]
         end
 
@@ -335,6 +345,9 @@ describe Guard::Watcher do
         end
 
         it 'returns nothing if the action returns is DEV_NULL' do
+          allow(Guard::Sheller).to receive(:stdout).
+            with("uptime > #{Guard::DEV_NULL}") { '' }
+
           result = described_class.match_files(
             @plugin_any_return,
             ['uptime.rb']

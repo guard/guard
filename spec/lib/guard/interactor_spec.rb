@@ -41,6 +41,7 @@ describe Guard::Interactor do
 
   describe '.convert_scope' do
     before do
+      allow(::Guard::Notifier).to receive(:turn_on) { nil }
       guard = ::Guard.setup
 
       stub_const 'Guard::Foo', Class.new(Guard::Plugin)
@@ -93,6 +94,7 @@ describe Guard::Interactor do
       @interactor_enabled = described_class.enabled
       described_class.enabled = nil
       ENV['GUARD_ENV'] = 'interactor_test'
+      allow(Guard::Sheller).to receive(:run).with(*%w(hash stty)) { false }
       ::Guard.interactor.stop
     end
     after do

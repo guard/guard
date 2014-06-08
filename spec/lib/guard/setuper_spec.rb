@@ -19,6 +19,10 @@ describe Guard::Setuper do
       }
     end
 
+    before do
+      allow(Guard::Notifier).to receive(:turn_on)
+    end
+
     subject { Guard.setup(options) }
 
     it 'returns itself for chaining' do
@@ -160,6 +164,7 @@ describe Guard::Setuper do
 
   describe '.reset_groups' do
     subject do
+      allow(Guard::Notifier).to receive(:turn_on)
       guard = Guard.setup(guardfile: File.join(@fixture_path, 'Guardfile'))
       @group_backend = guard.add_group(:backend)
       @group_backflip = guard.add_group(:backflip)
@@ -177,6 +182,7 @@ describe Guard::Setuper do
 
   describe '.reset_plugins' do
     before do
+      allow(Guard::Notifier).to receive(:turn_on)
       Guard.setup
       module Guard
         class FooBar < Guard::Plugin; end
@@ -213,6 +219,7 @@ describe Guard::Setuper do
   describe '._setup_signal_traps', speed: 'slow' do
     before do
       allow(::Guard).to receive(:evaluate_guardfile)
+      allow(Guard::Notifier).to receive(:turn_on)
       ::Guard.setup
     end
 
@@ -443,13 +450,19 @@ describe Guard::Setuper do
       after { Guard::Interactor.enabled = @interactor_enabled }
 
       context 'with interactions enabled' do
-        before { Guard.setup(no_interactions: false) }
+        before do
+          allow(Guard::Notifier).to receive(:turn_on)
+          Guard.setup(no_interactions: false)
+        end
 
         it_should_behave_like 'interactor enabled'
       end
 
       context 'with interactions disabled' do
-        before { Guard.setup(no_interactions: true) }
+        before do
+          allow(Guard::Notifier).to receive(:turn_on)
+          Guard.setup(no_interactions: true)
+        end
 
         it_should_behave_like 'interactor disabled'
       end
@@ -462,6 +475,7 @@ describe Guard::Setuper do
       context 'with interactions enabled' do
         before do
           Guard::Interactor.enabled = true
+          allow(Guard::Notifier).to receive(:turn_on)
           Guard.setup
         end
 
@@ -471,6 +485,7 @@ describe Guard::Setuper do
       context 'with interactions disabled' do
         before do
           Guard::Interactor.enabled = false
+          allow(Guard::Notifier).to receive(:turn_on)
           Guard.setup
         end
 
@@ -483,6 +498,8 @@ describe Guard::Setuper do
     subject { Guard.setup }
 
     before do
+      allow(Guard::Notifier).to receive(:turn_on)
+
       # Unstub global stub
       allow(Guard).to receive(:_debug_command_execution).and_call_original
 

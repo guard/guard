@@ -1,4 +1,5 @@
 require 'guard/notifiers/base'
+require 'guard/sheller'
 
 module Guard
   module Notifier
@@ -75,7 +76,7 @@ module Guard
           u: _notifysend_urgency(opts.delete(:type))
         ).merge(opts)
 
-        ::Guard::Sheller.run('notify-send', *_to_arguments(command, SUPPORTED, opts))
+        Sheller.run('notify-send', *_to_arguments(command, SUPPORTED, opts))
       end
 
       private

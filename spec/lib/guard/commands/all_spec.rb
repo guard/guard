@@ -8,6 +8,7 @@ describe 'Guard::Interactor::ALL' do
   let(:bar_guard) { guard.add_plugin(:bar, group: :foo) }
 
   before do
+    allow(Guard::Notifier).to receive(:turn_on)
     allow(Guard).to receive(:run_all)
     allow(Guard).to receive(:setup_interactor)
     allow(Pry.output).to receive(:puts)

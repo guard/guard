@@ -17,6 +17,7 @@ describe Guard::PluginUtil do
   let(:guardfile_evaluator) { double('Guard::Guardfile::Evaluator instance') }
 
   before do
+    allow(Notifier).to receive(:turn_on) {}
     Guard.setup
   end
 
