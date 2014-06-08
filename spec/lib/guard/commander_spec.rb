@@ -95,6 +95,7 @@ describe Guard::Commander do
     subject { ::Guard.setup }
 
     before do
+      allow(::Guard::Notifier).to receive(:turn_on)
       allow(::Guard).to receive(:runner) { runner }
       allow(::Guard).to receive(:within_preserved_state).and_yield
       allow(::Guard::UI).to receive(:info)
@@ -154,6 +155,7 @@ describe Guard::Commander do
     subject { ::Guard.setup }
 
     before do
+      allow(::Guard::Notifier).to receive(:turn_on)
       allow(::Guard).to receive(:runner) { runner }
       allow(::Guard).to receive(:within_preserved_state).and_yield
       allow(::Guard::UI).to receive(:action_with_scopes)
@@ -190,6 +192,7 @@ describe Guard::Commander do
   describe '.within_preserved_state' do
     subject { ::Guard.setup }
     before do
+      allow(::Guard::Notifier).to receive(:turn_on)
       allow(subject).to receive(:interactor).
         and_return(double('interactor').as_null_object)
     end
