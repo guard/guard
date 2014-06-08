@@ -8,6 +8,7 @@ describe 'Guard::Interactor::SCOPE' do
   let(:bar_guard) { guard.add_plugin(:bar, group: :foo) }
 
   before do
+    allow(Guard::Notifier).to receive(:turn_on)
     allow(Guard).to receive(:scope=)
     allow(Guard).to receive(:setup_interactor)
     allow(Pry.output).to receive(:puts).and_return(true)

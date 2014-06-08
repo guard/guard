@@ -1,6 +1,6 @@
 module Guard
+  # Command to run all default plugin tasks
   class Interactor
-
     ALL = Pry::CommandSet.new do
       create_command 'all' do
 
@@ -27,7 +27,6 @@ module Guard
         end
       end
     end
-
   end
 end
 

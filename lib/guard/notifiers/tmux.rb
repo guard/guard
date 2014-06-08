@@ -2,7 +2,6 @@ require 'guard/notifiers/base'
 
 module Guard
   module Notifier
-
     # Changes the color of the Tmux status bar and optionally
     # shows messages in the status bar.
     #
@@ -16,7 +15,6 @@ module Guard
     #   notification :tmux, color_location: 'status-right-bg'
     #
     class Tmux < Base
-
       # Default options for the tmux notifications.
       DEFAULTS = {
         client:                 'tmux',
@@ -37,8 +35,11 @@ module Guard
         color_location:         'status-left-bg'
       }
 
+      ERROR_NOT_INSIDE_SESSION = 'The :tmux notifier runs only on when Guard'\
+              ' is executed inside of a tmux session.'
+
       def self.available?(opts = {})
-        super and _register!(opts)
+        super && _register!(opts)
       end
 
       # @private
@@ -57,11 +58,12 @@ module Guard
       # @return [Boolean] whether or not a TMUX environment is available
       #
       def self._register!(opts)
+        @options_stored = false
         if _tmux_environment_available?(opts)
           true
         else
           unless opts[:silent]
-            ::Guard::UI.error 'The :tmux notifier runs only on when Guard is executed inside of a tmux session.'
+            ::Guard::UI.error ERROR_NOT_INSIDE_SESSION
           end
           false
         end
@@ -86,8 +88,8 @@ module Guard
       # @option opts [String] image the path to the notification image
       # @option opts [Boolean] change_color whether to show a color
       #   notification
-      # @option opts [String,Array] color_location the location where to draw the
-      #   color notification
+      # @option opts [String,Array] color_location the location where to draw
+      #   the color notification
       # @option opts [Boolean] display_message whether to display a message
       #   or not
       # @option opts [Boolean] display_on_all_clients whether to display a
@@ -98,11 +100,12 @@ module Guard
         opts.delete(:image)
 
         if opts.fetch(:change_color, DEFAULTS[:change_color])
-          color_locations = Array(opts.fetch(:color_location, DEFAULTS[:color_location]))
+          options = opts.fetch(:color_location, DEFAULTS[:color_location])
+          color_locations = Array(options)
           color = tmux_color(opts[:type], opts)
 
           color_locations.each do |color_location|
-            _run_client "set","#{_quiet_option}#{ color_location } #{ color }"
+            _run_client 'set', "#{_quiet_option}#{ color_location } #{ color }"
           end
         end
 
@@ -113,9 +116,8 @@ module Guard
           display_title(type, title, message, opts)
         end
 
-        if opts.fetch(:display_message, DEFAULTS[:display_message])
-          display_message(type, title, message, opts)
-        end
+        return unless opts.fetch(:display_message, DEFAULTS[:display_message])
+        display_message(type, title, message, opts)
       end
 
       # Displays a message in the title bar of the terminal.
@@ -133,11 +135,15 @@ module Guard
       #   formatter when no format per type is defined.
       #
       def display_title(type, title, message, opts = {})
-        title_format   = opts.fetch("#{ type }_title_format".to_sym, opts.fetch(:default_title_format, DEFAULTS[:default_title_format]))
+        format = "#{type}_title_format".to_sym
+        defaults = DEFAULTS[:default_title_format]
+        options = opts.fetch(:default_title_format, defaults)
+        title_format   = opts.fetch(format, options)
         teaser_message = message.split("\n").first
         display_title  = title_format % [title, teaser_message]
 
-        _run_client "set-option", "#{_quiet_option}set-titles-string '#{ display_title }'"
+        _run_client 'set-option', "#{_quiet_option}set-titles-string"\
+          " '#{ display_title }'"
       end
 
       # Displays a message in the status bar of tmux.
@@ -169,8 +175,16 @@ module Guard
       #   line-break.
       #
       def display_message(type, title, message, opts = {})
-        message_format = opts.fetch("#{ type }_message_format".to_sym, opts.fetch(:default_message_format, DEFAULTS[:default_message_format]))
-        message_color = opts.fetch("#{ type }_message_color".to_sym, opts.fetch(:default_message_color, DEFAULTS[:default_message_color]))
+        default_format = DEFAULTS[:default_message_format]
+        default_format = opts.fetch(:default_message_format, default_format)
+        format = "#{ type }_message_format".to_sym
+        message_format = opts.fetch(format, default_format)
+
+        default_color = DEFAULTS[:default_message_color]
+        default_color = opts.fetch(:default_message_color, default_color)
+        color = "#{ type }_message_color".to_sym
+        message_color = opts.fetch(color, default_color)
+
         display_time = opts.fetch(:timeout, DEFAULTS[:timeout])
         separator = opts.fetch(:line_separator, DEFAULTS[:line_separator])
 
@@ -178,10 +192,13 @@ module Guard
         formatted_message = message.split("\n").join(separator)
         display_message = message_format % [title, formatted_message]
 
-        _run_client "set", "#{_quiet_option}display-time #{ display_time * 1000 }"
-        _run_client "set", "#{_quiet_option}message-fg #{ message_color }"
-        _run_client "set", "#{_quiet_option}message-bg #{ color }"
-        _run_client "display-message", "'#{ display_message }'"
+        _run_client(
+          'set',
+          "#{_quiet_option}display-time #{ display_time * 1000 }")
+
+        _run_client 'set', "#{_quiet_option}message-fg #{ message_color }"
+        _run_client 'set', "#{_quiet_option}message-bg #{ color }"
+        _run_client 'display-message', "'#{ display_message }'"
       end
 
       # Get the Tmux color for the notification type.
@@ -205,11 +222,7 @@ module Guard
           _reset_options_store
 
           _clients.each do |client|
-            options_store[client] ||= {}
-            `#{ DEFAULTS[:client] } show -t #{ client }`.each_line do |line|
-              option, _, setting = line.chomp.partition(' ')
-              @options_store[client][option] = setting
-            end
+            @options_store[client].merge!(_options_for_client(client))
           end
 
           @options_stored = true
@@ -224,11 +237,11 @@ module Guard
         if @options_stored
           @options_store.each do |client, options|
             options.each do |key, value|
-              if value
-                `#{ DEFAULTS[:client] } set -t #{ client } -q #{ key } #{ value }`
-              else
-                `#{ DEFAULTS[:client] } set -t #{ client } -q -u #{ key }`
-              end
+              args = [DEFAULTS[:client], 'set', '-t', client, '-q']
+              args << '-u' unless value
+              args << key
+              args << value if value
+              Sheller.run(args.join(' '))
             end
           end
           _reset_options_store
@@ -241,15 +254,28 @@ module Guard
 
       private
 
-      def system(args)
-        args += " >#{ DEV_NULL } 2>&1" if ENV['GUARD_ENV'] == 'test'
-        super
+      def self._clients
+        args = [DEFAULTS[:client], 'list-clients', '-F', "'\#{client_tty}'"]
+        ttys = Sheller.stdout(args.join(' '))
+        ttys = ttys.split(/\n/)
+
+        # if user is running 'tmux -C' remove this client from list
+        ttys.delete('(null)')
+
+        ttys
       end
 
-      def self._clients
-        ttys = `#{ DEFAULTS[:client] } list-clients -F '\#{client_tty}'`.split(/\n/)
-        ttys.delete('(null)') #if user is running 'tmux -C' remove this client from list
-        ttys
+      def self._options_for_client(client)
+        options = {}
+
+        lines = Sheller.stdout("#{DEFAULTS[:client]} show -t #{client}")
+
+        lines.each_line do |line|
+          option, _, setting = line.chomp.partition(' ')
+          options[option] = setting
+        end
+
+        options
       end
 
       def _clients
@@ -257,19 +283,23 @@ module Guard
       end
 
       def _run_client(cmd, args)
-        if @options.fetch(:display_on_all_clients, DEFAULTS[:display_on_all_clients])
-          _clients.each do |client|
-            system("#{ DEFAULTS[:client] } #{ cmd } #{ _client_cmd_flag(cmd) } #{ client.strip } #{ args }")
-          end
-        else
-          system("#{ DEFAULTS[:client] } #{ cmd } #{ args }")
+        default = DEFAULTS[:display_on_all_clients]
+        all_clients = @options.fetch(:display_on_all_clients, default)
+        clients = all_clients ? _clients : [nil]
+        clients.each do |client|
+          cmd_args = if client
+                       "#{_client_cmd_flag(cmd)} #{client.strip} #{args}"
+                     else
+                       args
+                     end
+          Sheller.run("#{DEFAULTS[:client]} #{cmd} #{cmd_args}")
         end
       end
 
       def _client_cmd_flag(cmd)
         case cmd
-          when 'set', 'set-option' then '-t'
-          when 'display-message' then '-c'
+        when 'set', 'set-option' then '-t'
+        when 'display-message' then '-c'
         end
       end
 
@@ -293,14 +323,12 @@ module Guard
       end
 
       def _tmux_version
-        @tmux_version ||= `tmux -V`.chomp.gsub(/[^0-9.]/, '').to_f
+        @tmux_version ||= Float(Sheller.stdout('tmux -V')[/\d+\.\d+/])
       end
 
       def _quiet_option
         '-q ' if _tmux_version >= 1.7
       end
-
     end
-
   end
 end

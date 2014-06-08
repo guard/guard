@@ -10,16 +10,16 @@ require 'guard/commands/show'
 require 'guard/ui'
 
 module Guard
-
   # The Guard interactor is a Pry REPL with a Guard
   # specific command set.
   #
   class Interactor
-
-    # The default Ruby script to configure Guard Pry if the option `:guard_rc` is not defined.
+    # The default Ruby script to configure Guard Pry if the option `:guard_rc`
+    # is not defined.
     GUARD_RC = '~/.guardrc'
 
-    # The default Guard Pry history file if the option `:history_file` is not defined.
+    # The default Guard Pry history file if the option `:history_file` is not
+    # defined.
     HISTORY_FILE = '~/.guard_history'
 
     # List of shortcuts for each interactor command
@@ -50,7 +50,9 @@ module Guard
     #
     # @param [Hash] options the interactor options
     # @option options [String] :guard_rc the Ruby script to configure Guard Pry
-    # @option options [String] :history_file the file to write the Pry history to
+    #
+    # @option options [String] :history_file the file to write the Pry history
+    # to
     #
     def self.options=(options)
       @options = options
@@ -76,7 +78,9 @@ module Guard
     # to a valid plugin or group scope.
     #
     # @param [Array<String>] entries the text scope
-    # @return [Hash, Array<String>] the plugin or group scope, the unknown entries
+    #
+    # @return [Hash, Array<String>] the plugin or group scope, the unknown
+    # entries
     #
     def self.convert_scope(entries)
       scopes  = { plugins: [], groups: [] }
@@ -104,7 +108,9 @@ module Guard
 
       Pry.config.should_load_rc       = false
       Pry.config.should_load_local_rc = false
-      Pry.config.history.file         = File.expand_path(self.class.options[:history_file] || HISTORY_FILE)
+
+      history_file = self.class.options[:history_file] || HISTORY_FILE
+      Pry.config.history.file = File.expand_path(history_file)
 
       @stty_exists = nil
       _add_hooks
@@ -126,13 +132,13 @@ module Guard
 
       _store_terminal_settings if _stty_exists?
 
-      unless @thread
-        ::Guard::UI.debug 'Start interactor'
+      return if @thread
 
-        @thread = Thread.new do
-          Pry.start
-          ::Guard.stop
-        end
+      ::Guard::UI.debug 'Start interactor'
+
+      @thread = Thread.new do
+        Pry.start
+        ::Guard.stop
       end
     end
 
@@ -188,7 +194,7 @@ module Guard
     #
     def _add_restore_visibility_hook
       Pry.config.hooks.add_hook :after_eval, :restore_visibility do
-        system("stty echo 2>#{ DEV_NULL }")
+        ::Guard::Sheller.run("stty echo 2>#{ DEV_NULL }")
       end
     end
 
@@ -196,9 +202,9 @@ module Guard
     # instead restarts guard.
     #
     def _replace_reset_command
-      Pry.commands.command "reset", "Reset the Guard to a clean state." do
-        output.puts "Guard reset."
-        exec "guard"
+      Pry.commands.command 'reset', 'Reset the Guard to a clean state.' do
+        output.puts 'Guard reset.'
+        exec 'guard'
       end
     end
 
@@ -207,14 +213,14 @@ module Guard
     # beginning of a line).
     #
     def _create_run_all_command
-      Pry.commands.block_command /^$/, 'Hit enter to run all' do
+      Pry.commands.block_command(/^$/, 'Hit enter to run all') do
         Pry.run_command 'all'
       end
     end
 
-    # Creates command aliases for the commands
-    # `help`, `reload`, `change`, `scope`, `notification`, `pause`, `exit` and `quit`,
-    # which will be the first letter of the command.
+    # Creates command aliases for the commands: `help`, `reload`, `change`,
+    # `scope`, `notification`, `pause`, `exit` and `quit`, which will be the
+    # first letter of the command.
     #
     def _create_command_aliases
       SHORTCUTS.each do |command, shortcut|
@@ -229,7 +235,8 @@ module Guard
     #
     def _create_guard_commands
       ::Guard.plugins.each do |guard_plugin|
-        Pry.commands.create_command guard_plugin.name, "Run all #{ guard_plugin.title }" do
+        cmd = "Run all #{ guard_plugin.title }"
+        Pry.commands.create_command guard_plugin.name, cmd do
           group 'Guard'
 
           def process
@@ -248,7 +255,8 @@ module Guard
       ::Guard.groups.each do |group|
         next if group.name == :default
 
-        Pry.commands.create_command group.name.to_s, "Run all #{ group.title }" do
+        cmd = "Run all #{ group.title }"
+        Pry.commands.create_command group.name.to_s, cmd  do
           group 'Guard'
 
           def process
@@ -269,11 +277,10 @@ module Guard
     # prompt.
     #
     def _scope_for_prompt
-      [:plugins, :groups].each do |scope_name|
-        return "#{_join_scope_for_prompt(scope_name)} " unless ::Guard.scope[scope_name].empty?
+      scope_name = [:plugins, :groups].detect do |name|
+        ! ::Guard.scope[name].empty?
       end
-
-      ''
+      scope_name ? "#{_join_scope_for_prompt(scope_name)} " : ''
     end
 
     # Joins the scope corresponding to the given scope name with commas.
@@ -291,7 +298,8 @@ module Guard
         process = ::Guard.listener.paused? ? 'pause' : 'guard'
         level   = ":#{ nest_level }" unless nest_level.zero?
 
-        "[#{ history }] #{ _scope_for_prompt }#{ process }(#{ _clip_name(target_self) })#{ level }#{ ending_char } "
+        "[#{ history }] #{ _scope_for_prompt }#{ process }"\
+          "(#{ _clip_name(target_self) })#{ level }#{ ending_char } "
       end
     end
 
@@ -305,22 +313,21 @@ module Guard
     # @return [Boolean] the status of stty
     #
     def _stty_exists?
-      @stty_exists ||= system('hash', 'stty') ? true : false if @stty_exists.nil?
-      @stty_exists
+      return @stty_exists unless @stty_exists.nil?
+      @stty_exists = ::Guard::Sheller.run('hash', 'stty') || false
     end
 
     # Stores the terminal settings so we can resore them
     # when stopping.
     #
     def _store_terminal_settings
-      @stty_save = `stty -g 2>#{ DEV_NULL }`.chomp
+      @stty_save = ::Guard::Sheller.stdout("stty -g 2>#{ DEV_NULL }").chomp
     end
 
     # Restore terminal settings
     #
     def _restore_terminal_settings
-      system("stty #{ @stty_save } 2>#{ DEV_NULL }") if @stty_save
+      ::Guard::Sheller.run("stty #{ @stty_save } 2>#{ DEV_NULL }") if @stty_save
     end
-
   end
 end

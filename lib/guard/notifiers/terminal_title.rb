@@ -2,11 +2,9 @@ require 'guard/notifiers/base'
 
 module Guard
   module Notifier
-
     # Shows system notifications in the terminal title bar.
     #
     class TerminalTitle < Base
-
       # Shows a system notification.
       #
       # @param [Hash] opts additional notification library options
@@ -20,16 +18,14 @@ module Guard
 
         first_line = message.sub(/^\n/, '').sub(/\n.*/m, '')
 
-        puts "\e]2;[#{ opts[:title] }] #{ first_line }\a"
+        STDOUT.puts "\e]2;[#{ opts[:title] }] #{ first_line }\a"
       end
 
       # Clears the terminal title
       #
       def self.turn_off
-        puts "\e]2;\a"
+        STDOUT.puts "\e]2;\a"
       end
-
     end
-
   end
 end

@@ -2,9 +2,10 @@ require 'guard/notifiers/base'
 
 module Guard
   module Notifier
-
     # System notifications using the
-    # [terminal-notifier-guard](https://github.com/Springest/terminal-notifier-guard)
+    #
+    # [terminal-notifier](https://github.com/Springest/terminal-notifier-guard)
+    #
     # gem.
     #
     # This gem is available for OS X 10.8 Mountain Lion and sends notifications
@@ -25,9 +26,11 @@ module Guard
     #   notification :terminal_notifier, activate: "com.googlecode.iterm2"
     #
     class TerminalNotifier < Base
+      ERROR_TERMINAL_NOTIFIER_ONLY_OSX10 = 'The :terminal_notifier only runs'\
+        ' on Mac OS X 10.8 and later.'
 
       def self.supported_hosts
-        %w[darwin]
+        %w(darwin)
       end
 
       def self.gem_name
@@ -35,7 +38,7 @@ module Guard
       end
 
       def self.available?(opts = {})
-        super and require_gem_safely(opts) and _register!(opts)
+        super && require_gem_safely(opts) && _register!(opts)
       end
 
       # Shows a system notification.
@@ -57,7 +60,9 @@ module Guard
         self.class.require_gem_safely
 
         opts.delete(:image)
-        opts[:title] = title || [opts.delete(:app_name) { 'Guard' }, opts[:type].downcase.capitalize].join(' ')
+        opts[:title] = title || [
+          opts.delete(:app_name) { 'Guard' }, opts[:type].downcase.capitalize
+        ].join(' ')
 
         ::TerminalNotifier::Guard.execute(false, opts.merge(message: message))
       end
@@ -67,20 +72,19 @@ module Guard
       # Detects if the terminal-notifier-guard gem is available and if not,
       # displays an error message unless `opts[:silent]` is true.
       #
-      # @return [Boolean] whether or not the terminal-notifier-guard gem is available
+      # @return [Boolean] whether or not the terminal-notifier-guard gem is
+      # available
       #
       def self._register!(opts)
         if ::TerminalNotifier::Guard.available?
           true
         else
           unless opts[:silent]
-            ::Guard::UI.error 'The :terminal_notifier only runs on Mac OS X 10.8 and later.'
+            UI.error UI::ERROR_TERMINAL_NOTIFIER_ONLY_OSX10
           end
           false
         end
       end
-
     end
-
   end
 end

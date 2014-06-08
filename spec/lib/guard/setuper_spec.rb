@@ -12,18 +12,28 @@ describe Guard::Setuper do
   end
 
   describe '.setup' do
-    let(:options) { { my_opts: true, guardfile: File.join(@fixture_path, "Guardfile") } }
+    let(:options) do
+      {
+        my_opts: true,
+        guardfile: File.join(@fixture_path, 'Guardfile')
+      }
+    end
+
+    before do
+      allow(Guard::Notifier).to receive(:turn_on)
+    end
+
     subject { Guard.setup(options) }
 
-    it "returns itself for chaining" do
+    it 'returns itself for chaining' do
       expect(subject).to be Guard
     end
 
-    it "initializes the plugins" do
+    it 'initializes the plugins' do
       expect(subject.plugins).to eq []
     end
 
-    it "initializes the groups" do
+    it 'initializes the groups' do
       expect(subject.groups[0].name).to eq :default
       expect(subject.groups[0].options).to eq({})
     end
@@ -36,17 +46,18 @@ describe Guard::Setuper do
       expect(subject.evaluator).to be_kind_of(Guard::Guardfile::Evaluator)
     end
 
-    it "initializes the listener" do
+    it 'initializes the listener' do
       expect(subject.listener).to be_kind_of(Listen::Listener)
     end
 
-    it "respect the watchdir option" do
+    it 'respect the watchdir option' do
       Guard.setup(watchdir: '/usr')
 
-      expect(Guard.listener.directories).to eq [Pathname.new(Guard::WINDOWS ? 'C:/usr' : '/usr' )]
+      path = Pathname.new(Guard::WINDOWS ? 'C:/usr' : '/usr')
+      expect(Guard.listener.directories).to eq [path]
     end
 
-    it "respect the watchdir option with multiple directories" do
+    it 'respect the watchdir option with multiple directories' do
       ::Guard.setup(watchdir: ['/usr', '/bin'])
 
       expect(::Guard.listener.directories).to eq [
@@ -67,7 +78,8 @@ describe Guard::Setuper do
     end
 
     it 'displays an error message when no guard are defined in Guardfile' do
-      expect(Guard::UI).to receive(:error).with('No plugins found in Guardfile, please add at least one.')
+      expect(Guard::UI).to receive(:error).
+        with('No plugins found in Guardfile, please add at least one.')
 
       subject
     end
@@ -79,16 +91,19 @@ describe Guard::Setuper do
     end
 
     context 'without the group or plugin option' do
-      it "initializes the empty scope" do
-        expect(subject.scope).to eq({ groups: [], plugins: [] })
+      it 'initializes the empty scope' do
+        expect(subject.scope).to eq(groups: [], plugins: [])
       end
     end
 
     context 'with the group option' do
-      let(:options) { {
-        group:              %w[backend frontend],
-        guardfile_contents: "group :backend do; end; group :frontend do; end; group :excluded do; end"
-      } }
+      let(:options) do
+        {
+          group:              %w(backend frontend),
+          guardfile_contents: 'group :backend do; end; '\
+          'group :frontend do; end; group :excluded do; end'
+        }
+      end
 
       it 'initializes the group scope' do
         expect(subject.scope[:plugins]).to be_empty
@@ -101,8 +116,9 @@ describe Guard::Setuper do
     context 'with the plugin option' do
       let(:options) do
         {
-          plugin:             ['cucumber', 'jasmine'],
-          guardfile_contents: "guard :jasmine do; end; guard :cucumber do; end; guard :coffeescript do; end"
+          plugin:             %w(cucumber jasmine),
+          guardfile_contents: 'guard :jasmine do; end; '\
+            'guard :cucumber do; end; guard :coffeescript do; end'
         }
       end
 
@@ -121,19 +137,25 @@ describe Guard::Setuper do
     end
 
     context 'with the debug mode turned on' do
-      let(:options) { { debug: true, guardfile: File.join(@fixture_path, "Guardfile") } }
+      let(:options) do
+        {
+          debug: true,
+          guardfile: File.join(@fixture_path, 'Guardfile')
+        }
+      end
+
       subject { ::Guard.setup(options) }
 
       before do
         allow(Guard).to receive(:_debug_command_execution)
       end
 
-      it "logs command execution if the debug option is true" do
+      it 'logs command execution if the debug option is true' do
         expect(::Guard).to receive(:_debug_command_execution)
         subject
       end
 
-      it "sets the log level to :debug if the debug option is true" do
+      it 'sets the log level to :debug if the debug option is true' do
         subject
         expect(::Guard::UI.options[:level]).to eq :debug
       end
@@ -142,13 +164,14 @@ describe Guard::Setuper do
 
   describe '.reset_groups' do
     subject do
-      guard           = Guard.setup(guardfile: File.join(@fixture_path, "Guardfile"))
-      @group_backend  = guard.add_group(:backend)
+      allow(Guard::Notifier).to receive(:turn_on)
+      guard = Guard.setup(guardfile: File.join(@fixture_path, 'Guardfile'))
+      @group_backend = guard.add_group(:backend)
       @group_backflip = guard.add_group(:backflip)
       guard
     end
 
-    it "initializes a default group" do
+    it 'initializes a default group' do
       subject.reset_groups
 
       expect(subject.groups.size).to eq 1
@@ -159,18 +182,23 @@ describe Guard::Setuper do
 
   describe '.reset_plugins' do
     before do
+      allow(Guard::Notifier).to receive(:turn_on)
       Guard.setup
-      class Guard::FooBar < Guard::Plugin; end
+      module Guard
+        class FooBar < Guard::Plugin; end
+      end
     end
 
     subject do
-      ::Guard.setup(guardfile: File.join(@fixture_path, "Guardfile")).tap { |g| g.add_plugin(:foo_bar) }
+      path = File.join(@fixture_path, 'Guardfile')
+      ::Guard.setup(guardfile: path).tap { |g| g.add_plugin(:foo_bar) }
     end
+
     after do
       ::Guard.instance_eval { remove_const(:FooBar) }
     end
 
-    it "return clear the plugins array" do
+    it 'return clear the plugins array' do
       expect(subject.plugins.size).to eq 1
 
       subject.reset_plugins
@@ -191,13 +219,14 @@ describe Guard::Setuper do
   describe '._setup_signal_traps', speed: 'slow' do
     before do
       allow(::Guard).to receive(:evaluate_guardfile)
+      allow(Guard::Notifier).to receive(:turn_on)
       ::Guard.setup
     end
 
     unless windows? || defined?(JRUBY_VERSION)
       context 'when receiving SIGUSR1' do
         context 'when Guard is running' do
-          before { expect(::Guard.listener).to receive(:paused?).and_return false }
+          before { expect(::Guard.listener).to receive(:paused?) { false } }
 
           it 'pauses Guard' do
             expect(::Guard).to receive(:pause)
@@ -207,7 +236,7 @@ describe Guard::Setuper do
         end
 
         context 'when Guard is already paused' do
-          before { expect(::Guard.listener).to receive(:paused?).and_return true }
+          before { expect(::Guard.listener).to receive(:paused?) { true } }
 
           it 'does not pauses Guard' do
             expect(::Guard).to_not receive(:pause)
@@ -219,7 +248,7 @@ describe Guard::Setuper do
 
       context 'when receiving SIGUSR2' do
         context 'when Guard is paused' do
-          before { expect(Guard.listener).to receive(:paused?).and_return true }
+          before { expect(Guard.listener).to receive(:paused?) { true } }
 
           it 'un-pause Guard' do
             expect(Guard).to receive(:pause)
@@ -229,7 +258,7 @@ describe Guard::Setuper do
         end
 
         context 'when Guard is already running' do
-          before { expect(::Guard.listener).to receive(:paused?).and_return false }
+          before { expect(::Guard.listener).to receive(:paused?) { false } }
 
           it 'does not un-pause Guard' do
             expect(::Guard).to_not receive(:pause)
@@ -241,7 +270,7 @@ describe Guard::Setuper do
 
       context 'when receiving SIGINT' do
         context 'without an interactor' do
-          before { expect(Guard).to receive(:interactor).and_return nil }
+          before { expect(Guard).to receive(:interactor) { nil } }
 
           it 'stops Guard' do
             expect(Guard).to receive(:stop)
@@ -252,7 +281,7 @@ describe Guard::Setuper do
 
         context 'with an interactor' do
           let(:interactor) { double('interactor', thread: double('thread')) }
-          before { allow(Guard).to receive(:interactor).and_return(interactor) }
+          before { allow(Guard).to receive(:interactor) { interactor } }
 
           it 'delegates to the Pry thread' do
             expect(Guard.interactor.thread).to receive(:raise).with Interrupt
@@ -265,11 +294,11 @@ describe Guard::Setuper do
   end
 
   describe '._setup_notifier' do
-    context "with the notify option enabled" do
+    context 'with the notify option enabled' do
       context 'without the environment variable GUARD_NOTIFY set' do
-        before { ENV["GUARD_NOTIFY"] = nil }
+        before { ENV['GUARD_NOTIFY'] = nil }
 
-        it "turns on the notifier on" do
+        it 'turns on the notifier on' do
           expect(::Guard::Notifier).to receive(:turn_on)
 
           ::Guard.setup(notify: true)
@@ -277,9 +306,9 @@ describe Guard::Setuper do
       end
 
       context 'with the environment variable GUARD_NOTIFY set to true' do
-        before { ENV["GUARD_NOTIFY"] = 'true' }
+        before { ENV['GUARD_NOTIFY'] = 'true' }
 
-        it "turns on the notifier on" do
+        it 'turns on the notifier on' do
           expect(::Guard::Notifier).to receive(:turn_on)
 
           ::Guard.setup(notify: true)
@@ -287,9 +316,9 @@ describe Guard::Setuper do
       end
 
       context 'with the environment variable GUARD_NOTIFY set to false' do
-        before { ENV["GUARD_NOTIFY"] = 'false' }
+        before { ENV['GUARD_NOTIFY'] = 'false' }
 
-        it "turns on the notifier off" do
+        it 'turns on the notifier off' do
           expect(::Guard::Notifier).to receive(:turn_off)
 
           ::Guard.setup(notify: true)
@@ -297,11 +326,11 @@ describe Guard::Setuper do
       end
     end
 
-    context "with the notify option disable" do
+    context 'with the notify option disable' do
       context 'without the environment variable GUARD_NOTIFY set' do
-        before { ENV["GUARD_NOTIFY"] = nil }
+        before { ENV['GUARD_NOTIFY'] = nil }
 
-        it "turns on the notifier off" do
+        it 'turns on the notifier off' do
           expect(::Guard::Notifier).to receive(:turn_off)
 
           ::Guard.setup(notify: false)
@@ -309,9 +338,9 @@ describe Guard::Setuper do
       end
 
       context 'with the environment variable GUARD_NOTIFY set to true' do
-        before { ENV["GUARD_NOTIFY"] = 'true' }
+        before { ENV['GUARD_NOTIFY'] = 'true' }
 
-        it "turns on the notifier on" do
+        it 'turns on the notifier on' do
           expect(::Guard::Notifier).to receive(:turn_off)
 
           ::Guard.setup(notify: false)
@@ -319,9 +348,9 @@ describe Guard::Setuper do
       end
 
       context 'with the environment variable GUARD_NOTIFY set to false' do
-        before { ENV["GUARD_NOTIFY"] = 'false' }
+        before { ENV['GUARD_NOTIFY'] = 'false' }
 
-        it "turns on the notifier off" do
+        it 'turns on the notifier off' do
           expect(::Guard::Notifier).to receive(:turn_off)
 
           ::Guard.setup(notify: false)
@@ -334,21 +363,30 @@ describe Guard::Setuper do
     let(:listener) { double.as_null_object }
     before { Guard.instance_variable_set '@watchdirs', ['/home/user/test'] }
 
-    context "with latency option" do
-      before { allow(::Guard).to receive(:options).and_return(Guard::Options.new(latency: 1.5)) }
+    context 'with latency option' do
+      before do
+        allow(::Guard).to receive(:options) do
+          Guard::Options.new(latency: 1.5)
+        end
+      end
 
-      it "pass option to listener" do
-        expect(Listen).to receive(:to).with(anything, { latency: 1.5 }) { listener }
+      it 'pass option to listener' do
+        expect(Listen).to receive(:to).
+          with(anything,  latency: 1.5) { listener }
 
         ::Guard.send :_setup_listener
       end
     end
 
-    context "with force_polling option" do
-      before { allow(::Guard).to receive(:options).and_return(Guard::Options.new(force_polling: true)) }
+    context 'with force_polling option' do
+      before do
+        options = Guard::Options.new(force_polling: true)
+        allow(::Guard).to receive(:options) { options }
+      end
 
-      it "pass option to listener" do
-        expect(Listen).to receive(:to).with(anything, { force_polling: true }) { listener }
+      it 'pass option to listener' do
+        expect(Listen).to receive(:to).
+          with(anything, force_polling: true) { listener }
 
         ::Guard.send :_setup_listener
       end
@@ -356,45 +394,47 @@ describe Guard::Setuper do
   end
 
   describe '._setup_notifier' do
-    context "with the notify option enabled" do
-      before { allow(::Guard).to receive(:options).and_return(Guard::Options.new(notify: true)) }
+    context 'with the notify option enabled' do
+      let(:options) { Guard::Options.new(notify: true) }
+      before { allow(::Guard).to receive(:options) { options } }
 
       context 'without the environment variable GUARD_NOTIFY set' do
-        before { ENV["GUARD_NOTIFY"] = nil }
+        before { ENV['GUARD_NOTIFY'] = nil }
 
         it_should_behave_like 'notifier enabled'
       end
 
       context 'with the environment variable GUARD_NOTIFY set to true' do
-        before { ENV["GUARD_NOTIFY"] = 'true' }
+        before { ENV['GUARD_NOTIFY'] = 'true' }
 
         it_should_behave_like 'notifier enabled'
       end
 
       context 'with the environment variable GUARD_NOTIFY set to false' do
-        before { ENV["GUARD_NOTIFY"] = 'false' }
+        before { ENV['GUARD_NOTIFY'] = 'false' }
 
         it_should_behave_like 'notifier disabled'
       end
     end
 
-    context "with the notify option disabled" do
-      before { allow(::Guard).to receive(:options).and_return(Guard::Options.new(notify: false)) }
+    context 'with the notify option disabled' do
+      let(:options) { Guard::Options.new(notify: false) }
+      before { allow(::Guard).to receive(:options) { options } }
 
       context 'without the environment variable GUARD_NOTIFY set' do
-        before { ENV["GUARD_NOTIFY"] = nil }
+        before { ENV['GUARD_NOTIFY'] = nil }
 
         it_should_behave_like 'notifier disabled'
       end
 
       context 'with the environment variable GUARD_NOTIFY set to true' do
-        before { ENV["GUARD_NOTIFY"] = 'true' }
+        before { ENV['GUARD_NOTIFY'] = 'true' }
 
         it_should_behave_like 'notifier disabled'
       end
 
       context 'with the environment variable GUARD_NOTIFY set to false' do
-        before { ENV["GUARD_NOTIFY"] = 'false' }
+        before { ENV['GUARD_NOTIFY'] = 'false' }
 
         it_should_behave_like 'notifier disabled'
       end
@@ -410,13 +450,19 @@ describe Guard::Setuper do
       after { Guard::Interactor.enabled = @interactor_enabled }
 
       context 'with interactions enabled' do
-        before { Guard.setup(no_interactions: false) }
+        before do
+          allow(Guard::Notifier).to receive(:turn_on)
+          Guard.setup(no_interactions: false)
+        end
 
         it_should_behave_like 'interactor enabled'
       end
 
-      context "with interactions disabled" do
-        before { Guard.setup(no_interactions: true) }
+      context 'with interactions disabled' do
+        before do
+          allow(Guard::Notifier).to receive(:turn_on)
+          Guard.setup(no_interactions: true)
+        end
 
         it_should_behave_like 'interactor disabled'
       end
@@ -426,18 +472,20 @@ describe Guard::Setuper do
       before { @interactor_enabled = Guard::Interactor.enabled }
       after { Guard::Interactor.enabled = @interactor_enabled }
 
-      context "with interactions enabled" do
+      context 'with interactions enabled' do
         before do
           Guard::Interactor.enabled = true
+          allow(Guard::Notifier).to receive(:turn_on)
           Guard.setup
         end
 
         it_should_behave_like 'interactor enabled'
       end
 
-      context "with interactions disabled" do
+      context 'with interactions disabled' do
         before do
           Guard::Interactor.enabled = false
+          allow(Guard::Notifier).to receive(:turn_on)
           Guard.setup
         end
 
@@ -450,6 +498,8 @@ describe Guard::Setuper do
     subject { Guard.setup }
 
     before do
+      allow(Guard::Notifier).to receive(:turn_on)
+
       # Unstub global stub
       allow(Guard).to receive(:_debug_command_execution).and_call_original
 
@@ -463,21 +513,27 @@ describe Guard::Setuper do
       Kernel.send(:define_method, :`, @original_command.to_proc)
     end
 
-    it "outputs Kernel.#system method parameters" do
-      expect(::Guard::UI).to receive(:debug).with("Command execution: echo test")
+    it 'outputs Kernel.#system method parameters' do
+      expect(::Guard::UI).to receive(:debug).
+        with('Command execution: echo test')
+
+      expect(Kernel).to receive(:original_system).
+        with('echo', 'test') { true }
+
       subject.send :_debug_command_execution
-      expect(Kernel).to receive(:original_system).with('echo', 'test').and_return true
 
       expect(system('echo', 'test')).to be_truthy
     end
 
-    it "outputs Kernel.#` method parameters" do
-      expect(::Guard::UI).to receive(:debug).with("Command execution: echo test")
-      subject.send :_debug_command_execution
-      expect(Kernel).to receive(:original_backtick).with('echo test').and_return "test\n"
+    it 'outputs Kernel.#` method parameters' do
+      expect(::Guard::UI).to receive(:debug).
+        with('Command execution: echo test')
 
+      expect(Kernel).to receive(:original_backtick).
+        with('echo test') { "test\n" }
+
+      subject.send :_debug_command_execution
       expect(`echo test`).to eq "test\n"
     end
   end
-
 end

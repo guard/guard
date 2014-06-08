@@ -16,7 +16,6 @@ require 'guard/notifiers/terminal_title'
 require 'guard/notifiers/tmux'
 
 module Guard
-
   # The notifier handles sending messages to different notifiers. Currently the
   # following
   # libraries are supported:
@@ -53,7 +52,6 @@ module Guard
   # @see Guard::Dsl
   #
   module Notifier
-
     extend self
 
     # List of available notifiers, grouped by functionality
@@ -94,14 +92,19 @@ module Guard
     # @option options [Boolean] silent disable any logging
     #
     def turn_on(opts = {})
-      _auto_detect_notification if notifiers.empty? && (!::Guard.options || ::Guard.options[:notify])
+      if notifiers.empty? && (!::Guard.options || ::Guard.options[:notify])
+        _auto_detect_notification
+      end
 
       if notifiers.empty?
         turn_off
       else
         notifiers.each do |notifier|
           notifier_class = _get_notifier_module(notifier[:name])
-          ::Guard::UI.info "Guard is using #{ notifier_class.title } to send notifications." unless opts[:silent]
+          unless opts[:silent]
+            ::Guard::UI.info \
+              "Guard is using #{ notifier_class.title } to send notifications."
+          end
 
           notifier_class.turn_on if notifier_class.respond_to?(:turn_on)
         end
@@ -175,8 +178,10 @@ module Guard
 
         begin
           notifier.notify(message, opts.dup)
-        rescue Exception => e
-          ::Guard::UI.error "Error sending notification with #{ notifier.name }: #{ e.message }"
+        rescue RuntimeError => e
+          ::Guard::UI.error \
+            "Error sending notification with #{ notifier.name }: #{ e.message }"
+
           ::Guard::UI.debug e.backtrace.join("\n")
         end
       end
@@ -191,11 +196,9 @@ module Guard
     #
     def _get_notifier_module(name)
       NOTIFIERS.each do |group|
-        if notifier = group.find { |n, _| n == name }
-          return notifier.last
-        end
+        next unless (notifier = group.detect { |n, _| n == name })
+        return notifier.last
       end
-
       nil
     end
 
@@ -208,12 +211,15 @@ module Guard
       available = nil
 
       NOTIFIERS.each do |group|
-        notifier_added = group.find { |name, klass| add_notifier(name, silent: true) }
+        notifier_added = group.detect do |name, _|
+          add_notifier(name, silent: true)
+        end
         available ||= notifier_added
       end
 
-      ::Guard::UI.info('Guard could not detect any of the supported notification libraries.') unless available
+      return if available
+      ::Guard::UI.info \
+        'Guard could not detect any of the supported notification libraries.'
     end
   end
-
 end

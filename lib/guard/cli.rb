@@ -6,13 +6,14 @@ require 'guard/dsl_describer'
 require 'guard/guardfile'
 
 module Guard
-
-  # Facade for the Guard command line interface managed by [Thor](https://github.com/wycats/thor).
-  # This is the main interface to Guard that is called by the Guard binary `bin/guard`.
-  # Do not put any logic in here, create a class and delegate instead.
+  # Facade for the Guard command line interface managed by
+  # [Thor](https://github.com/wycats/thor).
+  #
+  # This is the main interface to Guard that is called by the Guard binary
+  # `bin/guard`. Do not put any logic in here, create a class and delegate
+  # instead.
   #
   class CLI < Thor
-
     default_task :start
 
     desc 'start', 'Starts Guard'
@@ -95,10 +96,14 @@ module Guard
                   type:    :string,
                   aliases: '-o',
                   default: false,
-                  banner:  'Specify a network address to Listen on for file change events (e.g. for use in VMs)'
+                  banner:  'Specify a network address to Listen on for '\
+                  'file change events (e.g. for use in VMs)'
 
-    # Start Guard by initializing the defined Guard plugins and watch the file system.
-    # This is the default task, so calling `guard` is the same as calling `guard start`.
+    # Start Guard by initializing the defined Guard plugins and watch the file
+    # system.
+    #
+    # This is the default task, so calling `guard` is the same as calling
+    # `guard start`.
     #
     # @see Guard.start
     #
@@ -108,15 +113,15 @@ module Guard
 
       return if ENV['GUARD_ENV'] == 'test'
 
-      while ::Guard.running do
+      while ::Guard.running
         sleep 0.5
       end
     end
 
     desc 'list', 'Lists Guard plugins that can be used with init'
 
-    # List the Guard plugins that are available for use in your system and marks
-    # those that are currently used in your `Guardfile`.
+    # List the Guard plugins that are available for use in your system and
+    # marks those that are currently used in your `Guardfile`.
     #
     # @see Guard::DslDescriber.list
     #
@@ -142,16 +147,19 @@ module Guard
     # @see Guard::VERSION
     #
     def version
-      puts "Guard version #{ ::Guard::VERSION }"
+      STDOUT.puts "Guard version #{ ::Guard::VERSION }"
     end
 
-    desc 'init [GUARDS]', 'Generates a Guardfile at the current directory (if it is not already there) and adds all installed Guard plugins or the given GUARDS into it'
+    desc 'init [GUARDS]', 'Generates a Guardfile at the current directory'\
+      ' (if it is not already there) and adds all installed Guard plugins'\
+      ' or the given GUARDS into it'
 
     method_option :bare,
                   type: :boolean,
                   default: false,
                   aliases: '-b',
-                  banner: 'Generate a bare Guardfile without adding any installed plugin into it'
+                  banner: 'Generate a bare Guardfile without adding any'\
+                  ' installed plugin into it'
 
     # Initializes the templates of all installed Guard plugins and adds them
     # to the `Guardfile` when no Guard name is passed. When passing
@@ -160,7 +168,8 @@ module Guard
     # @see Guard::Guardfile.initialize_template
     # @see Guard::Guardfile.initialize_all_templates
     #
-    # @param [Array<String>] plugin_names the name of the Guard plugins to initialize
+    # @param [Array<String>] plugin_names the name of the Guard plugins to
+    # initialize
     #
     def init(*plugin_names)
       _verify_bundler_presence
@@ -196,8 +205,10 @@ module Guard
     # shows a hint to do so if not.
     #
     def _verify_bundler_presence
-      if File.exists?('Gemfile') && !ENV['BUNDLE_GEMFILE']
-        ::Guard::UI.info <<EOF
+      return unless File.exist?('Gemfile')
+      return if ENV['BUNDLE_GEMFILE']
+
+      ::Guard::UI.info <<EOF
 
 Guard here! It looks like your project has a Gemfile, yet you are running
 `guard` outside of Bundler. If this is your intent, feel free to ignore this
@@ -205,8 +216,6 @@ message. Otherwise, consider using `bundle exec guard` to ensure your
 dependencies are loaded correctly.
 (You can run `guard` with --no-bundler-warning to get rid of this message.)
 EOF
-      end
     end
-
   end
 end

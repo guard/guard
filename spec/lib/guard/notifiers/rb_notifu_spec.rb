@@ -4,12 +4,12 @@ describe Guard::Notifier::Notifu do
   let(:notifier) { described_class.new }
 
   before do
-    allow(described_class).to receive(:require_gem_safely).and_return(true)
+    allow(described_class).to receive(:require_gem_safely) { true }
     stub_const 'Notifu', double
   end
 
   describe '.supported_hosts' do
-    it { expect(described_class.supported_hosts).to eq %w[mswin mingw] }
+    it { expect(described_class.supported_hosts).to eq %w(mswin mingw) }
   end
 
   describe '.gem_name' do
@@ -18,7 +18,9 @@ describe Guard::Notifier::Notifu do
 
   describe '.available?' do
     context 'host is not supported' do
-      before { allow(RbConfig::CONFIG).to receive(:[]).with('host_os').and_return('darwin') }
+      before do
+        allow(RbConfig::CONFIG).to receive(:[]).with('host_os') { 'darwin' }
+      end
 
       it 'do not require rb-notifu' do
         expect(described_class).to_not receive(:require_gem_safely)
@@ -28,7 +30,9 @@ describe Guard::Notifier::Notifu do
     end
 
     context 'host is supported' do
-      before { allow(RbConfig::CONFIG).to receive(:[]).with('host_os').and_return('mswin') }
+      before do
+        allow(RbConfig::CONFIG).to receive(:[]).with('host_os') { 'mswin' }
+      end
 
       it 'requires rb-notifu' do
         expect(described_class).to receive(:require_gem_safely) { true }
@@ -73,7 +77,9 @@ describe Guard::Notifier::Notifu do
           message: 'Welcome to Guard'
         )
 
-        notifier.notify('Welcome to Guard', title: 'Welcome', image: '/tmp/welcome.png')
+        notifier.notify('Welcome to Guard',
+                        title: 'Welcome',
+                        image: '/tmp/welcome.png')
       end
     end
 
@@ -92,7 +98,9 @@ describe Guard::Notifier::Notifu do
           message: 'Welcome to Guard'
         )
 
-        notifier.notify('Welcome to Guard', title: 'Welcome', image: '/tmp/welcome.png')
+        notifier.notify('Welcome to Guard',
+                        title: 'Welcome',
+                        image: '/tmp/welcome.png')
       end
     end
 
@@ -112,15 +120,15 @@ describe Guard::Notifier::Notifu do
         )
 
         notifier.notify('Waiting for something',
-          time:    5,
-          icon:    true,
-          baloon:  true,
-          nosound: true,
-          noquiet: true,
-          xp:      true,
-          title:   'Waiting',
-          type:    :pending,
-          image:   '/tmp/wait.png'
+                        time:    5,
+                        icon:    true,
+                        baloon:  true,
+                        nosound: true,
+                        noquiet: true,
+                        xp:      true,
+                        title:   'Waiting',
+                        type:    :pending,
+                        image:   '/tmp/wait.png'
         )
       end
     end

@@ -21,7 +21,7 @@ describe Guard::Plugin::Hooker do
         hook 'special_sauce', 'first_arg', 'second_arg'
       end
 
-      def run_on_modifications(paths)
+      def run_on_modifications(_paths)
         hook :begin
       end
     end
@@ -38,20 +38,29 @@ describe Guard::Plugin::Hooker do
 
   describe '.add_callback' do
     it 'can add a single callback' do
-      expect(described_class.callbacks[[dummy1, :start_begin]].include?(listener)).to be_truthy
+
+      result = described_class.callbacks[[dummy1, :start_begin]]
+      expect(result).to include(listener)
     end
 
     it 'can add a run_on_modifications callback' do
-      described_class.add_callback(listener, dummy1, :run_on_modifications_begin)
+      described_class.add_callback(
+        listener,
+        dummy1,
+        :run_on_modifications_begin)
 
-      expect(described_class.callbacks[[dummy1, :run_on_modifications_begin]].include?(listener)).to be_truthy
+      result = described_class.callbacks[[dummy1, :run_on_modifications_begin]]
+      expect(result).to include(listener)
     end
 
     it 'can add multiple callbacks' do
       described_class.add_callback(listener, dummy1, [:event1, :event2])
 
-      expect(described_class.callbacks[[dummy1, :event1]].include?(listener)).to be_truthy
-      expect(described_class.callbacks[[dummy1, :event2]].include?(listener)).to be_truthy
+      result = described_class.callbacks[[dummy1, :event1]]
+      expect(result).to include(listener)
+
+      result = described_class.callbacks[[dummy1, :event2]]
+      expect(result).to include(listener)
     end
   end
 
@@ -101,8 +110,11 @@ describe Guard::Plugin::Hooker do
     end
 
     it 'accepts extra arguments' do
-      expect(described_class).to receive(:notify).with(dummy1, :stop_begin, 'args')
-      expect(described_class).to receive(:notify).with(dummy1, :special_sauce, 'first_arg', 'second_arg')
+      expect(described_class).to receive(:notify).
+        with(dummy1, :stop_begin, 'args')
+
+      expect(described_class).to receive(:notify).
+        with(dummy1, :special_sauce, 'first_arg', 'second_arg')
 
       dummy1.stop
     end

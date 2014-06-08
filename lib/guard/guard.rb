@@ -1,7 +1,6 @@
 require 'guard/plugin/base'
 
 module Guard
-
   # @deprecated Inheriting from `Guard::Guard` is deprecated, please inherit
   #   from {Plugin} instead. Please note that the constructor signature has
   #   changed from `Guard::Guard#initialize(watchers = [], options = {})` to
@@ -32,11 +31,10 @@ module Guard
     #   a watcher
     #
     def initialize(watchers = [], options = {})
-      ::Guard::UI.deprecation(::Guard::Deprecator::GUARD_GUARD_DEPRECATION % title)
+      UI.deprecation(Deprecator::GUARD_GUARD_DEPRECATION % title)
 
       _set_instance_variables_from_options(options.merge(watchers: watchers))
       _register_callbacks
     end
-
   end
 end

@@ -8,6 +8,7 @@ group :development, :test do
   # This plugin is required in the tests!
   gem 'guard-rspec', require: false
   gem 'rspec', '~> 3.0.0'
+  gem 'guard-rubocop', require: false
 end
 
 # The development group will not be

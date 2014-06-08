@@ -2,14 +2,12 @@ require 'guard/notifiers/base'
 
 module Guard
   module Notifier
-
     # Writes Guard notification results to a file.
     #
     # @example Add the `:file` notifier to your `Guardfile`
     #   notification :file, path: 'tmp/guard_result'
     #
     class FileNotifier < Base
-
       DEFAULTS = {
         format: "%s\n%s\n%s\n"
       }
@@ -19,7 +17,7 @@ module Guard
       #   results will be written
       #
       def self.available?(opts = {})
-        super and opts.has_key?(:path)
+        super && opts.has_key?(:path)
       end
 
       # Writes the notification to a file. By default it writes type, title,
@@ -51,8 +49,6 @@ module Guard
       def _write(path, contents)
         File.write(path, contents)
       end
-
     end
-
   end
 end

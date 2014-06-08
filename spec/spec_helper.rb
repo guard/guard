@@ -4,11 +4,12 @@ Coveralls.wear!
 require 'guard'
 require 'rspec'
 
-ENV["GUARD_ENV"] = 'test'
+ENV['GUARD_ENV'] = 'test'
 
-Dir["#{File.expand_path('..', __FILE__)}/support/**/*.rb"].each { |f| require f }
+path = "#{File.expand_path('..', __FILE__)}/support/**/*.rb"
+Dir[path].each { |f| require f }
 
-puts "Please do not update/create files while tests are running."
+STDOUT.puts 'Please do not update/create files while tests are running.'
 
 RSpec.configure do |config|
   config.order = :random
@@ -19,7 +20,7 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
 
-  config.before(:each) do
+  config.before(:each) do |example|
     @fixture_path = Pathname.new(File.expand_path('../fixtures/', __FILE__))
 
     # Ensure debug command execution isn't used in the specs
@@ -34,8 +35,25 @@ RSpec.configure do |config|
 
     # Avoid clobbering the terminal
     allow(Guard::Notifier::TerminalTitle).to receive(:puts)
-    allow(Guard::Notifier::Tmux).to receive(:system) { '' }
-    allow(Guard::Notifier::Tmux).to receive(:`) { '' }
+
+    allow(Guard::Notifier::Tmux).to receive(:system) do |*args|
+      fail "stub for system() called with: #{args.inspect}"
+    end
+
+    allow(Guard::Notifier::Tmux).to receive(:`) do |*args|
+      fail "stub for `(backtick) called with: #{args.inspect}"
+    end
+
+    allow(Kernel).to receive(:system) do |*args|
+      fail "stub for Kernel.system() called with: #{args.inspect}"
+    end
+
+    unless example.metadata[:sheller_specs]
+      allow(Guard::Sheller).to receive(:run) do |args|
+        fail "stub for Sheller.run() called with: #{args.inspect}"
+      end
+    end
+
     allow(Pry.output).to receive(:puts)
 
     ::Guard.reset_groups
@@ -48,7 +66,7 @@ RSpec.configure do |config|
     # tests.
     fake_home = File.expand_path('../fake-home', __FILE__)
     FileUtils.rmtree fake_home
-    FileUtils.mkdir  fake_home
+    FileUtils.mkdir fake_home
     ENV['HOME'] = fake_home
   end
 

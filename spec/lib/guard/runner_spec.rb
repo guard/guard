@@ -4,6 +4,8 @@ require 'guard/plugin'
 describe Guard::Runner do
 
   before do
+    allow(Notifier).to receive(:turn_on) {}
+
     guard = ::Guard.setup
     stub_const 'Guard::Foo', Class.new(Guard::Plugin)
     stub_const 'Guard::Bar', Class.new(Guard::Plugin)
@@ -11,9 +13,9 @@ describe Guard::Runner do
 
     @backend_group  = guard.add_group(:backend)
     @frontend_group = guard.add_group(:frontend)
-    @foo_guard      = guard.add_plugin(:foo, { group: :backend })
-    @bar_guard      = guard.add_plugin(:bar, { group: :frontend })
-    @baz_guard      = guard.add_plugin(:baz, { group: :frontend })
+    @foo_guard      = guard.add_plugin(:foo,  group: :backend)
+    @bar_guard      = guard.add_plugin(:bar,  group: :frontend)
+    @baz_guard      = guard.add_plugin(:baz,  group: :frontend)
 
     allow(@foo_guard).to receive(:my_task)
     allow(@bar_guard).to receive(:my_task)
@@ -24,9 +26,11 @@ describe Guard::Runner do
   end
 
   describe '#run' do
-    it 'executes a supervised task on all registered plugins implementing that task' do
+    it 'executes supervised task on all registered plugins implementing it' do
       [@foo_guard, @bar_guard].each do |plugin|
-        expect(subject).to receive(:run_supervised_task).with(plugin, :my_hard_task)
+        expect(subject).to receive(:run_supervised_task).
+          with(plugin, :my_hard_task)
+
       end
       subject.run(:my_hard_task)
     end
@@ -37,12 +41,16 @@ describe Guard::Runner do
     end
 
     context 'with a failing task' do
-      before { allow(subject).to receive(:run_supervised_task) { throw :task_has_failed } }
+      before do
+        allow(subject).to receive(:run_supervised_task) do
+          throw :task_has_failed
+        end
+      end
 
       it 'catches the thrown symbol' do
-        expect {
+        expect do
           subject.run(:failing)
-        }.to_not throw_symbol(:task_has_failed)
+        end.to_not throw_symbol(:task_has_failed)
       end
     end
 
@@ -51,10 +59,14 @@ describe Guard::Runner do
         let(:scope) { { plugin: :bar } }
 
         it 'executes the supervised task on the specified plugin only' do
-          expect(subject).to receive(:run_supervised_task).with(@bar_guard, :my_task)
+          expect(subject).to receive(:run_supervised_task).
+            with(@bar_guard, :my_task)
 
-          expect(subject).to_not receive(:run_supervised_task).with(@foo_guard, :my_task)
-          expect(subject).to_not receive(:run_supervised_task).with(@baz_guard, :my_task)
+          expect(subject).to_not receive(:run_supervised_task).
+            with(@foo_guard, :my_task)
+
+          expect(subject).to_not receive(:run_supervised_task).
+            with(@baz_guard, :my_task)
 
           subject.run(:my_task, scope)
         end
@@ -64,10 +76,14 @@ describe Guard::Runner do
         let(:scope) { { plugin: @bar_guard } }
 
         it 'executes the supervised task on the specified plugin only' do
-          expect(subject).to receive(:run_supervised_task).with(@bar_guard, :my_task)
+          expect(subject).to receive(:run_supervised_task).
+            with(@bar_guard, :my_task)
 
-          expect(subject).to_not receive(:run_supervised_task).with(@foo_guard, :my_task)
-          expect(subject).to_not receive(:run_supervised_task).with(@baz_guard, :my_task)
+          expect(subject).to_not receive(:run_supervised_task).
+            with(@foo_guard, :my_task)
+
+          expect(subject).to_not receive(:run_supervised_task).
+            with(@baz_guard, :my_task)
 
           subject.run(:my_task, scope)
         end
@@ -80,10 +96,14 @@ describe Guard::Runner do
 
         it 'executes the supervised task on the specified plugins only' do
           allow(@bar_guard).to receive(:my_task)
-          expect(subject).to receive(:run_supervised_task).with(@foo_guard, :my_task)
-          expect(subject).to receive(:run_supervised_task).with(@bar_guard, :my_task)
+          expect(subject).to receive(:run_supervised_task).
+            with(@foo_guard, :my_task)
 
-          expect(subject).to_not receive(:run_supervised_task).with(@baz_guard, :my_task)
+          expect(subject).to receive(:run_supervised_task).
+            with(@bar_guard, :my_task)
+
+          expect(subject).to_not receive(:run_supervised_task).
+            with(@baz_guard, :my_task)
 
           subject.run(:my_task, scope)
         end
@@ -93,10 +113,14 @@ describe Guard::Runner do
         let(:scope) { { plugins: [@foo_guard, @bar_guard] } }
 
         it 'executes the supervised task on the specified plugins only' do
-          expect(subject).to receive(:run_supervised_task).with(@foo_guard, :my_task)
-          expect(subject).to receive(:run_supervised_task).with(@bar_guard, :my_task)
+          expect(subject).to receive(:run_supervised_task).
+            with(@foo_guard, :my_task)
 
-          expect(subject).to_not receive(:run_supervised_task).with(@baz_guard, :my_task)
+          expect(subject).to receive(:run_supervised_task).
+            with(@bar_guard, :my_task)
+
+          expect(subject).to_not receive(:run_supervised_task).
+            with(@baz_guard, :my_task)
 
           subject.run(:my_task, scope)
         end
@@ -108,10 +132,14 @@ describe Guard::Runner do
         let(:scope) { { group: :frontend } }
 
         it 'executes the supervised task on the specified plugin only' do
-          expect(subject).to receive(:run_supervised_task).with(@bar_guard, :my_task)
-          expect(subject).to receive(:run_supervised_task).with(@baz_guard, :my_task)
+          expect(subject).to receive(:run_supervised_task).
+            with(@bar_guard, :my_task)
 
-          expect(subject).to_not receive(:run_supervised_task).with(@foo_guard, :my_task)
+          expect(subject).to receive(:run_supervised_task).
+            with(@baz_guard, :my_task)
+
+          expect(subject).to_not receive(:run_supervised_task).
+            with(@foo_guard, :my_task)
 
           subject.run(:my_task, scope)
         end
@@ -121,10 +149,14 @@ describe Guard::Runner do
         let(:scope) { { group: @frontend_group } }
 
         it 'executes the supervised task on the specified plugin only' do
-          expect(subject).to receive(:run_supervised_task).with(@bar_guard, :my_task)
-          expect(subject).to receive(:run_supervised_task).with(@baz_guard, :my_task)
+          expect(subject).to receive(:run_supervised_task).
+            with(@bar_guard, :my_task)
 
-          expect(subject).to_not receive(:run_supervised_task).with(@foo_guard, :my_task)
+          expect(subject).to receive(:run_supervised_task).
+            with(@baz_guard, :my_task)
+
+          expect(subject).to_not receive(:run_supervised_task).
+            with(@foo_guard, :my_task)
 
           subject.run(:my_task, scope)
         end
@@ -136,9 +168,14 @@ describe Guard::Runner do
         let(:scope) { { groups: [:frontend, :backend] } }
 
         it 'executes the supervised task on the specified plugins only' do
-          expect(subject).to receive(:run_supervised_task).with(@foo_guard, :my_task)
-          expect(subject).to receive(:run_supervised_task).with(@bar_guard, :my_task)
-          expect(subject).to receive(:run_supervised_task).with(@baz_guard, :my_task)
+          expect(subject).to receive(:run_supervised_task).
+            with(@foo_guard, :my_task)
+
+          expect(subject).to receive(:run_supervised_task).
+            with(@bar_guard, :my_task)
+
+          expect(subject).to receive(:run_supervised_task).
+            with(@baz_guard, :my_task)
 
           subject.run(:my_task, scope)
         end
@@ -148,9 +185,14 @@ describe Guard::Runner do
         let(:scope) { { groups: [@frontend_group, @backend_group] } }
 
         it 'executes the supervised task on the specified plugins only' do
-          expect(subject).to receive(:run_supervised_task).with(@foo_guard, :my_task)
-          expect(subject).to receive(:run_supervised_task).with(@bar_guard, :my_task)
-          expect(subject).to receive(:run_supervised_task).with(@baz_guard, :my_task)
+          expect(subject).to receive(:run_supervised_task).
+            with(@foo_guard, :my_task)
+
+          expect(subject).to receive(:run_supervised_task).
+            with(@bar_guard, :my_task)
+
+          expect(subject).to receive(:run_supervised_task).
+            with(@baz_guard, :my_task)
 
           subject.run(:my_task, scope)
         end
@@ -159,7 +201,7 @@ describe Guard::Runner do
   end
 
   describe '#run_on_changes' do
-    let(:changes) { [ [], [], [] ] }
+    let(:changes) { [[], [], []] }
     let(:watcher_module) { ::Guard::Watcher }
 
     before do
@@ -168,7 +210,7 @@ describe Guard::Runner do
       allow(watcher_module).to receive(:match_files) { [] }
     end
 
-    it "always calls UI.clearable" do
+    it 'always calls UI.clearable' do
       expect(Guard::UI).to receive(:clearable)
       subject.run_on_changes(*changes)
     end
@@ -176,7 +218,7 @@ describe Guard::Runner do
     context 'when clearable' do
       before { allow(subject).to receive(:_clearable?) { true } }
 
-      it "clear UI" do
+      it 'clear UI' do
         expect(Guard::UI).to receive(:clear)
         subject.run_on_changes(*changes)
       end
@@ -184,19 +226,26 @@ describe Guard::Runner do
 
     context 'with no changes' do
       it 'does not run any task' do
-        %w[run_on_modifications run_on_change run_on_additions run_on_removals run_on_deletion].each do |task|
+        %w(
+          run_on_modifications
+          run_on_change
+          run_on_additions
+          run_on_removals
+          run_on_deletion).each do |task|
           expect(@foo_guard).to_not receive(task.to_sym)
         end
         subject.run_on_changes(*changes)
       end
     end
 
-    context "with modified files but modified paths is empty" do
-      let(:modified) { %w[file.txt image.png] }
+    context 'with modified files but modified paths is empty' do
+      let(:modified) { %w(file.txt image.png) }
 
       before do
         changes[0] = modified
-        expect(watcher_module).to receive(:match_files).once.with(@foo_guard, modified).and_return([])
+        expect(watcher_module).to receive(:match_files).once.
+          with(@foo_guard, modified).and_return([])
+
       end
 
       it 'does not call run_first_task_found' do
@@ -206,25 +255,33 @@ describe Guard::Runner do
     end
 
     context 'with modified paths' do
-      let(:modified) { %w[file.txt image.png] }
+      let(:modified) { %w(file.txt image.png) }
 
       before do
         changes[0] = modified
-        expect(watcher_module).to receive(:match_files).with(@foo_guard, modified).and_return(modified)
+        expect(watcher_module).to receive(:match_files).
+          with(@foo_guard, modified).and_return(modified)
+
       end
 
       it 'executes the :run_first_task_found task' do
-        expect(subject).to receive(:_run_first_task_found).with(@foo_guard, [:run_on_modifications, :run_on_changes, :run_on_change], modified)
+        expect(subject).to receive(:_run_first_task_found).
+          with(
+            @foo_guard,
+            [:run_on_modifications, :run_on_changes, :run_on_change], modified)
+
         subject.run_on_changes(*changes)
       end
     end
 
-    context "with added files but added paths is empty" do
-      let(:added) { %w[file.txt image.png] }
+    context 'with added files but added paths is empty' do
+      let(:added) { %w(file.txt image.png) }
 
       before do
         changes[0] = added
-        expect(watcher_module).to receive(:match_files).once.with(@foo_guard, added).and_return([])
+        expect(watcher_module).to receive(:match_files).once.
+          with(@foo_guard, added).and_return([])
+
       end
 
       it 'does not call run_first_task_found' do
@@ -234,25 +291,34 @@ describe Guard::Runner do
     end
 
     context 'with added paths' do
-      let(:added) { %w[file.txt image.png] }
+      let(:added) { %w(file.txt image.png) }
 
       before do
         changes[1] = added
-        expect(watcher_module).to receive(:match_files).with(@foo_guard, added).and_return(added)
+        expect(watcher_module).to receive(:match_files).
+          with(@foo_guard, added).and_return(added)
+
       end
 
       it 'executes the :run_on_additions task' do
-        expect(subject).to receive(:_run_first_task_found).with(@foo_guard, [:run_on_additions, :run_on_changes, :run_on_change], added)
+        expect(subject).to receive(:_run_first_task_found).
+          with(
+            @foo_guard,
+            [:run_on_additions, :run_on_changes, :run_on_change],
+            added)
+
         subject.run_on_changes(*changes)
       end
     end
 
-    context "with removed files but removed paths is empty" do
-      let(:removed) { %w[file.txt image.png] }
+    context 'with removed files but removed paths is empty' do
+      let(:removed) { %w(file.txt image.png) }
 
       before do
         changes[0] = removed
-        expect(watcher_module).to receive(:match_files).once.with(@foo_guard, removed).and_return([])
+        expect(watcher_module).to receive(:match_files).once.
+          with(@foo_guard, removed) { [] }
+
       end
 
       it 'does not call run_first_task_found' do
@@ -262,15 +328,22 @@ describe Guard::Runner do
     end
 
     context 'with removed paths' do
-      let(:removed) { %w[file.txt image.png] }
+      let(:removed) { %w(file.txt image.png) }
 
       before do
         changes[2] = removed
-        expect(watcher_module).to receive(:match_files).with(@foo_guard, removed).and_return(removed)
+        expect(watcher_module).to receive(:match_files).
+          with(@foo_guard, removed) { removed }
+
       end
 
       it 'executes the :run_on_removals task' do
-        expect(subject).to receive(:_run_first_task_found).with(@foo_guard, [:run_on_removals, :run_on_changes, :run_on_deletion], removed)
+        expect(subject).to receive(:_run_first_task_found).
+          with(
+            @foo_guard,
+            [:run_on_removals, :run_on_changes, :run_on_deletion],
+            removed)
+
         subject.run_on_changes(*changes)
       end
     end
@@ -289,40 +362,66 @@ describe Guard::Runner do
         end
 
         it 'does not remove the Guard' do
-          expect {
+          expect do
             subject.run_supervised_task(@foo_guard, :regular_without_arg)
-          }.to_not change(::Guard.plugins, :size)
+          end.to_not change(::Guard.plugins, :size)
         end
 
         it 'returns the result of the task' do
-          expect(subject.run_supervised_task(@foo_guard, :regular_without_arg)).to be_truthy
+          result = subject.run_supervised_task(@foo_guard, :regular_without_arg)
+          expect(result).to be_truthy
         end
 
         it 'passes the args to the :begin hook' do
-          expect(@foo_guard).to receive(:hook).with('regular_without_arg_begin', 'given_path')
-          subject.run_supervised_task(@foo_guard, :regular_without_arg, 'given_path')
+          expect(@foo_guard).to receive(:hook).
+            with('regular_without_arg_begin', 'given_path')
+
+          expect(@foo_guard).to receive(:hook).
+            with('regular_without_arg_end', true)
+
+          subject.run_supervised_task(
+            @foo_guard,
+            :regular_without_arg,
+            'given_path')
         end
 
         it 'passes the result of the supervised method to the :end hook'  do
-          expect(@foo_guard).to receive(:hook).with('regular_without_arg_begin', 'given_path')
-          expect(@foo_guard).to receive(:hook).with('regular_without_arg_end', true)
-          subject.run_supervised_task(@foo_guard, :regular_without_arg, 'given_path')
+          expect(@foo_guard).to receive(:hook).
+            with('regular_without_arg_begin', 'given_path')
+
+          expect(@foo_guard).to receive(:hook).
+            with('regular_without_arg_end', true)
+
+          subject.run_supervised_task(
+            @foo_guard,
+            :regular_without_arg,
+            'given_path')
         end
       end
 
       context 'with arguments' do
         before do
-          allow(@foo_guard).to receive(:regular_with_arg).with('given_path') { "I'm a success" }
+          allow(@foo_guard).to receive(:regular_with_arg).
+            with('given_path') { "I'm a success" }
         end
 
         it 'does not remove the Guard' do
-          expect {
-            subject.run_supervised_task(@foo_guard, :regular_with_arg, 'given_path')
-          }.to_not change(::Guard.plugins, :size)
+          expect do
+            subject.run_supervised_task(
+              @foo_guard,
+              :regular_with_arg,
+              'given_path')
+
+          end.to_not change(::Guard.plugins, :size)
         end
 
         it 'returns the result of the task' do
-          expect(subject.run_supervised_task(@foo_guard, :regular_with_arg, "given_path")).to eq "I'm a success"
+          result = subject.run_supervised_task(
+            @foo_guard,
+            :regular_with_arg,
+            'given_path')
+
+          expect(result).to eq "I'm a success"
         end
 
         it 'calls the default begin hook but not the default end hook' do
@@ -334,36 +433,42 @@ describe Guard::Runner do
     end
 
     context 'with a task that throws :task_has_failed' do
-      before { allow(@foo_guard).to receive(:failing) { throw :task_has_failed } }
-
-      context 'for a guard in group that has the :halt_on_fail option set to true' do
-        before { @backend_group.options[:halt_on_fail] = true }
-
-        it 'throws :task_has_failed' do
-          expect {
-            subject.run_supervised_task(@foo_guard, :failing)
-          }.to throw_symbol(:task_has_failed)
-        end
+      before do
+        allow(@foo_guard).to receive(:failing) { throw :task_has_failed }
       end
 
-      context 'for a guard in a group that has the :halt_on_fail option set to false' do
-        before { @backend_group.options[:halt_on_fail] = false }
+      context 'in a group' do
+        context 'with halt_on_fail: true' do
+          before { @backend_group.options[:halt_on_fail] = true }
 
-        it 'catches :task_has_failed' do
-          expect {
-            subject.run_supervised_task(@foo_guard, :failing)
-          }.to_not throw_symbol(:task_has_failed)
+          it 'throws :task_has_failed' do
+            expect do
+              subject.run_supervised_task(@foo_guard, :failing)
+            end.to throw_symbol(:task_has_failed)
+          end
+        end
+
+        context 'with halt_on_fail: false' do
+          before { @backend_group.options[:halt_on_fail] = false }
+
+          it 'catches :task_has_failed' do
+            expect do
+              subject.run_supervised_task(@foo_guard, :failing)
+            end.to_not throw_symbol(:task_has_failed)
+          end
         end
       end
     end
 
     context 'with a task that raises an exception' do
-      before { allow(@foo_guard).to receive(:failing) { raise 'I break your system' } }
+      before do
+        allow(@foo_guard).to receive(:failing) { fail 'I break your system' }
+      end
 
       it 'removes the Guard' do
-        expect {
+        expect do
           subject.run_supervised_task(@foo_guard, :failing)
-        }.to change(::Guard.plugins, :size).by(-1)
+        end.to change(::Guard.plugins, :size).by(-1)
 
         expect(::Guard.plugins).not_to include(@foo_guard)
       end
@@ -388,23 +493,28 @@ describe Guard::Runner do
 
     context 'for a group with :halt_on_fail' do
       before do
-        allow(guard_plugin.group).to receive(:options).and_return({ halt_on_fail: true })
+        allow(guard_plugin.group).to receive(:options) do
+          { halt_on_fail: true }
+        end
       end
 
       it 'returns :no_catch' do
-        expect(described_class.stopping_symbol_for(guard_plugin)).to eq :no_catch
+        symbol = described_class.stopping_symbol_for(guard_plugin)
+        expect(symbol).to eq :no_catch
       end
     end
 
     context 'for a group without :halt_on_fail' do
       before do
-        allow(guard_plugin.group).to receive(:options).and_return({ halt_on_fail: false })
+        allow(guard_plugin.group).to receive(:options) do
+          { halt_on_fail: false }
+        end
       end
 
       it 'returns :task_has_failed' do
-        expect(described_class.stopping_symbol_for(guard_plugin)).to eq :task_has_failed
+        symbol = described_class.stopping_symbol_for(guard_plugin)
+        expect(symbol).to eq :task_has_failed
       end
     end
   end
-
 end

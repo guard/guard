@@ -1,6 +1,5 @@
 module Guard
   class Interactor
-
     RELOAD = Pry::CommandSet.new do
       create_command 'reload' do
 
@@ -28,7 +27,6 @@ module Guard
 
       end
     end
-
   end
 end
 

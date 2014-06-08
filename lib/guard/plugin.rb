@@ -1,7 +1,6 @@
 require 'guard/plugin/base'
 
 module Guard
-
   # Base class from which every Guard plugin implementation must inherit.
   #
   # Guard will trigger the {#start}, {#stop}, {#reload}, {#run_all} and
@@ -62,5 +61,4 @@ module Guard
       _register_callbacks
     end
   end
-
 end

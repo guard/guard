@@ -5,7 +5,6 @@ require 'guard/guardfile/evaluator'
 require 'guard/ui'
 
 module Guard
-
   # The DslDescriber evaluates the Guardfile and creates an internal structure
   # of it that is used in some inspection utility methods like the CLI commands
   # `show` and `list`.
@@ -14,13 +13,14 @@ module Guard
   # @see Guard::CLI
   #
   class DslDescriber
-
     attr_reader :options
 
     # Initializes a new DslDescriber object.
     #
     # @option options [String] guardfile the path to a valid Guardfile
-    # @option options [String] guardfile_contents a string representing the content of a valid Guardfile
+    #
+    # @option options [String] guardfile_contents a string representing the
+    # content of a valid Guardfile
     #
     # @see Guard::Guardfile::Evaluator#initialize
     #
@@ -38,11 +38,15 @@ module Guard
     def list
       _evaluate_guardfile
 
-      rows = ::Guard::PluginUtil.plugin_names.sort.uniq.inject([]) do |rows, name|
-        rows << { Plugin: name.capitalize, Guardfile: ::Guard.plugins(name) ? '✔' : '✘' }
+      names = ::Guard::PluginUtil.plugin_names.sort.uniq
+      final_rows = names.inject([]) do |rows, name|
+        rows << {
+          Plugin: name.capitalize,
+          Guardfile: ::Guard.plugins(name) ? '✔' : '✘'
+        }
       end
 
-      Formatador.display_compact_table(rows, [:Plugin, :Guardfile])
+      Formatador.display_compact_table(final_rows, [:Plugin, :Guardfile])
     end
 
     # Shows all Guard plugins and their options that are defined in
@@ -52,21 +56,42 @@ module Guard
     #
     def show
       _evaluate_guardfile
+      groups = ::Guard.groups
 
-      rows = ::Guard.groups.inject([]) do |rows, group|
-        Array(::Guard.plugins(group: group.name)).each do |plugin|
-          options = plugin.options.inject({}) { |o, (k, v)| o[k.to_s] = v; o }.sort
+      final_rows = groups.each_with_object([]) do |group, rows|
+
+        plugins = Array(::Guard.plugins(group: group.name))
+
+        plugins.each do |plugin|
+          options = plugin.options.inject({}) do |o, (k, v)|
+            o.tap { |option| option[k.to_s] = v }
+          end.sort
 
           if options.empty?
             rows << :split
-            rows << { Group: group.title, Plugin: plugin.title, Option: '', Value: '' }
+            rows << {
+              Group: group.title,
+              Plugin: plugin.title,
+              Option: '',
+              Value: ''
+            }
           else
             options.each_with_index do |(option, value), index|
               if index == 0
                 rows << :split
-                rows << { Group: group.title, Plugin: plugin.title, Option: option.to_s, Value: value.inspect }
+                rows << {
+                  Group: group.title,
+                  Plugin: plugin.title,
+                  Option: option.to_s,
+                  Value: value.inspect
+                }
               else
-                rows << { Group: '', Plugin: '', Option: option.to_s, Value: value.inspect }
+                rows << {
+                  Group: '',
+                  Plugin: '',
+                  Option: option.to_s,
+                  Value: value.inspect
+                }
               end
             end
           end
@@ -75,7 +100,10 @@ module Guard
         rows
       end
 
-      Formatador.display_compact_table(rows.drop(1), [:Group, :Plugin, :Option, :Value])
+      Formatador.display_compact_table(
+        final_rows.drop(1),
+        [:Group, :Plugin, :Option, :Value]
+      )
     end
 
     # Shows all notifiers and their options that are defined in
@@ -86,27 +114,28 @@ module Guard
     def notifiers
       _evaluate_guardfile
 
-      rows = ::Guard::Notifier::NOTIFIERS.inject(:merge).inject([]) do |rows, definition|
+      merged_notifiers = ::Guard::Notifier::NOTIFIERS.inject(:merge)
+      final_rows = merged_notifiers.each_with_object([]) do |definition, rows|
+
         name      = definition[0]
         clazz     = definition[1]
         available = clazz.available?(silent: true) ? '✔' : '✘'
-        notifier  = ::Guard::Notifier.notifiers.find { |n| n[:name] == name }
+        notifier  = ::Guard::Notifier.notifiers.detect { |n| n[:name] == name }
         used      = notifier ? '✔' : '✘'
-        options   = notifier ? notifier[:options] : {}
-        defaults  = clazz.const_defined?(:DEFAULTS) ? clazz.const_get(:DEFAULTS) : {}
-        options   = defaults.merge(options)
+
+        options = _merge_options(clazz, notifier)
         options.delete(:silent)
 
         if options.empty?
           rows << :split
-          rows << { Name: name, Available: available, Used: used, Option: '', Value: '' }
+          _add_row(rows, name, available, used, '', '')
         else
           options.each_with_index do |(option, value), index|
             if index == 0
               rows << :split
-              rows << { Name: name, Available: available, Used: used, Option: option.to_s, Value: value.inspect }
+              _add_row(rows, name, available, used, option.to_s, value.inspect)
             else
-              rows << { Name: '', Available: '', Used: '', Option: option.to_s, Value: value.inspect }
+              _add_row(rows, '', '', '', option.to_s, value.inspect)
             end
           end
         end
@@ -114,7 +143,10 @@ module Guard
         rows
       end
 
-      Formatador.display_compact_table(rows.drop(1), [:Name, :Available, :Used, :Option, :Value])
+      Formatador.display_compact_table(
+        final_rows.drop(1),
+        [:Name, :Available, :Used, :Option, :Value]
+      )
     end
 
     private
@@ -126,5 +158,24 @@ module Guard
       ::Guard::Guardfile::Evaluator.new(options).evaluate_guardfile
     end
 
+    def _merge_options(klass, notifier)
+      notify_options = notifier ? notifier[:options] : {}
+
+      if klass.const_defined?(:DEFAULTS)
+        klass.const_get(:DEFAULTS).merge(notify_options)
+      else
+        notify_options
+      end
+    end
+
+    def _add_row(rows, name, available, used, option, value)
+      rows << {
+        Name: name,
+        Available: available,
+        Used: used,
+        Option: option,
+        Value: value
+      }
+    end
   end
 end

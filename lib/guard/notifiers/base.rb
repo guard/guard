@@ -3,11 +3,9 @@ require 'guard/ui'
 
 module Guard
   module Notifier
-
     # Base class for all notifiers.
     #
     class Base
-
       HOSTS = {
         darwin:  'Mac OS X',
         linux:   'Linux',
@@ -19,6 +17,9 @@ module Guard
         mingw:   'Windows',
         cygwin:  'Windows'
       }
+
+      ERROR_ADD_GEM_AND_RUN_BUNDLE = "Please add \"gem '%s'\" to your Gemfile "\
+        "and run Guard with \"bundle exec\"."
 
       attr_reader :options
 
@@ -47,14 +48,16 @@ module Guard
           true
         else
           hosts = supported_hosts.map { |host| HOSTS[host.to_sym] }.join(', ')
-          ::Guard::UI.error "The :#{name} notifier runs only on #{hosts}." unless opts.fetch(:silent) { false }
+          unless opts.fetch(:silent) { false }
+            ::Guard::UI.error "The :#{name} notifier runs only on #{hosts}."
+          end
           false
         end
       end
 
       # This method must be overriden.
       #
-      def notify(message, opts = {})
+      def notify(_message, opts = {})
         options.delete(:silent)
         opts.replace(options.merge(opts))
         normalize_standard_options!(opts)
@@ -69,7 +72,7 @@ module Guard
       # @return [String] the title of the notifier
       #
       def self.title
-        self.to_s.sub(/.+::(\w+)$/, '\1')
+        to_s.sub(/.+::(\w+)$/, '\1')
       end
 
       # Returns the name of the notifier.
@@ -111,7 +114,7 @@ module Guard
         true
       rescue LoadError, NameError
         unless opts[:silent]
-          ::Guard::UI.error "Please add \"gem '#{gem_name}'\" to your Gemfile and run Guard with \"bundle exec\"."
+          UI.error ERROR_ADD_GEM_AND_RUN_BUNDLE % [gem_name]
         end
         false
       end
@@ -145,7 +148,7 @@ module Guard
       # @return [Pathname] the path to the images directory
       #
       def images_path
-        @images_path ||= Pathname.new(File.dirname(__FILE__)).join('../../../images')
+        @images_path ||= Pathname.new(__FILE__).dirname + '../../../images'
       end
 
       # @private
@@ -192,7 +195,7 @@ module Guard
       def _image_path(image)
         case image
         when :failed, :pending, :success
-          images_path.join("#{image.to_s}.png").to_s
+          images_path.join("#{image}.png").to_s
         else
           image
         end
@@ -213,8 +216,6 @@ module Guard
           :notify
         end
       end
-
     end
-
   end
 end

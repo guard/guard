@@ -4,15 +4,15 @@ require 'guard/ui'
 require 'guard/watcher'
 
 module Guard
-
   # The runner is responsible for running all methods defined on each plugin.
   #
   class Runner
-
     # Runs a Guard-task on all registered plugins.
     #
     # @param [Symbol] task the task to run
-    # @param [Hash] scopes either the Guard plugin or the group to run the task on
+    #
+    # @param [Hash] scopes either the Guard plugin or the group to run the task
+    # on
     #
     # @see self.run_supervised_task
     #
@@ -24,7 +24,10 @@ module Guard
       end
     end
 
-    MODIFICATION_TASKS = [:run_on_modifications, :run_on_changes, :run_on_change]
+    MODIFICATION_TASKS = [
+      :run_on_modifications, :run_on_changes, :run_on_change
+    ]
+
     ADDITION_TASKS     = [:run_on_additions, :run_on_changes, :run_on_change]
     REMOVAL_TASKS      = [:run_on_removals, :run_on_changes, :run_on_deletion]
 
@@ -38,7 +41,7 @@ module Guard
     def run_on_changes(modified, added, removed)
       ::Guard::UI.clearable
 
-      #TODO: this should be handled like every other plugin
+      # TODO: this should be handled like every other plugin
       if ::Guard::Watcher.match_guardfile?(modified)
         ::Guard.evaluator.reevaluate_guardfile
       end
@@ -48,18 +51,29 @@ module Guard
         added_paths    = ::Guard::Watcher.match_files(guard, added)
         removed_paths  = ::Guard::Watcher.match_files(guard, removed)
 
-        ::Guard::UI.clear if _clearable?(guard, modified_paths, added_paths, removed_paths)
+        if _clearable?(guard, modified_paths, added_paths, removed_paths)
+          ::Guard::UI.clear
+        end
 
-        _run_first_task_found(guard, MODIFICATION_TASKS, modified_paths) unless modified_paths.empty?
-        _run_first_task_found(guard, ADDITION_TASKS, added_paths) unless added_paths.empty?
-        _run_first_task_found(guard, REMOVAL_TASKS, removed_paths) unless removed_paths.empty?
+        unless modified_paths.empty?
+          _run_first_task_found(guard, MODIFICATION_TASKS, modified_paths)
+        end
+
+        unless added_paths.empty?
+          _run_first_task_found(guard, ADDITION_TASKS, added_paths)
+        end
+
+        unless removed_paths.empty?
+          _run_first_task_found(guard, REMOVAL_TASKS, removed_paths)
+        end
       end
     end
 
-    # Run a Guard plugin task, but remove the Guard plugin when his work leads to a system failure.
+    # Run a Guard plugin task, but remove the Guard plugin when his work leads
+    # to a system failure.
     #
-    # When the Group has `:halt_on_fail` disabled, we've to catch `:task_has_failed`
-    # here in order to avoid an uncaught throw error.
+    # When the Group has `:halt_on_fail` disabled, we've to catch
+    # `:task_has_failed` here in order to avoid an uncaught throw error.
     #
     # @param [Guard::Plugin] guard the Guard to execute
     # @param [Symbol] task the task to run
@@ -67,27 +81,24 @@ module Guard
     # @raise [:task_has_failed] when task has failed
     #
     def run_supervised_task(guard, task, *args)
-      begin
-        catch self.class.stopping_symbol_for(guard) do
-          guard.hook("#{ task }_begin", *args)
-          begin
-            result = guard.send(task, *args)
-          rescue Interrupt
-            throw(:task_has_failed)
-          end
-          guard.hook("#{ task }_end", result)
-          result
+      catch self.class.stopping_symbol_for(guard) do
+        guard.hook("#{ task }_begin", *args)
+        begin
+          result = guard.send(task, *args)
+        rescue Interrupt
+          throw(:task_has_failed)
         end
-
-      rescue Exception => ex
-        ::Guard::UI.error("#{ guard.class.name } failed to achieve its <#{ task.to_s }>, exception was:" +
-                 "\n#{ ex.class }: #{ ex.message }\n#{ ex.backtrace.join("\n") }")
-
-        ::Guard.plugins.delete guard
-        ::Guard::UI.info("\n#{ guard.class.name } has just been fired")
-
-        ex
+        guard.hook("#{ task }_end", result)
+        result
       end
+    rescue ScriptError, StandardError, RuntimeError
+      ::Guard::UI.error("#{ guard.class.name } failed to achieve its"\
+                        " <#{ task }>, exception was:" \
+                        "\n#{ $!.class }: #{ $!.message }" \
+                        "\n#{ $!.backtrace.join("\n") }")
+      ::Guard.plugins.delete guard
+      ::Guard::UI.info("\n#{ guard.class.name } has just been fired")
+      $!
     end
 
     # Returns the symbol that has to be caught when running a supervised task.
@@ -109,7 +120,9 @@ module Guard
     # Tries to run the first implemented task by a given guard
     # from a collection of tasks.
     #
-    # @param [Guard::Plugin] guard the Guard plugin to run the first found task on
+    # @param [Guard::Plugin] guard the Guard plugin to run the first found task
+    # on
+    #
     # @param [Array<Symbol>] tasks the tasks to run the first among
     # @param [Object] task_param the param to pass to each task
     #
@@ -119,7 +132,9 @@ module Guard
           run_supervised_task(guard, task, task_param)
           break
         else
-          ::Guard::UI.debug "Trying to run #{ guard.class.name }##{ task.to_s } with #{ task_param.inspect }"
+          ::Guard::UI.debug \
+            "Trying to run #{ guard.class.name }##{ task }"\
+            " with #{ task_param.inspect }"
         end
       end
     end
@@ -151,9 +166,10 @@ module Guard
             end
           end
 
-          if block_return.nil?
-            ::Guard::UI.info "#{ current_plugin.class.name } has failed, other group's plugins execution has been halted."
-          end
+          next unless block_return.nil?
+
+          ::Guard::UI.info "#{ current_plugin.class.name } has failed,"\
+            " other group's plugins execution has been halted."
         end
       end
     end
@@ -161,15 +177,27 @@ module Guard
     # Logic to know if the UI can be cleared or not in the run_on_changes method
     # based on the guard and the changes.
     #
-    # @param [Guard::Plugin] guard the Guard plugin where run_on_changes is called
+    # @param [Guard::Plugin] guard the Guard plugin where run_on_changes is
+    # called
+    #
     # @param [Array<String>] modified_paths the modified paths.
     # @param [Array<String>] added_paths the added paths.
     # @param [Array<String>] removed_paths the removed paths.
     #
     def _clearable?(guard, modified_paths, added_paths, removed_paths)
-      (MODIFICATION_TASKS.any? { |task| guard.respond_to?(task) } && !modified_paths.empty?) ||
-      (ADDITION_TASKS.any? { |task| guard.respond_to?(task) } && !added_paths.empty?) ||
-      (REMOVAL_TASKS.any? { |task| guard.respond_to?(task) } && !removed_paths.empty?)
+      types = {
+        MODIFICATION_TASKS => modified_paths,
+        ADDITION_TASKS => added_paths,
+        REMOVAL_TASKS => removed_paths
+      }
+
+      types.each do |tasks, paths|
+        next unless tasks.any? { |task| guard.respond_to?(task) }
+        next if !paths.empty?
+        return true
+      end
+
+      false
     end
 
     # Returns the current plugins scope.
@@ -210,7 +238,7 @@ module Guard
         local_scope[type.to_sym],
         ::Guard.scope[:"#{type}s"],
         additional_possibilities.flatten
-      ].compact.find { |a| !Array(a).empty? }
+      ].compact.detect { |a| !Array(a).empty? }
     end
 
     # Find the first non empty plugins scope

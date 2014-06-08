@@ -1,9 +1,11 @@
 require 'spec_helper'
 
+include Guard
+
 describe Guard::DeprecatedMethods do
   before(:all) do
     module TestModule
-      extend Guard::DeprecatedMethods
+      extend DeprecatedMethods
     end
   end
 
@@ -11,7 +13,7 @@ describe Guard::DeprecatedMethods do
     before { allow(TestModule).to receive(:plugins) }
 
     it 'displays a deprecation warning to the user' do
-      expect(::Guard::UI).to receive(:deprecation).with(::Guard::Deprecator::GUARDS_DEPRECATION)
+      expect(UI).to receive(:deprecation).with(Deprecator::GUARDS_DEPRECATION)
 
       TestModule.guards
     end
@@ -27,7 +29,8 @@ describe Guard::DeprecatedMethods do
     before { allow(TestModule).to receive(:add_plugin) }
 
     it 'displays a deprecation warning to the user' do
-      expect(::Guard::UI).to receive(:deprecation).with(::Guard::Deprecator::ADD_GUARD_DEPRECATION)
+      expect(UI).to receive(:deprecation).
+        with(Deprecator::ADD_GUARD_DEPRECATION)
 
       TestModule.add_guard('rspec')
     end
@@ -41,16 +44,17 @@ describe Guard::DeprecatedMethods do
 
   describe '.get_guard_class' do
     let(:plugin_util) { double('Guard::PluginUtil', plugin_class: true) }
-    before { allow(::Guard::PluginUtil).to receive(:new).and_return(plugin_util) }
+    before { allow(PluginUtil).to receive(:new).and_return(plugin_util) }
 
     it 'displays a deprecation warning to the user' do
-      expect(::Guard::UI).to receive(:deprecation).with(::Guard::Deprecator::GET_GUARD_CLASS_DEPRECATION)
+      expect(UI).to receive(:deprecation).
+        with(Deprecator::GET_GUARD_CLASS_DEPRECATION)
 
       TestModule.get_guard_class('rspec')
     end
 
     it 'delegates to Guard::PluginUtil' do
-      expect(::Guard::PluginUtil).to receive(:new).with('rspec') { plugin_util }
+      expect(PluginUtil).to receive(:new).with('rspec') { plugin_util }
       expect(plugin_util).to receive(:plugin_class).with(fail_gracefully: false)
 
       TestModule.get_guard_class('rspec')
@@ -58,8 +62,9 @@ describe Guard::DeprecatedMethods do
 
     describe ':fail_gracefully' do
       it 'pass it to get_guard_class' do
-        expect(::Guard::PluginUtil).to receive(:new).with('rspec') { plugin_util }
-        expect(plugin_util).to receive(:plugin_class).with(fail_gracefully: true)
+        expect(PluginUtil).to receive(:new).with('rspec') { plugin_util }
+        expect(plugin_util).to receive(:plugin_class).
+          with(fail_gracefully: true)
 
         TestModule.get_guard_class('rspec', true)
       end
@@ -68,16 +73,19 @@ describe Guard::DeprecatedMethods do
 
   describe '.locate_guard' do
     let(:plugin_util) { double('Guard::PluginUtil', plugin_location: true) }
-    before { allow(::Guard::PluginUtil).to receive(:new).and_return(plugin_util) }
+    before do
+      allow(PluginUtil).to receive(:new) { plugin_util }
+    end
 
     it 'displays a deprecation warning to the user' do
-      expect(::Guard::UI).to receive(:deprecation).with(::Guard::Deprecator::LOCATE_GUARD_DEPRECATION)
+      expect(UI).to receive(:deprecation).
+        with(Deprecator::LOCATE_GUARD_DEPRECATION)
 
       TestModule.locate_guard('rspec')
     end
 
     it 'delegates to Guard::PluginUtil' do
-      expect(::Guard::PluginUtil).to receive(:new).with('rspec') { plugin_util }
+      expect(PluginUtil).to receive(:new).with('rspec') { plugin_util }
       expect(plugin_util).to receive(:plugin_location)
 
       TestModule.locate_guard('rspec')
@@ -85,20 +93,19 @@ describe Guard::DeprecatedMethods do
   end
 
   describe '.guard_gem_names' do
-    before { allow(::Guard::PluginUtil).to receive(:plugin_names) }
+    before { allow(PluginUtil).to receive(:plugin_names) }
 
     it 'displays a deprecation warning to the user' do
-      expect(::Guard::UI).to receive(:deprecation).with(::Guard::Deprecator::GUARD_GEM_NAMES_DEPRECATION)
+      expect(UI).to receive(:deprecation).
+        with(Deprecator::GUARD_GEM_NAMES_DEPRECATION)
 
       TestModule.guard_gem_names
     end
 
     it 'delegates to Guard::PluginUtil' do
-      expect(Guard::PluginUtil).to receive(:plugin_names)
+      expect(PluginUtil).to receive(:plugin_names)
 
       TestModule.guard_gem_names
     end
-
   end
-
 end

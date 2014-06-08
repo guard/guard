@@ -1,6 +1,6 @@
 module Guard
+  # Command to simulate file change events
   class Interactor
-
     CHANGE = Pry::CommandSet.new do
       create_command 'change' do
 
@@ -14,7 +14,7 @@ module Guard
         BANNER
 
         def process(*entries)
-          scopes, files = ::Guard::Interactor.convert_scope(entries)
+          _, files = ::Guard::Interactor.convert_scope(entries)
 
           if files.empty?
             output.puts 'Please specify a file.'
@@ -27,7 +27,6 @@ module Guard
 
       end
     end
-
   end
 end
 
