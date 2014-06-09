@@ -373,6 +373,38 @@ describe Guard::Watcher do
         described_class.match_files(@plugin, ['evil.rb'])
       end
     end
+
+    context 'for ambiguous watchers' do
+      before(:all) do
+        @plugin.watchers = [
+          described_class.new('awesome_helper.rb', lambda {}),
+          described_class.new(/.+some_helper.rb/, lambda { 'foo.rb' }),
+          described_class.new(/.+_helper.rb/, lambda { 'bar.rb' }),
+        ]
+      end
+
+      context 'when the :first_match option is turned off' do
+        before(:all) do
+          @plugin.options[:first_match] = false
+        end
+
+        it 'returns multiple files by combining the results of the watchers' do
+          expect(described_class.match_files(
+            @plugin, ['awesome_helper.rb'])).to eq(['foo.rb', 'bar.rb'])
+        end
+      end
+
+      context 'when the :first_match option is turned on' do
+        before(:all) do
+          @plugin.options[:first_match] = true
+        end
+
+        it 'returns only the files from the first watcher' do
+          expect(described_class.match_files(
+            @plugin, ['awesome_helper.rb'])).to eq(['foo.rb'])
+        end
+      end
+    end
   end
 
   describe '.match_files?' do
