@@ -32,8 +32,6 @@ describe Guard::Notifier do
       end
 
       it 'turns on the defined notification module' do
-        expect(Guard::Notifier::GNTP).to receive(:turn_on)
-
         Guard::Notifier.turn_on
       end
     end
@@ -45,7 +43,8 @@ describe Guard::Notifier do
 
       context 'when notifications are globally enabled' do
         before do
-          expect(::Guard.options).to receive(:[]).with(:notify).and_return true
+          # called 3 times - twice from spec_helper to turn off debugging
+          allow(::Guard).to receive(:options).and_return(notify: true)
         end
 
         it 'tries to add each available notification silently' do
@@ -150,15 +149,14 @@ describe Guard::Notifier do
 
       context 'when notifications are globally disabled' do
         before do
-          expect(::Guard.options).to receive(:[]).
-            with(:notify).and_return false
-
+          # Called 3 times, 2 times from spec_helper to unset debug
+          allow(::Guard).to receive(:options).and_return(notify: false)
         end
 
         it 'does not try to add each available notification silently' do
-          expect(Guard::Notifier).to_not receive(:auto_detect_notification)
+          expect(Guard::Notifier).to_not receive(:_auto_detect_notification)
           Guard::Notifier.turn_on
-          expect(Guard::Notifier).not_to be_enabled
+          expect(Guard::Notifier).to_not be_enabled
         end
       end
     end
@@ -298,8 +296,8 @@ describe Guard::Notifier do
       end
 
       it 'does not send any notifications to a notifier' do
-        expect(gntp).to_not receive(:notify)
-        expect(growl).to_not receive(:notify)
+        expect(gntp_object).to_not receive(:notify)
+        expect(growl_object).to_not receive(:notify)
 
         ::Guard::Notifier.notify('Hi to everyone')
       end

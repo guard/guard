@@ -3,8 +3,6 @@ require 'guard/plugin'
 
 describe Guard::Plugin::Hooker do
 
-  let(:listener) { double('listener').as_null_object }
-
   let(:fake_plugin) do
     Class.new(Guard::Plugin) do
       def start
@@ -28,6 +26,8 @@ describe Guard::Plugin::Hooker do
   end
   let(:dummy1) { fake_plugin.new }
   let(:dummy2) { fake_plugin.new }
+
+  let(:listener) { instance_double(Proc, call: nil) }
 
   before do
     stub_const 'Guard::Dummy', fake_plugin

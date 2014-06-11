@@ -105,6 +105,7 @@ describe Guard::Interactor do
 
       ::Guard.interactor.background
     end
+
     after do
       ::Guard.interactor.background
       ENV['GUARD_ENV'] = 'test'
@@ -139,12 +140,11 @@ describe Guard::Interactor do
         allow(::Guard.scope).to receive(:[]).with(:plugins).and_return([])
         allow(::Guard.scope).to receive(:[]).with(:groups).and_return([])
 
-        allow(::Guard).to receive(:listener).
-          and_return(double('listener', paused?: false))
+        allow(listener).to receive(:paused?).and_return(false)
 
         expect(::Guard.interactor).to receive(:_clip_name).and_return('main')
       end
-      let(:pry) { double(input_array: []) }
+      let(:pry) { instance_double(Pry, input_array: []) }
 
       context 'Guard is not paused' do
         it 'displays "guard"' do
@@ -155,8 +155,7 @@ describe Guard::Interactor do
 
       context 'Guard is paused' do
         before do
-          allow(::Guard).to receive(:listener).
-            and_return(double('listener', paused?: true))
+          allow(listener).to receive(:paused?).and_return(true)
         end
 
         it 'displays "pause"' do
@@ -179,6 +178,7 @@ describe Guard::Interactor do
       end
 
       context 'with a plugins scope' do
+
         before do
           allow(::Guard.scope).to receive(:[]).with(:plugins).
                  and_return([double(title: 'RSpec'), double(title: 'Ronn')])

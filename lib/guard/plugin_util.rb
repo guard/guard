@@ -37,7 +37,7 @@ module Guard
           end
         end
       else
-        Guard::UI.deprecation \
+        ::Guard::UI.deprecation \
           'Rubygems version prior to 1.8.0 are no longer supported'\
           ' and may not work'
 

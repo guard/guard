@@ -4,7 +4,7 @@ include Guard
 
 describe Guardfile do
 
-  let(:guardfile_generator) { double('Guard::Guardfile::Generator') }
+  let(:guardfile_generator) { instance_double(Guard::Guardfile::Generator) }
 
   describe '.create_guardfile' do
     it 'displays a deprecation warning to the user' do

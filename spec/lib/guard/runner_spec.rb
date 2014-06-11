@@ -4,12 +4,46 @@ require 'guard/plugin'
 describe Guard::Runner do
 
   before do
-    allow(Notifier).to receive(:turn_on) {}
+    # These are implemented, because otherwise stubbing _scoped_plugins is too
+    # much work
+    module Guard
+      class Foo < Guard::Plugin
+        def my_task; fail "#{__method__} is not stubbed"; end
+
+        def my_hard_task; fail "#{__method__} is not stubbed"; end
+
+        def regular_without_arg; fail "#{__method__} is not stubbed"; end
+
+        def regular_with_arg(_arg); fail "#{__method__} is not stubbed"; end
+
+        def failing; fail "#{__method__} is not stubbed"; end
+
+        def run_on_modifications; fail "#{__method__} is not stubbed"; end
+
+        def run_on_change; fail "#{__method__} is not stubbed"; end
+
+        def run_on_additions; fail "#{__method__} is not stubbed"; end
+
+        def run_on_removals; fail "#{__method__} is not stubbed"; end
+
+        def run_on_deletion; fail "#{__method__} is not stubbed"; end
+      end
+
+      class Bar < Guard::Plugin
+        def my_task; fail "#{__method__} is not stubbed"; end
+
+        def my_hard_task; fail "#{__method__} is not stubbed"; end
+      end
+
+      class Baz < Guard::Plugin
+        def my_task; fail "#{__method__} is not stubbed"; end
+      end
+    end
+
+    allow(Guard::Notifier).to receive(:turn_on) {}
+    allow(Listen).to receive(:to).with(Dir.pwd, {})
 
     guard = ::Guard.setup
-    stub_const 'Guard::Foo', Class.new(Guard::Plugin)
-    stub_const 'Guard::Bar', Class.new(Guard::Plugin)
-    stub_const 'Guard::Baz', Class.new(Guard::Plugin)
 
     @backend_group  = guard.add_group(:backend)
     @frontend_group = guard.add_group(:frontend)
@@ -23,6 +57,13 @@ describe Guard::Runner do
 
     allow(@foo_guard).to receive(:my_hard_task)
     allow(@bar_guard).to receive(:my_hard_task)
+
+  end
+
+  after do
+    Guard.module_eval do
+      %w(Foo Bar Baz).each { |klass| remove_const(klass) }
+    end
   end
 
   describe '#run' do
@@ -372,30 +413,24 @@ describe Guard::Runner do
           expect(result).to be_truthy
         end
 
-        it 'passes the args to the :begin hook' do
+        it 'calls :begin and :end hooks' do
           expect(@foo_guard).to receive(:hook).
-            with('regular_without_arg_begin', 'given_path')
+            with('regular_without_arg_begin')
 
           expect(@foo_guard).to receive(:hook).
             with('regular_without_arg_end', true)
 
-          subject.run_supervised_task(
-            @foo_guard,
-            :regular_without_arg,
-            'given_path')
+          subject.run_supervised_task(@foo_guard, :regular_without_arg)
         end
 
         it 'passes the result of the supervised method to the :end hook'  do
           expect(@foo_guard).to receive(:hook).
-            with('regular_without_arg_begin', 'given_path')
+            with('regular_without_arg_begin')
 
           expect(@foo_guard).to receive(:hook).
             with('regular_without_arg_end', true)
 
-          subject.run_supervised_task(
-            @foo_guard,
-            :regular_without_arg,
-            'given_path')
+          subject.run_supervised_task(@foo_guard, :regular_without_arg)
         end
       end
 
@@ -489,7 +524,7 @@ describe Guard::Runner do
   end
 
   describe '.stopping_symbol_for' do
-    let(:guard_plugin) { double(Guard::Plugin).as_null_object }
+    let(:guard_plugin) { instance_double(Guard::Plugin).as_null_object }
 
     context 'for a group with :halt_on_fail' do
       before do

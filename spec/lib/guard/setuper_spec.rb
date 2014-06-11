@@ -3,7 +3,7 @@ require 'guard/plugin'
 
 describe Guard::Setuper do
 
-  let(:guardfile_evaluator) { double('Guard::Guardfile::Evaluator instance') }
+  let(:guardfile_evaluator) { instance_double(Guard::Guardfile::Evaluator) }
 
   before do
     Guard::Interactor.enabled = true
@@ -20,11 +20,12 @@ describe Guard::Setuper do
       }
     end
 
+    let(:listener) { instance_double(Listen::Listener) }
+
     before do
+      allow(Listen).to receive(:to).with(Dir.pwd, {}) { listener }
       allow(Guard::Notifier).to receive(:turn_on)
     end
-
-    subject { Guard.setup(options) }
 
     it 'returns itself for chaining' do
       expect(subject).to be Guard
@@ -48,22 +49,31 @@ describe Guard::Setuper do
     end
 
     it 'initializes the listener' do
-      expect(subject.listener).to be_kind_of(Listen::Listener)
+      expect(subject.listener).to be(listener)
     end
 
     it 'respect the watchdir option' do
-      Guard.setup(watchdir: '/usr')
+      if Guard::WINDOWS
+        expect(Listen).to receive(:to).
+          with('C:/usr', {}) { listener }
+      else
+        expect(Listen).to receive(:to).
+          with('/usr', {}) { listener }
+      end
 
-      path = Pathname.new(Guard::WINDOWS ? 'C:/usr' : '/usr')
-      expect(Guard.listener.directories).to eq [path]
+      Guard.setup(watchdir: '/usr')
     end
 
     it 'respect the watchdir option with multiple directories' do
-      ::Guard.setup(watchdir: ['/usr', '/bin'])
+      if Guard::WINDOWS
+        expect(Listen).to receive(:to).
+          with('C:/usr', 'C:/bin', {}) { listener }
+      else
+        expect(Listen).to receive(:to).
+          with('/usr', '/bin', {}) { listener }
+      end
 
-      expect(::Guard.listener.directories).to eq [
-        Pathname.new(Guard::WINDOWS ? 'C:/usr' : '/usr'),
-        Pathname.new(Guard::WINDOWS ? 'C:/bin' : '/bin')]
+      ::Guard.setup(watchdir: ['/usr', '/bin'])
     end
 
     it 'call setup_signal_traps' do
@@ -145,8 +155,6 @@ describe Guard::Setuper do
         }
       end
 
-      subject { ::Guard.setup(options) }
-
       before do
         allow(Guard).to receive(:_debug_command_execution)
       end
@@ -161,12 +169,35 @@ describe Guard::Setuper do
         expect(::Guard::UI.options[:level]).to eq :debug
       end
     end
+
+    context 'with latency option' do
+      let(:options) { { latency: 1.5 }}
+
+      it 'passes option to listener' do
+        expect(Listen).to receive(:to).
+          with(anything,  latency: 1.5) { listener }
+        subject
+      end
+    end
+
+    context 'with force_polling option' do
+      let(:options) { { force_polling: true } }
+
+      it 'pass option to listener' do
+        expect(Listen).to receive(:to).
+          with(anything, force_polling: true) { listener }
+        subject
+      end
+    end
   end
 
   describe '.reset_groups' do
     subject do
+      allow(Listen).to receive(:to).with(Dir.pwd, {})
       allow(Guard::Notifier).to receive(:turn_on)
+
       guard = Guard.setup(guardfile: File.join(@fixture_path, 'Guardfile'))
+
       @group_backend = guard.add_group(:backend)
       @group_backflip = guard.add_group(:backflip)
       guard
@@ -183,7 +214,9 @@ describe Guard::Setuper do
 
   describe '.reset_plugins' do
     before do
+      allow(Listen).to receive(:to).with(Dir.pwd, {})
       allow(Guard::Notifier).to receive(:turn_on)
+
       Guard.setup
       module Guard
         class FooBar < Guard::Plugin; end
@@ -220,6 +253,7 @@ describe Guard::Setuper do
   describe '._setup_signal_traps', speed: 'slow' do
     before do
       allow(::Guard).to receive(:evaluate_guardfile)
+      allow(Listen).to receive(:to).with(Dir.pwd, {})
       allow(Guard::Notifier).to receive(:turn_on)
       ::Guard.setup
     end
@@ -272,6 +306,7 @@ describe Guard::Setuper do
         it 'turns on the notifier on' do
           expect(::Guard::Notifier).to receive(:turn_on)
 
+          allow(Listen).to receive(:to).with(Dir.pwd, {})
           ::Guard.setup(notify: true)
         end
       end
@@ -282,6 +317,7 @@ describe Guard::Setuper do
         it 'turns on the notifier on' do
           expect(::Guard::Notifier).to receive(:turn_on)
 
+          allow(Listen).to receive(:to).with(Dir.pwd, {})
           ::Guard.setup(notify: true)
         end
       end
@@ -292,6 +328,7 @@ describe Guard::Setuper do
         it 'turns on the notifier off' do
           expect(::Guard::Notifier).to receive(:turn_off)
 
+          allow(Listen).to receive(:to).with(Dir.pwd, {})
           ::Guard.setup(notify: true)
         end
       end
@@ -304,6 +341,7 @@ describe Guard::Setuper do
         it 'turns on the notifier off' do
           expect(::Guard::Notifier).to receive(:turn_off)
 
+          allow(Listen).to receive(:to).with(Dir.pwd, {})
           ::Guard.setup(notify: false)
         end
       end
@@ -314,6 +352,7 @@ describe Guard::Setuper do
         it 'turns on the notifier on' do
           expect(::Guard::Notifier).to receive(:turn_off)
 
+          allow(Listen).to receive(:to).with(Dir.pwd, {})
           ::Guard.setup(notify: false)
         end
       end
@@ -324,42 +363,9 @@ describe Guard::Setuper do
         it 'turns on the notifier off' do
           expect(::Guard::Notifier).to receive(:turn_off)
 
+          allow(Listen).to receive(:to).with(Dir.pwd, {})
           ::Guard.setup(notify: false)
         end
-      end
-    end
-  end
-
-  describe '._setup_listener' do
-    let(:listener) { double.as_null_object }
-    before { Guard.instance_variable_set '@watchdirs', ['/home/user/test'] }
-
-    context 'with latency option' do
-      before do
-        allow(::Guard).to receive(:options) do
-          Guard::Options.new(latency: 1.5)
-        end
-      end
-
-      it 'pass option to listener' do
-        expect(Listen).to receive(:to).
-          with(anything,  latency: 1.5) { listener }
-
-        ::Guard.send :_setup_listener
-      end
-    end
-
-    context 'with force_polling option' do
-      before do
-        options = Guard::Options.new(force_polling: true)
-        allow(::Guard).to receive(:options) { options }
-      end
-
-      it 'pass option to listener' do
-        expect(Listen).to receive(:to).
-          with(anything, force_polling: true) { listener }
-
-        ::Guard.send :_setup_listener
       end
     end
   end
@@ -423,6 +429,7 @@ describe Guard::Setuper do
       context 'with interactions enabled' do
         before do
           allow(Guard::Notifier).to receive(:turn_on)
+          allow(Listen).to receive(:to).with(Dir.pwd, {})
           Guard.setup(no_interactions: false)
         end
 
@@ -432,6 +439,7 @@ describe Guard::Setuper do
       context 'with interactions disabled' do
         before do
           allow(Guard::Notifier).to receive(:turn_on)
+          allow(Listen).to receive(:to).with(Dir.pwd, {})
           Guard.setup(no_interactions: true)
         end
 
@@ -447,6 +455,7 @@ describe Guard::Setuper do
         before do
           Guard::Interactor.enabled = true
           allow(Guard::Notifier).to receive(:turn_on)
+          allow(Listen).to receive(:to).with(Dir.pwd, {})
           Guard.setup
         end
 
@@ -457,6 +466,7 @@ describe Guard::Setuper do
         before do
           Guard::Interactor.enabled = false
           allow(Guard::Notifier).to receive(:turn_on)
+          allow(Listen).to receive(:to).with(Dir.pwd, {})
           Guard.setup
         end
 
@@ -469,6 +479,7 @@ describe Guard::Setuper do
     subject { Guard.setup }
 
     before do
+      allow(Listen).to receive(:to).with(Dir.pwd, {})
       allow(Guard::Notifier).to receive(:turn_on)
 
       # Unstub global stub
@@ -476,10 +487,16 @@ describe Guard::Setuper do
 
       @original_system  = Kernel.method(:system)
       @original_command = Kernel.method(:`)
+      Kernel.send(:define_method, :original_system, proc { |*_args| })
+      Kernel.send(:define_method, :original_backtick, proc { |*_args| })
     end
 
     after do
-      Kernel.send(:remove_method, :system, :`)
+      Kernel.send(:remove_method, :system)
+      Kernel.send(:remove_method, :`)
+      Kernel.send(:remove_method, :original_system)
+      Kernel.send(:remove_method, :original_backtick)
+
       Kernel.send(:define_method, :system, @original_system.to_proc)
       Kernel.send(:define_method, :`, @original_command.to_proc)
     end

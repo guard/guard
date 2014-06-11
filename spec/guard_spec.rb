@@ -171,6 +171,7 @@ describe Guard do
   describe '.groups' do
     subject do
       allow(Guard::Notifier).to receive(:turn_on)
+      allow(Listen).to receive(:to).with(Dir.pwd, {})
       guard           = ::Guard.setup
       @group_backend  = guard.add_group(:backend)
       @group_backflip = guard.add_group(:backflip)
@@ -217,7 +218,10 @@ describe Guard do
   describe '.group' do
     subject do
       allow(Guard::Notifier).to receive(:turn_on)
+      allow(Listen).to receive(:to).with(Dir.pwd, {})
+
       guard           = ::Guard.setup
+
       @group_backend  = guard.add_group(:backend)
       @group_backflip = guard.add_group(:backflip)
       guard
@@ -255,8 +259,8 @@ describe Guard do
   end
 
   describe '.add_plugin' do
-    let(:plugin_util) { double('Guard::PluginUtil') }
-    let(:guard_rspec) { double('Guard::RSpec instance') }
+    let(:plugin_util) { instance_double(Guard::PluginUtil) }
+    let(:guard_rspec) { instance_double(Guard::RSpec) }
 
     before do
       expect(::Guard::PluginUtil).to receive(:new).with('rspec') { plugin_util }

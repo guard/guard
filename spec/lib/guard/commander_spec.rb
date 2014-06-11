@@ -66,6 +66,7 @@ describe Guard::Commander do
     it 'turns the notifier off' do
       expect(::Guard::Notifier).to receive(:turn_off)
 
+      allow(Guard::Sheller).to receive(:run).with(*%w(hash stty)) { false }
       ::Guard.stop
     end
 
@@ -83,7 +84,7 @@ describe Guard::Commander do
   end
 
   describe '.reload' do
-    let(:runner) { double(run: true) }
+    let(:runner) { instance_double(Guard::Runner, run: true) }
     let(:group) { ::Guard::Group.new('frontend') }
     subject { ::Guard.setup }
 
@@ -134,14 +135,13 @@ describe Guard::Commander do
   end
 
   describe '.run_all' do
-    let(:runner) { double(run: true) }
+    let(:runner) { instance_double(Guard::Runner, run: true) }
     let(:group) { ::Guard::Group.new('frontend') }
     subject { ::Guard.setup }
 
     before do
       allow(::Guard::Notifier).to receive(:turn_on)
       allow(::Guard).to receive(:runner) { runner }
-      allow(::Guard).to receive(:within_preserved_state).and_yield
       allow(::Guard::UI).to receive(:action_with_scopes)
       allow(::Guard::UI).to receive(:clear)
       allow(Listen).to receive(:to).with(Dir.pwd, {})

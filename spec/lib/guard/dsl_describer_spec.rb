@@ -1,6 +1,7 @@
 # encoding: utf-8
 require 'spec_helper'
 require 'guard/plugin'
+require 'guard/dsl_describer'
 require 'formatador'
 
 describe Guard::DslDescriber do
@@ -31,6 +32,7 @@ describe Guard::DslDescriber do
 
   before do
     allow(Guard::Notifier).to receive(:turn_on)
+    allow(Listen).to receive(:to).with(Dir.pwd, {})
     Guard.setup
 
     stub_const 'Guard::Test', Class.new(Guard::Plugin)
