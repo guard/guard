@@ -27,7 +27,14 @@ module Guard
   extend Setuper
 
   class << self
-    attr_accessor :runner, :listener, :lock, :scope, :running
+    attr_accessor :runner, :listener, :lock, :running
+
+    # Called by Pry scope command
+    attr_reader :scope
+
+    def scope=(new_scope)
+      @scope = new_scope
+    end
 
     # Smart accessor for retrieving specific plugins at once.
     #

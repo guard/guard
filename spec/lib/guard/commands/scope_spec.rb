@@ -19,7 +19,7 @@ describe 'Guard::Interactor::SCOPE' do
     context 'without scope' do
       it 'does not call :scope=' do
         expect(Guard).to_not receive(:scope=)
-        expect(Pry.output).to receive(:puts).with 'Usage: scope <scope>'
+        expect(STDOUT).to receive(:print).with "Usage: scope <scope>\n"
         Pry.run_command 'scope'
       end
     end

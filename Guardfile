@@ -15,10 +15,12 @@ group :specs do
 end
 
 
-if ENV['CI'] != 'true'
-  group :docs do
-    guard :ronn do
-      watch(%r{^man/.+\.ronn?$})
+if !defined?(JRUBY_VERSION)
+  if ENV['CI'] != 'true'
+    group :docs do
+      guard :ronn do
+        watch(%r{^man/.+\.ronn?$})
+      end
     end
   end
 end
