@@ -6,12 +6,13 @@ describe Guard::Setuper do
   let(:guardfile_evaluator) { double('Guard::Guardfile::Evaluator instance') }
 
   before do
-    Guard.clear_options
-    allow(Guard::Interactor).to receive(:fabricate)
+    Guard::Interactor.enabled = true
     allow(Dir).to receive(:chdir)
   end
 
   describe '.setup' do
+    subject { Guard.setup(options) }
+
     let(:options) do
       {
         my_opts: true,
@@ -225,66 +226,36 @@ describe Guard::Setuper do
 
     unless windows? || defined?(JRUBY_VERSION)
       context 'when receiving SIGUSR1' do
-        context 'when Guard is running' do
-          before { expect(::Guard.listener).to receive(:paused?) { false } }
+        it 'pauses Guard' do
+          expect(::Guard).to receive(:async_queue_add).
+            with([:guard_pause, :paused])
 
-          it 'pauses Guard' do
-            expect(::Guard).to receive(:pause)
-            Process.kill :USR1, Process.pid
-            sleep 1
-          end
-        end
-
-        context 'when Guard is already paused' do
-          before { expect(::Guard.listener).to receive(:paused?) { true } }
-
-          it 'does not pauses Guard' do
-            expect(::Guard).to_not receive(:pause)
-            Process.kill :USR1, Process.pid
-            sleep 1
-          end
+          Process.kill :USR1, Process.pid
+          sleep 1
         end
       end
 
       context 'when receiving SIGUSR2' do
-        context 'when Guard is paused' do
-          before { expect(Guard.listener).to receive(:paused?) { true } }
+        it 'un-pause Guard' do
+          expect(Guard).to receive(:async_queue_add).
+            with([:guard_pause, :unpaused])
 
-          it 'un-pause Guard' do
-            expect(Guard).to receive(:pause)
-            Process.kill :USR2, Process.pid
-            sleep 1
-          end
-        end
-
-        context 'when Guard is already running' do
-          before { expect(::Guard.listener).to receive(:paused?) { false } }
-
-          it 'does not un-pause Guard' do
-            expect(::Guard).to_not receive(:pause)
-            Process.kill :USR2, Process.pid
-            sleep 1
-          end
+          Process.kill :USR2, Process.pid
+          sleep 1
         end
       end
 
       context 'when receiving SIGINT' do
-        context 'without an interactor' do
-          before { expect(Guard).to receive(:interactor) { nil } }
-
-          it 'stops Guard' do
-            expect(Guard).to receive(:stop)
-            Process.kill :INT, Process.pid
-            sleep 1
-          end
-        end
-
         context 'with an interactor' do
-          let(:interactor) { double('interactor', thread: double('thread')) }
+          let(:interactor) do
+            instance_double(
+              Guard::Interactor,
+              thread: instance_double(Thread))
+          end
           before { allow(Guard).to receive(:interactor) { interactor } }
 
           it 'delegates to the Pry thread' do
-            expect(Guard.interactor.thread).to receive(:raise).with Interrupt
+            expect(Guard.interactor).to receive(:handle_interrupt)
             Process.kill :INT, Process.pid
             sleep 1
           end
@@ -444,7 +415,7 @@ describe Guard::Setuper do
   describe '.interactor' do
     context 'with CLI options' do
       before do
-        @interactor_enabled       = Guard::Interactor.enabled
+        @interactor_enabled       = Guard::Interactor.enabled?
         Guard::Interactor.enabled = true
       end
       after { Guard::Interactor.enabled = @interactor_enabled }
@@ -469,7 +440,7 @@ describe Guard::Setuper do
     end
 
     context 'with DSL options' do
-      before { @interactor_enabled = Guard::Interactor.enabled }
+      before { @interactor_enabled = Guard::Interactor.enabled? }
       after { Guard::Interactor.enabled = @interactor_enabled }
 
       context 'with interactions enabled' do

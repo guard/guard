@@ -5,20 +5,20 @@ describe Guard::Interactor do
 
   describe '.enabled & .enabled=' do
     before do
-      @interactor_enabled = described_class.enabled
+      @interactor_enabled = described_class.enabled?
       described_class.enabled = nil
     end
     after { described_class.enabled = @interactor_enabled }
 
     it 'returns true by default' do
-      expect(described_class.enabled).to be_truthy
+      expect(described_class).to be_enabled
     end
 
     context 'interactor not enabled' do
       before { described_class.enabled = false }
 
       it 'returns false' do
-        expect(described_class.enabled).to be_falsey
+        expect(described_class).to_not be_enabled
       end
     end
   end
@@ -42,6 +42,7 @@ describe Guard::Interactor do
   describe '.convert_scope' do
     before do
       allow(::Guard::Notifier).to receive(:turn_on) { nil }
+      allow(Listen).to receive(:to).with(Dir.pwd, {})
       guard = ::Guard.setup
 
       stub_const 'Guard::Foo', Class.new(Guard::Plugin)
@@ -90,28 +91,43 @@ describe Guard::Interactor do
   end
 
   context 'interactor enabled' do
+    let(:listener) { instance_double(Listen::Listener) }
+
     before do
-      @interactor_enabled = described_class.enabled
+      @interactor_enabled = described_class.enabled?
       described_class.enabled = nil
       ENV['GUARD_ENV'] = 'interactor_test'
       allow(Guard::Sheller).to receive(:run).with(*%w(hash stty)) { false }
-      ::Guard.interactor.stop
+
+      allow(::Guard::Notifier).to receive(:turn_on) { nil }
+      allow(Listen).to receive(:to).with(Dir.pwd, {}) { listener }
+      Guard.setup
+
+      ::Guard.interactor.background
     end
     after do
-      ::Guard.interactor.stop
+      ::Guard.interactor.background
       ENV['GUARD_ENV'] = 'test'
       described_class.enabled = @interactor_enabled
     end
 
-    describe '#start and #stop' do
-      it 'instantiate @thread as an instance of a Thread on #start' do
-        ::Guard.interactor.start
+    describe '#foreground and #background' do
+      let(:pry_output) { instance_double(IO) }
 
+      before do
+        allow(::Guard.interactor).to receive(:_block) {}
+
+        allow(listener).to receive(:paused?).and_return(false)
+
+      end
+
+      it 'instantiate @thread as an instance of a Thread on #foreground' do
+        ::Guard.interactor.foreground
         expect(::Guard.interactor.thread).to be_a(Thread)
       end
 
-      it 'sets @thread to nil on #stop' do
-        ::Guard.interactor.stop
+      it 'sets @thread to nil on #background' do
+        ::Guard.interactor.background
 
         expect(::Guard.interactor.thread).to be_nil
       end

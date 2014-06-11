@@ -38,123 +38,123 @@ module Guard
 
     attr_accessor :thread
 
-    # Get the interactor options
-    #
-    # @return [Hash] the options
-    #
-    def self.options
-      @options ||= {}
-    end
-
-    # Set the interactor options
-    #
-    # @param [Hash] options the interactor options
-    # @option options [String] :guard_rc the Ruby script to configure Guard Pry
-    #
-    # @option options [String] :history_file the file to write the Pry history
-    # to
-    #
-    def self.options=(options)
-      @options = options
-    end
-
-    # Is the interactor enabled?
-    #
-    # @return [Boolean] true if enabled
-    #
-    def self.enabled
-      @enabled || @enabled.nil?
-    end
-
-    # Set the enabled status for the interactor
-    #
-    # @param [Boolean] status true if enabled
-    #
-    def self.enabled=(status)
-      @enabled = status
-    end
-
-    # Converts and validates a plain text scope
-    # to a valid plugin or group scope.
-    #
-    # @param [Array<String>] entries the text scope
-    #
-    # @return [Hash, Array<String>] the plugin or group scope, the unknown
-    # entries
-    #
-    def self.convert_scope(entries)
-      scopes  = { plugins: [], groups: [] }
-      unknown = []
-
-      entries.each do |entry|
-        if plugin = ::Guard.plugin(entry)
-          scopes[:plugins] << plugin
-        elsif group = ::Guard.group(entry)
-          scopes[:groups] << group
-        else
-          unknown << entry
-        end
+    class << self
+      # Get the interactor options
+      #
+      # @return [Hash] the options
+      #
+      def options
+        @options ||= {}
       end
 
-      [scopes, unknown]
+      # Set the interactor options
+      #
+      # @param [Hash] options the interactor options
+      # @option options [String] :guard_rc Ruby script to configure Guard Pry
+      # @option options [String] :history_file for saving Pry history
+      #
+      attr_writer :options
+
+      # Is the interactor enabled?
+      #
+      # @return [Boolean] true if enabled
+      #
+      def enabled?
+        @enabled || @enabled.nil?
+      end
+
+      alias_method :enabled, :enabled?
+
+      # Set the enabled status for the interactor
+      #
+      # @param [Boolean] status true if enabled
+      #
+      attr_writer :enabled
+
+      # Converts and validates a plain text scope
+      # to a valid plugin or group scope.
+      #
+      # @param [Array<String>] entries the text scope
+      # @return [Hash, Array<String>] the plugin or group scope, the unknown
+      #   entries
+      #
+      def convert_scope(entries)
+        scopes  = { plugins: [], groups: [] }
+        unknown = []
+
+        entries.each do |entry|
+          if plugin = ::Guard.plugin(entry)
+            scopes[:plugins] << plugin
+          elsif group = ::Guard.group(entry)
+            scopes[:groups] << group
+          else
+            unknown << entry
+          end
+        end
+
+        [scopes, unknown]
+      end
     end
 
     # Initializes the interactor. This configures
     # Pry and creates some custom commands and aliases
     # for Guard.
     #
-    def initialize
+    def initialize(no_interaction = false)
+      @interactive = !no_interaction && self.class.enabled?
+      @mutex = Mutex.new
+      @thread = nil
+      @stty_exists = nil
+
       return if ENV['GUARD_ENV'] == 'test'
 
-      Pry.config.should_load_rc       = false
-      Pry.config.should_load_local_rc = false
-
-      history_file = self.class.options[:history_file] || HISTORY_FILE
-      Pry.config.history.file = File.expand_path(history_file)
-
-      @stty_exists = nil
-      _add_hooks
-
-      _replace_reset_command
-      _create_run_all_command
-      _create_command_aliases
-      _create_guard_commands
-      _create_group_commands
-
-      _configure_prompt
+      _pry_setup if interactive?
     end
 
-    # Start the line reader in its own thread and
-    # stop Guard on Ctrl-D.
-    #
-    def start
-      return if ENV['GUARD_ENV'] == 'test'
+    def interactive?
+      @interactive
+    end
 
+    # Run in foreground and wait until interrupted or closed
+    def foreground
+      return if ENV['GUARD_ENV'] == 'test'
+      ::Guard::UI.debug 'Start interactor'
       _store_terminal_settings if _stty_exists?
 
-      return if @thread
+      interactive? ?  _interactive_foreground : _non_interactive_foreground
+    end
 
-      ::Guard::UI.debug 'Start interactor'
-
-      @thread = Thread.new do
-        Pry.start
-        ::Guard.stop
+    # Remove interactor so other tasks can run in foreground
+    def background
+      if interactive?
+        @mutex.synchronize do
+          unless @thread.nil?
+            @thread.kill
+            @thread = nil # set to nil so we know we were killed
+          end
+        end
+        _cleanup
+        return @thread.nil? ? :stopped : :exit
+      else
+        Thread.main.wakeup
       end
     end
 
-    # Kill interactor thread if not current
-    #
-    def stop
-      return if !@thread || ENV['GUARD_ENV'] == 'test'
+    # This is called from signal handler, so avoid actually
+    # doing anything other than signaling threads
+    def handle_interrupt
+      return if ENV['GUARD_ENV'] == 'test'
 
-      unless Thread.current == @thread
-        ::Guard::UI.reset_line
-        ::Guard::UI.debug 'Stop interactor'
-        @thread.kill
-        @thread = nil
+      if interactive?
+        # TODO: does this actually do anything?
+        if @thread
+          @thread.raise Interrupt
+        else
+          fail Interrupt
+        end
+      else
+        Thread.main.raise Interrupt
       end
-
-      _restore_terminal_settings if _stty_exists?
     end
 
     private
@@ -328,6 +328,61 @@ module Guard
     #
     def _restore_terminal_settings
       ::Guard::Sheller.run("stty #{ @stty_save } 2>#{ DEV_NULL }") if @stty_save
+    end
+
+    # Restore terminal settings after closing
+    def _cleanup
+      ::Guard::UI.reset_line
+      ::Guard::UI.debug 'Stop interactor'
+      _restore_terminal_settings if _stty_exists?
+    end
+
+    # Enter interactive mode
+    def _block
+      return @thread.join if interactive?
+
+      STDERR.puts 'Guards jobs done. Sleeping...'
+      sleep
+    end
+
+    def _pry_setup
+      Pry.config.should_load_rc = false
+      Pry.config.should_load_local_rc = false
+      history_file_path = self.class.options[:history_file] || HISTORY_FILE
+      Pry.config.history.file = File.expand_path(history_file_path)
+
+      _add_hooks
+      _setup_commands
+      _configure_prompt
+    end
+
+    def _non_interactive_foreground
+      _block
+      :stopped
+    rescue Interrupt
+      :exit
+    ensure
+      _cleanup
+    end
+
+    def _interactive_foreground
+      @mutex.synchronize do
+        unless @thread
+          @thread = Thread.new { Pry.start }
+          @thread.join(0.5) # give pry a chance to start
+        end
+      end
+      _block
+      _cleanup
+      @thread.nil? ? :stopped : :exit
+    end
+
+    def _setup_commands
+      _replace_reset_command
+      _create_run_all_command
+      _create_command_aliases
+      _create_guard_commands
+      _create_group_commands
     end
   end
 end

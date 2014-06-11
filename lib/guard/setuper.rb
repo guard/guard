@@ -26,7 +26,7 @@ module Guard
     # Initializes the Guard singleton:
     #
     # * Initialize the internal Guard state;
-    # * Create the interactor when necessary for user interaction;
+    # * Create the interactor
     # * Select and initialize the file change listener.
     #
     # @option options [Boolean] clear if auto clear the UI should be done
@@ -39,59 +39,22 @@ module Guard
     # @return [Guard] the Guard singleton
     #
     def setup(opts = {})
-      _reset_lazy_accessors
-      @running   = true
-      @lock      = Mutex.new
-      @opts      = opts
-      @watchdirs = [Dir.pwd]
-      @runner    = ::Guard::Runner.new
-
-      if options[:watchdir]
-        # Ensure we have an array
-        dirs = Array(options[:watchdir])
-        @watchdirs = dirs.map { |dir| File.expand_path dir }
-      end
+      _init_options(opts)
 
       ::Guard::UI.clear(force: true)
+
       _setup_debug if options[:debug]
-      _setup_listener
+      @listener = _setup_listener
       _setup_signal_traps
 
-      reset_groups
-      reset_plugins
-      reset_scope
-
-      evaluate_guardfile
-
-      setup_scope(groups: options[:group], plugins: options[:plugin])
-
-      _setup_notifier
-
+      _load_guardfile
+      @interactor = _setup_interactor
       self
     end
 
-    # Lazy initializer for Guard's options hash
-    #
-    def options
-      @options ||= ::Guard::Options.new(@opts, DEFAULT_OPTIONS)
-    end
+    attr_reader :options, :evaluator, :interactor
 
-    # Lazy initializer for Guardfile evaluator
-    #
-    def evaluator
-      @evaluator ||= ::Guard::Guardfile::Evaluator.new(@opts || {})
-    end
-
-    # Lazy initializer the interactor unless the user has specified not to.
-    #
-    def interactor
-      return if options[:no_interactions] || !::Guard::Interactor.enabled
-
-      @interactor ||= ::Guard::Interactor.new
-    end
-
-    # Clear Guard's options hash
-    #
+    # Used only by tests (for all I know...)
     def clear_options
       @options = nil
     end
@@ -149,13 +112,27 @@ module Guard
       ::Guard::UI.error msg  if plugins.empty?
     end
 
-    private
+    # Asynchronously trigger changes
+    #
+    # Currently supported args:
+    #
+    #   old style hash: {modified: ['foo'], added: ['bar'], removed: []}
+    #
+    #   new style signals with args: [:guard_pause, :unpaused ]
+    #
+    def async_queue_add(changes)
+      @queue << changes
 
-    def _reset_lazy_accessors
-      @options    = nil
-      @evaluator  = nil
-      @interactor = nil
+      # Putting interactor in background puts guard into foreground
+      # so it can handle change notifications
+      Thread.new { interactor.background }
     end
+
+    def pending_changes?
+      ! @queue.empty?
+    end
+
+    private
 
     # Sets up various debug behaviors:
     #
@@ -175,15 +152,31 @@ module Guard
     #
     def _setup_listener
       if options[:listen_on]
-        @listener = Listen.on(options[:listen_on], &_listener_callback)
+        Listen.on(options[:listen_on], &_listener_callback)
       else
         listener_options = {}
         [:latency, :force_polling, :wait_for_delay].each do |option|
           listener_options[option] = options[option] if options[option]
         end
         listen_args = watchdirs + [listener_options]
-        @listener = Listen.to(*listen_args, &_listener_callback)
+        Listen.to(*listen_args, &_listener_callback)
       end
+    end
+
+    # Process the change queue, running tasks within the main Guard thread
+    def _process_queue
+      actions, changes = [], { modified: [], added: [], removed: [] }
+
+      while pending_changes?
+        if (item = @queue.pop).first.is_a?(Symbol)
+          actions << item
+        else
+          item.each { |key, value| changes[key] += value }
+        end
+      end
+
+      _run_actions(actions)
+      runner.run_on_changes(*changes.values)
     end
 
     # Sets up traps to catch signals used to control Guard.
@@ -197,30 +190,15 @@ module Guard
       return if defined?(JRUBY_VERSION)
 
       if Signal.list.keys.include?('USR1')
-        Signal.trap('USR1') do
-          unless listener.paused?
-            Thread.new { within_preserved_state { ::Guard.pause } }
-          end
-        end
+        Signal.trap('USR1') { async_queue_add([:guard_pause, :paused]) }
       end
 
       if Signal.list.keys.include?('USR2')
-        Signal.trap('USR2') do
-          if listener.paused?
-            Thread.new { within_preserved_state { ::Guard.pause } }
-          end
-        end
+        Signal.trap('USR2') { async_queue_add([:guard_pause, :unpaused]) }
       end
 
       return unless Signal.list.keys.include?('INT')
-
-      Signal.trap('INT') do
-        if interactor && interactor.thread
-          interactor.thread.raise(Interrupt)
-        else
-          ::Guard.stop
-        end
-      end
+      Signal.trap('INT') { interactor.handle_interrupt }
     end
 
     # Enables or disables the notifier based on user's configurations.
@@ -281,6 +259,24 @@ module Guard
       end
     end
 
+    def _run_actions(actions)
+      actions.each do |action_args|
+        args = action_args.dup
+        namespaced_action = args.shift
+        action = namespaced_action.to_s.sub(/^guard_/, '')
+        if ::Guard.respond_to?(action)
+          ::Guard.send(action, *args)
+        else
+          fail "Unknown action: #{action.inspect}"
+        end
+      end
+    end
+
+    def _setup_watchdirs
+      dirs = Array(options[:watchdir])
+      dirs.empty? ? [Dir.pwd] : dirs.map { |dir| File.expand_path dir }
+    end
+
     def _listener_callback
       lambda do |modified, added, removed|
         all_changes = { modified: modified.dup,
@@ -290,12 +286,33 @@ module Guard
         # TODO: this should be Listen's responsibility
         _relative_paths(all_changes)
 
-        if _relevant_changes?(all_changes)
-          within_preserved_state do
-            runner.run_on_changes(*all_changes.values)
-          end
-        end
+        async_queue_add(all_changes) if _relevant_changes?(all_changes)
       end
+    end
+
+    def _init_options(opts)
+      @queue = Queue.new
+      @runner = ::Guard::Runner.new
+      @evaluator = ::Guard::Guardfile::Evaluator.new(opts)
+      @options = ::Guard::Options.new(opts, DEFAULT_OPTIONS)
+      @watchdirs = _setup_watchdirs
+    end
+
+    def _reset_all
+      reset_groups
+      reset_plugins
+      reset_scope
+    end
+
+    def _setup_interactor
+      ::Guard::Interactor.new(options[:no_interactions])
+    end
+
+    def _load_guardfile
+      _reset_all
+      evaluate_guardfile
+      setup_scope(groups: options[:group], plugins: options[:plugin])
+      _setup_notifier
     end
   end
 end

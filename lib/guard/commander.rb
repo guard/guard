@@ -20,29 +20,23 @@ module Guard
     # @see CLI#start
     #
     def start(options = {})
-      setup(options) unless running
+      setup(options)
+      ::Guard::UI.debug 'Guard starts all plugins'
+      runner.run(:start)
+      listener.start
+      ::Guard::UI.info "Guard is now watching at '#{ @watchdirs.join "', '" }'"
 
-      within_preserved_state do
-        ::Guard::UI.debug 'Guard starts all plugins'
-        runner.run(:start)
-        ::Guard::UI.info "Guard is now watching at '#{@watchdirs.join "', '"}'"
-        listener.start
-      end
+      _interactor_loop
     end
 
-    # Stop Guard listening to file changes.
-    #
+    # TODO: refactor (left to avoid breaking too many specs)
     def stop
-      setup unless running
-
-      within_preserved_state do
-        ::Guard::UI.debug 'Guard stops all plugins'
-        runner.run(:stop)
-        ::Guard::Notifier.turn_off
-        ::Guard::UI.info 'Bye bye...', reset: true
-        listener.stop
-        @running = false
-      end
+      listener.stop
+      interactor.background
+      ::Guard::UI.debug 'Guard stops all plugins'
+      runner.run(:stop)
+      ::Guard::Notifier.turn_off
+      ::Guard::UI.info 'Bye bye...', reset: true
     end
 
     # Reload Guardfile and all Guard plugins currently enabled.
@@ -52,17 +46,13 @@ module Guard
     # @param [Hash] scopes hash with a Guard plugin or a group scope
     #
     def reload(scopes = {})
-      setup unless running
+      ::Guard::UI.clear(force: true)
+      ::Guard::UI.action_with_scopes('Reload', scopes)
 
-      within_preserved_state do
-        ::Guard::UI.clear(force: true)
-        ::Guard::UI.action_with_scopes('Reload', scopes)
-
-        if scopes.empty?
-          evaluator.reevaluate_guardfile
-        else
-          runner.run(:reload, scopes)
-        end
+      if scopes.empty?
+        evaluator.reevaluate_guardfile
+      else
+        runner.run(:reload, scopes)
       end
     end
 
@@ -71,48 +61,37 @@ module Guard
     # @param [Hash] scopes hash with a Guard plugin or a group scope
     #
     def run_all(scopes = {})
-      setup unless running
-
-      within_preserved_state do
-        ::Guard::UI.clear(force: true)
-        ::Guard::UI.action_with_scopes('Run', scopes)
-        runner.run(:run_all, scopes)
-      end
+      ::Guard::UI.clear(force: true)
+      ::Guard::UI.action_with_scopes('Run', scopes)
+      runner.run(:run_all, scopes)
     end
 
     # Pause Guard listening to file changes.
     #
-    def pause
-      if listener.paused?
-        ::Guard::UI.info 'Un-paused files modification listening', reset: true
-        listener.unpause
-      else
-        ::Guard::UI.info 'Paused files modification listening', reset: true
-        listener.pause
-      end
+    def pause(expected = nil)
+      paused = listener.paused?
+      states = { paused: true, unpaused: false, toggle: !paused }
+      pause = states[expected || :toggle]
+      fail ArgumentError, "invalid mode: #{expected.inspect}" if pause.nil?
+      return if pause == paused
+
+      listener.send(pause ? :pause : :unpause)
+      UI.info "File modification listening is now #{pause.to_s.upcase}"
     end
 
-    # Runs a block where the interactor is
-    # blocked and execution is synchronized
-    # to avoid state inconsistency.
-    #
-    # @param [Boolean] restart_interactor whether to restart the interactor or
-    #   not
-    # @yield the block to run
-    #
-    def within_preserved_state
-      lock.synchronize do
-        begin
-          interactor.stop if interactor
-          @result = yield
-        rescue Interrupt
-          # Bring back Pry when the block is halted with Ctrl-C
-        end
+    def show
+      ::Guard::DslDescriber.new(::Guard.options).show
+    end
 
-        interactor.start if interactor && running
+    private
+
+    # TODO: remove (left to avoid breaking too many specs)
+    def _interactor_loop
+      while interactor.foreground != :exit
+        _process_queue while pending_changes?
       end
-
-      @result
+    rescue Interrupt
+      stop
     end
   end
 end

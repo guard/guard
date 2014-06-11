@@ -1,16 +1,12 @@
 shared_examples_for 'interactor enabled' do
   it 'enables the interactor' do
-    expect(Guard::Interactor).to receive(:new)
-
-    Guard.send :interactor
+    expect(Guard.interactor).to be_interactive
   end
 end
 
 shared_examples_for 'interactor disabled' do
   it 'disables the interactor' do
-    expect(Guard::Interactor).to_not receive(:new)
-
-    Guard.send :interactor
+    expect(Guard.interactor).to_not be_interactive
   end
 end
 

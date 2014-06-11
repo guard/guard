@@ -110,12 +110,6 @@ module Guard
     def start
       _verify_bundler_presence unless options[:no_bundler_warning]
       ::Guard.start(options)
-
-      return if ENV['GUARD_ENV'] == 'test'
-
-      while ::Guard.running
-        sleep 0.5
-      end
     end
 
     desc 'list', 'Lists Guard plugins that can be used with init'
