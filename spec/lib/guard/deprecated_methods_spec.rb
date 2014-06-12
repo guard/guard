@@ -6,6 +6,12 @@ describe Guard::DeprecatedMethods do
   before(:all) do
     module TestModule
       extend DeprecatedMethods
+
+      def self.plugins(_filter)
+      end
+
+      def self.add_plugin(*_args)
+      end
     end
   end
 
@@ -43,7 +49,7 @@ describe Guard::DeprecatedMethods do
   end
 
   describe '.get_guard_class' do
-    let(:plugin_util) { double('Guard::PluginUtil', plugin_class: true) }
+    let(:plugin_util) { instance_double(Guard::PluginUtil, plugin_class: true) }
     before { allow(PluginUtil).to receive(:new).and_return(plugin_util) }
 
     it 'displays a deprecation warning to the user' do
@@ -72,7 +78,10 @@ describe Guard::DeprecatedMethods do
   end
 
   describe '.locate_guard' do
-    let(:plugin_util) { double('Guard::PluginUtil', plugin_location: true) }
+    let(:plugin_util) do
+      instance_double(Guard::PluginUtil, plugin_location: true)
+    end
+
     before do
       allow(PluginUtil).to receive(:new) { plugin_util }
     end

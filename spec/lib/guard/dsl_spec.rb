@@ -6,13 +6,14 @@ describe Guard::Dsl do
   let(:local_guardfile) { File.join(Dir.pwd, 'Guardfile') }
   let(:home_guardfile) { File.expand_path(File.join('~', '.Guardfile')) }
   let(:home_config) { File.expand_path(File.join('~', '.guard.rb')) }
-  let(:guardfile_evaluator) { double('Guard::Guardfile::Evaluator') }
+  let(:guardfile_evaluator) { instance_double(Guard::Guardfile::Evaluator) }
+
   before do
     stub_const 'Guard::Foo', Class.new(Guard::Plugin)
     stub_const 'Guard::Bar', Class.new(Guard::Plugin)
     stub_const 'Guard::Baz', Class.new(Guard::Plugin)
-    allow(::Guard).to receive(:setup_interactor)
     allow(Guard::Notifier).to receive(:turn_on)
+    allow(Listen).to receive(:to).with(Dir.pwd, {})
     ::Guard.setup
   end
 
@@ -40,7 +41,7 @@ describe Guard::Dsl do
 
   describe '#ignore' do
     disable_user_config
-    let(:listener) { double }
+    let(:listener) { instance_double(Listen::Listener) }
 
     it 'adds ignored regexps to the listener' do
       allow(::Guard).to receive(:listener) { listener }
@@ -54,7 +55,7 @@ describe Guard::Dsl do
 
   describe '#ignore!' do
     disable_user_config
-    let(:listener) { double }
+    let(:listener) { instance_double(Listen::Listener) }
 
     context 'when ignoring only foo* and *bar*' do
       let(:contents) { 'ignore! %r{^foo}, /bar/' }
@@ -83,7 +84,7 @@ describe Guard::Dsl do
 
   describe '#filter' do
     disable_user_config
-    let(:listener) { double }
+    let(:listener) { instance_double(Listen::Listener) }
 
     it 'adds ignored regexps to the listener' do
       allow(::Guard).to receive(:listener) { listener }
@@ -97,7 +98,7 @@ describe Guard::Dsl do
 
   describe '#filter!' do
     disable_user_config
-    let(:listener) { double }
+    let(:listener) { instance_double(Listen::Listener) }
 
     it 'replaces ignored regexps in the listener' do
       allow(::Guard).to receive(:listener) { listener }
@@ -150,7 +151,7 @@ describe Guard::Dsl do
     it 'disables the interactions with :off' do
       expected = 'interactor :off'
       described_class.evaluate_guardfile(guardfile_contents: expected)
-      expect(Guard::Interactor.enabled).to be_falsey
+      expect(Guard::Interactor).to_not be_enabled
     end
 
     it 'passes the options to the interactor' do

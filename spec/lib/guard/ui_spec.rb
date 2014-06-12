@@ -28,7 +28,6 @@ describe UI do
     allow(UI.logger).to receive(:info)
     allow(UI.logger).to receive(:warn)
     allow(UI.logger).to receive(:error)
-    allow(UI.logger).to receive(:deprecation)
     allow(UI.logger).to receive(:debug)
 
     allow($stderr).to receive(:print)
@@ -205,7 +204,10 @@ describe UI do
 
   describe '.deprecation' do
     context 'with the :show_deprecation option set to false (default)' do
-      before { Guard.setup(show_deprecations: false) }
+      before do
+        allow(Listen).to receive(:to).with(Dir.pwd, {})
+        Guard.setup(show_deprecations: false)
+      end
 
       it 'do not log' do
         expect(UI.logger).to_not receive(:warn)
@@ -214,7 +216,10 @@ describe UI do
     end
 
     context 'with the :show_deprecation option set to true' do
-      before { Guard.setup(show_deprecations: true) }
+      before do
+        allow(Listen).to receive(:to).with(Dir.pwd, {})
+        Guard.setup(show_deprecations: true)
+      end
 
       it 'resets the line with the :reset option' do
         expect(UI).to receive :reset_line
@@ -324,6 +329,7 @@ describe UI do
     context 'when the Guard clear option is enabled' do
       before do
         allow(Sheller).to receive(:run).with('clear;')
+        allow(Listen).to receive(:to).with(Dir.pwd, {})
         Guard.setup(clear: true)
       end
 
@@ -347,7 +353,10 @@ describe UI do
     end
 
     context 'when the Guard clear option is disabled' do
-      before { Guard.setup(clear: false) }
+      before do
+        allow(Listen).to receive(:to).with(Dir.pwd, {})
+        Guard.setup(clear: false)
+      end
 
       it 'does not clear the output' do
         expect(::Guard::Sheller).to_not receive(:run)
@@ -357,11 +366,14 @@ describe UI do
   end
 
   describe '.action_with_scopes' do
-    before { Guard.setup }
+    before do
+      allow(Listen).to receive(:to).with(Dir.pwd, {})
+      Guard.setup
+    end
 
     let(:rspec) { double('Rspec', title: 'Rspec') }
     let(:jasmine) { double('Jasmine', title: 'Jasmine') }
-    let(:group) { double('Group frontend', title: 'Frontend') }
+    let(:group) { instance_double(Guard::Group, title: 'Frontend') }
 
     context 'with a plugins scope' do
       it 'shows the plugin scoped action' do

@@ -2,31 +2,36 @@ require 'spec_helper'
 require 'guard/plugin'
 
 describe Guard::Commander do
+  before do
+    allow(::Guard).to receive(:_interactor_loop) {}
+  end
+
   describe '.start' do
-    let(:runner) { double('runner', run: true) }
-    let(:listener) { double('listener', start: true, stop: true) }
+    let(:runner) { instance_double(Guard::Runner, run: true) }
+    let(:listener) do
+      instance_double(Listen::Listener, start: true, stop: true)
+    end
+
+    let(:watched_dir) { Dir.pwd }
+
     before do
       ::Guard.instance_variable_set('@watchdirs', [])
-      allow(::Guard).to receive(:setup)
-      allow(::Guard).to receive(:listener) { listener }
       allow(::Guard).to receive(:runner) { runner }
-      allow(::Guard).to receive(:within_preserved_state).and_yield
+      allow(Listen).to receive(:to).with(watched_dir, {}) { listener }
+      allow(Guard::Notifier).to receive(:turn_on)
     end
 
     context 'Guard has not been setuped' do
-      before { allow(::Guard).to receive(:running).and_return(false) }
-
-      it 'setup Guard' do
-        expect(::Guard).to receive(:setup).with(foo: 'bar')
+      it 'calls Guard setup' do
+        expect(::Guard).to receive(:setup).with(foo: 'bar').and_call_original
 
         ::Guard.start(foo: 'bar')
       end
     end
 
     it 'displays an info message' do
-      ::Guard.instance_variable_set('@watchdirs', ['/foo/bar'])
       expect(::Guard::UI).to receive(:info).
-        with("Guard is now watching at '/foo/bar'")
+        with("Guard is now watching at '#{Dir.pwd}'")
 
       ::Guard.start
     end
@@ -45,28 +50,23 @@ describe Guard::Commander do
   end
 
   describe '.stop' do
-    let(:runner) { double('runner', run: true) }
-    let(:listener) { double('listener', stop: true) }
+    let(:runner) { instance_double(Guard::Runner, run: true) }
+    let(:listener) { instance_double(Listen::Listener, stop: true) }
+    let(:interactor) { instance_double(Guard::Interactor, background: nil) }
+
     before do
-      allow(::Guard).to receive(:setup)
-      allow(::Guard).to receive(:listener) { listener }
       allow(::Guard).to receive(:runner) { runner }
-      allow(::Guard).to receive(:within_preserved_state).and_yield
-    end
-
-    context 'Guard has not been setuped' do
-      before { allow(::Guard).to receive(:running) { false } }
-
-      it 'setup Guard' do
-        expect(::Guard).to receive(:setup)
-
-        ::Guard.stop
-      end
+      allow(::Guard).to receive(:interactor) { interactor }
+      allow(Listen).to receive(:to).with(Dir.pwd, {}) { listener }
+      allow(Guard::Notifier).to receive(:turn_on)
+      allow(listener).to receive(:stop)
+      Guard.setup
     end
 
     it 'turns the notifier off' do
       expect(::Guard::Notifier).to receive(:turn_off)
 
+      allow(Guard::Sheller).to receive(:run).with(*%w(hash stty)) { false }
       ::Guard.stop
     end
 
@@ -81,35 +81,20 @@ describe Guard::Commander do
 
       ::Guard.stop
     end
-
-    it 'sets the running state to false' do
-      ::Guard.running = true
-      ::Guard.stop
-      expect(::Guard.running).to be_falsey
-    end
   end
 
   describe '.reload' do
-    let(:runner) { double(run: true) }
+    let(:runner) { instance_double(Guard::Runner, run: true) }
     let(:group) { ::Guard::Group.new('frontend') }
     subject { ::Guard.setup }
 
     before do
       allow(::Guard::Notifier).to receive(:turn_on)
       allow(::Guard).to receive(:runner) { runner }
-      allow(::Guard).to receive(:within_preserved_state).and_yield
+      allow(::Guard).to receive(:scope) { {} }
       allow(::Guard::UI).to receive(:info)
       allow(::Guard::UI).to receive(:clear)
-    end
-
-    context 'Guard has not been setuped' do
-      before { allow(::Guard).to receive(:running).and_return(false) }
-
-      it 'setup Guard' do
-        expect(::Guard).to receive(:setup)
-
-        ::Guard.reload
-      end
+      allow(Listen).to receive(:to).with(Dir.pwd, {})
     end
 
     it 'clears the screen' do
@@ -150,26 +135,16 @@ describe Guard::Commander do
   end
 
   describe '.run_all' do
-    let(:runner) { double(run: true) }
+    let(:runner) { instance_double(Guard::Runner, run: true) }
     let(:group) { ::Guard::Group.new('frontend') }
     subject { ::Guard.setup }
 
     before do
       allow(::Guard::Notifier).to receive(:turn_on)
       allow(::Guard).to receive(:runner) { runner }
-      allow(::Guard).to receive(:within_preserved_state).and_yield
       allow(::Guard::UI).to receive(:action_with_scopes)
       allow(::Guard::UI).to receive(:clear)
-    end
-
-    context 'Guard has not been setuped' do
-      before { allow(::Guard).to receive(:running).and_return(false) }
-
-      it 'setup Guard' do
-        expect(::Guard).to receive(:setup)
-
-        ::Guard.run_all
-      end
+      allow(Listen).to receive(:to).with(Dir.pwd, {})
     end
 
     context 'with a given scope' do
@@ -189,40 +164,75 @@ describe Guard::Commander do
     end
   end
 
-  describe '.within_preserved_state' do
-    subject { ::Guard.setup }
-    before do
-      allow(::Guard::Notifier).to receive(:turn_on)
-      allow(subject).to receive(:interactor).
-        and_return(double('interactor').as_null_object)
-    end
+  describe '.pause' do
 
-    it 'disallows concurrency to avoid inconsistency' do
-      expect(subject.lock).to receive(:synchronize)
-      subject.within_preserved_state(&Proc.new {})
-    end
+    context 'when unpaused' do
+      subject { ::Guard.setup }
+      let(:listener) { instance_double(Listen::Listener) }
 
-    it 'runs the passed block' do
-      @called = false
-      subject.within_preserved_state { @called = true }
-      expect(@called).to be_truthy
-    end
+      before do
+        allow(::Guard::Notifier).to receive(:turn_on)
+        allow(Listen).to receive(:to).with(Dir.pwd, {}) { listener }
+        allow(listener).to receive(:paused?) { false }
+      end
 
-    context '@running is true' do
-      it 'suspends the interactor while running the block' do
-        expect(subject.interactor).to receive(:stop)
-        expect(subject.interactor).to receive(:start)
-        subject.within_preserved_state(&Proc.new {})
+      [:toggle, nil, :paused].each do |mode|
+        context "with #{mode.inspect}" do
+          it 'pauses' do
+            expect(listener).to receive(:pause)
+            subject.pause(mode)
+          end
+        end
+      end
+
+      context 'with :unpaused' do
+        it 'does nothing' do
+          expect(listener).to_not receive(:unpause)
+          expect(listener).to_not receive(:pause)
+          subject.pause(:unpaused)
+        end
+      end
+
+      context 'with invalid parameter' do
+        it 'raises an ArgumentError' do
+          expect { subject.pause(:invalid) }.
+            to raise_error(ArgumentError, 'invalid mode: :invalid')
+        end
       end
     end
 
-    context '@running is false' do
-      before { allow(::Guard).to receive(:running).and_return(false) }
+    context 'when already paused' do
+      subject { ::Guard.setup }
+      let(:listener) { instance_double(Listen::Listener) }
 
-      it 'stops the interactor before running the block' do
-        expect(subject.interactor).to receive(:stop)
-        expect(subject.interactor).to_not receive(:start)
-        subject.within_preserved_state(&Proc.new {})
+      before do
+        allow(::Guard::Notifier).to receive(:turn_on)
+        allow(Listen).to receive(:to).with(Dir.pwd, {}) { listener }
+        allow(listener).to receive(:paused?) { true }
+      end
+
+      [:toggle, nil, :unpaused].each do |mode|
+        context "with #{mode.inspect}" do
+          it 'unpauses' do
+            expect(listener).to receive(:unpause)
+            subject.pause(mode)
+          end
+        end
+      end
+
+      context 'with :paused' do
+        it 'does nothing' do
+          expect(listener).to_not receive(:unpause)
+          expect(listener).to_not receive(:pause)
+          subject.pause(:paused)
+        end
+      end
+
+      context 'with invalid parameter' do
+        it 'raises an ArgumentError' do
+          expect { subject.pause(:invalid) }.
+            to raise_error(ArgumentError, 'invalid mode: :invalid')
+        end
       end
     end
   end

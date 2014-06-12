@@ -1,25 +1,24 @@
-require 'guard/dsl_describer'
-
 module Guard
-  class Interactor
-    SHOW = Pry::CommandSet.new do
-      create_command 'show' do
+  module Commands
+    class Show
+      def self.import
+        Pry::Commands.create_command 'show' do
+          group 'Guard'
+          description 'Show all Guard plugins.'
 
-        group 'Guard'
-        description 'Show all Guard plugins.'
-
-        banner <<-BANNER
+          banner <<-BANNER
           Usage: show
 
           Show all defined Guard plugins and their options.
-        BANNER
+          BANNER
 
-        def process
-          ::Guard::DslDescriber.new(::Guard.options).show
+          def process
+            ::Guard.async_queue_add([:guard_show])
+          end
         end
       end
     end
   end
 end
 
-Pry.commands.import ::Guard::Interactor::SHOW
+Guard::Commands::Show.import

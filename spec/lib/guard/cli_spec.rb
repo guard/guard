@@ -4,7 +4,7 @@ require 'guard/cli'
 describe Guard::CLI do
   let(:guard)         { Guard }
   let(:ui)            { Guard::UI }
-  let(:dsl_describer) { double('DslDescriber instance') }
+  let(:dsl_describer) { instance_double(DslDescriber) }
 
   describe '#start' do
     before { allow(Guard).to receive(:start) }

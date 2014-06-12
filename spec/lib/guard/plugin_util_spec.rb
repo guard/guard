@@ -1,29 +1,32 @@
 require 'spec_helper'
 
 require 'guard/plugin'
-
-# Needed for a test below
-module Guard
-  class Guard
-  end
-end
+require 'guard/guard'
 
 describe Guard::PluginUtil do
 
   let!(:rubygems_version_1_7_2) { Gem::Version.create('1.7.2') }
   let!(:rubygems_version_1_8_0) { Gem::Version.create('1.8.0') }
-  let(:guard_rspec_class) { double('Guard::RSpec') }
-  let(:guard_rspec) { double('Guard::RSpec instance') }
-  let(:guardfile_evaluator) { double('Guard::Guardfile::Evaluator instance') }
+  let(:guard_rspec_class) { class_double(Guard::RSpec) }
+  let(:guard_rspec) { instance_double(Guard::RSpec) }
+  let(:guardfile_evaluator) { instance_double(Guard::Guardfile::Evaluator) }
 
   before do
-    allow(Notifier).to receive(:turn_on) {}
+    allow(Listen).to receive(:to).with(Dir.pwd, {})
+    allow(Guard::Notifier).to receive(:turn_on) {}
     Guard.setup
   end
 
   describe '.plugin_names' do
     context 'Rubygems < 1.8.0' do
       before do
+        module Gem
+          # add method not present in Rubygems > 2.0
+          def self.source_index
+            fail 'do not call'
+          end
+        end
+
         expect(Gem::Version).to receive(:create).with(Gem::VERSION) do
           rubygems_version_1_7_2
         end
@@ -134,6 +137,13 @@ describe Guard::PluginUtil do
     context 'Rubygems < 1.8.0' do
 
       before do
+        module Gem
+          # add method not present in Rubygems > 2.0
+          def self.source_index
+            fail 'do not call'
+          end
+        end
+
         expect(Gem::Version).to receive(:create).with(Gem::VERSION) do
           rubygems_version_1_7_2
         end
@@ -271,7 +281,7 @@ describe Guard::PluginUtil do
       it 'returns the Guard class' do
         plugin = described_class.new('inline')
         module Guard
-          class Inline < Guard
+          class Inline < ::Guard::Plugin
           end
         end
 

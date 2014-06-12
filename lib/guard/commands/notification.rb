@@ -1,26 +1,26 @@
 require 'guard/notifier'
 
 module Guard
-  # Command to toggle notifications on and off
-  class Interactor
-    NOTIFICATION = Pry::CommandSet.new do
-      create_command 'notification' do
+  module Commands
+    class Notification
+      def self.import
+        Pry::Commands.create_command 'notification' do
+          group 'Guard'
+          description 'Toggles the notifications.'
 
-        group 'Guard'
-        description 'Toggles the notifications.'
-
-        banner <<-BANNER
+          banner <<-BANNER
           Usage: notification
 
           Toggles the notifications on and off.
-        BANNER
+          BANNER
 
-        def process
-          ::Guard::Notifier.toggle
+          def process
+            ::Guard::Notifier.toggle
+          end
         end
       end
     end
   end
 end
 
-Pry.commands.import ::Guard::Interactor::NOTIFICATION
+Guard::Commands::Notification.import

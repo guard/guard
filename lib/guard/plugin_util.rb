@@ -37,6 +37,10 @@ module Guard
           end
         end
       else
+        ::Guard::UI.deprecation \
+          'Rubygems version prior to 1.8.0 are no longer supported'\
+          ' and may not work'
+
         Gem.source_index.find_name(/^guard-/)
       end.map { |x| x.name.sub(/^guard-/, '') }.uniq
     end

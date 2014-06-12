@@ -20,6 +20,11 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
 
+  config.mock_with :rspec do |mocks|
+    mocks.verify_doubled_constant_names = true
+    mocks.verify_partial_doubles = true
+  end
+
   config.before(:each) do |example|
     @fixture_path = Pathname.new(File.expand_path('../fixtures/', __FILE__))
 
@@ -49,12 +54,14 @@ RSpec.configure do |config|
     end
 
     unless example.metadata[:sheller_specs]
-      allow(Guard::Sheller).to receive(:run) do |args|
+      allow(Guard::Sheller).to receive(:run) do |*args|
         fail "stub for Sheller.run() called with: #{args.inspect}"
       end
     end
 
-    allow(Pry.output).to receive(:puts)
+    allow(Listen).to receive(:to) do |*args|
+      fail "stub for Listen.to called with: #{args.inspect}"
+    end
 
     ::Guard.reset_groups
     ::Guard.reset_plugins

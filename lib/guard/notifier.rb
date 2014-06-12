@@ -92,7 +92,7 @@ module Guard
     # @option options [Boolean] silent disable any logging
     #
     def turn_on(opts = {})
-      if notifiers.empty? && (!::Guard.options || ::Guard.options[:notify])
+      if notifiers.empty? && (::Guard.options || {})[:notify]
         _auto_detect_notification
       end
 

@@ -10,7 +10,9 @@ describe Guard::Guardfile::Evaluator do
   let(:rel_guardfile) { File.expand_path('../relative_path_to_Guardfile') }
 
   before do
-    allow(::Guard).to receive(:setup_interactor)
+    allow(::Guard::Interactor).to receive(:new).with(false)
+    allow(Listen).to receive(:to).with(Dir.pwd, {})
+
     allow(Guard::Notifier).to receive(:turn_on)
     ::Guard.setup
     allow(Guard::Notifier).to receive(:notify)

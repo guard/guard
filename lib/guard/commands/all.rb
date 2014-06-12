@@ -1,28 +1,32 @@
+# required for async_queue_add
+require 'guard'
+
 module Guard
-  # Command to run all default plugin tasks
-  class Interactor
-    ALL = Pry::CommandSet.new do
-      create_command 'all' do
+  module Commands
+    class All
+      def self.import
+        Pry::Commands.create_command 'all' do
+          group 'Guard'
+          description 'Run all plugins.'
 
-        group 'Guard'
-        description 'Run all plugins.'
-
-        banner <<-BANNER
+          banner <<-BANNER
           Usage: all <scope>
 
           Run the Guard plugin `run_all` action.
 
           You may want to specify an optional scope to the action,
           either the name of a Guard plugin or a plugin group.
-        BANNER
+          BANNER
 
-        def process(*entries)
-          scopes, rest = ::Guard::Interactor.convert_scope(entries)
+          def process(*entries)
+            scopes, unknown = ::Guard::Interactor.convert_scope(entries)
 
-          if rest.empty?
-            ::Guard.run_all scopes
-          else
-            output.puts "Unknown scope #{ rest.join(', ') }"
+            unless unknown.empty?
+              output.puts "Unknown scopes: #{ unknown.join(', ') }"
+              return
+            end
+
+            ::Guard.async_queue_add([:guard_run_all, scopes])
           end
         end
       end
@@ -30,4 +34,4 @@ module Guard
   end
 end
 
-Pry.commands.import ::Guard::Interactor::ALL
+Guard::Commands::All.import

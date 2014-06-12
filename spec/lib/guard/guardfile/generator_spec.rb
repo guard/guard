@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Guard::Guardfile::Generator do
 
-  let(:plugin_util) { double('Guard::PluginUtil') }
+  let(:plugin_util) { instance_double(Guard::PluginUtil) }
   let(:guardfile_generator) { described_class.new }
 
   it 'has a valid Guardfile template' do

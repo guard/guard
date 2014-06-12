@@ -1,26 +1,27 @@
 module Guard
-  class Interactor
-    PAUSE = Pry::CommandSet.new do
-      create_command 'pause' do
+  module Commands
+    class Pause
+      def self.import
+        Pry::Commands.create_command 'pause' do
+          group 'Guard'
+          description 'Toggles the file listener.'
 
-        group 'Guard'
-        description 'Toggles the file listener.'
-
-        banner <<-BANNER
+          banner <<-BANNER
           Usage: pause
 
           Toggles the file listener on and off.
 
           When the file listener is paused, the default Guard Pry
           prompt will show the pause sign `[p]`.
-        BANNER
+          BANNER
 
-        def process
-          ::Guard.pause
+          def process
+            ::Guard.async_queue_add([:guard_pause])
+          end
         end
       end
     end
   end
 end
 
-Pry.commands.import ::Guard::Interactor::PAUSE
+Guard::Commands::Pause.import
