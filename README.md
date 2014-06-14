@@ -210,8 +210,8 @@ $ bundle exec guard -P plugin_name another_plugin_name # shortcut
 
 #### `-d`/`--debug` option
 
-Guard can display debug information which can be very usefull for plugins
-developers with:
+Guard can display debug information (useful for plugin
+developers) with:
 
 ```bash
 $ bundle exec guard --debug
