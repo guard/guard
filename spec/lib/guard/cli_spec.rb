@@ -17,16 +17,20 @@ describe Guard::CLI do
 
     context 'with a Gemfile in the project dir' do
       before do
+        @bundler_env = {
+          'BUNDLE_GEMFILE' => ENV.delete('BUNDLE_GEMFILE'),
+          'RUBYGEMS_GEMDEPS' => ENV.delete('RUBYGEMS_GEMDEPS')
+        }
+
         allow(File).to receive(:exist?).with('Gemfile').and_return(true)
       end
 
-      context 'when running with Bundler' do
+      after { ENV.update(@bundler_env) }
+
+      context 'when activating gem dependencies with Bundler' do
         before do
-          @bundler_env = ENV['BUNDLE_GEMFILE']
           ENV['BUNDLE_GEMFILE'] = 'Gemfile'
         end
-
-        after { ENV['BUNDLE_GEMFILE'] = @bundler_env }
 
         it 'does not show the Bundler warning' do
           expect(Guard::UI).to_not receive(:info).with(/Guard here!/)
@@ -34,15 +38,19 @@ describe Guard::CLI do
         end
       end
 
-      context 'when running without Bundler' do
+      context 'when activating gem dependencies with Rubygems' do
         before do
-          @bundler_env = ENV['BUNDLE_GEMFILE']
-          ENV['BUNDLE_GEMFILE'] = nil
+          ENV['RUBYGEMS_GEMDEPS'] = '-'
         end
 
-        after { ENV['BUNDLE_GEMFILE'] = @bundler_env }
+        it 'does not show the Bundler warning' do
+          expect(Guard::UI).to_not receive(:info).with(/Guard here!/)
+          subject.start
+        end
+      end
 
-        it 'does show the Bundler warning' do
+      context 'without having activated gem dependencies with Bundler or Rubygems' do
+        it 'shows the Bundler warning' do
           expect(Guard::UI).to receive(:info).with(/Guard here!/)
           subject.start
         end
