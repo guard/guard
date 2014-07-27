@@ -476,6 +476,12 @@ describe Guard::Guardfile::Evaluator do
           evaluator.reevaluate_guardfile
         end
       end
+
+      it 'configures the scope' do
+        expect(::Guard).to receive(:setup_scope)
+
+        evaluator.reevaluate_guardfile
+      end
     end
   end
 

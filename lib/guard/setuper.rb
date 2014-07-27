@@ -92,10 +92,11 @@ module Guard
     # @see CLI#start
     # @see Dsl#scope
     #
-    def setup_scope(new_scope)
+    def setup_scope(scope = {})
+      scope = _prepare_scope(scope)
       { groups: :add_group, plugins: :plugin }.each do |type, meth|
-        next unless new_scope[type] && new_scope[type].any?
-        scope[type] = new_scope[type].map do |item|
+        next unless scope[type].any?
+        @scope[type] = scope[type].map do |item|
           ::Guard.send(meth, item)
         end
       end
@@ -311,8 +312,18 @@ module Guard
     def _load_guardfile
       _reset_all
       evaluate_guardfile
-      setup_scope(groups: options[:group], plugins: options[:plugin])
+      setup_scope
       _setup_notifier
+    end
+
+    def _prepare_scope(scope)
+      plugins = Array(options[:plugin])
+      plugins = Array(scope[:plugins] || scope[:plugin]) if plugins.empty?
+
+      groups = Array(options[:group])
+      groups = Array(scope[:groups] || scope[:group]) if groups.empty?
+
+      { plugins: plugins, groups: groups }
     end
   end
 end
