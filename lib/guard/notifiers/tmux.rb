@@ -209,9 +209,8 @@ module Guard
       #
       def tmux_color(type, opts = {})
         type = type.to_sym
-        type = :default unless [:success, :failed, :pending].include?(type)
 
-        opts.fetch(type, DEFAULTS[type])
+        opts[type] || DEFAULTS[type] || opts[:default] || DEFAULTS[:default]
       end
 
       # Notification starting, save the current Tmux settings

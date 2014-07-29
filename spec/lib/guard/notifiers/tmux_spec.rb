@@ -45,7 +45,7 @@ describe Guard::Notifier::Tmux do
 
   describe '#notify' do
     context 'with options passed at initialization' do
-      let(:notifier) { described_class.new(success: 'rainbow', silent: true) }
+      let(:notifier) { described_class.new(success: 'rainbow', silent: true, starting: 'vanilla') }
 
       it 'uses these options by default' do
         expect(Sheller).to receive(:run).
@@ -59,6 +59,13 @@ describe Guard::Notifier::Tmux do
           with('tmux set -q status-left-bg black') {}
 
         notifier.notify('any message', type: :success, success: 'black')
+      end
+
+      it 'uses the initialization options for custom types by default' do
+        expect(Sheller).to receive(:run).
+          with('tmux set -q status-left-bg vanilla') {}
+
+        notifier.notify('any message', type: :starting)
       end
     end
 
@@ -99,6 +106,27 @@ describe Guard::Notifier::Tmux do
         with('tmux set -q status-left-bg green') {}
 
       notifier.notify('any message', type: :notify)
+    end
+
+    it 'sets the tmux status bar color to default color on a custom type' do
+      expect(Sheller).to receive(:run).
+        with('tmux set -q status-left-bg black') {}
+
+      notifier.notify('any message', type: :custom, default: 'black')
+    end
+
+    it 'sets the tmux status bar color to default color on a custom type' do
+      expect(Sheller).to receive(:run).
+        with('tmux set -q status-left-bg green') {}
+
+      notifier.notify('any message', type: :custom)
+    end
+
+    it 'sets the tmux status bar color to passed color on a custom type' do
+      expect(Sheller).to receive(:run).
+        with('tmux set -q status-left-bg black') {}
+
+      notifier.notify('any message', type: :custom, custom: 'black')
     end
 
     context 'when right status bar is passed in as an option' do
