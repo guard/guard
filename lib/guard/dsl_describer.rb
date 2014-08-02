@@ -28,6 +28,7 @@ module Guard
       @options = options
       ::Guard.reset_groups
       ::Guard.reset_plugins
+      ::Guard.reset_scope
     end
 
     # List the Guard plugins that are available for use in your system and marks
