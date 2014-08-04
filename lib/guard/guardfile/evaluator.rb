@@ -1,4 +1,5 @@
 require 'guard/options'
+require 'guard/plugin'
 
 module Guard
   module Guardfile
