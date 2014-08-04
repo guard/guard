@@ -230,6 +230,7 @@ module Guard
           ::Guard::UI.info(msg)
           ::Guard::Notifier.notify(msg, title: 'Guard re-evaluate')
 
+          ::Guard.setup_scope
           ::Guard.runner.run(:start)
         end
       end

@@ -212,6 +212,54 @@ describe Guard::Setuper do
     end
   end
 
+  describe '.setup_scope' do
+    subject { Guard.setup(options) }
+
+    let(:guardfile) do
+      %w(group guard).map do |scope|
+        %w(foo bar baz).map do |name|
+          "#{ scope } :#{ name } do; end;"
+        end
+      end.flatten.join
+    end
+
+    let(:listener) { instance_double(Listen::Listener) }
+
+    before do
+      stub_const 'Guard::Foo', Class.new(Guard::Plugin)
+      stub_const 'Guard::Bar', Class.new(Guard::Plugin)
+      stub_const 'Guard::Baz', Class.new(Guard::Plugin)
+      allow(Listen).to receive(:to).with(Dir.pwd, {}) { listener }
+      allow(Guard::Notifier).to receive(:turn_on)
+    end
+
+    [:group, :plugin].each do |scope|
+      context "with the global #{scope} option specified" do
+        let(:options) do
+          { :guardfile_contents => guardfile, scope => %w(foo bar) }
+        end
+
+        it 'configures the scope according to the global option' do
+          subject.setup_scope(scope => :baz)
+
+          expect(subject.scope[:"#{scope}s"].map(&:name).map(&:to_s)).to \
+            contain_exactly('foo', 'bar')
+        end
+      end
+
+      context "without the global #{scope} option specified" do
+        let(:options) { { guardfile_contents: guardfile } }
+
+        it 'configures the scope according to the given option' do
+          subject.setup_scope(scope => :baz)
+
+          expect(subject.scope[:"#{scope}s"].map(&:name).map(&:to_s)).to \
+            contain_exactly('baz')
+        end
+      end
+    end
+  end
+
   describe '.reset_plugins' do
     before do
       allow(Listen).to receive(:to).with(Dir.pwd, {})
