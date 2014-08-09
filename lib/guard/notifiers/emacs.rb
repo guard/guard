@@ -95,10 +95,8 @@ module Guard
 
       private
 
-      def _run_cmd(*args)
-        p = IO.popen(args)
-        p.readlines
-        p.close
+      def _run_cmd(cmd, *args)
+        Sheller.run(cmd, *args)
       end
     end
   end
