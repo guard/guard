@@ -23,7 +23,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'formatador', '>= 0.2.4'
 
   s.files        = Dir.glob('{bin,images,lib}/**/*') \
-    + %w(CHANGELOG.md LICENSE man/guard.2 man/guard.1.html README.md)
+    + %w(CHANGELOG.md LICENSE man/guard.1 man/guard.1.html README.md)
   s.executable   = 'guard'
   s.require_path = 'lib'
 end
