@@ -1,3 +1,5 @@
+### :warning: Guard is [looking for new maintainers](https://groups.google.com/forum/#!topic/guard-dev/2Td0QTvTIsE). Please [contact me](mailto:thibaud@thibaud.gg) if you're interested.
+
 Guard
 =====
 
