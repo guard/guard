@@ -105,7 +105,8 @@ module Guard
           color = tmux_color(opts[:type], opts)
 
           color_locations.each do |color_location|
-            _run_client 'set', "#{_quiet_option}#{ color_location } #{ color }"
+            _run_client 'set', "#{self.class._quiet_option}"\
+              "#{color_location} #{color}"
           end
         end
 
@@ -142,8 +143,8 @@ module Guard
         teaser_message = message.split("\n").first
         display_title  = title_format % [title, teaser_message]
 
-        _run_client 'set-option', "#{_quiet_option}set-titles-string"\
-          " '#{ display_title }'"
+        _run_client 'set-option', "#{self.class._quiet_option}"\
+          "set-titles-string '#{display_title}'"
       end
 
       # Displays a message in the status bar of tmux.
@@ -177,12 +178,12 @@ module Guard
       def display_message(type, title, message, opts = {})
         default_format = DEFAULTS[:default_message_format]
         default_format = opts.fetch(:default_message_format, default_format)
-        format = "#{ type }_message_format".to_sym
+        format = "#{type}_message_format".to_sym
         message_format = opts.fetch(format, default_format)
 
         default_color = DEFAULTS[:default_message_color]
         default_color = opts.fetch(:default_message_color, default_color)
-        color = "#{ type }_message_color".to_sym
+        color = "#{type}_message_color".to_sym
         message_color = opts.fetch(color, default_color)
 
         display_time = opts.fetch(:timeout, DEFAULTS[:timeout])
@@ -194,11 +195,13 @@ module Guard
 
         _run_client(
           'set',
-          "#{_quiet_option}display-time #{ display_time * 1000 }")
+          "#{self.class._quiet_option}display-time #{display_time * 1000}")
 
-        _run_client 'set', "#{_quiet_option}message-fg #{ message_color }"
-        _run_client 'set', "#{_quiet_option}message-bg #{ color }"
-        _run_client 'display-message', "'#{ display_message }'"
+        _run_client 'set', "#{self.class._quiet_option}"\
+          "message-fg #{message_color}"
+        _run_client 'set', "#{self.class._quiet_option}"\
+          "message-bg #{color}"
+        _run_client 'display-message', "'#{display_message}'"
       end
 
       # Get the Tmux color for the notification type.
@@ -236,7 +239,10 @@ module Guard
         if @options_stored
           @options_store.each do |client, options|
             options.each do |key, value|
-              args = [DEFAULTS[:client], 'set', '-t', client, '-q']
+              args = [
+                DEFAULTS[:client], 'set', '-t',
+                client, _quiet_option.strip
+              ]
               args << '-u' unless value
               args << key
               args << value if value
@@ -321,11 +327,11 @@ module Guard
         end
       end
 
-      def _tmux_version
-        @tmux_version ||= Float(Sheller.stdout('tmux -V')[/\d+\.\d+/])
+      def self._tmux_version
+        @@tmux_version ||= Float(Sheller.stdout('tmux -V')[/\d+\.\d+/])
       end
 
-      def _quiet_option
+      def self._quiet_option
         '-q ' if _tmux_version >= 1.7
       end
     end

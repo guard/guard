@@ -7,7 +7,7 @@ describe Guard::Notifier::Tmux do
   let(:tmux_version) { 1.7 }
 
   before do
-    allow(notifier).to receive(:_tmux_version) { tmux_version }
+    allow(described_class).to receive(:_tmux_version) { tmux_version }
   end
 
   describe '.available?' do
@@ -45,7 +45,11 @@ describe Guard::Notifier::Tmux do
 
   describe '#notify' do
     context 'with options passed at initialization' do
-      let(:notifier) { described_class.new(success: 'rainbow', silent: true, starting: 'vanilla') }
+      let(:notifier) do
+        described_class.new(success: 'rainbow',
+                            silent: true,
+                            starting: 'vanilla')
+      end
 
       it 'uses these options by default' do
         expect(Sheller).to receive(:run).
