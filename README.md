@@ -556,7 +556,7 @@ $ bundle exec guard -g specs
 
 Plugins that don't belong to a group are part of the `default` group.
 
-Another neat use of groups is to group dependant plugins and stop processing if one fails. In order
+Another neat use of groups is to group dependent plugins and stop processing if one fails. In order
 to make this work, the group needs to have the `halt_on_fail` option enabled and the Guard plugin
 needs to throw `:task_has_failed` to indicate that the action was not successful.
 
