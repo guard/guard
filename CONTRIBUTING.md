@@ -16,7 +16,7 @@ When you file a bug, please try to follow these simple rules if applicable:
 
 * Make sure you've read the README carefully.
 * Make sure you run Guard with `bundle exec` first.
-* Add debug information to the issue by running Guard with the `--debug` option.
+* Add debug information to the issue by running Guard with the `--debug` option and with the `LISTEN_GEM_DEBUGGING=2` environment variable set (it shows what's happening under the hood and how fast).
 * Add your `Guardfile` and `Gemfile` to the issue.
 * Provide information about your environment:
   * Your current versions of your OS, Ruby, Rubygems and Bundler.
@@ -34,7 +34,7 @@ Development
 Pull requests are very welcome! Please try to follow these simple rules if applicable:
 
 * Please create a topic branch for every separate change you make.
-* Make sure your patches are well tested. All specs run with `rake spec:portability` must pass.
+* Make sure your patches are well tested. All specs must pass when run on [Travis CI](https://travis-ci.org/guard/guard).
 * Update the [Yard](http://yardoc.org/) documentation.
 * Update the [README](https://github.com/guard/guard/blob/master/README.md).
 * Update the [CHANGELOG](https://github.com/guard/guard/blob/master/CHANGELOG.md) for noteworthy changes.
