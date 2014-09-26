@@ -4,8 +4,6 @@ Coveralls.wear!
 require "guard"
 require "rspec"
 
-ENV["GUARD_ENV"] = "test"
-
 path = "#{File.expand_path("..", __FILE__)}/support/**/*.rb"
 Dir[path].each { |f| require f }
 
@@ -83,9 +81,6 @@ RSpec.configure do |config|
   end
 
   config.after(:each) do
-    Pry.config.hooks.delete_hook(:when_started, :load_guard_rc)
-    Pry.config.hooks.delete_hook(:when_started, :load_project_guard_rc)
-
     Guard::Notifier.clear_notifiers
 
     ::Guard.options[:debug] = false if ::Guard.options

@@ -1,3 +1,5 @@
+require "pry"
+
 module Guard
   module Commands
     class Pause
@@ -23,5 +25,3 @@ module Guard
     end
   end
 end
-
-Guard::Commands::Pause.import

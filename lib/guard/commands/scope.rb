@@ -1,3 +1,5 @@
+require "pry"
+
 module Guard
   module Commands
     class Scope
@@ -32,5 +34,3 @@ module Guard
     end
   end
 end
-
-Guard::Commands::Scope.import

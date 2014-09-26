@@ -3,6 +3,8 @@ require "guard/plugin"
 
 describe Guard::Runner do
 
+  let(:interactor) { instance_double(Guard::Interactor) }
+
   before do
     # These are implemented, because otherwise stubbing _scoped_plugins is too
     # much work
@@ -40,6 +42,7 @@ describe Guard::Runner do
       end
     end
 
+    allow(Guard::Interactor).to receive(:new).and_return(interactor)
     allow(Guard::Notifier).to receive(:turn_on) {}
     allow(Listen).to receive(:to).with(Dir.pwd, {})
 

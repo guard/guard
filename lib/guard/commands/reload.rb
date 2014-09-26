@@ -1,3 +1,5 @@
+require "pry"
+
 module Guard
   module Commands
     class Reload
@@ -30,5 +32,3 @@ module Guard
     end
   end
 end
-
-Guard::Commands::Reload.import

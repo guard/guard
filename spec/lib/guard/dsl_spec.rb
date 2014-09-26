@@ -1,12 +1,15 @@
 require "spec_helper"
 require "guard/plugin"
 
+require "guard/dsl"
+
 describe Guard::Dsl do
 
   let(:local_guardfile) { File.join(Dir.pwd, "Guardfile") }
   let(:home_guardfile) { File.expand_path(File.join("~", ".Guardfile")) }
   let(:home_config) { File.expand_path(File.join("~", ".guard.rb")) }
   let(:guardfile_evaluator) { instance_double(Guard::Guardfile::Evaluator) }
+  let(:interactor) { instance_double(Guard::Interactor) }
 
   before do
     stub_const "Guard::Foo", Class.new(Guard::Plugin)
@@ -15,6 +18,7 @@ describe Guard::Dsl do
     allow(Guard::Notifier).to receive(:turn_on)
     allow(::Guard).to receive(:add_builtin_plugins)
     allow(Listen).to receive(:to).with(Dir.pwd, {})
+    allow(Guard::Interactor).to receive(:new).and_return(interactor)
     ::Guard.setup
   end
 

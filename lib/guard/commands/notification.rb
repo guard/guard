@@ -1,3 +1,5 @@
+require "pry"
+
 require "guard/notifier"
 
 module Guard
@@ -22,5 +24,3 @@ module Guard
     end
   end
 end
-
-Guard::Commands::Notification.import

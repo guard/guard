@@ -4,10 +4,14 @@ require "guard/plugin"
 describe Guard::Setuper do
 
   let(:guardfile_evaluator) { instance_double(Guard::Guardfile::Evaluator) }
+  let(:pry_interactor) { double(Guard::Jobs::PryWrapper) }
+  let(:sleep_interactor) { double(Guard::Jobs::Sleep) }
 
   before do
     Guard::Interactor.enabled = true
     allow(Dir).to receive(:chdir)
+    allow(Guard::Jobs::PryWrapper).to receive(:new).and_return(pry_interactor)
+    allow(Guard::Jobs::Sleep).to receive(:new).and_return(sleep_interactor)
   end
 
   describe ".setup" do
@@ -366,13 +370,6 @@ describe Guard::Setuper do
 
       context "when receiving SIGINT" do
         context "with an interactor" do
-          let(:interactor) do
-            instance_double(
-              Guard::Interactor,
-              thread: instance_double(Thread))
-          end
-          before { allow(Guard).to receive(:interactor) { interactor } }
-
           it "delegates to the Pry thread" do
             expect(Guard.interactor).to receive(:handle_interrupt)
             Process.kill :INT, Process.pid
