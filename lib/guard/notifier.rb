@@ -6,7 +6,6 @@ require 'guard/ui'
 require 'guard/notifiers/emacs'
 require 'guard/notifiers/file_notifier'
 require 'guard/notifiers/gntp'
-require 'guard/notifiers/growl_notify'
 require 'guard/notifiers/growl'
 require 'guard/notifiers/libnotify'
 require 'guard/notifiers/notifysend'
@@ -22,7 +21,6 @@ module Guard
   #
   # * Ruby GNTP
   # * Growl
-  # * GrowlNotify
   # * Libnotify
   # * rb-notifu
   # * emacs
@@ -44,7 +42,7 @@ module Guard
   # The notification type selection is based on the image option that is
   # sent to {#notify}. Each image type has its own notification type, and
   # notifications with custom images goes all sent as type `notify`. The
-  # `gntp` and `growl_notify` notifiers are able to register these types
+  # `gntp` notifier is able to register these types
   # at Growl and allows customization of each notification type.
   #
   # Guard can be configured to make use of more than one notifier at once.
@@ -59,7 +57,6 @@ module Guard
       {
         gntp: GNTP,
         growl: Growl,
-        growl_notify: GrowlNotify,
         terminal_notifier: TerminalNotifier,
         libnotify: Libnotify,
         notifysend: NotifySend,

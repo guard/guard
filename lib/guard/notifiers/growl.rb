@@ -13,9 +13,8 @@ module Guard
     # [Homebrew](http://mxcl.github.com/homebrew/).
     #
     # Sending notifications with this notifier will not show the different
-    # Guard notifications in the Growl preferences. Use the :gntp or
-    # :growl_notify notifiers if you want to customize each notification type
-    # in Growl.
+    # Guard notifications in the Growl preferences. Use the :gntp notifier
+    # if you want to customize each notification type in Growl.
     #
     # @example Install `growlnotify` with Homebrew
     #   brew install growlnotify

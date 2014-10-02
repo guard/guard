@@ -55,9 +55,6 @@ describe Guard::Notifier do
             with(:growl, silent: true).and_return false
 
           expect(Guard::Notifier).to receive(:add_notifier).
-            with(:growl_notify, silent: true).and_return false
-
-          expect(Guard::Notifier).to receive(:add_notifier).
             with(:terminal_notifier, silent: true).and_return false
 
           expect(Guard::Notifier).to receive(:add_notifier).
@@ -89,10 +86,7 @@ describe Guard::Notifier do
             with(:gntp, silent: true).and_return false
 
           expect(Guard::Notifier).to receive(:add_notifier).
-            with(:growl, silent: true).and_return false
-
-          expect(Guard::Notifier).to receive(:add_notifier).
-            with(:growl_notify, silent: true).and_return true
+            with(:growl, silent: true).and_return true
 
           expect(Guard::Notifier).to_not receive(:add_notifier).
             with(:terminal_notifier, silent: true)

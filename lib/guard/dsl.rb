@@ -66,7 +66,7 @@ module Guard
     # You can also pass `:off` as library to turn off notifications.
     #
     # @example Define multiple notifications
-    #   notification :growl_notify
+    #   notification :ruby_gntp
     #   notification :ruby_gntp, host: '192.168.1.5'
     #
     # @param [Symbol, String] notifier the name of the notifier to use
