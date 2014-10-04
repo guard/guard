@@ -200,7 +200,7 @@ module Guard
     #
     def _verify_bundler_presence
       return unless File.exist?('Gemfile')
-      return if ENV['BUNDLE_GEMFILE']
+      return if ENV['BUNDLE_GEMFILE'] || ENV['RUBYGEMS_GEMDEPS']
 
       ::Guard::UI.info <<EOF
 
