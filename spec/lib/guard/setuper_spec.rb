@@ -260,6 +260,51 @@ describe Guard::Setuper do
     end
   end
 
+  describe "._relative_paths" do
+    subject do
+      Guard.send(:_relative_paths, changes)
+      changes
+    end
+
+    let(:modified_files) do
+      ["spec/models/foo_spec.rb", "moduleA/spec/models/foo_spec.rb"]
+    end
+
+    let(:watchdirs) { ["."] }
+
+    let(:changes) do
+      {
+        modified: modified_files.map { |f| File.expand_path(f) },
+        added: [],
+        removed: []
+      }
+    end
+
+    before do
+      allow(Listen).to receive(:to).with(Dir.pwd, {})
+      allow(Guard).to receive(:watchdirs).
+        and_return(watchdirs.map { |dir| File.expand_path(dir) })
+    end
+
+    shared_examples_for "returning paths relative to the current directory" do
+      it "returns paths relative to the current directory" do
+        should == {
+          modified: modified_files,
+          added: [],
+          removed: []
+        }
+      end
+    end
+
+    it_behaves_like "returning paths relative to the current directory"
+
+    context "first watchdir is not current directory" do
+      let(:watchdirs) { ["moduleA", "."] }
+
+      it_behaves_like "returning paths relative to the current directory"
+    end
+  end
+
   describe ".reset_plugins" do
     before do
       allow(Listen).to receive(:to).with(Dir.pwd, {})

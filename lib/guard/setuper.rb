@@ -249,13 +249,10 @@ module Guard
     end
 
     def _relative_paths(changes)
-      # Convert to relative paths (respective to the watchdir it came from)
-      watchdirs.each do |watchdir|
-        changes.each do |_type, paths|
-          paths.each do |path|
-            next unless path.start_with? watchdir
-            path.sub! "#{watchdir}#{File::SEPARATOR}", ""
-          end
+      # Convert to relative paths
+      changes.each do |_type, paths|
+        paths.map! do |path|
+          Pathname.new(path).relative_path_from(Pathname.pwd).to_s
         end
       end
     end
