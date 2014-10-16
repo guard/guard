@@ -1,26 +1,26 @@
-require 'rbconfig'
+require "rbconfig"
 
-require 'guard/commander'
-require 'guard/deprecated_methods'
-require 'guard/deprecator'
-require 'guard/dsl'
-require 'guard/group'
-require 'guard/guardfile'
-require 'guard/interactor'
-require 'guard/notifier'
-require 'guard/plugin_util'
-require 'guard/runner'
-require 'guard/setuper'
-require 'guard/sheller'
-require 'guard/ui'
-require 'guard/watcher'
+require "guard/commander"
+require "guard/deprecated_methods"
+require "guard/deprecator"
+require "guard/dsl"
+require "guard/group"
+require "guard/guardfile"
+require "guard/interactor"
+require "guard/notifier"
+require "guard/plugin_util"
+require "guard/runner"
+require "guard/setuper"
+require "guard/sheller"
+require "guard/ui"
+require "guard/watcher"
 
 # Guard is the main module for all Guard related modules and classes.
 # Also Guard plugins should use this namespace.
 #
 module Guard
-  WINDOWS  = RbConfig::CONFIG['host_os'] =~ /(?:msdos|mswin|djgpp|mingw)/
-  DEV_NULL = WINDOWS ? 'NUL' : '/dev/null'
+  WINDOWS  = RbConfig::CONFIG["host_os"] =~ /(?:msdos|mswin|djgpp|mingw)/
+  DEV_NULL = WINDOWS ? "NUL" : "/dev/null"
 
   extend Commander
   extend DeprecatedMethods
@@ -64,7 +64,7 @@ module Guard
       filtered_plugins = case filter
                          when String, Symbol
                            @plugins.select do |plugin|
-                             plugin.name == filter.to_s.downcase.gsub('-', '')
+                             plugin.name == filter.to_s.downcase.gsub("-", "")
                            end
                          when Regexp
                            @plugins.select do |plugin|
@@ -75,7 +75,7 @@ module Guard
                              filter.all? do |k, v|
                                case k
                                when :name
-                                 plugin.name == v.to_s.downcase.gsub('-', '')
+                                 plugin.name == v.to_s.downcase.gsub("-", "")
                                when :group
                                  plugin.group.name == v.to_sym
                                end

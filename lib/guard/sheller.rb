@@ -12,7 +12,7 @@ module Guard
     # @param [*String] args a list of command parts to run in a subshell
     #
     def initialize(*args)
-      fail ArgumentError, 'no command given' if args.empty?
+      fail ArgumentError, "no command given" if args.empty?
       @command = args
       @ran = false
     end

@@ -1,4 +1,4 @@
-require 'guard/notifiers/base'
+require "guard/notifiers/base"
 
 module Guard
   module Notifier
@@ -36,8 +36,8 @@ module Guard
 
       # Default options for the ruby gtnp client.
       CLIENT_DEFAULTS = {
-        host:     '127.0.0.1',
-        password: '',
+        host:     "127.0.0.1",
+        password: "",
         port:     23053
       }
 
@@ -46,7 +46,7 @@ module Guard
       end
 
       def self.gem_name
-        'ruby_gntp'
+        "ruby_gntp"
       end
 
       def self.available?(opts = {})
@@ -85,12 +85,12 @@ module Guard
 
       def _register!(gntp_client)
         gntp_client.register(
-          app_icon: images_path.join('guard.png').to_s,
+          app_icon: images_path.join("guard.png").to_s,
           notifications: [
-            { name: 'notify', enabled: true },
-            { name: 'failed', enabled: true },
-            { name: 'pending', enabled: true },
-            { name: 'success', enabled: true }
+            { name: "notify", enabled: true },
+            { name: "failed", enabled: true },
+            { name: "pending", enabled: true },
+            { name: "success", enabled: true }
           ]
         )
       end
@@ -98,7 +98,7 @@ module Guard
       def _client(opts = {})
         @_client ||= begin
           gntp = ::GNTP.new(
-            'Guard',
+            "Guard",
             opts.delete(:host) { CLIENT_DEFAULTS[:host] },
             opts.delete(:password) { CLIENT_DEFAULTS[:password] },
             opts.delete(:port) { CLIENT_DEFAULTS[:port] })

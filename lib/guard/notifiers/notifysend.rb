@@ -1,5 +1,5 @@
-require 'guard/notifiers/base'
-require 'guard/sheller'
+require "guard/notifiers/base"
+require "guard/sheller"
 
 module Guard
   module Notifier
@@ -13,7 +13,7 @@ module Guard
       # Default options for the notify-send notifications.
       DEFAULTS = {
         t: 3000, # Default timeout is 3000ms
-        h: 'int:transient:1' # Automatically close the notification
+        h: "int:transient:1" # Automatically close the notification
       }
 
       # Full list of options supported by notify-send.
@@ -32,7 +32,7 @@ module Guard
       # @return [Boolean] whether or not the notify-send binary is available
       #
       def self._notifysend_binary_available?
-        !::Guard::Sheller.stdout('which notify-send').empty?
+        !::Guard::Sheller.stdout("which notify-send").empty?
       end
 
       # @private
@@ -47,9 +47,9 @@ module Guard
           true
         else
           unless opts[:silent]
-            ::Guard::UI.error 'The :notifysend notifier runs only on Linux'\
-              ', FreeBSD, OpenBSD and Solaris with the libnotify-bin '\
-              'package installed.'
+            ::Guard::UI.error "The :notifysend notifier runs only on Linux"\
+              ", FreeBSD, OpenBSD and Solaris with the libnotify-bin "\
+              "package installed."
           end
           false
         end
@@ -76,7 +76,7 @@ module Guard
           u: _notifysend_urgency(opts.delete(:type))
         ).merge(opts)
 
-        Sheller.run('notify-send', *_to_arguments(command, SUPPORTED, opts))
+        Sheller.run("notify-send", *_to_arguments(command, SUPPORTED, opts))
       end
 
       private
@@ -88,7 +88,7 @@ module Guard
       # @return [String] the notify-send urgency
       #
       def _notifysend_urgency(type)
-        { failed: 'normal', pending: 'low' }.fetch(type, 'low')
+        { failed: "normal", pending: "low" }.fetch(type, "low")
       end
 
       # Builds a shell command out of a command string and option hash.

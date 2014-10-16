@@ -2,9 +2,9 @@ module Guard
   module Commands
     class Change
       def self.import
-        Pry::Commands.create_command 'change' do
-          group 'Guard'
-          description 'Trigger a file change.'
+        Pry::Commands.create_command "change" do
+          group "Guard"
+          description "Trigger a file change."
 
           banner <<-BANNER
           Usage: change <file> <other_file>
@@ -14,7 +14,7 @@ module Guard
 
           def process(*files)
             if files.empty?
-              output.puts 'Please specify a file.'
+              output.puts "Please specify a file."
               return
             end
 

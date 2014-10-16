@@ -21,7 +21,7 @@ module Guard
     #
     def start(options = {})
       setup(options)
-      ::Guard::UI.debug 'Guard starts all plugins'
+      ::Guard::UI.debug "Guard starts all plugins"
       runner.run(:start)
       listener.start
       ::Guard::UI.info "Guard is now watching at '#{ @watchdirs.join "', '" }'"
@@ -33,10 +33,10 @@ module Guard
     def stop
       listener.stop
       interactor.background
-      ::Guard::UI.debug 'Guard stops all plugins'
+      ::Guard::UI.debug "Guard stops all plugins"
       runner.run(:stop)
       ::Guard::Notifier.turn_off
-      ::Guard::UI.info 'Bye bye...', reset: true
+      ::Guard::UI.info "Bye bye...", reset: true
     end
 
     # Reload Guardfile and all Guard plugins currently enabled.
@@ -47,7 +47,7 @@ module Guard
     #
     def reload(scopes = {})
       ::Guard::UI.clear(force: true)
-      ::Guard::UI.action_with_scopes('Reload', scopes)
+      ::Guard::UI.action_with_scopes("Reload", scopes)
 
       if scopes.empty?
         evaluator.reevaluate_guardfile
@@ -62,7 +62,7 @@ module Guard
     #
     def run_all(scopes = {})
       ::Guard::UI.clear(force: true)
-      ::Guard::UI.action_with_scopes('Run', scopes)
+      ::Guard::UI.action_with_scopes("Run", scopes)
       runner.run(:run_all, scopes)
     end
 

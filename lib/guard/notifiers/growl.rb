@@ -1,4 +1,4 @@
-require 'guard/notifiers/base'
+require "guard/notifiers/base"
 
 module Guard
   module Notifier
@@ -95,7 +95,7 @@ module Guard
         opts.delete(:type)
         self.class.require_gem_safely
 
-        opts = DEFAULTS.merge(opts).merge(name: 'Guard')
+        opts = DEFAULTS.merge(opts).merge(name: "Guard")
 
         ::Growl.notify(message, opts)
       end

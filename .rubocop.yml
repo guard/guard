@@ -1,4 +1,11 @@
+AllCops:
+  Exclude:
+    - db/schema.rb
+
 AccessorMethodName:
+  Enabled: false
+
+ActionFilter:
   Enabled: false
 
 Alias:
@@ -23,6 +30,9 @@ CaseEquality:
   Enabled: false
 
 CharacterLiteral:
+  Enabled: false
+
+ClassAndModuleChildren:
   Enabled: false
 
 ClassLength:
@@ -62,6 +72,9 @@ DotPosition:
 DoubleNegation:
   Enabled: false
 
+EachWithObject:
+  Enabled: false
+
 EmptyLiteral:
   Enabled: false
 
@@ -83,10 +96,16 @@ FormatString:
 GlobalVars:
   Enabled: false
 
+GuardClause:
+  Enabled: false
+
 IfUnlessModifier:
   Enabled: false
 
 IfWithSemicolon:
+  Enabled: false
+
+InlineComment:
   Enabled: false
 
 Lambda:
@@ -113,6 +132,9 @@ NegatedIf:
 NegatedWhile:
   Enabled: false
 
+Next:
+  Enabled: false
+
 NilComparison:
   Enabled: false
 
@@ -132,8 +154,7 @@ ParameterLists:
   Enabled: false
 
 PercentLiteralDelimiters:
-  PreferredDelimiters:
-    '%': '{}'
+  Enabled: false
 
 PerlBackrefs:
   Enabled: false
@@ -160,8 +181,14 @@ SingleLineBlockParams:
 SingleLineMethods:
   Enabled: false
 
+SignalException:
+  Enabled: false
+
 SpecialGlobalVars:
   Enabled: false
+
+StringLiterals:
+  EnforcedStyle: double_quotes
 
 VariableInterpolation:
   Enabled: false

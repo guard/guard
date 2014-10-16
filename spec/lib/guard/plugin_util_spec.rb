@@ -1,12 +1,12 @@
-require 'spec_helper'
+require "spec_helper"
 
-require 'guard/plugin'
-require 'guard/guard'
+require "guard/plugin"
+require "guard/guard"
 
 describe Guard::PluginUtil do
 
-  let!(:rubygems_version_1_7_2) { Gem::Version.create('1.7.2') }
-  let!(:rubygems_version_1_8_0) { Gem::Version.create('1.8.0') }
+  let!(:rubygems_version_1_7_2) { Gem::Version.create("1.7.2") }
+  let!(:rubygems_version_1_8_0) { Gem::Version.create("1.8.0") }
   let(:guard_rspec_class) { class_double(Guard::RSpec) }
   let(:guard_rspec) { instance_double(Guard::RSpec) }
   let(:guardfile_evaluator) { instance_double(Guard::Guardfile::Evaluator) }
@@ -17,13 +17,13 @@ describe Guard::PluginUtil do
     Guard.setup
   end
 
-  describe '.plugin_names' do
-    context 'Rubygems < 1.8.0' do
+  describe ".plugin_names" do
+    context "Rubygems < 1.8.0" do
       before do
         module Gem
           # add method not present in Rubygems > 2.0
           def self.source_index
-            fail 'do not call'
+            fail "do not call"
           end
         end
 
@@ -31,69 +31,69 @@ describe Guard::PluginUtil do
           rubygems_version_1_7_2
         end
 
-        expect(Gem::Version).to receive(:create).with('1.8.0') do
+        expect(Gem::Version).to receive(:create).with("1.8.0") do
           rubygems_version_1_8_0
         end
 
         gems_source_index = double
         expect(Gem).to receive(:source_index) { gems_source_index }
         expect(gems_source_index).to receive(:find_name).with(/^guard-/) do
-          [double(name: 'guard-rspec'), double(name: 'guard-rspec')]
+          [double(name: "guard-rspec"), double(name: "guard-rspec")]
         end
       end
 
-      it 'returns the list of guard gems' do
-        expect(described_class.plugin_names).to eq ['rspec']
+      it "returns the list of guard gems" do
+        expect(described_class.plugin_names).to eq ["rspec"]
       end
     end
 
-    context 'Rubygems >= 1.8.0' do
+    context "Rubygems >= 1.8.0" do
       before do
         expect(Gem::Version).to receive(:create).with(Gem::VERSION) do
           rubygems_version_1_8_0
         end
 
-        expect(Gem::Version).to receive(:create).with('1.8.0') do
+        expect(Gem::Version).to receive(:create).with("1.8.0") do
           rubygems_version_1_8_0
         end
 
         gems = [
-          double(name: 'guard'),
-          double(name: 'guard-rspec'),
-          double(name: 'gem1', full_gem_path: '/gem1'),
-          double(name: 'gem2', full_gem_path: '/gem2'),
+          double(name: "guard"),
+          double(name: "guard-rspec"),
+          double(name: "gem1", full_gem_path: "/gem1"),
+          double(name: "gem2", full_gem_path: "/gem2"),
         ]
         allow(File).to receive(:exist?).
-          with('/gem1/lib/guard/gem1.rb') { false }
+          with("/gem1/lib/guard/gem1.rb") { false }
 
         allow(File).to receive(:exist?).
-          with('/gem2/lib/guard/gem2.rb') { true }
+          with("/gem2/lib/guard/gem2.rb") { true }
 
         expect(Gem::Specification).to receive(:find_all) { gems }
       end
 
-      it 'returns the list of guard gems' do
-        expect(described_class.plugin_names).to include('rspec')
+      it "returns the list of guard gems" do
+        expect(described_class.plugin_names).to include("rspec")
       end
 
-      it 'returns the list of embedded guard gems' do
-        expect(described_class.plugin_names).to include('gem2')
+      it "returns the list of embedded guard gems" do
+        expect(described_class.plugin_names).to include("gem2")
       end
     end
   end
 
-  describe '#initialize' do
-    it 'accepts a name without guard-' do
-      expect(described_class.new('rspec').name).to eq 'rspec'
+  describe "#initialize" do
+    it "accepts a name without guard-" do
+      expect(described_class.new("rspec").name).to eq "rspec"
     end
 
-    it 'accepts a name with guard-' do
-      expect(described_class.new('guard-rspec').name).to eq 'rspec'
+    it "accepts a name with guard-" do
+      expect(described_class.new("guard-rspec").name).to eq "rspec"
     end
   end
 
-  describe '#initialize_plugin' do
-    let(:plugin_util) { described_class.new('rspec') }
+  describe "#initialize_plugin" do
+    let(:plugin_util) { described_class.new("rspec") }
 
     before do
       allow_any_instance_of(described_class).
@@ -101,29 +101,29 @@ describe Guard::PluginUtil do
         and_return(guard_rspec_class)
     end
 
-    context 'with a plugin inheriting from Guard::Guard (deprecated)' do
+    context "with a plugin inheriting from Guard::Guard (deprecated)" do
       before do
         expect(guard_rspec_class).to receive(:superclass) { ::Guard::Guard }
       end
 
-      it 'instantiate the plugin using the old API' do
+      it "instantiate the plugin using the old API" do
         expect(guard_rspec_class).to receive(:new).
-          with(['watcher'], group: 'foo') { guard_rspec }
+          with(["watcher"], group: "foo") { guard_rspec }
 
-        options = { watchers: ['watcher'], group: 'foo' }
+        options = { watchers: ["watcher"], group: "foo" }
         old_plugin = plugin_util.initialize_plugin(options)
         expect(old_plugin).to eq guard_rspec
       end
     end
 
-    context 'with a plugin inheriting from Guard::Plugin' do
+    context "with a plugin inheriting from Guard::Plugin" do
       before do
         expect(guard_rspec_class).to receive(:superclass) { ::Guard::Plugin }
       end
 
-      it 'instantiate the plugin using the new API' do
+      it "instantiate the plugin using the new API" do
 
-        options = { watchers: ['watcher'], group: 'foo' }
+        options = { watchers: ["watcher"], group: "foo" }
         expect(guard_rspec_class).to receive(:new).with(options) { guard_rspec }
 
         expect(plugin_util.initialize_plugin(options)).to eq guard_rspec
@@ -131,16 +131,16 @@ describe Guard::PluginUtil do
     end
   end
 
-  describe '#plugin_location' do
-    subject { described_class.new('rspec') }
+  describe "#plugin_location" do
+    subject { described_class.new("rspec") }
 
-    context 'Rubygems < 1.8.0' do
+    context "Rubygems < 1.8.0" do
 
       before do
         module Gem
           # add method not present in Rubygems > 2.0
           def self.source_index
-            fail 'do not call'
+            fail "do not call"
           end
         end
 
@@ -148,46 +148,46 @@ describe Guard::PluginUtil do
           rubygems_version_1_7_2
         end
 
-        expect(Gem::Version).to receive(:create).with('1.8.0') do
+        expect(Gem::Version).to receive(:create).with("1.8.0") do
           rubygems_version_1_8_0
         end
       end
 
-      it 'returns the path of a Guard gem' do
+      it "returns the path of a Guard gem" do
         gems_source_index = double
-        gems_found = [double(full_gem_path: 'gems/guard-rspec')]
+        gems_found = [double(full_gem_path: "gems/guard-rspec")]
         expect(Gem).to receive(:source_index) { gems_source_index }
 
-        expect(gems_source_index).to receive(:find_name).with('guard-rspec') do
+        expect(gems_source_index).to receive(:find_name).with("guard-rspec") do
           gems_found
         end
 
-        expect(subject.plugin_location).to eq 'gems/guard-rspec'
+        expect(subject.plugin_location).to eq "gems/guard-rspec"
       end
     end
 
-    context 'Rubygems >= 1.8.0' do
+    context "Rubygems >= 1.8.0" do
 
       before do
         expect(Gem::Version).to receive(:create).with(Gem::VERSION) do
           rubygems_version_1_8_0
         end
 
-        expect(Gem::Version).to receive(:create).with('1.8.0') do
+        expect(Gem::Version).to receive(:create).with("1.8.0") do
           rubygems_version_1_8_0
         end
       end
 
-      it 'returns the path of a Guard gem' do
+      it "returns the path of a Guard gem" do
         expect(Gem::Specification).to receive(:find_by_name).
-          with('guard-rspec') { double(full_gem_path: 'gems/guard-rspec') }
+          with("guard-rspec") { double(full_gem_path: "gems/guard-rspec") }
 
-        expect(subject.plugin_location).to eq 'gems/guard-rspec'
+        expect(subject.plugin_location).to eq "gems/guard-rspec"
       end
     end
   end
 
-  describe '#plugin_class' do
+  describe "#plugin_class" do
     after do
       # TODO: use RSpec's stub const
       consts = [:Classname,
@@ -204,16 +204,16 @@ describe Guard::PluginUtil do
       end
     end
 
-    it 'reports an error if the class is not found' do
+    it "reports an error if the class is not found" do
       expect(::Guard::UI).to receive(:error).twice
-      described_class.new('notAGuardClass').plugin_class
+      described_class.new("notAGuardClass").plugin_class
     end
 
-    context 'with a nested Guard class' do
-      it 'resolves the Guard class from string' do
-        plugin = described_class.new('classname')
+    context "with a nested Guard class" do
+      it "resolves the Guard class from string" do
+        plugin = described_class.new("classname")
         expect(plugin).to receive(:require) do |classname|
-          expect(classname).to eq 'guard/classname'
+          expect(classname).to eq "guard/classname"
           module Guard
             class Classname
             end
@@ -222,10 +222,10 @@ describe Guard::PluginUtil do
         expect(plugin.plugin_class).to eq Guard::Classname
       end
 
-      it 'resolves the Guard class from symbol' do
+      it "resolves the Guard class from symbol" do
         plugin = described_class.new(:classname)
         expect(plugin).to receive(:require) do |classname|
-          expect(classname).to eq 'guard/classname'
+          expect(classname).to eq "guard/classname"
           module Guard
             class Classname
             end
@@ -235,11 +235,11 @@ describe Guard::PluginUtil do
       end
     end
 
-    context 'with a name with dashes' do
-      it 'returns the Guard class' do
-        plugin = described_class.new('dashed-class-name')
+    context "with a name with dashes" do
+      it "returns the Guard class" do
+        plugin = described_class.new("dashed-class-name")
         expect(plugin).to receive(:require) do |classname|
-          expect(classname).to eq 'guard/dashed-class-name'
+          expect(classname).to eq "guard/dashed-class-name"
           module Guard
             class DashedClassName
             end
@@ -249,11 +249,11 @@ describe Guard::PluginUtil do
       end
     end
 
-    context 'with a name with underscores' do
-      it 'returns the Guard class' do
-        plugin = described_class.new('underscore_class_name')
+    context "with a name with underscores" do
+      it "returns the Guard class" do
+        plugin = described_class.new("underscore_class_name")
         expect(plugin).to receive(:require) do |classname|
-          expect(classname).to eq 'guard/underscore_class_name'
+          expect(classname).to eq "guard/underscore_class_name"
           module Guard
             class UnderscoreClassName
             end
@@ -263,11 +263,11 @@ describe Guard::PluginUtil do
       end
     end
 
-    context 'with a name like VSpec' do
-      it 'returns the Guard class' do
-        plugin = described_class.new('vspec')
+    context "with a name like VSpec" do
+      it "returns the Guard class" do
+        plugin = described_class.new("vspec")
         expect(plugin).to receive(:require) do |classname|
-          expect(classname).to eq 'guard/vspec'
+          expect(classname).to eq "guard/vspec"
           module Guard
             class VSpec
             end
@@ -277,9 +277,9 @@ describe Guard::PluginUtil do
       end
     end
 
-    context 'with an inline Guard class' do
-      it 'returns the Guard class' do
-        plugin = described_class.new('inline')
+    context "with an inline Guard class" do
+      it "returns the Guard class" do
+        plugin = described_class.new("inline")
         module Guard
           class Inline < ::Guard::Plugin
           end
@@ -290,61 +290,61 @@ describe Guard::PluginUtil do
       end
     end
 
-    context 'when set to fail gracefully' do
+    context "when set to fail gracefully" do
       options = { fail_gracefully: true }
-      subject { described_class.new('notAGuardClass') }
-      it 'does not print error messages on fail' do
+      subject { described_class.new("notAGuardClass") }
+      it "does not print error messages on fail" do
         expect(::Guard::UI).to_not receive(:error)
         expect(subject.plugin_class(options)).to be_nil
       end
     end
   end
 
-  describe '#add_to_guardfile' do
+  describe "#add_to_guardfile" do
     before do
       allow(::Guard).to receive(:evaluator) { guardfile_evaluator }
     end
 
-    context 'when the Guard is already in the Guardfile' do
+    context "when the Guard is already in the Guardfile" do
       before do
         allow(guardfile_evaluator).to receive(:guardfile_include?) { true }
       end
 
-      it 'shows an info message' do
+      it "shows an info message" do
         expect(::Guard::UI).to receive(:info).
-          with 'Guardfile already includes myguard guard'
+          with "Guardfile already includes myguard guard"
 
-        described_class.new('myguard').add_to_guardfile
+        described_class.new("myguard").add_to_guardfile
       end
     end
 
-    context 'when the Guard is not in the Guardfile' do
-      let(:plugin_util) { described_class.new('myguard') }
+    context "when the Guard is not in the Guardfile" do
+      let(:plugin_util) { described_class.new("myguard") }
 
       let(:long_path_not_sure_why) do
-        '/Users/me/projects/guard-myguard/lib'\
-          '/guard/myguard/templates/Guardfile'
+        "/Users/me/projects/guard-myguard/lib"\
+          "/guard/myguard/templates/Guardfile"
       end
 
       before do
-        stub_const 'Guard::Myguard', Class.new(Guard::Plugin)
+        stub_const "Guard::Myguard", Class.new(Guard::Plugin)
         allow(plugin_util).to receive(:plugin_class) { Guard::Myguard }
 
         expect(plugin_util).to receive(:plugin_location) do
-          '/Users/me/projects/guard-myguard'
+          "/Users/me/projects/guard-myguard"
         end
 
         allow(guardfile_evaluator).to receive(:guardfile_include?) { false }
       end
 
-      it 'appends the template to the Guardfile' do
-        expect(File).to receive(:read).with('Guardfile') { 'Guardfile content' }
+      it "appends the template to the Guardfile" do
+        expect(File).to receive(:read).with("Guardfile") { "Guardfile content" }
 
         expect(File).to receive(:read).
-          with(long_path_not_sure_why) { 'Template content' }
+          with(long_path_not_sure_why) { "Template content" }
 
         io = StringIO.new
-        expect(File).to receive(:open).with('Guardfile', 'wb').and_yield io
+        expect(File).to receive(:open).with("Guardfile", "wb").and_yield io
 
         plugin_util.add_to_guardfile
 

@@ -1,4 +1,4 @@
-require 'guard/ui'
+require "guard/ui"
 
 module Guard
   # The watcher defines a RegExp that will be matched against file system
@@ -25,7 +25,7 @@ module Guard
       return unless @pattern.is_a?(String) && @pattern =~ regexp
 
       unless @@warning_printed
-        ::Guard::UI.info '*' * 20 + "\nDEPRECATION WARNING!\n" + '*' * 20
+        ::Guard::UI.info "*" * 20 + "\nDEPRECATION WARNING!\n" + "*" * 20
         ::Guard::UI.info <<-MSG
             You have a string in your Guardfile watch patterns that seem to
             represent a Regexp.
@@ -73,7 +73,7 @@ module Guard
           break if guard.options[:first_match]
         end
 
-        guard.options[:any_return] ? paths : paths.flatten.map { |p| p.to_s }
+        guard.options[:any_return] ? paths : paths.flatten.map(&:to_s)
       end
     end
 
@@ -110,7 +110,7 @@ module Guard
     #
     def match(file)
       f = file
-      deleted = file.start_with?('!')
+      deleted = file.start_with?("!")
       f = deleted ? f[1..-1] : f
       if @pattern.is_a?(Regexp)
         if m = f.match(@pattern)

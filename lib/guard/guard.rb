@@ -1,4 +1,4 @@
-require 'guard/plugin/base'
+require "guard/plugin/base"
 
 module Guard
   # @deprecated Inheriting from `Guard::Guard` is deprecated, please inherit

@@ -1,12 +1,12 @@
-require 'spec_helper'
-require 'guard/plugin'
+require "spec_helper"
+require "guard/plugin"
 
 describe Guard::Commander do
   before do
     allow(::Guard).to receive(:_interactor_loop) {}
   end
 
-  describe '.start' do
+  describe ".start" do
     let(:runner) { instance_double(Guard::Runner, run: true) }
     let(:listener) do
       instance_double(Listen::Listener, start: true, stop: true)
@@ -15,41 +15,41 @@ describe Guard::Commander do
     let(:watched_dir) { Dir.pwd }
 
     before do
-      ::Guard.instance_variable_set('@watchdirs', [])
+      ::Guard.instance_variable_set("@watchdirs", [])
       allow(::Guard).to receive(:runner) { runner }
       allow(Listen).to receive(:to).with(watched_dir, {}) { listener }
       allow(Guard::Notifier).to receive(:turn_on)
     end
 
-    context 'Guard has not been setuped' do
-      it 'calls Guard setup' do
-        expect(::Guard).to receive(:setup).with(foo: 'bar').and_call_original
+    context "Guard has not been setuped" do
+      it "calls Guard setup" do
+        expect(::Guard).to receive(:setup).with(foo: "bar").and_call_original
 
-        ::Guard.start(foo: 'bar')
+        ::Guard.start(foo: "bar")
       end
     end
 
-    it 'displays an info message' do
+    it "displays an info message" do
       expect(::Guard::UI).to receive(:info).
         with("Guard is now watching at '#{Dir.pwd}'")
 
       ::Guard.start
     end
 
-    it 'tell the runner to run the :start task' do
+    it "tell the runner to run the :start task" do
       expect(runner).to receive(:run).with(:start)
 
       ::Guard.start
     end
 
-    it 'start the listener' do
+    it "start the listener" do
       expect(listener).to receive(:start)
 
       ::Guard.start
     end
   end
 
-  describe '.stop' do
+  describe ".stop" do
     let(:runner) { instance_double(Guard::Runner, run: true) }
     let(:listener) { instance_double(Listen::Listener, stop: true) }
     let(:interactor) { instance_double(Guard::Interactor, background: nil) }
@@ -63,29 +63,29 @@ describe Guard::Commander do
       Guard.setup
     end
 
-    it 'turns the notifier off' do
+    it "turns the notifier off" do
       expect(::Guard::Notifier).to receive(:turn_off)
 
       allow(Guard::Sheller).to receive(:run).with(*%w(hash stty)) { false }
       ::Guard.stop
     end
 
-    it 'tell the runner to run the :stop task' do
+    it "tell the runner to run the :stop task" do
       expect(runner).to receive(:run).with(:stop)
 
       ::Guard.stop
     end
 
-    it 'stops the listener' do
+    it "stops the listener" do
       expect(listener).to receive(:stop)
 
       ::Guard.stop
     end
   end
 
-  describe '.reload' do
+  describe ".reload" do
     let(:runner) { instance_double(Guard::Runner, run: true) }
-    let(:group) { ::Guard::Group.new('frontend') }
+    let(:group) { ::Guard::Group.new("frontend") }
     subject { ::Guard.setup }
 
     before do
@@ -97,36 +97,36 @@ describe Guard::Commander do
       allow(Listen).to receive(:to).with(Dir.pwd, {})
     end
 
-    it 'clears the screen' do
+    it "clears the screen" do
       expect(::Guard::UI).to receive(:clear)
 
       subject.reload
     end
 
-    context 'with a given scope' do
-      it 'does not re-evaluate the Guardfile' do
+    context "with a given scope" do
+      it "does not re-evaluate the Guardfile" do
         expect_any_instance_of(::Guard::Guardfile::Evaluator).
           to_not receive(:reevaluate_guardfile)
 
         subject.reload(groups: [group])
       end
 
-      it 'reloads Guard' do
+      it "reloads Guard" do
         expect(runner).to receive(:run).with(:reload,  groups: [group])
 
         subject.reload(groups: [group])
       end
     end
 
-    context 'with an empty scope' do
-      it 'does re-evaluate the Guardfile' do
+    context "with an empty scope" do
+      it "does re-evaluate the Guardfile" do
         expect_any_instance_of(::Guard::Guardfile::Evaluator).
           to receive(:reevaluate_guardfile)
 
         subject.reload
       end
 
-      it 'does not reload Guard' do
+      it "does not reload Guard" do
         expect(runner).to_not receive(:run).with(:reload, {})
 
         subject.reload
@@ -134,9 +134,9 @@ describe Guard::Commander do
     end
   end
 
-  describe '.run_all' do
+  describe ".run_all" do
     let(:runner) { instance_double(Guard::Runner, run: true) }
-    let(:group) { ::Guard::Group.new('frontend') }
+    let(:group) { ::Guard::Group.new("frontend") }
     subject { ::Guard.setup }
 
     before do
@@ -147,16 +147,16 @@ describe Guard::Commander do
       allow(Listen).to receive(:to).with(Dir.pwd, {})
     end
 
-    context 'with a given scope' do
-      it 'runs all with the scope' do
+    context "with a given scope" do
+      it "runs all with the scope" do
         expect(runner).to receive(:run).with(:run_all,  groups: [group])
 
         subject.run_all(groups: [group])
       end
     end
 
-    context 'with an empty scope' do
-      it 'runs all' do
+    context "with an empty scope" do
+      it "runs all" do
         expect(runner).to receive(:run).with(:run_all, {})
 
         subject.run_all
@@ -164,9 +164,9 @@ describe Guard::Commander do
     end
   end
 
-  describe '.pause' do
+  describe ".pause" do
 
-    context 'when unpaused' do
+    context "when unpaused" do
       subject { ::Guard.setup }
       let(:listener) { instance_double(Listen::Listener) }
 
@@ -178,30 +178,30 @@ describe Guard::Commander do
 
       [:toggle, nil, :paused].each do |mode|
         context "with #{mode.inspect}" do
-          it 'pauses' do
+          it "pauses" do
             expect(listener).to receive(:pause)
             subject.pause(mode)
           end
         end
       end
 
-      context 'with :unpaused' do
-        it 'does nothing' do
+      context "with :unpaused" do
+        it "does nothing" do
           expect(listener).to_not receive(:unpause)
           expect(listener).to_not receive(:pause)
           subject.pause(:unpaused)
         end
       end
 
-      context 'with invalid parameter' do
-        it 'raises an ArgumentError' do
+      context "with invalid parameter" do
+        it "raises an ArgumentError" do
           expect { subject.pause(:invalid) }.
-            to raise_error(ArgumentError, 'invalid mode: :invalid')
+            to raise_error(ArgumentError, "invalid mode: :invalid")
         end
       end
     end
 
-    context 'when already paused' do
+    context "when already paused" do
       subject { ::Guard.setup }
       let(:listener) { instance_double(Listen::Listener) }
 
@@ -213,25 +213,25 @@ describe Guard::Commander do
 
       [:toggle, nil, :unpaused].each do |mode|
         context "with #{mode.inspect}" do
-          it 'unpauses' do
+          it "unpauses" do
             expect(listener).to receive(:unpause)
             subject.pause(mode)
           end
         end
       end
 
-      context 'with :paused' do
-        it 'does nothing' do
+      context "with :paused" do
+        it "does nothing" do
           expect(listener).to_not receive(:unpause)
           expect(listener).to_not receive(:pause)
           subject.pause(:paused)
         end
       end
 
-      context 'with invalid parameter' do
-        it 'raises an ArgumentError' do
+      context "with invalid parameter" do
+        it "raises an ArgumentError" do
           expect { subject.pause(:invalid) }.
-            to raise_error(ArgumentError, 'invalid mode: :invalid')
+            to raise_error(ArgumentError, "invalid mode: :invalid")
         end
       end
     end

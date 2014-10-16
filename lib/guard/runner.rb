@@ -1,7 +1,7 @@
-require 'lumberjack'
+require "lumberjack"
 
-require 'guard/ui'
-require 'guard/watcher'
+require "guard/ui"
+require "guard/watcher"
 
 module Guard
   # The runner is responsible for running all methods defined on each plugin.

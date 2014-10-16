@@ -2,9 +2,9 @@ module Guard
   module Commands
     class Reload
       def self.import
-        Pry::Commands.create_command 'reload' do
-          group 'Guard'
-          description 'Reload all plugins.'
+        Pry::Commands.create_command "reload" do
+          group "Guard"
+          description "Reload all plugins."
 
           banner <<-BANNER
           Usage: reload <scope>
@@ -19,7 +19,7 @@ module Guard
             scopes, unknown = ::Guard::Interactor.convert_scope(entries)
 
             unless unknown.empty?
-              output.puts "Unknown scopes: #{ unknown.join(', ') }"
+              output.puts "Unknown scopes: #{ unknown.join(", ") }"
               return
             end
 

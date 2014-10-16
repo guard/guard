@@ -1,4 +1,4 @@
-require 'guard/notifiers/base'
+require "guard/notifiers/base"
 
 module Guard
   module Notifier
@@ -26,15 +26,15 @@ module Guard
     #   notification :terminal_notifier, activate: "com.googlecode.iterm2"
     #
     class TerminalNotifier < Base
-      ERROR_TERMINAL_NOTIFIER_ONLY_OSX10 = 'The :terminal_notifier only runs'\
-        ' on Mac OS X 10.8 and later.'
+      ERROR_TERMINAL_NOTIFIER_ONLY_OSX10 = "The :terminal_notifier only runs"\
+        " on Mac OS X 10.8 and later."
 
       def self.supported_hosts
         %w(darwin)
       end
 
       def self.gem_name
-        'terminal-notifier-guard'
+        "terminal-notifier-guard"
       end
 
       def self.available?(opts = {})
@@ -61,8 +61,8 @@ module Guard
 
         opts.delete(:image)
         opts[:title] = title || [
-          opts.delete(:app_name) { 'Guard' }, opts[:type].downcase.capitalize
-        ].join(' ')
+          opts.delete(:app_name) { "Guard" }, opts[:type].downcase.capitalize
+        ].join(" ")
 
         ::TerminalNotifier::Guard.execute(false, opts.merge(message: message))
       end

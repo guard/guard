@@ -2,9 +2,9 @@ module Guard
   module Commands
     class Show
       def self.import
-        Pry::Commands.create_command 'show' do
-          group 'Guard'
-          description 'Show all Guard plugins.'
+        Pry::Commands.create_command "show" do
+          group "Guard"
+          description "Show all Guard plugins."
 
           banner <<-BANNER
           Usage: show

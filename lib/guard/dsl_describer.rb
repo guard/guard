@@ -1,8 +1,8 @@
 # encoding: utf-8
-require 'formatador'
+require "formatador"
 
-require 'guard/guardfile/evaluator'
-require 'guard/ui'
+require "guard/guardfile/evaluator"
+require "guard/ui"
 
 module Guard
   # The DslDescriber evaluates the Guardfile and creates an internal structure
@@ -43,7 +43,7 @@ module Guard
       final_rows = names.inject([]) do |rows, name|
         rows << {
           Plugin: name.capitalize,
-          Guardfile: ::Guard.plugins(name) ? '✔' : '✘'
+          Guardfile: ::Guard.plugins(name) ? "✔" : "✘"
         }
       end
 
@@ -73,8 +73,8 @@ module Guard
             rows << {
               Group: group.title,
               Plugin: plugin.title,
-              Option: '',
-              Value: ''
+              Option: "",
+              Value: ""
             }
           else
             options.each_with_index do |(option, value), index|
@@ -88,8 +88,8 @@ module Guard
                 }
               else
                 rows << {
-                  Group: '',
-                  Plugin: '',
+                  Group: "",
+                  Plugin: "",
                   Option: option.to_s,
                   Value: value.inspect
                 }
@@ -120,23 +120,23 @@ module Guard
 
         name      = definition[0]
         clazz     = definition[1]
-        available = clazz.available?(silent: true) ? '✔' : '✘'
+        available = clazz.available?(silent: true) ? "✔" : "✘"
         notifier  = ::Guard::Notifier.notifiers.detect { |n| n[:name] == name }
-        used      = notifier ? '✔' : '✘'
+        used      = notifier ? "✔" : "✘"
 
         options = _merge_options(clazz, notifier)
         options.delete(:silent)
 
         if options.empty?
           rows << :split
-          _add_row(rows, name, available, used, '', '')
+          _add_row(rows, name, available, used, "", "")
         else
           options.each_with_index do |(option, value), index|
             if index == 0
               rows << :split
               _add_row(rows, name, available, used, option.to_s, value.inspect)
             else
-              _add_row(rows, '', '', '', option.to_s, value.inspect)
+              _add_row(rows, "", "", "", option.to_s, value.inspect)
             end
           end
         end

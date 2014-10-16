@@ -1,9 +1,9 @@
-require 'thor'
+require "thor"
 
-require 'guard'
-require 'guard/version'
-require 'guard/dsl_describer'
-require 'guard/guardfile'
+require "guard"
+require "guard/version"
+require "guard/dsl_describer"
+require "guard/guardfile"
 
 module Guard
   # Facade for the Guard command line interface managed by
@@ -16,88 +16,88 @@ module Guard
   class CLI < Thor
     default_task :start
 
-    desc 'start', 'Starts Guard'
+    desc "start", "Starts Guard"
 
     method_option :clear,
                   type:    :boolean,
                   default: false,
-                  aliases: '-c',
-                  banner:  'Auto clear shell before each action'
+                  aliases: "-c",
+                  banner:  "Auto clear shell before each action"
 
     method_option :notify,
                   type:    :boolean,
                   default: true,
-                  aliases: '-n',
-                  banner:  'Notifications feature'
+                  aliases: "-n",
+                  banner:  "Notifications feature"
 
     method_option :debug,
                   type:    :boolean,
                   default: false,
-                  aliases: '-d',
-                  banner:  'Show debug information'
+                  aliases: "-d",
+                  banner:  "Show debug information"
 
     method_option :group,
                   type:    :array,
                   default: [],
-                  aliases: '-g',
-                  banner:  'Run only the passed groups'
+                  aliases: "-g",
+                  banner:  "Run only the passed groups"
 
     method_option :plugin,
                   type:    :array,
                   default: [],
-                  aliases: '-P',
-                  banner:  'Run only the passed plugins'
+                  aliases: "-P",
+                  banner:  "Run only the passed plugins"
 
     method_option :watchdir,
                   type:    :array,
-                  aliases: '-w',
-                  banner:  'Specify the directories to watch'
+                  aliases: "-w",
+                  banner:  "Specify the directories to watch"
 
     method_option :guardfile,
                   type:    :string,
-                  aliases: '-G',
-                  banner:  'Specify a Guardfile'
+                  aliases: "-G",
+                  banner:  "Specify a Guardfile"
 
     method_option :no_interactions,
                   type: :boolean,
                   default: false,
-                  aliases: '-i',
-                  banner: 'Turn off completely any Guard terminal interactions'
+                  aliases: "-i",
+                  banner: "Turn off completely any Guard terminal interactions"
 
     method_option :no_bundler_warning,
                   type: :boolean,
                   default: false,
-                  aliases: '-B',
-                  banner: 'Turn off warning when Bundler is not present'
+                  aliases: "-B",
+                  banner: "Turn off warning when Bundler is not present"
 
     method_option :show_deprecations,
                   type: :boolean,
                   default: false,
-                  banner: 'Turn on deprecation warnings'
+                  banner: "Turn on deprecation warnings"
 
     # Listen options
     method_option :latency,
                   type:    :numeric,
-                  aliases: '-l',
+                  aliases: "-l",
                   banner:  'Overwrite Listen\'s default latency'
 
     method_option :force_polling,
                   type:    :boolean,
                   default: false,
-                  aliases: '-p',
-                  banner:  'Force usage of the Listen polling listener'
+                  aliases: "-p",
+                  banner:  "Force usage of the Listen polling listener"
 
     method_option :wait_for_delay,
                   type:    :numeric,
-                  aliases: '-y',
+                  aliases: "-y",
                   banner:  'Overwrite Listen\'s default wait_for_delay'
 
     method_option :listen_on,
                   type:    :string,
-                  aliases: '-o',
+                  aliases: "-o",
                   default: false,
-                  banner:  'Specify a network address to Listen on for '\
-                  'file change events (e.g. for use in VMs)'
+                  banner:  "Specify a network address to Listen on for "\
+                  "file change events (e.g. for use in VMs)"
 
     # Start Guard by initializing the defined Guard plugins and watch the file
     # system.
@@ -112,7 +112,7 @@ module Guard
       ::Guard.start(options)
     end
 
-    desc 'list', 'Lists Guard plugins that can be used with init'
+    desc "list", "Lists Guard plugins that can be used with init"
 
     # List the Guard plugins that are available for use in your system and
     # marks those that are currently used in your `Guardfile`.
@@ -123,7 +123,7 @@ module Guard
       ::Guard::DslDescriber.new(options).list
     end
 
-    desc 'notifiers', 'Lists notifiers and its options'
+    desc "notifiers", "Lists notifiers and its options"
 
     # List the Notifiers for use in your system.
     #
@@ -133,7 +133,7 @@ module Guard
       ::Guard::DslDescriber.new(options).notifiers
     end
 
-    desc 'version', 'Show the Guard version'
+    desc "version", "Show the Guard version"
     map %w(-v --version) => :version
 
     # Shows the current version of Guard.
@@ -144,16 +144,16 @@ module Guard
       STDOUT.puts "Guard version #{ ::Guard::VERSION }"
     end
 
-    desc 'init [GUARDS]', 'Generates a Guardfile at the current directory'\
-      ' (if it is not already there) and adds all installed Guard plugins'\
-      ' or the given GUARDS into it'
+    desc "init [GUARDS]", "Generates a Guardfile at the current directory"\
+      " (if it is not already there) and adds all installed Guard plugins"\
+      " or the given GUARDS into it"
 
     method_option :bare,
                   type: :boolean,
                   default: false,
-                  aliases: '-b',
-                  banner: 'Generate a bare Guardfile without adding any'\
-                  ' installed plugin into it'
+                  aliases: "-b",
+                  banner: "Generate a bare Guardfile without adding any"\
+                  " installed plugin into it"
 
     # Initializes the templates of all installed Guard plugins and adds them
     # to the `Guardfile` when no Guard name is passed. When passing
@@ -181,7 +181,7 @@ module Guard
       end
     end
 
-    desc 'show', 'Show all defined Guard plugins and their options'
+    desc "show", "Show all defined Guard plugins and their options"
     map %w(-T) => :show
 
     # Shows all Guard plugins and their options that are defined in
@@ -199,8 +199,8 @@ module Guard
     # shows a hint to do so if not.
     #
     def _verify_bundler_presence
-      return unless File.exist?('Gemfile')
-      return if ENV['BUNDLE_GEMFILE'] || ENV['RUBYGEMS_GEMDEPS']
+      return unless File.exist?("Gemfile")
+      return if ENV["BUNDLE_GEMFILE"] || ENV["RUBYGEMS_GEMDEPS"]
 
       ::Guard::UI.info <<EOF
 

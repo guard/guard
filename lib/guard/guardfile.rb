@@ -1,6 +1,6 @@
-require 'guard/guardfile/evaluator'
-require 'guard/guardfile/generator'
-require 'guard/ui'
+require "guard/guardfile/evaluator"
+require "guard/guardfile/generator"
+require "guard/ui"
 
 module Guard
   # @deprecated Use instance methods of {Guardfile::Evaluator} and

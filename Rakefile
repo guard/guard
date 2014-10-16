@@ -1,28 +1,28 @@
-require 'bundler/gem_tasks'
+require "bundler/gem_tasks"
 
-require 'rspec/core/rake_task'
+require "rspec/core/rake_task"
 RSpec::Core::RakeTask.new(:spec)
 task default: :spec
 
-require 'guard/rake_task'
-Guard::RakeTask.new(:guard, '--plugin ronn')
+require "guard/rake_task"
+Guard::RakeTask.new(:guard, "--plugin ronn")
 
 class Releaser
   def initialize(options = {})
     @project_name = options.delete(:project_name) do
-      fail 'project_name is needed!'
+      fail "project_name is needed!"
     end
 
     @gem_name = options.delete(:gem_name) do
-      fail 'gem_name is needed!'
+      fail "gem_name is needed!"
     end
 
     @github_repo = options.delete(:github_repo) do
-      fail 'github_repo is needed!'
+      fail "github_repo is needed!"
     end
 
     @version = options.delete(:version) do
-      fail 'version is needed!'
+      fail "version is needed!"
     end
   end
 
@@ -37,28 +37,28 @@ class Releaser
       input = STDIN.gets.chomp.downcase
     end while !%w(y n).include?(input)
 
-    exit if input == 'n'
+    exit if input == "n"
 
-    Rake::Task['release'].invoke
+    Rake::Task["release"].invoke
   end
 
   def github
-    require 'gems'
+    require "gems"
 
-    if @version != Gems.info(@gem_name)['version']
+    if @version != Gems.info(@gem_name)["version"]
       STDOUT.puts "#{@project_name} #{@version} is not yet released."
-      STDOUT.puts 'Please release it first with: rake release:gem'
+      STDOUT.puts "Please release it first with: rake release:gem"
       exit
     end
 
     tags = `git ls-remote --tags origin`.split("\n")
     unless tags.detect { |tag| tag =~ /v#{@version}$/ }
       STDOUT.puts "The tag v#{@version} has not yet been pushed."
-      STDOUT.puts 'Please push it first with: rake release:gem'
+      STDOUT.puts "Please push it first with: rake release:gem"
       exit
     end
 
-    require 'octokit'
+    require "octokit"
     gh_client = Octokit::Client.new(netrc: true)
     gh_releases = gh_client.releases(@github_repo)
     tag_name = "v#{@version}"
@@ -73,11 +73,11 @@ class Releaser
     STDOUT.puts gh_release.body
     STDOUT.puts "\n-------------------------\n\n"
     begin
-      STDOUT.puts 'Would you like to publish this GitHub release now? (y/n)'
+      STDOUT.puts "Would you like to publish this GitHub release now? (y/n)"
       input = STDIN.gets.chomp.downcase
     end while !%w(y n).include?(input)
 
-    exit if input == 'n'
+    exit if input == "n"
 
     if gh_client.update_release(gh_release.rels[:self].href, draft: false)
 
@@ -96,22 +96,22 @@ class Releaser
   end
 end
 
-PROJECT_NAME = 'Guard'
+PROJECT_NAME = "Guard"
 CURRENT_VERSION = Guard::VERSION
 
 def releaser
   $releaser ||= Releaser.new(
     project_name: PROJECT_NAME,
-    gem_name: 'guard',
-    github_repo: 'guard/guard',
+    gem_name: "guard",
+    github_repo: "guard/guard",
     version: CURRENT_VERSION)
 end
 
 namespace :release do
   desc "Push #{PROJECT_NAME} #{CURRENT_VERSION} to RubyGems and publish"\
-    ' its GitHub release'
+    " its GitHub release"
 
-  task full: ['release:gem', 'release:github']
+  task full: ["release:gem", "release:github"]
 
   desc "Push #{PROJECT_NAME} #{CURRENT_VERSION} to RubyGems"
   task :gem do

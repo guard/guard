@@ -1,4 +1,4 @@
-require 'guard/notifiers/base'
+require "guard/notifiers/base"
 
 module Guard
   module Notifier
@@ -16,7 +16,7 @@ module Guard
       def notify(message, opts = {})
         super
 
-        first_line = message.sub(/^\n/, '').sub(/\n.*/m, '')
+        first_line = message.sub(/^\n/, "").sub(/\n.*/m, "")
 
         STDOUT.puts "\e]2;[#{ opts[:title] }] #{ first_line }\a"
       end

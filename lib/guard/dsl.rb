@@ -1,8 +1,8 @@
-require 'guard/guardfile'
-require 'guard/interactor'
-require 'guard/notifier'
-require 'guard/ui'
-require 'guard/watcher'
+require "guard/guardfile"
+require "guard/interactor"
+require "guard/notifier"
+require "guard/ui"
+require "guard/watcher"
 
 module Guard
   # The Dsl class provides the methods that are used in each `Guardfile` to
@@ -43,11 +43,11 @@ module Guard
   # @see https://github.com/guard/guard/wiki/Guardfile-examples
   #
   class Dsl
-    WARN_INVALID_LOG_LEVEL = 'Invalid log level `%s` ignored. '\
-      'Please use either :debug, :info, :warn or :error.'
+    WARN_INVALID_LOG_LEVEL = "Invalid log level `%s` ignored. "\
+      "Please use either :debug, :info, :warn or :error."
 
-    WARN_INVALID_LOG_OPTIONS = 'You cannot specify the logger options'\
-      ' :only and :except at the same time.'
+    WARN_INVALID_LOG_OPTIONS = "You cannot specify the logger options"\
+      " :only and :except at the same time."
 
     # @deprecated Use
     #   `Guard::Guardfile::Evaluator.new(options).evaluate_guardfile` instead.
@@ -143,8 +143,8 @@ module Guard
         @current_groups.pop
       else
         ::Guard::UI.error \
-          "No Guard plugins found in the group '#{ groups.join(', ') }',"\
-          ' please add at least one.'
+          "No Guard plugins found in the group '#{ groups.join(", ") }',"\
+          " please add at least one."
       end
     end
 
@@ -245,7 +245,7 @@ module Guard
     #
     def callback(*args, &block)
       @plugin_options ||= nil
-      fail 'callback must be called within a guard block' unless @plugin_options
+      fail "callback must be called within a guard block" unless @plugin_options
 
       block, events = if args.size > 1
                         # block must be the first argument in that case, the
@@ -341,7 +341,7 @@ module Guard
           Regexp.escape(plugin.to_s)
         end
 
-        options[name] = Regexp.new(list.join('|'), Regexp::IGNORECASE)
+        options[name] = Regexp.new(list.join("|"), Regexp::IGNORECASE)
       end
 
       ::Guard::UI.options.merge!(options)

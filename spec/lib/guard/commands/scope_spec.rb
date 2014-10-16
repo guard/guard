@@ -1,5 +1,5 @@
-require 'spec_helper'
-require 'guard/plugin'
+require "spec_helper"
+require "guard/plugin"
 
 describe Guard::Commands::Scope do
 
@@ -15,45 +15,45 @@ describe Guard::Commands::Scope do
       and_return(converted_scope)
   end
 
-  context 'without scope' do
+  context "without scope" do
     let(:given_scope) { [] }
     let(:converted_scope) { [{ groups: [], plugins: [] }, []] }
 
-    it 'does not call :scope= and shows usage' do
+    it "does not call :scope= and shows usage" do
       expect(STDOUT).to receive(:print).with("Usage: scope <scope>\n")
       expect(Guard).to_not receive(:scope=)
-      Pry.run_command 'scope'
+      Pry.run_command "scope"
     end
   end
 
-  context 'with a valid Guard group scope' do
-    let(:given_scope) { ['foo'] }
+  context "with a valid Guard group scope" do
+    let(:given_scope) { ["foo"] }
     let(:converted_scope) { [{ groups: [foo_group], plugins: [] }, []] }
 
-    it 'runs the :scope= action with the given scope' do
+    it "runs the :scope= action with the given scope" do
       expect(Guard).to receive(:scope=).with(groups: [foo_group], plugins: [])
-      Pry.run_command 'scope foo'
+      Pry.run_command "scope foo"
     end
   end
 
-  context 'with a valid Guard plugin scope' do
-    let(:given_scope) { ['bar'] }
+  context "with a valid Guard plugin scope" do
+    let(:given_scope) { ["bar"] }
     let(:converted_scope) { [{ groups: [], plugins: [bar_guard] }, []] }
 
-    it 'runs the :scope= action with the given scope' do
+    it "runs the :scope= action with the given scope" do
       expect(Guard).to receive(:scope=).with(plugins: [bar_guard], groups: [])
-      Pry.run_command 'scope bar'
+      Pry.run_command "scope bar"
     end
   end
 
-  context 'with an invalid scope' do
-    let(:given_scope) { ['baz'] }
-    let(:converted_scope) { [{ groups: [], plugins: [] }, ['baz']] }
+  context "with an invalid scope" do
+    let(:given_scope) { ["baz"] }
+    let(:converted_scope) { [{ groups: [], plugins: [] }, ["baz"]] }
 
-    it 'does not change the scope and shows unknown scopes' do
+    it "does not change the scope and shows unknown scopes" do
       expect(STDOUT).to receive(:print).with("Unknown scopes: baz\n")
       expect(Guard).to_not receive(:scope=)
-      Pry.run_command 'scope baz'
+      Pry.run_command "scope baz"
     end
   end
 end

@@ -1,18 +1,18 @@
-require 'yaml'
-require 'rbconfig'
-require 'pathname'
+require "yaml"
+require "rbconfig"
+require "pathname"
 
-require 'guard/ui'
-require 'guard/notifiers/emacs'
-require 'guard/notifiers/file_notifier'
-require 'guard/notifiers/gntp'
-require 'guard/notifiers/growl'
-require 'guard/notifiers/libnotify'
-require 'guard/notifiers/notifysend'
-require 'guard/notifiers/rb_notifu'
-require 'guard/notifiers/terminal_notifier'
-require 'guard/notifiers/terminal_title'
-require 'guard/notifiers/tmux'
+require "guard/ui"
+require "guard/notifiers/emacs"
+require "guard/notifiers/file_notifier"
+require "guard/notifiers/gntp"
+require "guard/notifiers/growl"
+require "guard/notifiers/libnotify"
+require "guard/notifiers/notifysend"
+require "guard/notifiers/rb_notifu"
+require "guard/notifiers/terminal_notifier"
+require "guard/notifiers/terminal_title"
+require "guard/notifiers/tmux"
 
 module Guard
   # The notifier handles sending messages to different notifiers. Currently the
@@ -69,17 +69,17 @@ module Guard
     ]
 
     def notifiers
-      ENV['GUARD_NOTIFIERS'] ? YAML::load(ENV['GUARD_NOTIFIERS']) : []
+      ENV["GUARD_NOTIFIERS"] ? YAML::load(ENV["GUARD_NOTIFIERS"]) : []
     end
 
     def notifiers=(notifiers)
-      ENV['GUARD_NOTIFIERS'] = YAML::dump(notifiers)
+      ENV["GUARD_NOTIFIERS"] = YAML::dump(notifiers)
     end
 
     # Clear available notifications.
     #
     def clear_notifiers
-      ENV['GUARD_NOTIFIERS'] = nil
+      ENV["GUARD_NOTIFIERS"] = nil
     end
 
     # Turn notifications on. If no notifications are defined in the `Guardfile`
@@ -106,7 +106,7 @@ module Guard
           notifier_class.turn_on if notifier_class.respond_to?(:turn_on)
         end
 
-        ENV['GUARD_NOTIFY'] = 'true'
+        ENV["GUARD_NOTIFY"] = "true"
       end
     end
 
@@ -119,14 +119,14 @@ module Guard
         notifier_class.turn_off if notifier_class.respond_to?(:turn_off)
       end
 
-      ENV['GUARD_NOTIFY'] = 'false'
+      ENV["GUARD_NOTIFY"] = "false"
     end
 
     # Toggle the system notifications on/off
     #
     def toggle
       if enabled?
-        ::Guard::UI.info 'Turn off notifications'
+        ::Guard::UI.info "Turn off notifications"
         turn_off
       else
         turn_on
@@ -138,7 +138,7 @@ module Guard
     # @return [Boolean] whether the notifications are on
     #
     def enabled?
-      ENV['GUARD_NOTIFY'] == 'true'
+      ENV["GUARD_NOTIFY"] == "true"
     end
 
     # Add a notification library to be used.
@@ -216,7 +216,7 @@ module Guard
 
       return if available
       ::Guard::UI.info \
-        'Guard could not detect any of the supported notification libraries.'
+        "Guard could not detect any of the supported notification libraries."
     end
   end
 end

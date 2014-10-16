@@ -1,4 +1,4 @@
-require 'guard/notifiers/base'
+require "guard/notifiers/base"
 
 module Guard
   module Notifier
@@ -40,7 +40,7 @@ module Guard
 
           _write(opts[:path], format % [opts[:type], opts[:title], message])
         else
-          ::Guard::UI.error ':file notifier requires a :path option'
+          ::Guard::UI.error ":file notifier requires a :path option"
         end
       end
 

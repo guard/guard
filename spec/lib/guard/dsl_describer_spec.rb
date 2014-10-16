@@ -1,8 +1,8 @@
 # encoding: utf-8
-require 'spec_helper'
-require 'guard/plugin'
-require 'guard/dsl_describer'
-require 'formatador'
+require "spec_helper"
+require "guard/plugin"
+require "guard/dsl_describer"
+require "formatador"
 
 describe Guard::DslDescriber do
 
@@ -35,10 +35,10 @@ describe Guard::DslDescriber do
     allow(Listen).to receive(:to).with(Dir.pwd, {})
     Guard.setup
 
-    stub_const 'Guard::Test', Class.new(Guard::Plugin)
-    stub_const 'Guard::Another', Class.new(Guard::Plugin)
+    stub_const "Guard::Test", Class.new(Guard::Plugin)
+    stub_const "Guard::Another", Class.new(Guard::Plugin)
 
-    @output = ''
+    @output = ""
 
     # Strip escape sequences
     allow(STDOUT).to receive(:tty?).and_return(false)
@@ -50,7 +50,7 @@ describe Guard::DslDescriber do
     end
   end
 
-  describe '#list' do
+  describe "#list" do
     let(:result) do
       <<-OUTPUT
   +---------+-----------+
@@ -70,12 +70,12 @@ describe Guard::DslDescriber do
       end
     end
 
-    it 'lists the available Guards declared as strings or symbols' do
+    it "lists the available Guards declared as strings or symbols" do
       ::Guard::DslDescriber.new(guardfile_contents: guardfile).list
     end
   end
 
-  describe '.show' do
+  describe ".show" do
     let(:result) do
       <<-OUTPUT
   +---------+---------+--------+-------+
@@ -92,14 +92,14 @@ describe Guard::DslDescriber do
       OUTPUT
     end
 
-    it 'shows the Guards and their options' do
+    it "shows the Guards and their options" do
       ::Guard::DslDescriber.new(guardfile_contents: guardfile).show
 
       expect(@output).to eq result
     end
   end
 
-  describe '.notifiers' do
+  describe ".notifiers" do
     let(:result) do
       <<-OUTPUT
   +----------------+-----------+------+--------+-------+
@@ -113,7 +113,7 @@ describe Guard::DslDescriber do
     end
 
     before do
-      stub_const 'Guard::Notifier::NOTIFIERS', [
+      stub_const "Guard::Notifier::NOTIFIERS", [
         { gntp: ::Guard::Notifier::GNTP },
         { terminal_title: ::Guard::Notifier::TerminalTitle }
       ]
@@ -126,7 +126,7 @@ describe Guard::DslDescriber do
       ]
     end
 
-    it 'shows the notifiers and their options' do
+    it "shows the notifiers and their options" do
       ::Guard::DslDescriber.new(guardfile_contents: guardfile).notifiers
 
       expect(@output).to eq result
