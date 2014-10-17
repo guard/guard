@@ -1,12 +1,12 @@
-require 'guard/notifier'
+require "guard/notifier"
 
 module Guard
   module Commands
     class Notification
       def self.import
-        Pry::Commands.create_command 'notification' do
-          group 'Guard'
-          description 'Toggles the notifications.'
+        Pry::Commands.create_command "notification" do
+          group "Guard"
+          description "Toggles the notifications."
 
           banner <<-BANNER
           Usage: notification

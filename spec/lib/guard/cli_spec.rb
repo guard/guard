@@ -1,64 +1,64 @@
-require 'spec_helper'
-require 'guard/cli'
+require "spec_helper"
+require "guard/cli"
 
 describe Guard::CLI do
   let(:guard)         { Guard }
   let(:ui)            { Guard::UI }
   let(:dsl_describer) { instance_double(DslDescriber) }
 
-  describe '#start' do
+  describe "#start" do
     before { allow(Guard).to receive(:start) }
 
-    it 'delegates to Guard.start' do
+    it "delegates to Guard.start" do
       expect(Guard).to receive(:start)
 
       subject.start
     end
 
-    context 'with a Gemfile in the project dir' do
+    context "with a Gemfile in the project dir" do
       before do
         @bundler_env = {
-          'BUNDLE_GEMFILE' => ENV.delete('BUNDLE_GEMFILE'),
-          'RUBYGEMS_GEMDEPS' => ENV.delete('RUBYGEMS_GEMDEPS')
+          "BUNDLE_GEMFILE" => ENV.delete("BUNDLE_GEMFILE"),
+          "RUBYGEMS_GEMDEPS" => ENV.delete("RUBYGEMS_GEMDEPS")
         }
 
-        allow(File).to receive(:exist?).with('Gemfile').and_return(true)
+        allow(File).to receive(:exist?).with("Gemfile").and_return(true)
       end
 
       after { ENV.update(@bundler_env) }
 
-      context 'when activating gem dependencies with Bundler' do
+      context "when activating gem dependencies with Bundler" do
         before do
-          ENV['BUNDLE_GEMFILE'] = 'Gemfile'
+          ENV["BUNDLE_GEMFILE"] = "Gemfile"
         end
 
-        it 'does not show the Bundler warning' do
+        it "does not show the Bundler warning" do
           expect(Guard::UI).to_not receive(:info).with(/Guard here!/)
           subject.start
         end
       end
 
-      context 'when activating gem dependencies with Rubygems' do
+      context "when activating gem dependencies with Rubygems" do
         before do
-          ENV['RUBYGEMS_GEMDEPS'] = '-'
+          ENV["RUBYGEMS_GEMDEPS"] = "-"
         end
 
-        it 'does not show the Bundler warning' do
+        it "does not show the Bundler warning" do
           expect(Guard::UI).to_not receive(:info).with(/Guard here!/)
           subject.start
         end
       end
 
-      context 'without having activated gem dependencies with Bundler or Rubygems' do
-        it 'shows the Bundler warning' do
+      context "without having activated gem dependencies with Bundler or Rubygems" do
+        it "shows the Bundler warning" do
           expect(Guard::UI).to receive(:info).with(/Guard here!/)
           subject.start
         end
 
-        context 'with :no_bundler_warning flag' do
+        context "with :no_bundler_warning flag" do
           before { subject.options = { no_bundler_warning: true } }
 
-          it 'does not show the Bundler warning' do
+          it "does not show the Bundler warning" do
             expect(Guard::UI).to_not receive(:info).with(/Guard here!/)
             subject.start
           end
@@ -66,24 +66,24 @@ describe Guard::CLI do
       end
     end
 
-    context 'without a Gemfile in the project dir' do
+    context "without a Gemfile in the project dir" do
       before do
-        expect(File).to receive(:exist?).with('Gemfile').and_return false
-        @bundler_env = ENV['BUNDLE_GEMFILE']
-        ENV['BUNDLE_GEMFILE'] = nil
+        expect(File).to receive(:exist?).with("Gemfile").and_return false
+        @bundler_env = ENV["BUNDLE_GEMFILE"]
+        ENV["BUNDLE_GEMFILE"] = nil
       end
 
-      after { ENV['BUNDLE_GEMFILE'] = @bundler_env }
+      after { ENV["BUNDLE_GEMFILE"] = @bundler_env }
 
-      it 'does not show the Bundler warning' do
+      it "does not show the Bundler warning" do
         expect(Guard::UI).to_not receive(:info).with(/Guard here!/)
         subject.start
       end
     end
   end
 
-  describe '#list' do
-    it 'outputs the Guard plugins list' do
+  describe "#list" do
+    it "outputs the Guard plugins list" do
       expect(::Guard::DslDescriber).to receive(:new) { dsl_describer }
       expect(dsl_describer).to receive(:list)
 
@@ -91,8 +91,8 @@ describe Guard::CLI do
     end
   end
 
-  describe '#notifiers' do
-    it 'outputs the notifiers list' do
+  describe "#notifiers" do
+    it "outputs the notifiers list" do
       expect(::Guard::DslDescriber).to receive(:new) { dsl_describer }
       expect(dsl_describer).to receive(:notifiers)
 
@@ -100,15 +100,15 @@ describe Guard::CLI do
     end
   end
 
-  describe '#version' do
-    it 'shows the current version' do
+  describe "#version" do
+    it "shows the current version" do
       expect(STDOUT).to receive(:puts).with(/#{ ::Guard::VERSION }/)
 
       subject.version
     end
   end
 
-  describe '#init' do
+  describe "#init" do
     let(:options) { { bare: false } }
 
     before do
@@ -117,38 +117,38 @@ describe Guard::CLI do
       allow(Guard::Guardfile).to receive(:initialize_all_templates)
     end
 
-    it 'creates a Guardfile by delegating to Guardfile.create_guardfile' do
+    it "creates a Guardfile by delegating to Guardfile.create_guardfile" do
       expect(Guard::Guardfile).to receive(:create_guardfile).
         with(abort_on_existence: options[:bare])
 
       subject.init
     end
 
-    it 'initializes templates of all installed Guards' do
+    it "initializes templates of all installed Guards" do
       expect(Guard::Guardfile).to receive(:initialize_all_templates)
 
       subject.init
     end
 
-    it 'initializes each passed template' do
-      expect(Guard::Guardfile).to receive(:initialize_template).with('rspec')
-      expect(Guard::Guardfile).to receive(:initialize_template).with('pow')
+    it "initializes each passed template" do
+      expect(Guard::Guardfile).to receive(:initialize_template).with("rspec")
+      expect(Guard::Guardfile).to receive(:initialize_template).with("pow")
 
-      subject.init 'rspec', 'pow'
+      subject.init "rspec", "pow"
     end
 
-    context 'when passed a guard name' do
-      it 'initializes the template of the passed Guard' do
-        expect(Guard::Guardfile).to receive(:initialize_template).with('rspec')
+    context "when passed a guard name" do
+      it "initializes the template of the passed Guard" do
+        expect(Guard::Guardfile).to receive(:initialize_template).with("rspec")
 
-        subject.init 'rspec'
+        subject.init "rspec"
       end
     end
 
-    context 'with the bare option' do
+    context "with the bare option" do
       let(:options) { { bare: true } }
 
-      it 'Only creates the Guardfile without initialize any Guard template' do
+      it "Only creates the Guardfile without initialize any Guard template" do
         expect(Guard::Guardfile).to receive(:create_guardfile)
         expect(Guard::Guardfile).to_not receive(:initialize_template)
         expect(Guard::Guardfile).to_not receive(:initialize_all_templates)
@@ -157,30 +157,30 @@ describe Guard::CLI do
       end
     end
 
-    context 'when running with Bundler' do
+    context "when running with Bundler" do
       before do
-        @bundler_env = ENV['BUNDLE_GEMFILE']
-        ENV['BUNDLE_GEMFILE'] = 'Gemfile'
+        @bundler_env = ENV["BUNDLE_GEMFILE"]
+        ENV["BUNDLE_GEMFILE"] = "Gemfile"
       end
 
-      after { ENV['BUNDLE_GEMFILE'] = @bundler_env }
+      after { ENV["BUNDLE_GEMFILE"] = @bundler_env }
 
-      it 'does not show the Bundler warning' do
+      it "does not show the Bundler warning" do
         expect(Guard::UI).to_not receive(:info).with(/Guard here!/)
 
         subject.init
       end
     end
 
-    context 'when running without Bundler' do
+    context "when running without Bundler" do
       before do
-        @bundler_env = ENV['BUNDLE_GEMFILE']
-        ENV['BUNDLE_GEMFILE'] = nil
+        @bundler_env = ENV["BUNDLE_GEMFILE"]
+        ENV["BUNDLE_GEMFILE"] = nil
       end
 
-      after { ENV['BUNDLE_GEMFILE'] = @bundler_env }
+      after { ENV["BUNDLE_GEMFILE"] = @bundler_env }
 
-      it 'does not show the Bundler warning' do
+      it "does not show the Bundler warning" do
         expect(Guard::UI).to receive(:info).with(/Guard here!/)
 
         subject.init
@@ -188,8 +188,8 @@ describe Guard::CLI do
     end
   end
 
-  describe '#show' do
-    it 'outputs the Guard::DslDescriber.list result' do
+  describe "#show" do
+    it "outputs the Guard::DslDescriber.list result" do
       expect(::Guard::DslDescriber).to receive(:new) { dsl_describer }
       expect(dsl_describer).to receive(:show)
 

@@ -1,19 +1,19 @@
-require 'coveralls'
+require "coveralls"
 Coveralls.wear!
 
-require 'guard'
-require 'rspec'
+require "guard"
+require "rspec"
 
-ENV['GUARD_ENV'] = 'test'
+ENV["GUARD_ENV"] = "test"
 
-path = "#{File.expand_path('..', __FILE__)}/support/**/*.rb"
+path = "#{File.expand_path("..", __FILE__)}/support/**/*.rb"
 Dir[path].each { |f| require f }
 
-STDOUT.puts 'Please do not update/create files while tests are running.'
+STDOUT.puts "Please do not update/create files while tests are running."
 
 RSpec.configure do |config|
   config.order = :random
-  config.filter_run focus: ENV['CI'] != 'true'
+  config.filter_run focus: ENV["CI"] != "true"
   config.run_all_when_everything_filtered = true
   config.raise_errors_for_deprecations!
   config.expect_with :rspec do |c|
@@ -26,7 +26,7 @@ RSpec.configure do |config|
   end
 
   config.before(:each) do |example|
-    @fixture_path = Pathname.new(File.expand_path('../fixtures/', __FILE__))
+    @fixture_path = Pathname.new(File.expand_path("../fixtures/", __FILE__))
 
     # Ensure debug command execution isn't used in the specs
     allow(Guard).to receive(:_debug_command_execution)
@@ -71,14 +71,14 @@ RSpec.configure do |config|
     # Use a fake home directory so that user configurations,
     # such as their ~/.guard.rb file, won't impact the
     # tests.
-    fake_home = File.expand_path('../fake-home', __FILE__)
+    fake_home = File.expand_path("../fake-home", __FILE__)
     FileUtils.rmtree fake_home
     FileUtils.mkdir fake_home
-    ENV['HOME'] = fake_home
+    ENV["HOME"] = fake_home
   end
 
   config.before(:all) do
-    @guard_notify ||= ENV['GUARD_NOTIFY']
+    @guard_notify ||= ENV["GUARD_NOTIFY"]
     @guard_notifiers ||= ::Guard::Notifier.notifiers
   end
 
@@ -92,7 +92,7 @@ RSpec.configure do |config|
   end
 
   config.after(:all) do
-    ENV['GUARD_NOTIFY'] = @guard_notify
+    ENV["GUARD_NOTIFY"] = @guard_notify
     ::Guard::Notifier.notifiers = @guard_notifiers
   end
 

@@ -4,10 +4,10 @@ module Guard
     # and `Guard::Plugin`.
     #
     module Base
-      TEMPLATE_FORMAT = '%s/lib/guard/%s/templates/Guardfile'
+      TEMPLATE_FORMAT = "%s/lib/guard/%s/templates/Guardfile"
 
-      require 'guard/ui'
-      require 'guard/plugin/hooker'
+      require "guard/ui"
+      require "guard/plugin/hooker"
 
       include ::Guard::Plugin::Hooker
 
@@ -28,7 +28,7 @@ module Guard
         # @return [String]
         #
         def non_namespaced_classname
-          to_s.sub('Guard::', '')
+          to_s.sub("Guard::", "")
         end
 
         # Returns the non-namespaced name of the plugin

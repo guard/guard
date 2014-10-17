@@ -12,7 +12,7 @@ module Guard
     # wiki](https://github.com/guard/guard/wiki/Hooks-and-callbacks).
     #
     module Hooker
-      require 'guard/ui'
+      require "guard/ui"
 
       # Get all callbacks registered for all Guard plugins present in the
       # Guardfile.

@@ -2,9 +2,9 @@ module Guard
   module Commands
     class Pause
       def self.import
-        Pry::Commands.create_command 'pause' do
-          group 'Guard'
-          description 'Toggles the file listener.'
+        Pry::Commands.create_command "pause" do
+          group "Guard"
+          description "Toggles the file listener."
 
           banner <<-BANNER
           Usage: pause

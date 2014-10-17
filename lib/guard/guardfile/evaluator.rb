@@ -1,5 +1,5 @@
-require 'guard/options'
-require 'guard/plugin'
+require "guard/options"
+require "guard/plugin"
 
 module Guard
   module Guardfile
@@ -105,7 +105,7 @@ module Guard
       # @return [String] the Guardfile content
       #
       def _guardfile_contents_without_user_config
-        @guardfile_contents || ''
+        @guardfile_contents || ""
       end
 
       # Evaluates the content of the `Guardfile`.
@@ -113,7 +113,7 @@ module Guard
       # @param [String] contents the content to evaluate.
       #
       def _instance_eval_guardfile(contents)
-        ::Guard::Dsl.new.instance_eval(contents, @guardfile_path || '', 1)
+        ::Guard::Dsl.new.instance_eval(contents, @guardfile_path || "", 1)
       rescue => ex
         ::Guard::UI.error "Invalid Guardfile, original error is:\n#{ $! }"
         raise ex
@@ -125,8 +125,8 @@ module Guard
         _use_inline || _use_provided || _use_default
 
         return if _guardfile_contents_usable?
-        ::Guard::UI.error 'No Guard plugins found in Guardfile,'\
-          ' please add at least one.'
+        ::Guard::UI.error "No Guard plugins found in Guardfile,"\
+          " please add at least one."
       end
 
       # Use the provided inline Guardfile if provided.
@@ -140,7 +140,7 @@ module Guard
         @source   = :inline
         @guardfile_contents = options[:guardfile_contents]
 
-        ::Guard::UI.info 'Using inline Guardfile.'
+        ::Guard::UI.info "Using inline Guardfile."
         true
       end
 
@@ -175,7 +175,7 @@ module Guard
           _read_guardfile(guardfile_path)
         else
           ::Guard::UI.error \
-            'No Guardfile found, please create one with `guard init`.'
+            "No Guardfile found, please create one with `guard init`."
           exit 1
         end
       end
@@ -222,13 +222,13 @@ module Guard
 
         if ::Guard.plugins.empty?
           ::Guard::Notifier.notify(
-            'No plugins found in Guardfile, please add at least one.',
-            title: 'Guard re-evaluate',
+            "No plugins found in Guardfile, please add at least one.",
+            title: "Guard re-evaluate",
             image: :failed)
         else
-          msg = 'Guardfile has been re-evaluated.'
+          msg = "Guardfile has been re-evaluated."
           ::Guard::UI.info(msg)
-          ::Guard::Notifier.notify(msg, title: 'Guard re-evaluate')
+          ::Guard::Notifier.notify(msg, title: "Guard re-evaluate")
 
           ::Guard.setup_scope
           ::Guard.runner.run(:start)
@@ -249,7 +249,7 @@ module Guard
       # @return [String] the path to the local Guardfile
       #
       def _local_guardfile_path
-        File.expand_path(File.join(Dir.pwd, 'Guardfile'))
+        File.expand_path(File.join(Dir.pwd, "Guardfile"))
       end
 
       # The path to the `.Guardfile` that is located at
@@ -258,7 +258,7 @@ module Guard
       # @return [String] the path to `~/.Guardfile`
       #
       def _home_guardfile_path
-        File.expand_path(File.join('~', '.Guardfile'))
+        File.expand_path(File.join("~", ".Guardfile"))
       end
 
       # The path to the user configuration `.guard.rb`
@@ -267,7 +267,7 @@ module Guard
       # @return [String] the path to `~/.guard.rb`
       #
       def _user_config_path
-        File.expand_path(File.join('~', '.guard.rb'))
+        File.expand_path(File.join("~", ".guard.rb"))
       end
     end
   end

@@ -1,4 +1,4 @@
-require 'guard/plugin/base'
+require "guard/plugin/base"
 
 module Guard
   # Base class from which every Guard plugin implementation must inherit.

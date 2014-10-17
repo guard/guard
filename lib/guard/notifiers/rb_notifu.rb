@@ -1,4 +1,4 @@
-require 'guard/notifiers/base'
+require "guard/notifiers/base"
 
 module Guard
   module Notifier
@@ -35,7 +35,7 @@ module Guard
       end
 
       def self.gem_name
-        'rb-notifu'
+        "rb-notifu"
       end
 
       def self.available?(opts = {})

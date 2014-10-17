@@ -1,7 +1,7 @@
-require 'lumberjack'
+require "lumberjack"
 
-require 'guard/options'
-require 'guard/ui/colors'
+require "guard/options"
+require "guard/ui/colors"
 
 module Guard
   # The UI class helps to format messages for the user. Everything that is
@@ -32,8 +32,8 @@ module Guard
       def options
         @options ||= ::Guard::Options.new(
           level: :info,
-          template: ':time - :severity - :message',
-          time_format: '%H:%M:%S')
+          template: ":time - :severity - :message",
+          time_format: "%H:%M:%S")
       end
 
       # Set the logger options
@@ -109,7 +109,7 @@ module Guard
       def clear(options = {})
         return unless ::Guard.options[:clear] && (@clearable || options[:force])
         @clearable = false
-        ::Guard::Sheller.run('clear;')
+        ::Guard::Sheller.run("clear;")
       end
 
       # Allow the screen to be cleared again.
@@ -126,10 +126,10 @@ module Guard
       def action_with_scopes(action, scope)
         first_non_blank_scope = _first_non_blank_scope(scope)
         unless first_non_blank_scope.nil?
-          scope_message = first_non_blank_scope.map(&:title).join(', ')
+          scope_message = first_non_blank_scope.map(&:title).join(", ")
         end
 
-        info "#{ action } #{ scope_message || 'all' }"
+        info "#{ action } #{ scope_message || "all" }"
       end
 
       private
@@ -189,10 +189,10 @@ module Guard
       #
       def calling_plugin_name(depth = 2)
         name = /(guard\/[a-z_]*)(\/[a-z_]*)?.rb:/i.match(caller[depth])
-        return 'Guard' unless name
-        name[1].split('/').map do |part|
+        return "Guard" unless name
+        name[1].split("/").map do |part|
           part.split(/[^a-z0-9]/i).map(&:capitalize).join
-        end.join('::')
+        end.join("::")
       end
 
       # Checks if color output can be enabled.
@@ -204,13 +204,13 @@ module Guard
         @color_enabled = nil unless @color_enabled_initialized
         @color_enabled_initialized = true
         if @color_enabled.nil?
-          if RbConfig::CONFIG['target_os'] =~ /mswin|mingw/i
-            if ENV['ANSICON']
+          if RbConfig::CONFIG["target_os"] =~ /mswin|mingw/i
+            if ENV["ANSICON"]
               @color_enabled = true
             else
               begin
-                require 'rubygems' unless ENV['NO_RUBYGEMS']
-                require 'Win32/Console/ANSI'
+                require "rubygems" unless ENV["NO_RUBYGEMS"]
+                require "Win32/Console/ANSI"
                 @color_enabled = true
               rescue LoadError
                 @color_enabled = false
@@ -237,15 +237,15 @@ module Guard
       # @param [Array] color_options the color options
       #
       def color(text, *color_options)
-        color_code = ''
+        color_code = ""
         color_options.each do |color_option|
           color_option = color_option.to_s
-          next if color_option == ''
+          next if color_option == ""
 
           unless color_option =~ /\d+/
             color_option = const_get("ANSI_ESCAPE_#{ color_option.upcase }")
           end
-          color_code += ';' + color_option
+          color_code += ";" + color_option
         end
         color_enabled? ? "\e[0#{ color_code }m#{ text }\e[0m" : text
       end

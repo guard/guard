@@ -1,13 +1,13 @@
-require 'pry'
+require "pry"
 
-require 'guard/commands/all'
-require 'guard/commands/change'
-require 'guard/commands/notification'
-require 'guard/commands/pause'
-require 'guard/commands/reload'
-require 'guard/commands/scope'
-require 'guard/commands/show'
-require 'guard/ui'
+require "guard/commands/all"
+require "guard/commands/change"
+require "guard/commands/notification"
+require "guard/commands/pause"
+require "guard/commands/reload"
+require "guard/commands/scope"
+require "guard/commands/show"
+require "guard/ui"
 
 module Guard
   # The Guard interactor is a Pry REPL with a Guard
@@ -16,24 +16,24 @@ module Guard
   class Interactor
     # The default Ruby script to configure Guard Pry if the option `:guard_rc`
     # is not defined.
-    GUARD_RC = '~/.guardrc'
+    GUARD_RC = "~/.guardrc"
 
     # The default Guard Pry history file if the option `:history_file` is not
     # defined.
-    HISTORY_FILE = '~/.guard_history'
+    HISTORY_FILE = "~/.guard_history"
 
     # List of shortcuts for each interactor command
     SHORTCUTS = {
-      help:         'h',
-      all:          'a',
-      reload:       'r',
-      change:       'c',
-      show:         's',
-      scope:        'o',
-      notification: 'n',
-      pause:        'p',
-      exit:         'e',
-      quit:         'q'
+      help:         "h",
+      all:          "a",
+      reload:       "r",
+      change:       "c",
+      show:         "s",
+      scope:        "o",
+      notification: "n",
+      pause:        "p",
+      exit:         "e",
+      quit:         "q"
     }
 
     attr_accessor :thread
@@ -106,7 +106,7 @@ module Guard
       @thread = nil
       @stty_exists = nil
 
-      return if ENV['GUARD_ENV'] == 'test'
+      return if ENV["GUARD_ENV"] == "test"
 
       _pry_setup if interactive?
     end
@@ -117,8 +117,8 @@ module Guard
 
     # Run in foreground and wait until interrupted or closed
     def foreground
-      return if ENV['GUARD_ENV'] == 'test'
-      ::Guard::UI.debug 'Start interactor'
+      return if ENV["GUARD_ENV"] == "test"
+      ::Guard::UI.debug "Start interactor"
       _store_terminal_settings if _stty_exists?
 
       interactive? ?  _interactive_foreground : _non_interactive_foreground
@@ -143,7 +143,7 @@ module Guard
     # This is called from signal handler, so avoid actually
     # doing anything other than signaling threads
     def handle_interrupt
-      return if ENV['GUARD_ENV'] == 'test'
+      return if ENV["GUARD_ENV"] == "test"
 
       if interactive?
         # TODO: does this actually do anything?
@@ -185,7 +185,7 @@ module Guard
     #
     def _add_load_project_guard_rc_hook
       Pry.config.hooks.add_hook :when_started, :load_project_guard_rc do
-        project_guard_rc = Dir.pwd + '/.guardrc'
+        project_guard_rc = Dir.pwd + "/.guardrc"
         load project_guard_rc if File.exist?(project_guard_rc)
       end
     end
@@ -202,9 +202,9 @@ module Guard
     # instead restarts guard.
     #
     def _replace_reset_command
-      Pry.commands.command 'reset', 'Reset the Guard to a clean state.' do
-        output.puts 'Guard reset.'
-        exec 'guard'
+      Pry.commands.command "reset", "Reset the Guard to a clean state." do
+        output.puts "Guard reset."
+        exec "guard"
       end
     end
 
@@ -213,8 +213,8 @@ module Guard
     # beginning of a line).
     #
     def _create_run_all_command
-      Pry.commands.block_command(/^$/, 'Hit enter to run all') do
-        Pry.run_command 'all'
+      Pry.commands.block_command(/^$/, "Hit enter to run all") do
+        Pry.run_command "all"
       end
     end
 
@@ -237,7 +237,7 @@ module Guard
       ::Guard.plugins.each do |guard_plugin|
         cmd = "Run all #{ guard_plugin.title }"
         Pry.commands.create_command guard_plugin.name, cmd do
-          group 'Guard'
+          group "Guard"
 
           def process
             Pry.run_command "all #{ match }"
@@ -257,7 +257,7 @@ module Guard
 
         cmd = "Run all #{ group.title }"
         Pry.commands.create_command group.name.to_s, cmd  do
-          group 'Guard'
+          group "Guard"
 
           def process
             Pry.run_command "all #{ match }"
@@ -270,7 +270,7 @@ module Guard
     # `pry`.
     #
     def _configure_prompt
-      Pry.config.prompt = [_prompt('>'), _prompt('*')]
+      Pry.config.prompt = [_prompt(">"), _prompt("*")]
     end
 
     # Returns the plugins scope, or the groups scope ready for display in the
@@ -280,13 +280,13 @@ module Guard
       scope_name = [:plugins, :groups].detect do |name|
         ! ::Guard.scope[name].empty?
       end
-      scope_name ? "#{_join_scope_for_prompt(scope_name)} " : ''
+      scope_name ? "#{_join_scope_for_prompt(scope_name)} " : ""
     end
 
     # Joins the scope corresponding to the given scope name with commas.
     #
     def _join_scope_for_prompt(scope_name)
-      ::Guard.scope[scope_name].map(&:title).join(',')
+      ::Guard.scope[scope_name].map(&:title).join(",")
     end
 
     # Returns a proc that will return itself a string ending with the given
@@ -295,7 +295,7 @@ module Guard
     def _prompt(ending_char)
       proc do |target_self, nest_level, pry|
         history = pry.input_array.size
-        process = ::Guard.listener.paused? ? 'pause' : 'guard'
+        process = ::Guard.listener.paused? ? "pause" : "guard"
         level   = ":#{ nest_level }" unless nest_level.zero?
 
         "[#{ history }] #{ _scope_for_prompt }#{ process }"\
@@ -314,7 +314,7 @@ module Guard
     #
     def _stty_exists?
       return @stty_exists unless @stty_exists.nil?
-      @stty_exists = ::Guard::Sheller.run('hash', 'stty') || false
+      @stty_exists = ::Guard::Sheller.run("hash", "stty") || false
     end
 
     # Stores the terminal settings so we can resore them
@@ -333,7 +333,7 @@ module Guard
     # Restore terminal settings after closing
     def _cleanup
       ::Guard::UI.reset_line
-      ::Guard::UI.debug 'Stop interactor'
+      ::Guard::UI.debug "Stop interactor"
       _restore_terminal_settings if _stty_exists?
     end
 
@@ -341,7 +341,7 @@ module Guard
     def _block
       return @thread.join if interactive?
 
-      STDERR.puts 'Guards jobs done. Sleeping...'
+      STDERR.puts "Guards jobs done. Sleeping..."
       sleep
     end
 

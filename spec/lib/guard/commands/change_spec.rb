@@ -1,29 +1,29 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Guard::Commands::Change do
-  context 'with a file' do
-    it 'runs the :run_on_changes action with the given file' do
+  context "with a file" do
+    it "runs the :run_on_changes action with the given file" do
       expect(::Guard).to receive(:async_queue_add).
-        with(modified: ['foo'], added: [], removed: [])
+        with(modified: ["foo"], added: [], removed: [])
 
-      Pry.run_command 'change foo'
+      Pry.run_command "change foo"
     end
   end
 
-  context 'with multiple files' do
-    it 'runs the :run_on_changes action with the given files' do
+  context "with multiple files" do
+    it "runs the :run_on_changes action with the given files" do
       expect(::Guard).to receive(:async_queue_add).
-        with(modified: ['foo', 'bar', 'baz'], added: [], removed: [])
+        with(modified: ["foo", "bar", "baz"], added: [], removed: [])
 
-      Pry.run_command 'change foo bar baz'
+      Pry.run_command "change foo bar baz"
     end
   end
 
-  context 'without a file' do
-    it 'does not run the :run_on_changes action' do
+  context "without a file" do
+    it "does not run the :run_on_changes action" do
       expect(::Guard).to_not receive(:async_queue_add)
       expect(STDOUT).to receive(:print).with("Please specify a file.\n")
-      Pry.run_command 'change'
+      Pry.run_command "change"
     end
   end
 end

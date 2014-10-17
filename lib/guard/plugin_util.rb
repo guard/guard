@@ -1,4 +1,4 @@
-require 'guard/ui'
+require "guard/ui"
 
 module Guard
   # This class contains useful methods to:
@@ -12,8 +12,8 @@ module Guard
     ERROR_NO_GUARD_OR_CLASS = "Could not load 'guard/%s' or'\
     ' find class Guard::%s"
 
-    INFO_ADDED_GUARD_TO_GUARDFILE = '%s guard added to Guardfile,'\
-      ' feel free to edit it'
+    INFO_ADDED_GUARD_TO_GUARDFILE = "%s guard added to Guardfile,"\
+      " feel free to edit it"
 
     attr_accessor :name
 
@@ -22,11 +22,11 @@ module Guard
     # @return [Array<String>] a list of Guard plugin gem names
     #
     def self.plugin_names
-      if Gem::Version.create(Gem::VERSION) >= Gem::Version.create('1.8.0')
+      if Gem::Version.create(Gem::VERSION) >= Gem::Version.create("1.8.0")
         Gem::Specification.find_all.select do |x|
           if x.name =~ /^guard-/
             true
-          elsif x.name != 'guard'
+          elsif x.name != "guard"
 
             guard_plugin_path = File.join(
               x.full_gem_path,
@@ -38,11 +38,11 @@ module Guard
         end
       else
         ::Guard::UI.deprecation \
-          'Rubygems version prior to 1.8.0 are no longer supported'\
-          ' and may not work'
+          "Rubygems version prior to 1.8.0 are no longer supported"\
+          " and may not work"
 
         Gem.source_index.find_name(/^guard-/)
-      end.map { |x| x.name.sub(/^guard-/, '') }.uniq
+      end.map { |x| x.name.sub(/^guard-/, "") }.uniq
     end
 
     # Initializes a new `Guard::PluginUtil` object.
@@ -50,7 +50,7 @@ module Guard
     # @param [String] name the name of the Guard plugin
     #
     def initialize(name)
-      @name = name.to_s.sub(/^guard-/, '')
+      @name = name.to_s.sub(/^guard-/, "")
     end
 
     # Initializes a new `Guard::Plugin` with the given `options` hash. This
@@ -69,7 +69,7 @@ module Guard
     #   https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0
     #
     def initialize_plugin(options)
-      if plugin_class.superclass.to_s == 'Guard::Guard'
+      if plugin_class.superclass.to_s == "Guard::Guard"
         plugin_class.new(options.delete(:watchers), options)
       else
         plugin_class.new(options)
@@ -82,7 +82,7 @@ module Guard
     #
     def plugin_location
       @plugin_location ||= begin
-        if Gem::Version.create(Gem::VERSION) >= Gem::Version.create('1.8.0')
+        if Gem::Version.create(Gem::VERSION) >= Gem::Version.create("1.8.0")
           Gem::Specification.find_by_name("guard-#{ name }").full_gem_path
         else
           Gem.source_index.find_name("guard-#{ name }").last.full_gem_path
@@ -139,10 +139,10 @@ module Guard
       if ::Guard.evaluator.guardfile_include?(name)
         ::Guard::UI.info "Guardfile already includes #{ name } guard"
       else
-        content = File.read('Guardfile')
-        File.open('Guardfile', 'wb') do |f|
+        content = File.read("Guardfile")
+        File.open("Guardfile", "wb") do |f|
           f.puts(content)
-          f.puts('')
+          f.puts("")
           f.puts(plugin_class.template(plugin_location))
         end
 

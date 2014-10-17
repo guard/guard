@@ -6,23 +6,23 @@ module Guard
     # @see Guard::CLI
     #
     class Generator
-      require 'guard'
-      require 'guard/ui'
+      require "guard"
+      require "guard/ui"
 
       attr_reader :options
 
       # The Guardfile template for `guard init`
       GUARDFILE_TEMPLATE = File.expand_path(
-        '../../../guard/templates/Guardfile',
+        "../../../guard/templates/Guardfile",
         __FILE__)
 
       # The location of user defined templates
       begin
-        HOME_TEMPLATES = File.expand_path('~/.guard/templates')
+        HOME_TEMPLATES = File.expand_path("~/.guard/templates")
       rescue ArgumentError
         # home isn't defined.  Set to the root of the drive.  Trust that there
         # won't be user defined templates there
-        HOME_TEMPLATES = File.expand_path('/')
+        HOME_TEMPLATES = File.expand_path("/")
       end
 
       # Initialize a new `Guard::Guardfile::Generator` object.
@@ -41,9 +41,9 @@ module Guard
       # @see Guard::CLI#init
       #
       def create_guardfile
-        if !File.exist?('Guardfile')
+        if !File.exist?("Guardfile")
           ::Guard::UI.info "Writing new Guardfile to #{ Dir.pwd }/Guardfile"
-          FileUtils.cp(GUARDFILE_TEMPLATE, 'Guardfile')
+          FileUtils.cp(GUARDFILE_TEMPLATE, "Guardfile")
         elsif options[:abort_on_existence]
           ::Guard::UI.error "Guardfile already exists at #{ Dir.pwd }/Guardfile"
           abort
@@ -63,23 +63,23 @@ module Guard
           plugin_util.add_to_guardfile
 
           begin
-            @options[:guardfile] = IO.read('Guardfile')
+            @options[:guardfile] = IO.read("Guardfile")
           rescue Errno::ENOENT
           end
 
         elsif File.exist?(File.join(HOME_TEMPLATES, plugin_name))
-          content = File.read('Guardfile')
+          content = File.read("Guardfile")
 
-          File.open('Guardfile', 'wb') do |f|
+          File.open("Guardfile", "wb") do |f|
             f.puts(content)
-            f.puts('')
+            f.puts("")
             f.puts(File.read(File.join(HOME_TEMPLATES, plugin_name)))
           end
 
           ::Guard::UI.info \
             "#{ plugin_name } template added to Guardfile, feel free to edit it"
         else
-          const_name = plugin_name.downcase.gsub('-', '')
+          const_name = plugin_name.downcase.gsub("-", "")
           UI.error "Could not load 'guard/#{ plugin_name.downcase }'"\
             " or '~/.guard/templates/#{ plugin_name.downcase }'"\
             " or find class Guard::#{ const_name.capitalize }"

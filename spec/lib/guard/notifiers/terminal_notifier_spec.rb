@@ -1,119 +1,119 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Guard::Notifier::TerminalNotifier do
   let(:notifier) { described_class.new }
 
   before do
     allow(described_class).to receive(:require_gem_safely) { true }
-    stub_const 'TerminalNotifier::Guard', double(available?: true)
+    stub_const "TerminalNotifier::Guard", double(available?: true)
   end
 
-  describe '.supported_hosts' do
+  describe ".supported_hosts" do
     it { expect(described_class.supported_hosts).to eq %w(darwin) }
   end
 
-  describe '.gem_name' do
-    it { expect(described_class.gem_name).to eq 'terminal-notifier-guard' }
+  describe ".gem_name" do
+    it { expect(described_class.gem_name).to eq "terminal-notifier-guard" }
   end
 
-  describe '.available?' do
-    context 'host is not supported' do
+  describe ".available?" do
+    context "host is not supported" do
       before do
-        allow(RbConfig::CONFIG).to receive(:[]).with('host_os') { 'mswin' }
+        allow(RbConfig::CONFIG).to receive(:[]).with("host_os") { "mswin" }
       end
 
-      it 'do not require terminal-notifier-guard' do
+      it "do not require terminal-notifier-guard" do
         expect(described_class).to_not receive(:require_gem_safely)
 
         expect(described_class).to_not be_available
       end
     end
 
-    context 'host is supported' do
+    context "host is supported" do
       before do
-        allow(RbConfig::CONFIG).to receive(:[]).with('host_os') { 'darwin' }
+        allow(RbConfig::CONFIG).to receive(:[]).with("host_os") { "darwin" }
       end
 
-      it 'requires terminal-notifier-guard' do
+      it "requires terminal-notifier-guard" do
         expect(described_class).to receive(:require_gem_safely) { true }
         expect(described_class).to receive(:_register!) { true }
 
         expect(described_class).to be_available
       end
 
-      context '.require_gem_safely fails' do
+      context ".require_gem_safely fails" do
         before do
           expect(described_class).to receive(:require_gem_safely) { false }
         end
 
-        it 'requires terminal-notifier-guard' do
+        it "requires terminal-notifier-guard" do
           expect(described_class).to_not receive(:_register!)
 
           expect(described_class).to_not be_available
         end
       end
 
-      context '._register! fails' do
+      context "._register! fails" do
         before do
           expect(described_class).to receive(:require_gem_safely) { true }
           expect(described_class).to receive(:_register!) { false }
         end
 
-        it 'requires terminal-notifier-guard' do
+        it "requires terminal-notifier-guard" do
           expect(described_class).to_not be_available
         end
       end
     end
   end
 
-  describe '#notify' do
-    context 'with options passed at initialization' do
-      let(:notifier) { described_class.new(title: 'Hello', silent: true) }
+  describe "#notify" do
+    context "with options passed at initialization" do
+      let(:notifier) { described_class.new(title: "Hello", silent: true) }
 
-      it 'uses these options by default' do
+      it "uses these options by default" do
         expect(::TerminalNotifier::Guard).to receive(:execute).
-          with(false, title: 'Hello', type: :success, message: 'any message')
+          with(false, title: "Hello", type: :success, message: "any message")
 
-        notifier.notify('any message')
+        notifier.notify("any message")
       end
 
-      it 'overwrites object options with passed options' do
+      it "overwrites object options with passed options" do
         expect(::TerminalNotifier::Guard).to receive(:execute).
-          with(false, title: 'Welcome', type: :success, message: 'any message')
+          with(false, title: "Welcome", type: :success, message: "any message")
 
-        notifier.notify('any message', title: 'Welcome')
+        notifier.notify("any message", title: "Welcome")
       end
     end
 
-    it 'should call the notifier.' do
+    it "should call the notifier." do
       expect(::TerminalNotifier::Guard).to receive(:execute).
         with(false,
-             title: 'any title',
+             title: "any title",
              type: :success,
-             message: 'any message')
+             message: "any message")
 
-      notifier.notify('any message', title: 'any title')
+      notifier.notify("any message", title: "any title")
     end
 
-    it 'should allow the title to be customized' do
+    it "should allow the title to be customized" do
       expect(::TerminalNotifier::Guard).to receive(:execute).
         with(false,
-             title: 'any title',
-             message: 'any message',
+             title: "any title",
+             message: "any message",
              type: :error)
 
-      notifier.notify('any message', type: :error, title: 'any title')
+      notifier.notify("any message", type: :error, title: "any title")
     end
 
-    context 'without a title set' do
-      it 'should show the app name in the title' do
+    context "without a title set" do
+      it "should show the app name in the title" do
         expect(::TerminalNotifier::Guard).to receive(:execute).
           with(false,
-               title: 'FooBar Success',
+               title: "FooBar Success",
                type: :success,
-               message: 'any message')
+               message: "any message")
 
-        notifier.notify('any message', title: nil, app_name: 'FooBar')
+        notifier.notify("any message", title: nil, app_name: "FooBar")
       end
     end
   end

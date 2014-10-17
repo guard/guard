@@ -1,4 +1,4 @@
-require 'guard/notifiers/base'
+require "guard/notifiers/base"
 
 module Guard
   module Notifier
@@ -10,11 +10,11 @@ module Guard
     #
     class Emacs < Base
       DEFAULTS = {
-        client:    'emacsclient',
-        success:   'ForestGreen',
-        failed:    'Firebrick',
-        default:   'Black',
-        fontcolor: 'White',
+        client:    "emacsclient",
+        success:   "ForestGreen",
+        failed:    "Firebrick",
+        default:   "Black",
+        fontcolor: "White",
       }
 
       def self.available?(opts = {})
@@ -59,13 +59,13 @@ module Guard
         opts      = DEFAULTS.merge(opts)
         color     = emacs_color(opts[:type], opts)
         fontcolor = emacs_color(:fontcolor, opts)
-        elisp = <<-EOF.gsub(/\s+/, ' ').strip
+        elisp = <<-EOF.gsub(/\s+/, " ").strip
           (set-face-attribute 'mode-line nil
                :background "#{color}"
                :foreground "#{fontcolor}")
         EOF
 
-        _run_cmd(opts[:client], '--eval', elisp)
+        _run_cmd(opts[:client], "--eval", elisp)
       end
 
       # Get the Emacs color for the notification type.

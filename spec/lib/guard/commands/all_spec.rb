@@ -1,5 +1,5 @@
-require 'spec_helper'
-require 'guard/plugin'
+require "spec_helper"
+require "guard/plugin"
 
 describe Guard::Commands::All do
 
@@ -15,50 +15,50 @@ describe Guard::Commands::All do
       and_return(converted_scope)
   end
 
-  context 'without scope' do
+  context "without scope" do
     let(:given_scope) { [] }
     let(:converted_scope) { [{ groups: [], plugins: [] }, []] }
 
-    it 'runs the :run_all action' do
+    it "runs the :run_all action" do
       expect(Guard).to receive(:async_queue_add).
         with([:guard_run_all, groups: [], plugins: []])
 
-      Pry.run_command 'all'
+      Pry.run_command "all"
     end
   end
 
-  context 'with a valid Guard group scope' do
-    let(:given_scope) { ['foo'] }
+  context "with a valid Guard group scope" do
+    let(:given_scope) { ["foo"] }
     let(:converted_scope) { [{ groups: [foo_group], plugins: [] }, []] }
 
-    it 'runs the :run_all action with the given scope' do
+    it "runs the :run_all action with the given scope" do
       expect(Guard).to receive(:async_queue_add).
         with([:guard_run_all, groups: [foo_group], plugins: []])
 
-      Pry.run_command 'all foo'
+      Pry.run_command "all foo"
     end
   end
 
-  context 'with a valid Guard plugin scope' do
-    let(:given_scope) { ['bar'] }
+  context "with a valid Guard plugin scope" do
+    let(:given_scope) { ["bar"] }
     let(:converted_scope) { [{ groups: [], plugins: [bar_guard] }, []] }
 
-    it 'runs the :run_all action with the given scope' do
+    it "runs the :run_all action with the given scope" do
       expect(Guard).to receive(:async_queue_add).
         with([:guard_run_all, plugins: [bar_guard], groups: []])
 
-      Pry.run_command 'all bar'
+      Pry.run_command "all bar"
     end
   end
 
-  context 'with an invalid scope' do
-    let(:given_scope) { ['baz'] }
-    let(:converted_scope) { [{ groups: [], plugins: [] }, ['baz']] }
+  context "with an invalid scope" do
+    let(:given_scope) { ["baz"] }
+    let(:converted_scope) { [{ groups: [], plugins: [] }, ["baz"]] }
 
-    it 'does not run the action' do
+    it "does not run the action" do
       expect(STDOUT).to receive(:print).with("Unknown scopes: baz\n")
       expect(Guard).to_not receive(:async_queue_add)
-      Pry.run_command 'all baz'
+      Pry.run_command "all baz"
     end
   end
 end

@@ -1,5 +1,5 @@
-require 'rbconfig'
-require 'guard/ui'
+require "rbconfig"
+require "guard/ui"
 
 module Guard
   module Notifier
@@ -7,15 +7,15 @@ module Guard
     #
     class Base
       HOSTS = {
-        darwin:  'Mac OS X',
-        linux:   'Linux',
-        freebsd: 'FreeBSD',
-        openbsd: 'OpenBSD',
-        sunos:   'SunOS',
-        solaris: 'Solaris',
-        mswin:   'Windows',
-        mingw:   'Windows',
-        cygwin:  'Windows'
+        darwin:  "Mac OS X",
+        linux:   "Linux",
+        freebsd: "FreeBSD",
+        openbsd: "OpenBSD",
+        sunos:   "SunOS",
+        solaris: "Solaris",
+        mswin:   "Windows",
+        mingw:   "Windows",
+        cygwin:  "Windows"
       }
 
       ERROR_ADD_GEM_AND_RUN_BUNDLE = "Please add \"gem '%s'\" to your Gemfile "\
@@ -47,7 +47,7 @@ module Guard
         if _supported_host?
           true
         else
-          hosts = supported_hosts.map { |host| HOSTS[host.to_sym] }.join(', ')
+          hosts = supported_hosts.map { |host| HOSTS[host.to_sym] }.join(", ")
           unless opts.fetch(:silent) { false }
             ::Guard::UI.error "The :#{name} notifier runs only on #{hosts}."
           end
@@ -148,7 +148,7 @@ module Guard
       # @return [Pathname] the path to the images directory
       #
       def images_path
-        @images_path ||= Pathname.new(__FILE__).dirname + '../../../images'
+        @images_path ||= Pathname.new(__FILE__).dirname + "../../../images"
       end
 
       # @private
@@ -159,7 +159,7 @@ module Guard
       #
       def self._supported_host?
         supported_hosts == :all ||
-        RbConfig::CONFIG['host_os'] =~ /#{supported_hosts.join('|')}/
+        RbConfig::CONFIG["host_os"] =~ /#{supported_hosts.join('|')}/
       end
 
       # Set or modify the `:title`, `:type` and `:image` options for a
@@ -172,7 +172,7 @@ module Guard
       # @option opts [String] image the path to the notification image
       #
       def normalize_standard_options!(opts)
-        opts[:title] ||= 'Guard'
+        opts[:title] ||= "Guard"
         opts[:type]  ||= _notification_type(opts.fetch(:image, :success))
         opts[:image]   = _image_path(opts.delete(:image) { :success })
       end

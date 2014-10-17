@@ -1,6 +1,6 @@
-require 'thread'
-require 'listen'
-require 'guard/options'
+require "thread"
+require "listen"
+require "guard/options"
 
 module Guard
   # Sets up initial variables and options
@@ -109,7 +109,7 @@ module Guard
     #
     def evaluate_guardfile
       evaluator.evaluate_guardfile
-      msg = 'No plugins found in Guardfile, please add at least one.'
+      msg = "No plugins found in Guardfile, please add at least one."
       ::Guard::UI.error msg  if plugins.empty?
     end
 
@@ -190,22 +190,22 @@ module Guard
     def _setup_signal_traps
       return if defined?(JRUBY_VERSION)
 
-      if Signal.list.keys.include?('USR1')
-        Signal.trap('USR1') { async_queue_add([:guard_pause, :paused]) }
+      if Signal.list.keys.include?("USR1")
+        Signal.trap("USR1") { async_queue_add([:guard_pause, :paused]) }
       end
 
-      if Signal.list.keys.include?('USR2')
-        Signal.trap('USR2') { async_queue_add([:guard_pause, :unpaused]) }
+      if Signal.list.keys.include?("USR2")
+        Signal.trap("USR2") { async_queue_add([:guard_pause, :unpaused]) }
       end
 
-      return unless Signal.list.keys.include?('INT')
-      Signal.trap('INT') { interactor.handle_interrupt }
+      return unless Signal.list.keys.include?("INT")
+      Signal.trap("INT") { interactor.handle_interrupt }
     end
 
     # Enables or disables the notifier based on user's configurations.
     #
     def _setup_notifier
-      if options[:notify] && ENV['GUARD_NOTIFY'] != 'false'
+      if options[:notify] && ENV["GUARD_NOTIFY"] != "false"
         ::Guard::Notifier.turn_on
       else
         ::Guard::Notifier.turn_off
@@ -218,7 +218,7 @@ module Guard
     def _debug_command_execution
       Kernel.send(:alias_method, :original_system, :system)
       Kernel.send(:define_method, :system) do |command, *args|
-        ::Guard::UI.debug "Command execution: #{ command } #{ args.join(' ') }"
+        ::Guard::UI.debug "Command execution: #{ command } #{ args.join(" ") }"
         Kernel.send :original_system, command, *args
       end
 
@@ -254,7 +254,7 @@ module Guard
         changes.each do |_type, paths|
           paths.each do |path|
             next unless path.start_with? watchdir
-            path.sub! "#{watchdir}#{File::SEPARATOR}", ''
+            path.sub! "#{watchdir}#{File::SEPARATOR}", ""
           end
         end
       end
@@ -264,7 +264,7 @@ module Guard
       actions.each do |action_args|
         args = action_args.dup
         namespaced_action = args.shift
-        action = namespaced_action.to_s.sub(/^guard_/, '')
+        action = namespaced_action.to_s.sub(/^guard_/, "")
         if ::Guard.respond_to?(action)
           ::Guard.send(action, *args)
         else

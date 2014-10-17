@@ -1,4 +1,4 @@
-require 'guard/notifiers/base'
+require "guard/notifiers/base"
 
 module Guard
   module Notifier
@@ -75,7 +75,7 @@ module Guard
       #
       def _libnotify_urgency(type)
         case type
-        when 'failed'
+        when "failed"
           :normal
         else
           :low

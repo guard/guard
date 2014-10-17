@@ -1,9 +1,9 @@
 #!/usr/bin/env ruby
 
-require 'rake'
-require 'rake/tasklib'
+require "rake"
+require "rake/tasklib"
 
-require 'guard/cli'
+require "guard/cli"
 
 module Guard
   # Provides a method to define a Rake task that
@@ -22,7 +22,7 @@ module Guard
     # @param [String] options the CLI options
     # @yield [Guard::RakeTask] the task
     #
-    def initialize(name = :guard, options = '')
+    def initialize(name = :guard, options = "")
       @name = name
       @options = options
 
