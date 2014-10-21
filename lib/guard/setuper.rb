@@ -248,13 +248,15 @@ module Guard
       false
     end
 
-    def _relative_paths(changes)
-      # Convert to relative paths
-      changes.each do |_type, paths|
-        paths.map! do |path|
-          Pathname.new(path).relative_path_from(Pathname.pwd).to_s
-        end
-      end
+    def _relative_pathname(path)
+      full_path = Pathname(path)
+      full_path.relative_path_from(Pathname.pwd)
+    rescue ArgumentError
+      full_path
+    end
+
+    def _relative_pathnames(paths)
+      paths.map { |path| _relative_pathname(path) }
     end
 
     def _run_actions(actions)
@@ -277,14 +279,13 @@ module Guard
 
     def _listener_callback
       lambda do |modified, added, removed|
-        all_changes = { modified: modified.dup,
-                        added: added.dup,
-                        removed: removed.dup }
+        relative_paths = {
+          modified: _relative_pathnames(modified),
+          added: _relative_pathnames(added),
+          removed: _relative_pathnames(removed)
+        }
 
-        # TODO: this should be Listen's responsibility
-        _relative_paths(all_changes)
-
-        async_queue_add(all_changes) if _relevant_changes?(all_changes)
+        async_queue_add(relative_paths) if _relevant_changes?(relative_paths)
       end
     end
 
