@@ -260,7 +260,7 @@ describe Guard do
 
   describe ".add_plugin" do
     let(:plugin_util) { instance_double(Guard::PluginUtil) }
-    let(:guard_rspec) { instance_double(Guard::RSpec) }
+    let(:guard_rspec) { double("some_plugin_instance") }
 
     before do
       expect(::Guard::PluginUtil).to receive(:new).with("rspec") { plugin_util }

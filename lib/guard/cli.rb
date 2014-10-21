@@ -166,7 +166,7 @@ module Guard
     # initialize
     #
     def init(*plugin_names)
-      _verify_bundler_presence
+      _verify_bundler_presence unless options[:no_bundler_warning]
 
       ::Guard::Guardfile.create_guardfile(abort_on_existence: options[:bare])
 

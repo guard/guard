@@ -1,84 +1,87 @@
 require "spec_helper"
 require "guard/cli"
 
+RSpec.shared_examples "avoids Bundler warning" do |meth|
+  it "does not show the Bundler warning" do
+    expect(Guard::UI).to_not receive(:info).with(/Guard here!/)
+    subject.send(meth)
+  end
+end
+
+RSpec.shared_examples "shows Bundler warning" do |meth|
+  it "shows the Bundler warning" do
+    expect(Guard::UI).to receive(:info).with(/Guard here!/)
+    subject.send(meth)
+  end
+end
+
+RSpec.shared_examples "gem dependency warning" do |meth|
+  before do
+    allow(Guard).to receive(:options).and_return(@options)
+    @bundler_env = {
+      "BUNDLE_GEMFILE" => ENV.delete("BUNDLE_GEMFILE"),
+      "RUBYGEMS_GEMDEPS" => ENV.delete("RUBYGEMS_GEMDEPS")
+    }
+  end
+
+  after { ENV.update(@bundler_env) }
+
+  context "without an existing Gemfile" do
+    before { expect(File).to receive(:exist?).with("Gemfile") { false } }
+    include_examples "avoids Bundler warning", meth
+  end
+
+  context "with an existing Gemfile" do
+    before { allow(File).to receive(:exist?).with("Gemfile") { true } }
+
+    context "with Bundler" do
+      before { ENV["BUNDLE_GEMFILE"] = "Gemfile" }
+      include_examples "avoids Bundler warning", meth
+    end
+
+    context "without Bundler" do
+      before { ENV["BUNDLE_GEMFILE"] = nil }
+
+      context "with Rubygems Gemfile autodetection or custom Gemfile" do
+        before { ENV["RUBYGEMS_GEMDEPS"] = "-" }
+        include_examples "avoids Bundler warning", meth
+      end
+
+      context "without Rubygems Gemfile handling" do
+        before { ENV["RUBYGEMS_GEMDEPS"] = nil }
+
+        context "with :no_bundler_warning option" do
+          before { @options[:no_bundler_warning] = true }
+          include_examples "avoids Bundler warning", meth
+        end
+
+        context "without :no_bundler_warning option" do
+          include_examples "shows Bundler warning", meth
+        end
+      end
+    end
+  end
+end
+
 describe Guard::CLI do
   let(:guard)         { Guard }
   let(:ui)            { Guard::UI }
-  let(:dsl_describer) { instance_double(DslDescriber) }
+  let(:dsl_describer) { instance_double(::Guard::DslDescriber) }
+
+  before do
+    @options = {}
+    allow(subject).to receive(:options).and_return(@options)
+  end
 
   describe "#start" do
+    include_examples "gem dependency warning", :start
+
     before { allow(Guard).to receive(:start) }
 
     it "delegates to Guard.start" do
       expect(Guard).to receive(:start)
 
       subject.start
-    end
-
-    context "with a Gemfile in the project dir" do
-      before do
-        @bundler_env = {
-          "BUNDLE_GEMFILE" => ENV.delete("BUNDLE_GEMFILE"),
-          "RUBYGEMS_GEMDEPS" => ENV.delete("RUBYGEMS_GEMDEPS")
-        }
-
-        allow(File).to receive(:exist?).with("Gemfile").and_return(true)
-      end
-
-      after { ENV.update(@bundler_env) }
-
-      context "when activating gem dependencies with Bundler" do
-        before do
-          ENV["BUNDLE_GEMFILE"] = "Gemfile"
-        end
-
-        it "does not show the Bundler warning" do
-          expect(Guard::UI).to_not receive(:info).with(/Guard here!/)
-          subject.start
-        end
-      end
-
-      context "when activating gem dependencies with Rubygems" do
-        before do
-          ENV["RUBYGEMS_GEMDEPS"] = "-"
-        end
-
-        it "does not show the Bundler warning" do
-          expect(Guard::UI).to_not receive(:info).with(/Guard here!/)
-          subject.start
-        end
-      end
-
-      context "without having activated gem dependencies with Bundler or Rubygems" do
-        it "shows the Bundler warning" do
-          expect(Guard::UI).to receive(:info).with(/Guard here!/)
-          subject.start
-        end
-
-        context "with :no_bundler_warning flag" do
-          before { subject.options = { no_bundler_warning: true } }
-
-          it "does not show the Bundler warning" do
-            expect(Guard::UI).to_not receive(:info).with(/Guard here!/)
-            subject.start
-          end
-        end
-      end
-    end
-
-    context "without a Gemfile in the project dir" do
-      before do
-        expect(File).to receive(:exist?).with("Gemfile").and_return false
-        @bundler_env = ENV["BUNDLE_GEMFILE"]
-        ENV["BUNDLE_GEMFILE"] = nil
-      end
-
-      after { ENV["BUNDLE_GEMFILE"] = @bundler_env }
-
-      it "does not show the Bundler warning" do
-        expect(Guard::UI).to_not receive(:info).with(/Guard here!/)
-        subject.start
-      end
     end
   end
 
@@ -109,44 +112,48 @@ describe Guard::CLI do
   end
 
   describe "#init" do
-    let(:options) { { bare: false } }
+    include_examples "gem dependency warning", :init
 
     before do
-      allow(subject).to receive(:options).and_return(options)
       allow(Guard::Guardfile).to receive(:create_guardfile)
       allow(Guard::Guardfile).to receive(:initialize_all_templates)
     end
 
-    it "creates a Guardfile by delegating to Guardfile.create_guardfile" do
-      expect(Guard::Guardfile).to receive(:create_guardfile).
-        with(abort_on_existence: options[:bare])
+    context "with no bare option" do
+      before { @options[:bare] = false }
 
-      subject.init
-    end
+      it "creates a Guardfile by delegating to Guardfile.create_guardfile" do
+        expect(Guard::Guardfile).to receive(:create_guardfile).
+          with(abort_on_existence: false)
 
-    it "initializes templates of all installed Guards" do
-      expect(Guard::Guardfile).to receive(:initialize_all_templates)
+        subject.init
+      end
 
-      subject.init
-    end
+      it "initializes templates of all installed Guards" do
+        expect(Guard::Guardfile).to receive(:initialize_all_templates)
 
-    it "initializes each passed template" do
-      expect(Guard::Guardfile).to receive(:initialize_template).with("rspec")
-      expect(Guard::Guardfile).to receive(:initialize_template).with("pow")
+        subject.init
+      end
 
-      subject.init "rspec", "pow"
-    end
-
-    context "when passed a guard name" do
-      it "initializes the template of the passed Guard" do
+      it "initializes each passed template" do
         expect(Guard::Guardfile).to receive(:initialize_template).with("rspec")
+        expect(Guard::Guardfile).to receive(:initialize_template).with("pow")
 
-        subject.init "rspec"
+        subject.init "rspec", "pow"
+      end
+
+      context "when passed a guard name" do
+        it "initializes the template of the passed Guard" do
+          expect(Guard::Guardfile).to receive(:initialize_template).
+            with("rspec")
+
+          subject.init "rspec"
+        end
       end
     end
 
     context "with the bare option" do
-      let(:options) { { bare: true } }
+      before { @options[:bare] = true }
 
       it "Only creates the Guardfile without initialize any Guard template" do
         expect(Guard::Guardfile).to receive(:create_guardfile)
@@ -157,35 +164,6 @@ describe Guard::CLI do
       end
     end
 
-    context "when running with Bundler" do
-      before do
-        @bundler_env = ENV["BUNDLE_GEMFILE"]
-        ENV["BUNDLE_GEMFILE"] = "Gemfile"
-      end
-
-      after { ENV["BUNDLE_GEMFILE"] = @bundler_env }
-
-      it "does not show the Bundler warning" do
-        expect(Guard::UI).to_not receive(:info).with(/Guard here!/)
-
-        subject.init
-      end
-    end
-
-    context "when running without Bundler" do
-      before do
-        @bundler_env = ENV["BUNDLE_GEMFILE"]
-        ENV["BUNDLE_GEMFILE"] = nil
-      end
-
-      after { ENV["BUNDLE_GEMFILE"] = @bundler_env }
-
-      it "does not show the Bundler warning" do
-        expect(Guard::UI).to receive(:info).with(/Guard here!/)
-
-        subject.init
-      end
-    end
   end
 
   describe "#show" do
