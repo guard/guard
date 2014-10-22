@@ -110,7 +110,7 @@ module Guard
     def evaluate_guardfile
       evaluator.evaluate_guardfile
       msg = "No plugins found in Guardfile, please add at least one."
-      ::Guard::UI.error msg  if plugins.empty?
+      ::Guard::UI.error msg unless _non_builtin_plugins?
     end
 
     # Asynchronously trigger changes
@@ -131,6 +131,15 @@ module Guard
 
     def pending_changes?
       ! @queue.empty?
+    end
+
+    def add_builtin_plugins
+      guardfile = ::Guard.evaluator.guardfile_path
+      return unless guardfile
+
+      pattern = _relative_pathname(guardfile).to_s
+      watcher = ::Guard::Watcher.new(pattern)
+      ::Guard.add_plugin(:reevaluator, watchers: [watcher])
     end
 
     private
@@ -237,9 +246,6 @@ module Guard
     # TODO: move this to watcher class?
     #
     def _relevant_changes?(changes)
-      # TODO: make a Guardfile reloader "plugin" instead of a special case
-      return true if ::Guard::Watcher.match_guardfile?(changes[:modified])
-
       # TODO: ignoring irrelevant files should be Listen's responsibility
       all_files = changes.values.flatten(1)
       runner.send(:_scoped_plugins) do |guard|
@@ -322,6 +328,10 @@ module Guard
       groups = Array(scope[:groups] || scope[:group]) if groups.empty?
 
       { plugins: plugins, groups: groups }
+    end
+
+    def _non_builtin_plugins?
+      plugins.map(&:name) != ["reevaluator"]
     end
   end
 end

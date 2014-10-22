@@ -32,7 +32,7 @@ describe Guard::Setuper do
     end
 
     it "initializes the plugins" do
-      expect(subject.plugins).to eq []
+      expect(subject.plugins.map(&:name)).to eq ["reevaluator"]
     end
 
     it "initializes the groups" do
@@ -316,7 +316,7 @@ describe Guard::Setuper do
     end
 
     it "return clear the plugins array" do
-      expect(subject.plugins.size).to eq 1
+      expect(subject.plugins.map(&:name)).to eq(%w(reevaluator foobar))
 
       subject.reset_plugins
 
