@@ -239,12 +239,6 @@ module Guard
     end
 
     # Check if any of the changes are actually watched for
-    #
-    # NOTE: this is called from the listen thread - be careful to not
-    # modify any state
-    #
-    # TODO: move this to watcher class?
-    #
     def _relevant_changes?(changes)
       # TODO: ignoring irrelevant files should be Listen's responsibility
       all_files = changes.values.flatten(1)
