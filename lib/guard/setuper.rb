@@ -88,7 +88,7 @@ module Guard
     def save_scope
       # This actually replaces scope from command line,
       # so scope set by 'scope' Pry command will be reset
-      @saved_scope = _prepare_scope(Guard.scope)
+      @saved_scope = _prepare_scope(::Guard.scope)
     end
 
     def restore_scope
