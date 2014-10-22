@@ -80,7 +80,19 @@ module Guard
     # @see Guard.setup_scope
     #
     def reset_scope
-      @scope = { groups: [], plugins: [] }
+      # calls Guard.scope=() to set the instance variable directly, as opposed
+      # to Guard.scope()
+      ::Guard.scope = { groups: [], plugins: [] }
+    end
+
+    def save_scope
+      # This actually replaces scope from command line,
+      # so scope set by 'scope' Pry command will be reset
+      @saved_scope = _prepare_scope(Guard.scope)
+    end
+
+    def restore_scope
+      Guard.setup_scope(@saved_scope)
     end
 
     attr_reader :watchdirs
@@ -93,10 +105,11 @@ module Guard
     # @see Dsl#scope
     #
     def setup_scope(scope = {})
+      # TODO: there should be a special Scope class instead
       scope = _prepare_scope(scope)
       { groups: :add_group, plugins: :plugin }.each do |type, meth|
         next unless scope[type].any?
-        @scope[type] = scope[type].map do |item|
+        Guard.scope[type] = scope[type].map do |item|
           ::Guard.send(meth, item)
         end
       end

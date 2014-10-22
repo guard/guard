@@ -156,7 +156,9 @@ module Guard
     #   {Guard::Guardfile::Evaluator#evaluate_guardfile}.
     #
     def _evaluate_guardfile
+      ::Guard.save_scope
       ::Guard::Guardfile::Evaluator.new(options).evaluate_guardfile
+      ::Guard.restore_scope
     end
 
     def _merge_options(klass, notifier)
