@@ -21,7 +21,7 @@ module Guard
       wait_for_delay: nil,
       listen_on: nil
     }
-    DEFAULT_GROUPS = [:default]
+    DEFAULT_GROUPS = [:default, :common]
 
     # Initializes the Guard singleton:
     #
@@ -139,7 +139,7 @@ module Guard
 
       pattern = _relative_pathname(guardfile).to_s
       watcher = ::Guard::Watcher.new(pattern)
-      ::Guard.add_plugin(:reevaluator, watchers: [watcher])
+      ::Guard.add_plugin(:reevaluator, watchers: [watcher], group: :common)
     end
 
     private

@@ -289,21 +289,24 @@ describe Guard do
     it "accepts group name as string" do
       ::Guard.add_group("backend")
       expect(::Guard.groups[0].name).to eq :default
-      expect(::Guard.groups[1].name).to eq :backend
+      expect(::Guard.groups[1].name).to eq :common
+      expect(::Guard.groups[2].name).to eq :backend
     end
 
     it "accepts group name as symbol" do
       ::Guard.add_group(:backend)
 
       expect(::Guard.groups[0].name).to eq :default
-      expect(::Guard.groups[1].name).to eq :backend
+      expect(::Guard.groups[1].name).to eq :common
+      expect(::Guard.groups[2].name).to eq :backend
     end
 
     it "accepts options" do
       ::Guard.add_group(:backend,  halt_on_fail: true)
 
       expect(::Guard.groups[0].options).to eq({})
-      expect(::Guard.groups[1].options).to eq(halt_on_fail: true)
+      expect(::Guard.groups[1].options).to eq({})
+      expect(::Guard.groups[2].options).to eq(halt_on_fail: true)
     end
   end
 

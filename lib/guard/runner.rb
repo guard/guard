@@ -176,12 +176,13 @@ module Guard
     # Find the first non empty element in the given possibilities
     #
     def _find_non_empty_scope(type, local_scope, *additional_possibilities)
-      [
+      found = [
         local_scope[:"#{type}s"],
         local_scope[type.to_sym],
         ::Guard.scope[:"#{type}s"],
         additional_possibilities.flatten
       ].compact.detect { |a| !Array(a).empty? }
+      found ? [::Guard.group(:common)] + Array(found) : found
     end
 
     # Find the first non empty plugins scope
