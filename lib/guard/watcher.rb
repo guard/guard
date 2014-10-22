@@ -77,21 +77,6 @@ module Guard
       end
     end
 
-    # Tests if a file would be matched by any of the Guard plugin watchers.
-    #
-    # @param [Array<Guard::Plugin>] plugins the Guard plugins to use the
-    #   watchers from
-    # @param [Array<String>] files the files to test
-    # @return [Boolean] Whether a file matches
-    #
-    def self.match_files?(plugins, files)
-      plugins.any? do |plugin|
-        plugin.watchers.any? do |watcher|
-          files.any? { |file| watcher.match(file) }
-        end
-      end
-    end
-
     # Tests if any of the files is the Guardfile.
     #
     # @param [Array<String>] files the files to test
@@ -109,6 +94,7 @@ module Guard
     #   if the pattern is a string)
     #
     def match(string_or_pathname)
+      # TODO: use only match() - and show fnmatch example
       file = string_or_pathname.to_s
       return (file == @pattern ? [file] : nil) unless @pattern.is_a?(Regexp)
       return unless (m = @pattern.match(file))

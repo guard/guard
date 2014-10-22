@@ -251,14 +251,18 @@ module Guard
       end
     end
 
+    # TODO: Guard::Watch or Guard::Scope should provide this
+    def _scoped_watchers
+      watchers = []
+      runner.send(:_scoped_plugins) { |guard| watchers += guard.watchers }
+      watchers
+    end
+
     # Check if any of the changes are actually watched for
     def _relevant_changes?(changes)
-      # TODO: ignoring irrelevant files should be Listen's responsibility
-      all_files = changes.values.flatten(1)
-      runner.send(:_scoped_plugins) do |guard|
-        return true if ::Guard::Watcher.match_files?([guard], all_files)
-      end
-      false
+      files = changes.values.flatten(1)
+      watchers = _scoped_watchers
+      watchers.any? { |watcher| files.any? { |file| watcher.match(file) } }
     end
 
     def _relative_pathname(path)

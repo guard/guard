@@ -417,28 +417,6 @@ describe Guard::Watcher do
 
       @plugins = [@guard1, @guard2]
     end
-
-    context "with a watcher that matches a file" do
-      specify do
-        result = described_class.match_files?(
-          @plugins,
-          ["lib/my_wonderful_lib.rb", "guard_rocks_spec.rb"]
-        )
-
-        expect(result).to be_truthy
-      end
-    end
-
-    context "with no watcher that matches a file" do
-      specify do
-        result = described_class.match_files?(
-          @plugins,
-          ["lib/my_wonderful_lib.rb"]
-        )
-
-        expect(result).to be_falsey
-      end
-    end
   end
 
   describe ".match" do
