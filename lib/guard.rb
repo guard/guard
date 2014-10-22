@@ -14,6 +14,7 @@ require "guard/setuper"
 require "guard/sheller"
 require "guard/ui"
 require "guard/watcher"
+require "guard/reevaluator"
 
 # Guard is the main module for all Guard related modules and classes.
 # Also Guard plugins should use this namespace.

@@ -11,7 +11,11 @@ describe Guard::Reevaluator do
     described_class.new(options)
   end
 
-  before { allow(::Guard).to receive(:evaluator).and_return(evaluator) }
+  before do
+    allow(::Guard).to receive(:save_scope)
+    allow(::Guard).to receive(:restore_scope)
+    allow(::Guard).to receive(:evaluator).and_return(evaluator)
+  end
 
   context "when Guardfile is modified" do
     before do
