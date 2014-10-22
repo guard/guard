@@ -92,7 +92,7 @@ module Guard
     end
 
     def restore_scope
-      Guard.setup_scope(@saved_scope)
+      ::Guard.setup_scope(@saved_scope)
     end
 
     attr_reader :watchdirs
@@ -109,7 +109,7 @@ module Guard
       scope = _prepare_scope(scope)
       { groups: :add_group, plugins: :plugin }.each do |type, meth|
         next unless scope[type].any?
-        Guard.scope[type] = scope[type].map do |item|
+        ::Guard.scope[type] = scope[type].map do |item|
           ::Guard.send(meth, item)
         end
       end
