@@ -247,7 +247,6 @@ describe Guard::Runner do
 
     before do
       allow(subject).to receive(:_scoped_plugins).and_yield(@foo_guard)
-      allow(subject).to receive(:_clearable?) { false }
       allow(watcher_module).to receive(:match_files) { [] }
     end
 
@@ -257,8 +256,6 @@ describe Guard::Runner do
     end
 
     context "when clearable" do
-      before { allow(subject).to receive(:_clearable?) { true } }
-
       it "clear UI" do
         expect(Guard::UI).to receive(:clear)
         subject.run_on_changes(*changes)
@@ -289,8 +286,8 @@ describe Guard::Runner do
 
       end
 
-      it "does not call run_first_task_found" do
-        expect(subject).to_not receive(:_run_first_task_found)
+      it "does not call run anything" do
+        expect(subject).to_not receive(:run_supervised_task)
         subject.run_on_changes(*changes)
       end
     end
@@ -306,10 +303,8 @@ describe Guard::Runner do
       end
 
       it "executes the :run_first_task_found task" do
-        expect(subject).to receive(:_run_first_task_found).
-          with(
-            @foo_guard,
-            [:run_on_modifications, :run_on_changes, :run_on_change], modified)
+        expect(subject).to receive(:run_supervised_task).
+          with(@foo_guard, :run_on_modifications, modified)
 
         subject.run_on_changes(*changes)
       end
@@ -325,8 +320,8 @@ describe Guard::Runner do
 
       end
 
-      it "does not call run_first_task_found" do
-        expect(subject).to_not receive(:_run_first_task_found)
+      it "does not call run anything" do
+        expect(subject).to_not receive(:run_supervised_task)
         subject.run_on_changes(*changes)
       end
     end
@@ -342,11 +337,8 @@ describe Guard::Runner do
       end
 
       it "executes the :run_on_additions task" do
-        expect(subject).to receive(:_run_first_task_found).
-          with(
-            @foo_guard,
-            [:run_on_additions, :run_on_changes, :run_on_change],
-            added)
+        expect(subject).to receive(:run_supervised_task).
+          with(@foo_guard, :run_on_additions, added)
 
         subject.run_on_changes(*changes)
       end
@@ -363,7 +355,7 @@ describe Guard::Runner do
       end
 
       it "does not call run_first_task_found" do
-        expect(subject).to_not receive(:_run_first_task_found)
+        expect(subject).to_not receive(:run_supervised_task)
         subject.run_on_changes(*changes)
       end
     end
@@ -379,11 +371,8 @@ describe Guard::Runner do
       end
 
       it "executes the :run_on_removals task" do
-        expect(subject).to receive(:_run_first_task_found).
-          with(
-            @foo_guard,
-            [:run_on_removals, :run_on_changes, :run_on_deletion],
-            removed)
+        expect(subject).to receive(:run_supervised_task).
+          with(@foo_guard, :run_on_removals, removed)
 
         subject.run_on_changes(*changes)
       end

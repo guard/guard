@@ -13,6 +13,7 @@ describe Guard::Dsl do
     stub_const "Guard::Bar", Class.new(Guard::Plugin)
     stub_const "Guard::Baz", Class.new(Guard::Plugin)
     allow(Guard::Notifier).to receive(:turn_on)
+    allow(::Guard).to receive(:add_builtin_plugins)
     allow(Listen).to receive(:to).with(Dir.pwd, {})
     ::Guard.setup
   end

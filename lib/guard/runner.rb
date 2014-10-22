@@ -39,32 +39,23 @@ module Guard
     # @param [Array<String>] removed the removed paths.
     #
     def run_on_changes(modified, added, removed)
+      types = {
+        MODIFICATION_TASKS => modified,
+        ADDITION_TASKS => added,
+        REMOVAL_TASKS => removed
+      }
+
       ::Guard::UI.clearable
 
-      # TODO: this should be handled like every other plugin
-      if ::Guard::Watcher.match_guardfile?(modified)
-        ::Guard.evaluator.reevaluate_guardfile
-      end
-
       _scoped_plugins do |guard|
-        modified_paths = ::Guard::Watcher.match_files(guard, modified)
-        added_paths    = ::Guard::Watcher.match_files(guard, added)
-        removed_paths  = ::Guard::Watcher.match_files(guard, removed)
+        ::Guard::UI.clear
 
-        if _clearable?(guard, modified_paths, added_paths, removed_paths)
-          ::Guard::UI.clear
-        end
+        types.each do |tasks, unmatched_paths|
+          paths = ::Guard::Watcher.match_files(guard, unmatched_paths)
+          next if paths.empty?
 
-        unless modified_paths.empty?
-          _run_first_task_found(guard, MODIFICATION_TASKS, modified_paths)
-        end
-
-        unless added_paths.empty?
-          _run_first_task_found(guard, ADDITION_TASKS, added_paths)
-        end
-
-        unless removed_paths.empty?
-          _run_first_task_found(guard, REMOVAL_TASKS, removed_paths)
+          next unless (task = tasks.detect { |meth| guard.respond_to?(meth) })
+          run_supervised_task(guard, task, paths)
         end
       end
     end
@@ -117,28 +108,6 @@ module Guard
 
     private
 
-    # Tries to run the first implemented task by a given guard
-    # from a collection of tasks.
-    #
-    # @param [Guard::Plugin] guard the Guard plugin to run the first found task
-    # on
-    #
-    # @param [Array<Symbol>] tasks the tasks to run the first among
-    # @param [Object] task_param the param to pass to each task
-    #
-    def _run_first_task_found(guard, tasks, task_param)
-      tasks.each do |task|
-        if guard.respond_to?(task)
-          run_supervised_task(guard, task, task_param)
-          break
-        else
-          ::Guard::UI.debug \
-            "Trying to run #{ guard.class.name }##{ task }"\
-            " with #{ task_param.inspect }"
-        end
-      end
-    end
-
     # Loop through all groups and run the given task for each Guard plugin.
     #
     # If no scope is supplied, the global Guard scope is taken into account.
@@ -174,32 +143,6 @@ module Guard
       end
     end
 
-    # Logic to know if the UI can be cleared or not in the run_on_changes method
-    # based on the guard and the changes.
-    #
-    # @param [Guard::Plugin] guard the Guard plugin where run_on_changes is
-    # called
-    #
-    # @param [Array<String>] modified_paths the modified paths.
-    # @param [Array<String>] added_paths the added paths.
-    # @param [Array<String>] removed_paths the removed paths.
-    #
-    def _clearable?(guard, modified_paths, added_paths, removed_paths)
-      types = {
-        MODIFICATION_TASKS => modified_paths,
-        ADDITION_TASKS => added_paths,
-        REMOVAL_TASKS => removed_paths
-      }
-
-      types.each do |tasks, paths|
-        next unless tasks.any? { |task| guard.respond_to?(task) }
-        next if !paths.empty?
-        return true
-      end
-
-      false
-    end
-
     # Returns the current plugins scope.
     # Local plugins scope wins over global plugins scope.
     # If no plugins scope is found, then NO plugins are returned.
@@ -233,12 +176,13 @@ module Guard
     # Find the first non empty element in the given possibilities
     #
     def _find_non_empty_scope(type, local_scope, *additional_possibilities)
-      [
+      found = [
         local_scope[:"#{type}s"],
         local_scope[type.to_sym],
         ::Guard.scope[:"#{type}s"],
         additional_possibilities.flatten
       ].compact.detect { |a| !Array(a).empty? }
+      found ? [::Guard.group(:common)] + Array(found) : found
     end
 
     # Find the first non empty plugins scope

@@ -21,7 +21,7 @@ module Guard
       wait_for_delay: nil,
       listen_on: nil
     }
-    DEFAULT_GROUPS = [:default]
+    DEFAULT_GROUPS = [:default, :common]
 
     # Initializes the Guard singleton:
     #
@@ -80,7 +80,19 @@ module Guard
     # @see Guard.setup_scope
     #
     def reset_scope
-      @scope = { groups: [], plugins: [] }
+      # calls Guard.scope=() to set the instance variable directly, as opposed
+      # to Guard.scope()
+      ::Guard.scope = { groups: [], plugins: [] }
+    end
+
+    def save_scope
+      # This actually replaces scope from command line,
+      # so scope set by 'scope' Pry command will be reset
+      @saved_scope = _prepare_scope(::Guard.scope)
+    end
+
+    def restore_scope
+      ::Guard.setup_scope(@saved_scope)
     end
 
     attr_reader :watchdirs
@@ -93,10 +105,11 @@ module Guard
     # @see Dsl#scope
     #
     def setup_scope(scope = {})
+      # TODO: there should be a special Scope class instead
       scope = _prepare_scope(scope)
       { groups: :add_group, plugins: :plugin }.each do |type, meth|
         next unless scope[type].any?
-        @scope[type] = scope[type].map do |item|
+        ::Guard.scope[type] = scope[type].map do |item|
           ::Guard.send(meth, item)
         end
       end
@@ -110,7 +123,7 @@ module Guard
     def evaluate_guardfile
       evaluator.evaluate_guardfile
       msg = "No plugins found in Guardfile, please add at least one."
-      ::Guard::UI.error msg  if plugins.empty?
+      ::Guard::UI.error msg unless _non_builtin_plugins?
     end
 
     # Asynchronously trigger changes
@@ -131,6 +144,15 @@ module Guard
 
     def pending_changes?
       ! @queue.empty?
+    end
+
+    def add_builtin_plugins
+      guardfile = ::Guard.evaluator.guardfile_path
+      return unless guardfile
+
+      pattern = _relative_pathname(guardfile).to_s
+      watcher = ::Guard::Watcher.new(pattern)
+      ::Guard.add_plugin(:reevaluator, watchers: [watcher], group: :common)
     end
 
     private
@@ -230,16 +252,7 @@ module Guard
     end
 
     # Check if any of the changes are actually watched for
-    #
-    # NOTE: this is called from the listen thread - be careful to not
-    # modify any state
-    #
-    # TODO: move this to watcher class?
-    #
     def _relevant_changes?(changes)
-      # TODO: make a Guardfile reloader "plugin" instead of a special case
-      return true if ::Guard::Watcher.match_guardfile?(changes[:modified])
-
       # TODO: ignoring irrelevant files should be Listen's responsibility
       all_files = changes.values.flatten(1)
       runner.send(:_scoped_plugins) do |guard|
@@ -322,6 +335,10 @@ module Guard
       groups = Array(scope[:groups] || scope[:group]) if groups.empty?
 
       { plugins: plugins, groups: groups }
+    end
+
+    def _non_builtin_plugins?
+      plugins.map(&:name) != ["reevaluator"]
     end
   end
 end
