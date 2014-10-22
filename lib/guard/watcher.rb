@@ -108,19 +108,13 @@ module Guard
     # @return [Array<String>] an array of matches (or containing a single path
     #   if the pattern is a string)
     #
-    def match(file)
-      f = file
-      deleted = file.start_with?("!")
-      f = deleted ? f[1..-1] : f
-      if @pattern.is_a?(Regexp)
-        if m = f.match(@pattern)
-          m = m.to_a
-          m[0] = file
-          m
-        end
-      else
-        f == @pattern ? [file] : nil
-      end
+    def match(string_or_pathname)
+      file = string_or_pathname.to_s
+      return (file == @pattern ? [file] : nil) unless @pattern.is_a?(Regexp)
+      return unless (m = @pattern.match(file))
+      m = m.to_a
+      m[0] = file
+      m
     end
 
     # Executes a watcher action.

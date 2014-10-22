@@ -442,48 +442,44 @@ describe Guard::Watcher do
   end
 
   describe ".match" do
-    context "with a string pattern" do
-      context "that is a normal string" do
-        subject do
-          described_class.new("guard_rocks_spec.rb")
-        end
+    subject { described_class.new(pattern).match(file) }
 
-        context "with a watcher that matches a file" do
-          specify do
-            expect(subject.match("guard_rocks_spec.rb")).
-              to eq ["guard_rocks_spec.rb"]
-          end
-        end
+    context "with a file name pattern" do
+      let(:pattern) { "guard_rocks_spec.rb" }
 
-        context "with a file containing a $" do
-          subject { described_class.new("lib$/guard_rocks_spec.rb") }
-
-          specify do
-            result = subject.match("lib$/guard_rocks_spec.rb")
-            expect(result).to eq ["lib$/guard_rocks_spec.rb"]
-          end
-        end
-
-        context "with no watcher that matches a file" do
-          specify { expect(subject.match("lib/my_wonderful_lib.rb")).to be_nil }
-        end
+      context "with matching normal file" do
+        let(:file) { "guard_rocks_spec.rb" }
+        it { is_expected.to eq ["guard_rocks_spec.rb"] }
       end
 
-      context "that is a string representing a regexp (deprecated)" do
-        subject { described_class.new('^guard_(rocks)_spec\.rb$') }
+      context "with matching pathname" do
+        let(:file) { Pathname("guard_rocks_spec.rb") }
+        it { is_expected.to eq ["guard_rocks_spec.rb"] }
+      end
 
-        context "with a watcher that matches a file" do
-          specify do
-            expect(subject.match("guard_rocks_spec.rb")).
-              to eq ["guard_rocks_spec.rb", "rocks"]
-          end
-        end
+      context "with not-matching normal file" do
+        let(:file) { "lib/my_wonderful_lib.rb" }
+        it { is_expected.to be_nil }
+      end
 
-        context "with no watcher that matches a file" do
-          specify do
-            expect(subject.match("lib/my_wonderful_lib.rb")).to be_nil
-          end
-        end
+      context "with matching file containing $" do
+        let(:pattern) { "lib$/guard_rocks_spec.rb" }
+        let(:file) { "lib$/guard_rocks_spec.rb" }
+        it { is_expected.to eq ["lib$/guard_rocks_spec.rb"] }
+      end
+    end
+
+    context "with a string representing a regexp (deprecated)" do
+      let(:pattern) { '^guard_(rocks)_spec\.rb$' }
+
+      context "with matching normal file" do
+        let(:file) { "guard_rocks_spec.rb" }
+        it { is_expected.to eq ["guard_rocks_spec.rb", "rocks"] }
+      end
+
+      context "with not-matching normal file" do
+        let(:file) { "lib/my_wonderful_lib.rb" }
+        it { is_expected.to be_nil }
       end
     end
 
@@ -506,47 +502,6 @@ describe Guard::Watcher do
 
       context "with no watcher that matches a file" do
         specify { expect(subject.match("lib/my_wonderful_lib.rb")).to be_nil }
-      end
-    end
-
-    context "path start with a !" do
-      context "with a string pattern" do
-        subject do
-          described_class.new("guard_rocks_spec.rb")
-        end
-
-        context "with a watcher that matches a file" do
-          specify do
-            result = subject.match("!guard_rocks_spec.rb")
-            expect(result).to eq ["!guard_rocks_spec.rb"]
-          end
-        end
-
-        context "with no watcher that matches a file" do
-          specify do
-            expect(subject.match("!lib/my_wonderful_lib.rb")).to be_nil
-          end
-        end
-      end
-
-      context "with a regexp pattern" do
-        subject do
-          described_class.new(/(.*)_spec\.rb/)
-        end
-
-        context "with a watcher that matches a file" do
-          specify do
-            result = subject.match("!guard_rocks_spec.rb")
-            expect(result).to eq ["!guard_rocks_spec.rb", "guard_rocks"]
-          end
-        end
-
-        context "with no watcher that matches a file" do
-          specify do
-            result = subject.match("!lib/my_wonderful_lib.rb")
-            expect(result).to be_nil
-          end
-        end
       end
     end
   end
