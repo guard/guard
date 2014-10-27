@@ -51,11 +51,11 @@ module Guard
         ::Guard::UI.clear
 
         types.each do |tasks, unmatched_paths|
-          paths = ::Guard::Watcher.match_files(guard, unmatched_paths)
-          next if paths.empty?
+          match_result = ::Guard::Watcher.match_files(guard, unmatched_paths)
+          next if match_result.empty?
 
           next unless (task = tasks.detect { |meth| guard.respond_to?(meth) })
-          run_supervised_task(guard, task, paths)
+          run_supervised_task(guard, task, match_result)
         end
       end
     end
