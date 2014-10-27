@@ -88,11 +88,11 @@ If you're getting sick of typing `bundle exec` all the time, try one of the foll
   project, which means running `bin/guard` (tab completion will save you a key
   stroke or two) will have the exact same result as `bundle exec guard`
 
-* Or, for RubyGems >= 2.2.0 (at least, though later versions have more bugfixes),
+* Or, for RubyGems >= 2.2.0 (at least, though the more recent the better),
   simply set the `RUBYGEMS_GEMDEPS` environment variable to `-` (for autodetecting
   the Gemfile in the current or parent directories) or set it to the path of your Gemfile.
 
-(To install a later version in RVM, see `rvm rubygems` command).
+(To upgrade RubyGems from RVM, use the `rvm rubygems` command).
 
 *NOTE: this Rubygems feature is still under development still lacks many features of bundler*
 
@@ -254,12 +254,12 @@ $ bundle exec guard --watchdir source/files # watch a subdirectory of your proje
 $ bundle exec guard -w source/files # shortcut
 $ bundle exec guard -w sources/foo assets/foo ./config # multiple directories
 
-$ bundle exec guard -w . /fancy/project # path outside project - watch out! (see info below)
+$ bundle exec guard -w /fancy/project # path outside project - watch out! (see below)
 ```
 *NOTE: this option is only meant for ignoring subdirectories in the CURRENT
 directory - by selecting which ones to actually track.*
 
-If you are *not* watching the current directory, or `--watchdirs` isn't working
+If your watched directories are outside the current one, or if `--watchdirs` isn't working
 as you expect, be sure to read: [Correctly using watchdirs](https://github.com/guard/guard/wiki/Correctly-using-the---watchdir-option)
 
 
@@ -271,7 +271,7 @@ Guard can use a `Guardfile` not located in the current directory:
 $ bundle exec guard --guardfile ~/.your_global_guardfile
 $ bundle exec guard -G ~/.your_global_guardfile # shortcut
 ```
-*NOTE: use the BUNDLER_GEMFILE environment variable if your Gemfile is not in the current directory*
+*TIP: set `BUNDLER_GEMFILE` environment variable to point to your Gemfile if it isn't in the current directory or the current Gemfile doesn't include all your favorite plugins*
 
 #### `-i`/`--no-interactions` option
 
@@ -306,11 +306,11 @@ $ bundle exec guard start -l 1.5
 $ bundle exec guard start --latency 1.5
 ```
 
-*NOTE: this option is OS specific, higher values are mostly useful to reduce
-CPU usage when in polling mode (or lower values for faster responses), while it
-has no effect for optimized backends (except on Mac OS). If guard is not
-behaving as you want, you may instead want to tweak the `--wait-for-delay`
-option below.*
+*NOTE: this option is OS specific: while higher values may reduce CPU usage
+(and lower values may increase responsiveness) when in polling mode , it has no
+effect for optimized backends (except on Mac OS). If guard is not behaving as
+you want, you'll likely instead want to tweak the `--wait-for-delay` option
+below or use the `--watchdirs` option.*
 
 
 #### `-p`/`--force-polling` option
@@ -547,7 +547,8 @@ end
 *NOTE: Normally, most plugins expect the block to return a path or array of
 paths - i.e. other plugins would think the `git status` output here is a
 file path (which would cause an error), so this trick of returning the command
-output only works for the `guard-shell` plugin.*
+output only works for `guard-shell` plugin and other plugins that support
+arbitrary results.*
 
 You can also define `watch`es outside of a `guard` plugin. This is useful to
 perform arbitrary Ruby logic (i.e. something project-specific).
