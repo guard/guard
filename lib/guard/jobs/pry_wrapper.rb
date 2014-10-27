@@ -121,13 +121,13 @@ module Guard
 
         _add_hooks
 
-        Guard::Commands::All.import
-        Guard::Commands::Change.import
-        Guard::Commands::Notification.import
-        Guard::Commands::Pause.import
-        Guard::Commands::Reload.import
-        Guard::Commands::Show.import
-        Guard::Commands::Scope.import
+        ::Guard::Commands::All.import
+        ::Guard::Commands::Change.import
+        ::Guard::Commands::Notification.import
+        ::Guard::Commands::Pause.import
+        ::Guard::Commands::Reload.import
+        ::Guard::Commands::Show.import
+        ::Guard::Commands::Scope.import
 
         _setup_commands
         _configure_prompt
