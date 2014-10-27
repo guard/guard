@@ -38,6 +38,11 @@ module Guard
     #
     # @return [Guard] the Guard singleton
     #
+
+    # TODO: this method has too many instance variables
+    # and some are mock and leak between tests,
+    # so ideally there should be a guard "instance"
+    # object that can be created anew between tests
     def setup(opts = {})
       reset_options(opts)
 
@@ -344,6 +349,18 @@ module Guard
 
     def _non_builtin_plugins?
       plugins.map(&:name) != ["reevaluator"]
+    end
+
+    def _reset_for_tests
+      @options = nil
+      @queue = nil
+      @runner = nil
+      @evaluator = nil
+      @watchdirs = nil
+      @watchdirs = nil
+      @listener = nil
+      @interactor = nil
+      ::Guard.scope = nil
     end
   end
 end

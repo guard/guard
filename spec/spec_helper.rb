@@ -24,6 +24,7 @@ RSpec.configure do |config|
   end
 
   config.before(:each) do |example|
+    Guard.send(:_reset_for_tests)
 
     Guard.clear_options
 
