@@ -136,6 +136,8 @@ module Guard
     # Adds a plugin's template to the Guardfile.
     #
     def add_to_guardfile
+      msg = "Guard.evaluator not initialized"
+      fail msg if ::Guard.evaluator.nil?
       if ::Guard.evaluator.guardfile_include?(name)
         ::Guard::UI.info "Guardfile already includes #{ name } guard"
       else

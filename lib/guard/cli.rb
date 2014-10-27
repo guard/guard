@@ -169,6 +169,7 @@ module Guard
       _verify_bundler_presence unless options[:no_bundler_warning]
 
       ::Guard.reset_options(options) # Since UI.deprecated uses config
+      ::Guard.reset_evaluator(options) # for initialize_all_templates
 
       ::Guard::Guardfile.create_guardfile(abort_on_existence: options[:bare])
 
