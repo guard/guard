@@ -33,8 +33,9 @@ describe Guard::Commands::Scope do
     let(:given_scope) { ["foo"] }
     let(:converted_scope) { [{ groups: [foo_group], plugins: [] }, []] }
 
-    it "runs the :scope= action with the given scope" do
-      expect(Guard).to receive(:scope=).with(groups: [foo_group], plugins: [])
+    it "sets up the scope with the given scope" do
+      expect(Guard).to receive(:setup_scope).
+        with(groups: [foo_group], plugins: [])
       Pry.run_command "scope foo"
     end
   end
@@ -44,7 +45,8 @@ describe Guard::Commands::Scope do
     let(:converted_scope) { [{ groups: [], plugins: [bar_guard] }, []] }
 
     it "runs the :scope= action with the given scope" do
-      expect(Guard).to receive(:scope=).with(plugins: [bar_guard], groups: [])
+      expect(Guard).to receive(:setup_scope).
+        with(plugins: [bar_guard], groups: [])
       Pry.run_command "scope bar"
     end
   end

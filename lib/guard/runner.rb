@@ -127,6 +127,7 @@ module Guard
         end
       else
         _current_groups_scope(scopes).each do |group|
+          fail "Invalid group: #{group.inspect}" unless group.respond_to?(:name)
           current_plugin = nil
           block_return = catch :task_has_failed do
             ::Guard.plugins(group: group.name).each do |guard|
@@ -151,13 +152,9 @@ module Guard
     # @return [Array<Guard::Plugin>] the plugins to scope to
     #
     def _current_plugins_scope(scope)
-      if plugins = _find_non_empty_plugins_scope(scope)
-        Array(plugins).map do |plugin|
-          plugin.is_a?(Symbol) ? ::Guard.plugin(plugin) : plugin
-        end
-      else
-        nil
-      end
+      return nil unless (plugins = _find_non_empty_plugins_scope(scope))
+
+      Array(plugins).map { |plugin| _instantiate(:plugin, plugin) }
     end
 
     # Returns the current groups scope.
@@ -168,9 +165,12 @@ module Guard
     # @return [Array<Guard::Group>] the groups to scope to
     #
     def _current_groups_scope(scope)
-      Array(_find_non_empty_groups_scope(scope)).map do |group|
-        group.is_a?(Symbol) ? ::Guard.group(group) : group
-      end
+      groups = _find_non_empty_groups_scope(scope)
+      Array(groups).map { |group| _instantiate(:group, group) }
+    end
+
+    def _instantiate(meth, obj)
+      (obj.is_a?(Symbol) || obj.is_a?(String)) ? ::Guard.send(meth, obj) : obj
     end
 
     # Find the first non empty element in the given possibilities
@@ -178,11 +178,11 @@ module Guard
     def _find_non_empty_scope(type, local_scope, *additional_possibilities)
       found = [
         local_scope[:"#{type}s"],
-        local_scope[type.to_sym],
+        [local_scope[type.to_sym]],
         ::Guard.scope[:"#{type}s"],
         additional_possibilities.flatten
-      ].compact.detect { |a| !Array(a).empty? }
-      found ? [::Guard.group(:common)] + Array(found) : found
+      ]
+      found.compact.detect { |a| !Array(a).compact.empty? }
     end
 
     # Find the first non empty plugins scope
@@ -194,7 +194,8 @@ module Guard
     # Find the first non empty groups scope
     #
     def _find_non_empty_groups_scope(scope)
-      _find_non_empty_scope(:group, scope, ::Guard.groups)
+      common = [::Guard.group(:common)]
+      common + _find_non_empty_scope(:group, scope, ::Guard.groups)
     end
   end
 end
