@@ -50,7 +50,7 @@ module Guard
       #
       def evaluate_guardfile
         _fetch_guardfile_contents
-        ::Guard.add_builtin_plugins
+        ::Guard.add_builtin_plugins(guardfile_path)
         _instance_eval_guardfile(guardfile_contents)
       end
 

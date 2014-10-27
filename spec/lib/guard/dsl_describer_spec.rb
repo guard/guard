@@ -36,7 +36,6 @@ describe Guard::DslDescriber do
     allow(Guard::Notifier).to receive(:turn_on)
     allow(::Guard).to receive(:add_builtin_plugins)
     allow(Listen).to receive(:to).with(Dir.pwd, {})
-    Guard.setup
 
     stub_const "Guard::Test", Class.new(Guard::Plugin)
     stub_const "Guard::Another", Class.new(Guard::Plugin)

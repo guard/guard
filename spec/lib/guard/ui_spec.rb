@@ -8,8 +8,6 @@ describe UI do
   before do
     allow(Guard::Interactor).to receive(:new).and_return(interactor)
 
-    Guard.clear_options
-
     allow(Notifier).to receive(:turn_on) {}
 
     # The spec helper stubs all UI classes, so other specs doesn't have
