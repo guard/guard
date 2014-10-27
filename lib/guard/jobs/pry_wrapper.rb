@@ -119,7 +119,7 @@ module Guard
         history_file_path = options[:history_file] || HISTORY_FILE
         Pry.config.history.file = File.expand_path(history_file_path)
 
-        _add_hooks
+        _add_hooks(options)
 
         ::Guard::Commands::All.import
         ::Guard::Commands::Change.import
@@ -139,28 +139,25 @@ module Guard
       # * Load project's `.guardrc` within each new Pry session.
       # * Restore prompt after each evaluation.
       #
-      def _add_hooks
-        _add_load_guard_rc_hook
-        _add_load_project_guard_rc_hook
+      def _add_hooks(options)
+        _add_load_guard_rc_hook(Pathname(options[:guard_rc] || GUARD_RC))
+        _add_load_project_guard_rc_hook(Pathname.pwd + ".guardrc")
         _add_restore_visibility_hook if @terminal_settings.configurable?
       end
 
       # Add a `when_started` hook that loads a global .guardrc if it exists.
       #
-      def _add_load_guard_rc_hook
+      def _add_load_guard_rc_hook(guard_rc)
         Pry.config.hooks.add_hook :when_started, :load_guard_rc do
-          (self.class.options[:guard_rc] || GUARD_RC).tap do |p|
-            load p if File.exist?(File.expand_path(p))
-          end
+          guard_rc.expand_path.tap { |p| load p if p.exist? }
         end
       end
 
       # Add a `when_started` hook that loads a project .guardrc if it exists.
       #
-      def _add_load_project_guard_rc_hook
+      def _add_load_project_guard_rc_hook(guard_rc)
         Pry.config.hooks.add_hook :when_started, :load_project_guard_rc do
-          project_guard_rc = Dir.pwd + "/.guardrc"
-          load project_guard_rc if File.exist?(project_guard_rc)
+          load guard_rc if guard_rc.exist?
         end
       end
 
