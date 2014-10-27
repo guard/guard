@@ -16,8 +16,9 @@ RSpec.shared_examples "shows Bundler warning" do |meth|
 end
 
 RSpec.shared_examples "gem dependency warning" do |meth|
+  let(:guard_options) { double("hash_with_options") }
   before do
-    allow(Guard).to receive(:options).and_return(@options)
+    allow(Guard).to receive(:options).and_return(guard_options)
     @bundler_env = {
       "BUNDLE_GEMFILE" => ENV.delete("BUNDLE_GEMFILE"),
       "RUBYGEMS_GEMDEPS" => ENV.delete("RUBYGEMS_GEMDEPS")
@@ -117,6 +118,26 @@ describe Guard::CLI do
     before do
       allow(Guard::Guardfile).to receive(:create_guardfile)
       allow(Guard::Guardfile).to receive(:initialize_all_templates)
+    end
+
+    context "with any options" do
+      before { @options[:bare] = true }
+
+      it "should call Guard.reset_options before using ::Guard.UI" do
+        reset_called = false
+        reset_called_before_creating = false
+        expect(::Guard).to receive(:reset_options).with(@options) do
+          reset_called = true
+        end
+
+        expect(Guard::Guardfile).to receive(:create_guardfile) do
+          reset_called_before_creating = reset_called
+        end
+
+        subject.init
+        expect(reset_called).to be(true)
+        expect(reset_called_before_creating).to be(true)
+      end
     end
 
     context "with no bare option" do
