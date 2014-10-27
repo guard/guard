@@ -120,7 +120,9 @@ describe Guard::CLI do
       allow(Guard::Guardfile).to receive(:initialize_all_templates)
     end
 
-    context "with any options" do
+    # TODO: this is a code smell suggesting the use of global variables
+    # instead of object oriented programming
+    context "with bare option" do
       before { @options[:bare] = true }
 
       it "should call Guard.reset_options before using ::Guard.UI" do
@@ -137,6 +139,22 @@ describe Guard::CLI do
         subject.init
         expect(reset_called).to be(true)
         expect(reset_called_before_creating).to be(true)
+      end
+    end
+
+    # TODO: this is a code smell suggesting the use of global variables
+    # instead of object oriented programming
+    context "with no bare option" do
+      before { @options[:bare] = false }
+
+      it "should setup Guard.evaluator before initialize_all_templates()" do
+        evaluator = nil
+        expect(Guard::Guardfile).to receive(:initialize_all_templates) do
+          evaluator = Guard.evaluator
+        end
+
+        subject.init
+        expect(evaluator).to be_a(::Guard::Guardfile::Evaluator)
       end
     end
 

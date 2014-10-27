@@ -45,10 +45,10 @@ module Guard
     # object that can be created anew between tests
     def setup(opts = {})
       reset_options(opts)
+      reset_evaluator(opts)
 
       @queue = Queue.new
       @runner = ::Guard::Runner.new
-      @evaluator = ::Guard::Guardfile::Evaluator.new(opts)
       @watchdirs = _setup_watchdirs
 
       ::Guard::UI.clear(force: true)
@@ -98,6 +98,11 @@ module Guard
     # Used to merge CLI options with Setuper defaults
     def reset_options(new_options)
       @options = ::Guard::Options.new(new_options, DEFAULT_OPTIONS)
+    end
+
+    # TODO: code smell - too many reset_* methods
+    def reset_evaluator(new_options)
+      @evaluator = ::Guard::Guardfile::Evaluator.new(new_options)
     end
 
     def save_scope
