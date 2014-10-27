@@ -127,12 +127,11 @@ module Guard
     def setup_scope(scope = {})
       # TODO: there should be a special Scope class instead
       scope = _prepare_scope(scope)
-      { groups: :add_group, plugins: :plugin }.each do |type, meth|
-        next unless scope[type].any?
-        ::Guard.scope[type] = scope[type].map do |item|
-          ::Guard.send(meth, item)
-        end
-      end
+
+      ::Guard.scope = {
+        groups: scope[:groups].map { |item| ::Guard.add_group(item) },
+        plugins: scope[:plugins].map { |item| ::Guard.plugin(item) },
+      }
     end
 
     # Evaluates the Guardfile content. It displays an error message if no
@@ -346,8 +345,14 @@ module Guard
       plugins = Array(options[:plugin])
       plugins = Array(scope[:plugins] || scope[:plugin]) if plugins.empty?
 
+      # Convert objects to names
+      plugins.map! { |p| p.respond_to?(:name) ? p.name : p }
+
       groups = Array(options[:group])
       groups = Array(scope[:groups] || scope[:group]) if groups.empty?
+
+      # Convert objects to names
+      groups.map! { |g| g.respond_to?(:name) ? g.name : g }
 
       { plugins: plugins, groups: groups }
     end
@@ -365,7 +370,7 @@ module Guard
       @watchdirs = nil
       @listener = nil
       @interactor = nil
-      ::Guard.scope = nil
+      @scope = nil
     end
   end
 end

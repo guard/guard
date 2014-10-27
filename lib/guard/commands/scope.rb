@@ -27,7 +27,7 @@ module Guard
               return
             end
 
-            ::Guard.scope = scope
+            ::Guard.setup_scope(scope)
           end
         end
       end
