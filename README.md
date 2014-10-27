@@ -8,7 +8,12 @@ Guard
 <img src="http://cl.ly/image/1k3o1r2Z3a0J/guard-Icon.png" alt="Guard Icon" align="right" />
 Guard is a command line tool to easily handle events on file system modifications.
 
-This document contains a lot of information, please take your time and read these instructions carefully. If you have
+Guard has many very handy features, so read this document through at least once
+to be aware of them - or you'll likely miss out on really cool ideas and tricks.
+
+Also, by reading through you'll likely avoid common and time-consuming problems which Guard simply can't automatically solve.
+
+If you have
 any questions about the Guard usage or want to share some information with the Guard community, please go to one of
 the following places:
 
@@ -67,11 +72,31 @@ Run Guard through Bundler with:
 $ bundle exec guard
 ```
 
-**It's important that you always run Guard through Bundler to avoid errors.** If you're getting sick of typing
-`bundle exec` all the time, try the [Rubygems Bundler](https://github.com/mpapis/rubygems-bundler).
+If you are on Mac OS X and have problems with either Guard not reacting to file
+changes or Pry behaving strange, then you should [add proper Readline support
+to Ruby on Mac OS
+X](https://github.com/guard/guard/wiki/Add-Readline-support-to-Ruby-on-Mac-OS-X).
 
-If you are on Mac OS X and have problems with either Guard not reacting to file changes or Pry behaving strange, then
-you should [add proper Readline support to Ruby on Mac OS X](https://github.com/guard/guard/wiki/Add-Readline-support-to-Ruby-on-Mac-OS-X).
+
+#### Avoiding gem/dependency problems
+
+**It's important that you always run Guard through Bundler to avoid errors.**
+
+If you're getting sick of typing `bundle exec` all the time, try one of the following:
+
+* (Recommended) Running `bundle binstub guard` will create `bin/guard` in your
+  project, which means running `bin/guard` (tab completion will save you a key
+  stroke or two) will have the exact same result as `bundle exec guard`
+
+* Or, for RubyGems >= 2.2.0 (at least, though later versions have more bugfixes),
+  simply set the `RUBYGEMS_GEMDEPS` environment variable to `-` (for autodetecting
+  the Gemfile in the current or parent directories) or set it to the path of your Gemfile.
+
+(To install a later version in RVM, see `rvm rubygems` command).
+
+*NOTE: this Rubygems feature is still under development still lacks many features of bundler*
+
+* Or, for RubyGems < 2.2.0 check out the [Rubygems Bundler](https://github.com/mpapis/rubygems-bundler).
 
 #### Add Guard plugins
 
@@ -225,10 +250,18 @@ $ bundle exec guard -d # shortcut
 Guard can watch any number of directories instead of only the current directory:
 
 ```bash
-$ bundle exec guard --watchdir ~/your/fancy/project
-$ bundle exec guard -w ~/your/fancy/project ~/your/fancier/project2 #multiple directories
-$ bundle exec guard -w ~/your/fancy/project # shortcut
+$ bundle exec guard --watchdir source/files # watch a subdirectory of your project
+$ bundle exec guard -w source/files # shortcut
+$ bundle exec guard -w sources/foo assets/foo ./config # multiple directories
+
+$ bundle exec guard -w . /fancy/project # path outside project - watch out! (see info below)
 ```
+*NOTE: this option is only meant for ignoring subdirectories in the CURRENT
+directory - by selecting which ones to actually track.*
+
+If you are *not* watching the current directory, or `--watchdirs` isn't working
+as you expect, be sure to read: [Correctly using watchdirs](https://github.com/guard/guard/wiki/Correctly-using-the---watchdir-option)
+
 
 #### `-G`/`--guardfile` option
 
@@ -238,6 +271,7 @@ Guard can use a `Guardfile` not located in the current directory:
 $ bundle exec guard --guardfile ~/.your_global_guardfile
 $ bundle exec guard -G ~/.your_global_guardfile # shortcut
 ```
+*NOTE: use the BUNDLER_GEMFILE environment variable if your Gemfile is not in the current directory*
 
 #### `-i`/`--no-interactions` option
 
@@ -261,6 +295,8 @@ $ bundle exec guard start --no-bundler-warning
 
 Turn on deprecation warnings.
 
+*NOTE: They are OFF by default (see: [#298](https://github.com/guard/guard/issues/298))*
+
 #### `-l`/`--latency` option
 
 Overwrite Listen's default latency, useful when your hard-drive / system is slow.
@@ -269,6 +305,13 @@ Overwrite Listen's default latency, useful when your hard-drive / system is slow
 $ bundle exec guard start -l 1.5
 $ bundle exec guard start --latency 1.5
 ```
+
+*NOTE: this option is OS specific, higher values are mostly useful to reduce
+CPU usage when in polling mode (or lower values for faster responses), while it
+has no effect for optimized backends (except on Mac OS). If guard is not
+behaving as you want, you may instead want to tweak the `--wait-for-delay`
+option below.*
+
 
 #### `-p`/`--force-polling` option
 
@@ -281,7 +324,8 @@ $ bundle exec guard start --force-polling
 
 #### `-y`/`--wait-for-delay` option
 
-Overwrite Listen's default wait_for_delay, useful for kate-like editors through ssh access.
+Overwrite Listen's default wait_for_delay, useful for kate-like editors through
+ssh access or when guard is annoyingly running tasks multiple times.
 
 ```bash
 $ bundle exec guard start -y 1
@@ -500,8 +544,13 @@ guard :shell do
 end
 ```
 
-You can also define `watch`es outside of a `guard` plugin. This is useful to perform arbitrary Ruby
-logic (i.e. something project-specific).
+*NOTE: Normally, most plugins expect the block to return a path or array of
+paths - i.e. other plugins would think the `git status` output here is a
+file path (which would cause an error), so this trick of returning the command
+output only works for the `guard-shell` plugin.*
+
+You can also define `watch`es outside of a `guard` plugin. This is useful to
+perform arbitrary Ruby logic (i.e. something project-specific).
 
 ```ruby
 watch(/.*/) { |m| puts "#{m[0]} changed." }
@@ -673,6 +722,8 @@ the ignore method to exclude them.
 This comes in handy when you have large amounts of non-source data in you project. By default
 [`.rbx`, `.bundle`, `.DS_Store`, `.git`, `.hg` ,`.svn`, `bundle`, `log`, `tmp`, `vendor/bundle`](https://github.com/guard/listen/blob/master/lib/listen/silencer.rb#L5-L9)
 are ignored.
+
+*NOTE: this option mostly helps when irrelevant changes are triggering guard tasks (e.g. a task starts before the editor finished saving all the files). Also, while it can reduce CPU time and increase responsiveness when using polling, instead, using `--watchdirs` is recommended for such "tuning" (e.g. large projects)*
 
 Please note that method only accept regexps. See [Listen README](https://github.com/guard/listen#ignore--ignore).
 
