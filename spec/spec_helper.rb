@@ -87,7 +87,7 @@ RSpec.configure do |config|
   config.after(:each) do
     Guard::Notifier.clear_notifiers
 
-    ::Guard.options[:debug] = false if ::Guard.options
+    Guard.clear_options
   end
 
   config.after(:all) do

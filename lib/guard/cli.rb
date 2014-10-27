@@ -168,6 +168,8 @@ module Guard
     def init(*plugin_names)
       _verify_bundler_presence unless options[:no_bundler_warning]
 
+      ::Guard.reset_options(options) # Since UI.deprecated uses config
+
       ::Guard::Guardfile.create_guardfile(abort_on_existence: options[:bare])
 
       return if options[:bare]

@@ -85,6 +85,8 @@ module Guard
       # @option options [String] plugin manually define the calling plugin
       #
       def deprecation(message, options = {})
+        msg = "neither ::Guard.setup nor ::Guard.reset_options was called"
+        fail msg if ::Guard.options.nil?
         warning(message, options) if ::Guard.options[:show_deprecations]
       end
 
