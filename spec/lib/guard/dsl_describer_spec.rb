@@ -5,6 +5,7 @@ require "guard/dsl_describer"
 require "formatador"
 
 describe Guard::DslDescriber do
+  let(:interactor) { instance_double(Guard::Interactor) }
 
   let(:guardfile) do
     <<-GUARDFILE
@@ -31,6 +32,7 @@ describe Guard::DslDescriber do
   end
 
   before do
+    allow(Guard::Interactor).to receive(:new).and_return(interactor)
     allow(Guard::Notifier).to receive(:turn_on)
     allow(::Guard).to receive(:add_builtin_plugins)
     allow(Listen).to receive(:to).with(Dir.pwd, {})

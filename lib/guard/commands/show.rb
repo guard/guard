@@ -1,3 +1,5 @@
+require "pry"
+
 module Guard
   module Commands
     class Show
@@ -20,5 +22,3 @@ module Guard
     end
   end
 end
-
-Guard::Commands::Show.import

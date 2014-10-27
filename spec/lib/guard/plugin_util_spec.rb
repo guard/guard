@@ -9,9 +9,11 @@ describe Guard::PluginUtil do
   let!(:rubygems_version_1_8_0) { Gem::Version.create("1.8.0") }
   let(:guard_rspec_class) { class_double(Guard::RSpec) }
   let(:guard_rspec) { instance_double(Guard::RSpec) }
+  let(:interactor) { instance_double(Guard::Interactor) }
   let(:guardfile_evaluator) { instance_double(Guard::Guardfile::Evaluator) }
 
   before do
+    allow(Guard::Interactor).to receive(:new).and_return(interactor)
     allow(Listen).to receive(:to).with(Dir.pwd, {})
     allow(Guard::Notifier).to receive(:turn_on) {}
     Guard.setup

@@ -1,7 +1,10 @@
 require "spec_helper"
 require "guard/plugin"
 
+require "guard/commands/all"
+
 describe Guard::Commands::All do
+  before { described_class.import }
 
   let(:foo_group) { instance_double(Guard::Group) }
   let(:bar_guard) { instance_double(Guard::PluginUtil) }

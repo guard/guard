@@ -1,4 +1,5 @@
 # required for async_queue_add
+require "pry"
 require "guard"
 
 module Guard
@@ -33,5 +34,3 @@ module Guard
     end
   end
 end
-
-Guard::Commands::All.import

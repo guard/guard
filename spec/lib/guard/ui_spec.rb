@@ -3,17 +3,13 @@ require "spec_helper"
 include Guard
 
 describe UI do
-  before { Guard.clear_options }
-  after do
-    UI.options = {
-      level: :info,
-      device: $stderr,
-      template: ":time - :severity - :message",
-      time_format: "%H:%M:%S"
-    }
-  end
+  let(:interactor) { instance_double(Guard::Interactor) }
 
   before do
+    allow(Guard::Interactor).to receive(:new).and_return(interactor)
+
+    Guard.clear_options
+
     allow(Notifier).to receive(:turn_on) {}
 
     # The spec helper stubs all UI classes, so other specs doesn't have
@@ -34,6 +30,13 @@ describe UI do
   end
 
   after do
+    UI.options = {
+      level: :info,
+      device: $stderr,
+      template: ":time - :severity - :message",
+      time_format: "%H:%M:%S"
+    }
+
     allow(::UI).to receive(:info)
     allow(::UI).to receive(:warning)
     allow(::UI).to receive(:error)

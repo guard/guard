@@ -2,6 +2,11 @@ require "spec_helper"
 require "guard/plugin"
 
 describe Guard do
+  let(:interactor) { instance_double(Guard::Interactor) }
+  before do
+    allow(Guard::Interactor).to receive(:new).and_return(interactor)
+  end
+
   describe ".plugins" do
     before do
       stub_const "Guard::FooBar", Class.new(Guard::Plugin)
@@ -216,6 +221,7 @@ describe Guard do
   end
 
   describe ".group" do
+
     subject do
       allow(Guard::Notifier).to receive(:turn_on)
       allow(Listen).to receive(:to).with(Dir.pwd, {})

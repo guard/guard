@@ -2,14 +2,20 @@ require "spec_helper"
 require "guard/plugin"
 
 describe Guard::Interactor do
+  let(:pry_interactor) { double(Guard::Jobs::PryWrapper) }
+  let(:sleep_interactor) { double(Guard::Jobs::Sleep) }
+
+  before do
+    allow(Guard::Jobs::PryWrapper).to receive(:new).and_return(pry_interactor)
+    allow(Guard::Jobs::Sleep).to receive(:new).and_return(sleep_interactor)
+
+    @interactor_enabled = described_class.enabled?
+    described_class.enabled = nil
+  end
+
+  after { described_class.enabled = @interactor_enabled }
 
   describe ".enabled & .enabled=" do
-    before do
-      @interactor_enabled = described_class.enabled?
-      described_class.enabled = nil
-    end
-    after { described_class.enabled = @interactor_enabled }
-
     it "returns true by default" do
       expect(described_class).to be_enabled
     end
@@ -90,105 +96,54 @@ describe Guard::Interactor do
     end
   end
 
-  context "interactor enabled" do
-    let(:listener) { instance_double(Listen::Listener) }
+  context "when enabled" do
+    before { described_class.enabled = true }
 
-    before do
-      @interactor_enabled = described_class.enabled?
-      described_class.enabled = nil
-      ENV["GUARD_ENV"] = "interactor_test"
-      allow(Guard::Sheller).to receive(:run).with(*%w(hash stty)) { false }
-
-      allow(::Guard::Notifier).to receive(:turn_on) { nil }
-      allow(Listen).to receive(:to).with(Dir.pwd, {}) { listener }
-      Guard.setup
-
-      ::Guard.interactor.background
-    end
-
-    after do
-      ::Guard.interactor.background
-      ENV["GUARD_ENV"] = "test"
-      described_class.enabled = @interactor_enabled
-    end
-
-    describe "#foreground and #background" do
-      let(:pry_output) { instance_double(IO) }
-
-      before do
-        allow(::Guard.interactor).to receive(:_block) {}
-
-        allow(listener).to receive(:paused?).and_return(false)
-
-      end
-
-      it "instantiate @thread as an instance of a Thread on #foreground" do
-        ::Guard.interactor.foreground
-        expect(::Guard.interactor.thread).to be_a(Thread)
-      end
-
-      it "sets @thread to nil on #background" do
-        ::Guard.interactor.background
-
-        expect(::Guard.interactor.thread).to be_nil
+    describe "#foreground" do
+      it "starts Pry" do
+        expect(pry_interactor).to receive(:foreground)
+        subject.foreground
       end
     end
 
-    describe "#_prompt(ending_char)" do
-      before do
-        allow(::Guard).to receive(:scope).and_return({})
-        allow(::Guard.scope).to receive(:[]).with(:plugins).and_return([])
-        allow(::Guard.scope).to receive(:[]).with(:groups).and_return([])
-
-        allow(listener).to receive(:paused?).and_return(false)
-
-        expect(::Guard.interactor).to receive(:_clip_name).and_return("main")
+    describe "#background" do
+      it "hides Pry" do
+        expect(pry_interactor).to receive(:background)
+        subject.background
       end
-      let(:pry) { instance_double(Pry, input_array: []) }
+    end
 
-      context "Guard is not paused" do
-        it 'displays "guard"' do
-          expect(::Guard.interactor.send(:_prompt, ">").call(double, 0, pry)).
-            to eq "[0] guard(main)> "
-        end
-      end
-
-      context "Guard is paused" do
-        before do
-          allow(listener).to receive(:paused?).and_return(true)
-        end
-
-        it 'displays "pause"' do
-          expect(::Guard.interactor.send(:_prompt, ">").call(double, 0, pry)).
-            to eq "[0] pause(main)> "
-        end
-      end
-
-      context "with a groups scope" do
-        before do
-          allow(::Guard.scope).to receive(:[]).with(:groups).
-            and_return([double(title: "Backend"), double(title: "Frontend")])
-        end
-
-        it "displays the group scope title in the prompt" do
-          expect(::Guard.interactor.send(:_prompt, ">").call(double, 0, pry)).
-            to eq "[0] Backend,Frontend guard(main)> "
-
-        end
-      end
-
-      context "with a plugins scope" do
-
-        before do
-          allow(::Guard.scope).to receive(:[]).with(:plugins).
-                 and_return([double(title: "RSpec"), double(title: "Ronn")])
-        end
-
-        it "displays the group scope title in the prompt" do
-          result = ::Guard.interactor.send(:_prompt, ">").call(double, 0, pry)
-          expect(result).to eq "[0] RSpec,Ronn guard(main)> "
-        end
+    describe "#handle_interrupt" do
+      it "interrupts Pry" do
+        expect(pry_interactor).to receive(:handle_interrupt)
+        subject.handle_interrupt
       end
     end
   end
+
+  context "when disabled" do
+    before { described_class.enabled = false }
+
+    describe "#foreground" do
+      it "sleeps" do
+        expect(sleep_interactor).to receive(:foreground)
+        subject.foreground
+      end
+    end
+
+    describe "#background" do
+      it "wakes up from sleep" do
+        expect(sleep_interactor).to receive(:background)
+        subject.background
+      end
+    end
+
+    describe "#handle_interrupt" do
+      it "interrupts sleep" do
+        expect(sleep_interactor).to receive(:handle_interrupt)
+        subject.handle_interrupt
+      end
+    end
+  end
+
 end

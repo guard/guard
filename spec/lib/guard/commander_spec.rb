@@ -2,8 +2,10 @@ require "spec_helper"
 require "guard/plugin"
 
 describe Guard::Commander do
+  let(:interactor) { instance_double(Guard::Interactor) }
+
   before do
-    allow(::Guard).to receive(:_interactor_loop) {}
+    allow(Guard::Interactor).to receive(:new) { interactor }
   end
 
   describe ".start" do
@@ -19,6 +21,9 @@ describe Guard::Commander do
       allow(::Guard).to receive(:runner) { runner }
       allow(Listen).to receive(:to).with(watched_dir, {}) { listener }
       allow(Guard::Notifier).to receive(:turn_on)
+
+      # Simulate Ctrl-D in Pry, or Ctrl-C in non-interactive mode
+      allow(interactor).to receive(:foreground).and_return(:exit)
     end
 
     context "Guard has not been setuped" do
@@ -52,33 +57,33 @@ describe Guard::Commander do
   describe ".stop" do
     let(:runner) { instance_double(Guard::Runner, run: true) }
     let(:listener) { instance_double(Listen::Listener, stop: true) }
-    let(:interactor) { instance_double(Guard::Interactor, background: nil) }
 
     before do
       allow(::Guard).to receive(:runner) { runner }
-      allow(::Guard).to receive(:interactor) { interactor }
       allow(Listen).to receive(:to).with(Dir.pwd, {}) { listener }
       allow(Guard::Notifier).to receive(:turn_on)
       allow(listener).to receive(:stop)
+      allow(interactor).to receive(:background)
       Guard.setup
+    end
+
+    it "turns off the interactor" do
+      expect(interactor).to receive(:background)
+      ::Guard.stop
     end
 
     it "turns the notifier off" do
       expect(::Guard::Notifier).to receive(:turn_off)
-
-      allow(Guard::Sheller).to receive(:run).with(*%w(hash stty)) { false }
       ::Guard.stop
     end
 
     it "tell the runner to run the :stop task" do
       expect(runner).to receive(:run).with(:stop)
-
       ::Guard.stop
     end
 
     it "stops the listener" do
       expect(listener).to receive(:stop)
-
       ::Guard.stop
     end
   end
@@ -137,6 +142,7 @@ describe Guard::Commander do
   describe ".run_all" do
     let(:runner) { instance_double(Guard::Runner, run: true) }
     let(:group) { ::Guard::Group.new("frontend") }
+
     subject { ::Guard.setup }
 
     before do
@@ -165,7 +171,6 @@ describe Guard::Commander do
   end
 
   describe ".pause" do
-
     context "when unpaused" do
       subject { ::Guard.setup }
       let(:listener) { instance_double(Listen::Listener) }

@@ -1,3 +1,5 @@
+require "pry"
+
 module Guard
   module Commands
     class Change
@@ -25,5 +27,3 @@ module Guard
     end
   end
 end
-
-Guard::Commands::Change.import
