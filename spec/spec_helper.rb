@@ -24,6 +24,10 @@ RSpec.configure do |config|
   end
 
   config.before(:each) do |example|
+    Guard.send(:_reset_for_tests)
+
+    Guard.clear_options
+
     @fixture_path = Pathname.new(File.expand_path("../fixtures/", __FILE__))
 
     # Ensure debug command execution isn't used in the specs

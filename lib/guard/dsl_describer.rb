@@ -13,8 +13,6 @@ module Guard
   # @see Guard::CLI
   #
   class DslDescriber
-    attr_reader :options
-
     # Initializes a new DslDescriber object.
     #
     # @option options [String] guardfile the path to a valid Guardfile
@@ -25,10 +23,10 @@ module Guard
     # @see Guard::Guardfile::Evaluator#initialize
     #
     def initialize(options = {})
-      @options = options
       ::Guard.reset_groups
       ::Guard.reset_plugins
       ::Guard.reset_scope
+      ::Guard.reset_options(options)
     end
 
     # List the Guard plugins that are available for use in your system and marks
@@ -157,7 +155,7 @@ module Guard
     #
     def _evaluate_guardfile
       ::Guard.save_scope
-      ::Guard::Guardfile::Evaluator.new(options).evaluate_guardfile
+      ::Guard::Guardfile::Evaluator.new(::Guard.options).evaluate_guardfile
       ::Guard.restore_scope
     end
 

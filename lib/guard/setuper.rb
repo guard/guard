@@ -38,8 +38,18 @@ module Guard
     #
     # @return [Guard] the Guard singleton
     #
+
+    # TODO: this method has too many instance variables
+    # and some are mock and leak between tests,
+    # so ideally there should be a guard "instance"
+    # object that can be created anew between tests
     def setup(opts = {})
-      _init_options(opts)
+      reset_options(opts)
+
+      @queue = Queue.new
+      @runner = ::Guard::Runner.new
+      @evaluator = ::Guard::Guardfile::Evaluator.new(opts)
+      @watchdirs = _setup_watchdirs
 
       ::Guard::UI.clear(force: true)
 
@@ -83,6 +93,11 @@ module Guard
       # calls Guard.scope=() to set the instance variable directly, as opposed
       # to Guard.scope()
       ::Guard.scope = { groups: [], plugins: [] }
+    end
+
+    # Used to merge CLI options with Setuper defaults
+    def reset_options(new_options)
+      @options = ::Guard::Options.new(new_options, DEFAULT_OPTIONS)
     end
 
     def save_scope
@@ -146,8 +161,7 @@ module Guard
       ! @queue.empty?
     end
 
-    def add_builtin_plugins
-      guardfile = ::Guard.evaluator.guardfile_path
+    def add_builtin_plugins(guardfile)
       return unless guardfile
 
       pattern = _relative_pathname(guardfile).to_s
@@ -306,14 +320,6 @@ module Guard
       end
     end
 
-    def _init_options(opts)
-      @queue = Queue.new
-      @runner = ::Guard::Runner.new
-      @evaluator = ::Guard::Guardfile::Evaluator.new(opts)
-      @options = ::Guard::Options.new(opts, DEFAULT_OPTIONS)
-      @watchdirs = _setup_watchdirs
-    end
-
     def _reset_all
       reset_groups
       reset_plugins
@@ -343,6 +349,18 @@ module Guard
 
     def _non_builtin_plugins?
       plugins.map(&:name) != ["reevaluator"]
+    end
+
+    def _reset_for_tests
+      @options = nil
+      @queue = nil
+      @runner = nil
+      @evaluator = nil
+      @watchdirs = nil
+      @watchdirs = nil
+      @listener = nil
+      @interactor = nil
+      ::Guard.scope = nil
     end
   end
 end

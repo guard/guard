@@ -330,6 +330,38 @@ describe Guard::Setuper do
     end
   end
 
+  describe ".reset_options" do
+    before do
+      allow(Listen).to receive(:to).with(File.join(Dir.pwd, "abc"), {})
+      allow(Listen).to receive(:to).with(Dir.pwd, {})
+      allow(Guard::Notifier).to receive(:turn_on)
+    end
+
+    it "clears options to defaults" do
+      Guard.setup(watchdir: "abc")
+      Guard.reset_options({})
+      expect(Guard.options).to include("watchdir" => nil)
+    end
+
+    it "merges defaults with provided options" do
+      Guard.setup(group: "foo")
+      Guard.reset_options(group: "bar")
+      expect(Guard.options).to include("group" => "bar")
+    end
+
+    it "includes default options" do
+      Guard.setup
+      Guard.reset_options({})
+      expect(Guard.options).to include("plugin" => [])
+    end
+
+    it "works without Guard.setup" do
+      Guard.reset_options(group: "bar")
+      expect(Guard.options).to include("group" => "bar")
+      expect(Guard.options).to include("plugin" => [])
+    end
+  end
+
   describe ".evaluate_guardfile" do
     it "evaluates the Guardfile" do
       allow(Guard).to receive(:evaluator) { guardfile_evaluator }
