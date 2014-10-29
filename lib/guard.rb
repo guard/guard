@@ -20,8 +20,7 @@ require "guard/reevaluator"
 # Also Guard plugins should use this namespace.
 #
 module Guard
-  WINDOWS  = RbConfig::CONFIG["host_os"] =~ /(?:msdos|mswin|djgpp|mingw)/
-  DEV_NULL = WINDOWS ? "NUL" : "/dev/null"
+  DEV_NULL = Gem.win_platform? ? "NUL" : "/dev/null"
 
   extend Commander
   extend DeprecatedMethods

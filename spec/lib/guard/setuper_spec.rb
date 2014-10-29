@@ -57,7 +57,7 @@ describe Guard::Setuper do
     end
 
     it "respect the watchdir option" do
-      if Guard::WINDOWS
+      if Gem.win_platform?
         expect(Listen).to receive(:to).
           with("C:/usr", {}) { listener }
       else
@@ -69,7 +69,7 @@ describe Guard::Setuper do
     end
 
     it "respect the watchdir option with multiple directories" do
-      if Guard::WINDOWS
+      if Gem.win_platform?
         expect(Listen).to receive(:to).
           with("C:/usr", "C:/bin", {}) { listener }
       else

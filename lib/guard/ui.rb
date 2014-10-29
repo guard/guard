@@ -214,7 +214,7 @@ module Guard
         @color_enabled = nil unless @color_enabled_initialized
         @color_enabled_initialized = true
         if @color_enabled.nil?
-          if RbConfig::CONFIG["target_os"] =~ /mswin|mingw/i
+          if Gem.win_platform?
             if ENV["ANSICON"]
               @color_enabled = true
             else
