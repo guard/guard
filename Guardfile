@@ -12,6 +12,14 @@ group :specs do
     watch(%r{.+\.rb$}) { |m| m[0] }
     watch(%r{(?:.+/)?\.rubocop\.yml$}) { |m| File.dirname(m[0]) }
   end
+
+  guard "cucumber", keep_failed: true, all_on_start: false do
+    watch(%r{^features/.+\.feature$})
+    watch(%r{^features/support/.+$})          { "features" }
+    watch(%r{^features/step_definitions/(.+)_steps\.rb$}) do |m|
+      Dir[File.join("**/#{m[1]}.feature")][0] || "features"
+    end
+  end
 end
 
 if !defined?(JRUBY_VERSION)
