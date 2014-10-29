@@ -9,7 +9,7 @@ describe Guard::Runner do
     # These are implemented, because otherwise stubbing _scoped_plugins is too
     # much work
     module Guard
-      class Foo < Guard::Plugin
+      class Foo < ::Guard::Plugin
         def my_task; fail "#{__method__} is not stubbed"; end
 
         def my_hard_task; fail "#{__method__} is not stubbed"; end
@@ -31,13 +31,13 @@ describe Guard::Runner do
         def run_on_deletion; fail "#{__method__} is not stubbed"; end
       end
 
-      class Bar < Guard::Plugin
+      class Bar < ::Guard::Plugin
         def my_task; fail "#{__method__} is not stubbed"; end
 
         def my_hard_task; fail "#{__method__} is not stubbed"; end
       end
 
-      class Baz < Guard::Plugin
+      class Baz < ::Guard::Plugin
         def my_task; fail "#{__method__} is not stubbed"; end
       end
     end
