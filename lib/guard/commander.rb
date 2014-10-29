@@ -24,7 +24,9 @@ module Guard
       ::Guard::UI.debug "Guard starts all plugins"
       runner.run(:start)
       listener.start
-      ::Guard::UI.info "Guard is now watching at '#{ @watchdirs.join "', '" }'"
+
+      watched = ::Guard.watchdirs.join("', '")
+      ::Guard::UI.info "Guard is now watching at '#{ watched }'"
 
       _interactor_loop
     end

@@ -17,7 +17,6 @@ describe Guard::Commander do
     let(:watched_dir) { Dir.pwd }
 
     before do
-      ::Guard.instance_variable_set("@watchdirs", [])
       allow(::Guard).to receive(:runner) { runner }
       allow(Listen).to receive(:to).with(watched_dir, {}) { listener }
       allow(Guard::Notifier).to receive(:turn_on)
