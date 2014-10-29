@@ -507,10 +507,23 @@ describe Guard::Dsl do
     end
 
     it "does use the DSL scope plugin" do
+      pending "I'm not sure what's the order of applying "\
+        "scopes (cmdline, guardfile, Pry command?)"
+
       expected = "scope plugin: :baz"
       described_class.evaluate_guardfile(guardfile_contents: expected)
       expect(::Guard.scope[:plugins]).to eq [::Guard.plugin(:baz)]
+
+      # setup_scope is a low_level method that doesn't know
+      # where to get options from - it should be called with the right
+      # options by whatever method knows what's happending, e.g.:
+      #   DslDescriber - passes Thor options through setup()
+      #   CmdLine - passes Thor options
+      #   Commands:Scope - passes user's custom scope
+      #   Evaluator - ??
+      #
       ::Guard.setup_scope(plugins: [], groups: [])
+
       expect(::Guard.scope[:plugins]).to eq [::Guard.plugin(:baz)]
     end
 

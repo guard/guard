@@ -308,7 +308,7 @@ describe Guard::Setuper do
 
       Guard.setup
       module Guard
-        class FooBar < Guard::Plugin; end
+        class FooBar < ::Guard::Plugin; end
       end
     end
 

@@ -31,10 +31,14 @@ module Guard
     attr_accessor :runner, :listener, :lock, :running
 
     # Called by Pry scope command
-    attr_reader :scope
 
     def scope=(new_scope)
       @scope = new_scope
+      @scope.dup.freeze
+    end
+
+    def scope
+      @scope.dup.freeze
     end
 
     # Smart accessor for retrieving specific plugins at once.
@@ -137,6 +141,8 @@ module Guard
         @groups.select { |group| group.name == filter.to_sym }
       when Regexp
         @groups.select { |group| group.name.to_s =~ filter }
+      else
+        fail "Invalid filter: #{filter.inspect}"
       end
     end
 

@@ -2,10 +2,26 @@ require "bundler/gem_tasks"
 
 require "rspec/core/rake_task"
 RSpec::Core::RakeTask.new(:spec)
-task default: :spec
+task default: [:spec, :features]
 
 require "guard/rake_task"
 Guard::RakeTask.new(:guard, "--plugin ronn")
+
+require "cucumber/rake/task"
+
+Cucumber::Rake::Task.new(:features) do |t|
+  t.cucumber_opts = "features --format pretty"
+end
+
+# Coveralls:
+#
+# TODO: uncomment to merge results from RSpec and Cucumber
+# require "coveralls/rake/task"
+# Coveralls::RakeTask.new
+# task :default => [:spec, :features, 'coveralls:push']
+#
+# TODO: for the above to work, also change Coveralls.wear_merged! instead of
+# wear! in spec/spec_helper.rb
 
 class Releaser
   def initialize(options = {})

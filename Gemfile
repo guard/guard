@@ -9,6 +9,8 @@ group :development, :test do
   gem "guard-rspec", require: false
   gem "rspec", ">= 3.0.0"
   gem "guard-rubocop", require: false
+  gem "guard-cucumber", require: false
+  gem "aruba", require: false
 end
 
 # The development group will not be
