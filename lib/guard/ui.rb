@@ -25,6 +25,14 @@ module Guard
                     end
       end
 
+      # Since logger is global, for Aruba in-process to properly
+      # separate output between calls, we need to reset
+      #
+      # We don't use logger=() since it's expected to be a Lumberjack instance
+      def reset_logger
+        @logger = nil
+      end
+
       # Get the logger options
       #
       # @return [Hash] the logger options
