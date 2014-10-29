@@ -3,8 +3,12 @@ require "guard/plugin"
 
 describe Guard do
   let(:interactor) { instance_double(Guard::Interactor) }
+  let(:evaluator) { instance_double(Guard::Guardfile::Evaluator) }
+
   before do
     allow(Guard::Interactor).to receive(:new).and_return(interactor)
+    allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
+    allow(evaluator).to receive(:evaluate_guardfile)
   end
 
   describe ".plugins" do

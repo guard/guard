@@ -23,6 +23,9 @@ describe Guard::Commander do
 
       # Simulate Ctrl-D in Pry, or Ctrl-C in non-interactive mode
       allow(interactor).to receive(:foreground).and_return(:exit)
+
+      stub_guardfile(" ")
+      stub_user_guard_rb
     end
 
     context "Guard has not been setuped" do
@@ -63,6 +66,9 @@ describe Guard::Commander do
       allow(Guard::Notifier).to receive(:turn_on)
       allow(listener).to receive(:stop)
       allow(interactor).to receive(:background)
+
+      stub_guardfile(" ")
+      stub_user_guard_rb
       Guard.setup
     end
 
@@ -99,6 +105,9 @@ describe Guard::Commander do
       allow(::Guard::UI).to receive(:info)
       allow(::Guard::UI).to receive(:clear)
       allow(Listen).to receive(:to).with(Dir.pwd, {})
+
+      stub_guardfile(" ")
+      stub_user_guard_rb
     end
 
     it "clears the screen" do
@@ -150,6 +159,9 @@ describe Guard::Commander do
       allow(::Guard::UI).to receive(:action_with_scopes)
       allow(::Guard::UI).to receive(:clear)
       allow(Listen).to receive(:to).with(Dir.pwd, {})
+
+      stub_guardfile(" ")
+      stub_user_guard_rb
     end
 
     context "with a given scope" do
@@ -178,6 +190,9 @@ describe Guard::Commander do
         allow(::Guard::Notifier).to receive(:turn_on)
         allow(Listen).to receive(:to).with(Dir.pwd, {}) { listener }
         allow(listener).to receive(:paused?) { false }
+
+        stub_guardfile(" ")
+        stub_user_guard_rb
       end
 
       [:toggle, nil, :paused].each do |mode|
@@ -213,6 +228,9 @@ describe Guard::Commander do
         allow(::Guard::Notifier).to receive(:turn_on)
         allow(Listen).to receive(:to).with(Dir.pwd, {}) { listener }
         allow(listener).to receive(:paused?) { true }
+
+        stub_guardfile(" ")
+        stub_user_guard_rb
       end
 
       [:toggle, nil, :unpaused].each do |mode|

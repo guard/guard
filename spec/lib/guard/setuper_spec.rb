@@ -3,9 +3,10 @@ require "guard/plugin"
 
 describe Guard::Setuper do
 
-  let(:guardfile_evaluator) { instance_double(Guard::Guardfile::Evaluator) }
+  let(:evaluator) { instance_double(Guard::Guardfile::Evaluator) }
   let(:pry_interactor) { double(Guard::Jobs::PryWrapper) }
   let(:sleep_interactor) { double(Guard::Jobs::Sleep) }
+  let(:guardfile) { File.expand_path("Guardfile") }
 
   before do
     Guard::Interactor.enabled = true
@@ -18,18 +19,16 @@ describe Guard::Setuper do
   describe ".setup" do
     subject { Guard.setup(options) }
 
-    let(:options) do
-      {
-        my_opts: true,
-        guardfile: File.join(@fixture_path, "Guardfile")
-      }
-    end
+    let(:options) { { my_opts: true, guardfile: guardfile } }
 
     let(:listener) { instance_double(Listen::Listener) }
 
     before do
       allow(Listen).to receive(:to).with(Dir.pwd, {}) { listener }
       allow(Guard::Notifier).to receive(:turn_on)
+
+      stub_guardfile(" ")
+      stub_user_guard_rb
     end
 
     it "returns itself for chaining" do
@@ -153,12 +152,7 @@ describe Guard::Setuper do
     end
 
     context "with the debug mode turned on" do
-      let(:options) do
-        {
-          debug: true,
-          guardfile: File.join(@fixture_path, "Guardfile")
-        }
-      end
+      let(:options) { { debug: true, guardfile: guardfile } }
 
       before do
         allow(Guard).to receive(:_debug_command_execution)
@@ -201,7 +195,10 @@ describe Guard::Setuper do
       allow(Listen).to receive(:to).with(Dir.pwd, {})
       allow(Guard::Notifier).to receive(:turn_on)
 
-      guard = Guard.setup(guardfile: File.join(@fixture_path, "Guardfile"))
+      stub_guardfile(" ")
+      stub_user_guard_rb
+
+      guard = Guard.setup(guardfile: guardfile)
 
       @group_backend = guard.add_group(:backend)
       @group_backflip = guard.add_group(:backflip)
@@ -238,6 +235,7 @@ describe Guard::Setuper do
       stub_const "Guard::Baz", Class.new(Guard::Plugin)
       allow(Listen).to receive(:to).with(Dir.pwd, {}) { listener }
       allow(Guard::Notifier).to receive(:turn_on)
+      stub_user_guard_rb
     end
 
     [:group, :plugin].each do |scope|
@@ -307,15 +305,17 @@ describe Guard::Setuper do
       allow(Listen).to receive(:to).with(Dir.pwd, {})
       allow(Guard::Notifier).to receive(:turn_on)
 
-      Guard.setup
+      # TODO: clean this up (rework evaluator)
+      stub_guardfile(" ")
+      stub_user_guard_rb
+
       module Guard
         class FooBar < ::Guard::Plugin; end
       end
     end
 
     subject do
-      path = File.join(@fixture_path, "Guardfile")
-      ::Guard.setup(guardfile: path).tap { |g| g.add_plugin(:foo_bar) }
+      ::Guard.setup(guardfile: guardfile).tap { |g| g.add_plugin(:foo_bar) }
     end
 
     after do
@@ -336,6 +336,9 @@ describe Guard::Setuper do
       allow(Listen).to receive(:to).with(File.join(Dir.pwd, "abc"), {})
       allow(Listen).to receive(:to).with(Dir.pwd, {})
       allow(Guard::Notifier).to receive(:turn_on)
+
+      stub_guardfile(" ")
+      stub_user_guard_rb
     end
 
     it "clears options to defaults" do
@@ -364,9 +367,14 @@ describe Guard::Setuper do
   end
 
   describe ".evaluate_guardfile" do
+    # Any plugin, so that we don't get error about no plugins
+    # (other than built-in ones)
+    let(:foo_plugin) { instance_double(Guard::Plugin, name: "Foo") }
+
     it "evaluates the Guardfile" do
-      allow(Guard).to receive(:evaluator) { guardfile_evaluator }
-      expect(guardfile_evaluator).to receive(:evaluate_guardfile)
+      allow(Guard).to receive(:evaluator).and_return(evaluator)
+      allow(Guard).to receive(:plugins).and_return([foo_plugin])
+      expect(evaluator).to receive(:evaluate_guardfile)
 
       Guard.evaluate_guardfile
     end
@@ -413,7 +421,13 @@ describe Guard::Setuper do
     end
   end
 
+  # TODO: remove this method since it's private
   describe "._setup_notifier" do
+    before do
+      stub_guardfile(" ")
+      stub_user_guard_rb
+    end
+
     context "with the notify option enabled" do
       context "without the environment variable GUARD_NOTIFY set" do
         before { ENV["GUARD_NOTIFY"] = nil }
@@ -542,9 +556,8 @@ describe Guard::Setuper do
       allow(evaluator).to receive(:evaluate_guardfile)
       allow(Guard::Notifier).to receive(:turn_on)
 
-      allow(File).to receive(:exist?).with(File.expand_path("Guardfile")).and_return(true)
-      allow(File).to receive(:read).with(File.expand_path("Guardfile")).and_return(" ")
-      allow(File).to receive(:exist?).with(File.expand_path("~/.guard.rb")).and_return(false)
+      stub_guardfile(" ")
+      stub_user_guard_rb
 
       @interactor_enabled = Guard::Interactor.enabled?
     end
@@ -603,6 +616,9 @@ describe Guard::Setuper do
       @original_command = Kernel.method(:`)
       Kernel.send(:define_method, :original_system, proc { |*_args| })
       Kernel.send(:define_method, :original_backtick, proc { |*_args| })
+
+      stub_guardfile(" ")
+      stub_user_guard_rb
     end
 
     after do

@@ -77,7 +77,10 @@ describe Guard::CLI do
   describe "#start" do
     include_examples "gem dependency warning", :start
 
-    before { allow(Guard).to receive(:start) }
+    before do
+      allow(File).to receive(:exist?).with("Gemfile").and_return(false)
+      allow(Guard).to receive(:start)
+    end
 
     it "delegates to Guard.start" do
       expect(Guard).to receive(:start)
@@ -116,6 +119,8 @@ describe Guard::CLI do
     include_examples "gem dependency warning", :init
 
     before do
+      allow(File).to receive(:exist?).with("Gemfile").and_return(false)
+
       allow(Guard::Guardfile).to receive(:create_guardfile)
       allow(Guard::Guardfile).to receive(:initialize_all_templates)
     end
@@ -169,12 +174,16 @@ describe Guard::CLI do
       end
 
       it "initializes templates of all installed Guards" do
+        allow(File).to receive(:exist?).with("Gemfile").and_return(false)
+
         expect(Guard::Guardfile).to receive(:initialize_all_templates)
 
         subject.init
       end
 
       it "initializes each passed template" do
+        allow(File).to receive(:exist?).with("Gemfile").and_return(false)
+
         expect(Guard::Guardfile).to receive(:initialize_template).with("rspec")
         expect(Guard::Guardfile).to receive(:initialize_template).with("pow")
 
@@ -195,6 +204,7 @@ describe Guard::CLI do
       before { @options[:bare] = true }
 
       it "Only creates the Guardfile without initialize any Guard template" do
+        allow(File).to receive(:exist?).with("Gemfile").and_return(false)
         expect(Guard::Guardfile).to receive(:create_guardfile)
         expect(Guard::Guardfile).to_not receive(:initialize_template)
         expect(Guard::Guardfile).to_not receive(:initialize_all_templates)

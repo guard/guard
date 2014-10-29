@@ -95,6 +95,8 @@ describe Guard::DslDescriber do
     end
 
     it "shows the Guards and their options" do
+      stub_user_guard_rb
+
       ::Guard::DslDescriber.new(guardfile_contents: guardfile).show
 
       expect(@output).to eq result
@@ -129,6 +131,7 @@ describe Guard::DslDescriber do
     end
 
     it "shows the notifiers and their options" do
+      stub_user_guard_rb
       ::Guard::DslDescriber.new(guardfile_contents: guardfile).notifiers
 
       expect(@output).to eq result

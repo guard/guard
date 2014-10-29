@@ -49,10 +49,11 @@ describe Guard::Interactor do
     before do
       allow(::Guard::Notifier).to receive(:turn_on) { nil }
       allow(Listen).to receive(:to).with(Dir.pwd, {})
-      guard = ::Guard.setup
 
       stub_const "Guard::Foo", Class.new(Guard::Plugin)
       stub_const "Guard::Bar", Class.new(Guard::Plugin)
+
+      guard = ::Guard
 
       @backend_group  = guard.add_group(:backend)
       @frontend_group = guard.add_group(:frontend)
