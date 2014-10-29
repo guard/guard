@@ -118,5 +118,20 @@ module Guard
 
       #{MORE_INFO_ON_UPGRADING_TO_GUARD_2 % "#changes-in-guardguard"}
     EOS
+
+    GUARD_RUNNING_DEPRECATION = <<-EOS.gsub(/^\s*/, "")
+      Starting with Guard 2.7.1 it was discovered that Guard.running was never
+      initialized or used internally.
+    EOS
+
+    GUARD_LOCK_DEPRECATION = <<-EOS.gsub(/^\s*/, "")
+      Starting with Guard 2.7.1 it was discovered that this accessor was never
+      initialized or used internally.
+    EOS
+
+    GUARD_EVALUATOR_DEPRECATION = <<-EOS.gsub(/^\s*/, "")
+      Starting with Guard 2.7.1 ::Guard.session.evaluator should be used
+      instead.
+    EOS
   end
 end

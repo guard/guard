@@ -62,7 +62,7 @@ module Guard
       self
     end
 
-    attr_reader :options, :evaluator, :interactor
+    attr_reader :options, :interactor
 
     # Used only by tests (for all I know...)
     def clear_options

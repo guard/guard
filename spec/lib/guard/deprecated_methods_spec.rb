@@ -117,4 +117,22 @@ describe Guard::DeprecatedMethods do
       TestModule.guard_gem_names
     end
   end
+
+  describe ".running" do
+    it "show deprecation warning" do
+      expect(UI).to receive(:deprecation).
+        with(Deprecator::GUARD_RUNNING_DEPRECATION)
+
+      TestModule.running
+    end
+  end
+
+  describe ".lock" do
+    it "show deprecation warning" do
+      expect(UI).to receive(:deprecation).
+        with(Deprecator::GUARD_LOCK_DEPRECATION)
+
+      TestModule.lock
+    end
+  end
 end
