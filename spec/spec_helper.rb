@@ -7,7 +7,37 @@ require "rspec"
 path = "#{File.expand_path("..", __FILE__)}/support/**/*.rb"
 Dir[path].each { |f| require f }
 
-STDOUT.puts "Please do not update/create files while tests are running."
+# TODO: these shouldn't be necessary with proper specs
+
+def stub_guardfile(contents = nil, &block)
+  stub_file(File.expand_path("Guardfile"), contents, &block)
+end
+
+def stub_user_guardfile(contents = nil, &block)
+  stub_file(File.expand_path("~/.Guardfile"), contents, &block)
+end
+
+def stub_user_guard_rb(contents = nil, &block)
+  stub_file(File.expand_path("~/.guard.rb"), contents, &block)
+end
+
+def stub_user_project_guardfile(contents = nil, &block)
+  stub_file(File.expand_path(".Guardfile"), contents, &block)
+end
+
+# TODO: I can't wait to replace these with IO.read + rescuing Errno:ENOENT
+def stub_file(path, contents = nil, &block)
+  exists = !contents.nil?
+  allow(File).to receive(:exist?).with(path).and_return(exists)
+  return unless exists
+  if block.nil?
+    allow(File).to receive(:read).with(path).and_return(contents)
+  else
+    allow(File).to receive(:read).with(path) do
+      block.call
+    end
+  end
+end
 
 RSpec.configure do |config|
   config.order = :random
@@ -24,11 +54,17 @@ RSpec.configure do |config|
   end
 
   config.before(:each) do |example|
+    stub_const("FileUtils", class_double(FileUtils))
+
+    %w(read write exist?).each do |meth|
+      allow(File).to receive(meth.to_sym).with(anything) do |*args, &_block|
+        abort "stub me! (File.#{meth}(#{args.inspect}))"
+      end
+    end
+
     Guard.send(:_reset_for_tests)
 
     Guard.clear_options
-
-    @fixture_path = Pathname.new(File.expand_path("../fixtures/", __FILE__))
 
     # Ensure debug command execution isn't used in the specs
     allow(Guard).to receive(:_debug_command_execution)
@@ -67,16 +103,6 @@ RSpec.configure do |config|
 
     ::Guard.reset_groups
     ::Guard.reset_plugins
-  end
-
-  config.before(:suite) do
-    # Use a fake home directory so that user configurations,
-    # such as their ~/.guard.rb file, won't impact the
-    # tests.
-    fake_home = File.expand_path("../fake-home", __FILE__)
-    FileUtils.rmtree fake_home
-    FileUtils.mkdir fake_home
-    ENV["HOME"] = fake_home
   end
 
   config.before(:all) do
