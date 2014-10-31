@@ -532,59 +532,57 @@ describe Guard::Setuper do
     end
   end
 
+  # TODO: these should be interactor tests
   describe ".interactor" do
+    subject { Guard.interactor }
+
+    before do
+      allow(Listen).to receive(:to).with(Dir.pwd, {})
+      allow(evaluator).to receive(:evaluate_guardfile)
+      allow(Guard::Notifier).to receive(:turn_on)
+
+      allow(File).to receive(:exist?).with(File.expand_path("Guardfile")).and_return(true)
+      allow(File).to receive(:read).with(File.expand_path("Guardfile")).and_return(" ")
+      allow(File).to receive(:exist?).with(File.expand_path("~/.guard.rb")).and_return(false)
+
+      @interactor_enabled = Guard::Interactor.enabled?
+    end
+
+    after { Guard::Interactor.enabled = @interactor_enabled }
+
     context "with CLI options" do
-      before do
-        @interactor_enabled       = Guard::Interactor.enabled?
-        Guard::Interactor.enabled = true
-      end
-      after { Guard::Interactor.enabled = @interactor_enabled }
+      before { Guard::Interactor.enabled = true }
 
       context "with interactions enabled" do
-        before do
-          allow(Guard::Notifier).to receive(:turn_on)
-          allow(Listen).to receive(:to).with(Dir.pwd, {})
-          Guard.setup(no_interactions: false)
-        end
-
-        it_should_behave_like "interactor enabled"
+        before { Guard.setup(no_interactions: false) }
+        it { is_expected.to be_interactive }
       end
 
       context "with interactions disabled" do
-        before do
-          allow(Guard::Notifier).to receive(:turn_on)
-          allow(Listen).to receive(:to).with(Dir.pwd, {})
-          Guard.setup(no_interactions: true)
-        end
-
-        it_should_behave_like "interactor disabled"
+        before { Guard.setup(no_interactions: true) }
+        it { is_expected.to_not be_interactive }
       end
     end
 
+    # TODO: these are interactor tests disguised as integration tests
     context "with DSL options" do
-      before { @interactor_enabled = Guard::Interactor.enabled? }
-      after { Guard::Interactor.enabled = @interactor_enabled }
 
       context "with interactions enabled" do
         before do
           Guard::Interactor.enabled = true
-          allow(Guard::Notifier).to receive(:turn_on)
-          allow(Listen).to receive(:to).with(Dir.pwd, {})
           Guard.setup
         end
 
-        it_should_behave_like "interactor enabled"
+        it { is_expected.to be_interactive }
       end
 
       context "with interactions disabled" do
         before do
           Guard::Interactor.enabled = false
-          allow(Guard::Notifier).to receive(:turn_on)
-          allow(Listen).to receive(:to).with(Dir.pwd, {})
           Guard.setup
         end
 
-        it_should_behave_like "interactor disabled"
+        it { is_expected.to_not be_interactive }
       end
     end
   end
