@@ -142,7 +142,7 @@ module Guard
     def evaluate_guardfile
       evaluator.evaluate_guardfile
       msg = "No plugins found in Guardfile, please add at least one."
-      ::Guard::UI.error msg unless _non_builtin_plugins?
+      ::Guard::UI.error msg unless _pluginless_guardfile?
     end
 
     # Asynchronously trigger changes
@@ -358,8 +358,14 @@ module Guard
       { plugins: plugins, groups: groups }
     end
 
-    def _non_builtin_plugins?
-      fail "Reevaluator not initialized" if plugins.empty?
+    def _pluginless_guardfile?
+      # no Reevaluator means there was no Guardfile configured that could be
+      # reevaluated, so we don't have a pluginless guardfile, because we don't
+      # have a Guardfile to begin with...
+      #
+      # But, if we have a Guardfile, we'll at least have the built-in
+      # Reevaluator, so the following will work:
+
       plugins.map(&:name) != ["reevaluator"]
     end
 

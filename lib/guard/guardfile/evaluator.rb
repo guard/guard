@@ -221,7 +221,7 @@ module Guard
       def _after_reevaluate_guardfile
         ::Guard::Notifier.turn_on if ::Guard::Notifier.enabled?
 
-        if !::Guard.send(:_non_builtin_plugins?)
+        if !::Guard.send(:_pluginless_guardfile?)
           ::Guard::Notifier.notify(
             "No plugins found in Guardfile, please add at least one.",
             title: "Guard re-evaluate",
