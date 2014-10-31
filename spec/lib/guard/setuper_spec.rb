@@ -14,6 +14,7 @@ describe Guard::Setuper do
     allow(Guard::Jobs::Sleep).to receive(:new).and_return(sleep_interactor)
   end
 
+  # TODO: setup has too many responsibilities
   describe ".setup" do
     subject { Guard.setup(options) }
 
@@ -587,6 +588,7 @@ describe Guard::Setuper do
     end
   end
 
+  # shouldn't be in specs - whatever it uses should be mocked out
   describe "._debug_command_execution" do
     subject { Guard.setup }
 
