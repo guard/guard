@@ -289,6 +289,29 @@ describe Guard do
     end
   end
 
+  describe ".remove_plugin" do
+    before do
+      ::Guard.reset_groups
+
+      stub_const "Guard::Foo", Class.new(Guard::Plugin)
+      stub_const "Guard::Bar", Class.new(Guard::Plugin)
+      stub_const "Guard::Baz", Class.new(Guard::Plugin)
+
+      @foo = ::Guard.add_plugin("foo", group: "frontend")
+      @bar = ::Guard.add_plugin("bar", group: "backend")
+      @baz = ::Guard.add_plugin("baz", group: "backend")
+    end
+
+    context "with 3 existing plugins" do
+
+      it "removes given group" do
+        ::Guard.remove_plugin(@bar)
+        expect(::Guard.plugins).to eq [@foo, @baz]
+      end
+    end
+
+  end
+
   describe ".add_group" do
     before { ::Guard.reset_groups }
 

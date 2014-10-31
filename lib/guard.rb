@@ -181,6 +181,12 @@ module Guard
       instance
     end
 
+    # Used by runner to remove a failed plugin
+    def remove_plugin(plugin)
+      # TODO: coverage/aruba
+      @plugins.delete(plugin)
+    end
+
     # Add a Guard plugin group.
     #
     # @param [String] name the group name
