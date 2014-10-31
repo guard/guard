@@ -5,9 +5,6 @@ require "guard/dsl"
 
 describe Guard::Dsl do
 
-  let(:local_guardfile) { File.join(Dir.pwd, "Guardfile") }
-  let(:home_guardfile) { File.expand_path(File.join("~", ".Guardfile")) }
-  let(:home_config) { File.expand_path(File.join("~", ".guard.rb")) }
   let(:guardfile_evaluator) { instance_double(Guard::Guardfile::Evaluator) }
   let(:interactor) { instance_double(Guard::Interactor) }
   let(:listener) { instance_double(Listen::Listener) }
@@ -20,6 +17,7 @@ describe Guard::Dsl do
   end
 
   before do
+    stub_user_guard_rb
     stub_const "Guard::Foo", Class.new(Guard::Plugin)
     stub_const "Guard::Bar", Class.new(Guard::Plugin)
     stub_const "Guard::Baz", Class.new(Guard::Plugin)
@@ -30,20 +28,15 @@ describe Guard::Dsl do
     allow(::Guard).to receive(:listener) { listener }
   end
 
-  # TODO: this shouldn't be necessary with proper mocking/doubles
-  def self.disable_user_config
-    before { allow(File).to receive(:exist?).with(home_config) { false } }
-  end
-
   describe ".evaluate_guardfile" do
-    disable_user_config
+    before { stub_guardfile(" ") }
+    before { stub_user_guardfile }
+    before { stub_user_project_guardfile }
 
     it "displays a deprecation warning to the user" do
       expect(::Guard::UI).to receive(:deprecation).
         with(::Guard::Deprecator::EVALUATE_GUARDFILE_DEPRECATION)
 
-      allow(File).to receive(:exist?).with(local_guardfile).and_return(true)
-      allow(File).to receive(:read).with(local_guardfile).and_return("")
       described_class.evaluate_guardfile
     end
 
@@ -58,8 +51,6 @@ describe Guard::Dsl do
   end
 
   describe "#ignore" do
-    disable_user_config
-
     context "with ignore regexps" do
       let(:contents) { "ignore %r{^foo}, /bar/" }
 
@@ -73,8 +64,6 @@ describe Guard::Dsl do
   end
 
   describe "#ignore!" do
-    disable_user_config
-
     context "when ignoring only foo* and *bar*" do
       let(:contents) { "ignore! %r{^foo}, /bar/" }
 
@@ -102,8 +91,6 @@ describe Guard::Dsl do
   end
 
   describe "#filter" do
-    disable_user_config
-
     context "with filter regexp" do
       let(:contents) { "filter %r{.txt$}, /.*.zip/" }
 
@@ -117,8 +104,6 @@ describe Guard::Dsl do
   end
 
   describe "#filter!" do
-    disable_user_config
-
     context "when filter!" do
       let(:contents) {  "filter! %r{.txt$}, /.*.zip/" }
 
@@ -146,8 +131,6 @@ describe Guard::Dsl do
   end
 
   describe "#notification" do
-    disable_user_config
-
     context "when notification" do
       let(:contents) { "notification :growl" }
 
@@ -177,8 +160,6 @@ describe Guard::Dsl do
   end
 
   describe "#interactor" do
-    disable_user_config
-
     context "with interactor :off" do
       let(:contents) { "interactor :off" }
       it "disables the interactions with :off" do
@@ -197,8 +178,6 @@ describe Guard::Dsl do
   end
 
   describe "#group" do
-    disable_user_config
-
     context "no plugins in group" do
       let(:contents) { guardfile_string_with_empty_group }
 
@@ -261,8 +240,6 @@ describe Guard::Dsl do
   end
 
   describe "#guard" do
-    disable_user_config
-
     context "with single-quoted name" do
       let(:contents) { 'guard \'test\'' }
 
@@ -352,8 +329,6 @@ describe Guard::Dsl do
   end
 
   describe "#watch" do
-    disable_user_config
-
     context "with watchers" do
       let(:contents) do
         '
@@ -407,8 +382,6 @@ describe Guard::Dsl do
   end
 
   describe "#callback" do
-    disable_user_config
-
     context "with " do
       let(:contents) do
         '
@@ -477,8 +450,6 @@ describe Guard::Dsl do
   end
 
   describe "#logger" do
-    disable_user_config
-
     after do
       Guard::UI.options = {
         level: :info,
@@ -586,8 +557,6 @@ describe Guard::Dsl do
   end
 
   describe "#scope" do
-    disable_user_config
-
     context "with any parameters" do
       let(:contents) { "scope plugins: [:foo, :bar]" }
 
