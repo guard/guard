@@ -4,6 +4,7 @@ include Guard
 
 describe UI do
   let(:interactor) { instance_double(Guard::Interactor) }
+  let(:evaluator) { instance_double(Guard::Guardfile::Evaluator) }
 
   before do
     allow(Guard::Interactor).to receive(:new).and_return(interactor)
@@ -25,6 +26,9 @@ describe UI do
     allow(UI.logger).to receive(:debug)
 
     allow($stderr).to receive(:print)
+
+    allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
+    allow(evaluator).to receive(:evaluate_guardfile)
   end
 
   after do
