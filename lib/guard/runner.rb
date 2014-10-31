@@ -165,8 +165,10 @@ module Guard
     # @return [Array<Guard::Group>] the groups to scope to
     #
     def _current_groups_scope(scope)
-      groups = _find_non_empty_groups_scope(scope)
-      Array(groups).map { |group| _instantiate(:group, group) }
+      found = _find_non_empty_groups_scope(scope)
+      groups = Array(found).map { |group| _instantiate(:group, group) }
+      return groups if groups.any? { |g| g.name == :common }
+      ([_instantiate(:group, :common)] + Array(found)).compact
     end
 
     def _instantiate(meth, obj)
@@ -195,8 +197,7 @@ module Guard
     # Find the first non empty groups scope
     #
     def _find_non_empty_groups_scope(scope)
-      common = [::Guard.group(:common)]
-      common + _find_non_empty_scope(:group, scope, ::Guard.groups)
+      _find_non_empty_scope(:group, scope, ::Guard.groups)
     end
   end
 end
