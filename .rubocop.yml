@@ -1,3 +1,6 @@
+inherit_from:
+  .rubocop_todo.yml
+
 AllCops:
   Exclude:
     - db/schema.rb
