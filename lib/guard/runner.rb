@@ -121,6 +121,7 @@ module Guard
     # @yield the task to run
     #
     def _scoped_plugins(scopes = {})
+      fail "NO PLUGIN SCOPE" if scopes.nil?
       if plugins = _current_plugins_scope(scopes)
         plugins.each do |guard|
           yield(guard)
@@ -188,6 +189,7 @@ module Guard
     # Find the first non empty plugins scope
     #
     def _find_non_empty_plugins_scope(scope)
+      fail "NO PLUGIN SCOPE" if scope.nil?
       _find_non_empty_scope(:plugin, scope)
     end
 

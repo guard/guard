@@ -342,6 +342,7 @@ module Guard
     end
 
     def _prepare_scope(scope)
+      fail "Guard::setup() not called!" if options.nil?
       plugins = Array(options[:plugin])
       plugins = Array(scope[:plugins] || scope[:plugin]) if plugins.empty?
 
@@ -358,6 +359,7 @@ module Guard
     end
 
     def _non_builtin_plugins?
+      fail "Reevaluator not initialized" if plugins.empty?
       plugins.map(&:name) != ["reevaluator"]
     end
 

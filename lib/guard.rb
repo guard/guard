@@ -35,6 +35,7 @@ module Guard
     end
 
     def scope
+      fail "::Guard.setup() not called" if @scope.nil?
       @scope.dup.freeze
     end
     attr_reader :runner, :listener

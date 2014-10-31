@@ -69,10 +69,12 @@ module Guard
     #   https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0
     #
     def initialize_plugin(options)
-      if plugin_class.superclass.to_s == "Guard::Guard"
-        plugin_class.new(options.delete(:watchers), options)
+      klass = plugin_class
+      fail "Could not load class: #{_constant_name.inspect}" unless klass
+      if klass.superclass.to_s == "Guard::Guard"
+        klass.new(options.delete(:watchers), options)
       else
-        plugin_class.new(options)
+        klass.new(options)
       end
     end
 
