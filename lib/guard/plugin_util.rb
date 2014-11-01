@@ -74,7 +74,11 @@ module Guard
       if klass.superclass.to_s == "Guard::Guard"
         klass.new(options.delete(:watchers), options)
       else
-        klass.new(options)
+        begin
+          klass.new(options)
+        rescue ArgumentError => e
+          fail "Failed to call #{klass}.new(options): #{e}"
+        end
       end
     end
 
