@@ -74,6 +74,7 @@ module Guard
         _start_pry
         @thread.join
         thread = @thread
+        # TODO: rename :stopped to continue
         thread.nil? ? :stopped : :exit
       ensure
         ::Guard::UI.reset_line
