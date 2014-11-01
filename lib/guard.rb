@@ -20,16 +20,13 @@ require "guard/reevaluator"
 # Also Guard plugins should use this namespace.
 #
 module Guard
-  WINDOWS  = RbConfig::CONFIG["host_os"] =~ /(?:msdos|mswin|djgpp|mingw)/
-  DEV_NULL = WINDOWS ? "NUL" : "/dev/null"
+  DEV_NULL = Gem.win_platform? ? "NUL" : "/dev/null"
 
   extend Commander
   extend DeprecatedMethods
   extend Setuper
 
   class << self
-    attr_accessor :runner, :listener, :lock, :running
-
     # Called by Pry scope command
 
     def scope=(new_scope)
@@ -38,8 +35,10 @@ module Guard
     end
 
     def scope
+      fail "::Guard.setup() not called" if @scope.nil?
       @scope.dup.freeze
     end
+    attr_reader :runner, :listener
 
     # Smart accessor for retrieving specific plugins at once.
     #
@@ -180,6 +179,12 @@ module Guard
       instance = ::Guard::PluginUtil.new(name).initialize_plugin(options)
       @plugins << instance
       instance
+    end
+
+    # Used by runner to remove a failed plugin
+    def remove_plugin(plugin)
+      # TODO: coverage/aruba
+      @plugins.delete(plugin)
     end
 
     # Add a Guard plugin group.

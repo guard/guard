@@ -3,6 +3,8 @@ require "lumberjack"
 require "guard/options"
 require "guard/ui/colors"
 
+require "guard/terminal"
+
 module Guard
   # The UI class helps to format messages for the user. Everything that is
   # logged through this class is considered either as an error message or a
@@ -117,9 +119,18 @@ module Guard
       # Clear the output if clearable.
       #
       def clear(options = {})
+        fail "UI not set up!" if @clearable.nil?
         return unless ::Guard.options[:clear] && (@clearable || options[:force])
         @clearable = false
-        ::Guard::Sheller.run("clear;")
+        ::Guard::Terminal.clear
+      rescue Errno::ENOENT => e
+        warning("Failed to clear the screen: #{e.inspect}")
+      end
+
+      # TODO: arguments: UI uses Guard::options anyway
+      def setup(_options)
+        @clearable = false
+        clear(force: true)
       end
 
       # Allow the screen to be cleared again.
@@ -214,7 +225,7 @@ module Guard
         @color_enabled = nil unless @color_enabled_initialized
         @color_enabled_initialized = true
         if @color_enabled.nil?
-          if RbConfig::CONFIG["target_os"] =~ /mswin|mingw/i
+          if Gem.win_platform?
             if ENV["ANSICON"]
               @color_enabled = true
             else

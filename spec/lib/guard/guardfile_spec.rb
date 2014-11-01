@@ -7,6 +7,12 @@ describe Guardfile do
   let(:guardfile_generator) { instance_double(Guard::Guardfile::Generator) }
 
   describe ".create_guardfile" do
+    before do
+      allow(File).to receive(:exist?).with("Guardfile").and_return(false)
+      template = Guard::Guardfile::Generator::GUARDFILE_TEMPLATE
+      allow(FileUtils).to receive(:cp).with(template, "Guardfile")
+    end
+
     it "displays a deprecation warning to the user" do
       expect(UI).to receive(:deprecation).
         with(Deprecator::CREATE_GUARDFILE_DEPRECATION)

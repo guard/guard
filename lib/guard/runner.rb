@@ -14,12 +14,10 @@ module Guard
     # @param [Hash] scopes either the Guard plugin or the group to run the task
     # on
     #
-    # @see self.run_supervised_task
-    #
-    def run(task, scope = {})
+    def run(task, scope_hash = {})
       Lumberjack.unit_of_work do
-        _scoped_plugins(scope) do |guard|
-          run_supervised_task(guard, task) if guard.respond_to?(task)
+        _scoped_plugins(scope_hash || {}) do |plugin|
+          _supervise(plugin, task) if plugin.respond_to?(task)
         end
       end
     end
@@ -47,15 +45,16 @@ module Guard
 
       ::Guard::UI.clearable
 
-      _scoped_plugins do |guard|
+      _scoped_plugins do |plugin|
         ::Guard::UI.clear
 
         types.each do |tasks, unmatched_paths|
-          paths = ::Guard::Watcher.match_files(guard, unmatched_paths)
-          next if paths.empty?
+          next if unmatched_paths.empty?
+          match_result = ::Guard::Watcher.match_files(plugin, unmatched_paths)
+          next if match_result.empty?
 
-          next unless (task = tasks.detect { |meth| guard.respond_to?(meth) })
-          run_supervised_task(guard, task, paths)
+          next unless (task = tasks.detect { |meth| plugin.respond_to?(meth) })
+          _supervise(plugin, task, match_result)
         end
       end
     end
@@ -71,24 +70,24 @@ module Guard
     # @param [Array] args the arguments for the task
     # @raise [:task_has_failed] when task has failed
     #
-    def run_supervised_task(guard, task, *args)
-      catch self.class.stopping_symbol_for(guard) do
-        guard.hook("#{ task }_begin", *args)
+    def _supervise(plugin, task, *args)
+      catch self.class.stopping_symbol_for(plugin) do
+        plugin.hook("#{ task }_begin", *args)
         begin
-          result = guard.send(task, *args)
+          result = plugin.send(task, *args)
         rescue Interrupt
           throw(:task_has_failed)
         end
-        guard.hook("#{ task }_end", result)
+        plugin.hook("#{ task }_end", result)
         result
       end
     rescue ScriptError, StandardError, RuntimeError
-      ::Guard::UI.error("#{ guard.class.name } failed to achieve its"\
+      ::Guard::UI.error("#{ plugin.class.name } failed to achieve its"\
                         " <#{ task }>, exception was:" \
                         "\n#{ $!.class }: #{ $!.message }" \
                         "\n#{ $!.backtrace.join("\n") }")
-      ::Guard.plugins.delete guard
-      ::Guard::UI.info("\n#{ guard.class.name } has just been fired")
+      ::Guard.remove_plugin(plugin)
+      ::Guard::UI.info("\n#{ plugin.class.name } has just been fired")
       $!
     end
 
@@ -121,6 +120,7 @@ module Guard
     # @yield the task to run
     #
     def _scoped_plugins(scopes = {})
+      fail "NO PLUGIN SCOPE" if scopes.nil?
       if plugins = _current_plugins_scope(scopes)
         plugins.each do |guard|
           yield(guard)
@@ -165,8 +165,10 @@ module Guard
     # @return [Array<Guard::Group>] the groups to scope to
     #
     def _current_groups_scope(scope)
-      groups = _find_non_empty_groups_scope(scope)
-      Array(groups).map { |group| _instantiate(:group, group) }
+      found = _find_non_empty_groups_scope(scope)
+      groups = Array(found).map { |group| _instantiate(:group, group) }
+      return groups if groups.any? { |g| g.name == :common }
+      ([_instantiate(:group, :common)] + Array(found)).compact
     end
 
     def _instantiate(meth, obj)
@@ -188,14 +190,14 @@ module Guard
     # Find the first non empty plugins scope
     #
     def _find_non_empty_plugins_scope(scope)
+      fail "NO PLUGIN SCOPE" if scope.nil?
       _find_non_empty_scope(:plugin, scope)
     end
 
     # Find the first non empty groups scope
     #
     def _find_non_empty_groups_scope(scope)
-      common = [::Guard.group(:common)]
-      common + _find_non_empty_scope(:group, scope, ::Guard.groups)
+      _find_non_empty_scope(:group, scope, ::Guard.groups)
     end
   end
 end

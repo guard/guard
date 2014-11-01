@@ -41,7 +41,7 @@ module Guard
     #
     def run
       unless ran?
-        status, output, errors = self.class._system(*@command)
+        status, output, errors = self.class._system_with_capture(*@command)
         @ran = true
         @stdout = output
         @stderr = errors
@@ -66,7 +66,7 @@ module Guard
     def ok?
       run unless ran?
 
-      @status.success?
+      @status && @status.success?
     end
 
     # Returns the command's output.
@@ -89,19 +89,55 @@ module Guard
       @stderr
     end
 
-    # Stubbed by tests
-    def self._system(*args)
-      out, wout = IO.pipe
-      err, werr = IO.pipe
+    # No output capturing
+    #
+    # NOTE: `$stdout.puts system('cls')` on Windows won't work like
+    # it does for on systems with ansi terminals, so we need to be
+    # able to call Kernel.system directly.
+    def self.system(*args)
+      _system_with_no_capture(*args)
+    end
 
-      _result = Kernel.system(*args, err: werr, out: wout)
+    def self._system_with_no_capture(*args)
+      Kernel.system(*args)
+      result = $?
+      errors = (result == 0) || "Guard failed to run: #{args.inspect}"
+      [result, nil, errors]
+    end
 
-      [werr, wout].map(&:close)
+    def self._system_with_capture(*args)
+      # We use popen3, because it started working on recent versions
+      # of JRuby, while JRuby doesn't handle options to Kernel.system
+      require "open3"
 
-      output, errors = out.read, err.read
-      [out, err].map(&:close)
+      args = _shellize_if_needed(args)
 
-      [$?.dup, output, errors]
+      stdout, stderr, status = nil
+      Open3.popen3(*args) do |_stdin, _stdout, _stderr, _thr|
+        stdout = _stdout.read
+        stderr = _stderr.read
+        status = _thr.value
+      end
+
+      [status, stdout, stderr]
+    rescue Errno::ENOENT, IOError => e
+      [nil, nil, "Guard::Sheller failed (#{e.inspect})"]
+    end
+
+    # Only needed on JRUBY, because MRI properly detects ';' and metachars
+    def self._shellize_if_needed(args)
+      return args unless RUBY_PLATFORM == "java"
+      return args unless args.size == 1
+      return args unless /[;<>]/ =~ args.first
+
+      # NOTE: guard basically only uses UNIX commands anyway
+      # while JRuby doesn't support options to Kernel.system and doesn't
+      # automatically shell when there's a metacharacter in the command
+      #
+      # So ... I'm assuming /bin/sh exists - if not, PRs are welcome,
+      # because I have no clue what to do if /bin/sh doesn't exist.
+      # (use ENV["RUBYSHELL"] ? Detect cmd.exe ?)
+      ["/bin/sh", "-c", args.first]
     end
   end
 end

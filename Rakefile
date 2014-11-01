@@ -2,15 +2,24 @@ require "bundler/gem_tasks"
 
 require "rspec/core/rake_task"
 RSpec::Core::RakeTask.new(:spec)
-task default: [:spec, :features]
 
 require "guard/rake_task"
-Guard::RakeTask.new(:guard, "--plugin ronn")
+
+unless defined?(JRUBY_VERSION)
+  Guard::RakeTask.new(:guard, "--plugin ronn")
+end
 
 require "cucumber/rake/task"
-
 Cucumber::Rake::Task.new(:features) do |t|
   t.cucumber_opts = "features --format pretty"
+end
+
+if ENV["CI"] != "true"
+  require "rubocop/rake_task"
+  RuboCop::RakeTask.new(:rubocop)
+  task default: [:spec, :features, :rubocop]
+else
+  task default: [:spec, :features]
 end
 
 # Coveralls:

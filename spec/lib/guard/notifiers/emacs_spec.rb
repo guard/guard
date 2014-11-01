@@ -6,10 +6,26 @@ describe Guard::Notifier::Emacs do
   let(:notifier) { described_class.new }
 
   describe ".available?" do
-    it "checks if the client is available" do
-      expect(described_class).to receive(:_emacs_client_available?) { true }
+    subject { described_class }
 
-      expect(described_class).to be_available
+    let(:cmd) { "emacsclient --eval '1' 2> #{DEV_NULL} || echo 'N/A'" }
+    let(:result) { fail "set me first" }
+
+    before { allow(Sheller).to receive(:stdout).with(cmd).and_return(result) }
+
+    context "when the client command works" do
+      let(:result) { "" }
+      it { is_expected.to be_available }
+    end
+
+    context "when the client commmand does not exist" do
+      let(:result) { nil }
+      it { is_expected.to_not be_available }
+    end
+
+    context "when the client command produces unexpected output" do
+      let(:result) { "N/A" }
+      it { is_expected.to_not be_available }
     end
   end
 

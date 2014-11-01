@@ -3,8 +3,12 @@ require "guard/plugin"
 
 describe Guard do
   let(:interactor) { instance_double(Guard::Interactor) }
+  let(:evaluator) { instance_double(Guard::Guardfile::Evaluator) }
+
   before do
     allow(Guard::Interactor).to receive(:new).and_return(interactor)
+    allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
+    allow(evaluator).to receive(:evaluate_guardfile)
   end
 
   describe ".plugins" do
@@ -287,6 +291,29 @@ describe Guard do
 
       expect(::Guard.plugins).to eq [guard_rspec]
     end
+  end
+
+  describe ".remove_plugin" do
+    before do
+      ::Guard.reset_groups
+
+      stub_const "Guard::Foo", Class.new(Guard::Plugin)
+      stub_const "Guard::Bar", Class.new(Guard::Plugin)
+      stub_const "Guard::Baz", Class.new(Guard::Plugin)
+
+      @foo = ::Guard.add_plugin("foo", group: "frontend")
+      @bar = ::Guard.add_plugin("bar", group: "backend")
+      @baz = ::Guard.add_plugin("baz", group: "backend")
+    end
+
+    context "with 3 existing plugins" do
+
+      it "removes given group" do
+        ::Guard.remove_plugin(@bar)
+        expect(::Guard.plugins).to eq [@foo, @baz]
+      end
+    end
+
   end
 
   describe ".add_group" do

@@ -2,28 +2,28 @@ require "spec_helper"
 
 describe Guard::Guardfile::Evaluator do
 
-  let(:local_guardfile) { File.expand_path(File.join(Dir.pwd, "Guardfile")) }
-  let(:home_guardfile) { File.expand_path(File.join("~", ".Guardfile")) }
-  let(:home_config) { File.expand_path(File.join("~", ".guard.rb")) }
-  let(:evaluator) { described_class.new }
+  let!(:local_guardfile) { (Pathname.pwd + "Guardfile").to_s }
+  let!(:home_guardfile) { (Pathname("~").expand_path + ".Guardfile").to_s }
+  let!(:home_config) { (Pathname("~").expand_path + ".guard.rb").to_s }
+  let!(:evaluator) { described_class.new }
 
-  let(:rel_guardfile) { File.expand_path("../relative_path_to_Guardfile") }
+  let(:rel_guardfile) do
+    Pathname("../relative_path_to_Guardfile").expand_path.to_s
+  end
 
   before do
+    # TODO: this will be removed/fixed in the future
+    allow(::Guard).to receive(:setup_scope)
+
     allow(::Guard::Interactor).to receive(:new).with(false)
     allow(Listen).to receive(:to).with(Dir.pwd, {})
 
     allow(Guard::Notifier).to receive(:turn_on)
-    ::Guard.setup
     allow(Guard::Notifier).to receive(:notify)
   end
 
-  def self.disable_user_config
-    before { allow(File).to receive(:exist?).with(home_config) { false } }
-  end
-
   describe ".initialize" do
-    disable_user_config
+    before { stub_user_guard_rb }
 
     context "with the :guardfile_contents option" do
       let(:evaluator) do
@@ -58,9 +58,10 @@ describe Guard::Guardfile::Evaluator do
   end
 
   describe ".evaluate_guardfile" do
-    describe "errors cases" do
+    describe "error cases" do
       context "with an invalid Guardfile" do
         it "displays an error message and raises original exception" do
+          stub_user_guard_rb
           expect(Guard::UI).to receive(:error).
             with(/Invalid Guardfile, original error is:/)
 
@@ -73,7 +74,9 @@ describe Guard::Guardfile::Evaluator do
 
       context "with no Guardfile at all" do
         it "displays an error message and exits" do
-          expect(File).to receive(:exist?).twice.and_return(false)
+          stub_guardfile
+          stub_user_guardfile
+          stub_user_project_guardfile
 
           expect(Guard::UI).to receive(:error).
             with("No Guardfile found, please create one with `guard init`.")
@@ -83,8 +86,11 @@ describe Guard::Guardfile::Evaluator do
       end
 
       context "with a problem reading a Guardfile" do
+        let(:path) { File.expand_path("Guardfile") }
+
         before do
-          allow(File).to receive(:read).with(File.expand_path("Guardfile")) do
+          stub_user_project_guardfile
+          stub_guardfile(" ") do
             fail Errno::EACCES.new("permission error")
           end
         end
@@ -98,7 +104,10 @@ describe Guard::Guardfile::Evaluator do
       context "with empty Guardfile content" do
         let(:evaluator) { described_class.new(guardfile_contents: "") }
 
-        it "does not display an error message" do
+        it "displays an error message about no plugins" do
+          stub_user_guard_rb
+          stub_guardfile(" ")
+
           expect(Guard::UI).to receive(:error).
             with("No Guard plugins found in Guardfile,"\
                  " please add at least one.")
@@ -107,8 +116,14 @@ describe Guard::Guardfile::Evaluator do
         end
       end
 
-      context "with Guardfile content is nil" do
+      context "when Guardfile content is nil" do
         let(:evaluator) { described_class.new(guardfile_contents: nil) }
+
+        before do
+          stub_guardfile("guard :rspec do; end")
+          stub_user_guard_rb
+          stub_user_project_guardfile
+        end
 
         it "does not raise error and skip it" do
           expect(Guard::UI).to_not receive(:error)
@@ -119,26 +134,32 @@ describe Guard::Guardfile::Evaluator do
       end
 
       context "with a non-existing Guardfile given" do
+        let(:non_existing_path) { "/non/existing/path/to/Guardfile" }
         let(:evaluator) do
-          described_class.new(guardfile: "/non/existing/path/to/Guardfile")
+          described_class.new(guardfile: non_existing_path)
+        end
+
+        before do
+          stub_file(non_existing_path)
         end
 
         it "raises error" do
           expect(Guard::UI).to receive(:error).
             with("No Guardfile exists at /non/existing/path/to/Guardfile.")
 
-          expect { evaluator.evaluate_guardfile }.to raise_error
+          expect { evaluator.evaluate_guardfile }.to raise_error(SystemExit)
         end
       end
     end
 
     describe "selection of the Guardfile data source" do
       before do
+        stub_user_guard_rb
+
+        # TODO: fix?
         allow_any_instance_of(Guard::Guardfile::Evaluator).
           to receive(:_instance_eval_guardfile)
-
       end
-      disable_user_config
 
       context "with no option" do
         let(:evaluator) { described_class.new }
@@ -195,7 +216,9 @@ describe Guard::Guardfile::Evaluator do
 
         context "home Guardfile"  do
           before do
-            allow(File).to receive(:exist?).with(local_guardfile) { false }
+            stub_file("Guardfile")
+            stub_guardfile
+
             fake_guardfile(home_guardfile, valid_guardfile_string)
           end
 
@@ -352,10 +375,16 @@ describe Guard::Guardfile::Evaluator do
   end
 
   describe ".reevaluate_guardfile" do
+    let(:runner) { instance_double(Guard::Runner) }
+
     before do
-      allow(::Guard.runner).to receive(:run)
+      allow(::Guard).to receive(:runner).and_return(runner)
+      allow(runner).to receive(:run)
+      stub_guardfile("guard :rspec do; end")
+      stub_user_guard_rb
       evaluator.evaluate_guardfile
     end
+
     let(:growl) { { name: :growl, options: {} } }
 
     context "with the :guardfile_contents option" do
@@ -365,7 +394,6 @@ describe Guard::Guardfile::Evaluator do
 
       it "skips the reevaluation" do
         expect(evaluator).to_not receive(:_before_reevaluate_guardfile)
-        expect(evaluator).to_not receive(:evaluate_guardfile)
         expect(evaluator).to_not receive(:_after_reevaluate_guardfile)
 
         evaluator.reevaluate_guardfile
@@ -374,24 +402,27 @@ describe Guard::Guardfile::Evaluator do
 
     describe "before reevaluation" do
       it "stops all Guards" do
-        expect(::Guard.runner).to receive(:run).with(:stop)
+        expect(runner).to receive(:run).with(:stop)
 
         evaluator.reevaluate_guardfile
       end
 
       it "resets all Guard plugins" do
+        allow(::Guard).to receive(:setup_scope)
         expect(::Guard).to receive(:reset_plugins)
 
         evaluator.reevaluate_guardfile
       end
 
       it "resets all groups" do
+        allow(::Guard).to receive(:setup_scope)
         expect(::Guard).to receive(:reset_groups)
 
         evaluator.reevaluate_guardfile
       end
 
       it "resets all scopes" do
+        allow(::Guard).to receive(:setup_scope)
         expect(::Guard).to receive(:reset_scope)
 
         evaluator.reevaluate_guardfile
@@ -400,6 +431,7 @@ describe Guard::Guardfile::Evaluator do
       it "clears the notifiers" do
         ::Guard::Notifier.turn_off
         ::Guard::Notifier.notifiers = [growl]
+        allow(::Guard).to receive(:setup_scope)
         expect(::Guard::Notifier.notifiers).to_not be_empty
 
         evaluator.reevaluate_guardfile
@@ -409,8 +441,7 @@ describe Guard::Guardfile::Evaluator do
     end
 
     it "evaluates the Guardfile" do
-      expect(evaluator).to receive(:evaluate_guardfile)
-
+      expect(::Guard).to receive(:setup_scope)
       evaluator.reevaluate_guardfile
     end
 
@@ -440,7 +471,7 @@ describe Guard::Guardfile::Evaluator do
           expect(evaluator).to receive(:guardfile_contents).
             exactly(3) { "guard :rspec" }
 
-          allow(::Guard.runner).to receive(:run)
+          allow(runner).to receive(:run)
         end
 
         it "shows a success message" do
@@ -458,7 +489,7 @@ describe Guard::Guardfile::Evaluator do
         end
 
         it "starts all Guards" do
-          expect(::Guard.runner).to receive(:run).with(:start)
+          expect(runner).to receive(:run).with(:start)
 
           evaluator.reevaluate_guardfile
         end
@@ -517,9 +548,12 @@ describe Guard::Guardfile::Evaluator do
 
   private
 
+  # TODO: this shouldn't be necessary
   def fake_guardfile(name, contents)
     allow(File).to receive(:exist?).with(name) { true }
     allow(File).to receive(:read).with(name)   { contents }
+    # TODO: not test if no file?
+    stub_file(File.expand_path(name), contents || " ")
   end
 
   def valid_guardfile_string

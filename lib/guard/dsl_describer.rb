@@ -35,8 +35,6 @@ module Guard
     # @see CLI#list
     #
     def list
-      _evaluate_guardfile
-
       names = ::Guard::PluginUtil.plugin_names.sort.uniq
       final_rows = names.inject([]) do |rows, name|
         rows << {

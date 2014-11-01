@@ -35,7 +35,8 @@ describe Sheller, :sheller_specs do
 
       describe "#run" do
         it "runs the command given to constructor" do
-          expect(described_class).to receive(:_system).with(cmd) { result }
+          expect(described_class).to receive(:_system_with_capture).
+            with(cmd).and_return(result)
           subject.run
         end
       end
@@ -53,21 +54,23 @@ describe Sheller, :sheller_specs do
     describe "when used as class" do
       describe ".run" do
         it "runs the given command" do
-          expect(described_class).to receive(:_system).with(*cmd) { result }
+          expect(described_class).to receive(:_system_with_capture).
+            with(*cmd) { result }
           subject.run(*cmd)
         end
       end
 
       describe ".new" do
         it "does not run anything" do
-          expect(described_class).to_not receive(:_system)
+          expect(described_class).to_not receive(:_system_with_capture)
           subject
         end
       end
 
       describe ".stdout" do
         before do
-          allow(described_class).to receive(:_system).with(*cmd) { result }
+          allow(described_class).to receive(:_system_with_capture).
+            with(*cmd) { result }
         end
 
         it "runs command and returns output" do
@@ -77,7 +80,8 @@ describe Sheller, :sheller_specs do
 
       describe ".stderr" do
         before do
-          allow(described_class).to receive(:_system).with(*cmd) { result }
+          allow(described_class).to receive(:_system_with_capture).
+            with(*cmd) { result }
         end
 
         it "runs command and returns errors" do
@@ -90,20 +94,22 @@ describe Sheller, :sheller_specs do
       subject { described_class.new(*cmd) }
 
       it "does not run anything" do
-        expect(described_class).to_not receive(:_system)
+        expect(described_class).to_not receive(:_system_with_capture)
         subject
       end
 
       describe "#run" do
         it "runs the command given to constructor" do
-          expect(described_class).to receive(:_system).with(*cmd) { result }
+          expect(described_class).to receive(:_system_with_capture).
+            with(*cmd) { result }
           subject.run
         end
       end
 
       describe "#stdout" do
         before do
-          allow(described_class).to receive(:_system).with(*cmd) { result }
+          allow(described_class).to receive(:_system_with_capture).
+            with(*cmd) { result }
         end
 
         it "runs command and returns output" do
@@ -113,7 +119,8 @@ describe Sheller, :sheller_specs do
 
       describe "#stderr" do
         before do
-          allow(described_class).to receive(:_system).with(*cmd) { result }
+          allow(described_class).to receive(:_system_with_capture).
+            with(*cmd) { result }
         end
 
         it "runs command and returns output" do
@@ -123,7 +130,8 @@ describe Sheller, :sheller_specs do
 
       describe "#ok?" do
         before do
-          allow(described_class).to receive(:_system).with(*cmd) { result }
+          allow(described_class).to receive(:_system_with_capture).
+            with(*cmd) { result }
         end
 
         it "runs command and returns output" do

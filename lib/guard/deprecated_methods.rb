@@ -51,5 +51,21 @@ module Guard
       UI.deprecation(Deprecator::GUARD_GEM_NAMES_DEPRECATION)
       PluginUtil.plugin_names
     end
+
+    def running
+      UI.deprecation(Deprecator::GUARD_RUNNING_DEPRECATION)
+      nil
+    end
+
+    def lock
+      UI.deprecation(Deprecator::GUARD_LOCK_DEPRECATION)
+    end
+
+    def evaluator
+      UI.deprecation(Deprecator::GUARD_EVALUATOR_DEPRECATION)
+      # TODO: this will be changed to the following when scope is reworked
+      # ::Guard.session.evaluator
+      ::Guard.instance_variable_get(:@evaluator)
+    end
   end
 end

@@ -51,7 +51,7 @@ module Guard
       @runner = ::Guard::Runner.new
       @watchdirs = _setup_watchdirs
 
-      ::Guard::UI.clear(force: true)
+      ::Guard::UI.setup(options)
 
       _setup_debug if options[:debug]
       @listener = _setup_listener
@@ -62,7 +62,7 @@ module Guard
       self
     end
 
-    attr_reader :options, :evaluator, :interactor
+    attr_reader :options, :interactor
 
     # Used only by tests (for all I know...)
     def clear_options
@@ -142,7 +142,7 @@ module Guard
     def evaluate_guardfile
       evaluator.evaluate_guardfile
       msg = "No plugins found in Guardfile, please add at least one."
-      ::Guard::UI.error msg unless _non_builtin_plugins?
+      ::Guard::UI.error msg unless _pluginless_guardfile?
     end
 
     # Asynchronously trigger changes
@@ -342,6 +342,7 @@ module Guard
     end
 
     def _prepare_scope(scope)
+      fail "Guard::setup() not called!" if options.nil?
       plugins = Array(options[:plugin])
       plugins = Array(scope[:plugins] || scope[:plugin]) if plugins.empty?
 
@@ -357,7 +358,14 @@ module Guard
       { plugins: plugins, groups: groups }
     end
 
-    def _non_builtin_plugins?
+    def _pluginless_guardfile?
+      # no Reevaluator means there was no Guardfile configured that could be
+      # reevaluated, so we don't have a pluginless guardfile, because we don't
+      # have a Guardfile to begin with...
+      #
+      # But, if we have a Guardfile, we'll at least have the built-in
+      # Reevaluator, so the following will work:
+
       plugins.map(&:name) != ["reevaluator"]
     end
 

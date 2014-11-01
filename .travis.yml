@@ -9,6 +9,7 @@ rvm:
 matrix:
   allow_failures:
     - rvm: rbx
+    - rvm: jruby
 notifications:
   recipients:
     - thibaud@thibaud.gg
