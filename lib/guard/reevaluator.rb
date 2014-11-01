@@ -7,6 +7,9 @@ module Guard
       return unless ::Guard::Watcher.match_guardfile?(files)
       ::Guard.save_scope
       ::Guard.evaluator.reevaluate_guardfile
+    rescue RuntimeError => e
+      ::Guard::UI.warning("Failed to reevaluate file: #{e}")
+    ensure
       ::Guard.restore_scope
     end
   end

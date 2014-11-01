@@ -2,6 +2,7 @@ require "spec_helper"
 require "guard/plugin"
 
 require "guard/reevaluator.rb"
+require "guard/ui"
 
 describe Guard::Reevaluator do
   let(:options) { {} }
@@ -27,9 +28,37 @@ describe Guard::Reevaluator do
       expect(evaluator).to receive(:reevaluate_guardfile)
       subject.run_on_modifications(["Guardfile"])
     end
+
+    context "when Guardfile contains errors" do
+      before do
+        allow(evaluator).to receive(:reevaluate_guardfile) do
+          fail "Could not load class Foo!"
+        end
+      end
+
+      it "should not raise error to prevent being fired" do
+        expect { subject.run_on_modifications(["Guardfile"]) }.
+          to_not raise_error
+      end
+
+      # TODO: show backtrace?
+      it "should show warning about the error" do
+        expect(::Guard::UI).to receive(:warning).
+          with("Failed to reevaluate file: Could not load class Foo!")
+
+        subject.run_on_modifications(["Guardfile"])
+      end
+
+      it "should restore the scope" do
+        expect(::Guard).to receive(:restore_scope)
+
+        subject.run_on_modifications(["Guardfile"])
+      end
+
+    end
   end
 
-  context "when Guardfile is modified" do
+  context "when Guardfile is not modified" do
     before do
       allow(::Guard::Watcher).to receive(:match_guardfile?).with(["foo"]).
         and_return(false)
