@@ -33,7 +33,7 @@ Feature: gracefully handling plugin failures
 
     """
     Given an empty file named "foo"
-    When I start `bundle exec guard`
+    When I start `bundle exec guard -n f`
     And I append to the file "foo"
     And I create a file "bar"
     And I wait for Guard to become idle

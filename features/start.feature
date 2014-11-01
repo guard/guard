@@ -27,7 +27,7 @@ Feature: Guard "start" command
     end
 
     """
-    When I start `bundle exec guard`
+    When I start `bundle exec guard -n f`
     And I create a file "foo"
     And I wait for Guard to become idle
     And I stop guard
