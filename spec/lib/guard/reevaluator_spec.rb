@@ -38,17 +38,17 @@ describe Guard::Reevaluator do
 
       context "with a name error" do
         let(:failure) { proc { fail NameError, "Could not load Foo!" } }
-        it "should not raise error to prevent being fired" do
+        it "should notify guard it failed to prevent being fired" do
           expect { subject.run_on_modifications(["Guardfile"]) }.
-            to_not raise_error
+            to throw_symbol(:task_has_failed)
         end
       end
 
       context "with a syntax error" do
         let(:failure) { proc { fail SyntaxError, "Could not load Foo!" } }
-        it "should not raise error to prevent being fired" do
+        it "should notify guard it failed to prevent being fired" do
           expect { subject.run_on_modifications(["Guardfile"]) }.
-            to_not raise_error
+            to throw_symbol(:task_has_failed)
         end
       end
 
@@ -57,13 +57,22 @@ describe Guard::Reevaluator do
         expect(::Guard::UI).to receive(:warning).
           with("Failed to reevaluate file: Could not load Foo!")
 
-        subject.run_on_modifications(["Guardfile"])
+        catch(:task_has_failed) do
+          subject.run_on_modifications(["Guardfile"])
+        end
       end
 
       it "should restore the scope" do
         expect(::Guard).to receive(:restore_scope)
 
-        subject.run_on_modifications(["Guardfile"])
+        catch(:task_has_failed) do
+          subject.run_on_modifications(["Guardfile"])
+        end
+      end
+
+      it "should notify eval failed with a :task_has_failed error" do
+        expect { subject.run_on_modifications(["Guardfile"]) }.
+          to throw_symbol(:task_has_failed)
       end
     end
 
