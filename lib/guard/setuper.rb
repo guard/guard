@@ -51,7 +51,7 @@ module Guard
       @runner = ::Guard::Runner.new
       @watchdirs = _setup_watchdirs
 
-      ::Guard::UI.clear(force: true)
+      ::Guard::UI.setup(options)
 
       _setup_debug if options[:debug]
       @listener = _setup_listener

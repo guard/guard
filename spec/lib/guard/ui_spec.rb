@@ -5,11 +5,18 @@ include Guard
 describe UI do
   let(:interactor) { instance_double(Guard::Interactor) }
   let(:evaluator) { instance_double(Guard::Guardfile::Evaluator) }
+  let(:options) { instance_double(Guard::Options) }
+  let(:scope) { double("scope") }
+  let(:logger) { instance_double(Lumberjack::Logger) }
 
   before do
     allow(Guard::Interactor).to receive(:new).and_return(interactor)
+    allow(Guard).to receive(:options).and_return(options)
+    allow(Guard).to receive(:scope).and_return(scope)
 
     allow(Notifier).to receive(:turn_on) {}
+
+    allow(Lumberjack::Logger).to receive(:new).and_return(logger)
 
     # The spec helper stubs all UI classes, so other specs doesn't have
     # to explicit take care of it. We unstub and move the stubs one layer
@@ -20,10 +27,10 @@ describe UI do
     allow(UI).to receive(:deprecation).and_call_original
     allow(UI).to receive(:debug).and_call_original
 
-    allow(UI.logger).to receive(:info)
-    allow(UI.logger).to receive(:warn)
-    allow(UI.logger).to receive(:error)
-    allow(UI.logger).to receive(:debug)
+    allow(logger).to receive(:info)
+    allow(logger).to receive(:warn)
+    allow(logger).to receive(:error)
+    allow(logger).to receive(:debug)
 
     allow($stderr).to receive(:print)
 
@@ -32,27 +39,25 @@ describe UI do
   end
 
   after do
+    # TODO: a session object would be better
+    UI.reset_logger
+
     UI.options = {
       level: :info,
       device: $stderr,
       template: ":time - :severity - :message",
       time_format: "%H:%M:%S"
     }
-
-    allow(::UI).to receive(:info)
-    allow(::UI).to receive(:warning)
-    allow(::UI).to receive(:error)
-    allow(::UI).to receive(:debug)
-    allow(::UI).to receive(:deprecation)
   end
 
   describe ".logger" do
     it "returns the logger instance" do
-      expect(UI.logger).to be_an_instance_of Lumberjack::Logger
+      expect(UI.logger).to be(logger)
     end
 
     it "sets the logger device" do
-      expect(UI.logger.device.send(:stream)).to be $stderr
+      expect(Lumberjack::Logger).to receive(:new).with($stderr, UI.options)
+      UI.logger
     end
   end
 
@@ -210,8 +215,8 @@ describe UI do
   describe ".deprecation" do
     context "with the :show_deprecation option set to false (default)" do
       before do
-        allow(Listen).to receive(:to).with(Dir.pwd, {})
-        Guard.setup(show_deprecations: false)
+        allow(options).to receive(:[]).with(:show_deprecations).
+          and_return(false)
       end
 
       it "do not log" do
@@ -222,8 +227,8 @@ describe UI do
 
     context "with the :show_deprecation option set to true" do
       before do
-        allow(Listen).to receive(:to).with(Dir.pwd, {})
-        Guard.setup(show_deprecations: true)
+        allow(options).to receive(:[]).with(:show_deprecations).
+          and_return(true)
       end
 
       it "resets the line with the :reset option" do
@@ -331,51 +336,82 @@ describe UI do
   end
 
   describe ".clear" do
-    context "when the Guard clear option is enabled" do
+    let(:terminal) { class_double(::Guard::Terminal) }
+
+    before { stub_const("::Guard::Terminal", terminal) }
+
+    context "with UI set up and ready" do
       before do
-        allow(Sheller).to receive(:run).with("clear;")
-        allow(Listen).to receive(:to).with(Dir.pwd, {})
-        Guard.setup(clear: true)
+        # disable avoid calling clear during before()
+        allow(options).to receive(:[]).with(:clear).and_return(false)
+
+        # This shouldn't do anything except set instance var
+        UI.setup(options)
       end
 
-      it "clears the outputs if clearable" do
-        UI.clearable
-        expect(::Sheller).to receive(:run).with("clear;")
-        UI.clear
+      context "when clear option is disabled" do
+        it "does not clear the output" do
+          expect(terminal).to_not receive(:clear)
+          UI.clear
+        end
       end
 
-      it "does not clear the output if already cleared" do
-        UI.clear
-        expect(Sheller).to_not receive(:run)
-        UI.clear
-      end
+      context "when clear option is enabled" do
+        before do
+          allow(options).to receive(:[]).with(:clear).and_return(true)
+        end
 
-      it "clears the outputs if forced" do
-        UI.clear
-        expect(Sheller).to receive(:run).with("clear;")
-        UI.clear(force: true)
-      end
-    end
+        context "when the screen is marked as needing clearing" do
+          before { UI.clearable }
 
-    context "when the Guard clear option is disabled" do
-      before do
-        allow(Listen).to receive(:to).with(Dir.pwd, {})
-        Guard.setup(clear: false)
-      end
+          it "clears the output" do
+            expect(terminal).to receive(:clear)
+            UI.clear
+          end
 
-      it "does not clear the output" do
-        expect(::Guard::Sheller).to_not receive(:run)
-        Guard::UI.clear
+          it "clears the output only once" do
+            expect(terminal).to receive(:clear).once
+            UI.clear
+            UI.clear
+          end
+
+          context "when the command fails" do
+            before do
+              allow(terminal).to receive(:clear).
+                and_raise(Errno::ENOENT, "failed to run command")
+            end
+
+            it "shows a warning" do
+              expect(logger).to receive(:warn) do |arg|
+                expect(arg).to match(/failed to run command/)
+              end
+              UI.clear
+            end
+          end
+        end
+
+        context "when the screen has just been cleared" do
+          before { UI.clear }
+
+          it "does not clear" do
+            expect(terminal).to_not receive(:clear)
+            UI.clear
+          end
+
+          context "when forced" do
+            let(:opts) { { force: true } }
+
+            it "clears the outputs if forced" do
+              expect(terminal).to receive(:clear)
+              UI.clear(opts)
+            end
+          end
+        end
       end
     end
   end
 
   describe ".action_with_scopes" do
-    before do
-      allow(Listen).to receive(:to).with(Dir.pwd, {})
-      Guard.setup
-    end
-
     let(:rspec) { double("Rspec", title: "Rspec") }
     let(:jasmine) { double("Jasmine", title: "Jasmine") }
     let(:group) { instance_double(Guard::Group, title: "Frontend") }
@@ -389,6 +425,7 @@ describe UI do
 
     context "with a groups scope" do
       it "shows the group scoped action" do
+        allow(scope).to receive(:[]).with(:plugins).and_return([])
         expect(UI).to receive(:info).with("Reload Frontend")
         UI.action_with_scopes("Reload",  groups: [group])
       end
@@ -397,7 +434,8 @@ describe UI do
     context "without a scope" do
       context "with a global plugin scope" do
         it "shows the global plugin scoped action" do
-          Guard.scope = { plugins: [rspec, jasmine] }
+          plugins = [rspec, jasmine]
+          allow(scope).to receive(:[]).with(:plugins).and_return(plugins)
           expect(UI).to receive(:info).with("Reload Rspec, Jasmine")
           UI.action_with_scopes("Reload", {})
         end
@@ -405,7 +443,8 @@ describe UI do
 
       context "with a global group scope" do
         it "shows the global group scoped action" do
-          Guard.scope = { groups: [group] }
+          allow(scope).to receive(:[]).with(:plugins).and_return([])
+          allow(scope).to receive(:[]).with(:groups).and_return([group])
           expect(UI).to receive(:info).with("Reload Frontend")
           UI.action_with_scopes("Reload", {})
         end
