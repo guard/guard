@@ -40,8 +40,8 @@ describe Guard::Setuper do
     end
 
     it "initializes the groups" do
-      expect(subject.groups[0].name).to eq :default
-      expect(subject.groups[0].options).to eq({})
+      expect(subject.groups.map(&:name)).to eq [:common, :default]
+      expect(subject.groups.map(&:options)).to eq [{}, {}]
     end
 
     it "lazily initializes the options" do
@@ -208,11 +208,8 @@ describe Guard::Setuper do
     it "initializes default groups" do
       subject.reset_groups
 
-      expect(subject.groups.size).to eq 2
-      expect(subject.groups[0].name).to eq :default
-      expect(subject.groups[0].options).to eq({})
-      expect(subject.groups[1].name).to eq :common
-      expect(subject.groups[1].options).to eq({})
+      expect(subject.groups.map(&:name)).to eq [:common, :default]
+      expect(subject.groups.map(&:options)).to eq [{}, {}]
     end
   end
 
