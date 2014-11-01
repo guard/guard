@@ -30,21 +30,32 @@ describe Guard::Reevaluator do
     end
 
     context "when Guardfile contains errors" do
+      let(:failure) { proc { fail "Could not load Foo!" } }
+
       before do
-        allow(evaluator).to receive(:reevaluate_guardfile) do
-          fail "Could not load class Foo!"
+        allow(evaluator).to receive(:reevaluate_guardfile) { failure.call }
+      end
+
+      context "with a name error" do
+        let(:failure) { proc { fail NameError, "Could not load Foo!" } }
+        it "should not raise error to prevent being fired" do
+          expect { subject.run_on_modifications(["Guardfile"]) }.
+            to_not raise_error
         end
       end
 
-      it "should not raise error to prevent being fired" do
-        expect { subject.run_on_modifications(["Guardfile"]) }.
-          to_not raise_error
+      context "with a syntax error" do
+        let(:failure) { proc { fail SyntaxError, "Could not load Foo!" } }
+        it "should not raise error to prevent being fired" do
+          expect { subject.run_on_modifications(["Guardfile"]) }.
+            to_not raise_error
+        end
       end
 
       # TODO: show backtrace?
       it "should show warning about the error" do
         expect(::Guard::UI).to receive(:warning).
-          with("Failed to reevaluate file: Could not load class Foo!")
+          with("Failed to reevaluate file: Could not load Foo!")
 
         subject.run_on_modifications(["Guardfile"])
       end
@@ -54,8 +65,8 @@ describe Guard::Reevaluator do
 
         subject.run_on_modifications(["Guardfile"])
       end
-
     end
+
   end
 
   context "when Guardfile is not modified" do
