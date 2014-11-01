@@ -18,18 +18,13 @@ module Guard
       }
 
       def self.available?(opts = {})
-        super && _emacs_client_available?(opts)
-      end
+        return false unless super
 
-      # @private
-      #
-      # @return [Boolean] whether or not the emacs client is available
-      #
-      def self._emacs_client_available?(opts)
         client_name = opts.fetch(:client, DEFAULTS[:client])
         cmd = "#{client_name} --eval '1' 2> #{DEV_NULL} || echo 'N/A'"
         stdout = Sheller.stdout(cmd)
-        !%w(N/A 'N/A').include?(stdout.chomp!)
+        return false if stdout.nil?
+        !%w(N/A 'N/A').include?(stdout.chomp)
       end
 
       # Shows a system notification.
