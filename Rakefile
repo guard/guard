@@ -4,7 +4,10 @@ require "rspec/core/rake_task"
 RSpec::Core::RakeTask.new(:spec)
 
 require "guard/rake_task"
-Guard::RakeTask.new(:guard, "--plugin ronn")
+
+unless defined?(JRUBY_VERSION)
+  Guard::RakeTask.new(:guard, "--plugin ronn")
+end
 
 require "cucumber/rake/task"
 Cucumber::Rake::Task.new(:features) do |t|

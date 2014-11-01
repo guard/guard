@@ -15,16 +15,16 @@ end
 
 # The development group will not be
 # installed on Travis CI.
-#
+
 group :development do
-  gem "yard", require: false
-  gem "redcarpet", require: false
-  gem "guard-ronn", require: false
+  gem "yard", require: false, platform: :mri
+  gem "redcarpet", require: false, platform: :mri
+  gem "guard-ronn", require: false, platform: :mri
 
   # Used for release
-  gem "gems", require: false
-  gem "netrc", require: false
-  gem "octokit", require: false
+  gem "gems", require: false, platform: :mri
+  gem "netrc", require: false, platform: :mri
+  gem "octokit", require: false, platform: :mri
 end
 
 # The test group will be
