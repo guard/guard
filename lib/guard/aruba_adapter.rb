@@ -9,7 +9,10 @@ module Guard
       @stdout = stdout
       @stderr = stderr
       @kernel = kernel
-      ::Guard::UI.options = ::Guard::UI.options.merge(flush_seconds: 0)
+
+      if ENV["INSIDE_ARUBA_TEST"] == "1"
+        ::Guard::UI.options = ::Guard::UI.options.merge(flush_seconds: 0)
+      end
     end
 
     def execute!
@@ -42,6 +45,7 @@ module Guard
       e.status
     ensure
       # flush the logger so the output doesn't appear in next CLI invocation
+      ::Guard.listener.stop if ::Guard.listener
       ::Guard::UI.logger.flush
       ::Guard::UI.logger.close
       ::Guard::UI.reset_logger
