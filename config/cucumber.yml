@@ -1,1 +1,1 @@
-default: --format pretty --strict
+default: --format pretty --strict --color
