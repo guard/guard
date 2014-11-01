@@ -10,6 +10,9 @@ module Guard
     rescue ScriptError, StandardError => e
       ::Guard::UI.warning("Failed to reevaluate file: #{e}")
 
+      options = { watchers: [::Guard::Watcher.new("Guardfile")] }
+      ::Guard.add_plugin(:reevaluator, options)
+
       throw :task_has_failed
     ensure
       ::Guard.restore_scope

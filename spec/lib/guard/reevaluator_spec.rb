@@ -74,6 +74,22 @@ describe Guard::Reevaluator do
         expect { subject.run_on_modifications(["Guardfile"]) }.
           to throw_symbol(:task_has_failed)
       end
+
+      it "should add itself as an active plugin" do
+        watcher = instance_double(::Guard::Watcher)
+
+        # TODO: the right pattern? Other custom Guardfile locations?
+        expect(::Guard::Watcher).to receive(:new).with("Guardfile").
+          and_return(watcher)
+
+        options = { watchers: [watcher] }
+        expect(::Guard).to receive(:add_plugin).with(:reevaluator, options)
+
+        catch(:task_has_failed) do
+          subject.run_on_modifications(["Guardfile"])
+        end
+      end
+
     end
 
   end
