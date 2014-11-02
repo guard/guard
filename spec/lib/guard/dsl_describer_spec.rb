@@ -67,6 +67,7 @@ describe Guard::DslDescriber do
     end
 
     before do
+      stub_user_guard_rb
       allow(::Guard::PluginUtil).to receive(:plugin_names) do
         %w(test another even more)
       end
@@ -74,6 +75,7 @@ describe Guard::DslDescriber do
 
     it "lists the available Guards declared as strings or symbols" do
       ::Guard::DslDescriber.new(guardfile_contents: guardfile).list
+      expect(@output).to eq result
     end
   end
 
