@@ -21,7 +21,7 @@ module Guard
       wait_for_delay: nil,
       listen_on: nil
     }
-    DEFAULT_GROUPS = [:default, :common]
+    DEFAULT_GROUPS = [:common, :default]
 
     # Initializes the Guard singleton:
     #
@@ -217,6 +217,7 @@ module Guard
       end
 
       _run_actions(actions)
+      return if changes.values.all?(&:empty?)
       runner.run_on_changes(*changes.values)
     end
 

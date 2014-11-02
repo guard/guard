@@ -118,9 +118,12 @@ module Guard
 
       # Clear the output if clearable.
       #
-      def clear(options = {})
+      def clear(opts = {})
+        return unless ::Guard.options[:clear]
+
         fail "UI not set up!" if @clearable.nil?
-        return unless ::Guard.options[:clear] && (@clearable || options[:force])
+        return unless @clearable || opts[:force]
+
         @clearable = false
         ::Guard::Terminal.clear
       rescue Errno::ENOENT => e
