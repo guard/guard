@@ -16,7 +16,9 @@ module Guard
     # upgrade for Guard 2.0
     #
     def self.create_guardfile(options = {})
-      UI.deprecation(Deprecator::CREATE_GUARDFILE_DEPRECATION)
+      # FIXME: used internally by Guard
+      # TODO: reenable after majore refactoring is finished
+      # UI.deprecation(Deprecator::CREATE_GUARDFILE_DEPRECATION)
       Generator.new(options).create_guardfile
     end
 
@@ -26,7 +28,9 @@ module Guard
     # upgrade for Guard 2.0
     #
     def self.initialize_template(plugin_name)
-      UI.deprecation(Deprecator::INITIALIZE_TEMPLATE_DEPRECATION)
+      # FIXME: used internally by Guard
+      # TODO: reenable after majore refactoring is finished
+      # UI.deprecation(Deprecator::INITIALIZE_TEMPLATE_DEPRECATION)
       Generator.new.initialize_template(plugin_name)
     end
 
@@ -36,7 +40,9 @@ module Guard
     # upgrade for Guard 2.0
     #
     def self.initialize_all_templates
-      UI.deprecation(Deprecator::INITIALIZE_ALL_TEMPLATES_DEPRECATION)
+      # FIXME: used internally by Guard
+      # TODO: reenable after majore refactoring is finished
+      # UI.deprecation(Deprecator::INITIALIZE_ALL_TEMPLATES_DEPRECATION)
       Generator.new.initialize_all_templates
     end
   end

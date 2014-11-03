@@ -209,23 +209,22 @@ RSpec.describe Guard::UI do
   end
 
   describe ".deprecation" do
-    context "with the :show_deprecation option set to false (default)" do
-      before do
-        allow(options).to receive(:[]).with(:show_deprecations).
-          and_return(false)
-      end
+    before do
+      allow(ENV).to receive(:[]).with("GUARD_GEM_SILENCE_DEPRECATIONS").
+        and_return(value)
+    end
 
-      it "do not log" do
+    context "with GUARD_GEM_SILENCE_DEPRECATIONS set to 1" do
+      let(:value) { "1" }
+
+      it "silences deprecations" do
         expect(UI.logger).to_not receive(:warn)
         UI.deprecation "Deprecator message"
       end
     end
 
-    context "with the :show_deprecation option set to true" do
-      before do
-        allow(options).to receive(:[]).with(:show_deprecations).
-          and_return(true)
-      end
+    context "with GUARD_GEM_SILENCE_DEPRECATIONS unset" do
+      let(:value) { nil }
 
       it "resets the line with the :reset option" do
         expect(UI).to receive :reset_line

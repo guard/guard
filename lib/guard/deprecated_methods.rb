@@ -62,7 +62,8 @@ module Guard
     end
 
     def evaluator
-      UI.deprecation(Deprecator::GUARD_EVALUATOR_DEPRECATION)
+      # TODO: probably deprecate once it isn't used internally
+      # UI.deprecation(Deprecator::GUARD_EVALUATOR_DEPRECATION)
       # TODO: this will be changed to the following when scope is reworked
       # ::Guard.session.evaluator
       ::Guard.instance_variable_get(:@evaluator)
