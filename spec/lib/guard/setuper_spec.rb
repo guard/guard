@@ -1,7 +1,6 @@
-require "spec_helper"
 require "guard/plugin"
 
-describe Guard::Setuper do
+RSpec.describe Guard::Setuper do
 
   let(:evaluator) { instance_double(Guard::Guardfile::Evaluator) }
   let(:pry_interactor) { double(Guard::Jobs::PryWrapper) }

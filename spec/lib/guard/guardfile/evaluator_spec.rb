@@ -1,6 +1,4 @@
-require "spec_helper"
-
-describe Guard::Guardfile::Evaluator do
+RSpec.describe Guard::Guardfile::Evaluator do
 
   let!(:local_guardfile) { (Pathname.pwd + "Guardfile").to_s }
   let!(:home_guardfile) { (Pathname("~").expand_path + ".Guardfile").to_s }

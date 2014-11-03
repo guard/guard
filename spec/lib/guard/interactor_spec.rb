@@ -1,7 +1,6 @@
-require "spec_helper"
 require "guard/plugin"
 
-describe Guard::Interactor do
+RSpec.describe Guard::Interactor do
   let(:pry_interactor) { double(Guard::Jobs::PryWrapper) }
   let(:sleep_interactor) { double(Guard::Jobs::Sleep) }
 

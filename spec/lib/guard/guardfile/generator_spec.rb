@@ -1,6 +1,4 @@
-require "spec_helper"
-
-describe Guard::Guardfile::Generator do
+RSpec.describe Guard::Guardfile::Generator do
 
   let(:plugin_util) { instance_double(Guard::PluginUtil) }
   let(:guardfile_generator) { described_class.new }

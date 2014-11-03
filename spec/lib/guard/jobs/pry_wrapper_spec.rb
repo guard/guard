@@ -1,8 +1,6 @@
-require "spec_helper"
-
 require "guard/jobs/pry_wrapper"
 
-describe Guard::Jobs::PryWrapper do
+RSpec.describe Guard::Jobs::PryWrapper do
   subject { described_class.new({}) }
   let(:listener) { instance_double(Listen::Listener) }
   let(:pry_config) { double("pry_config") }

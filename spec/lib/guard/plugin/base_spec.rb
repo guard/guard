@@ -1,7 +1,6 @@
-require "spec_helper"
 require "guard/plugin"
 
-describe Guard::Plugin::Base do
+RSpec.describe Guard::Plugin::Base do
   before do
     stub_const "Guard::DuMmy", Class.new(Guard::Plugin)
   end

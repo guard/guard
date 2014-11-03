@@ -1,6 +1,6 @@
 require "guard/terminal"
 
-describe ::Guard::Terminal do
+RSpec.describe Guard::Terminal do
   subject { described_class }
   it { is_expected.to respond_to(:clear) }
 

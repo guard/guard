@@ -7,7 +7,7 @@ gem "rake"
 group :development, :test do
   # This plugin is required in the tests!
   gem "guard-rspec", require: false
-  gem "rspec", ">= 3.0.0"
+  gem "rspec", ">= 3.0.0", require: false
   gem "guard-rubocop", require: false
   gem "guard-cucumber", require: false
   gem "aruba", require: false

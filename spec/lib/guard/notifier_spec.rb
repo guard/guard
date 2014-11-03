@@ -1,6 +1,4 @@
-require "spec_helper"
-
-describe Guard::Notifier do
+RSpec.describe Guard::Notifier do
   let(:gntp)  { { name: :gntp, options: { color: true } } }
   let(:growl) { { name: :growl, options: {} } }
   let(:gntp_object) { double("GNTP").as_null_object }

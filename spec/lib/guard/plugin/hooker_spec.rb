@@ -1,7 +1,6 @@
-require "spec_helper"
 require "guard/plugin"
 
-describe Guard::Plugin::Hooker do
+RSpec.describe Guard::Plugin::Hooker do
 
   let(:fake_plugin) do
     Class.new(Guard::Plugin) do
