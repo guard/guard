@@ -1,7 +1,6 @@
-require "spec_helper"
 require "guard/plugin"
 
-describe Guard::Watcher do
+RSpec.describe Guard::Watcher do
 
   describe "#initialize" do
     it "requires a pattern parameter" do

@@ -1,8 +1,4 @@
-require "spec_helper"
-
-include Guard
-
-describe UI do
+RSpec.describe Guard::UI do
   let(:interactor) { instance_double(Guard::Interactor) }
   let(:evaluator) { instance_double(Guard::Guardfile::Evaluator) }
   let(:options) { instance_double(Guard::Options) }

@@ -1,10 +1,9 @@
-require "spec_helper"
 require "guard/plugin"
 
 require "guard/reevaluator.rb"
 require "guard/ui"
 
-describe Guard::Reevaluator do
+RSpec.describe Guard::Reevaluator do
   let(:options) { {} }
   let(:evaluator) { instance_double(Guard::Guardfile::Evaluator) }
 

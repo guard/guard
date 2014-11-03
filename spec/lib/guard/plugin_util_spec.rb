@@ -1,9 +1,7 @@
-require "spec_helper"
-
 require "guard/plugin"
 require "guard/guard"
 
-describe Guard::PluginUtil do
+RSpec.describe Guard::PluginUtil do
 
   let!(:rubygems_version_1_7_2) { Gem::Version.create("1.7.2") }
   let!(:rubygems_version_1_8_0) { Gem::Version.create("1.8.0") }

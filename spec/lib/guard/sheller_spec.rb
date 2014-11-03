@@ -1,8 +1,4 @@
-require "spec_helper"
-
-include Guard
-
-describe Sheller, :sheller_specs do
+RSpec.describe Sheller, :sheller_specs do
   before do
     allow(Kernel).to receive(:system) do |args|
       fail "Stub called with: #{args.inspect}"

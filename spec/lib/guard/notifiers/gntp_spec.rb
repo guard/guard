@@ -1,6 +1,4 @@
-require "spec_helper"
-
-describe Guard::Notifier::GNTP do
+RSpec.describe Guard::Notifier::GNTP do
   let(:notifier) { described_class.new }
   let(:gntp) { double("GNTP").as_null_object }
 

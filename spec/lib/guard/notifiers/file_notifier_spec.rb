@@ -1,6 +1,4 @@
-require "spec_helper"
-
-describe Guard::Notifier::FileNotifier do
+RSpec.describe Guard::Notifier::FileNotifier do
   let(:notifier) { described_class.new }
 
   describe ".available?" do

@@ -1,8 +1,4 @@
-require "spec_helper"
-
-include Guard
-
-describe Guard::Notifier::Tmux do
+RSpec.describe Guard::Notifier::Tmux do
   let(:notifier) { described_class.new }
   let(:tmux_version) { 1.7 }
 

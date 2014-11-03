@@ -1,7 +1,6 @@
-require "spec_helper"
 require "guard/plugin"
 
-describe Guard::Runner do
+RSpec.describe Guard::Runner do
   let(:interactor) { instance_double(Guard::Interactor) }
 
   let(:backend_group) do

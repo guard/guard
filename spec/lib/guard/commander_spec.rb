@@ -1,7 +1,6 @@
-require "spec_helper"
 require "guard/plugin"
 
-describe Guard::Commander do
+RSpec.describe Guard::Commander do
   let(:interactor) { instance_double(Guard::Interactor) }
 
   before do

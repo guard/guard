@@ -1,6 +1,4 @@
-require "spec_helper"
-
-describe Guard::Notifier::Libnotify do
+RSpec.describe Guard::Notifier::Libnotify do
   let(:notifier) { described_class.new }
 
   before do

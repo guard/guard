@@ -1,6 +1,4 @@
-require "spec_helper"
-
-describe Guard::Group do
+RSpec.describe Guard::Group do
   subject { described_class.new(name, options) }
 
   let(:name) { :foo }

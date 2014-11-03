@@ -1,8 +1,6 @@
-require "spec_helper"
-
 require "guard/jobs/sleep"
 
-describe Guard::Jobs::Sleep do
+RSpec.describe Guard::Jobs::Sleep do
   subject { described_class.new({}) }
 
   describe "#foreground" do

@@ -1,9 +1,8 @@
-require "spec_helper"
 require "guard/plugin"
 
 require "guard/dsl"
 
-describe Guard::Dsl do
+RSpec.describe Guard::Dsl do
 
   let(:guardfile_evaluator) { instance_double(Guard::Guardfile::Evaluator) }
   let(:interactor) { instance_double(Guard::Interactor) }

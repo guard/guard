@@ -1,6 +1,4 @@
-require "spec_helper"
-
-describe Guard::Notifier::TerminalTitle do
+RSpec.describe Guard::Notifier::TerminalTitle do
   let(:notifier) { described_class.new }
 
   describe ".available?" do

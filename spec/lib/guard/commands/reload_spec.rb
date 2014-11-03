@@ -1,9 +1,8 @@
-require "spec_helper"
 require "guard/plugin"
 
 require "guard/commands/reload"
 
-describe Guard::Commands::Reload do
+RSpec.describe Guard::Commands::Reload do
   before { described_class.import }
 
   let(:foo_group) { instance_double(Guard::Group) }

@@ -1,6 +1,4 @@
-require "spec_helper"
-
-describe Guard::Notifier::TerminalNotifier do
+RSpec.describe Guard::Notifier::TerminalNotifier do
   let(:notifier) { described_class.new }
 
   before do

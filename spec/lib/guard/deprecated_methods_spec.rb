@@ -1,8 +1,6 @@
-require "spec_helper"
-
 include Guard
 
-describe Guard::DeprecatedMethods do
+RSpec.describe Guard::DeprecatedMethods do
   before(:all) do
     module TestModule
       extend DeprecatedMethods

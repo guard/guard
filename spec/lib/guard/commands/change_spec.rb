@@ -1,8 +1,6 @@
-require "spec_helper"
-
 require "guard/commands/change"
 
-describe Guard::Commands::Change do
+RSpec.describe Guard::Commands::Change do
   before { described_class.import }
   context "with a file" do
     it "runs the :run_on_changes action with the given file" do

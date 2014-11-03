@@ -1,4 +1,3 @@
-require "spec_helper"
 require "guard/cli"
 
 RSpec.shared_examples "avoids Bundler warning" do |meth|
@@ -64,7 +63,7 @@ RSpec.shared_examples "gem dependency warning" do |meth|
   end
 end
 
-describe Guard::CLI do
+RSpec.describe Guard::CLI do
   let(:guard)         { Guard }
   let(:ui)            { Guard::UI }
   let(:dsl_describer) { instance_double(::Guard::DslDescriber) }

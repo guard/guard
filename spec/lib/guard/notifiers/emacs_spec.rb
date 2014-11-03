@@ -1,8 +1,4 @@
-require "spec_helper"
-
-include Guard
-
-describe Guard::Notifier::Emacs do
+RSpec.describe Guard::Notifier::Emacs do
   let(:notifier) { described_class.new }
 
   describe ".available?" do

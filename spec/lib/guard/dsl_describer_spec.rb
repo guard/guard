@@ -1,10 +1,9 @@
 # encoding: utf-8
-require "spec_helper"
 require "guard/plugin"
 require "guard/dsl_describer"
 require "formatador"
 
-describe Guard::DslDescriber do
+RSpec.describe Guard::DslDescriber do
   let(:interactor) { instance_double(Guard::Interactor) }
 
   let(:guardfile) do

@@ -1,7 +1,6 @@
-require "spec_helper"
 require "guard/guard"
 
-describe Guard::Guard do
+RSpec.describe Guard::Guard do
 
   describe "#initialize" do
     it "assigns the defined watchers" do

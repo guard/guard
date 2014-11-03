@@ -1,7 +1,6 @@
-require "spec_helper"
 require "guard/plugin"
 
-describe Guard do
+RSpec.describe Guard do
   let(:interactor) { instance_double(Guard::Interactor) }
   let(:evaluator) { instance_double(Guard::Guardfile::Evaluator) }
 

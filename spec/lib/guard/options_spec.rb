@@ -1,6 +1,4 @@
-require "spec_helper"
-
-describe Guard::Options do
+RSpec.describe Guard::Options do
   describe ".initialize" do
     it "handles nil options" do
       expect { described_class.new(nil) }.to_not raise_error
