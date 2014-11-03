@@ -68,9 +68,14 @@ RSpec.describe Guard::CLI do
   let(:ui)            { Guard::UI }
   let(:dsl_describer) { instance_double(::Guard::DslDescriber) }
 
+  let(:evaluator) { instance_double(Guard::Guardfile::Evaluator) }
+
   before do
     @options = {}
     allow(subject).to receive(:options).and_return(@options)
+
+    allow(Guard::Guardfile::Evaluator).to receive(:new).
+      and_return(evaluator)
   end
 
   describe "#start" do
@@ -118,16 +123,27 @@ RSpec.describe Guard::CLI do
     include_examples "gem dependency warning", :init
 
     before do
-      allow(File).to receive(:exist?).with("Gemfile").and_return(false)
+      stub_file("Gemfile")
 
       allow(Guard::Guardfile).to receive(:create_guardfile)
       allow(Guard::Guardfile).to receive(:initialize_all_templates)
+      allow(evaluator).to receive(:evaluate_guardfile)
     end
 
     # TODO: this is a code smell suggesting the use of global variables
     # instead of object oriented programming
     context "with bare option" do
       before { @options[:bare] = true }
+
+      it "evaluates created or existing guardfile" do
+        expect(evaluator).to receive(:evaluate_guardfile)
+        subject.init
+      end
+
+      it "resets plugins, so add_plugin can work" do
+        expect(::Guard).to receive(:reset_plugins)
+        subject.init
+      end
 
       it "should call Guard.reset_options before using ::Guard.UI" do
         reset_called = false
@@ -144,6 +160,15 @@ RSpec.describe Guard::CLI do
         expect(reset_called).to be(true)
         expect(reset_called_before_creating).to be(true)
       end
+
+      it "Only creates the Guardfile without initialize any Guard template" do
+        allow(File).to receive(:exist?).with("Gemfile").and_return(false)
+        expect(Guard::Guardfile).to receive(:create_guardfile)
+        expect(Guard::Guardfile).to_not receive(:initialize_template)
+        expect(Guard::Guardfile).to_not receive(:initialize_all_templates)
+
+        subject.init
+      end
     end
 
     # TODO: this is a code smell suggesting the use of global variables
@@ -151,19 +176,25 @@ RSpec.describe Guard::CLI do
     context "with no bare option" do
       before { @options[:bare] = false }
 
+      it "evaluates created or existing guardfile" do
+        expect(evaluator).to receive(:evaluate_guardfile)
+        subject.init
+      end
+
+      it "resets plugins, so add_plugin can work" do
+        expect(::Guard).to receive(:reset_plugins)
+        subject.init
+      end
+
       it "should setup Guard.evaluator before initialize_all_templates()" do
-        evaluator = nil
+        ev = nil
         expect(Guard::Guardfile).to receive(:initialize_all_templates) do
-          evaluator = Guard.evaluator
+          ev = Guard.evaluator
         end
 
         subject.init
-        expect(evaluator).to be_a(::Guard::Guardfile::Evaluator)
+        expect(ev).to be(evaluator)
       end
-    end
-
-    context "with no bare option" do
-      before { @options[:bare] = false }
 
       it "creates a Guardfile by delegating to Guardfile.create_guardfile" do
         expect(Guard::Guardfile).to receive(:create_guardfile).
@@ -196,19 +227,6 @@ RSpec.describe Guard::CLI do
 
           subject.init "rspec"
         end
-      end
-    end
-
-    context "with the bare option" do
-      before { @options[:bare] = true }
-
-      it "Only creates the Guardfile without initialize any Guard template" do
-        allow(File).to receive(:exist?).with("Gemfile").and_return(false)
-        expect(Guard::Guardfile).to receive(:create_guardfile)
-        expect(Guard::Guardfile).to_not receive(:initialize_template)
-        expect(Guard::Guardfile).to_not receive(:initialize_all_templates)
-
-        subject.init
       end
     end
 

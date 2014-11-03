@@ -542,6 +542,13 @@ RSpec.describe Guard::Guardfile::Evaluator do
 
       expect(evaluator.guardfile_include?("test")).to be_truthy
     end
+
+    it "detects a guard preceded by space (in a group)" do
+      allow(evaluator).to receive(:_guardfile_contents_without_user_config).
+        and_return("group :foo do\n  guard :test do\n end\nend\n")
+
+      expect(evaluator.guardfile_include?("test")).to be_truthy
+    end
   end
 
   private
