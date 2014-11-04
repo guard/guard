@@ -70,10 +70,11 @@ module Guard
                   aliases: "-B",
                   banner: "Turn off warning when Bundler is not present"
 
+    # DEPRECATED
     method_option :show_deprecations,
                   type: :boolean,
                   default: false,
-                  banner: "Turn on deprecation warnings"
+                  banner: "DEPRECATED: it does nothing"
 
     # Listen options
     method_option :latency,

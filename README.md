@@ -293,9 +293,10 @@ $ bundle exec guard start --no-bundler-warning
 
 #### `--show-deprecations`
 
-Turn on deprecation warnings.
+This option is deprecated. No, seriously! Deprecations are now always shown.
 
-*NOTE: They are OFF by default (see: [#298](https://github.com/guard/guard/issues/298))*
+(To *really* hide them, set the environment variable `GUARD_GEM_SILENCE_DEPRECATIONS=1`)
+
 
 #### `-l`/`--latency` option
 

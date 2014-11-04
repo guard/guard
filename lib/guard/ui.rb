@@ -97,7 +97,11 @@ module Guard
       def deprecation(message, options = {})
         msg = "neither ::Guard.setup nor ::Guard.reset_options was called"
         fail msg if ::Guard.options.nil?
-        warning(message, options) if ::Guard.options[:show_deprecations]
+        unless ENV["GUARD_GEM_SILENCE_DEPRECATIONS"] == "1"
+          backtrace = Thread.current.backtrace[1..3].join("\n\t >")
+          msg = format("%s\nDeprecation backtrace: %s", message, backtrace)
+          warning(msg, options)
+        end
       end
 
       # Show a debug message that is prefixed with DEBUG and a timestamp.

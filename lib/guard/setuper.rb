@@ -15,7 +15,6 @@ module Guard
       guardfile: nil,
       no_interactions: false,
       no_bundler_warning: false,
-      show_deprecations: false,
       latency: nil,
       force_polling: false,
       wait_for_delay: nil,
