@@ -1,13 +1,14 @@
 RSpec.describe Guard::Notifier::Emacs do
   let(:notifier) { described_class.new }
+  let(:sheller) { Guard::Sheller }
 
   describe ".available?" do
     subject { described_class }
 
-    let(:cmd) { "emacsclient --eval '1' 2> #{DEV_NULL} || echo 'N/A'" }
+    let(:cmd) { "emacsclient --eval '1' 2> #{Guard::DEV_NULL} || echo 'N/A'" }
     let(:result) { fail "set me first" }
 
-    before { allow(Sheller).to receive(:stdout).with(cmd).and_return(result) }
+    before { allow(sheller).to receive(:stdout).with(cmd).and_return(result) }
 
     context "when the client command works" do
       let(:result) { "" }
@@ -30,7 +31,7 @@ RSpec.describe Guard::Notifier::Emacs do
       let(:notifier) { described_class.new(success: "Green", silent: true) }
 
       it "uses these options by default" do
-        expect(Sheller).to receive(:run) do |command, *arguments|
+        expect(sheller).to receive(:run) do |command, *arguments|
           expect(command).to include("emacsclient")
           expect(arguments).to include(
             "(set-face-attribute 'mode-line nil"\
@@ -42,7 +43,7 @@ RSpec.describe Guard::Notifier::Emacs do
       end
 
       it "overwrites object options with passed options" do
-        expect(Sheller).to receive(:run) do |command, *arguments|
+        expect(sheller).to receive(:run) do |command, *arguments|
           expect(command).to include("emacsclient")
           expect(arguments).to include(
             "(set-face-attribute 'mode-line nil"\
@@ -56,7 +57,7 @@ RSpec.describe Guard::Notifier::Emacs do
 
     context "when no color options are specified" do
       it "should set modeline color to the default color using emacsclient" do
-        expect(Sheller).to receive(:run) do |command, *arguments|
+        expect(sheller).to receive(:run) do |command, *arguments|
           expect(command).to include("emacsclient")
           expect(arguments).to include(
             "(set-face-attribute 'mode-line nil"\
@@ -70,7 +71,7 @@ RSpec.describe Guard::Notifier::Emacs do
 
     context 'when a color option is specified for "success" notifications' do
       it "should set modeline color to the specified color using emacsclient" do
-        expect(Sheller).to receive(:run) do |command, *arguments|
+        expect(sheller).to receive(:run) do |command, *arguments|
           expect(command).to include("emacsclient")
           expect(arguments).to include(
             "(set-face-attribute 'mode-line nil"\
@@ -84,7 +85,7 @@ RSpec.describe Guard::Notifier::Emacs do
 
     context 'when a color option is specified for "pending" notifications' do
       it "should set modeline color to the specified color using emacsclient" do
-        expect(Sheller).to receive(:run) do |command, *arguments|
+        expect(sheller).to receive(:run) do |command, *arguments|
           expect(command).to include("emacsclient")
           expect(arguments).to include(
             "(set-face-attribute 'mode-line nil"\

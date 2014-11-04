@@ -9,7 +9,7 @@ RSpec.describe Guard::Notifier::Base do
 
   module Guard
     module Notifier
-      class FooBar < Guard::Notifier::Base
+      class FooBar < Notifier::Base
         def self.supported_hosts
           %w(freebsd solaris)
         end

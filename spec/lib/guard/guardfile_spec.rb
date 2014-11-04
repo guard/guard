@@ -10,8 +10,9 @@ RSpec.describe Guard::Guardfile do
     end
 
     it "displays a deprecation warning to the user" do
-      expect(UI).to receive(:deprecation).
-        with(Deprecator::CREATE_GUARDFILE_DEPRECATION)
+      pending "these deprecations need to be restored"
+      expect(Guard::UI).to receive(:deprecation).
+        with(Guard::Deprecator::CREATE_GUARDFILE_DEPRECATION)
 
       described_class.create_guardfile
     end
@@ -36,8 +37,9 @@ RSpec.describe Guard::Guardfile do
     end
 
     it "displays a deprecation warning to the user" do
-      expect(UI).to receive(:deprecation).
-        with(Deprecator::INITIALIZE_TEMPLATE_DEPRECATION)
+      pending "these deprecations need to be restored"
+      expect(Guard::UI).to receive(:deprecation).
+        with(Guard::Deprecator::INITIALIZE_TEMPLATE_DEPRECATION)
 
       described_class.initialize_template("rspec")
     end
@@ -59,8 +61,9 @@ RSpec.describe Guard::Guardfile do
     end
 
     it "displays a deprecation warning to the user" do
-      expect(UI).to receive(:deprecation).
-        with(Deprecator::INITIALIZE_ALL_TEMPLATES_DEPRECATION)
+      pending "these deprecations need to be restored"
+      expect(Guard::UI).to receive(:deprecation).
+        with(Guard::Deprecator::INITIALIZE_ALL_TEMPLATES_DEPRECATION)
 
       described_class.initialize_all_templates
     end
