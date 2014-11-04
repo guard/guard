@@ -171,7 +171,14 @@ module Guard
       ::Guard.reset_options(options) # Since UI.deprecated uses config
       ::Guard.reset_evaluator(options) # for initialize_all_templates
 
+      # This is messed up (deprecated, etc) and will be fixed later
       ::Guard::Guardfile.create_guardfile(abort_on_existence: options[:bare])
+
+      # Note: this reset "hack" will be fixed after refactoring
+      ::Guard.reset_plugins
+
+      # Evaluate because it might have existed and creating was skipped
+      ::Guard.evaluator.evaluate_guardfile
 
       return if options[:bare]
 

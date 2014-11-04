@@ -22,6 +22,7 @@ module Guard
       # content of a valid Guardfile
       #
       def initialize(opts = {})
+        @evaluated = false
         @source = nil
         @guardfile_path = nil
 
@@ -81,8 +82,8 @@ module Guard
       # @return [Boolean] whether the Guard plugin has been declared
       #
       def guardfile_include?(plugin_name)
-        regexp = /^guard\s*\(?\s*['":]#{ plugin_name }['"]?/
-        _guardfile_contents_without_user_config.match(regexp)
+        /^\s*guard\s*\(?\s*['":]#{ plugin_name }['"]?/.
+          match _guardfile_contents_without_user_config
       end
 
       # Gets the content of the `Guardfile` concatenated with the global
@@ -106,6 +107,7 @@ module Guard
       # @return [String] the Guardfile content
       #
       def _guardfile_contents_without_user_config
+        fail "BUG: no data - Guardfile wasn't evaluated" unless @evaluated
         @guardfile_contents || ""
       end
 
@@ -124,6 +126,7 @@ module Guard
       #
       def _fetch_guardfile_contents
         _use_inline || _use_provided || _use_default
+        @evaluated = true
 
         return if _guardfile_contents_usable?
         ::Guard::UI.error "No Guard plugins found in Guardfile,"\
