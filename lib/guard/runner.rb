@@ -55,7 +55,6 @@ module Guard
 
           next unless (task = tasks.detect { |meth| plugin.respond_to?(meth) })
           _supervise(plugin, task, match_result)
-          ::Guard::UI.clearable
         end
       end
     end

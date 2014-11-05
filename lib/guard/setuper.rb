@@ -45,14 +45,18 @@ module Guard
     # so ideally there should be a guard "instance"
     # object that can be created anew between tests
     def setup(opts = {})
+      # NOTE: must be set before anything calls Guard.options
       reset_options(opts)
+
+      # NOTE: must be set before anything calls Guard::UI.debug
+      ::Guard::Internals::Debugging.start if options[:debug]
+
       reset_evaluator(opts)
 
       @queue = Queue.new
       @runner = ::Guard::Runner.new
       @watchdirs = _setup_watchdirs
 
-      ::Guard::Internals::Debugging.start if options[:debug]
       ::Guard::UI.reset_and_clear
 
       @listener = _setup_listener
