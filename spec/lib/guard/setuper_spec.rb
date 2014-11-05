@@ -1,5 +1,7 @@
 require "guard/plugin"
 
+require "guard/setuper"
+
 RSpec.describe Guard::Setuper do
 
   let(:evaluator) { instance_double(Guard::Guardfile::Evaluator) }
@@ -150,21 +152,19 @@ RSpec.describe Guard::Setuper do
       end
     end
 
-    context "with the debug mode turned on" do
-      let(:options) { { debug: true, guardfile: guardfile } }
-
-      before do
-        allow(Guard).to receive(:_debug_command_execution)
-      end
-
-      it "logs command execution if the debug option is true" do
-        expect(::Guard).to receive(:_debug_command_execution)
+    context "when debug is set to true" do
+      let(:options) { { debug: true } }
+      it "does not set up debugging" do
+        expect(Guard::Internals::Debugging).to receive(:start)
         subject
       end
+    end
 
-      it "sets the log level to :debug if the debug option is true" do
+    context "when debug is set to false" do
+      let(:options) { { debug: false } }
+      it "sets up debugging" do
+        expect(Guard::Internals::Debugging).to_not receive(:start)
         subject
-        expect(::Guard::UI.options[:level]).to eq :debug
       end
     end
 
@@ -594,60 +594,6 @@ RSpec.describe Guard::Setuper do
 
         it { is_expected.to_not be_interactive }
       end
-    end
-  end
-
-  # shouldn't be in specs - whatever it uses should be mocked out
-  describe "._debug_command_execution" do
-    subject { Guard.setup }
-
-    before do
-      allow(Listen).to receive(:to).with(Dir.pwd, {})
-      allow(Guard::Notifier).to receive(:turn_on)
-
-      # Unstub global stub
-      allow(Guard).to receive(:_debug_command_execution).and_call_original
-
-      @original_system  = Kernel.method(:system)
-      @original_command = Kernel.method(:`)
-      Kernel.send(:define_method, :original_system, proc { |*_args| })
-      Kernel.send(:define_method, :original_backtick, proc { |*_args| })
-
-      stub_guardfile(" ")
-      stub_user_guard_rb
-    end
-
-    after do
-      Kernel.send(:remove_method, :system)
-      Kernel.send(:remove_method, :`)
-      Kernel.send(:remove_method, :original_system)
-      Kernel.send(:remove_method, :original_backtick)
-
-      Kernel.send(:define_method, :system, @original_system.to_proc)
-      Kernel.send(:define_method, :`, @original_command.to_proc)
-    end
-
-    it "outputs Kernel.#system method parameters" do
-      expect(::Guard::UI).to receive(:debug).
-        with("Command execution: echo test")
-
-      expect(Kernel).to receive(:original_system).
-        with("echo", "test") { true }
-
-      subject.send :_debug_command_execution
-
-      expect(system("echo", "test")).to be_truthy
-    end
-
-    it "outputs Kernel.#` method parameters" do
-      expect(::Guard::UI).to receive(:debug).
-        with("Command execution: echo test")
-
-      expect(Kernel).to receive(:original_backtick).
-        with("echo test") { "test\n" }
-
-      subject.send :_debug_command_execution
-      expect(`echo test`).to eq "test\n"
     end
   end
 end

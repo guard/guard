@@ -2,6 +2,8 @@ require "thread"
 require "listen"
 require "guard/options"
 
+require "guard/internals/debugging"
+
 module Guard
   # Sets up initial variables and options
   module Setuper
@@ -50,9 +52,9 @@ module Guard
       @runner = ::Guard::Runner.new
       @watchdirs = _setup_watchdirs
 
-      ::Guard::UI.setup(options)
+      ::Guard::Internals::Debugging.start if options[:debug]
+      ::Guard::UI.reset_and_clear
 
-      _setup_debug if options[:debug]
       @listener = _setup_listener
       _setup_signal_traps
 
@@ -174,20 +176,6 @@ module Guard
 
     private
 
-    # Sets up various debug behaviors:
-    #
-    # * Abort threads on exception;
-    # * Set the logging level to `:debug`;
-    # * Modify the system and ` methods to log themselves before being executed
-    #
-    # @see #_debug_command_execution
-    #
-    def _setup_debug
-      Thread.abort_on_exception = true
-      ::Guard::UI.options[:level] = :debug
-      _debug_command_execution
-    end
-
     # Initializes the listener and registers a callback for changes.
     #
     def _setup_listener
@@ -249,23 +237,6 @@ module Guard
         ::Guard::Notifier.turn_on
       else
         ::Guard::Notifier.turn_off
-      end
-    end
-
-    # Adds a command logger in debug mode. This wraps common command
-    # execution functions and logs the executed command before execution.
-    #
-    def _debug_command_execution
-      Kernel.send(:alias_method, :original_system, :system)
-      Kernel.send(:define_method, :system) do |command, *args|
-        ::Guard::UI.debug "Command execution: #{ command } #{ args.join(" ") }"
-        Kernel.send :original_system, command, *args
-      end
-
-      Kernel.send(:alias_method, :original_backtick, :'`')
-      Kernel.send(:define_method, :'`') do |command|
-        ::Guard::UI.debug "Command execution: #{ command }"
-        Kernel.send :original_backtick, command
       end
     end
 

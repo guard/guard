@@ -53,8 +53,14 @@ module Guard
       # @option options [String] template the logger template
       # @option options [String] time_format the time format
       #
+      # TODO: deprecate?
       def options=(options)
         @options = ::Guard::Options.new(options)
+      end
+
+      # Assigns a log level
+      def level=(new_level)
+        logger.level = new_level
       end
 
       # Show an info message.
@@ -135,7 +141,8 @@ module Guard
       end
 
       # TODO: arguments: UI uses Guard::options anyway
-      def setup(_options)
+      # @private api
+      def reset_and_clear
         @clearable = false
         clear(force: true)
       end

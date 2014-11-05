@@ -344,8 +344,7 @@ RSpec.describe Guard::UI do
         # disable avoid calling clear during before()
         allow(options).to receive(:[]).with(:clear).and_return(false)
 
-        # This shouldn't do anything except set instance var
-        Guard::UI.setup(options)
+        Guard::UI.reset_and_clear
       end
 
       context "when clear option is disabled" do

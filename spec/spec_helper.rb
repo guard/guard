@@ -156,9 +156,6 @@ RSpec.configure do |config|
 
     Guard.clear_options
 
-    # Ensure debug command execution isn't used in the specs
-    allow(Guard).to receive(:_debug_command_execution)
-
     # Stub all UI methods, so no visible output appears for the UI class
     allow(::Guard::UI).to receive(:info)
     allow(::Guard::UI).to receive(:warning)
