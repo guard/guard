@@ -296,6 +296,7 @@ RSpec.describe Guard::Setuper do
     end
   end
 
+  # TODO: remove
   describe ".reset_plugins" do
     before do
       allow(Listen).to receive(:to).with(Dir.pwd, {})

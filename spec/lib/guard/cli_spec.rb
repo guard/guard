@@ -1,5 +1,6 @@
 require "guard/cli"
 
+# TODO: instead of shared examples, use have_received if possible
 RSpec.shared_examples "avoids Bundler warning" do |meth|
   it "does not show the Bundler warning" do
     expect(Guard::UI).to_not receive(:info).with(/Guard here!/)

@@ -1,3 +1,4 @@
+# TODO: remove this whole file
 shared_examples_for "interactor enabled" do
   it "enables the interactor" do
     expect(Guard.interactor).to be_interactive
