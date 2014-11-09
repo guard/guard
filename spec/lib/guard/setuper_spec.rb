@@ -14,10 +14,13 @@ RSpec.describe Guard::Setuper do
     allow(Dir).to receive(:chdir)
     allow(Guard::Jobs::PryWrapper).to receive(:new).and_return(pry_interactor)
     allow(Guard::Jobs::Sleep).to receive(:new).and_return(sleep_interactor)
+
+    stub_notifier
   end
 
   # TODO: setup has too many responsibilities
   describe ".setup" do
+
     subject { Guard.setup(options) }
 
     let(:options) { { my_opts: true, guardfile: guardfile } }
@@ -26,7 +29,6 @@ RSpec.describe Guard::Setuper do
 
     before do
       allow(Listen).to receive(:to).with(Dir.pwd, {}) { listener }
-      allow(Guard::Notifier).to receive(:turn_on)
 
       stub_guardfile(" ")
       stub_user_guard_rb
@@ -100,9 +102,8 @@ RSpec.describe Guard::Setuper do
       subject
     end
 
-    it "call setup_notifier" do
-      expect(Guard).to receive(:_setup_notifier)
-
+    it "connects to the notifier" do
+      expect(Guard::Notifier).to receive(:connect).with(notify: true)
       subject
     end
 
@@ -192,7 +193,6 @@ RSpec.describe Guard::Setuper do
   describe ".reset_groups" do
     subject do
       allow(Listen).to receive(:to).with(Dir.pwd, {})
-      allow(Guard::Notifier).to receive(:turn_on)
 
       stub_guardfile(" ")
       stub_user_guard_rb
@@ -230,7 +230,6 @@ RSpec.describe Guard::Setuper do
       stub_const "Guard::Bar", Class.new(Guard::Plugin)
       stub_const "Guard::Baz", Class.new(Guard::Plugin)
       allow(Listen).to receive(:to).with(Dir.pwd, {}) { listener }
-      allow(Guard::Notifier).to receive(:turn_on)
       stub_user_guard_rb
     end
 
@@ -300,7 +299,6 @@ RSpec.describe Guard::Setuper do
   describe ".reset_plugins" do
     before do
       allow(Listen).to receive(:to).with(Dir.pwd, {})
-      allow(Guard::Notifier).to receive(:turn_on)
 
       # TODO: clean this up (rework evaluator)
       stub_guardfile(" ")
@@ -332,7 +330,6 @@ RSpec.describe Guard::Setuper do
     before do
       allow(Listen).to receive(:to).with(File.join(Dir.pwd, "abc"), {})
       allow(Listen).to receive(:to).with(Dir.pwd, {})
-      allow(Guard::Notifier).to receive(:turn_on)
 
       stub_guardfile(" ")
       stub_user_guard_rb
@@ -381,7 +378,6 @@ RSpec.describe Guard::Setuper do
     before do
       allow(::Guard).to receive(:evaluate_guardfile)
       allow(Listen).to receive(:to).with(Dir.pwd, {})
-      allow(Guard::Notifier).to receive(:turn_on)
       ::Guard.setup
     end
 
@@ -418,132 +414,6 @@ RSpec.describe Guard::Setuper do
     end
   end
 
-  # TODO: remove this method since it's private
-  describe "._setup_notifier" do
-    before do
-      stub_guardfile(" ")
-      stub_user_guard_rb
-    end
-
-    context "with the notify option enabled" do
-      context "without the environment variable GUARD_NOTIFY set" do
-        before { ENV["GUARD_NOTIFY"] = nil }
-
-        it "turns on the notifier on" do
-          expect(::Guard::Notifier).to receive(:turn_on)
-
-          allow(Listen).to receive(:to).with(Dir.pwd, {})
-          ::Guard.setup(notify: true)
-        end
-      end
-
-      context "with the environment variable GUARD_NOTIFY set to true" do
-        before { ENV["GUARD_NOTIFY"] = "true" }
-
-        it "turns on the notifier on" do
-          expect(::Guard::Notifier).to receive(:turn_on)
-
-          allow(Listen).to receive(:to).with(Dir.pwd, {})
-          ::Guard.setup(notify: true)
-        end
-      end
-
-      context "with the environment variable GUARD_NOTIFY set to false" do
-        before { ENV["GUARD_NOTIFY"] = "false" }
-
-        it "turns on the notifier off" do
-          expect(::Guard::Notifier).to receive(:turn_off)
-
-          allow(Listen).to receive(:to).with(Dir.pwd, {})
-          ::Guard.setup(notify: true)
-        end
-      end
-    end
-
-    context "with the notify option disable" do
-      context "without the environment variable GUARD_NOTIFY set" do
-        before { ENV["GUARD_NOTIFY"] = nil }
-
-        it "turns on the notifier off" do
-          expect(::Guard::Notifier).to receive(:turn_off)
-
-          allow(Listen).to receive(:to).with(Dir.pwd, {})
-          ::Guard.setup(notify: false)
-        end
-      end
-
-      context "with the environment variable GUARD_NOTIFY set to true" do
-        before { ENV["GUARD_NOTIFY"] = "true" }
-
-        it "turns on the notifier on" do
-          expect(::Guard::Notifier).to receive(:turn_off)
-
-          allow(Listen).to receive(:to).with(Dir.pwd, {})
-          ::Guard.setup(notify: false)
-        end
-      end
-
-      context "with the environment variable GUARD_NOTIFY set to false" do
-        before { ENV["GUARD_NOTIFY"] = "false" }
-
-        it "turns on the notifier off" do
-          expect(::Guard::Notifier).to receive(:turn_off)
-
-          allow(Listen).to receive(:to).with(Dir.pwd, {})
-          ::Guard.setup(notify: false)
-        end
-      end
-    end
-  end
-
-  describe "._setup_notifier" do
-    context "with the notify option enabled" do
-      let(:options) { Guard::Options.new(notify: true) }
-      before { allow(::Guard).to receive(:options) { options } }
-
-      context "without the environment variable GUARD_NOTIFY set" do
-        before { ENV["GUARD_NOTIFY"] = nil }
-
-        it_should_behave_like "notifier enabled"
-      end
-
-      context "with the environment variable GUARD_NOTIFY set to true" do
-        before { ENV["GUARD_NOTIFY"] = "true" }
-
-        it_should_behave_like "notifier enabled"
-      end
-
-      context "with the environment variable GUARD_NOTIFY set to false" do
-        before { ENV["GUARD_NOTIFY"] = "false" }
-
-        it_should_behave_like "notifier disabled"
-      end
-    end
-
-    context "with the notify option disabled" do
-      let(:options) { Guard::Options.new(notify: false) }
-      before { allow(::Guard).to receive(:options) { options } }
-
-      context "without the environment variable GUARD_NOTIFY set" do
-        before { ENV["GUARD_NOTIFY"] = nil }
-
-        it_should_behave_like "notifier disabled"
-      end
-
-      context "with the environment variable GUARD_NOTIFY set to true" do
-        before { ENV["GUARD_NOTIFY"] = "true" }
-
-        it_should_behave_like "notifier disabled"
-      end
-
-      context "with the environment variable GUARD_NOTIFY set to false" do
-        before { ENV["GUARD_NOTIFY"] = "false" }
-
-        it_should_behave_like "notifier disabled"
-      end
-    end
-  end
-
   # TODO: these should be interactor tests
   describe ".interactor" do
     subject { Guard.interactor }
@@ -551,7 +421,6 @@ RSpec.describe Guard::Setuper do
     before do
       allow(Listen).to receive(:to).with(Dir.pwd, {})
       allow(evaluator).to receive(:evaluate_guardfile)
-      allow(Guard::Notifier).to receive(:turn_on)
 
       stub_guardfile(" ")
       stub_user_guard_rb

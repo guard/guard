@@ -234,16 +234,6 @@ module Guard
       Signal.trap("INT") { interactor.handle_interrupt }
     end
 
-    # Enables or disables the notifier based on user's configurations.
-    #
-    def _setup_notifier
-      if options[:notify] && ENV["GUARD_NOTIFY"] != "false"
-        ::Guard::Notifier.turn_on
-      else
-        ::Guard::Notifier.turn_off
-      end
-    end
-
     # TODO: Guard::Watch or Guard::Scope should provide this
     def _scoped_watchers
       watchers = []
@@ -313,7 +303,7 @@ module Guard
       _reset_all
       evaluate_guardfile
       setup_scope
-      _setup_notifier
+      ::Guard::Notifier.connect(notify: options[:notify])
     end
 
     def _prepare_scope(scope)

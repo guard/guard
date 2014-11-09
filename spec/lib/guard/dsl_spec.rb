@@ -17,6 +17,7 @@ RSpec.describe Guard::Dsl do
 
   before do
     stub_user_guard_rb
+    stub_notifier
     stub_const "Guard::Foo", Class.new(Guard::Plugin)
     stub_const "Guard::Bar", Class.new(Guard::Plugin)
     stub_const "Guard::Baz", Class.new(Guard::Plugin)
@@ -134,7 +135,7 @@ RSpec.describe Guard::Dsl do
       let(:contents) { "notification :growl" }
 
       it "adds a notification to the notifier" do
-        expect(::Guard::Notifier).to receive(:add_notifier).
+        expect(::Guard::Notifier).to receive(:add).
           with(:growl,  silent: false)
 
         evaluator.call(contents)
@@ -147,10 +148,10 @@ RSpec.describe Guard::Dsl do
       end
 
       it "adds multiple notifiers" do
-        expect(::Guard::Notifier).to receive(:add_notifier).
+        expect(::Guard::Notifier).to receive(:add).
           with(:growl,  silent: false)
 
-        expect(::Guard::Notifier).to receive(:add_notifier).
+        expect(::Guard::Notifier).to receive(:add).
           with(:ruby_gntp,  host: "192.168.1.5", silent: false)
 
         evaluator.call(contents)

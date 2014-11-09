@@ -69,9 +69,12 @@ module Guard
     ]
 
     def notifiers
-      ENV["GUARD_NOTIFIERS"] ? YAML::load(ENV["GUARD_NOTIFIERS"]) : []
+      data = ENV["GUARD_NOTIFIERS"]
+      data ? YAML::load(data) : []
     end
 
+    # TODO: there should be max 1 spec that uses this
+    # (instead, receive expectations should be used with ENV(:[]=))
     def notifiers=(notifiers)
       ENV["GUARD_NOTIFIERS"] = YAML::dump(notifiers)
     end
@@ -93,21 +96,20 @@ module Guard
         _auto_detect_notification
       end
 
-      if notifiers.empty?
-        turn_off
-      else
-        notifiers.each do |notifier|
-          notifier_class = _get_notifier_module(notifier[:name])
-          unless opts[:silent]
-            ::Guard::UI.info \
-              "Guard is using #{ notifier_class.title } to send notifications."
-          end
+      available = notifiers # cache for simpler specs
+      return turn_off if available.empty?
 
-          notifier_class.turn_on if notifier_class.respond_to?(:turn_on)
+      available.each do |notifier|
+        notifier_class = _get_notifier_module(notifier[:name])
+        unless opts[:silent]
+          ::Guard::UI.info \
+            "Guard is using #{ notifier_class.title } to send notifications."
         end
 
-        ENV["GUARD_NOTIFY"] = "true"
+        notifier_class.turn_on if notifier_class.respond_to?(:turn_on)
       end
+
+      ENV["GUARD_NOTIFY"] = "true"
     end
 
     # Turn notifications off.

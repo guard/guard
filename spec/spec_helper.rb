@@ -45,6 +45,15 @@ def stub_user_project_guardfile(contents = nil, &block)
   stub_file(File.expand_path(".Guardfile"), contents, &block)
 end
 
+def stub_notifier
+  allow(Guard::Notifier).to receive(:connect)
+  allow(Guard::Notifier).to receive(:disconnect)
+  allow(Guard::Notifier).to receive(:turn_on)
+  allow(Guard::Notifier).to receive(:turn_off)
+  allow(Guard::Notifier).to receive(:notify)
+  allow(Guard::Notifier).to receive(:add)
+end
+
 # TODO: I can't wait to replace these with IO.read + rescuing Errno:ENOENT
 def stub_file(path, contents = nil, &block)
   exists = !contents.nil?
@@ -148,6 +157,34 @@ RSpec.configure do |config|
   config.before(:each) do |example|
     stub_const("FileUtils", class_double(FileUtils))
 
+    allow(ENV).to receive(:[]=) do |*args|
+      fail "stub me: ENV[#{args.first}]= #{args.map(&:inspect)[1..-1] * ","}!"
+    end
+
+    allow(ENV).to receive(:[]) do |*args|
+      fail "stub me: ENV[#{args.first}]!"
+    end
+
+    allow(ENV).to receive(:key?) do |*args|
+      fail "stub me: ENV.key?(#{args.first})!"
+    end
+
+    # FIXME: instead, properly stub PluginUtil in the evaluator specs!
+    # and remove this!
+    allow(ENV).to receive(:[]).with("SPEC_OPTS").and_call_original
+
+    # FIXME: properly stub out Pry instead of this!
+    allow(ENV).to receive(:[]).with("ANSICON").and_call_original
+    allow(ENV).to receive(:[]).with("TERM").and_call_original
+
+    # Needed for debugging
+    allow(ENV).to receive(:[]).with("DISABLE_PRY").and_call_original
+
+    # Workarounds for Cli inheriting from Thor
+    allow(ENV).to receive(:[]).with("ANSICON").and_call_original
+    allow(ENV).to receive(:[]).with("THOR_SHELL").and_call_original
+    allow(ENV).to receive(:[]).with("GEM_SKIP").and_call_original
+
     %w(read write exist?).each do |meth|
       allow(File).to receive(meth.to_sym).with(anything) do |*args, &_block|
         abort "stub me! (File.#{meth}(#{args.inspect}))"
@@ -194,20 +231,8 @@ RSpec.configure do |config|
     ::Guard.reset_plugins
   end
 
-  config.before(:all) do
-    @guard_notify ||= ENV["GUARD_NOTIFY"]
-    @guard_notifiers ||= ::Guard::Notifier.notifiers
-  end
-
   config.after(:each) do
-    Guard::Notifier.clear_notifiers
-
+    Guard::Notifier.instance_variable_set(:@environment, nil)
     Guard.clear_options
   end
-
-  config.after(:all) do
-    ENV["GUARD_NOTIFY"] = @guard_notify
-    ::Guard::Notifier.notifiers = @guard_notifiers
-  end
-
 end
