@@ -42,6 +42,7 @@ module Guard
   #
   # @see Guard::Dsl
   #
+  # TODO: rename to plural
   module Notifier
     extend self
 
@@ -74,7 +75,6 @@ module Guard
     class NotServer < RuntimeError
     end
 
-    # NOTE:
     def connect(options = {})
       @detected = Detected.new(SUPPORTED)
       return if _client?
@@ -195,6 +195,7 @@ module Guard
     #
     def notify(message, message_opts = {})
       if _client?
+        # TODO: remove
         UI.deprecation(DEPRECTED_IMPLICIT_CONNECT)
         return unless enabled?
         connect(notify: true)

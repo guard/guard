@@ -28,7 +28,6 @@ module Guard
       watched = ::Guard.watchdirs.join("', '")
       ::Guard::UI.info "Guard is now watching at '#{ watched }'"
 
-      # TODO: remove (left to avoid breaking too many specs)
       begin
         while interactor.foreground != :exit
           _process_queue while pending_changes?
@@ -56,6 +55,7 @@ module Guard
     # @param [Hash] scopes hash with a Guard plugin or a group scope
     #
     def reload(scopes = {})
+      # TODO: guard reevaluator should probably handle all this
       ::Guard::UI.clear(force: true)
       ::Guard::UI.action_with_scopes("Reload", scopes)
 
