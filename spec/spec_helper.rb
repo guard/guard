@@ -16,8 +16,10 @@
 # users commonly want.
 #
 
-require "coveralls"
-Coveralls.wear!
+if ENV.key?("CI")
+  require "coveralls"
+  Coveralls.wear!
+end
 
 require "guard"
 require "rspec"
