@@ -45,7 +45,7 @@ module Guard
       interactor.background
       ::Guard::UI.debug "Guard stops all plugins"
       runner.run(:stop)
-      ::Guard::Notifier.turn_off
+      ::Guard::Notifier.disconnect
       ::Guard::UI.info "Bye bye...", reset: true
     end
 

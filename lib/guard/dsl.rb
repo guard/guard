@@ -75,7 +75,7 @@ module Guard
     # @see Guard::Notifier for available notifier and its options.
     #
     def notification(notifier, options = {})
-      Notifier.add_notifier(notifier.to_sym, options.merge(silent: false))
+      Notifier.add(notifier.to_sym, options.merge(silent: false))
     end
 
     # Sets the interactor options or disable the interactor.

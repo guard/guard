@@ -2,17 +2,10 @@ require "yaml"
 require "rbconfig"
 require "pathname"
 
-require "guard/ui"
-require "guard/notifiers/emacs"
-require "guard/notifiers/file_notifier"
-require "guard/notifiers/gntp"
-require "guard/notifiers/growl"
-require "guard/notifiers/libnotify"
-require "guard/notifiers/notifysend"
-require "guard/notifiers/rb_notifu"
-require "guard/notifiers/terminal_notifier"
-require "guard/notifiers/terminal_title"
-require "guard/notifiers/tmux"
+require_relative "internals/environment"
+require_relative "notifier/detected"
+
+require_relative "ui"
 
 module Guard
   # The notifier handles sending messages to different notifiers. Currently the
@@ -52,8 +45,18 @@ module Guard
   module Notifier
     extend self
 
+    NOTIFICATIONS_DISABLED = "Notifications disabled by GUARD_NOTIFY" +
+      " environment variable"
+
+    USING_NOTIFIER = "Guard is using %s to send notifications."
+
+    ONLY_NOTIFY = "Only notify() is available from a child process"
+
+    DEPRECTED_IMPLICIT_CONNECT = "Calling Guard::Notifier.notify()" +
+      " without a prior Notifier.connect() is deprecated"
+
     # List of available notifiers, grouped by functionality
-    NOTIFIERS = [
+    SUPPORTED = [
       {
         gntp: GNTP,
         growl: Growl,
@@ -68,79 +71,96 @@ module Guard
       { file: FileNotifier }
     ]
 
-    def notifiers
-      data = ENV["GUARD_NOTIFIERS"]
-      data ? YAML::load(data) : []
+    class NotServer < RuntimeError
     end
 
-    # TODO: there should be max 1 spec that uses this
-    # (instead, receive expectations should be used with ENV(:[]=))
-    def notifiers=(notifiers)
-      ENV["GUARD_NOTIFIERS"] = YAML::dump(notifiers)
+    # NOTE:
+    def connect(options = {})
+      @detected = Detected.new(SUPPORTED)
+      return if _client?
+
+      _env.notify_pid = $$
+
+      fail "Already connected" if active?
+
+      return unless enabled? && options[:notify]
+
+      turn_on
+    rescue Detected::NoneAvailableError => e
+      ::Guard::UI.info e.to_s
     end
 
-    # Clear available notifications.
-    #
-    def clear_notifiers
-      ENV["GUARD_NOTIFIERS"] = nil
+    def disconnect
+      if _client?
+        @detected = nil
+        return
+      end
+
+      turn_off if active?
+      @detected.reset
+      _env.notify_pid = nil
+      @detected = nil
     end
 
-    # Turn notifications on. If no notifications are defined in the `Guardfile`
-    # Guard auto detects the first available library.
+    # Turn notifications on.
     #
     # @param [Hash] options the turn_on options
     # @option options [Boolean] silent disable any logging
     #
     def turn_on(opts = {})
-      if notifiers.empty? && (::Guard.options || {})[:notify]
-        _auto_detect_notification
+      _check_server!
+      return unless enabled?
+
+      fail "Already active!" if active?
+
+      silent = opts[:silent]
+
+      @detected.available.each do |klass, _|
+        ::Guard::UI.info(format(USING_NOTIFIER, klass.title)) unless silent
+        klass.turn_on if klass.respond_to?(:turn_on)
       end
 
-      available = notifiers # cache for simpler specs
-      return turn_off if available.empty?
-
-      available.each do |notifier|
-        notifier_class = _get_notifier_module(notifier[:name])
-        unless opts[:silent]
-          ::Guard::UI.info \
-            "Guard is using #{ notifier_class.title } to send notifications."
-        end
-
-        notifier_class.turn_on if notifier_class.respond_to?(:turn_on)
-      end
-
-      ENV["GUARD_NOTIFY"] = "true"
+      _env.notify_active = true
     end
 
     # Turn notifications off.
     #
     def turn_off
-      notifiers.each do |notifier|
-        notifier_class = _get_notifier_module(notifier[:name])
+      _check_server!
 
-        notifier_class.turn_off if notifier_class.respond_to?(:turn_off)
+      fail "Not active!" unless active?
+
+      @detected.available.each do |klass, _|
+        klass.turn_off if klass.respond_to?(:turn_off)
       end
 
-      ENV["GUARD_NOTIFY"] = "false"
+      _env.notify_active = false
     end
 
     # Toggle the system notifications on/off
-    #
     def toggle
-      if enabled?
+      unless enabled?
+        ::Guard::UI.error NOTIFICATIONS_DISABLED
+        return
+      end
+
+      if active?
         ::Guard::UI.info "Turn off notifications"
         turn_off
-      else
-        turn_on
+        return
       end
+
+      turn_on
     end
 
-    # Test if the notifications are on.
-    #
-    # @return [Boolean] whether the notifications are on
-    #
+    # Test if the notifications can be enabled based on ENV['GUARD_NOTIFY']
     def enabled?
-      ENV["GUARD_NOTIFY"] == "true"
+      _env.notify?
+    end
+
+    # Test if notifiers are currently turned on
+    def active?
+      _env.notify_active?
     end
 
     # Add a notification library to be used.
@@ -150,18 +170,22 @@ module Guard
     # @option options [String] silent disable any error message
     # @return [Boolean] if the notification could be added
     #
-    def add_notifier(name, opts = {})
-      return turn_off if name == :off
+    def add(name, opts = {})
+      _check_server!
 
-      notifier_class = _get_notifier_module(name)
+      return false unless enabled?
 
-      if notifier_class && notifier_class.available?(opts)
-        self.notifiers = notifiers << { name: name, options: opts }
-        true
-      else
-        false
+      if name == :off && active?
+        turn_off
+        return false
       end
+
+      # ok to pass new instance when called without connect (e.g. evaluator)
+      (@detected || Detected.new(SUPPORTED)).add(name, opts)
     end
+
+    # TODO: deprecate/remove
+    alias :add_notifier  :add
 
     # Show a system notification with all configured notifiers.
     #
@@ -169,56 +193,55 @@ module Guard
     # @option opts [Symbol, String] image the image symbol or path to an image
     # @option opts [String] title the notification title
     #
-    def notify(message, opts = {})
-      return unless enabled?
-
-      notifiers.each do |notifier|
-        notifier = _get_notifier_module(notifier[:name]).new(notifier[:options])
-
-        begin
-          notifier.notify(message, opts.dup)
-        rescue RuntimeError => e
-          ::Guard::UI.error \
-            "Error sending notification with #{ notifier.name }: #{ e.message }"
-
-          ::Guard::UI.debug e.backtrace.join("\n")
-        end
+    def notify(message, message_opts = {})
+      if _client?
+        UI.deprecation(DEPRECTED_IMPLICIT_CONNECT)
+        return unless enabled?
+        connect(notify: true)
+      else
+        return unless active?
       end
+
+      @detected.available.each do |klass, options|
+        _notify(klass, options, message, message_opts)
+      end
+    end
+
+    # Used by dsl describer
+    def notifiers
+      Detect.available.map { |mod, opts| { name: mod.name, options: opts } }
     end
 
     private
 
-    # Get the notifier module for the given name.
-    #
-    # @param [Symbol] name the notifier name
-    # @return [Module] the notifier module
-    #
-    def _get_notifier_module(name)
-      NOTIFIERS.each do |group|
-        next unless (notifier = group.detect { |n, _| n == name })
-        return notifier.last
-      end
-      nil
+    def _env
+      (@environment ||= _create_env)
     end
 
-    # Auto detect the available notification library. This goes through
-    # the list of supported notification gems and picks the first that
-    # is available in each notification group.
-    #
-    def _auto_detect_notification
-      self.notifiers = []
-      available = nil
-
-      NOTIFIERS.each do |group|
-        notifier_added = group.detect do |name, _|
-          add_notifier(name, silent: true)
-        end
-        available ||= notifier_added
+    def _create_env
+      Internals::Environment.new("GUARD").tap do |env|
+        env.create_method(:notify?) { |data| data != "false" }
+        env.create_method(:notify_pid) { |data| data && Integer(data) }
+        env.create_method(:notify_pid=)
+        env.create_method(:notify_active?)
+        env.create_method(:notify_active=)
       end
+    end
 
-      return if available
-      ::Guard::UI.info \
-        "Guard could not detect any of the supported notification libraries."
+    def _check_server!
+      _client? && fail(NotServer, ONLY_NOTIFY)
+    end
+
+    def _client?
+      (pid = _env.notify_pid) && (pid != $$)
+    end
+
+    def _notify(klass, options, message, message_options)
+      notifier = klass.new(options)
+      notifier.notify(message, message_options.dup)
+    rescue RuntimeError => e
+      ::Guard::UI.error "Notification failed for #{notifier.name}: #{e.message}"
+      ::Guard::UI.debug e.backtrace.join("\n")
     end
   end
 end
