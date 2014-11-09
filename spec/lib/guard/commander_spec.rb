@@ -25,6 +25,9 @@ RSpec.describe Guard::Commander do
 
       stub_guardfile(" ")
       stub_user_guard_rb
+
+      # from stop()
+      allow(interactor).to receive(:background)
     end
 
     context "Guard has not been setuped" do
@@ -52,6 +55,20 @@ RSpec.describe Guard::Commander do
       expect(listener).to receive(:start)
 
       ::Guard.start
+    end
+
+    context "when finished" do
+      it "stops everything" do
+        expect(interactor).to receive(:foreground).and_return(:exit)
+
+        # From stop()
+        expect(interactor).to receive(:background)
+        expect(listener).to receive(:stop)
+        expect(runner).to receive(:run).with(:stop)
+        expect(::Guard::UI).to receive(:info).with("Bye bye...", reset: true)
+
+        ::Guard.start
+      end
     end
   end
 
