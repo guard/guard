@@ -28,7 +28,15 @@ module Guard
       watched = ::Guard.watchdirs.join("', '")
       ::Guard::UI.info "Guard is now watching at '#{ watched }'"
 
-      _interactor_loop
+      # TODO: remove (left to avoid breaking too many specs)
+      begin
+        while interactor.foreground != :exit
+          _process_queue while pending_changes?
+        end
+      rescue Interrupt
+      end
+
+      stop
     end
 
     # TODO: refactor (left to avoid breaking too many specs)
@@ -83,17 +91,6 @@ module Guard
 
     def show
       ::Guard::DslDescriber.new(::Guard.options).show
-    end
-
-    private
-
-    # TODO: remove (left to avoid breaking too many specs)
-    def _interactor_loop
-      while interactor.foreground != :exit
-        _process_queue while pending_changes?
-      end
-    rescue Interrupt
-      stop
     end
   end
 end
