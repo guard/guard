@@ -83,10 +83,30 @@ RSpec.describe Guard::Setuper do
       ::Guard.setup(watchdir: ["/usr", "/bin"])
     end
 
-    it "call setup_signal_traps" do
-      expect(Guard).to receive(:_setup_signal_traps)
+    context "trapping signals" do
+      before do
+        allow(traps).to receive(:handle)
+      end
 
-      subject
+      it "sets up USR1 trap for pausing" do
+        expect(traps).to receive(:handle).with("USR1") { |_, &b| b.call }
+        expect(Guard).to receive(:async_queue_add).
+          with([:guard_pause, :paused])
+        subject
+      end
+
+      it "sets up USR2 trap for unpausing" do
+        expect(traps).to receive(:handle).with("USR2") { |_, &b| b.call }
+        expect(Guard).to receive(:async_queue_add).
+          with([:guard_pause, :unpaused])
+        subject
+      end
+
+      it "sets up INT trap for cancelling or quitting interactor" do
+        expect(traps).to receive(:handle).with("INT") { |_, &b| b.call }
+        expect(interactor).to receive(:handle_interrupt)
+        subject
+      end
     end
 
     it "evaluates the Guardfile" do
@@ -371,46 +391,6 @@ RSpec.describe Guard::Setuper do
       expect(evaluator).to receive(:evaluate_guardfile)
 
       Guard.evaluate_guardfile
-    end
-  end
-
-  describe "._setup_signal_traps", speed: "slow" do
-    before do
-      allow(::Guard).to receive(:evaluate_guardfile)
-      allow(Listen).to receive(:to).with(Dir.pwd, {})
-      ::Guard.setup
-    end
-
-    unless windows? || defined?(JRUBY_VERSION)
-      context "when receiving SIGUSR1" do
-        it "pauses Guard" do
-          expect(::Guard).to receive(:async_queue_add).
-            with([:guard_pause, :paused])
-
-          Process.kill :USR1, Process.pid
-          sleep 1
-        end
-      end
-
-      context "when receiving SIGUSR2" do
-        it "un-pause Guard" do
-          expect(Guard).to receive(:async_queue_add).
-            with([:guard_pause, :unpaused])
-
-          Process.kill :USR2, Process.pid
-          sleep 1
-        end
-      end
-
-      context "when receiving SIGINT" do
-        context "with an interactor" do
-          it "delegates to the Pry thread" do
-            expect(Guard.interactor).to receive(:handle_interrupt)
-            Process.kill :INT, Process.pid
-            sleep 1
-          end
-        end
-      end
     end
   end
 
