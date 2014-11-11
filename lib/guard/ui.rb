@@ -104,7 +104,7 @@ module Guard
         msg = "neither ::Guard.setup nor ::Guard.reset_options was called"
         fail msg if ::Guard.options.nil?
         unless ENV["GUARD_GEM_SILENCE_DEPRECATIONS"] == "1"
-          backtrace = Thread.current.backtrace[1..3].join("\n\t >")
+          backtrace = Thread.current.backtrace[1..5].join("\n\t >")
           msg = format("%s\nDeprecation backtrace: %s", message, backtrace)
           warning(msg, options)
         end
