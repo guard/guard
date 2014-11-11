@@ -38,8 +38,8 @@ module Guard
       # The ruby interpreter would pipe this to STDERR and exit 1 in the case
       # of an unhandled exception
       b = e.backtrace
-      b.unshift("#{b.shift}: #{e.message} (#{e.class})")
-      @stderr.puts(b.map { |s| "\tfrom #{s}" }.join("\n"))
+      @stderr.puts "#{b.shift}: #{e.message} (#{e.class})"
+      @stderr.puts b.map { |s| "\tfrom #{s}" }.join("\n")
       1
     rescue SystemExit => e
       e.status
