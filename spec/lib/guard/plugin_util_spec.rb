@@ -1,5 +1,4 @@
 require "guard/plugin"
-require "guard/guard"
 
 RSpec.describe Guard::PluginUtil do
 
@@ -98,21 +97,6 @@ RSpec.describe Guard::PluginUtil do
       allow_any_instance_of(described_class).
         to receive(:plugin_class).
         and_return(guard_rspec_class)
-    end
-
-    context "with a plugin inheriting from Guard::Guard (deprecated)" do
-      before do
-        expect(guard_rspec_class).to receive(:superclass) { ::Guard::Guard }
-      end
-
-      it "instantiate the plugin using the old API" do
-        expect(guard_rspec_class).to receive(:new).
-          with(["watcher"], group: "foo") { guard_rspec }
-
-        options = { watchers: ["watcher"], group: "foo" }
-        old_plugin = plugin_util.initialize_plugin(options)
-        expect(old_plugin).to eq guard_rspec
-      end
     end
 
     context "with a plugin inheriting from Guard::Plugin" do
