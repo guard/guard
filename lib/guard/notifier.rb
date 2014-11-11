@@ -124,7 +124,6 @@ module Guard
     end
 
     # Turn notifications off.
-    #
     def turn_off
       _check_server!
 
@@ -210,7 +209,7 @@ module Guard
 
     # Used by dsl describer
     def notifiers
-      Detect.available.map { |mod, opts| { name: mod.name, options: opts } }
+      @detected.available.map { |mod, opts| { name: mod.name, options: opts } }
     end
 
     private

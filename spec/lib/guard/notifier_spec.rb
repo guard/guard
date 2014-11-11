@@ -410,4 +410,26 @@ RSpec.describe Guard::Notifier do
       end
     end
   end
+
+  describe ".notifiers" do
+    context "when connected" do
+      before do
+        subject.connect(notify: true)
+        allow(env).to receive(:notify_active?).and_return(true)
+        allow(detected).to receive(:available).and_return(available)
+      end
+
+      context "with available notifiers" do
+        let(:available) { [[foo, { color: true }], [baz, {}]] }
+        it "returns a list of available notifier info" do
+          expect(subject.notifiers).to eq(
+            [
+              { name: "foo", options: { color: true } },
+              { name: "baz", options: {} },
+            ]
+          )
+        end
+      end
+    end
+  end
 end
