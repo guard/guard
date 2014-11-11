@@ -5,9 +5,13 @@ require "guard/options"
 require "guard/internals/debugging"
 require "guard/internals/traps"
 
+require "guard/internals/helpers"
+
 module Guard
   # Sets up initial variables and options
   module Setuper
+    include Internals::Helpers
+
     DEFAULT_OPTIONS = {
       clear: false,
       notify: true,
@@ -232,13 +236,6 @@ module Guard
       files = changes.values.flatten(1)
       watchers = _scoped_watchers
       watchers.any? { |watcher| files.any? { |file| watcher.match(file) } }
-    end
-
-    def _relative_pathname(path)
-      full_path = Pathname(path)
-      full_path.relative_path_from(Pathname.pwd)
-    rescue ArgumentError
-      full_path
     end
 
     def _relative_pathnames(paths)
