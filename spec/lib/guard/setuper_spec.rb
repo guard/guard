@@ -3,14 +3,20 @@ require "guard/plugin"
 require "guard/setuper"
 
 RSpec.describe Guard::Setuper do
+  # Initialize before Guard::Interactor const is stubbed
+  let!(:interactor) { instance_double(Guard::Interactor) }
+  let!(:interactor_class) { class_double(Guard::Interactor) }
 
   let(:evaluator) { instance_double(Guard::Guardfile::Evaluator) }
-  let(:pry_interactor) { double(Guard::Jobs::PryWrapper) }
-  let(:sleep_interactor) { double(Guard::Jobs::Sleep) }
+  let(:pry_interactor) { instance_double(Guard::Jobs::PryWrapper) }
+  let(:sleep_interactor) { instance_double(Guard::Jobs::Sleep) }
   let(:guardfile) { File.expand_path("Guardfile") }
+  let(:traps) { Guard::Internals::Traps }
 
   before do
-    Guard::Interactor.enabled = true
+    stub_const("Guard::Interactor", interactor_class)
+    allow(interactor_class).to receive(:new).and_return(interactor)
+
     allow(Dir).to receive(:chdir)
     allow(Guard::Jobs::PryWrapper).to receive(:new).and_return(pry_interactor)
     allow(Guard::Jobs::Sleep).to receive(:new).and_return(sleep_interactor)
@@ -29,6 +35,8 @@ RSpec.describe Guard::Setuper do
 
     before do
       allow(Listen).to receive(:to).with(Dir.pwd, {}) { listener }
+
+      allow(interactor_class).to receive(:new).and_return(interactor)
 
       stub_guardfile(" ")
       stub_user_guard_rb
@@ -57,6 +65,11 @@ RSpec.describe Guard::Setuper do
 
     it "initializes the listener" do
       expect(subject.listener).to be(listener)
+    end
+
+    it "initializes the interactor" do
+      expect(interactor_class).to receive(:new).with(false)
+      subject
     end
 
     it "respect the watchdir option" do
@@ -396,54 +409,25 @@ RSpec.describe Guard::Setuper do
 
   # TODO: these should be interactor tests
   describe ".interactor" do
-    subject { Guard.interactor }
+    subject { Guard::Interactor }
 
     before do
       allow(Listen).to receive(:to).with(Dir.pwd, {})
       allow(evaluator).to receive(:evaluate_guardfile)
+      allow(interactor_class).to receive(:new).and_return(interactor)
 
       stub_guardfile(" ")
       stub_user_guard_rb
-
-      @interactor_enabled = Guard::Interactor.enabled?
     end
 
-    after { Guard::Interactor.enabled = @interactor_enabled }
-
-    context "with CLI options" do
-      before { Guard::Interactor.enabled = true }
-
-      context "with interactions enabled" do
-        before { Guard.setup(no_interactions: false) }
-        it { is_expected.to be_interactive }
-      end
-
-      context "with interactions disabled" do
-        before { Guard.setup(no_interactions: true) }
-        it { is_expected.to_not be_interactive }
-      end
+    context "with interactions enabled" do
+      before { Guard.setup(no_interactions: false) }
+      it { is_expected.to have_received(:new).with(false) }
     end
 
-    # TODO: these are interactor tests disguised as integration tests
-    context "with DSL options" do
-
-      context "with interactions enabled" do
-        before do
-          Guard::Interactor.enabled = true
-          Guard.setup
-        end
-
-        it { is_expected.to be_interactive }
-      end
-
-      context "with interactions disabled" do
-        before do
-          Guard::Interactor.enabled = false
-          Guard.setup
-        end
-
-        it { is_expected.to_not be_interactive }
-      end
+    context "with interactions disabled" do
+      before { Guard.setup(no_interactions: true) }
+      it { is_expected.to have_received(:new).with(true) }
     end
   end
 end
