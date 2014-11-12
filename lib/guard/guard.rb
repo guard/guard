@@ -42,7 +42,7 @@ module Guard
     If you don't know which gem or plugin is requiring this file, here's a
     backtrace:
 
-    #{Thread.current.backtrace[1..5].join("\n\t >> ")}"
+    #{Thread.current.backtrace[1..10].join("\n\t >> ")}"
 
     Here's how to quickly upgrade/fix this (given you are a maintainer of the
     offending plugin or you want to prepare a pull request yourself):
