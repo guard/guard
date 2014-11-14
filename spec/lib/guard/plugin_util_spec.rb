@@ -2,8 +2,6 @@ require "guard/plugin"
 
 RSpec.describe Guard::PluginUtil do
 
-  let!(:rubygems_version_1_7_2) { Gem::Version.create("1.7.2") }
-  let!(:rubygems_version_1_8_0) { Gem::Version.create("1.8.0") }
   let(:guard_rspec_class) { class_double(Guard::Plugin) }
   let(:guard_rspec) { instance_double(Guard::Plugin) }
   let(:interactor) { instance_double(Guard::Interactor) }
@@ -16,67 +14,30 @@ RSpec.describe Guard::PluginUtil do
   end
 
   describe ".plugin_names" do
-    context "Rubygems < 1.8.0" do
-      before do
-        module Gem
-          # add method not present in Rubygems > 2.0
-          def self.source_index
-            fail "do not call"
-          end
-        end
+    before do
+      spec = Gem::Specification
+      gems = [
+        instance_double(spec, name: "guard-myplugin"),
+        instance_double(spec, name: "gem1", full_gem_path: "/gem1"),
+        instance_double(spec, name: "gem2", full_gem_path: "/gem2"),
+      ]
+      allow(File).to receive(:exist?).
+        with("/gem1/lib/guard/gem1.rb") { false }
 
-        expect(Gem::Version).to receive(:create).with(Gem::VERSION) do
-          rubygems_version_1_7_2
-        end
+      allow(File).to receive(:exist?).
+        with("/gem2/lib/guard/gem2.rb") { true }
 
-        expect(Gem::Version).to receive(:create).with("1.8.0") do
-          rubygems_version_1_8_0
-        end
-
-        gems_source_index = double
-        expect(Gem).to receive(:source_index) { gems_source_index }
-        expect(gems_source_index).to receive(:find_name).with(/^guard-/) do
-          [double(name: "guard-rspec"), double(name: "guard-rspec")]
-        end
-      end
-
-      it "returns the list of guard gems" do
-        expect(described_class.plugin_names).to eq ["rspec"]
-      end
+      gem = class_double(Gem::Specification)
+      stub_const("Gem::Specification", gem)
+      expect(Gem::Specification).to receive(:find_all) { gems }
     end
 
-    context "Rubygems >= 1.8.0" do
-      before do
-        expect(Gem::Version).to receive(:create).with(Gem::VERSION) do
-          rubygems_version_1_8_0
-        end
+    it "returns the list of guard gems" do
+      expect(described_class.plugin_names).to include("myplugin")
+    end
 
-        expect(Gem::Version).to receive(:create).with("1.8.0") do
-          rubygems_version_1_8_0
-        end
-
-        gems = [
-          double(name: "guard"),
-          double(name: "guard-rspec"),
-          double(name: "gem1", full_gem_path: "/gem1"),
-          double(name: "gem2", full_gem_path: "/gem2"),
-        ]
-        allow(File).to receive(:exist?).
-          with("/gem1/lib/guard/gem1.rb") { false }
-
-        allow(File).to receive(:exist?).
-          with("/gem2/lib/guard/gem2.rb") { true }
-
-        expect(Gem::Specification).to receive(:find_all) { gems }
-      end
-
-      it "returns the list of guard gems" do
-        expect(described_class.plugin_names).to include("rspec")
-      end
-
-      it "returns the list of embedded guard gems" do
-        expect(described_class.plugin_names).to include("gem2")
-      end
+    it "returns the list of embedded guard gems" do
+      expect(described_class.plugin_names).to include("gem2")
     end
   end
 
@@ -117,56 +78,10 @@ RSpec.describe Guard::PluginUtil do
   describe "#plugin_location" do
     subject { described_class.new("rspec") }
 
-    context "Rubygems < 1.8.0" do
-
-      before do
-        module Gem
-          # add method not present in Rubygems > 2.0
-          def self.source_index
-            fail "do not call"
-          end
-        end
-
-        expect(Gem::Version).to receive(:create).with(Gem::VERSION) do
-          rubygems_version_1_7_2
-        end
-
-        expect(Gem::Version).to receive(:create).with("1.8.0") do
-          rubygems_version_1_8_0
-        end
-      end
-
-      it "returns the path of a Guard gem" do
-        gems_source_index = double
-        gems_found = [double(full_gem_path: "gems/guard-rspec")]
-        expect(Gem).to receive(:source_index) { gems_source_index }
-
-        expect(gems_source_index).to receive(:find_name).with("guard-rspec") do
-          gems_found
-        end
-
-        expect(subject.plugin_location).to eq "gems/guard-rspec"
-      end
-    end
-
-    context "Rubygems >= 1.8.0" do
-
-      before do
-        expect(Gem::Version).to receive(:create).with(Gem::VERSION) do
-          rubygems_version_1_8_0
-        end
-
-        expect(Gem::Version).to receive(:create).with("1.8.0") do
-          rubygems_version_1_8_0
-        end
-      end
-
-      it "returns the path of a Guard gem" do
-        expect(Gem::Specification).to receive(:find_by_name).
-          with("guard-rspec") { double(full_gem_path: "gems/guard-rspec") }
-
-        expect(subject.plugin_location).to eq "gems/guard-rspec"
-      end
+    it "returns the path of a Guard gem" do
+      expect(Gem::Specification).to receive(:find_by_name).
+        with("guard-rspec") { double(full_gem_path: "gems/guard-rspec") }
+      expect(subject.plugin_location).to eq "gems/guard-rspec"
     end
   end
 
