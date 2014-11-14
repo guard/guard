@@ -4,6 +4,8 @@ require "guard/notifier"
 require "guard/ui"
 require "guard/watcher"
 
+require "guard/deprecated_methods"
+
 module Guard
   # The Dsl class provides the methods that are used in each `Guardfile` to
   # describe the behaviour of Guard.
@@ -43,22 +45,13 @@ module Guard
   # @see https://github.com/guard/guard/wiki/Guardfile-examples
   #
   class Dsl
+    extend Guard::DeprecatedMethods::Dsl::ClassMethods
+
     WARN_INVALID_LOG_LEVEL = "Invalid log level `%s` ignored. "\
       "Please use either :debug, :info, :warn or :error."
 
     WARN_INVALID_LOG_OPTIONS = "You cannot specify the logger options"\
       " :only and :except at the same time."
-
-    # @deprecated Use
-    #   `Guard::Guardfile::Evaluator.new(options).evaluate_guardfile` instead.
-    #
-    # @see https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0 How to
-    #   upgrade for Guard 2.0
-    #
-    def self.evaluate_guardfile(options = {})
-      UI.deprecation(Deprecator::EVALUATE_GUARDFILE_DEPRECATION)
-      Guardfile::Evaluator.new(options).evaluate_guardfile
-    end
 
     # Set notification options for the system notifications.
     # You can set multiple notifications, which allows you to show local

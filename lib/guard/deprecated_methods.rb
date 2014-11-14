@@ -68,5 +68,20 @@ module Guard
       # ::Guard.session.evaluator
       ::Guard.instance_variable_get(:@evaluator)
     end
+
+    module Dsl
+      # @deprecated Use
+      #   `Guard::Guardfile::Evaluator.new(options).evaluate_guardfile` instead.
+      #
+      # @see https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0 How to
+      #   upgrade for Guard 2.0
+      #
+      module ClassMethods
+        def evaluate_guardfile(options = {})
+          UI.deprecation(Deprecator::EVALUATE_GUARDFILE_DEPRECATION)
+          Guardfile::Evaluator.new(options).evaluate_guardfile
+        end
+      end
+    end
   end
 end
