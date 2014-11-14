@@ -30,7 +30,16 @@ RSpec.describe Guard::DslDescriber do
     GUARDFILE
   end
 
+  let(:env) { double("ENV") }
+
   before do
+    # TODO: remove once the evaluator is stubbed
+    stub_const("ENV", env)
+    allow(env).to receive(:[]).with("GUARD_NOTIFY_PID")
+    allow(env).to receive(:[]).with("GUARD_NOTIFY")
+    allow(env).to receive(:[]).with("GUARD_NOTIFIERS")
+    allow(env).to receive(:[]=).with("GUARD_NOTIFIERS", anything)
+
     allow(Guard::Interactor).to receive(:new).and_return(interactor)
     allow(Guard::Notifier).to receive(:turn_on)
     allow(::Guard).to receive(:add_builtin_plugins)
@@ -118,6 +127,7 @@ RSpec.describe Guard::DslDescriber do
     end
 
     before do
+      # TODO: clean using stubs
       stub_const "Guard::Notifier::NOTIFIERS", [
         { gntp: ::Guard::Notifier::GNTP },
         { terminal_title: ::Guard::Notifier::TerminalTitle }
@@ -129,10 +139,13 @@ RSpec.describe Guard::DslDescriber do
       allow(::Guard::Notifier).to receive(:notifiers).and_return [
         { name: :gntp, options: { sticky: true } }
       ]
+      stub_user_guard_rb
+      stub_notifier
     end
 
     it "shows the notifiers and their options" do
-      stub_user_guard_rb
+      # TODO: quick hacks until this spec uses proper stubs
+
       ::Guard::DslDescriber.new(guardfile_contents: guardfile).notifiers
 
       expect(@output).to eq result

@@ -1,5 +1,6 @@
 require "guard/cli"
 
+# TODO: instead of shared examples, use have_received if possible
 RSpec.shared_examples "avoids Bundler warning" do |meth|
   it "does not show the Bundler warning" do
     expect(Guard::UI).to_not receive(:info).with(/Guard here!/)
@@ -16,15 +17,14 @@ end
 
 RSpec.shared_examples "gem dependency warning" do |meth|
   let(:guard_options) { double("hash_with_options") }
+  let(:gemdeps) { nil }
+  let(:gemfile) { nil }
+
   before do
     allow(Guard).to receive(:options).and_return(guard_options)
-    @bundler_env = {
-      "BUNDLE_GEMFILE" => ENV.delete("BUNDLE_GEMFILE"),
-      "RUBYGEMS_GEMDEPS" => ENV.delete("RUBYGEMS_GEMDEPS")
-    }
+    allow(ENV).to receive(:[]).with("BUNDLE_GEMFILE").and_return(gemfile)
+    allow(ENV).to receive(:[]).with("RUBYGEMS_GEMDEPS").and_return(gemdeps)
   end
-
-  after { ENV.update(@bundler_env) }
 
   context "without an existing Gemfile" do
     before { expect(File).to receive(:exist?).with("Gemfile") { false } }
@@ -35,20 +35,21 @@ RSpec.shared_examples "gem dependency warning" do |meth|
     before { allow(File).to receive(:exist?).with("Gemfile") { true } }
 
     context "with Bundler" do
-      before { ENV["BUNDLE_GEMFILE"] = "Gemfile" }
+      let(:gemdeps) { nil }
+      let(:gemfile) { "Gemfile" }
       include_examples "avoids Bundler warning", meth
     end
 
     context "without Bundler" do
-      before { ENV["BUNDLE_GEMFILE"] = nil }
+      let(:gemfile) { nil }
 
       context "with Rubygems Gemfile autodetection or custom Gemfile" do
-        before { ENV["RUBYGEMS_GEMDEPS"] = "-" }
+        let(:gemdeps) { "-" }
         include_examples "avoids Bundler warning", meth
       end
 
       context "without Rubygems Gemfile handling" do
-        before { ENV["RUBYGEMS_GEMDEPS"] = nil }
+        let(:gemdeps) { nil }
 
         context "with :no_bundler_warning option" do
           before { @options[:no_bundler_warning] = true }

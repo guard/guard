@@ -3,6 +3,7 @@ require "listen"
 require "guard/options"
 
 require "guard/internals/debugging"
+require "guard/internals/traps"
 
 module Guard
   # Sets up initial variables and options
@@ -60,10 +61,17 @@ module Guard
       ::Guard::UI.reset_and_clear
 
       @listener = _setup_listener
-      _setup_signal_traps
 
       _load_guardfile
-      @interactor = _setup_interactor
+      ::Guard::Notifier.connect(notify: options[:notify])
+
+      traps = Internals::Traps
+      traps.handle("USR1") { async_queue_add([:guard_pause, :paused]) }
+      traps.handle("USR2") { async_queue_add([:guard_pause, :unpaused]) }
+
+      @interactor = ::Guard::Interactor.new(options[:no_interactions])
+      traps.handle("INT") { @interactor.handle_interrupt }
+
       self
     end
 
@@ -212,38 +220,6 @@ module Guard
       runner.run_on_changes(*changes.values)
     end
 
-    # Sets up traps to catch signals used to control Guard.
-    #
-    # Currently two signals are caught:
-    # - `USR1` which pauses listening to changes.
-    # - `USR2` which resumes listening to changes.
-    # - 'INT' which is delegated to Pry if active, otherwise stops Guard.
-    #
-    def _setup_signal_traps
-      return if defined?(JRUBY_VERSION)
-
-      if Signal.list.keys.include?("USR1")
-        Signal.trap("USR1") { async_queue_add([:guard_pause, :paused]) }
-      end
-
-      if Signal.list.keys.include?("USR2")
-        Signal.trap("USR2") { async_queue_add([:guard_pause, :unpaused]) }
-      end
-
-      return unless Signal.list.keys.include?("INT")
-      Signal.trap("INT") { interactor.handle_interrupt }
-    end
-
-    # Enables or disables the notifier based on user's configurations.
-    #
-    def _setup_notifier
-      if options[:notify] && ENV["GUARD_NOTIFY"] != "false"
-        ::Guard::Notifier.turn_on
-      else
-        ::Guard::Notifier.turn_off
-      end
-    end
-
     # TODO: Guard::Watch or Guard::Scope should provide this
     def _scoped_watchers
       watchers = []
@@ -305,15 +281,10 @@ module Guard
       reset_scope
     end
 
-    def _setup_interactor
-      ::Guard::Interactor.new(options[:no_interactions])
-    end
-
     def _load_guardfile
       _reset_all
       evaluate_guardfile
       setup_scope
-      _setup_notifier
     end
 
     def _prepare_scope(scope)

@@ -17,7 +17,7 @@ RSpec.describe Guard::Runner do
 
   before do
     allow(Guard::Interactor).to receive(:new).and_return(interactor)
-    allow(Guard::Notifier).to receive(:turn_on) {}
+    stub_notifier
     allow(Listen).to receive(:to).with(Dir.pwd, {})
   end
 

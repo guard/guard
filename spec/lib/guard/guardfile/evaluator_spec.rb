@@ -10,14 +10,14 @@ RSpec.describe Guard::Guardfile::Evaluator do
   end
 
   before do
+    stub_notifier
+
     # TODO: this will be removed/fixed in the future
     allow(::Guard).to receive(:setup_scope)
 
     allow(::Guard::Interactor).to receive(:new).with(false)
     allow(Listen).to receive(:to).with(Dir.pwd, {})
-
-    allow(Guard::Notifier).to receive(:turn_on)
-    allow(Guard::Notifier).to receive(:notify)
+    allow(Guard).to receive(:add_plugin)
   end
 
   describe ".initialize" do
@@ -427,14 +427,9 @@ RSpec.describe Guard::Guardfile::Evaluator do
       end
 
       it "clears the notifiers" do
-        ::Guard::Notifier.turn_off
-        ::Guard::Notifier.notifiers = [growl]
+        expect(Guard::Notifier).to receive(:disconnect)
         allow(::Guard).to receive(:setup_scope)
-        expect(::Guard::Notifier.notifiers).to_not be_empty
-
         evaluator.reevaluate_guardfile
-
-        expect(::Guard::Notifier.notifiers).to be_empty
       end
     end
 
@@ -448,17 +443,19 @@ RSpec.describe Guard::Guardfile::Evaluator do
         before { allow(::Guard::Notifier).to receive(:enabled?) { true } }
 
         it "enables the notifications again" do
-          expect(::Guard::Notifier).to receive(:turn_on)
+          expect(::Guard::Notifier).to receive(:connect)
 
           evaluator.reevaluate_guardfile
         end
       end
 
+      # TODO: test probably doesn't make sense anymore, since on/off
+      # was replace with connect/disconnect
       context "with notifications disabled" do
         before { allow(::Guard::Notifier).to receive(:enabled?) { false } }
 
-        it "does not enable the notifications again" do
-          expect(::Guard::Notifier).to_not receive(:turn_on)
+        it "it still gets connected" do
+          expect(::Guard::Notifier).to receive(:connect)
 
           evaluator.reevaluate_guardfile
         end
@@ -495,6 +492,11 @@ RSpec.describe Guard::Guardfile::Evaluator do
 
       context "without Guards afterwards" do
         it "shows a failure notification" do
+          # TODO: temporary hack to continue refactoring notifier
+          # TODO: this whole spec needs stubbing
+          foo = instance_double(Guard::Plugin, name: "reevaluator")
+          allow(Guard).to receive(:plugins).and_return([foo])
+
           expect(::Guard::Notifier).to receive(:notify).
             with(
               "No plugins found in Guardfile, please add at least one.",

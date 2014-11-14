@@ -215,14 +215,14 @@ module Guard
         ::Guard.reset_groups
         ::Guard.reset_plugins
         ::Guard.reset_scope
-        ::Guard::Notifier.clear_notifiers
+        ::Guard::Notifier.disconnect
       end
 
       # Starts Guard and notification and show a message
       # after the Guardfile has been re-evaluated.
       #
       def _after_reevaluate_guardfile
-        ::Guard::Notifier.turn_on if ::Guard::Notifier.enabled?
+        ::Guard::Notifier.connect(::Guard.options)
 
         if !::Guard.send(:_pluginless_guardfile?)
           ::Guard::Notifier.notify(

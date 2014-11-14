@@ -1,3 +1,4 @@
+# TODO: remove this whole file
 shared_examples_for "interactor enabled" do
   it "enables the interactor" do
     expect(Guard.interactor).to be_interactive
@@ -19,7 +20,8 @@ end
 
 shared_examples_for "notifier disabled" do
   it "disables the notifier" do
-    expect(Guard::Notifier).to receive(:turn_off)
+    expect(Guard::Notifier).to_not receive(:turn_on)
+    expect(Guard::Notifier).to_not receive(:turn_off)
     Guard.send :_setup_notifier
   end
 end

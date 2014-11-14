@@ -4,6 +4,7 @@ RSpec.describe Guard::Commander do
   let(:interactor) { instance_double(Guard::Interactor) }
 
   before do
+    stub_notifier
     allow(Guard::Interactor).to receive(:new) { interactor }
   end
 
@@ -16,9 +17,9 @@ RSpec.describe Guard::Commander do
     let(:watched_dir) { Dir.pwd }
 
     before do
+      stub_notifier
       allow(::Guard).to receive(:runner) { runner }
       allow(Listen).to receive(:to).with(watched_dir, {}) { listener }
-      allow(Guard::Notifier).to receive(:turn_on)
 
       # Simulate Ctrl-D in Pry, or Ctrl-C in non-interactive mode
       allow(interactor).to receive(:foreground).and_return(:exit)
@@ -94,7 +95,7 @@ RSpec.describe Guard::Commander do
     end
 
     it "turns the notifier off" do
-      expect(::Guard::Notifier).to receive(:turn_off)
+      expect(::Guard::Notifier).to receive(:disconnect)
       ::Guard.stop
     end
 
@@ -115,7 +116,7 @@ RSpec.describe Guard::Commander do
     subject { ::Guard.setup }
 
     before do
-      allow(::Guard::Notifier).to receive(:turn_on)
+      allow(::Guard::Notifier).to receive(:connect)
       allow(::Guard).to receive(:runner) { runner }
       allow(::Guard).to receive(:scope) { {} }
       allow(::Guard::UI).to receive(:info)
@@ -170,7 +171,7 @@ RSpec.describe Guard::Commander do
     subject { ::Guard.setup }
 
     before do
-      allow(::Guard::Notifier).to receive(:turn_on)
+      allow(::Guard::Notifier).to receive(:connect)
       allow(::Guard).to receive(:runner) { runner }
       allow(::Guard::UI).to receive(:action_with_scopes)
       allow(::Guard::UI).to receive(:clear)
@@ -203,7 +204,7 @@ RSpec.describe Guard::Commander do
       let(:listener) { instance_double(Listen::Listener) }
 
       before do
-        allow(::Guard::Notifier).to receive(:turn_on)
+        allow(::Guard::Notifier).to receive(:connect)
         allow(Listen).to receive(:to).with(Dir.pwd, {}) { listener }
         allow(listener).to receive(:paused?) { false }
 
@@ -241,7 +242,7 @@ RSpec.describe Guard::Commander do
       let(:listener) { instance_double(Listen::Listener) }
 
       before do
-        allow(::Guard::Notifier).to receive(:turn_on)
+        allow(::Guard::Notifier).to receive(:connect)
         allow(Listen).to receive(:to).with(Dir.pwd, {}) { listener }
         allow(listener).to receive(:paused?) { true }
 

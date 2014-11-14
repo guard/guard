@@ -34,6 +34,9 @@ module Guard
       idle_job.handle_interrupt
     end
 
+    # TODO: everything below is just so the DSL can set options
+    # before setup() is called, which makes it useless for when
+    # Guardfile is reevaluated
     class << self
       def options
         @options ||= {}

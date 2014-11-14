@@ -1,41 +1,53 @@
 RSpec.describe Guard::Notifier::Tmux do
   let(:notifier) { described_class.new }
   let(:tmux_version) { 1.7 }
-  let(:sheller) { Guard::Sheller }
+  let(:sheller) { class_double(Guard::Sheller) }
 
   before do
-    allow(described_class).to receive(:_tmux_version) { tmux_version }
+    stub_const("Guard::Sheller", sheller)
+  end
+
+  after do
+    if described_class.send(:_session)
+      allow(sheller).to receive(:run).with(anything)
+      described_class.send(:_end_session)
+    end
   end
 
   describe ".available?" do
     subject { described_class }
+    let(:version) { "1.7\n" }
 
-    it "checks if the binary is available" do
-      expect(subject).to receive(:_tmux_environment_available?) { true }
-      expect(subject).to be_available
+    before do
+      allow(ENV).to receive(:key?).with("TMUX").and_return(tmux_env)
+      allow(sheller).to receive(:stdout).with("tmux -V").and_return(version)
     end
 
     context "when the TMUX environment variable is set" do
-      before { ENV["TMUX"] = "something" }
-      it { should be_available }
+      let(:tmux_env) { true }
+
+      context "with a recent version of tmux" do
+        let(:version) { "1.8\n" }
+        it { is_expected.to be_available }
+      end
+
+      context "with an outdated version of tmux" do
+        let(:version) { "1.6\n" }
+        it { is_expected.to_not be_available }
+      end
     end
 
     context "when the TMUX environment variable is not set" do
-      before { ENV["TMUX"] = nil }
+      let(:tmux_env) { false }
 
       context "without the silent option" do
-        context "with no TMUX env variable" do
-          it "shows an error message" do
-            expect(::Guard::UI).to receive(:error).
-              with(described_class::ERROR_NOT_INSIDE_SESSION) {}
-
-            expect(subject).to_not be_available
-          end
+        it "shows an error message" do
+          expect(::Guard::UI).to receive(:error).
+            with(described_class::ERROR_NOT_INSIDE_TMUX) {}
+          subject.available?
         end
-      end
 
-      context "with the silent option" do
-        it { should_not be_available(silent: true) }
+        it { is_expected.to_not be_available }
       end
     end
   end
@@ -46,6 +58,7 @@ RSpec.describe Guard::Notifier::Tmux do
         described_class.new(success: "rainbow",
                             silent: true,
                             starting: "vanilla")
+
       end
 
       it "uses these options by default" do
@@ -197,98 +210,74 @@ RSpec.describe Guard::Notifier::Tmux do
         notifier.notify("any message", options)
       end
     end
-
-    context "with tmux <= 1.6" do
-      let(:tmux_version) { 1.6 }
-
-      it "does not pass the -q option" do
-        expect(sheller).to receive(:run).
-          with("tmux set status-left-bg green") {}
-
-        notifier.notify("any message", type: :notify)
-      end
-    end
   end
 
   describe "#display_title" do
 
-    context "for tmux >= 1.7" do
-      it "displays the title" do
+    it "displays the title" do
+      expect(sheller).to receive(:run).
+        with("tmux set -q set-titles-string"\
+             ' \'any title - any message\'').once {}
+
+      notifier.display_title "success", "any title", "any message"
+    end
+
+    it "shows only the first line of the message" do
+      expect(sheller).to receive(:run).
+        with("tmux set -q set-titles-string"\
+             ' \'any title - any message\'').once {}
+
+      notifier.display_title "success", "any title", "any message\nline two"
+    end
+
+    context "with success message type options" do
+      it "formats the message" do
         expect(sheller).to receive(:run).
-          with("tmux set-option -q set-titles-string"\
-               ' \'any title - any message\'').once {}
+          with("tmux set -q set-titles-string"\
+               ' \'[any title] => any message\'').once {}
 
-        notifier.display_title "success", "any title", "any message"
-      end
-
-      it "shows only the first line of the message" do
-        expect(sheller).to receive(:run).
-          with("tmux set-option -q set-titles-string"\
-               ' \'any title - any message\'').once {}
-
-        notifier.display_title "success", "any title", "any message\nline two"
-      end
-
-      context "with success message type options" do
-        it "formats the message" do
-          expect(sheller).to receive(:run).
-            with("tmux set-option -q set-titles-string"\
-                 ' \'[any title] => any message\'').once {}
-
-          notifier.display_title(
-            "success",
-            "any title",
-            "any message\nline two",
-            success_title_format: "[%s] => %s",
-            default_title_format: "(%s) -> %s"
-          )
-        end
-      end
-
-      context "with pending message type options" do
-        it "formats the message" do
-          expect(sheller).to receive(:run).
-            with("tmux set-option -q set-titles-string"\
-                 ' \'[any title] === any message\'').once {}
-
-          notifier.display_title(
-            "pending",
-            "any title",
-            "any message\nline two",
-            pending_title_format: "[%s] === %s",
-            default_title_format: "(%s) -> %s"
-          )
-        end
-      end
-
-      context "with failed message type options" do
-        it "formats the message" do
-          expect(sheller).to receive(:run).
-            with("tmux set-option -q set-titles-string"\
-                 ' \'[any title] <=> any message\'').once {}
-
-          notifier.display_title(
-            "failed",
-            "any title",
-            "any message\nline two",
-            failed_title_format: "[%s] <=> %s",
-            default_title_format: "(%s) -> %s"
-          )
-        end
+        notifier.display_title(
+          "success",
+          "any title",
+          "any message\nline two",
+          success_title_format: "[%s] => %s",
+          default_title_format: "(%s) -> %s"
+        )
       end
     end
 
-    context "for tmux <= 1.6" do
-      let(:tmux_version) { 1.6 }
-
-      it "does not add the quiet flag" do
-
+    context "with pending message type options" do
+      it "formats the message" do
         expect(sheller).to receive(:run).
-          with("tmux set-option set-titles-string 'any title - any message'") {}
+          with("tmux set -q set-titles-string"\
+               ' \'[any title] === any message\'').once {}
 
-        notifier.display_title "success", "any title", "any message"
+        notifier.display_title(
+          "pending",
+          "any title",
+          "any message\nline two",
+          pending_title_format: "[%s] === %s",
+          default_title_format: "(%s) -> %s"
+        )
       end
     end
+
+    context "with failed message type options" do
+      it "formats the message" do
+        expect(sheller).to receive(:run).
+          with("tmux set -q set-titles-string"\
+               ' \'[any title] <=> any message\'').once {}
+
+        notifier.display_title(
+          "failed",
+          "any title",
+          "any message\nline two",
+          failed_title_format: "[%s] <=> %s",
+          default_title_format: "(%s) -> %s"
+        )
+      end
+    end
+
   end
 
   describe "#display_message" do
@@ -297,7 +286,7 @@ RSpec.describe Guard::Notifier::Tmux do
       allow(sheller).to receive(:run).with("tmux set -q message-fg white")
       allow(sheller).to receive(:run).with("tmux set -q message-bg green")
       allow(sheller).to receive(:run).
-        with("tmux display-message"\
+        with("tmux display"\
              ' \'any title - any message\'').once
 
       notifier.display_message("success",
@@ -311,8 +300,8 @@ RSpec.describe Guard::Notifier::Tmux do
       allow(sheller).to receive(:run).with("tmux set -q message-fg white")
       allow(sheller).to receive(:run).with("tmux set -q message-bg green")
 
-      expect(sheller).to receive(:run).with("tmux display-message"\
-             ' \'any title - any message\'').once {}
+      expect(sheller).to receive(:run).with(
+        "tmux display 'any title - any message'").once {}
 
       notifier.display_message("success", "any title", "any message")
     end
@@ -323,7 +312,7 @@ RSpec.describe Guard::Notifier::Tmux do
       expect(sheller).to receive(:run).with("tmux set -q message-bg green") {}
 
       expect(sheller).to receive(:run).
-        with("tmux display-message"\
+        with("tmux display"\
              ' \'any title - any message xx line two\'').once {}
 
       notifier.display_message("success",
@@ -342,7 +331,7 @@ RSpec.describe Guard::Notifier::Tmux do
         allow(sheller).to receive(:run).with("tmux set -q message-bg green")
 
         expect(sheller).to receive(:run).
-          with("tmux display-message"\
+          with("tmux display"\
                ' \'[any title] => any message - line two\'').once {}
 
         notifier.display_message("success",
@@ -355,7 +344,7 @@ RSpec.describe Guard::Notifier::Tmux do
       it "sets the foreground color based on the type for success" do
         allow(sheller).to receive(:run).with("tmux set -q message-bg green")
         allow(sheller).to receive(:run).
-          with('tmux display-message \'any title - any message\'')
+          with('tmux display \'any title - any message\'')
 
         expect(sheller).to receive(:run).with("tmux set -q message-fg green") {}
 
@@ -368,7 +357,7 @@ RSpec.describe Guard::Notifier::Tmux do
       it "sets the background color" do
         allow(sheller).to receive(:run).with("tmux set -q message-fg white")
         allow(sheller).to receive(:run).
-          with('tmux display-message \'any title - any message\'')
+          with('tmux display \'any title - any message\'')
 
         expect(sheller).to receive(:run).with("tmux set -q message-bg blue") {}
 
@@ -389,7 +378,7 @@ RSpec.describe Guard::Notifier::Tmux do
         allow(sheller).to receive(:run).with("tmux set -q message-bg yellow")
 
         expect(sheller).to receive(:run).
-          with("tmux display-message"\
+          with("tmux display"\
                ' \'[any title] === any message - line two\'').once {}
 
         notifier.display_message("pending",
@@ -402,7 +391,7 @@ RSpec.describe Guard::Notifier::Tmux do
       it "sets the foreground color" do
         allow(sheller).to receive(:run).with("tmux set -q message-bg yellow")
         allow(sheller).to receive(:run).
-          with('tmux display-message \'any title - any message\'').once
+          with('tmux display \'any title - any message\'').once
 
         expect(sheller).to receive(:run).
           with("tmux set -q message-fg blue") {}
@@ -416,7 +405,7 @@ RSpec.describe Guard::Notifier::Tmux do
       it "sets the background color" do
         allow(sheller).to receive(:run).with("tmux set -q message-fg white")
         allow(sheller).to receive(:run).
-          with('tmux display-message \'any title - any message\'').once
+          with('tmux display \'any title - any message\'').once
 
         expect(sheller).to receive(:run).with("tmux set -q message-bg white") {}
 
@@ -437,7 +426,7 @@ RSpec.describe Guard::Notifier::Tmux do
         allow(sheller).to receive(:run).with("tmux set -q message-bg red")
 
         expect(sheller).to receive(:run).
-          with("tmux display-message"\
+          with("tmux display"\
                ' \'[any title] <=> any message - line two\'').once {}
 
         notifier.display_message("failed",
@@ -449,7 +438,7 @@ RSpec.describe Guard::Notifier::Tmux do
 
       it "sets the foreground color" do
         allow(sheller).to receive(:run).with("tmux set -q message-bg red")
-        allow(sheller).to receive(:run).with("tmux display-message"\
+        allow(sheller).to receive(:run).with("tmux display"\
                                              ' \'any title - any message\'')
 
         expect(sheller).to receive(:run).with("tmux set -q message-fg red") {}
@@ -463,7 +452,7 @@ RSpec.describe Guard::Notifier::Tmux do
       it "sets the background color" do
         allow(sheller).to receive(:run).with("tmux set -q message-fg white")
 
-        allow(sheller).to receive(:run).with("tmux display-message"\
+        allow(sheller).to receive(:run).with("tmux display"\
                                              ' \'any title - any message\'')
 
         expect(sheller).to receive(:run).
@@ -475,26 +464,6 @@ RSpec.describe Guard::Notifier::Tmux do
                                  failed: :black)
       end
     end
-
-    context "with tmux <= 1.6" do
-      let(:tmux_version) { 1.6 }
-
-      it "does not pass the -q option" do
-        expect(sheller).to receive(:run).with("tmux set display-time 3000") {}
-        expect(sheller).to receive(:run).with("tmux set message-fg green") {}
-        expect(sheller).to receive(:run).with("tmux set message-bg blue") {}
-
-        allow(sheller).to receive(:run).with("tmux display-message"\
-                                             ' \'any title - any message\'')
-
-        notifier.display_message("success",
-                                 "any title",
-                                 "any message",
-                                 timeout: 3,
-                                 success_message_color: "green",
-                                 success: :blue)
-      end
-    end
   end
 
   describe "#turn_on" do
@@ -503,7 +472,7 @@ RSpec.describe Guard::Notifier::Tmux do
         "option1 setting1\noption2 setting2\n"
       end
 
-      allow(described_class).to receive(:_clients) { ["tty"] }
+      allow(Guard::Notifier::Tmux::Client).to receive(:clients) { ["tty"] }
     end
 
     context "when off" do
@@ -526,20 +495,6 @@ RSpec.describe Guard::Notifier::Tmux do
           with("tmux set -t tty -q option1 setting1")
         allow(sheller).to receive(:run).
           with("tmux set -t tty -q option2 setting2")
-
-        described_class.turn_off
-      end
-
-      it "resets the options store" do
-        expect(described_class).
-          to receive(:_reset_options_store).and_call_original
-
-        described_class.turn_on
-      end
-
-      it "saves the current tmux options" do
-        expect(sheller).to receive(:stdout).with("tmux show -t tty")
-        described_class.turn_on
       end
     end
 
@@ -548,14 +503,10 @@ RSpec.describe Guard::Notifier::Tmux do
         described_class.turn_on
       end
 
-      it "does not reset the options store" do
-        expect(described_class).to_not receive(:_reset_options_store)
-
-        described_class.turn_on
-      end
-
       it "does not save the current tmux options" do
-        described_class.turn_on
+        expect do
+          described_class.turn_on
+        end.to raise_error("Already turned on!")
       end
     end
   end
@@ -566,7 +517,7 @@ RSpec.describe Guard::Notifier::Tmux do
         "option1 setting1\noption2 setting2\n"
       end
 
-      allow(described_class).to receive(:_clients) { ["tty"] }
+      allow(Guard::Notifier::Tmux::Client).to receive(:clients) { ["tty"] }
 
       allow(sheller).to receive(:run).
         with("tmux set -t tty -q -u status-left-bg")
@@ -586,9 +537,6 @@ RSpec.describe Guard::Notifier::Tmux do
         with("tmux set -t tty -q option1 setting1")
       allow(sheller).to receive(:run).
         with("tmux set -t tty -q option2 setting2")
-
-      # reset the state
-      described_class.turn_off
     end
 
     context "when on" do
@@ -598,53 +546,23 @@ RSpec.describe Guard::Notifier::Tmux do
 
       it "restores the tmux options" do
         expect(sheller).to receive(:run).
-        with("tmux set -t tty -q option2 setting2")
-
+          with("tmux set -q -u -t tty display-time")
         expect(sheller).to receive(:run).
-          with("tmux set -t tty -q -u status-left-bg")
-
+          with("tmux set -q -t tty option2 setting2")
         expect(sheller).to receive(:run).
-          with("tmux set -t tty -q option1 setting1")
-
+          with("tmux set -q -t tty option1 setting1")
         expect(sheller).to receive(:run).
-          with("tmux set -t tty -q -u status-right-bg")
-
+          with("tmux set -q -u -t tty status-left-bg")
         expect(sheller).to receive(:run).
-          with("tmux set -t tty -q -u status-right-fg")
-
+          with("tmux set -q -u -t tty status-right-bg")
         expect(sheller).to receive(:run).
-          with("tmux set -t tty -q -u status-left-fg")
-
+          with("tmux set -q -u -t tty status-right-fg")
         expect(sheller).to receive(:run).
-          with("tmux set -t tty -q -u message-fg")
-
+          with("tmux set -q -u -t tty status-left-fg")
         expect(sheller).to receive(:run).
-          with("tmux set -t tty -q -u message-bg")
-
-        described_class.turn_off
-      end
-
-      it "resets the options store" do
-        expect(described_class).to receive(:_reset_options_store)
-
-        allow(sheller).to receive(:run).
-          with("tmux set -t tty -q -u status-left-bg")
-        allow(sheller).to receive(:run).
-          with("tmux set -t tty -q -u status-right-bg")
-        allow(sheller).to receive(:run).
-          with("tmux set -t tty -q -u status-left-fg")
-        allow(sheller).to receive(:run).
-          with("tmux set -t tty -q -u status-right-fg")
-        allow(sheller).to receive(:run).
-          with("tmux set -t tty -q -u message-bg")
-        allow(sheller).to receive(:run).
-          with("tmux set -t tty -q -u message-fg")
-        allow(sheller).to receive(:run).
-          with("tmux set -t tty -q -u display-time")
-        allow(sheller).to receive(:run).
-          with("tmux set -t tty -q option1 setting1")
-        allow(sheller).to receive(:run).
-          with("tmux set -t tty -q option2 setting2")
+          with("tmux set -q -u -t tty message-fg")
+        expect(sheller).to receive(:run).
+          with("tmux set -q -u -t tty message-bg")
 
         described_class.turn_off
       end
@@ -652,35 +570,15 @@ RSpec.describe Guard::Notifier::Tmux do
 
     context "when off" do
       before do
+        allow(sheller).to receive(:run)
+        described_class.turn_on
         described_class.turn_off
       end
 
-      it "does not restore the tmux options" do
-        expect(sheller).to_not receive(:new).
-          with("tmux set -q -u status-left-bg")
-
-        expect(sheller).to_not receive(:new).
-          with("tmux set -q -u status-right-bg")
-
-        expect(sheller).to_not receive(:new).
-          with("tmux set -q -u status-right-fg")
-
-        expect(sheller).to_not receive(:new).
-          with("tmux set -q -u status-left-fg")
-
-        expect(sheller).to_not receive(:new).
-          with("tmux set -q -u message-fg")
-
-        expect(sheller).to_not receive(:new).
-          with("tmux set -q -u message-bg")
-
-        described_class.turn_off
-      end
-
-      it "does not reset the options store" do
-        expect(described_class).to_not receive(:_reset_options_store)
-
-        described_class.turn_off
+      it "fails" do
+        expect do
+          described_class.turn_off
+        end.to raise_error("Already turned off!")
       end
     end
   end
@@ -692,9 +590,11 @@ RSpec.describe Guard::Notifier::Tmux do
         "/dev/ttys001\n/dev/ttys000\n(null)\n"
       end
 
-      expect(described_class._clients).to include "/dev/ttys001"
-      expect(described_class._clients).to include "/dev/ttys000"
-      expect(described_class._clients).not_to include "(null)"
+      clients = Guard::Notifier::Tmux::Client.clients
+
+      expect(clients).to include "/dev/ttys001"
+      expect(clients).to include "/dev/ttys000"
+      expect(clients).not_to include "(null)"
     end
   end
 end
