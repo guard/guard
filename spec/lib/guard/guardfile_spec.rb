@@ -1,3 +1,5 @@
+require "guard/guardfile"
+
 RSpec.describe Guard::Guardfile do
 
   let(:guardfile_generator) { instance_double(Guard::Guardfile::Generator) }

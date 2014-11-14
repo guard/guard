@@ -1,3 +1,8 @@
+require "guard/deprecator"
+require "guard/guardfile/evaluator"
+require "guard/guardfile/generator"
+require "guard/ui"
+
 module Guard
   module DeprecatedMethods
     # @deprecated Use `Guard.plugins(filter)` instead.
@@ -80,6 +85,41 @@ module Guard
         def evaluate_guardfile(options = {})
           UI.deprecation(Deprecator::EVALUATE_GUARDFILE_DEPRECATION)
           Guard::Guardfile::Evaluator.new(options).evaluate_guardfile
+        end
+      end
+    end
+
+    module Guardfile
+      module ClassMethods
+        # @deprecated Use {Guardfile::Generator#create_guardfile} instead.
+        #
+        # @see https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0 How to
+        # upgrade for Guard 2.0
+        #
+        def create_guardfile(options = {})
+          UI.deprecation(Deprecator::CREATE_GUARDFILE_DEPRECATION)
+          Guard::Guardfile::Generator.new(options).create_guardfile
+        end
+
+        # @deprecated Use {Guardfile::Generator#initialize_template} instead.
+        #
+        # @see https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0 How to
+        # upgrade for Guard 2.0
+        #
+        def initialize_template(plugin_name)
+          UI.deprecation(Deprecator::INITIALIZE_TEMPLATE_DEPRECATION)
+          Guard::Guardfile::Generator.new.initialize_template(plugin_name)
+        end
+
+        # @deprecated Use {Guardfile::Generator#initialize_all_templates}
+        # instead.
+        #
+        # @see https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0 How to
+        # upgrade for Guard 2.0
+        #
+        def initialize_all_templates
+          UI.deprecation(Deprecator::INITIALIZE_ALL_TEMPLATES_DEPRECATION)
+          Guard::Guardfile::Generator.new.initialize_all_templates
         end
       end
     end
