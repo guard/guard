@@ -79,7 +79,7 @@ module Guard
       module ClassMethods
         def evaluate_guardfile(options = {})
           UI.deprecation(Deprecator::EVALUATE_GUARDFILE_DEPRECATION)
-          Guardfile::Evaluator.new(options).evaluate_guardfile
+          Guard::Guardfile::Evaluator.new(options).evaluate_guardfile
         end
       end
     end
