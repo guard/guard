@@ -228,7 +228,6 @@ RSpec.configure do |config|
       end
     end
 
-
     allow(Kernel).to receive(:system) do |*args|
       fail "stub for Kernel.system() called with: #{args.inspect}"
     end
@@ -251,16 +250,14 @@ RSpec.configure do |config|
 
     # TODO: remove (instance vars cleared anyway)
     ::Guard.reset_groups if ::Guard.respond_to?(:add_group)
-
-    # TODO: remove (instance vars cleared anyway)
-    ::Guard.reset_plugins if ::Guard.respond_to?(:add_group)
   end
 
   config.after(:each) do
-    if Guard.const_defined?("Notifier::Tmux")
-      Guard::Notifier.instance_variable_set(:@environment, nil)
+    # Reset everything
+    (Guard.constants + [Guard]).each do |klass|
+      klass.instance_variables.each do |var|
+        klass.instance_variable_set(var, nil)
+      end
     end
-    # TODO: remove (instance vars cleared anyway)
-    Guard.clear_options if ::Guard.respond_to?(:add_group)
   end
 end

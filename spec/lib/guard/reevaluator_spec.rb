@@ -20,6 +20,7 @@ RSpec.describe Guard::Reevaluator do
 
   context "when Guardfile is modified" do
     before do
+      allow(Guard).to receive(:add_plugin).with(:reevaluator, anything)
       allow(::Guard::Watcher).to receive(:match_guardfile?).
         with(["Guardfile"]).and_return(true)
     end

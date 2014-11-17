@@ -21,6 +21,8 @@ RSpec.describe Guard do
 
   describe ".plugins" do
     before do
+      Guard.reset_plugins
+
       stub_const "Guard::FooBar", Class.new(Guard::Plugin)
       stub_const "Guard::FooBaz", Class.new(Guard::Plugin)
 
@@ -109,6 +111,8 @@ RSpec.describe Guard do
 
   describe ".plugin" do
     before do
+      Guard.reset_plugins
+
       stub_const "Guard::FooBar", Class.new(Guard::Plugin)
       stub_const "Guard::FooBaz", Class.new(Guard::Plugin)
       @guard_foo_bar_backend = described_class.add_plugin(
@@ -301,7 +305,9 @@ RSpec.describe Guard do
 
   describe ".remove_plugin" do
     before do
+      # TODO: these are pretty useless to be justified as methods
       ::Guard.reset_groups
+      ::Guard.reset_plugins
 
       stub_const "Guard::Foo", Class.new(Guard::Plugin)
       stub_const "Guard::Bar", Class.new(Guard::Plugin)
@@ -313,7 +319,6 @@ RSpec.describe Guard do
     end
 
     context "with 3 existing plugins" do
-
       it "removes given group" do
         ::Guard.remove_plugin(@bar)
         expect(::Guard.plugins).to eq [@foo, @baz]

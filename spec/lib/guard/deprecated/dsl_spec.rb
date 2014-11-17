@@ -17,8 +17,19 @@ RSpec.describe Guard::Deprecated::Dsl do
     before { stub_guardfile(" ") }
     before { stub_user_guardfile }
     before { stub_user_project_guardfile }
+    let(:evaluator) { instance_double(Guard::Guardfile::Evaluator) }
 
     before do
+      # TODO: this is a workaround for a bad require loop
+      allow_any_instance_of(Guard::Config).to receive(:strict?).
+        and_return(false)
+
+      require "guard/guardfile/evaluator"
+
+      allow(Guard::Guardfile::Evaluator).to receive(:new).
+        and_return(evaluator)
+      allow(evaluator).to receive(:evaluate_guardfile)
+
       allow(Guard::UI).to receive(:deprecation)
     end
 
@@ -30,13 +41,6 @@ RSpec.describe Guard::Deprecated::Dsl do
     end
 
     it "delegates to Guard::Guardfile::Generator" do
-      # TODO: this is a workaround for a bad require loop
-      allow_any_instance_of(Guard::Config).to receive(:strict?).
-        and_return(false)
-
-      require "guard/guardfile/evaluator"
-
-      evaluator = instance_double(Guard::Guardfile::Evaluator)
       expect(Guard::Guardfile::Evaluator).to receive(:new).
         with(foo: "bar") { evaluator }
 

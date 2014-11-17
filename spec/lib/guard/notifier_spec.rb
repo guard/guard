@@ -41,6 +41,10 @@ RSpec.describe Guard::Notifier do
   let(:detected) { instance_double(described_class::Detected) }
 
   before do
+    Guard::Notifier.instance_variables.each do |var|
+      Guard::Notifier.instance_variable_set(var, nil)
+    end
+
     allow(Guard::Internals::Environment).to receive(:new).with("GUARD").
       and_return(env)
 
@@ -202,8 +206,14 @@ RSpec.describe Guard::Notifier do
   end
 
   describe "toggle_notification" do
-    before { allow(::Guard::UI).to receive(:info) }
-    before { subject.connect(notify: true) }
+    before do
+      allow(File).to receive(:read).and_call_original
+      allow(File).to receive(:exist?).and_call_original
+      allow(::Guard::UI).to receive(:info)
+      allow(env).to receive(:notify_pid).and_return($$)
+
+      subject.connect(notify: true)
+    end
 
     context "with available notifiers" do
       context "when currently on" do
@@ -284,8 +294,10 @@ RSpec.describe Guard::Notifier do
     end
 
     context "when connected" do
-      before { subject.connect(notify: true) }
-      before { allow(env).to receive(:notify?).and_return(enabled) }
+      before do
+        allow(env).to receive(:notify?).and_return(enabled)
+        subject.connect(notify: true)
+      end
 
       context "when disabled" do
         let(:enabled) { false }

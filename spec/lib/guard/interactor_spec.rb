@@ -53,7 +53,13 @@ RSpec.describe Guard::Interactor do
     end
   end
 
+  # TODO: move to metadata class
   describe ".convert_scope" do
+    let(:foo) { instance_double(Guard::Plugin, name: "foo") }
+    let(:bar) { instance_double(Guard::Plugin, name: "bar") }
+    let(:backend) { instance_double(Guard::Group, name: "backend") }
+    let(:frontend) { instance_double(Guard::Group, name: "frontend") }
+
     before do
       allow(::Guard::Notifier).to receive(:turn_on) { nil }
       allow(Listen).to receive(:to).with(Dir.pwd, {})
@@ -61,47 +67,66 @@ RSpec.describe Guard::Interactor do
       stub_const "Guard::Foo", Class.new(Guard::Plugin)
       stub_const "Guard::Bar", Class.new(Guard::Plugin)
 
-      guard = ::Guard
+      allow(Guard).to receive(:plugin) do |*args|
+        fail "stub me: plugin(#{args.map(&:inspect) * ", "})"
+      end
 
-      @backend_group  = guard.add_group(:backend)
-      @frontend_group = guard.add_group(:frontend)
-      @foo_guard      = guard.add_plugin(:foo,  group: :backend)
-      @bar_guard      = guard.add_plugin(:bar,  group: :frontend)
+      allow(Guard).to receive(:group) do |*args|
+        fail "stub me: group(#{args.map(&:inspect) * ", "})"
+      end
+
+      allow(Guard).to receive(:plugin).with("backend").and_return(nil)
+      allow(Guard).to receive(:group).with("backend").and_return(backend)
+
+      allow(Guard).to receive(:plugin).with("frontend").and_return(nil)
+      allow(Guard).to receive(:group).with("frontend").and_return(frontend)
+
+      allow(Guard).to receive(:plugin).with("unknown").and_return(nil)
+      allow(Guard).to receive(:group).with("unknown").and_return(nil)
+
+      allow(Guard).to receive(:plugin).with("scope").and_return(nil)
+      allow(Guard).to receive(:group).with("scope").and_return(nil)
+
+      allow(Guard).to receive(:plugin).with("foo").and_return(foo)
+      allow(Guard).to receive(:group).with("foo").and_return(nil)
+
+      allow(Guard).to receive(:plugin).with("bar").and_return(bar)
+      allow(Guard).to receive(:group).with("bar").and_return(nil)
     end
 
     it "returns a group scope" do
       scopes, _ = Guard::Interactor.convert_scope %w(backend)
-      expect(scopes).to eq(groups: [@backend_group], plugins: [])
+      expect(scopes).to eq(groups: [backend], plugins: [])
       scopes, _ = Guard::Interactor.convert_scope %w(frontend)
-      expect(scopes).to eq(groups: [@frontend_group], plugins: [])
+      expect(scopes).to eq(groups: [frontend], plugins: [])
     end
 
     it "returns a plugin scope" do
       scopes, _ = Guard::Interactor.convert_scope %w(foo)
-      expect(scopes).to eq(plugins: [@foo_guard], groups: [])
+      expect(scopes).to eq(plugins: [foo], groups: [])
       scopes, _ = Guard::Interactor.convert_scope %w(bar)
-      expect(scopes).to eq(plugins: [@bar_guard], groups: [])
+      expect(scopes).to eq(plugins: [bar], groups: [])
     end
 
     it "returns multiple group scopes" do
       scopes, _ = Guard::Interactor.convert_scope %w(backend frontend)
-      expected = { groups: [@backend_group, @frontend_group], plugins: [] }
+      expected = { groups: [backend, frontend], plugins: [] }
       expect(scopes).to eq(expected)
     end
 
     it "returns multiple plugin scopes" do
       scopes, _ = Guard::Interactor.convert_scope %w(foo bar)
-      expect(scopes).to eq(plugins: [@foo_guard, @bar_guard], groups: [])
+      expect(scopes).to eq(plugins: [foo, bar], groups: [])
     end
 
     it "returns a plugin and group scope" do
       scopes, _ = Guard::Interactor.convert_scope %w(foo backend)
-      expect(scopes).to eq(plugins: [@foo_guard], groups: [@backend_group])
+      expect(scopes).to eq(plugins: [foo], groups: [backend])
     end
 
     it "returns the unkown scopes" do
-      _, unkown = Guard::Interactor.convert_scope %w(unkown scope)
-      expect(unkown).to eq %w(unkown scope)
+      _, unknown = Guard::Interactor.convert_scope %w(unknown scope)
+      expect(unknown).to eq %w(unknown scope)
     end
   end
 
