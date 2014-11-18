@@ -1,3 +1,5 @@
+require "guard/guardfile/evaluator"
+
 RSpec.describe Guard::Guardfile::Evaluator do
 
   let!(:local_guardfile) { (Pathname.pwd + "Guardfile").to_s }

@@ -1,10 +1,10 @@
-require "guard/guardfile"
+require "guard/guardfile/evaluator"
 require "guard/interactor"
 require "guard/notifier"
 require "guard/ui"
 require "guard/watcher"
 
-require "guard/deprecated_methods"
+require "guard/deprecated/dsl" unless Guard::Config.new.strict?
 
 module Guard
   # The Dsl class provides the methods that are used in each `Guardfile` to
@@ -45,7 +45,7 @@ module Guard
   # @see https://github.com/guard/guard/wiki/Guardfile-examples
   #
   class Dsl
-    extend Guard::DeprecatedMethods::Dsl::ClassMethods
+    Deprecated::Dsl.add_deprecated(self) unless Config.new.strict?
 
     WARN_INVALID_LOG_LEVEL = "Invalid log level `%s` ignored. "\
       "Please use either :debug, :info, :warn or :error."
@@ -258,6 +258,7 @@ module Guard
     # @param [Regexp] regexps a pattern (or list of patterns) for ignoring paths
     #
     def ignore(*regexps)
+      # TODO: instead, use Guard.reconfigure(ignore: regexps) or something
       ::Guard.listener.ignore(regexps) if ::Guard.listener
     end
     alias filter ignore

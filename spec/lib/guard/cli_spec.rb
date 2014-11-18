@@ -68,15 +68,16 @@ RSpec.describe Guard::CLI do
   let(:guard)         { Guard }
   let(:ui)            { Guard::UI }
   let(:dsl_describer) { instance_double(::Guard::DslDescriber) }
-
   let(:evaluator) { instance_double(Guard::Guardfile::Evaluator) }
+  let(:generator) { instance_double(Guard::Guardfile::Generator) }
+  let(:obsolete_guardfile) { class_double(Guard::Guardfile) }
 
   before do
     @options = {}
     allow(subject).to receive(:options).and_return(@options)
 
-    allow(Guard::Guardfile::Evaluator).to receive(:new).
-      and_return(evaluator)
+    allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
+    allow(Guard::Guardfile::Generator).to receive(:new).and_return(generator)
   end
 
   describe "#start" do
@@ -126,9 +127,9 @@ RSpec.describe Guard::CLI do
     before do
       stub_file("Gemfile")
 
-      allow(Guard::Guardfile).to receive(:create_guardfile)
-      allow(Guard::Guardfile).to receive(:initialize_all_templates)
       allow(evaluator).to receive(:evaluate_guardfile)
+      allow(generator).to receive(:create_guardfile)
+      allow(generator).to receive(:initialize_all_templates)
     end
 
     # TODO: this is a code smell suggesting the use of global variables
@@ -153,7 +154,7 @@ RSpec.describe Guard::CLI do
           reset_called = true
         end
 
-        expect(Guard::Guardfile).to receive(:create_guardfile) do
+        expect(generator).to receive(:create_guardfile) do
           reset_called_before_creating = reset_called
         end
 
@@ -164,9 +165,9 @@ RSpec.describe Guard::CLI do
 
       it "Only creates the Guardfile without initialize any Guard template" do
         allow(File).to receive(:exist?).with("Gemfile").and_return(false)
-        expect(Guard::Guardfile).to receive(:create_guardfile)
-        expect(Guard::Guardfile).to_not receive(:initialize_template)
-        expect(Guard::Guardfile).to_not receive(:initialize_all_templates)
+        expect(generator).to receive(:create_guardfile)
+        expect(generator).to_not receive(:initialize_template)
+        expect(generator).to_not receive(:initialize_all_templates)
 
         subject.init
       end
@@ -189,7 +190,7 @@ RSpec.describe Guard::CLI do
 
       it "should setup Guard.evaluator before initialize_all_templates()" do
         ev = nil
-        expect(Guard::Guardfile).to receive(:initialize_all_templates) do
+        expect(generator).to receive(:initialize_all_templates) do
           ev = Guard.evaluator
         end
 
@@ -198,8 +199,10 @@ RSpec.describe Guard::CLI do
       end
 
       it "creates a Guardfile by delegating to Guardfile.create_guardfile" do
-        expect(Guard::Guardfile).to receive(:create_guardfile).
-          with(abort_on_existence: false)
+        expect(Guard::Guardfile::Generator).to receive(:new).
+          with(abort_on_existence: false).and_return(generator)
+
+        expect(generator).to receive(:create_guardfile)
 
         subject.init
       end
@@ -207,7 +210,7 @@ RSpec.describe Guard::CLI do
       it "initializes templates of all installed Guards" do
         allow(File).to receive(:exist?).with("Gemfile").and_return(false)
 
-        expect(Guard::Guardfile).to receive(:initialize_all_templates)
+        expect(generator).to receive(:initialize_all_templates)
 
         subject.init
       end
@@ -215,16 +218,15 @@ RSpec.describe Guard::CLI do
       it "initializes each passed template" do
         allow(File).to receive(:exist?).with("Gemfile").and_return(false)
 
-        expect(Guard::Guardfile).to receive(:initialize_template).with("rspec")
-        expect(Guard::Guardfile).to receive(:initialize_template).with("pow")
+        expect(generator).to receive(:initialize_template).with("rspec")
+        expect(generator).to receive(:initialize_template).with("pow")
 
         subject.init "rspec", "pow"
       end
 
       context "when passed a guard name" do
         it "initializes the template of the passed Guard" do
-          expect(Guard::Guardfile).to receive(:initialize_template).
-            with("rspec")
+          expect(generator).to receive(:initialize_template). with("rspec")
 
           subject.init "rspec"
         end

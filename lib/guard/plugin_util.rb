@@ -98,7 +98,9 @@ module Guard
 
       try_require = false
       begin
-        require "guard/#{ name.downcase }" if try_require
+        if try_require
+          require "guard/#{name.downcase}"
+        end
 
         @plugin_class ||= ::Guard.const_get(_plugin_constant)
       rescue TypeError => error
@@ -112,6 +114,7 @@ module Guard
       rescue LoadError => error
         unless options[:fail_gracefully]
           UI.error ERROR_NO_GUARD_OR_CLASS % [name.downcase, _constant_name]
+          UI.error "Error is: #{error}"
           UI.error error.backtrace.join("\n")
         end
       end
@@ -120,9 +123,9 @@ module Guard
     # Adds a plugin's template to the Guardfile.
     #
     def add_to_guardfile
-      msg = "Guard.evaluator not initialized"
-      fail msg if ::Guard.evaluator.nil?
-      if ::Guard.evaluator.guardfile_include?(name)
+      evaluator = Guard::Guardfile::Evaluator.new
+      evaluator.evaluate_guardfile
+      if evaluator.guardfile_include?(name)
         ::Guard::UI.info "Guardfile already includes #{ name } guard"
       else
         content = File.read("Guardfile")

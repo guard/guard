@@ -3,7 +3,8 @@ require "thor"
 require "guard"
 require "guard/version"
 require "guard/dsl_describer"
-require "guard/guardfile"
+require "guard/guardfile/evaluator"
+require "guard/guardfile/generator"
 
 module Guard
   # Facade for the Guard command line interface managed by
@@ -166,8 +167,8 @@ module Guard
       ::Guard.reset_options(options) # Since UI.deprecated uses config
       ::Guard.reset_evaluator(options) # for initialize_all_templates
 
-      # This is messed up (deprecated, etc) and will be fixed later
-      ::Guard::Guardfile.create_guardfile(abort_on_existence: options[:bare])
+      generator = Guardfile::Generator.new(abort_on_existence: options[:bare])
+      generator.create_guardfile
 
       # Note: this reset "hack" will be fixed after refactoring
       ::Guard.reset_plugins
@@ -178,10 +179,10 @@ module Guard
       return if options[:bare]
 
       if plugin_names.empty?
-        ::Guard::Guardfile.initialize_all_templates
+        generator.initialize_all_templates
       else
         plugin_names.each do |plugin_name|
-          ::Guard::Guardfile.initialize_template(plugin_name)
+          generator.initialize_template(plugin_name)
         end
       end
     end

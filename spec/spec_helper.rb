@@ -21,9 +21,6 @@ if ENV.key?("CI")
   Coveralls.wear!
 end
 
-require "guard"
-require "rspec"
-
 path = "#{File.expand_path("..", __FILE__)}/support/**/*.rb"
 Dir[path].each { |f| require f }
 
@@ -191,48 +188,71 @@ RSpec.configure do |config|
       end
     end
 
-    Guard.send(:_reset_for_tests)
+    # TODO: remove (instance vars cleared anyway)
+    Guard.send(:_reset_for_tests) if ::Guard.respond_to?(:add_group)
 
-    Guard.clear_options
+    # TODO: remove (instance vars cleared anyway)
+    Guard.clear_options if ::Guard.respond_to?(:add_group)
 
-    # Stub all UI methods, so no visible output appears for the UI class
-    allow(::Guard::UI).to receive(:info)
-    allow(::Guard::UI).to receive(:warning)
-    allow(::Guard::UI).to receive(:error)
-    allow(::Guard::UI).to receive(:debug)
-    allow(::Guard::UI).to receive(:deprecation)
-
-    # Avoid clobbering the terminal
-    allow(Guard::Notifier::TerminalTitle).to receive(:puts)
-
-    allow(Guard::Notifier::Tmux).to receive(:system) do |*args|
-      fail "stub for system() called with: #{args.inspect}"
+    # TODO: use metadata to stub out all used classes
+    if Guard.const_defined?("UI")
+      # Stub all UI methods, so no visible output appears for the UI class
+      allow(::Guard::UI).to receive(:info)
+      allow(::Guard::UI).to receive(:warning)
+      allow(::Guard::UI).to receive(:error)
+      allow(::Guard::UI).to receive(:debug)
+      allow(::Guard::UI).to receive(:deprecation)
     end
 
-    allow(Guard::Notifier::Tmux).to receive(:`) do |*args|
-      fail "stub for `(backtick) called with: #{args.inspect}"
+    # TODO: use metadata to stub out all used classes
+    if Guard.const_defined?("Notifier::TerminalTitle")
+      # Avoid clobbering the terminal
+      allow(Guard::Notifier::TerminalTitle).to receive(:puts)
+    end
+
+    # TODO: use metadata to stub out all used classes
+    if Guard.const_defined?("Notifier::Tmux")
+      allow(Guard::Notifier::Tmux).to receive(:system) do |*args|
+        fail "stub for system() called with: #{args.inspect}"
+      end
+
+      allow(Guard::Notifier::Tmux).to receive(:`) do |*args|
+        fail "stub for `(backtick) called with: #{args.inspect}"
+      end
     end
 
     allow(Kernel).to receive(:system) do |*args|
       fail "stub for Kernel.system() called with: #{args.inspect}"
     end
 
-    unless example.metadata[:sheller_specs]
-      allow(Guard::Sheller).to receive(:run) do |*args|
-        fail "stub for Sheller.run() called with: #{args.inspect}"
+    # TODO: use metadata to stub out all used classes
+    if Guard.const_defined?("Sheller")
+      unless example.metadata[:sheller_specs]
+        allow(Guard::Sheller).to receive(:run) do |*args|
+          fail "stub for Sheller.run() called with: #{args.inspect}"
+        end
       end
     end
 
-    allow(Listen).to receive(:to) do |*args|
-      fail "stub for Listen.to called with: #{args.inspect}"
+    # TODO: use metadata to stub out all used classes
+    if Object.const_defined?("Listen")
+      allow(Listen).to receive(:to) do |*args|
+        fail "stub for Listen.to called with: #{args.inspect}"
+      end
     end
 
-    ::Guard.reset_groups
-    ::Guard.reset_plugins
+    # TODO: remove (instance vars cleared anyway)
+    ::Guard.reset_groups if ::Guard.respond_to?(:add_group)
+
+    # TODO: remove (instance vars cleared anyway)
+    ::Guard.reset_plugins if ::Guard.respond_to?(:add_group)
   end
 
   config.after(:each) do
-    Guard::Notifier.instance_variable_set(:@environment, nil)
-    Guard.clear_options
+    if Guard.const_defined?("Notifier::Tmux")
+      Guard::Notifier.instance_variable_set(:@environment, nil)
+    end
+    # TODO: remove (instance vars cleared anyway)
+    Guard.clear_options if ::Guard.respond_to?(:add_group)
   end
 end

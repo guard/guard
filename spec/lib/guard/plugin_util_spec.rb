@@ -5,12 +5,13 @@ RSpec.describe Guard::PluginUtil do
   let(:guard_rspec_class) { class_double(Guard::Plugin) }
   let(:guard_rspec) { instance_double(Guard::Plugin) }
   let(:interactor) { instance_double(Guard::Interactor) }
-  let(:guardfile_evaluator) { instance_double(Guard::Guardfile::Evaluator) }
+  let(:evaluator) { instance_double(Guard::Guardfile::Evaluator) }
 
   before do
     allow(Guard::Interactor).to receive(:new).and_return(interactor)
     allow(Listen).to receive(:to).with(Dir.pwd, {})
     allow(Guard::Notifier).to receive(:turn_on) {}
+    allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
   end
 
   describe ".plugin_names" do
@@ -103,7 +104,9 @@ RSpec.describe Guard::PluginUtil do
     end
 
     it "reports an error if the class is not found" do
-      expect(::Guard::UI).to receive(:error).twice
+      expect(::Guard::UI).to receive(:error).with(/Could not load/)
+      expect(::Guard::UI).to receive(:error).with(/Error is: cannot load/)
+      expect(::Guard::UI).to receive(:error).with(/plugin_util.rb/)
       described_class.new("notAGuardClass").plugin_class
     end
 
@@ -200,12 +203,12 @@ RSpec.describe Guard::PluginUtil do
 
   describe "#add_to_guardfile" do
     before do
-      allow(::Guard).to receive(:evaluator) { guardfile_evaluator }
+      allow(evaluator).to receive(:evaluate_guardfile)
     end
 
     context "when the Guard is already in the Guardfile" do
       before do
-        allow(guardfile_evaluator).to receive(:guardfile_include?) { true }
+        allow(evaluator).to receive(:guardfile_include?) { true }
       end
 
       it "shows an info message" do
@@ -232,7 +235,7 @@ RSpec.describe Guard::PluginUtil do
           "/Users/me/projects/guard-myguard"
         end
 
-        allow(guardfile_evaluator).to receive(:guardfile_include?) { false }
+        allow(evaluator).to receive(:guardfile_include?) { false }
       end
 
       it "appends the template to the Guardfile" do

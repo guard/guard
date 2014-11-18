@@ -56,8 +56,6 @@ module Guard
       # NOTE: must be set before anything calls Guard::UI.debug
       ::Guard::Internals::Debugging.start if options[:debug]
 
-      reset_evaluator(opts)
-
       @queue = Queue.new
       @runner = ::Guard::Runner.new
       @watchdirs = _setup_watchdirs
@@ -66,7 +64,10 @@ module Guard
 
       @listener = _setup_listener
 
-      _load_guardfile
+      _reset_all
+      evaluate_guardfile
+      setup_scope
+
       ::Guard::Notifier.connect(notify: options[:notify])
 
       traps = Internals::Traps
@@ -117,11 +118,6 @@ module Guard
       @options = ::Guard::Options.new(new_options, DEFAULT_OPTIONS)
     end
 
-    # TODO: code smell - too many reset_* methods
-    def reset_evaluator(new_options)
-      @evaluator = ::Guard::Guardfile::Evaluator.new(new_options)
-    end
-
     def save_scope
       # This actually replaces scope from command line,
       # so scope set by 'scope' Pry command will be reset
@@ -157,6 +153,7 @@ module Guard
     # @see Guard::Guardfile::Evaluator#evaluate_guardfile
     #
     def evaluate_guardfile
+      evaluator = Guard::Guardfile::Evaluator.new(options)
       evaluator.evaluate_guardfile
       msg = "No plugins found in Guardfile, please add at least one."
       ::Guard::UI.error msg unless _pluginless_guardfile?
@@ -278,12 +275,6 @@ module Guard
       reset_scope
     end
 
-    def _load_guardfile
-      _reset_all
-      evaluate_guardfile
-      setup_scope
-    end
-
     def _prepare_scope(scope)
       fail "Guard::setup() not called!" if options.nil?
       plugins = Array(options[:plugin])
@@ -316,7 +307,6 @@ module Guard
       @options = nil
       @queue = nil
       @runner = nil
-      @evaluator = nil
       @watchdirs = nil
       @watchdirs = nil
       @listener = nil

@@ -1,6 +1,12 @@
 require "guard/options"
 require "guard/plugin"
 
+# TODO: this class shouldn't use notify directly
+require "guard/notifier"
+
+# TODO: this shouldn't be necessary
+require "guard"
+
 module Guard
   module Guardfile
     # This class is responsible for evaluating the Guardfile. It delegates to
@@ -52,7 +58,7 @@ module Guard
       def evaluate_guardfile
         _fetch_guardfile_contents
         _instance_eval_guardfile(guardfile_contents)
-        ::Guard.add_builtin_plugins(guardfile_path)
+        Guard.add_builtin_plugins(guardfile_path)
       end
 
       # Re-evaluates the `Guardfile` to update

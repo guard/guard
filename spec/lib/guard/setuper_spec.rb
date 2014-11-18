@@ -8,8 +8,6 @@ RSpec.describe Guard::Setuper do
   let!(:interactor_class) { class_double(Guard::Interactor) }
 
   let(:evaluator) { instance_double(Guard::Guardfile::Evaluator) }
-  let(:pry_interactor) { instance_double(Guard::Jobs::PryWrapper) }
-  let(:sleep_interactor) { instance_double(Guard::Jobs::Sleep) }
   let(:guardfile) { File.expand_path("Guardfile") }
   let(:traps) { Guard::Internals::Traps }
 
@@ -18,8 +16,6 @@ RSpec.describe Guard::Setuper do
     allow(interactor_class).to receive(:new).and_return(interactor)
 
     allow(Dir).to receive(:chdir)
-    allow(Guard::Jobs::PryWrapper).to receive(:new).and_return(pry_interactor)
-    allow(Guard::Jobs::Sleep).to receive(:new).and_return(sleep_interactor)
 
     stub_notifier
   end
@@ -399,7 +395,7 @@ RSpec.describe Guard::Setuper do
     let(:foo_plugin) { instance_double(Guard::Plugin, name: "Foo") }
 
     it "evaluates the Guardfile" do
-      allow(Guard).to receive(:evaluator).and_return(evaluator)
+      allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
       allow(Guard).to receive(:plugins).and_return([foo_plugin])
       expect(evaluator).to receive(:evaluate_guardfile)
 

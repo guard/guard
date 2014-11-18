@@ -1,8 +1,5 @@
 require "guard/ui"
 
-require "guard/jobs/sleep"
-require "guard/jobs/pry_wrapper"
-
 module Guard
   class Interactor
     # Initializes the interactor. This configures
@@ -11,6 +8,10 @@ module Guard
     #
     def initialize(no_interaction = false)
       @interactive = !no_interaction && self.class.enabled?
+
+      # TODO: only require the one used
+      require "guard/jobs/sleep"
+      require "guard/jobs/pry_wrapper"
 
       job_klass = interactive? ? Jobs::PryWrapper : Jobs::Sleep
       @idle_job = job_klass.new(self.class.options)

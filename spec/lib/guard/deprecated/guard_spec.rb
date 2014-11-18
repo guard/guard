@@ -1,49 +1,52 @@
-require "guard/deprecated_methods"
+require "guard/deprecated/guard"
 
-RSpec.describe Guard::DeprecatedMethods do
-  before(:all) do
+RSpec.describe Guard::Deprecated::Guard do
+  subject do
     module TestModule
-      extend Guard::DeprecatedMethods
-
       def self.plugins(_filter)
       end
 
       def self.add_plugin(*_args)
       end
     end
+    TestModule.tap { |mod| described_class.add_deprecated(mod) }
+  end
+
+  before do
+    allow(Guard::UI).to receive(:deprecation)
   end
 
   describe ".guards" do
-    before { allow(TestModule).to receive(:plugins) }
+    before { allow(subject).to receive(:plugins) }
 
     it "displays a deprecation warning to the user" do
       expect(Guard::UI).to receive(:deprecation).
-        with(Guard::Deprecator::GUARDS_DEPRECATION)
+        with(Guard::Deprecated::Guard::ClassMethods::GUARDS)
 
-      TestModule.guards
+      subject.guards
     end
 
     it "delegates to Guard.plugins" do
-      expect(TestModule).to receive(:plugins).with(group: "backend")
+      expect(subject).to receive(:plugins).with(group: "backend")
 
-      TestModule.guards(group: "backend")
+      subject.guards(group: "backend")
     end
   end
 
   describe ".add_guard" do
-    before { allow(TestModule).to receive(:add_plugin) }
+    before { allow(subject).to receive(:add_plugin) }
 
     it "displays a deprecation warning to the user" do
       expect(Guard::UI).to receive(:deprecation).
-        with(Guard::Deprecator::ADD_GUARD_DEPRECATION)
+        with(Guard::Deprecated::Guard::ClassMethods::ADD_GUARD)
 
-      TestModule.add_guard("rspec")
+      subject.add_guard("rspec")
     end
 
     it "delegates to Guard.plugins" do
-      expect(TestModule).to receive(:add_plugin).with("rspec", group: "backend")
+      expect(subject).to receive(:add_plugin).with("rspec", group: "backend")
 
-      TestModule.add_guard("rspec", group: "backend")
+      subject.add_guard("rspec", group: "backend")
     end
   end
 
@@ -53,16 +56,16 @@ RSpec.describe Guard::DeprecatedMethods do
 
     it "displays a deprecation warning to the user" do
       expect(Guard::UI).to receive(:deprecation).
-        with(Guard::Deprecator::GET_GUARD_CLASS_DEPRECATION)
+        with(Guard::Deprecated::Guard::ClassMethods::GET_GUARD_CLASS)
 
-      TestModule.get_guard_class("rspec")
+      subject.get_guard_class("rspec")
     end
 
     it "delegates to Guard::PluginUtil" do
       expect(Guard::PluginUtil).to receive(:new).with("rspec") { plugin_util }
       expect(plugin_util).to receive(:plugin_class).with(fail_gracefully: false)
 
-      TestModule.get_guard_class("rspec")
+      subject.get_guard_class("rspec")
     end
 
     describe ":fail_gracefully" do
@@ -71,7 +74,7 @@ RSpec.describe Guard::DeprecatedMethods do
         expect(plugin_util).to receive(:plugin_class).
           with(fail_gracefully: true)
 
-        TestModule.get_guard_class("rspec", true)
+        subject.get_guard_class("rspec", true)
       end
     end
   end
@@ -87,16 +90,16 @@ RSpec.describe Guard::DeprecatedMethods do
 
     it "displays a deprecation warning to the user" do
       expect(Guard::UI).to receive(:deprecation).
-        with(Guard::Deprecator::LOCATE_GUARD_DEPRECATION)
+        with(Guard::Deprecated::Guard::ClassMethods::LOCATE_GUARD)
 
-      TestModule.locate_guard("rspec")
+      subject.locate_guard("rspec")
     end
 
     it "delegates to Guard::PluginUtil" do
       expect(Guard::PluginUtil).to receive(:new).with("rspec") { plugin_util }
       expect(plugin_util).to receive(:plugin_location)
 
-      TestModule.locate_guard("rspec")
+      subject.locate_guard("rspec")
     end
   end
 
@@ -105,33 +108,53 @@ RSpec.describe Guard::DeprecatedMethods do
 
     it "displays a deprecation warning to the user" do
       expect(Guard::UI).to receive(:deprecation).
-        with(Guard::Deprecator::GUARD_GEM_NAMES_DEPRECATION)
+        with(Guard::Deprecated::Guard::ClassMethods::GUARD_GEM_NAMES)
 
-      TestModule.guard_gem_names
+      subject.guard_gem_names
     end
 
     it "delegates to Guard::PluginUtil" do
       expect(Guard::PluginUtil).to receive(:plugin_names)
 
-      TestModule.guard_gem_names
+      subject.guard_gem_names
     end
   end
 
   describe ".running" do
     it "show deprecation warning" do
       expect(Guard::UI).to receive(:deprecation).
-        with(Guard::Deprecator::GUARD_RUNNING_DEPRECATION)
+        with(Guard::Deprecated::Guard::ClassMethods::RUNNING)
 
-      TestModule.running
+      subject.running
     end
   end
 
   describe ".lock" do
     it "show deprecation warning" do
       expect(Guard::UI).to receive(:deprecation).
-        with(Guard::Deprecator::GUARD_LOCK_DEPRECATION)
+        with(Guard::Deprecated::Guard::ClassMethods::LOCK)
 
-      TestModule.lock
+      subject.lock
+    end
+  end
+
+  describe "reset_evaluator" do
+    it "show deprecation warning" do
+      expect(Guard::UI).to receive(:deprecation).
+        with(Guard::Deprecated::Guard::ClassMethods::RESET_EVALUATOR)
+      subject.reset_evaluator({})
+    end
+  end
+
+  describe "evaluator" do
+    before do
+      allow(Guard::Guardfile::Evaluator).to receive(:new).
+        and_return(double("evaluator"))
+    end
+    it "show deprecation warning" do
+      expect(Guard::UI).to receive(:deprecation).
+        with(Guard::Deprecated::Guard::ClassMethods::EVALUATOR)
+      subject.evaluator
     end
   end
 end

@@ -1,11 +1,11 @@
 require "rbconfig"
 
+require "guard/config"
+require "guard/deprecated/guard" unless Guard::Config.new.strict?
+
 require "guard/commander"
-require "guard/deprecated_methods"
-require "guard/deprecator"
 require "guard/dsl"
 require "guard/group"
-require "guard/guardfile"
 require "guard/interactor"
 require "guard/notifier"
 require "guard/plugin_util"
@@ -23,7 +23,9 @@ module Guard
   DEV_NULL = Gem.win_platform? ? "NUL" : "/dev/null"
 
   extend Commander
-  extend DeprecatedMethods
+
+  Deprecated::Guard.add_deprecated(self) unless Config.new.strict?
+
   extend Setuper
 
   class << self
