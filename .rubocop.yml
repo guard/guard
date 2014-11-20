@@ -11,5 +11,6 @@ AllCops:
   Exclude:
     - db/schema.rb
     - tmp/aruba/Guardfile
+    - tmp/aruba/Gemfile
 
 # TODO: put your overrides here:

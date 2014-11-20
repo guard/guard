@@ -1,4 +1,5 @@
 require "guard/notifiers/base"
+require "guard/sheller"
 
 module Guard
   module Notifier

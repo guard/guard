@@ -19,8 +19,8 @@ Feature: Show
   Scenario: Show plugins and their configuration
     Given a file named "Guardfile" with:
     """
-    guard :ronn do
+    guard :cucumber do
     end
     """
     When I run `guard show`
-    Then the output should match /^| Default | Ronn\s+ |/
+    Then the output should match /^\s+\| Default \| Cucumber\s+ \|/

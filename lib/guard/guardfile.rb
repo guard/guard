@@ -1,49 +1,37 @@
-require "guard/guardfile/evaluator"
-require "guard/guardfile/generator"
-require "guard/ui"
+require "guard/config"
 
-module Guard
-  # @deprecated Use instance methods of {Guardfile::Evaluator} and
-  #  {Guardfile::Generator} instead.
-  #
-  # @see Guardfile::Evaluator
-  # @see Guardfile::Generator
-  #
-  module Guardfile
-    # @deprecated Use {Guardfile::Generator#create_guardfile} instead.
-    #
-    # @see https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0 How to
-    # upgrade for Guard 2.0
-    #
-    def self.create_guardfile(options = {})
-      # FIXME: used internally by Guard
-      # TODO: reenable after majore refactoring is finished
-      # UI.deprecation(Deprecator::CREATE_GUARDFILE_DEPRECATION)
-      Generator.new(options).create_guardfile
+if Guard::Config.new.strict?
+  abort "Error: Deprecated file #{__FILE__} is being used"
+else
+  require "guard/deprecated/guardfile"
+
+  # TODO: deprecate this whole file
+
+  module Guard
+    unless Guard::Config.new.silence_deprecations?
+      UPGRADE_WIKI_URL =
+        "https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0"
+
+      STDERR.puts <<-EOS
+        (guard/guardfile.rb message)
+
+        You are including "guard/guardfile.rb", which has been deprecated
+        since 2013 ... and will be removed.
+
+        Migration is easy, see: #{UPGRADE_WIKI_URL}
+
+        This file was included from:
+          #{caller[0..10] * "\n  >"}
+
+        Sorry for the inconvenience and have a nice day!
+
+        (end of guard/guardfile.rb message)
+
+
+      EOS
     end
-
-    # @deprecated Use {Guardfile::Generator#initialize_template} instead.
-    #
-    # @see https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0 How to
-    # upgrade for Guard 2.0
-    #
-    def self.initialize_template(plugin_name)
-      # FIXME: used internally by Guard
-      # TODO: reenable after majore refactoring is finished
-      # UI.deprecation(Deprecator::INITIALIZE_TEMPLATE_DEPRECATION)
-      Generator.new.initialize_template(plugin_name)
-    end
-
-    # @deprecated Use {Guardfile::Generator#initialize_all_templates} instead.
-    #
-    # @see https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0 How to
-    # upgrade for Guard 2.0
-    #
-    def self.initialize_all_templates
-      # FIXME: used internally by Guard
-      # TODO: reenable after majore refactoring is finished
-      # UI.deprecation(Deprecator::INITIALIZE_ALL_TEMPLATES_DEPRECATION)
-      Generator.new.initialize_all_templates
+    module Guardfile
+      extend Deprecated::Guardfile::ClassMethods
     end
   end
 end

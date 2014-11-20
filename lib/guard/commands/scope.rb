@@ -1,4 +1,6 @@
 require "pry"
+require "guard/interactor"
+require "guard"
 
 module Guard
   module Commands
@@ -27,6 +29,7 @@ module Guard
               return
             end
 
+            # TODO: provide a way for guard to know this was called from Pry
             ::Guard.setup_scope(scope)
           end
         end

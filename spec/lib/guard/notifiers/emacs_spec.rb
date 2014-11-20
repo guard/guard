@@ -1,3 +1,5 @@
+require "guard/notifiers/emacs"
+
 RSpec.describe Guard::Notifier::Emacs do
   let(:notifier) { described_class.new }
   let(:sheller) { Guard::Sheller }
@@ -5,7 +7,7 @@ RSpec.describe Guard::Notifier::Emacs do
   describe ".available?" do
     subject { described_class }
 
-    let(:cmd) { "emacsclient --eval '1' 2> #{Guard::DEV_NULL} || echo 'N/A'" }
+    let(:cmd) { "emacsclient --eval '1' 2> #{IO::NULL} || echo 'N/A'" }
     let(:result) { fail "set me first" }
 
     before { allow(sheller).to receive(:stdout).with(cmd).and_return(result) }

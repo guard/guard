@@ -1,3 +1,5 @@
+require "guard/options"
+
 RSpec.describe Guard::Options do
   describe ".initialize" do
     it "handles nil options" do

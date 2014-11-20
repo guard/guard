@@ -1,4 +1,7 @@
-require "guard/plugin"
+require "guard/watcher"
+
+# TODO: shouldn't be needed
+require "guard/guardfile/evaluator"
 
 RSpec.describe Guard::Watcher do
 
@@ -331,7 +334,7 @@ RSpec.describe Guard::Watcher do
           expect(result).to eq [""]
         end
 
-        it "returns nothing if the action returns is DEV_NULL" do
+        it "returns nothing if the action returns is IO::NULL" do
           result = described_class.match_files(
             @plugin_any_return,
             ["uptime.rb"]
@@ -470,9 +473,10 @@ RSpec.describe Guard::Watcher do
 
   describe ".match_guardfile?" do
     before do
-      allow(Guard).to receive(:evaluator) do
-        double(guardfile_path: File.expand_path("Guardfile"))
-      end
+      evaluator = instance_double(Guard::Guardfile::Evaluator)
+      allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
+      allow(evaluator).to receive(:guardfile_path).
+        and_return(File.expand_path("Guardfile"))
     end
 
     context "with files that match the Guardfile" do

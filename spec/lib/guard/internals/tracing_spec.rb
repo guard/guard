@@ -1,7 +1,7 @@
 require "guard/internals/tracing"
 
 RSpec.describe Guard::Internals::Tracing do
-  let(:null) { Guard::DEV_NULL }
+  let(:null) { IO::NULL }
 
   # NOTE: Calling system() is different from calling Kernel.system()
   #

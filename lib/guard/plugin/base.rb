@@ -1,3 +1,5 @@
+require "guard/metadata"
+
 module Guard
   class Plugin
     # Colection of shared methods between `Guard::Guard` (deprecated)

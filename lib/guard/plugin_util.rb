@@ -22,27 +22,11 @@ module Guard
     # @return [Array<String>] a list of Guard plugin gem names
     #
     def self.plugin_names
-      if Gem::Version.create(Gem::VERSION) >= Gem::Version.create("1.8.0")
-        Gem::Specification.find_all.select do |x|
-          if x.name =~ /^guard-/
-            true
-          elsif x.name != "guard"
+      valid = Gem::Specification.find_all.select do |gem|
+        _gem_valid?(gem)
+      end
 
-            guard_plugin_path = File.join(
-              x.full_gem_path,
-              "lib/guard/#{ x.name }.rb"
-            )
-
-            File.exist?(guard_plugin_path)
-          end
-        end
-      else
-        ::Guard::UI.deprecation \
-          "Rubygems version prior to 1.8.0 are no longer supported"\
-          " and may not work"
-
-        Gem.source_index.find_name(/^guard-/)
-      end.map { |x| x.name.sub(/^guard-/, "") }.uniq
+      valid.map { |x| x.name.sub(/^guard-/, "") }.uniq
     end
 
     # Initializes a new `Guard::PluginUtil` object.
@@ -87,14 +71,8 @@ module Guard
     # @return [String] the full path to the plugin gem
     #
     def plugin_location
-      @plugin_location ||= begin
-        if Gem::Version.create(Gem::VERSION) >= Gem::Version.create("1.8.0")
-          Gem::Specification.find_by_name("guard-#{ name }").full_gem_path
-        else
-          Gem.source_index.find_name("guard-#{ name }").last.full_gem_path
-        end
-      end
-    rescue
+      @plugin_location ||= _full_gem_path("guard-#{name}")
+    rescue Gem::LoadError
       ::Guard::UI.error "Could not find 'guard-#{ name }' gem path."
     end
 
@@ -120,7 +98,9 @@ module Guard
 
       try_require = false
       begin
-        require "guard/#{ name.downcase }" if try_require
+        if try_require
+          require "guard/#{name.downcase}"
+        end
 
         @plugin_class ||= ::Guard.const_get(_plugin_constant)
       rescue TypeError => error
@@ -134,6 +114,7 @@ module Guard
       rescue LoadError => error
         unless options[:fail_gracefully]
           UI.error ERROR_NO_GUARD_OR_CLASS % [name.downcase, _constant_name]
+          UI.error "Error is: #{error}"
           UI.error error.backtrace.join("\n")
         end
       end
@@ -142,9 +123,11 @@ module Guard
     # Adds a plugin's template to the Guardfile.
     #
     def add_to_guardfile
-      msg = "Guard.evaluator not initialized"
-      fail msg if ::Guard.evaluator.nil?
-      if ::Guard.evaluator.guardfile_include?(name)
+      require "guard/guardfile/evaluator"
+      # TODO: move this method to Generator?
+      evaluator = Guard::Guardfile::Evaluator.new
+      evaluator.evaluate_guardfile
+      if evaluator.guardfile_include?(name)
         ::Guard::UI.info "Guardfile already includes #{ name } guard"
       else
         content = File.read("Guardfile")
@@ -181,6 +164,17 @@ module Guard
     def _constant_name
       @_constant_name ||= name.gsub(/\/(.?)/) { "::#{ $1.upcase }" }.
         gsub(/(?:^|[_-])(.)/) { $1.upcase }
+    end
+
+    def self._gem_valid?(gem)
+      return true if gem.name =~ /^guard-/
+      full_path = gem.full_gem_path
+      file = File.join(full_path, "lib", "guard", "#{gem.name}.rb")
+      File.exist?(file)
+    end
+
+    def _full_gem_path(name)
+      Gem::Specification.find_by_name(name).full_gem_path
     end
   end
 end

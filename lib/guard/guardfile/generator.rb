@@ -1,3 +1,6 @@
+require "guard/ui"
+require "guard/plugin_util"
+
 module Guard
   module Guardfile
     # This class is responsible for generating the Guardfile and adding Guard'
@@ -6,9 +9,6 @@ module Guard
     # @see Guard::CLI
     #
     class Generator
-      require "guard"
-      require "guard/ui"
-
       attr_reader :options
 
       # The Guardfile template for `guard init`
@@ -59,6 +59,7 @@ module Guard
       #
       def initialize_template(plugin_name)
         plugin_util = ::Guard::PluginUtil.new(plugin_name)
+        # TODO: change to "plugin_class?" method
         if plugin_util.plugin_class(fail_gracefully: true)
           plugin_util.add_to_guardfile
 

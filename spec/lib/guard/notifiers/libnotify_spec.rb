@@ -1,3 +1,5 @@
+require "guard/notifiers/libnotify"
+
 RSpec.describe Guard::Notifier::Libnotify do
   let(:notifier) { described_class.new }
 

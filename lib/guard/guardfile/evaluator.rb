@@ -1,5 +1,12 @@
+require "guard/config"
 require "guard/options"
 require "guard/plugin"
+
+# TODO: this class shouldn't use notify directly
+require "guard/notifier"
+
+require "guard/dsl"
+require "guard/metadata"
 
 module Guard
   module Guardfile
@@ -52,7 +59,7 @@ module Guard
       def evaluate_guardfile
         _fetch_guardfile_contents
         _instance_eval_guardfile(guardfile_contents)
-        ::Guard.add_builtin_plugins(guardfile_path)
+        Guard.add_builtin_plugins(guardfile_path)
       end
 
       # Re-evaluates the `Guardfile` to update
@@ -211,7 +218,7 @@ module Guard
       # before the Guardfile will be re-evaluated.
       #
       def _before_reevaluate_guardfile
-        ::Guard.runner.run(:stop)
+        Guard::Runner.new.run(:stop)
         ::Guard.reset_groups
         ::Guard.reset_plugins
         ::Guard.reset_scope
@@ -224,7 +231,7 @@ module Guard
       def _after_reevaluate_guardfile
         ::Guard::Notifier.connect(::Guard.options)
 
-        if !::Guard.send(:_pluginless_guardfile?)
+        if ::Guard.send(:_pluginless_guardfile?)
           ::Guard::Notifier.notify(
             "No plugins found in Guardfile, please add at least one.",
             title: "Guard re-evaluate",
@@ -235,7 +242,7 @@ module Guard
           ::Guard::Notifier.notify(msg, title: "Guard re-evaluate")
 
           ::Guard.setup_scope
-          ::Guard.runner.run(:start)
+          Guard::Runner.new.run(:start)
         end
       end
 

@@ -1,3 +1,4 @@
+require "guard/sheller"
 module Guard
   class Terminal
     class << self

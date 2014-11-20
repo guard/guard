@@ -1,3 +1,4 @@
+require "yaml"
 require "guard/internals/environment"
 
 RSpec.describe Guard::Internals::Environment::Dumper do

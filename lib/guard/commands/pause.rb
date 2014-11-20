@@ -1,5 +1,7 @@
 require "pry"
 
+require "guard"
+
 module Guard
   module Commands
     class Pause

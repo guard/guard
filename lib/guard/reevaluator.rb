@@ -1,12 +1,12 @@
-require "guard"
 require "guard/plugin"
+require "guard/guardfile/evaluator"
 
 module Guard
-  class Reevaluator < Guard::Plugin
+  class Reevaluator < Plugin
     def run_on_modifications(files)
       return unless ::Guard::Watcher.match_guardfile?(files)
       ::Guard.save_scope
-      ::Guard.evaluator.reevaluate_guardfile
+      Guard::Guardfile::Evaluator.new.reevaluate_guardfile
     rescue ScriptError, StandardError => e
       ::Guard::UI.warning("Failed to reevaluate file: #{e}")
 

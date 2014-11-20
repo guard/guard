@@ -5,11 +5,9 @@ RSpec.describe Guard::Terminal do
   it { is_expected.to respond_to(:clear) }
 
   let(:sheller) { class_double(::Guard::Sheller) }
-  let(:ui) { class_double(::Guard::UI) }
 
   before do
     stub_const("::Guard::Sheller", sheller)
-    stub_const("::Guard::UI", ui)
   end
 
   describe ".clear" do

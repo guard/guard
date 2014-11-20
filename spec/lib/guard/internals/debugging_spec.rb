@@ -1,7 +1,7 @@
 require "guard/internals/debugging"
 
 RSpec.describe Guard::Internals::Debugging do
-  let(:null) { Guard::DEV_NULL }
+  let(:null) { IO::NULL }
   let(:ui) { class_double(::Guard::UI) }
   let(:tracing) { class_spy(::Guard::Internals::Tracing) }
   let(:thread_class) { class_double(Thread) }

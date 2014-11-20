@@ -1,4 +1,5 @@
 require "guard/notifiers/base"
+require "guard/sheller"
 
 module Guard
   module Notifier
@@ -21,7 +22,7 @@ module Guard
         return false unless super
 
         client_name = opts.fetch(:client, DEFAULTS[:client])
-        cmd = "#{client_name} --eval '1' 2> #{DEV_NULL} || echo 'N/A'"
+        cmd = "#{client_name} --eval '1' 2> #{IO::NULL} || echo 'N/A'"
         stdout = Sheller.stdout(cmd)
         return false if stdout.nil?
         !%w(N/A 'N/A').include?(stdout.chomp)

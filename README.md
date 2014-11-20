@@ -291,13 +291,6 @@ $ bundle exec guard start -B
 $ bundle exec guard start --no-bundler-warning
 ```
 
-#### `--show-deprecations`
-
-This option is deprecated. No, seriously! Deprecations are now always shown.
-
-(To *really* hide them, set the environment variable `GUARD_GEM_SILENCE_DEPRECATIONS=1`)
-
-
 #### `-l`/`--latency` option
 
 Overwrite Listen's default latency, useful when your hard-drive / system is slow.

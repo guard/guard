@@ -1,3 +1,5 @@
+require "guard/notifiers/terminal_title"
+
 RSpec.describe Guard::Notifier::TerminalTitle do
   let(:notifier) { described_class.new }
 

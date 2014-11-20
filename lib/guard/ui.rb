@@ -1,6 +1,9 @@
 require "lumberjack"
 
 require "guard/options"
+require "guard/session"
+require "guard/metadata"
+
 require "guard/ui/colors"
 
 require "guard/terminal"

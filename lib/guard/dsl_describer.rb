@@ -3,6 +3,7 @@ require "formatador"
 
 require "guard/guardfile/evaluator"
 require "guard/ui"
+require "guard/metadata"
 
 module Guard
   # The DslDescriber evaluates the Guardfile and creates an internal structure
@@ -113,13 +114,18 @@ module Guard
     def notifiers
       _evaluate_guardfile
 
-      merged_notifiers = ::Guard::Notifier::NOTIFIERS.inject(:merge)
+      supported = ::Guard::Notifier::SUPPORTED
+      Notifier.connect
+      detected = Notifier.notifiers
+      Notifier.disconnect
+
+      merged_notifiers = supported.inject(:merge)
       final_rows = merged_notifiers.each_with_object([]) do |definition, rows|
 
         name      = definition[0]
         clazz     = definition[1]
         available = clazz.available?(silent: true) ? "✔" : "✘"
-        notifier  = ::Guard::Notifier.notifiers.detect { |n| n[:name] == name }
+        notifier  = detected.detect { |n| n[:name] == name }
         used      = notifier ? "✔" : "✘"
 
         options = _merge_options(clazz, notifier)

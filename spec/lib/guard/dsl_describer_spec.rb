@@ -3,6 +3,9 @@ require "guard/plugin"
 require "guard/dsl_describer"
 require "formatador"
 
+# TODO: temporary to get specs working
+require "listen"
+
 RSpec.describe Guard::DslDescriber do
   let(:interactor) { instance_double(Guard::Interactor) }
 
@@ -82,6 +85,9 @@ RSpec.describe Guard::DslDescriber do
     end
 
     it "lists the available Guards declared as strings or symbols" do
+      # TODO: temporary hack to get specs working
+      allow(Guard::Notifier).to receive(:add)
+
       ::Guard::DslDescriber.new(guardfile_contents: guardfile).list
       expect(@output).to eq result
     end
@@ -107,6 +113,9 @@ RSpec.describe Guard::DslDescriber do
     it "shows the Guards and their options" do
       stub_user_guard_rb
 
+      # TODO: temporary hack to get specs working
+      allow(Guard::Notifier).to receive(:add)
+
       ::Guard::DslDescriber.new(guardfile_contents: guardfile).show
 
       expect(@output).to eq result
@@ -128,7 +137,7 @@ RSpec.describe Guard::DslDescriber do
 
     before do
       # TODO: clean using stubs
-      stub_const "Guard::Notifier::NOTIFIERS", [
+      stub_const "Guard::Notifier::SUPPORTED", [
         { gntp: ::Guard::Notifier::GNTP },
         { terminal_title: ::Guard::Notifier::TerminalTitle }
       ]
@@ -141,6 +150,17 @@ RSpec.describe Guard::DslDescriber do
       ]
       stub_user_guard_rb
       stub_notifier
+    end
+
+    it "properly connects and disconnects" do
+      expect(Guard::Notifier).to receive(:connect).once.ordered
+      expect(::Guard::Notifier).to receive(:notifiers).once.ordered.and_return [
+        { name: :gntp, options: { sticky: true } }
+      ]
+
+      expect(Guard::Notifier).to receive(:disconnect).once.ordered
+
+      ::Guard::DslDescriber.new(guardfile_contents: guardfile).notifiers
     end
 
     it "shows the notifiers and their options" do

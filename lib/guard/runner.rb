@@ -1,5 +1,6 @@
 require "lumberjack"
 
+require "guard/metadata"
 require "guard/ui"
 require "guard/watcher"
 

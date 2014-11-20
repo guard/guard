@@ -1,3 +1,8 @@
+require "guard/guardfile/evaluator"
+
+# TODO: shouldn't be necessary
+require "guard"
+
 RSpec.describe Guard::Guardfile::Evaluator do
 
   let!(:local_guardfile) { (Pathname.pwd + "Guardfile").to_s }
@@ -376,7 +381,7 @@ RSpec.describe Guard::Guardfile::Evaluator do
     let(:runner) { instance_double(Guard::Runner) }
 
     before do
-      allow(::Guard).to receive(:runner).and_return(runner)
+      allow(Guard::Runner).to receive(:new).and_return(runner)
       allow(runner).to receive(:run)
       stub_guardfile("guard :rspec do; end")
       stub_user_guard_rb
@@ -399,6 +404,12 @@ RSpec.describe Guard::Guardfile::Evaluator do
     end
 
     describe "before reevaluation" do
+      before do
+        Guard.setup
+        allow(runner).to receive(:run).with(:stop)
+        allow(runner).to receive(:run).with(:start)
+      end
+
       it "stops all Guards" do
         expect(runner).to receive(:run).with(:stop)
 
@@ -434,6 +445,8 @@ RSpec.describe Guard::Guardfile::Evaluator do
     end
 
     it "evaluates the Guardfile" do
+      Guard.setup
+      allow(Guard).to receive(:_pluginless_guardfile?).and_return(false)
       expect(::Guard).to receive(:setup_scope)
       evaluator.reevaluate_guardfile
     end
@@ -470,6 +483,7 @@ RSpec.describe Guard::Guardfile::Evaluator do
         end
 
         it "shows a success message" do
+          allow(Guard).to receive(:_pluginless_guardfile?).and_return(false)
           expect(::Guard::UI).to receive(:info).
             with("Guardfile has been re-evaluated.")
 
@@ -480,10 +494,12 @@ RSpec.describe Guard::Guardfile::Evaluator do
           expect(::Guard::Notifier).to receive(:notify).
             with("Guardfile has been re-evaluated.", title: "Guard re-evaluate")
 
+          allow(Guard).to receive(:_pluginless_guardfile?).and_return(false)
           evaluator.reevaluate_guardfile
         end
 
         it "starts all Guards" do
+          allow(Guard).to receive(:_pluginless_guardfile?).and_return(false)
           expect(runner).to receive(:run).with(:start)
 
           evaluator.reevaluate_guardfile
@@ -510,6 +526,7 @@ RSpec.describe Guard::Guardfile::Evaluator do
 
       it "configures the scope" do
         expect(::Guard).to receive(:setup_scope)
+        allow(Guard).to receive(:_pluginless_guardfile?).and_return(false)
 
         evaluator.reevaluate_guardfile
       end

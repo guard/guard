@@ -1,14 +1,30 @@
-require "guard/plugin"
-
 require "guard/commands/reload"
 
+require "guard/group"
+
 RSpec.describe Guard::Commands::Reload do
+  let(:output) { instance_double(Pry::Output) }
+
+  class FakePry < Pry::Command
+    def self.output; end
+  end
+
+  before do
+    allow(FakePry).to receive(:output).and_return(output)
+    allow(Pry::Commands).to receive(:create_command).with("reload") do |&block|
+      FakePry.instance_eval(&block)
+    end
+
+    described_class.import
+  end
+
   before { described_class.import }
 
   let(:foo_group) { instance_double(Guard::Group) }
   let(:bar_guard) { instance_double(Guard::PluginUtil) }
 
   before do
+    # TODO: refactor convert_scope out of Interactor
     allow(Guard::Interactor).to receive(:convert_scope) do |*args|
       fail "Interactor#convert_scope stub called with: #{args.inspect}"
     end
@@ -24,7 +40,7 @@ RSpec.describe Guard::Commands::Reload do
     it "triggers the :reload action" do
       expect(Guard).to receive(:async_queue_add).
         with([:guard_reload, { groups: [], plugins: [] }])
-      Pry.run_command "reload"
+      FakePry.process
     end
   end
 
@@ -35,7 +51,7 @@ RSpec.describe Guard::Commands::Reload do
     it "triggers the :reload action with the given scope" do
       expect(Guard).to receive(:async_queue_add).
         with([:guard_reload, { groups: [foo_group], plugins: [] }])
-      Pry.run_command "reload foo"
+      FakePry.process("foo")
     end
   end
 
@@ -46,7 +62,7 @@ RSpec.describe Guard::Commands::Reload do
     it "triggers the :reload action with the given scope" do
       expect(Guard).to receive(:async_queue_add).
         with([:guard_reload, { plugins: [bar_guard], groups: [] }])
-      Pry.run_command "reload bar"
+      FakePry.process("bar")
     end
   end
 
@@ -55,9 +71,9 @@ RSpec.describe Guard::Commands::Reload do
     let(:converted_scope) { [{ groups: [], plugins: [] }, ["baz"]] }
 
     it "does not trigger the action" do
-      allow(STDOUT).to receive(:print).with("Unknown scopes: baz\n")
+      allow(output).to receive(:puts).with("Unknown scopes: baz")
       expect(Guard).to_not receive(:async_queue_add)
-      Pry.run_command "reload baz"
+      FakePry.process("baz")
     end
   end
 end

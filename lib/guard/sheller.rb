@@ -1,3 +1,5 @@
+require "open3"
+
 module Guard
   # The Guard sheller abstract the actual subshell
   # calls and allow easier stubbing.
@@ -108,8 +110,6 @@ module Guard
     def self._system_with_capture(*args)
       # We use popen3, because it started working on recent versions
       # of JRuby, while JRuby doesn't handle options to Kernel.system
-      require "open3"
-
       args = _shellize_if_needed(args)
 
       stdout, stderr, status = nil

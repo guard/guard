@@ -1,210 +1,271 @@
-require "rbconfig"
+require "thread"
+require "listen"
+
+require "guard/config"
+require "guard/deprecated/guard" unless Guard::Config.new.strict?
+
+require "guard/internals/debugging"
+require "guard/internals/traps"
+require "guard/internals/helpers"
+
+require "guard/metadata"
+require "guard/options"
 
 require "guard/commander"
-require "guard/deprecated_methods"
-require "guard/deprecator"
 require "guard/dsl"
-require "guard/group"
-require "guard/guardfile"
 require "guard/interactor"
 require "guard/notifier"
 require "guard/plugin_util"
 require "guard/runner"
-require "guard/setuper"
 require "guard/sheller"
 require "guard/ui"
 require "guard/watcher"
-require "guard/reevaluator"
 
 # Guard is the main module for all Guard related modules and classes.
 # Also Guard plugins should use this namespace.
 #
 module Guard
-  DEV_NULL = Gem.win_platform? ? "NUL" : "/dev/null"
-
-  extend Commander
-  extend DeprecatedMethods
-  extend Setuper
+  Deprecated::Guard.add_deprecated(self) unless Config.new.strict?
 
   class << self
-    # Called by Pry scope command
+    attr_reader :listener
 
-    def scope=(new_scope)
-      @scope = new_scope
-      @scope.dup.freeze
+    include Internals::Helpers
+
+    # Initializes the Guard singleton:
+    #
+    # * Initialize the internal Guard state;
+    # * Create the interactor
+    # * Select and initialize the file change listener.
+    #
+    # @option options [Boolean] clear if auto clear the UI should be done
+    # @option options [Boolean] notify if system notifications should be shown
+    # @option options [Boolean] debug if debug output should be shown
+    # @option options [Array<String>] group the list of groups to start
+    # @option options [Array<String>] watchdir the directories to watch
+    # @option options [String] guardfile the path to the Guardfile
+    #
+    # @return [Guard] the Guard singleton
+    #
+
+    # TODO: this method has too many instance variables
+    # and some are mock and leak between tests,
+    # so ideally there should be a guard "instance"
+    # object that can be created anew between tests
+    def setup(opts = {})
+      # NOTE: must be set before anything calls Guard.options
+      reset_options(opts)
+
+      # NOTE: must be set before anything calls Guard::UI.debug
+      ::Guard::Internals::Debugging.start if options[:debug]
+
+      @queue = Queue.new
+      @watchdirs = _setup_watchdirs
+
+      ::Guard::UI.reset_and_clear
+
+      @listener = _setup_listener
+
+      _reset_all
+      evaluate_guardfile
+      setup_scope
+
+      ::Guard::Notifier.connect(notify: options[:notify])
+
+      traps = Internals::Traps
+      traps.handle("USR1") { async_queue_add([:guard_pause, :paused]) }
+      traps.handle("USR2") { async_queue_add([:guard_pause, :unpaused]) }
+
+      @interactor = ::Guard::Interactor.new(options[:no_interactions])
+      traps.handle("INT") { @interactor.handle_interrupt }
+
+      self
     end
 
-    def scope
-      fail "::Guard.setup() not called" if @scope.nil?
-      @scope.dup.freeze
-    end
-    attr_reader :runner, :listener
+    attr_reader :interactor
 
-    # Smart accessor for retrieving specific plugins at once.
-    #
-    # @see Guard.plugin
-    # @see Guard.group
-    # @see Guard.groups
-    #
-    # @example Filter plugins by String or Symbol
-    #   Guard.plugins('rspec')
-    #   Guard.plugins(:rspec)
-    #
-    # @example Filter plugins by Regexp
-    #   Guard.plugins(/rsp.+/)
-    #
-    # @example Filter plugins by Hash
-    #   Guard.plugins(name: 'rspec', group: 'backend')
-    #
-    # @param [String, Symbol, Regexp, Hash] filter the filter to apply to the
-    # plugins
-    # @return [Plugin, Array<Plugin>] the filtered plugin(s)
-    #
-    def plugins(filter = nil)
-      @plugins ||= []
-
-      return @plugins if filter.nil?
-
-      filtered_plugins = case filter
-                         when String, Symbol
-                           @plugins.select do |plugin|
-                             plugin.name == filter.to_s.downcase.gsub("-", "")
-                           end
-                         when Regexp
-                           @plugins.select do |plugin|
-                             plugin.name =~ filter
-                           end
-                         when Hash
-                           @plugins.select do |plugin|
-                             filter.all? do |k, v|
-                               case k
-                               when :name
-                                 plugin.name == v.to_s.downcase.gsub("-", "")
-                               when :group
-                                 plugin.group.name == v.to_sym
-                               end
-                             end
-                           end
-                         end
-
-      filtered_plugins
+    # Used only by tests (for all I know...)
+    def clear_options
+      @options = nil
     end
 
-    # Smart accessor for retrieving a specific plugin.
+    # Initializes the groups array with the default group(s).
+    #
+    # @see DEFAULT_GROUPS
+    #
+    def reset_groups
+      @groups = DEFAULT_GROUPS.map { |name| Group.new(name) }
+    end
+
+    # Initializes the plugins array to an empty array.
     #
     # @see Guard.plugins
-    # @see Guard.group
-    # @see Guard.groups
     #
-    # @example Find a plugin by String or Symbol
-    #   Guard.plugin('rspec')
-    #   Guard.plugin(:rspec)
-    #
-    # @example Find a plugin by Regexp
-    #   Guard.plugin(/rsp.+/)
-    #
-    # @example Find a plugin by Hash
-    #   Guard.plugin(name: 'rspec', group: 'backend')
-    #
-    # @param [String, Symbol, Regexp, Hash] filter the filter for finding the
-    #   plugin the Guard plugin
-    # @return [Plugin, nil] the plugin found, nil otherwise
-    #
-    def plugin(filter)
-      plugins(filter).first
+    def reset_plugins
+      @plugins = []
     end
 
-    # Smart accessor for retrieving specific groups at once.
-    #
-    # @see Guard.plugin
-    # @see Guard.plugins
-    # @see Guard.group
-    #
-    # @example Filter groups by String or Symbol
-    #   Guard.groups('backend')
-    #   Guard.groups(:backend)
-    #
-    # @example Filter groups by Regexp
-    #   Guard.groups(/(back|front)end/)
-    #
-    # @param [String, Symbol, Regexp] filter the filter to apply to the Groups
-    # @return [Array<Group>] the filtered group(s)
-    #
-    def groups(filter = nil)
-      @groups ||= []
+    attr_reader :watchdirs
 
-      return @groups if filter.nil?
+    # Stores the scopes defined by the user via the `--group` / `-g` option (to
+    # run only a specific group) or the `--plugin` / `-P` option (to run only a
+    # specific plugin).
+    #
+    # @see CLI#start
+    # @see Dsl#scope
+    #
+    def setup_scope(scope = {})
+      # TODO: there should be a special Scope class instead
+      scope = _prepare_scope(scope)
 
-      case filter
-      when String, Symbol
-        @groups.select { |group| group.name == filter.to_sym }
-      when Regexp
-        @groups.select { |group| group.name.to_s =~ filter }
+      ::Guard.scope = {
+        groups: scope[:groups].map { |item| ::Guard.add_group(item) },
+        plugins: scope[:plugins].map { |item| ::Guard.plugin(item) },
+      }
+    end
+
+    # Evaluates the Guardfile content. It displays an error message if no
+    # Guard plugins are instantiated after the Guardfile evaluation.
+    #
+    # @see Guard::Guardfile::Evaluator#evaluate_guardfile
+    #
+    def evaluate_guardfile
+      evaluator = Guard::Guardfile::Evaluator.new(options)
+      evaluator.evaluate_guardfile
+      msg = "No plugins found in Guardfile, please add at least one."
+      ::Guard::UI.error msg if _pluginless_guardfile?
+    end
+
+    # Asynchronously trigger changes
+    #
+    # Currently supported args:
+    #
+    #   old style hash: {modified: ['foo'], added: ['bar'], removed: []}
+    #
+    #   new style signals with args: [:guard_pause, :unpaused ]
+    #
+    def async_queue_add(changes)
+      @queue << changes
+
+      # Putting interactor in background puts guard into foreground
+      # so it can handle change notifications
+      Thread.new { interactor.background }
+    end
+
+    def pending_changes?
+      ! @queue.empty?
+    end
+
+    private
+
+    # Initializes the listener and registers a callback for changes.
+    #
+    def _setup_listener
+      if options[:listen_on]
+        Listen.on(options[:listen_on], &_listener_callback)
       else
-        fail "Invalid filter: #{filter.inspect}"
+        listener_options = {}
+        [:latency, :force_polling, :wait_for_delay].each do |option|
+          listener_options[option] = options[option] if options[option]
+        end
+        listen_args = watchdirs + [listener_options]
+        Listen.to(*listen_args, &_listener_callback)
       end
     end
 
-    # Smart accessor for retrieving a specific group.
-    #
-    # @see Guard.plugin
-    # @see Guard.plugins
-    # @see Guard.groups
-    #
-    # @example Find a group by String or Symbol
-    #   Guard.group('backend')
-    #   Guard.group(:backend)
-    #
-    # @example Find a group by Regexp
-    #   Guard.group(/(back|front)end/)
-    #
-    # @param [String, Symbol, Regexp] filter the filter for finding the group
-    # @return [Group] the group found, nil otherwise
-    #
-    def group(filter)
-      groups(filter).first
-    end
+    # Process the change queue, running tasks within the main Guard thread
+    def _process_queue
+      actions, changes = [], { modified: [], added: [], removed: [] }
 
-    # Add a Guard plugin to use.
-    #
-    # @param [String] name the Guard name
-    # @param [Hash] options the plugin options (see Plugin documentation)
-    # @option options [String] group the group to which the plugin belongs
-    # @option options [Array<Watcher>] watchers the list of declared watchers
-    # @option options [Array<Hash>] callbacks the list of callbacks
-    # @return [Plugin] the added Guard plugin
-    # @see Plugin
-    #
-    def add_plugin(name, options = {})
-      instance = ::Guard::PluginUtil.new(name).initialize_plugin(options)
-      @plugins << instance
-      instance
-    end
-
-    # Used by runner to remove a failed plugin
-    def remove_plugin(plugin)
-      # TODO: coverage/aruba
-      @plugins.delete(plugin)
-    end
-
-    # Add a Guard plugin group.
-    #
-    # @param [String] name the group name
-    # @option options [Boolean] halt_on_fail if a task execution
-    #   should be halted for all Guard plugins in this group if
-    #   one Guard throws `:task_has_failed`
-    # @return [Group] the group added (or retrieved from the `@groups`
-    #   variable if already present)
-    #
-    # @see Group
-    #
-    def add_group(name, options = {})
-      unless (group = group(name))
-        group = ::Guard::Group.new(name, options)
-        @groups << group
+      while pending_changes?
+        if (item = @queue.pop).first.is_a?(Symbol)
+          actions << item
+        else
+          item.each { |key, value| changes[key] += value }
+        end
       end
 
-      group
+      _run_actions(actions)
+      return if changes.values.all?(&:empty?)
+      Runner.new.run_on_changes(*changes.values)
+    end
+
+    # TODO: Guard::Watch or Guard::Scope should provide this
+    def _scoped_watchers
+      watchers = []
+      Runner.new.send(:_scoped_plugins) { |guard| watchers += guard.watchers }
+      watchers
+    end
+
+    # Check if any of the changes are actually watched for
+    def _relevant_changes?(changes)
+      files = changes.values.flatten(1)
+      watchers = _scoped_watchers
+      watchers.any? { |watcher| files.any? { |file| watcher.match(file) } }
+    end
+
+    def _relative_pathnames(paths)
+      paths.map { |path| _relative_pathname(path) }
+    end
+
+    def _run_actions(actions)
+      actions.each do |action_args|
+        args = action_args.dup
+        namespaced_action = args.shift
+        action = namespaced_action.to_s.sub(/^guard_/, "")
+        if ::Guard.respond_to?(action)
+          ::Guard.send(action, *args)
+        else
+          fail "Unknown action: #{action.inspect}"
+        end
+      end
+    end
+
+    def _setup_watchdirs
+      dirs = Array(options[:watchdir])
+      dirs.empty? ? [Dir.pwd] : dirs.map { |dir| File.expand_path dir }
+    end
+
+    def _listener_callback
+      lambda do |modified, added, removed|
+        relative_paths = {
+          modified: _relative_pathnames(modified),
+          added: _relative_pathnames(added),
+          removed: _relative_pathnames(removed)
+        }
+
+        async_queue_add(relative_paths) if _relevant_changes?(relative_paths)
+      end
+    end
+
+    def _reset_all
+      reset_groups
+      reset_plugins
+      reset_scope
+    end
+
+    def _pluginless_guardfile?
+      # no Reevaluator means there was no Guardfile configured that could be
+      # reevaluated, so we don't have a pluginless guardfile, because we don't
+      # have a Guardfile to begin with...
+      #
+      # But, if we have a Guardfile, we'll at least have the built-in
+      # Reevaluator, so the following will work:
+
+      # TODO: this is a workaround for tests
+      return true if plugins.empty?
+
+      plugins.map(&:name) == ["reevaluator"]
+    end
+
+    def _reset_for_tests
+      @options = nil
+      @queue = nil
+      @watchdirs = nil
+      @watchdirs = nil
+      @listener = nil
+      @interactor = nil
+      @scope = nil
     end
   end
 end

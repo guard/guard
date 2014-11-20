@@ -1,5 +1,7 @@
 require "guard/plugin"
 
+require "guard/watcher"
+
 RSpec.describe Guard::Plugin do
 
   describe "#initialize" do

@@ -1,8 +1,13 @@
-require "guard/guardfile"
+require "guard/guardfile/evaluator"
 require "guard/interactor"
 require "guard/notifier"
 require "guard/ui"
 require "guard/watcher"
+
+require "guard/deprecated/dsl" unless Guard::Config.new.strict?
+
+# TODO: only for listener
+require "guard"
 
 module Guard
   # The Dsl class provides the methods that are used in each `Guardfile` to
@@ -43,22 +48,13 @@ module Guard
   # @see https://github.com/guard/guard/wiki/Guardfile-examples
   #
   class Dsl
+    Deprecated::Dsl.add_deprecated(self) unless Config.new.strict?
+
     WARN_INVALID_LOG_LEVEL = "Invalid log level `%s` ignored. "\
       "Please use either :debug, :info, :warn or :error."
 
     WARN_INVALID_LOG_OPTIONS = "You cannot specify the logger options"\
       " :only and :except at the same time."
-
-    # @deprecated Use
-    #   `Guard::Guardfile::Evaluator.new(options).evaluate_guardfile` instead.
-    #
-    # @see https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0 How to
-    #   upgrade for Guard 2.0
-    #
-    def self.evaluate_guardfile(options = {})
-      UI.deprecation(Deprecator::EVALUATE_GUARDFILE_DEPRECATION)
-      Guardfile::Evaluator.new(options).evaluate_guardfile
-    end
 
     # Set notification options for the system notifications.
     # You can set multiple notifications, which allows you to show local
@@ -265,6 +261,7 @@ module Guard
     # @param [Regexp] regexps a pattern (or list of patterns) for ignoring paths
     #
     def ignore(*regexps)
+      # TODO: instead, use Guard.reconfigure(ignore: regexps) or something
       ::Guard.listener.ignore(regexps) if ::Guard.listener
     end
     alias filter ignore

@@ -1,3 +1,5 @@
+require "guard/notifier"
+
 RSpec.describe Guard::Notifier do
   subject { described_class }
 
@@ -39,6 +41,10 @@ RSpec.describe Guard::Notifier do
   let(:detected) { instance_double(described_class::Detected) }
 
   before do
+    Guard::Notifier.instance_variables.each do |var|
+      Guard::Notifier.instance_variable_set(var, nil)
+    end
+
     allow(Guard::Internals::Environment).to receive(:new).with("GUARD").
       and_return(env)
 
@@ -200,8 +206,14 @@ RSpec.describe Guard::Notifier do
   end
 
   describe "toggle_notification" do
-    before { allow(::Guard::UI).to receive(:info) }
-    before { subject.connect(notify: true) }
+    before do
+      allow(File).to receive(:read).and_call_original
+      allow(File).to receive(:exist?).and_call_original
+      allow(::Guard::UI).to receive(:info)
+      allow(env).to receive(:notify_pid).and_return($$)
+
+      subject.connect(notify: true)
+    end
 
     context "with available notifiers" do
       context "when currently on" do
@@ -282,8 +294,10 @@ RSpec.describe Guard::Notifier do
     end
 
     context "when connected" do
-      before { subject.connect(notify: true) }
-      before { allow(env).to receive(:notify?).and_return(enabled) }
+      before do
+        allow(env).to receive(:notify?).and_return(enabled)
+        subject.connect(notify: true)
+      end
 
       context "when disabled" do
         let(:enabled) { false }
@@ -406,6 +420,28 @@ RSpec.describe Guard::Notifier do
               subject.notify("Hello", foo: "bar")
             end
           end
+        end
+      end
+    end
+  end
+
+  describe ".notifiers" do
+    context "when connected" do
+      before do
+        subject.connect(notify: true)
+        allow(env).to receive(:notify_active?).and_return(true)
+        allow(detected).to receive(:available).and_return(available)
+      end
+
+      context "with available notifiers" do
+        let(:available) { [[foo, { color: true }], [baz, {}]] }
+        it "returns a list of available notifier info" do
+          expect(subject.notifiers).to eq(
+            [
+              { name: "foo", options: { color: true } },
+              { name: "baz", options: {} },
+            ]
+          )
         end
       end
     end

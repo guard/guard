@@ -83,7 +83,9 @@ module Guard
     # @return [Boolean] whether one of these files is the Guardfile
     #
     def self.match_guardfile?(files)
-      path = ::Guard.evaluator.guardfile_path
+      # TODO: move this method elsewhere
+      require "guard/guardfile/evaluator"
+      path = ::Guard::Guardfile::Evaluator.new.guardfile_path
       files.any? { |file| File.expand_path(file) == path }
     end
 

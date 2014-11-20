@@ -1,15 +1,16 @@
-require "guard/plugin"
+require "guard/commander"
 
 RSpec.describe Guard::Commander do
   let(:interactor) { instance_double(Guard::Interactor) }
+  let(:runner) { instance_double(Guard::Runner, run: true) }
 
   before do
     stub_notifier
     allow(Guard::Interactor).to receive(:new) { interactor }
+    allow(Guard::Runner).to receive(:new).and_return(runner)
   end
 
   describe ".start" do
-    let(:runner) { instance_double(Guard::Runner, run: true) }
     let(:listener) do
       instance_double(Listen::Listener, start: true, stop: true)
     end
@@ -18,7 +19,6 @@ RSpec.describe Guard::Commander do
 
     before do
       stub_notifier
-      allow(::Guard).to receive(:runner) { runner }
       allow(Listen).to receive(:to).with(watched_dir, {}) { listener }
 
       # Simulate Ctrl-D in Pry, or Ctrl-C in non-interactive mode
@@ -78,7 +78,6 @@ RSpec.describe Guard::Commander do
     let(:listener) { instance_double(Listen::Listener, stop: true) }
 
     before do
-      allow(::Guard).to receive(:runner) { runner }
       allow(Listen).to receive(:to).with(Dir.pwd, {}) { listener }
       allow(Guard::Notifier).to receive(:turn_on)
       allow(listener).to receive(:stop)
@@ -117,7 +116,6 @@ RSpec.describe Guard::Commander do
 
     before do
       allow(::Guard::Notifier).to receive(:connect)
-      allow(::Guard).to receive(:runner) { runner }
       allow(::Guard).to receive(:scope) { {} }
       allow(::Guard::UI).to receive(:info)
       allow(::Guard::UI).to receive(:clear)
@@ -165,14 +163,12 @@ RSpec.describe Guard::Commander do
   end
 
   describe ".run_all" do
-    let(:runner) { instance_double(Guard::Runner, run: true) }
     let(:group) { ::Guard::Group.new("frontend") }
 
     subject { ::Guard.setup }
 
     before do
       allow(::Guard::Notifier).to receive(:connect)
-      allow(::Guard).to receive(:runner) { runner }
       allow(::Guard::UI).to receive(:action_with_scopes)
       allow(::Guard::UI).to receive(:clear)
       allow(Listen).to receive(:to).with(Dir.pwd, {})

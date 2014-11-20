@@ -1,3 +1,5 @@
+require "guard/guardfile/generator"
+
 RSpec.describe Guard::Guardfile::Generator do
 
   let(:plugin_util) { instance_double(Guard::PluginUtil) }
@@ -87,6 +89,13 @@ RSpec.describe Guard::Guardfile::Generator do
 
         io = StringIO.new
         expect(File).to receive(:open).with("Guardfile", "wb").and_yield io
+
+        # TODO: temp workaround to make specs work
+        allow_any_instance_of(Guard::PluginUtil).to receive(:plugin_class).
+          and_return(nil)
+
+        allow_any_instance_of(Guard::PluginUtil).to receive(:add_to_guardfile)
+
         described_class.new.initialize_template("bar")
         expect(io.string).to eq "Guardfile content\n\nTemplate content\n"
       end

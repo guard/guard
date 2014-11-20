@@ -28,28 +28,6 @@ RSpec.describe Guard::Dsl do
     allow(::Guard).to receive(:listener) { listener }
   end
 
-  describe ".evaluate_guardfile" do
-    before { stub_guardfile(" ") }
-    before { stub_user_guardfile }
-    before { stub_user_project_guardfile }
-
-    it "displays a deprecation warning to the user" do
-      expect(::Guard::UI).to receive(:deprecation).
-        with(::Guard::Deprecator::EVALUATE_GUARDFILE_DEPRECATION)
-
-      described_class.evaluate_guardfile
-    end
-
-    it "delegates to Guard::Guardfile::Generator" do
-      expect(Guard::Guardfile::Evaluator).to receive(:new).
-        with(foo: "bar") { guardfile_evaluator }
-
-      expect(guardfile_evaluator).to receive(:evaluate_guardfile)
-
-      described_class.evaluate_guardfile(foo: "bar")
-    end
-  end
-
   describe "#ignore" do
     context "with ignore regexps" do
       let(:contents) { "ignore %r{^foo}, /bar/" }
