@@ -1,8 +1,8 @@
+require "guard/runner"
+
 require "guard/plugin"
 
 RSpec.describe Guard::Runner do
-  let(:interactor) { instance_double(Guard::Interactor) }
-
   let(:backend_group) do
     instance_double(::Guard::Group, options: {}, name: :backend)
   end
@@ -16,17 +16,12 @@ RSpec.describe Guard::Runner do
   let(:baz_plugin) { double("baz", group: frontend_group, hook: nil) }
 
   before do
-    allow(Guard::Interactor).to receive(:new).and_return(interactor)
-    stub_notifier
-    allow(Listen).to receive(:to).with(Dir.pwd, {})
+    allow(Guard).to receive(:scope).and_return({})
   end
 
   describe "#run" do
     before do
-      allow_any_instance_of(Guard::Guardfile::Evaluator).
-        to receive(:evaluate_guardfile)
-
-      ::Guard.setup
+      # ::Guard.setup
 
       # TODO: these should be replaced when new Scop class is implemented
       allow(::Guard).to receive(:groups).with(no_args).
@@ -135,12 +130,9 @@ RSpec.describe Guard::Runner do
       allow(bar_plugin).to receive(:my_task)
       allow(baz_plugin).to receive(:my_task)
 
-      allow_any_instance_of(Guard::Guardfile::Evaluator).
-        to receive(:evaluate_guardfile)
-
       allow(::Guard).to receive(:plugins).and_return([foo_plugin])
       allow(foo_plugin).to receive(:name).and_return("Foo")
-      ::Guard.setup
+      # ::Guard.setup
       allow(::Guard).to receive(:plugins) do |args|
         fail "stub me (#{args.inspect})!"
       end
@@ -160,6 +152,7 @@ RSpec.describe Guard::Runner do
 
     it "always calls UI.clearable" do
       expect(Guard::UI).to receive(:clearable)
+      allow(Guard).to receive(:scope).and_return({})
 
       subject.run_on_changes(*changes)
     end

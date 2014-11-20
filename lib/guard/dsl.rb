@@ -6,6 +6,9 @@ require "guard/watcher"
 
 require "guard/deprecated/dsl" unless Guard::Config.new.strict?
 
+# TODO: only for listener
+require "guard"
+
 module Guard
   # The Dsl class provides the methods that are used in each `Guardfile` to
   # describe the behaviour of Guard.

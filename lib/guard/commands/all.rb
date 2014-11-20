@@ -1,5 +1,8 @@
 # required for async_queue_add
 require "pry"
+
+# TODO: remove this dependency
+require "guard/interactor"
 require "guard"
 
 module Guard

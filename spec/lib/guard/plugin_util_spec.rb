@@ -1,16 +1,14 @@
-require "guard/plugin"
+require "guard/plugin_util"
+
+require "guard/guardfile/evaluator"
 
 RSpec.describe Guard::PluginUtil do
 
   let(:guard_rspec_class) { class_double(Guard::Plugin) }
   let(:guard_rspec) { instance_double(Guard::Plugin) }
-  let(:interactor) { instance_double(Guard::Interactor) }
   let(:evaluator) { instance_double(Guard::Guardfile::Evaluator) }
 
   before do
-    allow(Guard::Interactor).to receive(:new).and_return(interactor)
-    allow(Listen).to receive(:to).with(Dir.pwd, {})
-    allow(Guard::Notifier).to receive(:turn_on) {}
     allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
   end
 
@@ -107,7 +105,12 @@ RSpec.describe Guard::PluginUtil do
       expect(::Guard::UI).to receive(:error).with(/Could not load/)
       expect(::Guard::UI).to receive(:error).with(/Error is: cannot load/)
       expect(::Guard::UI).to receive(:error).with(/plugin_util.rb/)
-      described_class.new("notAGuardClass").plugin_class
+
+      plugin = described_class.new("notAGuardClass")
+      allow(plugin).to receive(:require).with("guard/notaguardclass").
+        and_raise(LoadError, "cannot load such file --")
+
+      plugin.plugin_class
     end
 
     context "with a nested Guard class" do
@@ -167,14 +170,17 @@ RSpec.describe Guard::PluginUtil do
     context "with a name like VSpec" do
       it "returns the Guard class" do
         plugin = described_class.new("vspec")
-        expect(plugin).to receive(:require) do |classname|
+        mod = nil
+        allow(plugin).to receive(:require) do |classname|
           expect(classname).to eq "guard/vspec"
-          module Guard
+          module ::Guard
             class VSpec
             end
           end
+          mod = ::Guard::VSpec
         end
-        expect(plugin.plugin_class).to eq Guard::VSpec
+        expect(plugin.plugin_class).to eq mod
+        expect(mod).to be
       end
     end
 
@@ -196,6 +202,8 @@ RSpec.describe Guard::PluginUtil do
       subject { described_class.new("notAGuardClass") }
       it "does not print error messages on fail" do
         expect(::Guard::UI).to_not receive(:error)
+        plugin = subject
+        allow(plugin).to receive(:require).and_raise(LoadError)
         expect(subject.plugin_class(options)).to be_nil
       end
     end

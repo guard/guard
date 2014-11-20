@@ -3,6 +3,7 @@ require "formatador"
 
 require "guard/guardfile/evaluator"
 require "guard/ui"
+require "guard/metadata"
 
 module Guard
   # The DslDescriber evaluates the Guardfile and creates an internal structure

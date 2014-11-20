@@ -1,9 +1,22 @@
-require "guard/plugin"
-
 require "guard/commands/scope"
 
+require "guard/group"
+
 RSpec.describe Guard::Commands::Scope do
-  before { described_class.import }
+  let(:output) { instance_double(Pry::Output) }
+
+  class FakePry < Pry::Command
+    def self.output; end
+  end
+
+  before do
+    allow(FakePry).to receive(:output).and_return(output)
+    allow(Pry::Commands).to receive(:create_command).with("scope") do |&block|
+      FakePry.instance_eval(&block)
+    end
+
+    described_class.import
+  end
 
   let(:foo_group) { instance_double(Guard::Group) }
   let(:bar_guard) { instance_double(Guard::PluginUtil) }
@@ -22,9 +35,9 @@ RSpec.describe Guard::Commands::Scope do
     let(:converted_scope) { [{ groups: [], plugins: [] }, []] }
 
     it "does not call :scope= and shows usage" do
-      expect(STDOUT).to receive(:print).with("Usage: scope <scope>\n")
+      expect(output).to receive(:puts).with("Usage: scope <scope>")
       expect(Guard).to_not receive(:scope=)
-      Pry.run_command "scope"
+      FakePry.process
     end
   end
 
@@ -35,7 +48,7 @@ RSpec.describe Guard::Commands::Scope do
     it "sets up the scope with the given scope" do
       expect(Guard).to receive(:setup_scope).
         with(groups: [foo_group], plugins: [])
-      Pry.run_command "scope foo"
+      FakePry.process("foo")
     end
   end
 
@@ -46,7 +59,7 @@ RSpec.describe Guard::Commands::Scope do
     it "runs the :scope= action with the given scope" do
       expect(Guard).to receive(:setup_scope).
         with(plugins: [bar_guard], groups: [])
-      Pry.run_command "scope bar"
+      FakePry.process("bar")
     end
   end
 
@@ -55,9 +68,9 @@ RSpec.describe Guard::Commands::Scope do
     let(:converted_scope) { [{ groups: [], plugins: [] }, ["baz"]] }
 
     it "does not change the scope and shows unknown scopes" do
-      expect(STDOUT).to receive(:print).with("Unknown scopes: baz\n")
+      expect(output).to receive(:puts).with("Unknown scopes: baz")
       expect(Guard).to_not receive(:scope=)
-      Pry.run_command "scope baz"
+      FakePry.process("baz")
     end
   end
 end

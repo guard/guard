@@ -1,5 +1,6 @@
 require "guard/ui"
 require "guard/plugin_util"
+require "guard/guardfile/evaluator"
 
 module Guard
   # @deprecated Every method in this module is deprecated
@@ -146,6 +147,15 @@ module Guard
 
         def reset_evaluator(_options)
           UI.deprecation(RESET_EVALUATOR)
+        end
+
+        RUNNER = <<-EOS.gsub(/^\s*/, "")
+          Starting with Guard 2.8.2 this method shouldn't be used
+        EOS
+
+        def runner
+          UI.deprecation(RUNNER)
+          ::Guard::Runner.new
         end
       end
     end

@@ -14,7 +14,8 @@ RSpec.describe Guard::Reevaluator do
   before do
     allow(::Guard).to receive(:save_scope)
     allow(::Guard).to receive(:restore_scope)
-    allow(::Guard).to receive(:evaluator).and_return(evaluator)
+
+    allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
   end
 
   context "when Guardfile is modified" do

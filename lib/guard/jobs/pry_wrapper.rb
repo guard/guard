@@ -5,6 +5,7 @@ require "guard/commands/pause"
 require "guard/commands/reload"
 require "guard/commands/scope"
 require "guard/commands/show"
+require "guard/sheller"
 
 require "guard/jobs/base"
 
@@ -18,17 +19,17 @@ module Guard
 
       def restore
         return unless configurable? && @settings
-        ::Guard::Sheller.run("stty #{ @setting } 2>#{ DEV_NULL }")
+        ::Guard::Sheller.run("stty #{ @setting } 2>#{IO::NULL}")
       end
 
       def save
         return unless configurable?
-        @settings = ::Guard::Sheller.stdout("stty -g 2>#{ DEV_NULL }").chomp
+        @settings = ::Guard::Sheller.stdout("stty -g 2>#{IO::NULL}").chomp
       end
 
       def echo
         return unless configurable?
-        ::Guard::Sheller.run("stty echo 2>#{ DEV_NULL }")
+        ::Guard::Sheller.run("stty echo 2>#{IO::NULL}")
       end
 
       def configurable?

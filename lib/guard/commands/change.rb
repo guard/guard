@@ -1,5 +1,8 @@
 require "pry"
 
+# TODO: remove
+require "guard"
+
 module Guard
   module Commands
     class Change

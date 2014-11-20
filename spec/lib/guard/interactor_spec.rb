@@ -1,4 +1,8 @@
-require "guard/plugin"
+require "guard/interactor"
+
+# TODO: this shouldn't be necessary
+require "guard/jobs/pry_wrapper"
+require "guard/jobs/sleep"
 
 RSpec.describe Guard::Interactor do
   let!(:pry_interactor) { instance_double(Guard::Jobs::PryWrapper) }

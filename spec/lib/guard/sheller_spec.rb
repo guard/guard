@@ -1,3 +1,5 @@
+require "guard/sheller"
+
 RSpec.describe Guard::Sheller, :sheller_specs do
   before do
     allow(Kernel).to receive(:system) do |args|

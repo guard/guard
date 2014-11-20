@@ -1,4 +1,11 @@
+
+# Require listen now, so the requiring below doesn't use File methods
+require "listen"
+
 require "guard/deprecated/dsl"
+
+require "guard/ui"
+require "guard/config"
 
 RSpec.describe Guard::Deprecated::Dsl do
   subject do
@@ -24,7 +31,6 @@ RSpec.describe Guard::Deprecated::Dsl do
 
     it "delegates to Guard::Guardfile::Generator" do
       # TODO: this is a workaround for a bad require loop
-      require "guard/config"
       allow_any_instance_of(Guard::Config).to receive(:strict?).
         and_return(false)
 

@@ -1,3 +1,5 @@
+require "guard/notifier"
+
 RSpec.describe Guard::Notifier::Base do
   let(:gntp) do
     double("GNTP notifier", name: "gntp", title: "GNTP", options: {})

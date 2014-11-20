@@ -1,3 +1,5 @@
+require "guard/notifiers/terminal_notifier"
+
 RSpec.describe Guard::Notifier::TerminalNotifier do
   let(:notifier) { described_class.new }
 

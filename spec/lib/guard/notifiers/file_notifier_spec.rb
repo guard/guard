@@ -1,3 +1,5 @@
+require "guard/notifiers/file_notifier"
+
 RSpec.describe Guard::Notifier::FileNotifier do
   let(:notifier) { described_class.new }
 

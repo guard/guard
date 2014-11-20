@@ -1,5 +1,9 @@
 require "pry"
 
+# TODO: should not be necessary!
+require "guard/interactor"
+require "guard"
+
 module Guard
   module Commands
     class Reload

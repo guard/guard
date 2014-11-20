@@ -1,9 +1,11 @@
 require "guard/jobs/base"
+require "guard/ui"
 
 module Guard
   module Jobs
     class Sleep < Base
       def foreground
+        # TODO: cleanup the namespace
         ::Guard::UI.debug "Guards jobs done. Sleeping..."
         sleep
         ::Guard::UI.debug "Sleep interrupted by events."

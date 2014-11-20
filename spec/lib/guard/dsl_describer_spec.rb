@@ -3,6 +3,9 @@ require "guard/plugin"
 require "guard/dsl_describer"
 require "formatador"
 
+# TODO: temporary to get specs working
+require "listen"
+
 RSpec.describe Guard::DslDescriber do
   let(:interactor) { instance_double(Guard::Interactor) }
 
@@ -82,6 +85,9 @@ RSpec.describe Guard::DslDescriber do
     end
 
     it "lists the available Guards declared as strings or symbols" do
+      # TODO: temporary hack to get specs working
+      allow(Guard::Notifier).to receive(:add)
+
       ::Guard::DslDescriber.new(guardfile_contents: guardfile).list
       expect(@output).to eq result
     end
@@ -106,6 +112,9 @@ RSpec.describe Guard::DslDescriber do
 
     it "shows the Guards and their options" do
       stub_user_guard_rb
+
+      # TODO: temporary hack to get specs working
+      allow(Guard::Notifier).to receive(:add)
 
       ::Guard::DslDescriber.new(guardfile_contents: guardfile).show
 

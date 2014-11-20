@@ -1,3 +1,5 @@
+require "guard/notifiers/rb_notifu"
+
 RSpec.describe Guard::Notifier::Notifu do
   let(:notifier) { described_class.new }
 

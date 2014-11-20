@@ -16,6 +16,8 @@
 # users commonly want.
 #
 
+require "fileutils"
+
 if ENV.key?("CI")
   require "coveralls"
   Coveralls.wear!
@@ -166,6 +168,9 @@ RSpec.configure do |config|
       fail "stub me: ENV.key?(#{args.first})!"
     end
 
+    # NOTE: call original, so we can run tests depending on this variable
+    allow(ENV).to receive(:[]).with("GUARD_STRICT").and_call_original
+
     # FIXME: instead, properly stub PluginUtil in the evaluator specs!
     # and remove this!
     allow(ENV).to receive(:[]).with("SPEC_OPTS").and_call_original
@@ -204,22 +209,25 @@ RSpec.configure do |config|
       allow(::Guard::UI).to receive(:deprecation)
     end
 
-    # TODO: use metadata to stub out all used classes
-    if Guard.const_defined?("Notifier::TerminalTitle")
-      # Avoid clobbering the terminal
-      allow(Guard::Notifier::TerminalTitle).to receive(:puts)
-    end
-
-    # TODO: use metadata to stub out all used classes
-    if Guard.const_defined?("Notifier::Tmux")
-      allow(Guard::Notifier::Tmux).to receive(:system) do |*args|
-        fail "stub for system() called with: #{args.inspect}"
+    if Guard.const_defined?("Notifier")
+      # TODO: use metadata to stub out all used classes
+      if Guard::Notifier.const_defined?("TerminalTitle")
+        # Avoid clobbering the terminal
+        allow(Guard::Notifier::TerminalTitle).to receive(:puts)
       end
 
-      allow(Guard::Notifier::Tmux).to receive(:`) do |*args|
-        fail "stub for `(backtick) called with: #{args.inspect}"
+      # TODO: use metadata to stub out all used classes
+      if Guard::Notifier.const_defined?("Tmux")
+        allow(Guard::Notifier::Tmux).to receive(:system) do |*args|
+          fail "stub for system() called with: #{args.inspect}"
+        end
+
+        allow(Guard::Notifier::Tmux).to receive(:`) do |*args|
+          fail "stub for `(backtick) called with: #{args.inspect}"
+        end
       end
     end
+
 
     allow(Kernel).to receive(:system) do |*args|
       fail "stub for Kernel.system() called with: #{args.inspect}"

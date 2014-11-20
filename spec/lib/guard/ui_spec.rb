@@ -2,13 +2,11 @@ require "guard/notifier"
 
 RSpec.describe Guard::UI do
   let(:interactor) { instance_double(Guard::Interactor) }
-  let(:evaluator) { instance_double(Guard::Guardfile::Evaluator) }
   let(:options) { instance_double(Guard::Options) }
   let(:scope) { double("scope") }
   let(:logger) { instance_double(Lumberjack::Logger) }
 
   before do
-    allow(Guard::Interactor).to receive(:new).and_return(interactor)
     allow(Guard).to receive(:options).and_return(options)
     allow(Guard).to receive(:scope).and_return(scope)
 
@@ -31,9 +29,6 @@ RSpec.describe Guard::UI do
     allow(logger).to receive(:debug)
 
     allow($stderr).to receive(:print)
-
-    allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
-    allow(evaluator).to receive(:evaluate_guardfile)
   end
 
   after do

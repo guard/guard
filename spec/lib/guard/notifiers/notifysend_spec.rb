@@ -1,3 +1,5 @@
+require "guard/notifiers/notifysend"
+
 RSpec.describe Guard::Notifier::NotifySend do
   let(:notifier) { described_class.new }
 

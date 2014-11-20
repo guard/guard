@@ -1,5 +1,6 @@
 # Because it's used by Sheller
 require "open3"
+require "logger"
 
 require "guard/ui"
 

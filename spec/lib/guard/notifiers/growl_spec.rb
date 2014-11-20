@@ -1,3 +1,5 @@
+require "guard/notifiers/growl"
+
 RSpec.describe Guard::Notifier::Growl do
   let(:notifier) { described_class.new }
   let(:growl) { double("Growl", installed?: true) }

@@ -1,3 +1,10 @@
+require "listen"
+
+require "guard/notifier"
+require "guard/interactor"
+require "guard/runner"
+require "guard"
+
 module Guard
   # Commands supported by guard
   module Commander
@@ -22,7 +29,7 @@ module Guard
     def start(options = {})
       setup(options)
       ::Guard::UI.debug "Guard starts all plugins"
-      runner.run(:start)
+      Guard::Runner.new.run(:start)
       listener.start
 
       watched = ::Guard.watchdirs.join("', '")
@@ -43,7 +50,7 @@ module Guard
       listener.stop
       interactor.background
       ::Guard::UI.debug "Guard stops all plugins"
-      runner.run(:stop)
+      Guard::Runner.new.run(:stop)
       ::Guard::Notifier.disconnect
       ::Guard::UI.info "Bye bye...", reset: true
     end
@@ -62,7 +69,7 @@ module Guard
       if scopes.empty?
         evaluator.reevaluate_guardfile
       else
-        runner.run(:reload, scopes)
+        Guard::Runner.new.run(:reload, scopes)
       end
     end
 
@@ -73,7 +80,7 @@ module Guard
     def run_all(scopes = {})
       ::Guard::UI.clear(force: true)
       ::Guard::UI.action_with_scopes("Run", scopes)
-      runner.run(:run_all, scopes)
+      Guard::Runner.new.run(:run_all, scopes)
     end
 
     # Pause Guard listening to file changes.
@@ -93,4 +100,5 @@ module Guard
       ::Guard::DslDescriber.new(::Guard.options).show
     end
   end
+  extend Commander
 end

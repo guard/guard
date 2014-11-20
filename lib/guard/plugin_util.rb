@@ -123,6 +123,8 @@ module Guard
     # Adds a plugin's template to the Guardfile.
     #
     def add_to_guardfile
+      require "guard/guardfile/evaluator"
+      # TODO: move this method to Generator?
       evaluator = Guard::Guardfile::Evaluator.new
       evaluator.evaluate_guardfile
       if evaluator.guardfile_include?(name)

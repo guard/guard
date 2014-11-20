@@ -1,4 +1,7 @@
-require "guard/deprecated/guard"
+
+# require guard, to avoid circular require
+require "guard"
+# require "guard/deprecated/guard"
 
 RSpec.describe Guard::Deprecated::Guard do
   subject do

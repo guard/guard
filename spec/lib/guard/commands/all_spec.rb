@@ -3,10 +3,14 @@ require "guard/plugin"
 require "guard/commands/all"
 
 RSpec.describe Guard::Commands::All do
-  before { described_class.import }
-
   let(:foo_group) { instance_double(Guard::Group) }
   let(:bar_guard) { instance_double(Guard::PluginUtil) }
+  let(:output) { instance_double(Pry::Output) }
+
+  class FakePry < Pry::Command
+    def self.output
+    end
+  end
 
   before do
     allow(Guard::Interactor).to receive(:convert_scope) do |*args|
@@ -15,6 +19,13 @@ RSpec.describe Guard::Commands::All do
 
     allow(Guard::Interactor).to receive(:convert_scope).with(given_scope).
       and_return(converted_scope)
+
+    allow(FakePry).to receive(:output).and_return(output)
+    allow(Pry::Commands).to receive(:create_command).with("all") do |&block|
+      FakePry.instance_eval(&block)
+    end
+
+    described_class.import
   end
 
   context "without scope" do
@@ -25,7 +36,7 @@ RSpec.describe Guard::Commands::All do
       expect(Guard).to receive(:async_queue_add).
         with([:guard_run_all, groups: [], plugins: []])
 
-      Pry.run_command "all"
+      FakePry.process
     end
   end
 
@@ -37,7 +48,7 @@ RSpec.describe Guard::Commands::All do
       expect(Guard).to receive(:async_queue_add).
         with([:guard_run_all, groups: [foo_group], plugins: []])
 
-      Pry.run_command "all foo"
+      FakePry.process("foo")
     end
   end
 
@@ -49,7 +60,7 @@ RSpec.describe Guard::Commands::All do
       expect(Guard).to receive(:async_queue_add).
         with([:guard_run_all, plugins: [bar_guard], groups: []])
 
-      Pry.run_command "all bar"
+      FakePry.process("bar")
     end
   end
 
@@ -58,9 +69,10 @@ RSpec.describe Guard::Commands::All do
     let(:converted_scope) { [{ groups: [], plugins: [] }, ["baz"]] }
 
     it "does not run the action" do
-      expect(STDOUT).to receive(:print).with("Unknown scopes: baz\n")
+      expect(output).to receive(:puts).with("Unknown scopes: baz")
       expect(Guard).to_not receive(:async_queue_add)
-      Pry.run_command "all baz"
+
+      FakePry.process("baz")
     end
   end
 end

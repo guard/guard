@@ -1,3 +1,5 @@
+require "guard/notifier"
+
 RSpec.describe Guard::Notifier do
   subject { described_class }
 

@@ -1,5 +1,3 @@
-require "guard/ui"
-
 module Guard
   module Deprecated
     module Dsl
@@ -33,6 +31,7 @@ module Guard
 
         def evaluate_guardfile(options = {})
           require "guard/guardfile/evaluator"
+          require "guard/ui"
 
           UI.deprecation(EVALUATE_GUARDFILE)
           ::Guard::Guardfile::Evaluator.new(options).evaluate_guardfile

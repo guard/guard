@@ -1,3 +1,5 @@
+require "guard/group"
+
 RSpec.describe Guard::Group do
   subject { described_class.new(name, options) }
 
