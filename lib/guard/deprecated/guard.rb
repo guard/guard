@@ -1,3 +1,6 @@
+require "guard/config"
+fail "Deprecations disabled (strict mode)" if Guard::Config.new.strict?
+
 require "guard/ui"
 require "guard/plugin_util"
 require "guard/guardfile/evaluator"

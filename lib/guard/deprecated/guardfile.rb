@@ -1,3 +1,6 @@
+require "guard/config"
+fail "Deprecations disabled (strict mode)" if Guard::Config.new.strict?
+
 require "guard/guardfile/generator"
 
 module Guard

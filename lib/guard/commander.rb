@@ -67,7 +67,7 @@ module Guard
       ::Guard::UI.action_with_scopes("Reload", scopes)
 
       if scopes.empty?
-        evaluator.reevaluate_guardfile
+        Guard::Guardfile::Evaluator.new(Guard.options).reevaluate_guardfile
       else
         Guard::Runner.new.run(:reload, scopes)
       end

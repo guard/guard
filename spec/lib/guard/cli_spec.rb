@@ -188,16 +188,6 @@ RSpec.describe Guard::CLI do
         subject.init
       end
 
-      it "should setup Guard.evaluator before initialize_all_templates()" do
-        ev = nil
-        expect(generator).to receive(:initialize_all_templates) do
-          ev = Guard.evaluator
-        end
-
-        subject.init
-        expect(ev).to be(evaluator)
-      end
-
       it "creates a Guardfile by delegating to Guardfile.create_guardfile" do
         expect(Guard::Guardfile::Generator).to receive(:new).
           with(abort_on_existence: false).and_return(generator)
