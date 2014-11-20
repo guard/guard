@@ -170,21 +170,21 @@ module Guard
       ::Guard.setup_scope(@saved_scope)
     end
 
-    def _prepare_scope(scope)
+    private
+
+    def _prepare_scope(new_scope)
       fail "Guard::setup() not called!" if options.nil?
-      plugins = Array(options[:plugin])
-      plugins = Array(scope[:plugins] || scope[:plugin]) if plugins.empty?
+      {
+        plugins: _scope_names(new_scope, :plugin),
+        groups: _scope_names(new_scope, :group)
+      }
+    end
 
+    def _scope_names(new_scope, name)
+      items = Array(options[name])
+      items = Array(new_scope[:"#{name}s"] || new_scope[name]) if items.empty?
       # Convert objects to names
-      plugins.map! { |p| p.respond_to?(:name) ? p.name : p }
-
-      groups = Array(options[:group])
-      groups = Array(scope[:groups] || scope[:group]) if groups.empty?
-
-      # Convert objects to names
-      groups.map! { |g| g.respond_to?(:name) ? g.name : g }
-
-      { plugins: plugins, groups: groups }
+      items.map { |p| p.respond_to?(:name) ? p.name : p }
     end
   end
 end
