@@ -9,7 +9,7 @@ Feature: Notifiers
     # NOTE: don't actually add notifiers, because Guard detects notifier client
     # mode - where Notifier.add() will fail
     """
-    guard :ronn do
+    guard :cucumber do
     end
     """
     When I run `guard notifiers`
