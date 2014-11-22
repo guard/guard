@@ -209,7 +209,7 @@ module Guard
       return unless File.exist?("Gemfile")
       return if ENV["BUNDLE_GEMFILE"] || ENV["RUBYGEMS_GEMDEPS"]
 
-      ::Guard::UI.info <<EOF
+      UI.info <<EOF
 
 Guard here! It looks like your project has a Gemfile, yet you are running
 `guard` outside of Bundler. If this is your intent, feel free to ignore this
