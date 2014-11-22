@@ -4,9 +4,9 @@ require "guard/guardfile/evaluator"
 
 RSpec.describe Guard::PluginUtil do
 
-  let(:guard_rspec_class) { class_double(Guard::Plugin) }
-  let(:guard_rspec) { instance_double(Guard::Plugin) }
-  let(:evaluator) { instance_double(Guard::Guardfile::Evaluator) }
+  let(:guard_rspec_class) { class_double("Guard::Plugin") }
+  let(:guard_rspec) { instance_double("Guard::Plugin") }
+  let(:evaluator) { instance_double("Guard::Guardfile::Evaluator") }
 
   before do
     allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
@@ -211,6 +211,7 @@ RSpec.describe Guard::PluginUtil do
 
   describe "#add_to_guardfile" do
     before do
+      allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
       allow(evaluator).to receive(:evaluate_guardfile)
     end
 
@@ -255,6 +256,8 @@ RSpec.describe Guard::PluginUtil do
         io = StringIO.new
         expect(File).to receive(:open).with("Guardfile", "wb").and_yield io
 
+        # TODO: init here?
+        Guard.init({})
         plugin_util.add_to_guardfile
 
         expect(io.string).to eq "Guardfile content\n\nTemplate content\n"

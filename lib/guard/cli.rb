@@ -2,9 +2,8 @@ require "thor"
 
 require "guard"
 require "guard/version"
-require "guard/dsl_describer"
-require "guard/guardfile/evaluator"
 require "guard/guardfile/generator"
+require "guard/dsl_describer"
 
 module Guard
   # Facade for the Guard command line interface managed by
@@ -116,7 +115,7 @@ module Guard
     # @see Guard::DslDescriber.list
     #
     def list
-      ::Guard::DslDescriber.new(options).list
+      ::Guard::DslDescriber.new.list
     end
 
     desc "notifiers", "Lists notifiers and its options"
@@ -126,8 +125,7 @@ module Guard
     # @see Guard::DslDescriber.notifiers
     #
     def notifiers
-      ::Guard.reset_options(options)
-      ::Guard::DslDescriber.new(options).notifiers
+      ::Guard::DslDescriber.new.notifiers
     end
 
     desc "version", "Show the Guard version"
@@ -165,18 +163,19 @@ module Guard
     def init(*plugin_names)
       _verify_bundler_presence unless options[:no_bundler_warning]
 
-      ::Guard.reset_options(options) # Since UI.deprecated uses config
+      Guard.init(options) # Since UI.deprecated uses config
+      bare = options[:bare]
 
-      generator = Guardfile::Generator.new(abort_on_existence: options[:bare])
+      generator = Guardfile::Generator.new(abort_on_existence: bare)
       generator.create_guardfile
+      return if bare
 
       # Note: this reset "hack" will be fixed after refactoring
       ::Guard.reset_plugins
 
       # Evaluate because it might have existed and creating was skipped
-      ::Guard::Guardfile::Evaluator.new(Guard.options).evaluate_guardfile
-
-      return if options[:bare]
+      # FIXME: still, I don't know why this is needed
+      Guard::Guardfile::Evaluator.new(Guard.options).evaluate_guardfile
 
       if plugin_names.empty?
         generator.initialize_all_templates
@@ -196,7 +195,9 @@ module Guard
     # @see Guard::DslDescriber.show
     #
     def show
-      ::Guard::DslDescriber.new(options).show
+      Guard.init(options)
+      Guard::Guardfile::Evaluator.new(Guard.options).evaluate_guardfile
+      Guard::DslDescriber.new.show
     end
 
     private

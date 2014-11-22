@@ -8,25 +8,35 @@ require "guard/internals/helpers"
 module Guard
   extend Internals::Helpers
 
+  DEFAULT_GROUPS = [:common, :default]
+
+  DEFAULT_OPTIONS = {
+    clear: false,
+    notify: true,
+    debug: false,
+    group: [],
+    plugin: [],
+    watchdir: nil,
+    guardfile: nil,
+    no_interactions: false,
+    no_bundler_warning: false,
+    latency: nil,
+    force_polling: false,
+    wait_for_delay: nil,
+    listen_on: nil
+  }
+
   # TODO: change to a normal class
   class << self
-    DEFAULT_GROUPS = [:common, :default]
-
-    DEFAULT_OPTIONS = {
-      clear: false,
-      notify: true,
-      debug: false,
-      group: [],
-      plugin: [],
-      watchdir: nil,
-      guardfile: nil,
-      no_interactions: false,
-      no_bundler_warning: false,
-      latency: nil,
-      force_polling: false,
-      wait_for_delay: nil,
-      listen_on: nil
-    }
+    # Minimal setup for non-interactive commands (list, init, show, etc.)
+    def init(cmdline_opts)
+      # NOTE: must be set before anything calls Guard.options
+      reset_options(cmdline_opts)
+      @plugins = []
+      reset_groups
+      # NOTE: must be set before anything calls Guard::UI.debug
+      ::Guard::Internals::Debugging.start if options[:debug]
+    end
 
     def add_group(name, options = {})
       unless (group = group(name))
@@ -137,6 +147,8 @@ module Guard
     end
 
     def add_plugin(name, options = {})
+      # TODO: too many steps and classes/methods to just add an object to
+      # and array. Use something like a "PluginWrapper" instead?
       instance = ::Guard::PluginUtil.new(name).initialize_plugin(options)
       @plugins << instance
       instance
@@ -156,6 +168,7 @@ module Guard
     end
 
     # Used to merge CLI options with Setuper defaults
+    # TODO: remove this method (Session.new instead)
     def reset_options(new_options)
       @options = ::Guard::Options.new(new_options, DEFAULT_OPTIONS)
     end

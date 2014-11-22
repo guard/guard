@@ -1,8 +1,8 @@
 # encoding: utf-8
 require "formatador"
 
-require "guard/guardfile/evaluator"
 require "guard/ui"
+require "guard/notifier"
 require "guard/metadata"
 
 module Guard
@@ -14,20 +14,8 @@ module Guard
   # @see Guard::CLI
   #
   class DslDescriber
-    # Initializes a new DslDescriber object.
-    #
-    # @option options [String] guardfile the path to a valid Guardfile
-    #
-    # @option options [String] guardfile_contents a string representing the
-    # content of a valid Guardfile
-    #
-    # @see Guard::Guardfile::Evaluator#initialize
-    #
-    def initialize(options = {})
-      ::Guard.reset_groups
-      ::Guard.reset_plugins
-      ::Guard.reset_scope
-      ::Guard.reset_options(options)
+    def initialize(options = nil)
+      fail "options passed to DslDescriber are ignored!" unless options.nil?
     end
 
     # List the Guard plugins that are available for use in your system and marks
@@ -36,7 +24,7 @@ module Guard
     # @see CLI#list
     #
     def list
-      _evaluate_guardfile
+      # TODO: use Guard::Metadata
       names = ::Guard::PluginUtil.plugin_names.sort.uniq
       final_rows = names.inject([]) do |rows, name|
         used = ::Guard.plugins(name).any?
@@ -55,7 +43,6 @@ module Guard
     # @see CLI#show
     #
     def show
-      _evaluate_guardfile
       groups = ::Guard.groups
 
       final_rows = groups.each_with_object([]) do |group, rows|
@@ -112,8 +99,6 @@ module Guard
     # @see CLI#show
     #
     def notifiers
-      _evaluate_guardfile
-
       supported = ::Guard::Notifier::SUPPORTED
       Notifier.connect(notify: false)
       detected = Notifier.notifiers
@@ -155,15 +140,6 @@ module Guard
     end
 
     private
-
-    # Evaluates the `Guardfile` by delegating to
-    #   {Guard::Guardfile::Evaluator#evaluate_guardfile}.
-    #
-    def _evaluate_guardfile
-      ::Guard.save_scope
-      ::Guard::Guardfile::Evaluator.new(::Guard.options).evaluate_guardfile
-      ::Guard.restore_scope
-    end
 
     def _merge_options(klass, notifier)
       notify_options = notifier ? notifier[:options] : {}

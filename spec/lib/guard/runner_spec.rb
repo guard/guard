@@ -109,9 +109,11 @@ RSpec.describe Guard::Runner do
 
   describe "#run_on_changes" do
     let(:changes) { [[], [], []] }
-    let(:watcher_module) { ::Guard::Watcher }
+    let(:watcher_module) { Guard::Watcher }
 
     before do
+      Guard.reset_groups
+
       allow(watcher_module).to receive(:match_files) { [] }
       allow(Guard::UI).to receive(:clear)
 
@@ -144,10 +146,6 @@ RSpec.describe Guard::Runner do
       # foo in default group
       allow(::Guard).to receive(:plugins).with(group: :default).
         and_return([foo_plugin])
-    end
-
-    after do
-      ::Guard.reset_groups
     end
 
     it "always calls UI.clearable" do

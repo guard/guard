@@ -5,10 +5,10 @@ require "guard/jobs/pry_wrapper"
 require "guard/jobs/sleep"
 
 RSpec.describe Guard::Interactor do
-  let!(:pry_interactor) { instance_double(Guard::Jobs::PryWrapper) }
-  let!(:sleep_interactor) { instance_double(Guard::Jobs::Sleep) }
-  let(:pry_class) { class_double(Guard::Jobs::PryWrapper) }
-  let(:sleep_class) { class_double(Guard::Jobs::Sleep) }
+  let!(:pry_interactor) { instance_double("Guard::Jobs::PryWrapper") }
+  let!(:sleep_interactor) { instance_double("Guard::Jobs::Sleep") }
+  let(:pry_class) { class_double("Guard::Jobs::PryWrapper") }
+  let(:sleep_class) { class_double("Guard::Jobs::Sleep") }
 
   before do
     stub_const("Guard::Jobs::PryWrapper", pry_class)
@@ -19,6 +19,7 @@ RSpec.describe Guard::Interactor do
 
     @interactor_enabled = described_class.enabled?
     described_class.enabled = nil
+    Guard.init({})
   end
 
   after { described_class.enabled = @interactor_enabled }
@@ -55,17 +56,17 @@ RSpec.describe Guard::Interactor do
 
   # TODO: move to metadata class
   describe ".convert_scope" do
-    let(:foo) { instance_double(Guard::Plugin, name: "foo") }
-    let(:bar) { instance_double(Guard::Plugin, name: "bar") }
-    let(:backend) { instance_double(Guard::Group, name: "backend") }
-    let(:frontend) { instance_double(Guard::Group, name: "frontend") }
+    let(:foo) { instance_double("Guard::Plugin", name: "foo") }
+    let(:bar) { instance_double("Guard::Plugin", name: "bar") }
+    let(:backend) { instance_double("Guard::Group", name: "backend") }
+    let(:frontend) { instance_double("Guard::Group", name: "frontend") }
 
     before do
       allow(::Guard::Notifier).to receive(:turn_on) { nil }
       allow(Listen).to receive(:to).with(Dir.pwd, {})
 
-      stub_const "Guard::Foo", Class.new(Guard::Plugin)
-      stub_const "Guard::Bar", Class.new(Guard::Plugin)
+      stub_const "Guard::Foo", class_double("Guard::Plugin")
+      stub_const "Guard::Bar", class_double("Guard::Plugin")
 
       allow(Guard).to receive(:plugin) do |*args|
         fail "stub me: plugin(#{args.map(&:inspect) * ", "})"

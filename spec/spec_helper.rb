@@ -44,13 +44,23 @@ def stub_user_project_guardfile(contents = nil, &block)
   stub_file(File.expand_path(".Guardfile"), contents, &block)
 end
 
-def stub_notifier
-  allow(Guard::Notifier).to receive(:connect)
-  allow(Guard::Notifier).to receive(:disconnect)
-  allow(Guard::Notifier).to receive(:turn_on)
-  allow(Guard::Notifier).to receive(:turn_off)
-  allow(Guard::Notifier).to receive(:notify)
-  allow(Guard::Notifier).to receive(:add)
+def stub_mod(mod, excluded)
+  mod.constants.each do |klass_name|
+    klass = mod.const_get(klass_name)
+    if klass.is_a?(Class)
+      unless klass == described_class
+        unless excluded.include?(klass)
+          inst = instance_double(klass)
+          allow(klass).to receive(:new).and_return(inst)
+          # TODO: use object_double?
+          class_double(klass.to_s).
+            as_stubbed_const(transfer_nested_constants: true)
+        end
+      end
+    elsif klass.is_a?(Module)
+      stub_mod(klass, excluded)
+    end
+  end
 end
 
 # TODO: I can't wait to replace these with IO.read + rescuing Errno:ENOENT
@@ -161,6 +171,39 @@ RSpec.configure do |config|
   config.before(:each) do |example|
     stub_const("FileUtils", class_double(FileUtils))
 
+    excluded = []
+    excluded << Guard::Config if Guard.constants.include?(:Config)
+    excluded << Guard::Options if Guard.constants.include?(:Options)
+    excluded << Guard::Group if Guard.constants.include?(:Group)
+    excluded << Guard::Jobs::Base if Guard.constants.include?(:Jobs)
+
+    excluded << Guard::DuMmy if Guard.constants.include?(:DuMmy)
+
+    if Guard.constants.include?(:Plugin)
+      excluded << Guard::Plugin
+      if Guard::Plugin.constants.include?(:Base)
+        excluded << Guard::Plugin::Base
+      end
+    end
+
+    if Guard.constants.include?(:Notifier)
+      if Guard::Notifier.constants.include?(:NotServer)
+        excluded << Guard::Notifier::NotServer
+      end
+      if Guard::Notifier.constants.include?(:FooBar)
+        excluded << Guard::Notifier::FooBar
+      end
+      if Guard::Notifier.constants.include?(:Base)
+        excluded << Guard::Notifier::Base
+      end
+    end
+
+    modules = [Guard]
+    modules << Listen if Object.const_defined?(:Listen)
+    modules.each do |mod|
+      stub_mod(mod, excluded)
+    end
+
     allow(ENV).to receive(:[]=) do |*args|
       abort "stub me: ENV[#{args.first}]= #{args.map(&:inspect)[1..-1] * ","}!"
     end
@@ -186,6 +229,7 @@ RSpec.configure do |config|
 
     # Needed for debugging
     allow(ENV).to receive(:[]).with("DISABLE_PRY").and_call_original
+    allow(ENV).to receive(:[]).with("PRYRC").and_call_original
 
     # Workarounds for Cli inheriting from Thor
     allow(ENV).to receive(:[]).with("ANSICON").and_call_original
@@ -231,25 +275,6 @@ RSpec.configure do |config|
       allow(::Guard::UI).to receive(:deprecation)
     end
 
-    if Guard.const_defined?("Notifier")
-      # TODO: use metadata to stub out all used classes
-      if Guard::Notifier.const_defined?("TerminalTitle")
-        # Avoid clobbering the terminal
-        allow(Guard::Notifier::TerminalTitle).to receive(:puts)
-      end
-
-      # TODO: use metadata to stub out all used classes
-      if Guard::Notifier.const_defined?("Tmux")
-        allow(Guard::Notifier::Tmux).to receive(:system) do |*args|
-          fail "stub for system() called with: #{args.inspect}"
-        end
-
-        allow(Guard::Notifier::Tmux).to receive(:`) do |*args|
-          fail "stub for `(backtick) called with: #{args.inspect}"
-        end
-      end
-    end
-
     allow(Kernel).to receive(:system) do |*args|
       fail "stub for Kernel.system() called with: #{args.inspect}"
     end
@@ -262,16 +287,6 @@ RSpec.configure do |config|
         end
       end
     end
-
-    # TODO: use metadata to stub out all used classes
-    if Object.const_defined?("Listen")
-      allow(Listen).to receive(:to) do |*args|
-        fail "stub for Listen.to called with: #{args.inspect}"
-      end
-    end
-
-    # TODO: remove (instance vars cleared anyway)
-    ::Guard.reset_groups if ::Guard.respond_to?(:add_group)
   end
 
   config.after(:each) do

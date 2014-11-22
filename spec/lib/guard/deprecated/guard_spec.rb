@@ -60,7 +60,7 @@ unless Guard::Config.new.strict?
 
     describe ".get_guard_class" do
       let(:plugin_util) do
-        instance_double(Guard::PluginUtil, plugin_class: true)
+        instance_double("Guard::PluginUtil", plugin_class: true)
       end
 
       before do
@@ -91,7 +91,7 @@ unless Guard::Config.new.strict?
 
     describe ".locate_guard" do
       let(:plugin_util) do
-        instance_double(Guard::PluginUtil, plugin_location: true)
+        instance_double("Guard::PluginUtil", plugin_location: true)
       end
 
       before do

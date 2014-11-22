@@ -2,11 +2,12 @@ require "guard/jobs/pry_wrapper"
 
 RSpec.describe Guard::Jobs::PryWrapper do
   subject { described_class.new({}) }
-  let(:listener) { instance_double(Listen::Listener) }
+  let(:listener) { instance_double("Listen::Listener") }
   let(:pry_config) { double("pry_config") }
   let(:pry_history) { double("pry_history") }
   let(:pry_commands) { double("pry_commands") }
   let(:pry_hooks) { double("pry_hooks") }
+  let(:terminal_settings) { instance_double("Guard::Jobs::TerminalSettings") }
 
   before do
     # TODO: this are here to mock out Pry completely
@@ -26,6 +27,21 @@ RSpec.describe Guard::Jobs::PryWrapper do
     allow(Guard).to receive(:listener).and_return(listener)
     allow(Pry).to receive(:config).and_return(pry_config)
     allow(Guard::Sheller).to receive(:run).with(*%w(hash stty)) { false }
+
+    allow(Guard::Commands::All).to receive(:import)
+    allow(Guard::Commands::Change).to receive(:import)
+    allow(Guard::Commands::Reload).to receive(:import)
+    allow(Guard::Commands::Pause).to receive(:import)
+    allow(Guard::Commands::Notification).to receive(:import)
+    allow(Guard::Commands::Show).to receive(:import)
+    allow(Guard::Commands::Scope).to receive(:import)
+
+    allow(Guard::Jobs::TerminalSettings).to receive(:new).
+      and_return(terminal_settings)
+
+    allow(terminal_settings).to receive(:configurable?).and_return(false)
+    allow(terminal_settings).to receive(:save)
+    allow(terminal_settings).to receive(:restore)
   end
 
   describe "#foreground" do

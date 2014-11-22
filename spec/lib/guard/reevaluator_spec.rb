@@ -5,7 +5,7 @@ require "guard/ui"
 
 RSpec.describe Guard::Reevaluator do
   let(:options) { {} }
-  let(:evaluator) { instance_double(Guard::Guardfile::Evaluator) }
+  let(:evaluator) { instance_double("Guard::Guardfile::Evaluator") }
 
   subject do
     described_class.new(options)
@@ -19,8 +19,10 @@ RSpec.describe Guard::Reevaluator do
   end
 
   context "when Guardfile is modified" do
+    let(:watcher) { instance_double("Guard::Watcher") }
     before do
       allow(Guard).to receive(:add_plugin).with(:reevaluator, anything)
+      allow(::Guard::Watcher).to receive(:new). and_return(watcher)
       allow(::Guard::Watcher).to receive(:match_guardfile?).
         with(["Guardfile"]).and_return(true)
     end

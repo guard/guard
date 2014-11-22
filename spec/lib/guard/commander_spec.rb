@@ -1,54 +1,54 @@
 require "guard/commander"
 
 RSpec.describe Guard::Commander do
-  let(:interactor) { instance_double(Guard::Interactor) }
-  let(:runner) { instance_double(Guard::Runner, run: true) }
+  let(:interactor) { instance_double("Guard::Interactor") }
+  let(:runner) { instance_double("Guard::Runner", run: true) }
 
   before do
-    stub_notifier
     allow(Guard::Interactor).to receive(:new) { interactor }
     allow(Guard::Runner).to receive(:new).and_return(runner)
   end
 
   describe ".start" do
     let(:listener) do
-      instance_double(Listen::Listener, start: true, stop: true)
+      instance_double("Listen::Listener", start: true, stop: true)
     end
 
     let(:watched_dir) { Dir.pwd }
 
     before do
-      stub_notifier
-      allow(Listen).to receive(:to).with(watched_dir, {}) { listener }
-
-      # Simulate Ctrl-D in Pry, or Ctrl-C in non-interactive mode
-      allow(interactor).to receive(:foreground).and_return(:exit)
-
       stub_guardfile(" ")
       stub_user_guard_rb
 
       # from stop()
+      allow(Guard).to receive(:setup)
+      allow(Guard).to receive(:listener).and_return(listener)
+      allow(Guard).to receive(:watchdirs).and_return(%w(dir1 dir2))
+      allow(Guard).to receive(:interactor).and_return(interactor)
+
+      # Simulate Ctrl-D in Pry, or Ctrl-C in non-interactive mode
+      allow(interactor).to receive(:foreground).and_return(:exit)
+
       allow(interactor).to receive(:background)
+      allow(Guard::Notifier).to receive(:disconnect)
     end
 
-    context "Guard has not been setuped" do
-      it "calls Guard setup" do
-        expect(::Guard).to receive(:setup).with(foo: "bar").and_call_original
-
-        ::Guard.start(foo: "bar")
-      end
+    it "calls Guard setup" do
+      expect(::Guard).to receive(:setup).with(foo: "bar")
+      ::Guard.start(foo: "bar")
     end
 
     it "displays an info message" do
       expect(::Guard::UI).to receive(:info).
-        with("Guard is now watching at '#{Dir.pwd}'")
+        with("Guard is now watching at 'dir1', 'dir2'")
 
       ::Guard.start
     end
 
     it "tell the runner to run the :start task" do
-      expect(runner).to receive(:run).with(:start)
 
+      expect(runner).to receive(:run).with(:start)
+      allow(listener).to receive(:stop)
       ::Guard.start
     end
 
@@ -74,18 +74,18 @@ RSpec.describe Guard::Commander do
   end
 
   describe ".stop" do
-    let(:runner) { instance_double(Guard::Runner, run: true) }
-    let(:listener) { instance_double(Listen::Listener, stop: true) }
+    let(:runner) { instance_double("Guard::Runner", run: true) }
+    let(:listener) { instance_double("Listen::Listener", stop: true) }
 
     before do
-      allow(Listen).to receive(:to).with(Dir.pwd, {}) { listener }
-      allow(Guard::Notifier).to receive(:turn_on)
+      allow(Guard::Notifier).to receive(:disconnect)
+      allow(Guard).to receive(:listener).and_return(listener)
       allow(listener).to receive(:stop)
+      allow(Guard).to receive(:interactor).and_return(interactor)
       allow(interactor).to receive(:background)
 
       stub_guardfile(" ")
       stub_user_guard_rb
-      Guard.setup
     end
 
     it "turns off the interactor" do
@@ -110,16 +110,20 @@ RSpec.describe Guard::Commander do
   end
 
   describe ".reload" do
-    let(:runner) { instance_double(Guard::Runner, run: true) }
+    let(:runner) { instance_double("Guard::Runner", run: true) }
     let(:group) { ::Guard::Group.new("frontend") }
-    subject { ::Guard.setup }
+    let(:evaluator) { instance_double("Guard::Guardfile::Evaluator") }
 
     before do
       allow(::Guard::Notifier).to receive(:connect)
       allow(::Guard).to receive(:scope) { {} }
       allow(::Guard::UI).to receive(:info)
       allow(::Guard::UI).to receive(:clear)
-      allow(Listen).to receive(:to).with(Dir.pwd, {})
+
+      allow(::Guard::Guardfile::Evaluator).to receive(:new).
+        and_return(evaluator)
+
+      allow(evaluator).to receive(:reevaluate_guardfile)
 
       stub_guardfile(" ")
       stub_user_guard_rb
@@ -128,36 +132,34 @@ RSpec.describe Guard::Commander do
     it "clears the screen" do
       expect(::Guard::UI).to receive(:clear)
 
-      subject.reload
+      Guard.reload
     end
 
     context "with a given scope" do
       it "does not re-evaluate the Guardfile" do
-        expect_any_instance_of(::Guard::Guardfile::Evaluator).
-          to_not receive(:reevaluate_guardfile)
+        expect(evaluator).to_not receive(:reevaluate_guardfile)
 
-        subject.reload(groups: [group])
+        Guard.reload(groups: [group])
       end
 
       it "reloads Guard" do
         expect(runner).to receive(:run).with(:reload,  groups: [group])
 
-        subject.reload(groups: [group])
+        Guard.reload(groups: [group])
       end
     end
 
     context "with an empty scope" do
       it "does re-evaluate the Guardfile" do
-        expect_any_instance_of(::Guard::Guardfile::Evaluator).
-          to receive(:reevaluate_guardfile)
+        expect(evaluator).to receive(:reevaluate_guardfile)
 
-        subject.reload
+        Guard.reload
       end
 
       it "does not reload Guard" do
         expect(runner).to_not receive(:run).with(:reload, {})
 
-        subject.reload
+        Guard.reload
       end
     end
   end
@@ -165,13 +167,14 @@ RSpec.describe Guard::Commander do
   describe ".run_all" do
     let(:group) { ::Guard::Group.new("frontend") }
 
-    subject { ::Guard.setup }
+    subject do
+      Guard
+    end
 
     before do
       allow(::Guard::Notifier).to receive(:connect)
       allow(::Guard::UI).to receive(:action_with_scopes)
       allow(::Guard::UI).to receive(:clear)
-      allow(Listen).to receive(:to).with(Dir.pwd, {})
 
       stub_guardfile(" ")
       stub_user_guard_rb
@@ -196,12 +199,11 @@ RSpec.describe Guard::Commander do
 
   describe ".pause" do
     context "when unpaused" do
-      subject { ::Guard.setup }
-      let(:listener) { instance_double(Listen::Listener) }
+      let(:listener) { instance_double("Listen::Listener") }
 
       before do
         allow(::Guard::Notifier).to receive(:connect)
-        allow(Listen).to receive(:to).with(Dir.pwd, {}) { listener }
+        allow(Guard).to receive(:listener).and_return(listener)
         allow(listener).to receive(:paused?) { false }
 
         stub_guardfile(" ")
@@ -212,7 +214,7 @@ RSpec.describe Guard::Commander do
         context "with #{mode.inspect}" do
           it "pauses" do
             expect(listener).to receive(:pause)
-            subject.pause(mode)
+            Guard.pause(mode)
           end
         end
       end
@@ -221,25 +223,24 @@ RSpec.describe Guard::Commander do
         it "does nothing" do
           expect(listener).to_not receive(:unpause)
           expect(listener).to_not receive(:pause)
-          subject.pause(:unpaused)
+          Guard.pause(:unpaused)
         end
       end
 
       context "with invalid parameter" do
         it "raises an ArgumentError" do
-          expect { subject.pause(:invalid) }.
+          expect { Guard.pause(:invalid) }.
             to raise_error(ArgumentError, "invalid mode: :invalid")
         end
       end
     end
 
     context "when already paused" do
-      subject { ::Guard.setup }
-      let(:listener) { instance_double(Listen::Listener) }
+      let(:listener) { instance_double("Listen::Listener") }
 
       before do
         allow(::Guard::Notifier).to receive(:connect)
-        allow(Listen).to receive(:to).with(Dir.pwd, {}) { listener }
+        allow(Guard).to receive(:listener).and_return(listener)
         allow(listener).to receive(:paused?) { true }
 
         stub_guardfile(" ")
@@ -250,7 +251,7 @@ RSpec.describe Guard::Commander do
         context "with #{mode.inspect}" do
           it "unpauses" do
             expect(listener).to receive(:unpause)
-            subject.pause(mode)
+            Guard.pause(mode)
           end
         end
       end
@@ -259,13 +260,13 @@ RSpec.describe Guard::Commander do
         it "does nothing" do
           expect(listener).to_not receive(:unpause)
           expect(listener).to_not receive(:pause)
-          subject.pause(:paused)
+          Guard.pause(:paused)
         end
       end
 
       context "with invalid parameter" do
         it "raises an ArgumentError" do
-          expect { subject.pause(:invalid) }.
+          expect { Guard.pause(:invalid) }.
             to raise_error(ArgumentError, "invalid mode: :invalid")
         end
       end

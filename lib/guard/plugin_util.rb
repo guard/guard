@@ -124,8 +124,8 @@ module Guard
     #
     def add_to_guardfile
       require "guard/guardfile/evaluator"
-      # TODO: move this method to Generator?
-      evaluator = Guard::Guardfile::Evaluator.new
+      # TODO: move this to Generator?
+      evaluator = Guard::Guardfile::Evaluator.new(Guard.options)
       evaluator.evaluate_guardfile
       if evaluator.guardfile_include?(name)
         ::Guard::UI.info "Guardfile already includes #{ name } guard"

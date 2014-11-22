@@ -21,6 +21,7 @@ RSpec.shared_examples "gem dependency warning" do |meth|
   let(:gemfile) { nil }
 
   before do
+    allow(guard_options).to receive(:[]).with(:debug).and_return(false)
     allow(Guard).to receive(:options).and_return(guard_options)
     allow(ENV).to receive(:[]).with("BUNDLE_GEMFILE").and_return(gemfile)
     allow(ENV).to receive(:[]).with("RUBYGEMS_GEMDEPS").and_return(gemdeps)
@@ -67,10 +68,11 @@ end
 RSpec.describe Guard::CLI do
   let(:guard)         { Guard }
   let(:ui)            { Guard::UI }
-  let(:dsl_describer) { instance_double(::Guard::DslDescriber) }
-  let(:evaluator) { instance_double(Guard::Guardfile::Evaluator) }
-  let(:generator) { instance_double(Guard::Guardfile::Generator) }
-  let(:obsolete_guardfile) { class_double(Guard::Guardfile) }
+
+  let(:dsl_describer) { instance_double("Guard::DslDescriber") }
+  let(:evaluator) { instance_double("Guard::Guardfile::Evaluator") }
+  let(:generator) { instance_double("Guard::Guardfile::Generator") }
+  let(:obsolete_guardfile) { class_double("Guard::Guardfile") }
 
   before do
     @options = {}
@@ -78,6 +80,9 @@ RSpec.describe Guard::CLI do
 
     allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
     allow(Guard::Guardfile::Generator).to receive(:new).and_return(generator)
+
+    allow(::Guard::DslDescriber).to receive(:new).with(no_args).
+      and_return(dsl_describer)
   end
 
   describe "#start" do
@@ -97,18 +102,14 @@ RSpec.describe Guard::CLI do
 
   describe "#list" do
     it "outputs the Guard plugins list" do
-      expect(::Guard::DslDescriber).to receive(:new) { dsl_describer }
       expect(dsl_describer).to receive(:list)
-
       subject.list
     end
   end
 
   describe "#notifiers" do
     it "outputs the notifiers list" do
-      expect(::Guard::DslDescriber).to receive(:new) { dsl_describer }
       expect(dsl_describer).to receive(:notifiers)
-
       subject.notifiers
     end
   end
@@ -116,7 +117,6 @@ RSpec.describe Guard::CLI do
   describe "#version" do
     it "shows the current version" do
       expect(STDOUT).to receive(:puts).with(/#{ ::Guard::VERSION }/)
-
       subject.version
     end
   end
@@ -137,13 +137,8 @@ RSpec.describe Guard::CLI do
     context "with bare option" do
       before { @options[:bare] = true }
 
-      it "evaluates created or existing guardfile" do
-        expect(evaluator).to receive(:evaluate_guardfile)
-        subject.init
-      end
-
       it "resets plugins, so add_plugin can work" do
-        expect(::Guard).to receive(:reset_plugins)
+        expect(Guard.plugins).to eq([])
         subject.init
       end
 
@@ -191,7 +186,6 @@ RSpec.describe Guard::CLI do
       it "creates a Guardfile by delegating to Guardfile.create_guardfile" do
         expect(Guard::Guardfile::Generator).to receive(:new).
           with(abort_on_existence: false).and_return(generator)
-
         expect(generator).to receive(:create_guardfile)
 
         subject.init
@@ -216,7 +210,7 @@ RSpec.describe Guard::CLI do
 
       context "when passed a guard name" do
         it "initializes the template of the passed Guard" do
-          expect(generator).to receive(:initialize_template). with("rspec")
+          expect(generator).to receive(:initialize_template).with("rspec")
 
           subject.init "rspec"
         end
@@ -227,9 +221,14 @@ RSpec.describe Guard::CLI do
 
   describe "#show" do
     it "outputs the Guard::DslDescriber.list result" do
-      expect(::Guard::DslDescriber).to receive(:new) { dsl_describer }
-      expect(dsl_describer).to receive(:show)
+      evaluator = instance_double("Guard::Guardfile::Evaluator")
+      allow(evaluator).to receive(:evaluate_guardfile)
+      allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
 
+      expect(Guard::DslDescriber).to receive(:new).with(no_args).
+        and_return(dsl_describer)
+
+      expect(dsl_describer).to receive(:show)
       subject.show
     end
   end

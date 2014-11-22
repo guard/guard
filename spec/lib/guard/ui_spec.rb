@@ -1,10 +1,10 @@
 require "guard/notifier"
 
 RSpec.describe Guard::UI do
-  let(:interactor) { instance_double(Guard::Interactor) }
-  let(:options) { instance_double(Guard::Options) }
+  let(:interactor) { instance_double("Guard::Interactor") }
+  let(:options) { instance_double("Guard::Options") }
   let(:scope) { double("scope") }
-  let(:logger) { instance_double(Lumberjack::Logger) }
+  let(:logger) { instance_double("Lumberjack::Logger") }
 
   before do
     allow(Guard).to receive(:options).and_return(options)
@@ -330,9 +330,9 @@ RSpec.describe Guard::UI do
   end
 
   describe ".clear" do
-    let(:terminal) { class_double(::Guard::Terminal) }
+    let(:terminal) { class_double("Guard::Terminal") }
 
-    before { stub_const("::Guard::Terminal", terminal) }
+    before { stub_const("Guard::Terminal", terminal) }
 
     context "with UI set up and ready" do
       before do

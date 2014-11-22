@@ -2,65 +2,69 @@ require "guard"
 
 RSpec.describe Guard do
   # Initialize before Guard::Interactor const is stubbed
-  let!(:interactor) { instance_double(Guard::Interactor) }
-  let!(:interactor_class) { class_double(Guard::Interactor) }
+  let!(:interactor) { instance_double("Guard::Interactor") }
 
-  let(:evaluator) { instance_double(Guard::Guardfile::Evaluator) }
+  # let(:evaluator) { instance_double(Guard::Guardfile::Evaluator) }
   let(:guardfile) { File.expand_path("Guardfile") }
   let(:traps) { Guard::Internals::Traps }
 
   before do
-    stub_const("Guard::Interactor", interactor_class)
-    allow(interactor_class).to receive(:new).and_return(interactor)
+    allow(Guard::Interactor).to receive(:new).and_return(interactor)
     allow(Dir).to receive(:chdir)
-    allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
-    allow(evaluator).to receive(:evaluate_guardfile)
-    allow(evaluator).to receive(:guardfile_path).and_return("Guardfile")
+  end
 
-    stub_notifier
+  # TODO: this is crazy
+  def stub_plugin(name, options)
+    group_name = options[:group]
+    plugin = instance_double("Guard::Plugin",
+                             name: name.tr("_", ""),
+                             group: Guard::Group.new(group_name))
+
+    plugin_util = instance_double("Guard::PluginUtil")
+
+    allow(plugin_util).to receive(:initialize_plugin).with(options).
+      and_return(plugin)
+
+    allow(Guard::PluginUtil).to receive(:new).with(name).
+      and_return(plugin_util)
+    Guard.add_plugin(name, options)
+    plugin
   end
 
   describe ".plugins" do
+    let(:foo_bar_frontend) { stub_plugin("foo_bar", group: "frontend") }
+    let(:foo_baz_frontend) { stub_plugin("foo_baz", group: "frontend") }
+    let(:foo_bar_backend) { stub_plugin("foo_bar", group: "backend") }
+    let(:foo_baz_backend) { stub_plugin("foo_baz", group: "backend") }
+
     before do
-      Guard.reset_plugins
-
-      stub_const "Guard::FooBar", Class.new(Guard::Plugin)
-      stub_const "Guard::FooBaz", Class.new(Guard::Plugin)
-
-      @guard_foo_bar_backend = described_class.add_plugin(
-        "foo_bar",
-        group: "backend")
-
-      @guard_foo_baz_backend = described_class.add_plugin(
-        "foo_baz",
-        group: "backend")
-
-      @guard_foo_bar_frontend = described_class.add_plugin(
-        "foo_bar",
-        group: "frontend")
-
-      @guard_foo_baz_frontend = described_class.add_plugin(
-        "foo_baz",
-        group: "frontend")
-
+      Guard.init({})
+      foo_bar_frontend
+      foo_baz_frontend
+      foo_bar_backend
+      foo_baz_backend
     end
 
     it "return @plugins without any argument" do
-      expect(described_class.plugins).
-        to eq subject.instance_variable_get("@plugins")
+      expect(described_class.plugins).to eq [
+        foo_bar_frontend,
+        foo_baz_frontend,
+        foo_bar_backend,
+        foo_baz_backend
+      ]
     end
 
     context "find a plugin by as string" do
       it "returns an array of plugins if plugins are found" do
         expect(described_class.plugins("foo-bar")).
-          to eq [@guard_foo_bar_backend, @guard_foo_bar_frontend]
+          to match_array([foo_bar_backend, foo_bar_frontend])
       end
     end
 
     context "find a plugin by as symbol" do
       it "returns an array of plugins if plugins are found" do
         expect(described_class.plugins(:'foo-bar')).
-          to eq [@guard_foo_bar_backend, @guard_foo_bar_frontend]
+          to match_array([foo_bar_backend, foo_bar_frontend])
       end
 
       it "returns an empty array when no plugin is found" do
@@ -71,7 +75,7 @@ RSpec.describe Guard do
     context "find plugins matching a regexp" do
       it "returns an array of plugins if plugins are found" do
         expect(described_class.plugins(/^foobar/)).
-          to eq [@guard_foo_bar_backend, @guard_foo_bar_frontend]
+          to match_array([foo_bar_backend, foo_bar_frontend])
       end
 
       it "returns an empty array when no plugin is found" do
@@ -82,14 +86,14 @@ RSpec.describe Guard do
     context "find plugins by their group as a string" do
       it "returns an array of plugins if plugins are found" do
         expect(described_class.plugins(group: "backend")).
-          to eq [@guard_foo_bar_backend, @guard_foo_baz_backend]
+          to eq [foo_bar_backend, foo_baz_backend]
       end
     end
 
     context "find plugins by their group as a symbol" do
       it "returns an array of plugins if plugins are found" do
         expect(described_class.plugins(group: :frontend)).
-          to eq [@guard_foo_bar_frontend, @guard_foo_baz_frontend]
+          to eq [foo_bar_frontend, foo_baz_frontend]
       end
 
       it "returns an empty array when no plugin is found" do
@@ -100,7 +104,7 @@ RSpec.describe Guard do
     context "find plugins by their group & name" do
       it "returns an array of plugins if plugins are found" do
         expect(described_class.plugins(group: "backend", name: "foo-bar")).
-          to eq [@guard_foo_bar_backend]
+          to eq [foo_bar_backend]
       end
 
       it "returns an empty array when no plugin is found" do
@@ -111,76 +115,69 @@ RSpec.describe Guard do
   end
 
   describe ".plugin" do
+    let(:foo_bar_frontend) { stub_plugin("foo_bar", group: "frontend") }
+    let(:foo_baz_frontend) { stub_plugin("foo_baz", group: "frontend") }
+    let(:foo_bar_backend) { stub_plugin("foo_bar", group: "backend") }
+    let(:foo_baz_backend) { stub_plugin("foo_baz", group: "backend") }
+
     before do
-      Guard.reset_plugins
+      Guard.init({})
+      # Note: order changed to match tests
+      foo_bar_backend
 
-      stub_const "Guard::FooBar", Class.new(Guard::Plugin)
-      stub_const "Guard::FooBaz", Class.new(Guard::Plugin)
-      @guard_foo_bar_backend = described_class.add_plugin(
-        "foo_bar",
-        group: "backend")
-
-      @guard_foo_baz_backend = described_class.add_plugin(
-        "foo_baz",
-        group: "backend")
-
-      @guard_foo_bar_frontend = described_class.add_plugin(
-        "foo_bar",
-        group: "frontend")
-
-      @guard_foo_baz_frontend = described_class.add_plugin(
-        "foo_baz",
-        group: "frontend")
+      foo_bar_frontend
+      foo_baz_frontend
+      foo_baz_backend
     end
 
     context "find a plugin by a string" do
       it "returns the first plugin found" do
-        expect(described_class.plugin("foo-bar")).to eq @guard_foo_bar_backend
+        expect(described_class.plugin("foo-bar")).to eq foo_bar_backend
       end
     end
 
     context "find a plugin by a symbol" do
       it "returns the first plugin found" do
-        expect(described_class.plugin(:'foo-bar')).to eq @guard_foo_bar_backend
+        expect(described_class.plugin(:'foo-bar')).to eq foo_bar_backend
       end
 
       it "returns nil when no plugin is found" do
-        expect(described_class.plugin("foo-foo")).to be_nil
+        expect(described_class.plugin("foo-foo")).to_not be
       end
     end
 
     context "find plugins matching a regexp" do
       it "returns the first plugin found" do
-        expect(described_class.plugin(/^foobar/)).to eq @guard_foo_bar_backend
+        expect(described_class.plugin(/^foobar/)).to eq foo_bar_backend
       end
 
       it "returns nil when no plugin is found" do
-        expect(described_class.plugin(/foo$/)).to be_nil
+        expect(described_class.plugin(/foo$/)).to_not be
       end
     end
 
     context "find a plugin by its group as a string" do
       it "returns the first plugin found" do
         expect(described_class.plugin(group: "backend")).
-          to eq @guard_foo_bar_backend
+          to eq foo_bar_backend
       end
     end
 
     context "find plugins by their group as a symbol" do
       it "returns the first plugin found" do
         expect(described_class.plugin(group: :frontend)).
-          to eq @guard_foo_bar_frontend
+          to eq foo_bar_frontend
       end
 
       it "returns nil when no plugin is found" do
-        expect(described_class.plugin(group: :unknown)).to be_nil
+        expect(described_class.plugin(group: :unknown)).to_not be
       end
     end
 
     context "find plugins by their group & name" do
       it "returns the first plugin found" do
         expect(described_class.plugin(group: "backend", name: "foo-bar")).
-          to eq @guard_foo_bar_backend
+          to eq foo_bar_backend
       end
 
       it "returns nil when no plugin is found" do
@@ -193,10 +190,10 @@ RSpec.describe Guard do
   describe ".groups" do
     subject do
       allow(Listen).to receive(:to).with(Dir.pwd, {})
-      guard           = ::Guard.setup
-      @group_backend  = guard.add_group(:backend)
-      @group_backflip = guard.add_group(:backflip)
-      guard
+      Guard.init({})
+      @group_backend  = Guard.add_group(:backend)
+      @group_backflip = Guard.add_group(:backflip)
+      Guard
     end
 
     context "without no argument" do
@@ -241,11 +238,10 @@ RSpec.describe Guard do
     subject do
       allow(Listen).to receive(:to).with(Dir.pwd, {})
 
-      guard           = ::Guard.setup
-
-      @group_backend  = guard.add_group(:backend)
-      @group_backflip = guard.add_group(:backflip)
-      guard
+      Guard.init({})
+      @group_backend  = Guard.add_group(:backend)
+      @group_backflip = Guard.add_group(:backflip)
+      Guard
     end
 
     context "with a string argument" do
@@ -280,7 +276,7 @@ RSpec.describe Guard do
   end
 
   describe ".add_plugin" do
-    let(:plugin_util) { instance_double(Guard::PluginUtil) }
+    let(:plugin_util) { instance_double("Guard::PluginUtil") }
     let(:guard_rspec) { double("some_plugin_instance") }
 
     before do
@@ -305,27 +301,30 @@ RSpec.describe Guard do
   end
 
   describe ".remove_plugin" do
+    let(:foo_bar_frontend) { stub_plugin("foo_bar", group: "frontend") }
+    let(:foo_baz_frontend) { stub_plugin("foo_baz", group: "frontend") }
+    let(:foo_bar_backend) { stub_plugin("foo_bar", group: "backend") }
+    let(:foo_baz_backend) { stub_plugin("foo_baz", group: "backend") }
+
     before do
-      # TODO: these are pretty useless to be justified as methods
-      ::Guard.reset_groups
-      ::Guard.reset_plugins
+      ::Guard.init({})
 
-      stub_const "Guard::Foo", Class.new(Guard::Plugin)
-      stub_const "Guard::Bar", Class.new(Guard::Plugin)
-      stub_const "Guard::Baz", Class.new(Guard::Plugin)
-
-      @foo = ::Guard.add_plugin("foo", group: "frontend")
-      @bar = ::Guard.add_plugin("bar", group: "backend")
-      @baz = ::Guard.add_plugin("baz", group: "backend")
+      foo_bar_frontend
+      foo_baz_frontend
+      foo_bar_backend
+      foo_baz_backend
     end
 
     context "with 3 existing plugins" do
       it "removes given group" do
-        ::Guard.remove_plugin(@bar)
-        expect(::Guard.plugins).to eq [@foo, @baz]
+        Guard.remove_plugin(foo_bar_frontend)
+        expect(::Guard.plugins).to eq [
+          foo_baz_frontend,
+          foo_bar_backend,
+          foo_baz_backend,
+        ]
       end
     end
-
   end
 
   describe ".add_group" do
@@ -364,10 +363,19 @@ RSpec.describe Guard do
     before do
       allow(Listen).to receive(:to).with(Dir.pwd, {}) { listener }
 
-      allow(interactor_class).to receive(:new).and_return(interactor)
-
       stub_guardfile(" ")
       stub_user_guard_rb
+
+      g1 = instance_double(Guard::Group, name: :common, options: {})
+      g2 = instance_double(Guard::Group, name: :default, options: {})
+      allow(Guard::Group).to receive(:new).with(:common).and_return(g1)
+      allow(Guard::Group).to receive(:new).with(:default).and_return(g2)
+
+      evaluator = instance_double("Guard::Guardfile::Evaluator")
+      allow(evaluator).to receive(:evaluate_guardfile)
+      allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
+
+      allow(Guard::Notifier).to receive(:connect)
     end
 
     it "returns itself for chaining" do
@@ -388,11 +396,14 @@ RSpec.describe Guard do
     end
 
     it "initializes the listener" do
+      allow(Listen).to receive(:to).
+        with("/foo/bar", latency: 1, wait_for_delay: 0.5)
+
       expect(subject.listener).to be(listener)
     end
 
     it "initializes the interactor" do
-      expect(interactor_class).to receive(:new).with(false)
+      expect(Guard::Interactor).to receive(:new).with(false)
       subject
     end
 
@@ -447,7 +458,9 @@ RSpec.describe Guard do
     end
 
     it "evaluates the Guardfile" do
-      expect(Guard).to receive(:evaluate_guardfile)
+      evaluator = instance_double("Guard::Guardfile::Evaluator")
+      expect(evaluator).to receive(:evaluate_guardfile)
+      allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
 
       subject
     end
@@ -479,6 +492,13 @@ RSpec.describe Guard do
         }
       end
 
+      before do
+        g3 = instance_double(Guard::Group, name: :backend, options: {})
+        g4 = instance_double(Guard::Group, name: :frontend, options: {})
+        allow(Guard::Group).to receive(:new).with("backend", {}).and_return(g3)
+        allow(Guard::Group).to receive(:new).with("frontend", {}).and_return(g4)
+      end
+
       it "initializes the group scope" do
         expect(subject.scope[:plugins]).to be_empty
         expect(subject.scope[:groups].count).to be 2
@@ -496,23 +516,27 @@ RSpec.describe Guard do
         }
       end
 
+      let(:jasmine) { instance_double("Guard::Plugin") }
+      let(:cucumber) {  instance_double("Guard::Plugin") }
+      let(:coffeescript) { instance_double("Guard::Plugin") }
+
       before do
-        stub_const "Guard::Jasmine", Class.new(Guard::Plugin)
-        stub_const "Guard::Cucumber", Class.new(Guard::Plugin)
-        stub_const "Guard::CoffeeScript", Class.new(Guard::Plugin)
+        stub_const "Guard::Jasmine", jasmine
+        stub_const "Guard::Cucumber", cucumber
+        stub_const "Guard::CoffeeScript", coffeescript
       end
 
       it "initializes the plugin scope" do
         allow(Guard).to receive(:plugin).with("cucumber").
-          and_return(Guard::Cucumber.new)
+          and_return(cucumber)
 
         allow(Guard).to receive(:plugin).with("jasmine").
-          and_return(Guard::Jasmine.new)
+          and_return(jasmine)
 
         expect(subject.scope[:groups]).to be_empty
         expect(subject.scope[:plugins].count).to be 2
-        expect(subject.scope[:plugins][0].class).to eq ::Guard::Cucumber
-        expect(subject.scope[:plugins][1].class).to eq ::Guard::Jasmine
+        expect(subject.scope[:plugins][0]).to eq cucumber
+        expect(subject.scope[:plugins][1]).to eq jasmine
       end
     end
 
@@ -560,11 +584,11 @@ RSpec.describe Guard do
       stub_guardfile(" ")
       stub_user_guard_rb
 
-      guard = Guard.setup(guardfile: guardfile)
+      Guard.init(guardfile: guardfile)
 
-      @group_backend = guard.add_group(:backend)
-      @group_backflip = guard.add_group(:backflip)
-      guard
+      @group_backend = Guard.add_group(:backend)
+      @group_backflip = Guard.add_group(:backflip)
+      Guard
     end
 
     it "initializes default groups" do
@@ -576,7 +600,11 @@ RSpec.describe Guard do
   end
 
   describe ".setup_scope" do
-    subject { Guard.setup(options) }
+    subject do
+      # TODO: just implement Guard::Session.new already...
+      Guard.init(options)
+      Guard
+    end
 
     let(:guardfile) do
       %w(group guard).map do |scope|
@@ -589,9 +617,9 @@ RSpec.describe Guard do
     let(:listener) { instance_double(Listen::Listener) }
 
     before do
-      stub_const "Guard::Foo", Class.new(Guard::Plugin)
-      stub_const "Guard::Bar", Class.new(Guard::Plugin)
-      stub_const "Guard::Baz", Class.new(Guard::Plugin)
+      stub_const "Guard::Foo", instance_double(Guard::Plugin)
+      stub_const "Guard::Bar", instance_double(Guard::Plugin)
+      stub_const "Guard::Baz", instance_double(Guard::Plugin)
       allow(Listen).to receive(:to).with(Dir.pwd, {}) { listener }
       stub_user_guard_rb
     end
@@ -601,6 +629,8 @@ RSpec.describe Guard do
         let(:options) do
           { :guardfile_contents => guardfile, scope => %w(foo bar) }
         end
+        let(:foo) { instance_double("Guard::Plugin", name: :foo) }
+        let(:bar) { instance_double("Guard::Plugin", name: :bar) }
 
         it "configures the scope according to the global option" do
           if scope == :group
@@ -610,11 +640,8 @@ RSpec.describe Guard do
             allow(Guard).to receive(:add_group).with("bar").
               and_return(Guard::Group.new("bar"))
           else
-            allow(Guard).to receive(:plugin).with("foo").
-              and_return(Guard::Foo.new)
-
-            allow(Guard).to receive(:plugin).with("bar").
-              and_return(Guard::Bar.new)
+            allow(Guard).to receive(:plugin).with("foo").and_return(foo)
+            allow(Guard).to receive(:plugin).with("bar").and_return(bar)
           end
 
           subject.setup_scope(scope => :baz)
@@ -626,6 +653,7 @@ RSpec.describe Guard do
 
       context "without the global #{scope} option specified" do
         let(:options) { { guardfile_contents: guardfile } }
+        let(:baz) { instance_double("Guard::Plugin", name: :baz) }
 
         it "configures the scope according to the given option" do
 
@@ -634,7 +662,7 @@ RSpec.describe Guard do
               and_return(Guard::Group.new(:baz))
           else
             allow(Guard).to receive(:plugin).with(:baz).
-              and_return(Guard::Baz.new)
+              and_return(baz)
           end
 
           subject.setup_scope(scope => :baz)
@@ -683,24 +711,25 @@ RSpec.describe Guard do
 
   # TODO: remove
   describe ".reset_plugins" do
-    before do
-      allow(Listen).to receive(:to).with(Dir.pwd, {})
+    let(:foo_bar) { instance_double("Guard::Plugin", name: "foobar") }
 
+    before do
       # TODO: clean this up (rework evaluator)
       stub_guardfile(" ")
       stub_user_guard_rb
+      stub_const("Guard::FooBar", class_double(Guard::Plugin))
 
-      module Guard
-        class FooBar < ::Guard::Plugin; end
-      end
+      plugin_util = instance_double("Guard::PluginUtil")
+      allow(plugin_util).to receive(:initialize_plugin).with({}).
+        and_return(foo_bar)
+      allow(Guard::PluginUtil).to receive(:new).with(:foo_bar).
+        and_return(plugin_util)
     end
 
     subject do
-      ::Guard.setup(guardfile: guardfile).tap { |g| g.add_plugin(:foo_bar) }
-    end
-
-    after do
-      ::Guard.instance_eval { remove_const(:FooBar) }
+      Guard.init(guardfile: guardfile)
+      Guard.add_plugin(:foo_bar)
+      Guard
     end
 
     it "return clear the plugins array" do
@@ -722,19 +751,19 @@ RSpec.describe Guard do
     end
 
     it "clears options to defaults" do
-      Guard.setup(watchdir: "abc")
+      Guard.init(watchdir: "abc")
       Guard.reset_options({})
       expect(Guard.options).to include("watchdir" => nil)
     end
 
     it "merges defaults with provided options" do
-      Guard.setup(group: "foo")
+      Guard.init(group: "foo")
       Guard.reset_options(group: "bar")
       expect(Guard.options).to include("group" => "bar")
     end
 
     it "includes default options" do
-      Guard.setup
+      Guard.init({})
       Guard.reset_options({})
       expect(Guard.options).to include("plugin" => [])
     end
@@ -752,13 +781,14 @@ RSpec.describe Guard do
     let(:foo_plugin) { instance_double(Guard::Plugin, name: "Foo") }
 
     it "evaluates the Guardfile" do
-      allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
       allow(Guard).to receive(:plugins).and_return([foo_plugin])
 
-      allow(Guard).to receive(:options).and_return({})
+      evaluator = instance_double("Guard::Guardfile::Evaluator")
+      allow(evaluator).to receive(:evaluate_guardfile)
 
-      expect(evaluator).to receive(:evaluate_guardfile)
+      allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
 
+      Guard.init({})
       Guard.evaluate_guardfile
     end
 
@@ -775,8 +805,13 @@ RSpec.describe Guard do
 
     before do
       allow(Listen).to receive(:to).with(Dir.pwd, {})
+
+      evaluator = instance_double("Guard::Guardfile::Evaluator")
       allow(evaluator).to receive(:evaluate_guardfile)
-      allow(interactor_class).to receive(:new).and_return(interactor)
+      allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
+
+      # TODO: move to UI?
+      allow(Guard::Notifier).to receive(:connect)
 
       stub_guardfile(" ")
       stub_user_guard_rb

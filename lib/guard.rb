@@ -13,6 +13,7 @@ require "guard/options"
 
 require "guard/commander"
 require "guard/dsl"
+require "guard/group"
 require "guard/interactor"
 require "guard/notifier"
 require "guard/plugin_util"
@@ -20,6 +21,7 @@ require "guard/runner"
 require "guard/sheller"
 require "guard/ui"
 require "guard/watcher"
+require "guard/guardfile/evaluator"
 
 # Guard is the main module for all Guard related modules and classes.
 # Also Guard plugins should use this namespace.
@@ -52,19 +54,17 @@ module Guard
     # and some are mock and leak between tests,
     # so ideally there should be a guard "instance"
     # object that can be created anew between tests
-    def setup(opts = {})
-      # NOTE: must be set before anything calls Guard.options
-      reset_options(opts)
-
-      # NOTE: must be set before anything calls Guard::UI.debug
-      ::Guard::Internals::Debugging.start if options[:debug]
+    def setup(cmdline_options = {})
+      init(cmdline_options)
 
       @queue = Queue.new
       self.watchdirs = Array(options[:watchdir])
 
       ::Guard::UI.reset_and_clear
 
-      _reset_all
+      reset_plugins
+      reset_scope
+
       evaluate_guardfile
       setup_scope
 
@@ -87,14 +87,6 @@ module Guard
     # Used only by tests (for all I know...)
     def clear_options
       @options = nil
-    end
-
-    # Initializes the groups array with the default group(s).
-    #
-    # @see DEFAULT_GROUPS
-    #
-    def reset_groups
-      @groups = DEFAULT_GROUPS.map { |name| Group.new(name) }
     end
 
     # Initializes the plugins array to an empty array.
@@ -244,12 +236,6 @@ module Guard
 
         async_queue_add(relative_paths) if _relevant_changes?(relative_paths)
       end
-    end
-
-    def _reset_all
-      reset_groups
-      reset_plugins
-      reset_scope
     end
 
     def _pluginless_guardfile?

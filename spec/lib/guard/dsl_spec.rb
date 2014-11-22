@@ -6,21 +6,19 @@ RSpec.describe Guard::Dsl do
 
   let(:guardfile_evaluator) { instance_double(Guard::Guardfile::Evaluator) }
   let(:interactor) { instance_double(Guard::Interactor) }
-  let(:listener) { instance_double(Listen::Listener) }
+  let(:listener) { instance_double("Listen::Listener") }
 
   let(:evaluator) do
     Proc.new do |contents|
-      options = { guardfile_contents: contents }
-      ::Guard::Guardfile::Evaluator.new(options).evaluate_guardfile
+      Guard::Dsl.new.instance_eval(contents, "", 1)
     end
   end
 
   before do
     stub_user_guard_rb
-    stub_notifier
-    stub_const "Guard::Foo", Class.new(Guard::Plugin)
-    stub_const "Guard::Bar", Class.new(Guard::Plugin)
-    stub_const "Guard::Baz", Class.new(Guard::Plugin)
+    stub_const "Guard::Foo", instance_double(Guard::Plugin)
+    stub_const "Guard::Bar", instance_double(Guard::Plugin)
+    stub_const "Guard::Baz", instance_double(Guard::Plugin)
     allow(Guard::Notifier).to receive(:turn_on)
     allow(::Guard).to receive(:add_builtin_plugins)
     allow(Listen).to receive(:to).with(Dir.pwd, {})
@@ -113,8 +111,7 @@ RSpec.describe Guard::Dsl do
       let(:contents) { "notification :growl" }
 
       it "adds a notification to the notifier" do
-        expect(::Guard::Notifier).to receive(:add).
-          with(:growl,  silent: false)
+        expect(::Guard::Notifier).to receive(:add).with(:growl,  silent: false)
 
         evaluator.call(contents)
       end
@@ -126,8 +123,7 @@ RSpec.describe Guard::Dsl do
       end
 
       it "adds multiple notifiers" do
-        expect(::Guard::Notifier).to receive(:add).
-          with(:growl,  silent: false)
+        expect(::Guard::Notifier).to receive(:add).with(:growl,  silent: false)
 
         expect(::Guard::Notifier).to receive(:add).
           with(:ruby_gntp,  host: "192.168.1.5", silent: false)
@@ -141,16 +137,18 @@ RSpec.describe Guard::Dsl do
     context "with interactor :off" do
       let(:contents) { "interactor :off" }
       it "disables the interactions with :off" do
+        expect(Guard::Interactor).to receive(:enabled=).with(false)
         evaluator.call(contents)
-        expect(Guard::Interactor).to_not be_enabled
       end
     end
 
     context "with interactor options" do
       let(:contents) { 'interactor option1: \'a\', option2: 123' }
       it "passes the options to the interactor" do
+        expect(Guard::Interactor).to receive(:options=).
+          with(option1: "a", option2: 123)
+
         evaluator.call(contents)
-        expect(Guard::Interactor.options).to include(option1: "a", option2: 123)
       end
     end
   end
@@ -202,6 +200,7 @@ RSpec.describe Guard::Dsl do
         expect(::Guard).to receive(:add_plugin).
           with(:less,   watchers: [], callbacks: [], group: :y)
 
+        allow(Guard::Notifier).to receive(:add).with(:growl, silent: false)
         evaluator.call(contents)
       end
     end
@@ -307,7 +306,16 @@ RSpec.describe Guard::Dsl do
   end
 
   describe "#watch" do
+    # TODO: this is testing too much
     context "with watchers" do
+      let(:watcher_a) do
+        instance_double("Guard::Watcher", pattern: "a", action: proc { "b" })
+      end
+
+      let(:watcher_c) do
+        instance_double("Guard::Watcher", pattern: "c", action: nil)
+      end
+
       let(:contents) do
         '
         guard :dummy do
@@ -332,12 +340,21 @@ RSpec.describe Guard::Dsl do
           expect(options[:watchers][1].action).to be_nil
         end
 
+        allow(Guard::Watcher).to receive(:new).with("a", anything).
+          and_return(watcher_a)
+
+        allow(Guard::Watcher).to receive(:new).with("c", nil).
+          and_return(watcher_c)
+
         evaluator.call(contents)
       end
     end
 
     context "with watch in main scope" do
       let(:contents) { 'watch(\'a\')' }
+      let(:watcher) do
+        instance_double("Guard::Watcher", pattern: "a", action: nil)
+      end
 
       it "should create an implicit no-op guard when outside a guard block" do
         plugin_options = {
@@ -353,6 +370,9 @@ RSpec.describe Guard::Dsl do
           expect(options[:watchers][0].pattern).to eq "a"
           expect(options[:watchers][0].action).to be_nil
         end
+
+        allow(Guard::Watcher).to receive(:new).with("a", nil).
+          and_return(watcher)
 
         evaluator.call(contents)
       end
@@ -396,7 +416,7 @@ RSpec.describe Guard::Dsl do
 
           expect(callback_0[:events]).to eq :start_end
 
-          plugin = instance_double(Guard::Plugin, title: "RSpec")
+          plugin = instance_double("Guard::Plugin", title: "RSpec")
           result = callback_0[:listener].call(plugin, :start_end, "foo")
 
           expect(result).to eq 'RSpec executed \'start_end\' hook'\

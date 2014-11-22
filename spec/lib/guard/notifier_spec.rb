@@ -7,7 +7,7 @@ RSpec.describe Guard::Notifier do
   %w(foo bar baz).each do |name|
     let(name.to_sym) do
       class_double(
-        described_class::Tmux,
+        "Guard::Notifier::Tmux",
         name: name,
         title: name.capitalize,
         turn_on: nil,
@@ -16,8 +16,8 @@ RSpec.describe Guard::Notifier do
     end
   end
 
-  let(:foo_object) { instance_double(described_class::Tmux) }
-  let(:bar_object) { instance_double(described_class::Tmux) }
+  let(:foo_object) { instance_double("Guard::Notifier::Tmux") }
+  let(:bar_object) { instance_double("Guard::Notifier::Tmux") }
 
   class FakeEnvironment < Guard::Internals::Environment
     def notify?
@@ -38,7 +38,7 @@ RSpec.describe Guard::Notifier do
   end
 
   let(:env) { instance_double(FakeEnvironment) }
-  let(:detected) { instance_double(described_class::Detected) }
+  let(:detected) { instance_double("Guard::Notifier::Detected") }
 
   before do
     Guard::Notifier.instance_variables.each do |var|

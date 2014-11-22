@@ -8,21 +8,26 @@ RSpec.describe Guard::Guardfile::Evaluator do
   let!(:local_guardfile) { (Pathname.pwd + "Guardfile").to_s }
   let!(:home_guardfile) { (Pathname("~").expand_path + ".Guardfile").to_s }
   let!(:home_config) { (Pathname("~").expand_path + ".guard.rb").to_s }
+
+  # TODO: shouldn't be needed
   let!(:evaluator) { described_class.new }
+
+  let(:dsl) { instance_double("Guard::Dsl") }
 
   let(:rel_guardfile) do
     Pathname("../relative_path_to_Guardfile").expand_path.to_s
   end
 
   before do
-    stub_notifier
-
     # TODO: this will be removed/fixed in the future
     allow(::Guard).to receive(:setup_scope)
 
     allow(::Guard::Interactor).to receive(:new).with(false)
     allow(Listen).to receive(:to).with(Dir.pwd, {})
     allow(Guard).to receive(:add_plugin)
+    allow(Guard).to receive(:add_builtin_plugins)
+    allow(Guard::Dsl).to receive(:new).and_return(dsl)
+    allow(dsl).to receive(:instance_eval)
   end
 
   describe ".initialize" do
@@ -68,6 +73,7 @@ RSpec.describe Guard::Guardfile::Evaluator do
           expect(Guard::UI).to receive(:error).
             with(/Invalid Guardfile, original error is:/)
 
+          allow(dsl).to receive(:instance_eval).and_raise(NoMethodError)
           expect do
             guardfile = described_class.new(guardfile_contents: "Bad Guardfile")
             guardfile.evaluate_guardfile
@@ -120,8 +126,6 @@ RSpec.describe Guard::Guardfile::Evaluator do
       end
 
       context "when Guardfile content is nil" do
-        let(:evaluator) { described_class.new(guardfile_contents: nil) }
-
         before do
           stub_guardfile("guard :rspec do; end")
           stub_user_guard_rb
@@ -378,7 +382,7 @@ RSpec.describe Guard::Guardfile::Evaluator do
   end
 
   describe ".reevaluate_guardfile" do
-    let(:runner) { instance_double(Guard::Runner) }
+    let(:runner) { instance_double("Guard::Runner") }
 
     before do
       allow(Guard::Runner).to receive(:new).and_return(runner)
@@ -386,6 +390,11 @@ RSpec.describe Guard::Guardfile::Evaluator do
       stub_guardfile("guard :rspec do; end")
       stub_user_guard_rb
       evaluator.evaluate_guardfile
+
+      # TODO: not tested properly
+      allow(Guard::Notifier).to receive(:connect)
+      allow(Guard::Notifier).to receive(:disconnect)
+      allow(Guard::Notifier).to receive(:notify)
     end
 
     let(:growl) { { name: :growl, options: {} } }
@@ -445,7 +454,6 @@ RSpec.describe Guard::Guardfile::Evaluator do
     end
 
     it "evaluates the Guardfile" do
-      Guard.setup
       allow(Guard).to receive(:_pluginless_guardfile?).and_return(false)
       expect(::Guard).to receive(:setup_scope)
       evaluator.reevaluate_guardfile
@@ -510,7 +518,7 @@ RSpec.describe Guard::Guardfile::Evaluator do
         it "shows a failure notification" do
           # TODO: temporary hack to continue refactoring notifier
           # TODO: this whole spec needs stubbing
-          foo = instance_double(Guard::Plugin, name: "reevaluator")
+          foo = instance_double("Guard::Plugin", name: "reevaluator")
           allow(Guard).to receive(:plugins).and_return([foo])
 
           expect(::Guard::Notifier).to receive(:notify).
