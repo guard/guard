@@ -10,7 +10,7 @@ RSpec.describe Guard::Dsl do
 
   let(:evaluator) do
     Proc.new do |contents|
-      Guard::Dsl.new.instance_eval(contents, "", 1)
+      Guard::Dsl.new.evaluate(contents, "", 1)
     end
   end
 
@@ -24,6 +24,10 @@ RSpec.describe Guard::Dsl do
     allow(Listen).to receive(:to).with(Dir.pwd, {})
     allow(Guard::Interactor).to receive(:new).and_return(interactor)
     allow(::Guard).to receive(:listener) { listener }
+
+    # For backtrace cleanup
+    allow(ENV).to receive(:[]).with("GEM_HOME").and_call_original
+    allow(ENV).to receive(:[]).with("GEM_PATH").and_call_original
   end
 
   describe "#ignore" do
@@ -171,7 +175,9 @@ RSpec.describe Guard::Dsl do
 
       it "raises an error" do
         expect { evaluator.call(contents) }.
-          to raise_error(ArgumentError, "'all' is not an allowed group name!")
+          to raise_error(
+            Guard::Dsl::Error,
+            /'all' is not an allowed group name!/)
       end
     end
 
@@ -180,7 +186,9 @@ RSpec.describe Guard::Dsl do
 
       it "raises an error" do
         expect { evaluator.call(contents) }.
-          to raise_error(ArgumentError, "'all' is not an allowed group name!")
+          to raise_error(
+            Guard::Dsl::Error,
+            /'all' is not an allowed group name!/)
       end
     end
 

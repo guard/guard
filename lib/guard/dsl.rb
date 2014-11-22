@@ -50,6 +50,10 @@ module Guard
   class Dsl
     Deprecated::Dsl.add_deprecated(self) unless Config.new.strict?
 
+    # Wrap exceptions during parsing Guardfile
+    class Error < RuntimeError
+    end
+
     WARN_INVALID_LOG_LEVEL = "Invalid log level `%s` ignored. "\
       "Please use either :debug, :info, :warn or :error."
 
@@ -361,7 +365,39 @@ module Guard
     # @param [Hash] scopes the scope for the groups and plugins
     #
     def scope(scope = {})
-      ::Guard.setup_scope(scope)
+      # Guard.add_scope(:dsl, scope)
+      Guard.setup_scope(scope)
+    end
+
+    def evaluate(contents, filename, lineno) # :nodoc
+      instance_eval(contents, filename.to_s, lineno)
+    rescue StandardError, ScriptError => e
+      prefix = "\n\t(dsl)> "
+      cleaned_backtrace = _cleanup_backtrace(e.backtrace)
+      backtrace = "#{prefix}#{cleaned_backtrace.join(prefix)}"
+      msg = "Invalid Guardfile, original error is: \n\n%s, \nbacktrace: %s"
+      raise Error, format(msg, e, backtrace)
+    end
+
+    private
+
+    def _cleanup_backtrace(backtrace)
+      dirs = { File.realpath(Dir.pwd) => ".", }
+
+      gem_env = ENV["GEM_HOME"] || ""
+      dirs[gem_env] = "$GEM_HOME" unless gem_env.empty?
+
+      gem_paths = (ENV["GEM_PATH"] || "").split(File::PATH_SEPARATOR)
+      gem_paths.each_with_index do |path, index|
+        dirs[path] = "$GEM_PATH[#{index}]"
+      end
+
+      backtrace.dup.map do |raw_line|
+        symlinked_path = raw_line.split(":").first
+        path = raw_line.sub(symlinked_path, File.realpath(symlinked_path))
+        dirs.detect { |dir, name| path.sub!(File.realpath(dir), name) }
+        path
+      end
     end
 
     # Sets the directories to pass to Listen

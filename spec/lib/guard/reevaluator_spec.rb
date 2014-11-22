@@ -56,23 +56,27 @@ RSpec.describe Guard::Reevaluator do
     end
 
     context "when Guardfile contains errors" do
-      let(:failure) { proc { fail "Could not load Foo!" } }
+      let(:failure) { proc { fail Guard::Dsl::Error, "Could not load Foo!" } }
 
       before do
         allow(evaluator).to receive(:evaluate) { failure.call }
         allow(evaluator).to receive(:inline?).and_return(false)
       end
 
-      context "with a name error" do
-        let(:failure) { proc { fail NameError, "Could not load Foo!" } }
-        it "should notify guard it failed to prevent being fired" do
+      context "with a Dsl error" do
+        let(:failure) { proc { fail Guard::Dsl::Error, "Something failed!" } }
+
+        it "notifies guard it failed to prevent being fired" do
           expect { subject.run_on_modifications(["Guardfile"]) }.
             to throw_symbol(:task_has_failed)
         end
       end
 
-      context "with a syntax error" do
-        let(:failure) { proc { fail SyntaxError, "Could not load Foo!" } }
+      context "with a Guardfile error" do
+        let(:failure) do
+          proc { fail Guard::Guardfile::Evaluator::Error, "Failed!" }
+        end
+
         it "should notify guard it failed to prevent being fired" do
           expect { subject.run_on_modifications(["Guardfile"]) }.
             to throw_symbol(:task_has_failed)
@@ -90,7 +94,7 @@ RSpec.describe Guard::Reevaluator do
       end
 
       it "should restore the scope" do
-        expect(::Guard).to receive(:restore_scope)
+        expect(Guard).to receive(:restore_scope)
 
         catch(:task_has_failed) do
           subject.run_on_modifications(["Guardfile"])
@@ -109,8 +113,8 @@ RSpec.describe Guard::Reevaluator do
         expect(Guard::Watcher).to receive(:new).with("Guardfile").
           and_return(watcher)
 
-        options = { watchers: [watcher] }
-        expect(::Guard).to receive(:add_plugin).with(:reevaluator, options)
+        options = { watchers: [watcher], group: :common }
+        expect(Guard).to receive(:add_plugin).with(:reevaluator, options)
 
         catch(:task_has_failed) do
           subject.run_on_modifications(["Guardfile"])
@@ -121,7 +125,6 @@ RSpec.describe Guard::Reevaluator do
 
   context "when Guardfile is not modified" do
     it "should not reevaluate guardfile" do
-      expect(evaluator).to receive(:guardfile_path).and_return("Guard.bar")
       expect(evaluator).to_not receive(:evaluate)
       subject.run_on_modifications(["foo"])
     end
@@ -140,39 +143,48 @@ RSpec.describe Guard::Reevaluator do
       allow(evaluator).to receive(:evaluate)
     end
 
-    describe "before reevaluation" do
+    context "before reevaluation" do
       before do
+        allow(Guard).to receive(:setup_scope)
+        allow(Guard).to receive(:reset_scope)
+        allow(Guard).to receive(:reset_plugins)
+        allow(Guard).to receive(:reset_groups)
         allow(runner).to receive(:run).with(:stop)
         allow(runner).to receive(:run).with(:start)
       end
 
-      it "stops all Guards" do
-        expect(runner).to receive(:run).with(:stop)
+      after do
         subject.reevaluate
+      end
+
+      it "stops all Guards" do
+        allow(evaluator).to receive(:evaluate) do
+          expect(runner).to have_received(:run).with(:stop)
+        end
       end
 
       it "resets all Guard plugins" do
-        allow(Guard).to receive(:setup_scope)
-        expect(Guard).to receive(:reset_plugins)
-        subject.reevaluate
+        allow(evaluator).to receive(:evaluate) do
+          expect(Guard).to have_received(:reset_plugins)
+        end
       end
 
       it "resets all groups" do
-        allow(Guard).to receive(:setup_scope)
-        expect(Guard).to receive(:reset_groups)
-        subject.reevaluate
+        allow(evaluator).to receive(:evaluate) do
+          expect(Guard).to have_received(:reset_groups)
+        end
       end
 
       it "resets all scopes" do
-        allow(Guard).to receive(:setup_scope)
-        expect(Guard).to receive(:reset_scope)
-        subject.reevaluate
+        allow(evaluator).to receive(:evaluate) do
+          expect(Guard).to have_received(:reset_scope)
+        end
       end
 
       it "clears the notifiers" do
-        expect(Guard::Notifier).to receive(:disconnect)
-        allow(Guard).to receive(:setup_scope)
-        subject.reevaluate
+        allow(evaluator).to receive(:evaluate) do
+          expect(Guard::Notifier).to have_received(:disconnect)
+        end
       end
     end
 
