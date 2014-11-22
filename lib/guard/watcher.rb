@@ -1,5 +1,7 @@
 require "guard/ui"
 
+require "guard/deprecated/watcher" unless Guard::Config.new.strict?
+
 module Guard
   # The watcher defines a RegExp that will be matched against file system
   # modifications.
@@ -7,6 +9,7 @@ module Guard
   # enable processing the file system change result.
   #
   class Watcher
+    Deprecated::Watcher.add_deprecated(self) unless Config.new.strict?
     attr_accessor :pattern, :action
 
     # Initializes a file watcher.
@@ -75,18 +78,6 @@ module Guard
 
         guard.options[:any_return] ? paths : paths.flatten.map(&:to_s)
       end
-    end
-
-    # Tests if any of the files is the Guardfile.
-    #
-    # @param [Array<String>] files the files to test
-    # @return [Boolean] whether one of these files is the Guardfile
-    #
-    def self.match_guardfile?(files)
-      # TODO: move this method elsewhere
-      require "guard/guardfile/evaluator"
-      path = Guard.options[:guardfile]
-      files.any? { |file| File.expand_path(file) == path }
     end
 
     # Test the watchers pattern against a file.

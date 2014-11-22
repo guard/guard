@@ -23,8 +23,9 @@ RSpec.describe Guard::Reevaluator do
     before do
       allow(Guard).to receive(:add_plugin).with(:reevaluator, anything)
       allow(::Guard::Watcher).to receive(:new). and_return(watcher)
-      allow(::Guard::Watcher).to receive(:match_guardfile?).
-        with(["Guardfile"]).and_return(true)
+
+      expect(evaluator).to receive(:guardfile_path).
+        and_return(File.expand_path("Guardfile"))
     end
 
     it "should reevaluate guardfile" do
@@ -92,21 +93,14 @@ RSpec.describe Guard::Reevaluator do
           subject.run_on_modifications(["Guardfile"])
         end
       end
-
     end
-
   end
 
   context "when Guardfile is not modified" do
-    before do
-      allow(::Guard::Watcher).to receive(:match_guardfile?).with(["foo"]).
-        and_return(false)
-    end
-
     it "should not reevaluate guardfile" do
+      expect(evaluator).to receive(:guardfile_path).and_return("Guard.bar")
       expect(evaluator).to_not receive(:reevaluate_guardfile)
       subject.run_on_modifications(["foo"])
     end
   end
-
 end

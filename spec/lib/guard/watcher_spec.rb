@@ -470,30 +470,4 @@ RSpec.describe Guard::Watcher do
       end
     end
   end
-
-  describe ".match_guardfile?" do
-    before do
-      evaluator = instance_double("Guard::Guardfile::Evaluator")
-      allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
-      allow(evaluator).to receive(:guardfile_path).
-        and_return(File.expand_path("Guardfile"))
-    end
-
-    context "with files that match the Guardfile" do
-      specify do
-        klass = described_class
-        result = klass.match_guardfile?(["Guardfile", "guard_rocks_spec.rb"])
-        expect(result).to be_truthy
-      end
-    end
-
-    context "with no files that match the Guardfile" do
-      specify do
-        result = described_class.match_guardfile?(
-          ["guard_rocks.rb", "guard_rocks_spec.rb"])
-
-        expect(result).to be_falsey
-      end
-    end
-  end
 end
