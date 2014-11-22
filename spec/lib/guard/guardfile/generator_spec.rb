@@ -12,16 +12,46 @@ RSpec.describe Guard::Guardfile::Generator do
   end
 
   describe "#create_guardfile" do
-    before { allow(Dir).to receive(:pwd).and_return "/home/user" }
-
     context "with an existing Guardfile" do
-      before { expect(File).to receive(:exist?) { true } }
+      before do
+        allow_any_instance_of(Pathname).to receive(:exist?).and_return(true)
+      end
 
       it "does not copy the Guardfile template or notify the user" do
         expect(::Guard::UI).to_not receive(:info)
         expect(FileUtils).to_not receive(:cp)
+        begin
+          subject.create_guardfile
+        rescue SystemExit
+        end
+      end
 
-        described_class.new.create_guardfile
+      it "does not display information" do
+        expect(::Guard::UI).to_not receive(:info)
+        begin
+          subject.create_guardfile
+        rescue SystemExit
+        end
+      end
+
+      it "displays an error message" do
+        expect(::Guard::UI).to receive(:error).
+          with(/Guardfile already exists at .*\/Guardfile/)
+        begin
+          subject.create_guardfile
+        rescue SystemExit
+        end
+      end
+
+      it "aborts" do
+        expect { subject.create_guardfile }.to raise_error(SystemExit)
+      end
+    end
+
+    context "without an existing Guardfile" do
+      before do
+        allow_any_instance_of(Pathname).to receive(:exist?).and_return(false)
+        allow(FileUtils).to receive(:cp)
       end
 
       it "does not display any kind of error or abort" do
@@ -29,22 +59,6 @@ RSpec.describe Guard::Guardfile::Generator do
         expect(described_class).to_not receive(:abort)
         described_class.new.create_guardfile
       end
-
-      context "with the :abort_on_existence option set to true" do
-        it "displays an error message and aborts the process" do
-          guardfile_generator = described_class.new(abort_on_existence: true)
-          expect(::Guard::UI).to receive(:error).
-            with("Guardfile already exists at /home/user/Guardfile")
-
-          expect(guardfile_generator).to receive(:abort)
-
-          guardfile_generator.create_guardfile
-        end
-      end
-    end
-
-    context "without an existing Guardfile" do
-      before { expect(File).to receive(:exist?) { false } }
 
       it "copies the Guardfile template and notifies the user" do
         expect(::Guard::UI).to receive(:info)
@@ -74,20 +88,14 @@ RSpec.describe Guard::Guardfile::Generator do
     context "with a user defined template" do
       let(:template) { File.join(described_class::HOME_TEMPLATES, "/bar") }
 
-      before do
-        expect(File).to receive(:exist?).
-          with(template) { true }
-      end
-
       it "copies the Guardfile template and initializes the Guard" do
-        expect(File).to receive(:read).
-          with("Guardfile").and_return "Guardfile content"
-
-        expect(File).to receive(:read).
+        expect(IO).to receive(:read).
           with(template).and_return "Template content"
 
-        io = StringIO.new
-        expect(File).to receive(:open).with("Guardfile", "wb").and_yield io
+        expected = "\nTemplate content\n"
+
+        expect(IO).to receive(:binwrite).
+          with("Guardfile", expected, open_args: ["a"])
 
         allow(plugin_util).to receive(:plugin_class).with(fail_gracefully: true)
 
@@ -95,7 +103,6 @@ RSpec.describe Guard::Guardfile::Generator do
           and_return(plugin_util)
 
         described_class.new.initialize_template("bar")
-        expect(io.string).to eq "Guardfile content\n\nTemplate content\n"
       end
     end
 
@@ -103,7 +110,10 @@ RSpec.describe Guard::Guardfile::Generator do
       before do
         expect(::Guard::PluginUtil).to receive(:new) { plugin_util }
         allow(plugin_util).to receive(:plugin_class) { nil }
-        expect(File).to receive(:exist?).and_return false
+        path = File.expand_path("~/.guard/templates/foo")
+        expect(IO).to receive(:read).with(path) do
+          fail Errno::ENOENT
+        end
       end
 
       it "notifies the user about the problem" do
@@ -124,12 +134,11 @@ RSpec.describe Guard::Guardfile::Generator do
     end
 
     it "calls Guard.initialize_template on all installed plugins" do
-      guardfile_generator = described_class.new
       plugins.each do |g|
-        expect(guardfile_generator).to receive(:initialize_template).with(g)
+        expect(subject).to receive(:initialize_template).with(g)
       end
 
-      guardfile_generator.initialize_all_templates
+      subject.initialize_all_templates
     end
   end
 end
