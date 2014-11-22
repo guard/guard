@@ -160,6 +160,18 @@ module Guard
           UI.deprecation(RUNNER)
           ::Guard::Runner.new
         end
+
+        EVALUATE_GUARDFILE = <<-EOS.gsub(/^\s*/, "")
+          Starting with Guard 2.8.2 this method shouldn't be used
+        EOS
+
+        def evaluate_guardfile
+          UI.deprecation(EVALUATE_GUARDFILE)
+          evaluator = ::Guard::Guardfile::Evaluator.new(::Guard.options)
+          evaluator.evaluate
+          msg = "No plugins found in Guardfile, please add at least one."
+          ::Guard::UI.error msg if _pluginless_guardfile?
+        end
       end
     end
   end

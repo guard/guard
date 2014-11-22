@@ -212,7 +212,7 @@ RSpec.describe Guard::PluginUtil do
   describe "#add_to_guardfile" do
     before do
       allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
-      allow(evaluator).to receive(:evaluate_guardfile)
+      allow(evaluator).to receive(:evaluate)
     end
 
     context "when the Guard is already in the Guardfile" do

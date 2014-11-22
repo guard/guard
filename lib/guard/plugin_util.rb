@@ -125,10 +125,10 @@ module Guard
     def add_to_guardfile
       require "guard/guardfile/evaluator"
       # TODO: move this to Generator?
-      evaluator = Guard::Guardfile::Evaluator.new(Guard.options)
-      evaluator.evaluate_guardfile
+      evaluator = Guardfile::Evaluator.new(Guard.options)
+      evaluator.evaluate
       if evaluator.guardfile_include?(name)
-        ::Guard::UI.info "Guardfile already includes #{ name } guard"
+        UI.info "Guardfile already includes #{ name } guard"
       else
         content = File.read("Guardfile")
         File.open("Guardfile", "wb") do |f|

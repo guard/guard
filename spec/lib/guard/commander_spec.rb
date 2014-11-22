@@ -1,8 +1,11 @@
 require "guard/commander"
 
 RSpec.describe Guard::Commander do
+  subject { Guard }
+
   let(:interactor) { instance_double("Guard::Interactor") }
   let(:runner) { instance_double("Guard::Runner", run: true) }
+  let(:reevaluator) { instance_double("Guard::Reevaluator") }
 
   before do
     allow(Guard::Interactor).to receive(:new) { interactor }
@@ -84,46 +87,38 @@ RSpec.describe Guard::Commander do
       allow(Guard).to receive(:interactor).and_return(interactor)
       allow(interactor).to receive(:background)
 
-      stub_guardfile(" ")
-      stub_user_guard_rb
+      Guard.stop
     end
 
     it "turns off the interactor" do
-      expect(interactor).to receive(:background)
-      ::Guard.stop
+      expect(interactor).to have_received(:background)
     end
 
     it "turns the notifier off" do
-      expect(::Guard::Notifier).to receive(:disconnect)
-      ::Guard.stop
+      expect(::Guard::Notifier).to have_received(:disconnect)
     end
 
     it "tell the runner to run the :stop task" do
-      expect(runner).to receive(:run).with(:stop)
-      ::Guard.stop
+      expect(runner).to have_received(:run).with(:stop)
     end
 
     it "stops the listener" do
-      expect(listener).to receive(:stop)
-      ::Guard.stop
+      expect(listener).to have_received(:stop)
     end
   end
 
   describe ".reload" do
     let(:runner) { instance_double("Guard::Runner", run: true) }
-    let(:group) { ::Guard::Group.new("frontend") }
-    let(:evaluator) { instance_double("Guard::Guardfile::Evaluator") }
+    let(:group) { Guard::Group.new("frontend") }
 
     before do
-      allow(::Guard::Notifier).to receive(:connect)
-      allow(::Guard).to receive(:scope) { {} }
-      allow(::Guard::UI).to receive(:info)
-      allow(::Guard::UI).to receive(:clear)
+      allow(Guard::Notifier).to receive(:connect)
+      allow(Guard).to receive(:scope) { {} }
+      allow(Guard::UI).to receive(:info)
+      allow(Guard::UI).to receive(:clear)
 
-      allow(::Guard::Guardfile::Evaluator).to receive(:new).
-        and_return(evaluator)
-
-      allow(evaluator).to receive(:reevaluate_guardfile)
+      allow(Guard::Reevaluator).to receive(:new).and_return(reevaluator)
+      allow(reevaluator).to receive(:reevaluate)
 
       stub_guardfile(" ")
       stub_user_guard_rb
@@ -137,7 +132,7 @@ RSpec.describe Guard::Commander do
 
     context "with a given scope" do
       it "does not re-evaluate the Guardfile" do
-        expect(evaluator).to_not receive(:reevaluate_guardfile)
+        expect(reevaluator).to_not receive(:reevaluate)
 
         Guard.reload(groups: [group])
       end
@@ -151,7 +146,7 @@ RSpec.describe Guard::Commander do
 
     context "with an empty scope" do
       it "does re-evaluate the Guardfile" do
-        expect(evaluator).to receive(:reevaluate_guardfile)
+        expect(reevaluator).to receive(:reevaluate)
 
         Guard.reload
       end

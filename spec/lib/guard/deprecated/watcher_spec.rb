@@ -1,8 +1,9 @@
 require "guard/config"
 
-require "guard/deprecated/watcher"
-
 unless Guard::Config.new.strict?
+
+  require "guard/deprecated/watcher"
+
   RSpec.describe Guard::Deprecated::Watcher do
     subject do
       module TestModule; end.tap { |mod| described_class.add_deprecated(mod) }

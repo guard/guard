@@ -3,6 +3,7 @@ require "listen"
 require "guard/notifier"
 require "guard/interactor"
 require "guard/runner"
+require "guard/reevaluator"
 require "guard"
 
 module Guard
@@ -67,7 +68,7 @@ module Guard
       ::Guard::UI.action_with_scopes("Reload", scopes)
 
       if scopes.empty?
-        Guard::Guardfile::Evaluator.new(Guard.options).reevaluate_guardfile
+        Reevaluator.new.reevaluate
       else
         Guard::Runner.new.run(:reload, scopes)
       end

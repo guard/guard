@@ -127,7 +127,7 @@ RSpec.describe Guard::CLI do
     before do
       stub_file("Gemfile")
 
-      allow(evaluator).to receive(:evaluate_guardfile)
+      allow(evaluator).to receive(:evaluate)
       allow(generator).to receive(:create_guardfile)
       allow(generator).to receive(:initialize_all_templates)
     end
@@ -174,7 +174,7 @@ RSpec.describe Guard::CLI do
       before { @options[:bare] = false }
 
       it "evaluates created or existing guardfile" do
-        expect(evaluator).to receive(:evaluate_guardfile)
+        expect(evaluator).to receive(:evaluate)
         subject.init
       end
 
@@ -222,7 +222,7 @@ RSpec.describe Guard::CLI do
   describe "#show" do
     it "outputs the Guard::DslDescriber.list result" do
       evaluator = instance_double("Guard::Guardfile::Evaluator")
-      allow(evaluator).to receive(:evaluate_guardfile)
+      allow(evaluator).to receive(:evaluate)
       allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
 
       expect(Guard::DslDescriber).to receive(:new).with(no_args).

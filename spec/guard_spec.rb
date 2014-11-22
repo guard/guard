@@ -372,7 +372,7 @@ RSpec.describe Guard do
       allow(Guard::Group).to receive(:new).with(:default).and_return(g2)
 
       evaluator = instance_double("Guard::Guardfile::Evaluator")
-      allow(evaluator).to receive(:evaluate_guardfile)
+      allow(evaluator).to receive(:evaluate)
       allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
 
       allow(Guard::Notifier).to receive(:connect)
@@ -459,7 +459,7 @@ RSpec.describe Guard do
 
     it "evaluates the Guardfile" do
       evaluator = instance_double("Guard::Guardfile::Evaluator")
-      expect(evaluator).to receive(:evaluate_guardfile)
+      expect(evaluator).to receive(:evaluate)
       allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
 
       subject
@@ -775,7 +775,7 @@ RSpec.describe Guard do
     end
   end
 
-  describe ".evaluate_guardfile" do
+  describe ".evaluate" do
     # Any plugin, so that we don't get error about no plugins
     # (other than built-in ones)
     let(:foo_plugin) { instance_double(Guard::Plugin, name: "Foo") }
@@ -784,12 +784,11 @@ RSpec.describe Guard do
       allow(Guard).to receive(:plugins).and_return([foo_plugin])
 
       evaluator = instance_double("Guard::Guardfile::Evaluator")
-      allow(evaluator).to receive(:evaluate_guardfile)
+      allow(evaluator).to receive(:evaluate)
 
       allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
 
       Guard.init({})
-      Guard.evaluate_guardfile
     end
 
     it "sets options for evaluator" do
@@ -807,7 +806,7 @@ RSpec.describe Guard do
       allow(Listen).to receive(:to).with(Dir.pwd, {})
 
       evaluator = instance_double("Guard::Guardfile::Evaluator")
-      allow(evaluator).to receive(:evaluate_guardfile)
+      allow(evaluator).to receive(:evaluate)
       allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
 
       # TODO: move to UI?

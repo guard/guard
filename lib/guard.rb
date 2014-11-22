@@ -65,7 +65,7 @@ module Guard
       reset_plugins
       reset_scope
 
-      evaluate_guardfile
+      _evaluate
       setup_scope
 
       @listener = _setup_listener
@@ -115,26 +115,6 @@ module Guard
         plugins: scope[:plugins].map { |item| ::Guard.plugin(item) },
       }
     end
-
-    # Evaluates the Guardfile content. It displays an error message if no
-    # Guard plugins are instantiated after the Guardfile evaluation.
-    #
-    # @see Guard::Guardfile::Evaluator#evaluate_guardfile
-    #
-    def evaluate_guardfile
-      evaluator = Guard::Guardfile::Evaluator.new(options)
-      evaluator.evaluate_guardfile
-
-      # FIXME: temporary hack while due to upcoming refactorings
-      options[:guardfile] = evaluator.guardfile_path
-
-      msg = "No plugins found in Guardfile, please add at least one."
-      ::Guard::UI.error msg if _pluginless_guardfile?
-    end
-
-    # @private api
-    # used solely for match_guardfile?
-    attr_reader :guardfile_path
 
     # Asynchronously trigger changes
     #
@@ -259,6 +239,13 @@ module Guard
       @listener = nil
       @interactor = nil
       @scope = nil
+    end
+
+    def _evaluate
+      evaluator = Guardfile::Evaluator.new(Guard.options)
+      evaluator.evaluate
+      msg = "No plugins found in Guardfile, please add at least one."
+      ::Guard::UI.error msg if _pluginless_guardfile?
     end
   end
 end

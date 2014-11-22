@@ -171,11 +171,11 @@ module Guard
       return if bare
 
       # Note: this reset "hack" will be fixed after refactoring
-      ::Guard.reset_plugins
+      Guard.reset_plugins
 
       # Evaluate because it might have existed and creating was skipped
       # FIXME: still, I don't know why this is needed
-      Guard::Guardfile::Evaluator.new(Guard.options).evaluate_guardfile
+      Guardfile::Evaluator.new(Guard.options).evaluate
 
       if plugin_names.empty?
         generator.initialize_all_templates
@@ -196,8 +196,8 @@ module Guard
     #
     def show
       Guard.init(options)
-      Guard::Guardfile::Evaluator.new(Guard.options).evaluate_guardfile
-      Guard::DslDescriber.new.show
+      Guardfile::Evaluator.new(Guard.options).evaluate
+      DslDescriber.new.show
     end
 
     private

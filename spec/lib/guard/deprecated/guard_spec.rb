@@ -16,6 +16,10 @@ unless Guard::Config.new.strict?
 
         def self.add_plugin(*_args)
         end
+
+        def self._pluginless_guardfile?
+          false
+        end
       end
       TestModule.tap { |mod| described_class.add_deprecated(mod) }
     end
@@ -165,6 +169,26 @@ unless Guard::Config.new.strict?
         expect(Guard::UI).to receive(:deprecation).
           with(Guard::Deprecated::Guard::ClassMethods::EVALUATOR)
         subject.evaluator
+      end
+    end
+
+    describe "evaluate_guardfile" do
+      let(:evaluator) { instance_double("Guard::Guardfile::Evaluator") }
+
+      before do
+        allow(::Guard::Guardfile::Evaluator).to receive(:new).
+          and_return(evaluator)
+        allow(evaluator).to receive(:evaluate)
+      end
+
+      it "show deprecation warning" do
+        expect(Guard::UI).to receive(:deprecation).
+          with(Guard::Deprecated::Guard::ClassMethods::EVALUATOR)
+        subject.evaluate_guardfile
+      end
+
+      it "evaluates the guardfile" do
+        subject.evaluate_guardfile
       end
     end
   end
