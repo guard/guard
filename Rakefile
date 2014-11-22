@@ -70,56 +70,78 @@ class Releaser
   end
 
   def github
+    tag_name = "v#{@version}"
+
     require "gems"
 
+    _verify_released
+    _verify_tag_pushed
+
+    require "octokit"
+    gh_client = Octokit::Client.new(netrc: true)
+
+    gh_release = _detect_gh_release(gh_client, tag_name, true)
+    return unless gh_release
+
+    STDOUT.puts "Draft release for #{tag_name}:\n"
+    STDOUT.puts gh_release.body
+    STDOUT.puts "\n-------------------------\n\n"
+
+    _confirm_publish
+
+    return unless _update_release(gh_client, gh_release, tag_name)
+
+    gh_release = _detect_gh_release(gh_client, tag_name, false)
+
+    _success_summary(gh_release, tag_name)
+  end
+
+  private
+
+  def _verify_released
     if @version != Gems.info(@gem_name)["version"]
       STDOUT.puts "#{@project_name} #{@version} is not yet released."
       STDOUT.puts "Please release it first with: rake release:gem"
       exit
     end
+  end
 
+  def _verify_tag_pushed
     tags = `git ls-remote --tags origin`.split("\n")
-    unless tags.detect { |tag| tag =~ /v#{@version}$/ }
-      STDOUT.puts "The tag v#{@version} has not yet been pushed."
-      STDOUT.puts "Please push it first with: rake release:gem"
-      exit
-    end
+    return if tags.detect { |tag| tag =~ /v#{@version}$/ }
 
-    require "octokit"
-    gh_client = Octokit::Client.new(netrc: true)
+    STDOUT.puts "The tag v#{@version} has not yet been pushed."
+    STDOUT.puts "Please push it first with: rake release:gem"
+    exit
+  end
+
+  def _success_summary(gh_release, tag_name)
+    href = gh_release.rels[:html].href
+    STDOUT.puts "GitHub release #{tag_name} has been published!"
+    STDOUT.puts "\nPlease enjoy and spread the word!"
+    STDOUT.puts "Lack of inspiration? Here's a tweet you could improve:\n\n"
+    STDOUT.puts "Just released #{@project_name} #{@version}! #{href}"
+  end
+
+  def _detect_gh_release(gh_client, tag_name, draft)
     gh_releases = gh_client.releases(@github_repo)
-    tag_name = "v#{@version}"
+    gh_releases.detect { |r| r.tag_name == tag_name && r.draft == draft }
+  end
 
-    gh_release = gh_releases.detect do |r|
-      r.tag_name == tag_name && r.draft == true
-    end
-
-    return unless gh_releases
-
-    STDOUT.puts "Draft release for #{tag_name}:\n"
-    STDOUT.puts gh_release.body
-    STDOUT.puts "\n-------------------------\n\n"
+  def _confirm_publish
     begin
       STDOUT.puts "Would you like to publish this GitHub release now? (y/n)"
       input = STDIN.gets.chomp.downcase
     end while !%w(y n).include?(input)
 
     exit if input == "n"
+  end
 
-    if gh_client.update_release(gh_release.rels[:self].href, draft: false)
-
-      gh_release = gh_client.releases(@github_repo).detect do |r|
-        r.tag_name == tag_name && r.draft == false
-      end
-
-      STDOUT.puts "GitHub release #{tag_name} has been published!"
-      STDOUT.puts "\nPlease enjoy and spread the word!"
-      STDOUT.puts "Lack of inspiration? Here's a tweet you could improve:\n\n"
-      href = gh_release.rels[:html].href
-      STDOUT.puts "Just released #{@project_name} #{@version}! #{href}"
-    else
-      STDOUT.puts "GitHub release #{tag_name} couldn't be published!"
-    end
+  def _update_release(gh_client, gh_release, tag_name)
+    result = gh_client.update_release(gh_release.rels[:self].href, draft: false)
+    return true if result
+    STDOUT.puts "GitHub release #{tag_name} couldn't be published!"
+    false
   end
 end
 
