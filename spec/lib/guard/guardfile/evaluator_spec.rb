@@ -11,8 +11,7 @@ RSpec.describe Guard::Guardfile::Evaluator do
   let!(:home_guardfile) { (Pathname("~").expand_path + ".Guardfile").to_s }
   let!(:home_config) { (Pathname("~").expand_path + ".guard.rb").to_s }
 
-  # TODO: shouldn't be needed
-  let!(:evaluator) { described_class.new }
+  let(:valid_guardfile_string) { "group :foo; do guard :bar; end; end; " }
 
   let(:dsl) { instance_double("Guard::Dsl") }
 
@@ -22,64 +21,28 @@ RSpec.describe Guard::Guardfile::Evaluator do
 
   before do
     # TODO: this will be removed/fixed in the future
-    allow(::Guard).to receive(:setup_scope)
+    allow(Guard).to receive(:setup_scope)
 
-    allow(::Guard::Interactor).to receive(:new).with(false)
-    allow(Listen).to receive(:to).with(Dir.pwd, {})
+    allow(Guard::Interactor).to receive(:new).with(false)
     allow(Guard).to receive(:add_plugin)
     allow(Guard).to receive(:add_builtin_plugins)
     allow(Guard::Dsl).to receive(:new).and_return(dsl)
     allow(dsl).to receive(:instance_eval)
   end
 
-  describe ".initialize" do
-    before { stub_user_guard_rb }
-
-    context "with the :guardfile_contents option" do
-      let(:evaluator) do
-        described_class.new(guardfile_contents: valid_guardfile_string)
-      end
-
-      it "uses the given Guardfile content" do
-        evaluator.evaluate
-
-        expect(evaluator.guardfile_path).to be_nil
-        expect(evaluator.guardfile_source).to eq :inline
-        expect(evaluator.guardfile_contents).to eq valid_guardfile_string
-      end
-    end
-
-    context "with the :guardfile option" do
-      let(:evaluator) do
-        described_class.new(guardfile: rel_guardfile)
-      end
-
-      before do
-        fake_guardfile(rel_guardfile, valid_guardfile_string)
-      end
-
-      it "uses the given Guardfile content" do
-        evaluator.evaluate
-        expect(evaluator.guardfile_path).to eq rel_guardfile
-        expect(evaluator.guardfile_source).to eq :custom
-        expect(evaluator.guardfile_contents).to eq valid_guardfile_string
-      end
-    end
-  end
-
   describe ".evaluate" do
     describe "error cases" do
       context "with an invalid Guardfile" do
+        let(:options) { { contents: "guard :foo Bad Guardfile" } }
+
         it "displays an error message and raises original exception" do
           stub_user_guard_rb
-          expect(Guard::UI).to receive(:error).
-            with(/Invalid Guardfile, original error is:/)
 
-          allow(dsl).to receive(:instance_eval).and_raise(NoMethodError)
-          expect do
-            guardfile = described_class.new(guardfile_contents: "Bad Guardfile")
-            guardfile.evaluate
-          end.to raise_error(NoMethodError)
+          allow(dsl).to receive(:evaluate).
+            and_raise(Guard::Dsl::Error,
+                      "Invalid Guardfile, original error is:")
+
+          expect { subject.evaluate }.to raise_error(Guard::Dsl::Error)
         end
       end
 
@@ -89,10 +52,8 @@ RSpec.describe Guard::Guardfile::Evaluator do
           stub_user_guardfile
           stub_user_project_guardfile
 
-          expect(Guard::UI).to receive(:error).
-            with("No Guardfile found, please create one with `guard init`.")
-
-          expect { evaluator.evaluate }.to raise_error(SystemExit)
+          expect { subject.evaluate }.
+            to raise_error(Guard::Guardfile::Evaluator::NoGuardfileError)
         end
       end
 
@@ -113,359 +74,151 @@ RSpec.describe Guard::Guardfile::Evaluator do
       end
 
       context "with empty Guardfile content" do
-        let(:evaluator) { described_class.new(guardfile_contents: "") }
+        let(:options) { { contents: "" } }
 
         it "displays an error message about no plugins" do
           stub_user_guard_rb
           stub_guardfile(" ")
+          allow(dsl).to receive(:evaluate).with("", "", 1)
 
-          expect(Guard::UI).to receive(:error).
-            with("No Guard plugins found in Guardfile,"\
-                 " please add at least one.")
-
-          evaluator.evaluate
+          expect { subject.evaluate }.
+            to raise_error(Guard::Guardfile::Evaluator::NoPluginsError)
         end
       end
 
-      context "when Guardfile content is nil" do
+      context "when provided :contents is nil" do
         before do
-          stub_guardfile("guard :rspec do; end")
+          # Anything
+          stub_guardfile("guard :foo")
+
           stub_user_guard_rb
           stub_user_project_guardfile
+          stub_user_guardfile
         end
 
         it "does not raise error and skip it" do
+          allow(dsl).to receive(:evaluate).with("guard :foo", anything, 1)
+
           expect(Guard::UI).to_not receive(:error)
           expect do
-            described_class.new(guardfile_contents: nil).evaluate
+            described_class.new(contents: nil).evaluate
           end.to_not raise_error
         end
       end
 
       context "with a non-existing Guardfile given" do
         let(:non_existing_path) { "/non/existing/path/to/Guardfile" }
-        let(:evaluator) do
-          described_class.new(guardfile: non_existing_path)
-        end
+        let(:options) { { guardfile: non_existing_path } }
 
         before do
           stub_file(non_existing_path)
         end
 
         it "raises error" do
-          expect(Guard::UI).to receive(:error).
-            with("No Guardfile exists at /non/existing/path/to/Guardfile.")
-
-          expect { evaluator.evaluate }.to raise_error(SystemExit)
+          expect { subject.evaluate }.
+            to raise_error(Guard::Guardfile::Evaluator::NoCustomGuardfile)
         end
       end
     end
 
-    describe "selection of the Guardfile data source" do
-      before do
-        stub_user_guard_rb
+    describe "selection of the Guardfile data contents" do
 
-        # TODO: fix?
-        allow_any_instance_of(Guard::Guardfile::Evaluator).
-          to receive(:_instance_eval_guardfile)
-      end
-
-      context "with no option" do
-        let(:evaluator) { described_class.new }
-        let(:path) { File.expand_path("Guardfile") }
-
-        context "local Guardfile"  do
-          before { fake_guardfile(local_guardfile, valid_guardfile_string) }
-
-          it "is the default" do
-            evaluator.evaluate
-            expect(evaluator.guardfile_path).to eq path
-          end
-
-          it "stores guardfile_source as :default" do
-            evaluator.evaluate
-
-            expect(evaluator.guardfile_source).to eq :default
-          end
-
-          it "stores guardfile_path as expanded path" do
-            evaluator.evaluate
-
-            expect(evaluator.guardfile_path).to eq path
-          end
-
-          it "stores guardfile_contents as expected" do
-            evaluator.evaluate
-
-            expect(evaluator.guardfile_contents).to eq valid_guardfile_string
-          end
-
-          context "with a home Guardfile available" do
-            before { fake_guardfile(home_guardfile, "guard :bar") }
-
-            it "has precedence over home Guardfile" do
-              evaluator.evaluate
-
-              path = File.expand_path("Guardfile")
-              expect(evaluator.guardfile_path).to eq path
-            end
-          end
-
-          context "with a user config file available" do
-            before { fake_guardfile(home_config, "guard :bar") }
-
-            it "appends it to guardfile_contents" do
-              evaluator.evaluate
-
-              contents = "#{valid_guardfile_string}\nguard :bar"
-              expect(evaluator.guardfile_contents).to eq contents
-            end
-          end
+      context "with a valid :contents option" do
+        before do
+          stub_user_guard_rb
+          allow(dsl).to receive(:evaluate)
         end
 
-        context "home Guardfile"  do
-          before do
-            stub_file("Guardfile")
-            stub_guardfile
-
-            fake_guardfile(home_guardfile, valid_guardfile_string)
-          end
-
-          it "stores guardfile_source as :default" do
-            evaluator.evaluate
-
-            expect(evaluator.guardfile_source).to eq :default
-          end
-
-          it "stores guardfile_path as expanded path" do
-            evaluator.evaluate
-
-            expect(evaluator.guardfile_path).to eq home_guardfile
-          end
-
-          it "stores guardfile_contents as expected" do
-            evaluator.evaluate
-
-            expect(evaluator.guardfile_contents).to eq valid_guardfile_string
-          end
-
-          context "with a user config file available" do
-            before { fake_guardfile(home_config, "guard :bar") }
-
-            it "appends it to guardfile_contents" do
-              evaluator.evaluate
-
-              expected = "#{valid_guardfile_string}\nguard :bar"
-              expect(evaluator.guardfile_contents).to eq expected
-            end
-          end
-        end
-      end
-
-      context "with the :guardfile_contents option" do
-        let(:evaluator) do
-          described_class.new(guardfile_contents: valid_guardfile_string)
-        end
-
-        it "stores guardfile_source as :default" do
-          evaluator.evaluate
-
-          expect(evaluator.guardfile_source).to eq :inline
-        end
-
-        it "stores guardfile_path as nil" do
-          evaluator.evaluate
-
-          expect(evaluator.guardfile_path).to be_nil
-        end
-
-        it "stores guardfile_contents as expected" do
-          evaluator.evaluate
-
-          expect(evaluator.guardfile_contents).to eq valid_guardfile_string
-        end
-
-        context "with other Guardfiles available" do
-          let(:evaluator) do
-            described_class.new(guardfile_contents: valid_guardfile_string,
-                                guardfile: "/abc/Guardfile")
+        context "with inline content and other Guardfiles available" do
+          let(:inline_code) { "guard :foo" }
+          let(:options) do
+            {
+              contents: inline_code,
+              guardfile: "/abc/Guardfile"
+            }
           end
 
           before do
-            fake_guardfile("/abc/Guardfile", "guard :foo")
-            fake_guardfile(local_guardfile, "guard :bar")
-            fake_guardfile(home_guardfile, "guard :bar")
+            stub_file("/abc/Guardfile", "guard :bar")
+            stub_guardfile("guard :baz")
+            stub_user_guardfile("guard :buz")
           end
 
-          it "has ultimate precedence" do
-            evaluator.evaluate
-
-            expect(evaluator.guardfile_path).to be_nil
-          end
-        end
-
-        context "with a user config file available" do
-          before { fake_guardfile(home_config, "guard :bar") }
-
-          it "appends it to guardfile_contents" do
-            evaluator.evaluate
-
-            expected = "#{valid_guardfile_string}\nguard :bar"
-            expect(evaluator.guardfile_contents).to eq expected
+          it "gives ultimate precedence to inline content" do
+            expect(dsl).to receive(:evaluate).with(inline_code, "", 1)
+            subject.evaluate
           end
         end
       end
 
       context "with the :guardfile option" do
-
-        let(:evaluator) do
-          described_class.new(guardfile: "../relative_path_to_Guardfile")
-        end
+        let(:options) { { guardfile: "../relative_path_to_Guardfile" } }
 
         before do
-          fake_guardfile(rel_guardfile, valid_guardfile_string)
-          fake_guardfile("/abc/Guardfile", "guard :foo")
-        end
-
-        it "stores guardfile_source as :custom" do
-          evaluator.evaluate
-          expect(evaluator.guardfile_source).to eq :custom
-        end
-
-        context "with a relative path to custom Guardfile" do
-          it "stores guardfile_path as expanded path" do
-            evaluator.evaluate
-            expect(evaluator.guardfile_path).to eq rel_guardfile
-          end
-        end
-
-        context "with an absolute path to custom Guardfile" do
-          let(:evaluator) { described_class.new(guardfile: "/abc/Guardfile") }
-
-          it "stores guardfile_path as expanded path" do
-            evaluator.evaluate
-
-            expected = File.expand_path("/abc/Guardfile")
-            expect(evaluator.guardfile_path).to eq expected
-          end
-        end
-
-        it "stores guardfile_contents as expected" do
-          evaluator.evaluate
-
-          expect(evaluator.guardfile_contents).to eq valid_guardfile_string
-        end
-
-        context "with other Guardfiles available" do
-          before do
-            fake_guardfile(local_guardfile, "guard :bar")
-            fake_guardfile(home_guardfile, "guard :bar")
-          end
-
-          it "has precedence over default Guardfiles" do
-            evaluator.evaluate
-
-            expect(evaluator.guardfile_path).to eq rel_guardfile
-          end
-        end
-
-        context "with a user config file available" do
-          before { fake_guardfile(home_config, "guard :bar") }
-
-          it "appends it to guardfile_contents" do
-            evaluator.evaluate
-
-            expected = "#{valid_guardfile_string}\nguard :bar"
-            expect(evaluator.guardfile_contents).to eq expected
-          end
+          stub_file(File.expand_path("../relative_path_to_Guardfile"),
+                    valid_guardfile_string)
+          allow(dsl).to receive(:evaluate).
+            with(valid_guardfile_string, anything, 1)
         end
       end
+    end
+  end
+
+  describe "#inline?" do
+    before do
+      allow(dsl).to receive(:evaluate)
+      stub_guardfile("guard :bar")
+      stub_user_guard_rb
+      subject.evaluate
+    end
+
+    context "when content is provided" do
+      let(:options) { { guardfile_contents: "guard :foo" } }
+      it { is_expected.to be_inline }
+    end
+
+    context "when no content is provided" do
+      let(:options) { {} }
+      it { is_expected.to_not be_inline }
     end
   end
 
   describe ".guardfile_include?" do
-    it "detects a guard specified by a string with double quotes" do
-      allow(evaluator).to receive(:_guardfile_contents_without_user_config).
-        and_return('guard "test" {watch("c")}')
-
-      expect(evaluator.guardfile_include?("test")).to be_truthy
+    subject do
+      evaluator = described_class.new(options)
+      evaluator.evaluate
+      evaluator.guardfile_include?("test")
     end
 
-    it "detects a guard specified by a string with single quote" do
-      allow(evaluator).to receive(:_guardfile_contents_without_user_config).
-        and_return('guard \'test\' {watch("c")}')
-
-      expect(evaluator.guardfile_include?("test")).to be_truthy
+    before do
+      allow(dsl).to receive(:evaluate)
+      stub_user_guard_rb
     end
 
-    it "detects a guard specified by a symbol" do
-      allow(evaluator).to receive(:_guardfile_contents_without_user_config).
-        and_return('guard :test {watch("c")}')
-
-      expect(evaluator.guardfile_include?("test")).to be_truthy
+    context "with a double quoted string" do
+      let(:options) { { contents: 'guard "test" {watch("c")}' } }
+      it { is_expected.to be_truthy }
     end
 
-    it "detects a guard wrapped in parentheses" do
-      allow(evaluator).to receive(:_guardfile_contents_without_user_config).
-        and_return('guard(:test) {watch("c")}')
-
-      expect(evaluator.guardfile_include?("test")).to be_truthy
+    context "with a single quoted string" do
+      let(:options) { { contents: 'guard \'test\' {watch("c")}' } }
+      it { is_expected.to be_truthy }
     end
 
-    it "detects a guard preceded by space (in a group)" do
-      allow(evaluator).to receive(:_guardfile_contents_without_user_config).
-        and_return("group :foo do\n  guard :test do\n end\nend\n")
-
-      expect(evaluator.guardfile_include?("test")).to be_truthy
+    context "with a symbol" do
+      let(:options) { { contents: 'guard :test {watch("c")}' } }
+      it { is_expected.to be_truthy }
     end
 
-    describe "#inline?" do
-      before do
-        stub_guardfile("guard :bar")
-        stub_user_guard_rb
-        subject.evaluate
-      end
-
-      context "when content is provided" do
-        let(:options) { { guardfile_contents: "guard :foo" } }
-        it { is_expected.to be_inline }
-      end
-
-      context "when no content is provided" do
-        let(:options) { {} }
-        it { is_expected.to_not be_inline }
-      end
-    end
-  end
-
-  private
-
-  # TODO: this shouldn't be necessary
-  def fake_guardfile(name, contents)
-    allow(File).to receive(:exist?).with(name) { true }
-    allow(File).to receive(:read).with(name)   { contents }
-    # TODO: not test if no file?
-    stub_file(File.expand_path(name), contents || " ")
-  end
-
-  def valid_guardfile_string
-    '
-    notification :growl
-
-    guard :rspec
-
-    group :w do
-      guard :rspec
+    context "with parentheses" do
+      let(:options) { { contents: 'guard("test") {watch("c")}' } }
+      it { is_expected.to be_truthy }
     end
 
-    group :x, halt_on_fail: true do
-      guard :rspec
-      guard :rspec
+    context "when in group and with preceding space" do
+      let(:content) { "group :foo do\n  guard :test do\n end\nend\n" }
+      let(:options) { { contents: content } }
+      it { is_expected.to be_truthy }
     end
-
-    group :y do
-      guard :rspec
-    end
-    '
   end
 end

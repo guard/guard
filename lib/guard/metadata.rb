@@ -183,6 +183,24 @@ module Guard
       ::Guard.setup_scope(@saved_scope || {})
     end
 
+    # @private api
+    def reset(reason)
+      case reason
+      when :evaluate
+      else
+        fail "Unknown reset reason: #{reason.inspect}"
+      end
+    end
+
+    # @private api
+    def refresh(reason)
+      case reason
+      when :evaluate
+      else
+        fail "Unknown refresh reason: #{reason.inspect}"
+      end
+    end
+
     private
 
     def _prepare_scope(new_scope)
