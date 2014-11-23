@@ -26,10 +26,10 @@ module Guard
   # {Notifier} for more information about the supported libraries.
   #
   # A more advanced DSL use is the {#callback} keyword that allows you to
-  # execute arbitrary code before or after any of the {Plugin::Base#start},
-  # {Plugin::Base#stop}, {Plugin::Base#reload}, {Plugin::Base#run_all},
-  # {Plugin::Base#run_on_changes}, {Plugin::Base#run_on_additions},
-  # {Plugin::Base#run_on_modifications} and {Plugin::Base#run_on_removals}
+  # execute arbitrary code before or after any of the {Plugin#start},
+  # {Plugin#stop}, {Plugin#reload}, {Plugin#run_all},
+  # {Plugin#run_on_changes}, {Plugin#run_on_additions},
+  # {Plugin#run_on_modifications} and {Plugin#run_on_removals}
   # Guard plugins method.
   # You can even insert more hooks inside these methods. Please [checkout the
   # Wiki page](https://github.com/guard/guard/wiki/Hooks-and-callbacks) for
@@ -92,9 +92,9 @@ module Guard
     def interactor(options)
       case options
       when :off
-        ::Guard::Interactor.enabled = false
+        Interactor.enabled = false
       when Hash
-        ::Guard::Interactor.options = options
+        Interactor.options = options
       end
     end
 
@@ -132,7 +132,7 @@ module Guard
 
       if block_given?
         groups.each do |group|
-          ::Guard.add_group(group, options)
+          Guard.add_group(group, options)
         end
 
         @current_groups ||= []
@@ -142,7 +142,7 @@ module Guard
 
         @current_groups.pop
       else
-        ::Guard::UI.error \
+        UI.error \
           "No Guard plugins found in the group '#{ groups.join(", ") }',"\
           " please add at least one."
       end
@@ -180,7 +180,7 @@ module Guard
       @current_groups ||= []
       groups = @current_groups && @current_groups.last || [:default]
       groups.each do |group|
-        ::Guard.add_plugin(name, @plugin_options.merge(group: group))
+        Guard.add_plugin(name, @plugin_options.merge(group: group))
       end
 
       @plugin_options = nil
@@ -218,7 +218,7 @@ module Guard
       @plugin_options ||= nil
       return guard(:plugin) { watch(pattern, &action) } unless @plugin_options
 
-      @plugin_options[:watchers] << ::Guard::Watcher.new(pattern, action)
+      @plugin_options[:watchers] << Watcher.new(pattern, action)
     end
 
     # Defines a callback to execute arbitrary code before or after any of
@@ -240,8 +240,6 @@ module Guard
     #
     # @param [Array] args the callback arguments
     # @yield a callback block
-    #
-    # @see Guard::Hooker
     #
     def callback(*args, &block)
       @plugin_options ||= nil
@@ -266,7 +264,7 @@ module Guard
     #
     def ignore(*regexps)
       # TODO: instead, use Guard.reconfigure(ignore: regexps) or something
-      ::Guard.listener.ignore(regexps) if ::Guard.listener
+      Guard.listener.ignore(regexps) if Guard.listener
     end
     alias filter ignore
 
@@ -280,7 +278,7 @@ module Guard
     def ignore!(*regexps)
       @ignore_regexps ||= []
       @ignore_regexps << regexps
-      ::Guard.listener.ignore!(@ignore_regexps) if ::Guard.listener
+      Guard.listener.ignore!(@ignore_regexps) if Guard.listener
     end
     alias filter! ignore!
 
@@ -345,7 +343,7 @@ module Guard
         options[name] = Regexp.new(list.join("|"), Regexp::IGNORECASE)
       end
 
-      ::Guard::UI.options.merge!(options)
+      UI.options.merge!(options)
     end
 
     # Sets the default scope on startup
