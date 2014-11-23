@@ -57,12 +57,17 @@ end
 def stub_file(path, contents = nil, &block)
   exists = !contents.nil?
   allow(File).to receive(:exist?).with(path).and_return(exists)
-  return unless exists
-  if block.nil?
-    allow(File).to receive(:read).with(path).and_return(contents)
+  if exists
+    if block.nil?
+      allow(IO).to receive(:read).with(path).and_return(contents)
+    else
+      allow(IO).to receive(:read).with(path) do
+        block.call
+      end
+    end
   else
-    allow(File).to receive(:read).with(path) do
-      block.call
+    allow(IO).to receive(:read).with(path) do
+      fail Errno::ENOENT
     end
   end
 end
@@ -157,11 +162,11 @@ RSpec.configure do |config|
     stub_const("FileUtils", class_double(FileUtils))
 
     allow(ENV).to receive(:[]=) do |*args|
-      fail "stub me: ENV[#{args.first}]= #{args.map(&:inspect)[1..-1] * ","}!"
+      abort "stub me: ENV[#{args.first}]= #{args.map(&:inspect)[1..-1] * ","}!"
     end
 
     allow(ENV).to receive(:[]) do |*args|
-      fail "stub me: ENV[#{args.first}]!"
+      abort "stub me: ENV[#{args.first}]!"
     end
 
     allow(ENV).to receive(:key?) do |*args|
@@ -189,7 +194,20 @@ RSpec.configure do |config|
 
     %w(read write exist?).each do |meth|
       allow(File).to receive(meth.to_sym).with(anything) do |*args, &_block|
-        abort "stub me! (File.#{meth}(#{args.inspect}))"
+        abort "stub me! (File.#{meth}(#{args.map(&:inspect).join(", ")}))"
+      end
+    end
+
+    %w(read write binwrite binread).each do |meth|
+      allow(IO).to receive(meth.to_sym).with(anything) do |*args, &_block|
+        abort "stub me! (IO.#{meth}(#{args.map(&:inspect).join(", ")}))"
+      end
+    end
+
+    %w(exist?).each do |meth|
+      allow_any_instance_of(Pathname).
+        to receive(meth.to_sym) do |*args, &_block|
+        abort "stub me! (Pathname##{meth}(#{args.map(&:inspect).join(", ")}))"
       end
     end
 
