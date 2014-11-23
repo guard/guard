@@ -234,20 +234,19 @@ module Guard
       plugins.map(&:name) == ["reevaluator"]
     end
 
-    def _reset_for_tests
-      @options = nil
-      @queue = nil
-      @watchdirs = nil
-      @listener = nil
-      @interactor = nil
-      @scope = nil
-    end
-
     def _evaluate
       evaluator = Guardfile::Evaluator.new(Guard.options)
       evaluator.evaluate
       msg = "No plugins found in Guardfile, please add at least one."
-      ::Guard::UI.error msg if _pluginless_guardfile?
+      UI.error msg if _pluginless_guardfile?
+
+      if evaluator.inline?
+        UI.info("Using inline Guardfile.")
+      elsif evaluator.custom?
+        UI.info("Using Guardfile at #{ evaluator.path }.")
+      end
+    rescue Guardfile::Evaluator::NoPluginsError => e
+      UI.error(e.message)
     end
   end
 end

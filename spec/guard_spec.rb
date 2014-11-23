@@ -370,7 +370,8 @@ RSpec.describe Guard do
       allow(Guard::Group).to receive(:new).with(:common).and_return(g1)
       allow(Guard::Group).to receive(:new).with(:default).and_return(g2)
 
-      evaluator = instance_double("Guard::Guardfile::Evaluator")
+      allow(evaluator).to receive(:inline?).and_return(false)
+      allow(evaluator).to receive(:custom?).and_return(false)
       allow(evaluator).to receive(:evaluate)
       allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
 
