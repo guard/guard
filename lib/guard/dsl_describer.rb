@@ -5,6 +5,9 @@ require "guard/ui"
 require "guard/notifier"
 require "guard/metadata"
 
+require "set"
+require "ostruct"
+
 module Guard
   # The DslDescriber evaluates the Guardfile and creates an internal structure
   # of it that is used in some inspection utility methods like the CLI commands
@@ -25,16 +28,21 @@ module Guard
     #
     def list
       # TODO: use Guard::Metadata
-      names = ::Guard::PluginUtil.plugin_names.sort.uniq
-      final_rows = names.inject([]) do |rows, name|
-        used = ::Guard.plugins(name).any?
-        rows << {
-          Plugin: name.capitalize,
-          Guardfile: used ? "✔" : "✘"
-        }
+      # collect metadata
+      data = ::Guard::PluginUtil.plugin_names.sort.inject({}) do |hash, name|
+        hash[name.capitalize] = ::Guard.plugins(name).any?
+        hash
       end
 
-      Formatador.display_compact_table(final_rows, [:Plugin, :Guardfile])
+      # presentation
+      header = [:Plugin, :Guardfile]
+      final_rows = []
+      data.each do |name, used|
+        final_rows << { Plugin: name, Guardfile: used ? "✔" : "✘" }
+      end
+
+      # render
+      Formatador.display_compact_table(final_rows, header)
     end
 
     # Shows all Guard plugins and their options that are defined in
@@ -43,52 +51,52 @@ module Guard
     # @see CLI#show
     #
     def show
-      groups = ::Guard.groups
+      # collect metadata
+      groups = Guard.groups
 
-      final_rows = groups.each_with_object([]) do |group, rows|
+      objects = []
 
-        plugins = Array(::Guard.plugins(group: group.name))
+      empty_plugin = OpenStruct.new
+      empty_plugin.options = [["", nil]]
 
+      groups.each do |group|
+        plugins = Array(Guard.plugins(group: group.name))
+        plugins = [empty_plugin] if plugins.empty?
         plugins.each do |plugin|
-          options = plugin.options.inject({}) do |o, (k, v)|
-            o.tap { |option| option[k.to_s] = v }
-          end.sort
-
-          if options.empty?
-            rows << :split
-            rows << {
-              Group: group.title,
-              Plugin: plugin.title,
-              Option: "",
-              Value: ""
-            }
-          else
-            options.each_with_index do |(option, value), index|
-              if index == 0
-                rows << :split
-                rows << {
-                  Group: group.title,
-                  Plugin: plugin.title,
-                  Option: option.to_s,
-                  Value: value.inspect
-                }
-              else
-                rows << {
-                  Group: "",
-                  Plugin: "",
-                  Option: option.to_s,
-                  Value: value.inspect
-                }
-              end
-            end
+          options = plugin.options
+          options = [["", nil]] if options.empty?
+          options.each do |option, raw_value|
+            value = raw_value.nil? ? "" : raw_value.inspect
+            objects << [group.title, plugin.title, option.to_s, value]
           end
         end
-
-        rows
       end
 
+      # present
+      rows = []
+      prev_group = prev_plugin = prev_option = prev_value = nil
+      objects.each do |group, plugin, option, value|
+        group_changed = prev_group != group
+        plugin_changed = (prev_plugin != plugin || group_changed)
+
+        rows << :split if group_changed || plugin_changed
+
+        rows << {
+          Group: group_changed ? group : "",
+          Plugin: plugin_changed ? plugin : "",
+          Option: option,
+          Value: value
+        }
+
+        prev_group = group
+        prev_plugin = plugin
+        prev_option = option
+        prev_value = value
+      end
+
+      # render
       Formatador.display_compact_table(
-        final_rows.drop(1),
+        rows.drop(1),
         [:Group, :Plugin, :Option, :Value]
       )
     end
