@@ -4,6 +4,7 @@ require "guard/notifier"
 require "guard/interactor"
 require "guard/runner"
 require "guard/reevaluator"
+require "guard/dsl_describer"
 require "guard"
 
 module Guard
@@ -98,7 +99,7 @@ module Guard
     end
 
     def show
-      ::Guard::DslDescriber.new(::Guard.options).show
+      DslDescriber.new.show
     end
   end
   extend Commander

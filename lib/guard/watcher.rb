@@ -1,6 +1,7 @@
-require "guard/ui"
-
+require "guard/config"
 require "guard/deprecated/watcher" unless Guard::Config.new.strict?
+
+require "guard/ui"
 
 module Guard
   # The watcher defines a RegExp that will be matched against file system

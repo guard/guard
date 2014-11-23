@@ -1,8 +1,6 @@
 require "guard/config"
 fail "Deprecations disabled (strict mode)" if Guard::Config.new.strict?
 
-require "guard/guardfile/evaluator"
-
 module Guard
   module Deprecated
     module Watcher
@@ -16,6 +14,7 @@ module Guard
         EOS
 
         def match_guardfile?(files)
+          require "guard/guardfile/evaluator"
           UI.deprecation(MATCH_GUARDFILE)
           evaluator = ::Guard::Guardfile::Evaluator.new(::Guard.options)
           path = evaluator.guardfile_path

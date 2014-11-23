@@ -3,6 +3,8 @@ require "guard/config"
 unless Guard::Config.new.strict?
 
   require "guard/deprecated/watcher"
+  require "guard/metadata"
+  require "guard/guardfile/evaluator"
 
   RSpec.describe Guard::Deprecated::Watcher do
     subject do
