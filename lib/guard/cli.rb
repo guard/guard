@@ -104,7 +104,7 @@ module Guard
     #
     def start
       _verify_bundler_presence unless options[:no_bundler_warning]
-      ::Guard.start(options)
+      _start(options)
     end
 
     desc "list", "Lists Guard plugins that can be used with init"
@@ -115,7 +115,8 @@ module Guard
     # @see Guard::DslDescriber.list
     #
     def list
-      ::Guard::DslDescriber.new.list
+      _require_guardfile(options) # just to show which plugins are actually used
+      DslDescriber.new.list
     end
 
     desc "notifiers", "Lists notifiers and its options"
@@ -125,7 +126,8 @@ module Guard
     # @see Guard::DslDescriber.notifiers
     #
     def notifiers
-      ::Guard::DslDescriber.new.notifiers
+      _require_guardfile(options)
+      DslDescriber.new.notifiers
     end
 
     desc "version", "Show the Guard version"
@@ -136,7 +138,7 @@ module Guard
     # @see Guard::VERSION
     #
     def version
-      $stdout.puts "Guard version #{ ::Guard::VERSION }"
+      $stdout.puts "Guard version #{ VERSION }"
     end
 
     desc "init [GUARDS]", "Generates a Guardfile at the current directory"\
@@ -162,16 +164,18 @@ module Guard
     #
     def init(*plugin_names)
       _verify_bundler_presence unless options[:no_bundler_warning]
-
-      Guard.init(options) # Since UI.deprecated uses config
       bare = options[:bare]
 
-      generator = Guardfile::Generator.new(abort_on_existence: bare)
-      generator.create_guardfile
-      return if bare
+      generator = Guardfile::Generator.new
 
-      # Note: this reset "hack" will be fixed after refactoring
-      Guard.reset_plugins
+      begin
+        Guard.init(options)
+        Guardfile::Evaluator.new(Guard.options).evaluate
+      rescue Guardfile::Evaluator::NoGuardfileError
+        generator.create_guardfile
+      end
+
+      return if bare
 
       # Evaluate because it might have existed and creating was skipped
       # FIXME: still, I don't know why this is needed
@@ -195,8 +199,8 @@ module Guard
     # @see Guard::DslDescriber.show
     #
     def show
-      Guard.init(options)
-      Guardfile::Evaluator.new(Guard.options).evaluate
+      _require_guardfile(options)
+      # TODO: use Metadata class
       DslDescriber.new.show
     end
 
@@ -205,6 +209,7 @@ module Guard
     # Verifies if Guard is run with `bundle exec` and
     # shows a hint to do so if not.
     #
+    # TODO: move this elsewhere!!! (because of complex specs)
     def _verify_bundler_presence
       return unless File.exist?("Gemfile")
       return if ENV["BUNDLE_GEMFILE"] || ENV["RUBYGEMS_GEMDEPS"]
@@ -217,6 +222,29 @@ message. Otherwise, consider using `bundle exec guard` to ensure your
 dependencies are loaded correctly.
 (You can run `guard` with --no-bundler-warning to get rid of this message.)
 EOF
+    end
+
+    def _require_guardfile(options)
+      Guard.init(options)
+      Guardfile::Evaluator.new(Guard.options).evaluate
+    rescue Dsl::Error,
+           Guardfile::Evaluator::NoPluginsError,
+           Guardfile::Evaluator::NoGuardfileError,
+           Guardfile::Evaluator::NoCustomGuardfile => e
+      # catch to throw message instead of call stack
+      UI.error(e.message)
+      abort
+    end
+
+    def _start(options)
+      Guard.start(options)
+    rescue Dsl::Error,
+           Guardfile::Evaluator::NoPluginsError,
+           Guardfile::Evaluator::NoGuardfileError,
+           Guardfile::Evaluator::NoCustomGuardfile => e
+      # catch to throw message instead of call stack
+      UI.error(e.message)
+      abort
     end
   end
 end

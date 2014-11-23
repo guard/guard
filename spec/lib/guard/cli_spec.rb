@@ -101,6 +101,10 @@ RSpec.describe Guard::CLI do
   end
 
   describe "#list" do
+    before do
+      allow(evaluator).to receive(:evaluate)
+    end
+
     it "outputs the Guard plugins list" do
       expect(dsl_describer).to receive(:list)
       subject.list
@@ -108,6 +112,10 @@ RSpec.describe Guard::CLI do
   end
 
   describe "#notifiers" do
+    before do
+      allow(evaluator).to receive(:evaluate)
+    end
+
     it "outputs the notifiers list" do
       expect(dsl_describer).to receive(:notifiers)
       subject.notifiers
@@ -142,23 +150,10 @@ RSpec.describe Guard::CLI do
         subject.init
       end
 
-      it "should call Guard.reset_options before using ::Guard.UI" do
-        reset_called = false
-        reset_called_before_creating = false
-        expect(::Guard).to receive(:reset_options).with(@options) do
-          reset_called = true
-        end
-
-        expect(generator).to receive(:create_guardfile) do
-          reset_called_before_creating = reset_called
-        end
-
-        subject.init
-        expect(reset_called).to be(true)
-        expect(reset_called_before_creating).to be(true)
-      end
-
       it "Only creates the Guardfile without initialize any Guard template" do
+        allow(evaluator).to receive(:evaluate).
+          and_raise(Guard::Guardfile::Evaluator::NoGuardfileError)
+
         allow(File).to receive(:exist?).with("Gemfile").and_return(false)
         expect(generator).to receive(:create_guardfile)
         expect(generator).to_not receive(:initialize_template)
@@ -178,14 +173,13 @@ RSpec.describe Guard::CLI do
         subject.init
       end
 
-      it "resets plugins, so add_plugin can work" do
-        expect(::Guard).to receive(:reset_plugins)
-        subject.init
-      end
+      it "creates a Guardfile" do
+        expect(evaluator).to receive(:evaluate).
+          and_raise(Guard::Guardfile::Evaluator::NoGuardfileError).once
+        expect(evaluator).to receive(:evaluate)
 
-      it "creates a Guardfile by delegating to Guardfile.create_guardfile" do
         expect(Guard::Guardfile::Generator).to receive(:new).
-          with(abort_on_existence: false).and_return(generator)
+          and_return(generator)
         expect(generator).to receive(:create_guardfile)
 
         subject.init
