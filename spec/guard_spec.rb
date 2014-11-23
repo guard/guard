@@ -4,13 +4,13 @@ RSpec.describe Guard do
   # Initialize before Guard::Interactor const is stubbed
   let!(:interactor) { instance_double("Guard::Interactor") }
 
-  # let(:evaluator) { instance_double(Guard::Guardfile::Evaluator) }
+  let(:evaluator) { instance_double("Guard::Guardfile::Evaluator") }
   let(:guardfile) { File.expand_path("Guardfile") }
   let(:traps) { Guard::Internals::Traps }
 
   before do
     allow(Guard::Interactor).to receive(:new).and_return(interactor)
-    allow(Dir).to receive(:chdir)
+    allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
   end
 
   # TODO: this is crazy
@@ -236,7 +236,6 @@ RSpec.describe Guard do
   describe ".group" do
 
     subject do
-      allow(Listen).to receive(:to).with(Dir.pwd, {})
 
       Guard.init({})
       @group_backend  = Guard.add_group(:backend)
@@ -458,7 +457,6 @@ RSpec.describe Guard do
     end
 
     it "evaluates the Guardfile" do
-      evaluator = instance_double("Guard::Guardfile::Evaluator")
       expect(evaluator).to receive(:evaluate)
       allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
 
@@ -573,6 +571,20 @@ RSpec.describe Guard do
         expect(Listen).to receive(:to).
           with(anything, force_polling: true) { listener }
         subject
+      end
+    end
+
+    describe ".interactor" do
+      subject { Guard::Interactor }
+
+      context "with interactions enabled" do
+        before { Guard.setup(no_interactions: false) }
+        it { is_expected.to have_received(:new).with(false) }
+      end
+
+      context "with interactions disabled" do
+        before { Guard.setup(no_interactions: true) }
+        it { is_expected.to have_received(:new).with(true) }
       end
     end
   end
@@ -783,9 +795,7 @@ RSpec.describe Guard do
     it "evaluates the Guardfile" do
       allow(Guard).to receive(:plugins).and_return([foo_plugin])
 
-      evaluator = instance_double("Guard::Guardfile::Evaluator")
       allow(evaluator).to receive(:evaluate)
-
       allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
 
       Guard.init({})
@@ -795,44 +805,6 @@ RSpec.describe Guard do
       allow(Guard).to receive(:options).and_return({})
       Guard.evaluate_guardfile
       expect(Guard.options).to include(guardfile: "Guardfile")
-    end
-  end
-
-  # TODO: these should be interactor tests
-  describe ".interactor" do
-    subject { Guard::Interactor }
-
-    before do
-      allow(Listen).to receive(:to).with(Dir.pwd, {})
-
-      evaluator = instance_double("Guard::Guardfile::Evaluator")
-      allow(evaluator).to receive(:evaluate)
-      allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
-
-      # TODO: move to UI?
-      allow(Guard::Notifier).to receive(:connect)
-
-      stub_guardfile(" ")
-      stub_user_guard_rb
-    end
-
-    context "with interactions enabled" do
-      before { Guard.setup(no_interactions: false) }
-      it { is_expected.to have_received(:new).with(false) }
-    end
-
-    context "with interactions disabled" do
-      before { Guard.setup(no_interactions: true) }
-      it { is_expected.to have_received(:new).with(true) }
-    end
-  end
-
-  describe ".watchdirs=" do
-    subject { Guard.watchdirs }
-    before { Guard.watchdirs = dirs }
-    context "with no values" do
-      let(:dirs) { [] }
-      it { is_expected.to eq [Dir.pwd] }
     end
   end
 end

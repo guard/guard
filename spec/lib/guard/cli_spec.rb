@@ -150,7 +150,7 @@ RSpec.describe Guard::CLI do
         subject.init
       end
 
-      it "Only creates the Guardfile without initialize any Guard template" do
+      it "Only creates the Guardfile without initializing any Guard template" do
         allow(evaluator).to receive(:evaluate).
           and_raise(Guard::Guardfile::Evaluator::NoGuardfileError)
 
@@ -210,7 +210,6 @@ RSpec.describe Guard::CLI do
         end
       end
     end
-
   end
 
   describe "#show" do

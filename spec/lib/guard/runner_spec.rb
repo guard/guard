@@ -21,8 +21,6 @@ RSpec.describe Guard::Runner do
 
   describe "#run" do
     before do
-      # ::Guard.setup
-
       # TODO: these should be replaced when new Scop class is implemented
       allow(::Guard).to receive(:groups).with(no_args).
         and_return([backend_group, frontend_group])

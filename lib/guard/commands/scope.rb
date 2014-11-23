@@ -31,6 +31,7 @@ module Guard
 
             # TODO: provide a way for guard to know this was called from Pry
             ::Guard.setup_scope(scope)
+            #::Guard.add_scope(:interactor, scope)
           end
         end
       end

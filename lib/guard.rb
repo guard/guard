@@ -60,7 +60,7 @@ module Guard
       @queue = Queue.new
       self.watchdirs = Array(options[:watchdir])
 
-      ::Guard::UI.reset_and_clear
+      UI.reset_and_clear
 
       reset_plugins
       reset_scope
@@ -68,15 +68,16 @@ module Guard
       _evaluate
       setup_scope
 
+
       @listener = _setup_listener
 
-      ::Guard::Notifier.connect(notify: options[:notify])
+      Notifier.connect(notify: options[:notify])
 
       traps = Internals::Traps
       traps.handle("USR1") { async_queue_add([:guard_pause, :paused]) }
       traps.handle("USR2") { async_queue_add([:guard_pause, :unpaused]) }
 
-      @interactor = ::Guard::Interactor.new(options[:no_interactions])
+      @interactor = Interactor.new(options[:no_interactions])
       traps.handle("INT") { @interactor.handle_interrupt }
 
       self
@@ -106,13 +107,13 @@ module Guard
     # @see CLI#start
     # @see Dsl#scope
     #
-    def setup_scope(scope = {})
+    def setup_scope(new_scope = {})
       # TODO: there should be a special Scope class instead
-      scope = _prepare_scope(scope)
+      new_scope = _prepare_scope(new_scope)
 
-      ::Guard.scope = {
-        groups: scope[:groups].map { |item| ::Guard.add_group(item) },
-        plugins: scope[:plugins].map { |item| ::Guard.plugin(item) },
+      Guard.scope = {
+        groups: new_scope[:groups].map { |item| add_group(item) },
+        plugins: new_scope[:plugins].map { |item| plugin(item) },
       }
     end
 
@@ -218,6 +219,7 @@ module Guard
       end
     end
 
+    # TODO: obsoleted? (by Dsl errors)
     def _pluginless_guardfile?
       # no Reevaluator means there was no Guardfile configured that could be
       # reevaluated, so we don't have a pluginless guardfile, because we don't

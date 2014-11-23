@@ -162,17 +162,10 @@ RSpec.describe Guard::Commander do
   describe ".run_all" do
     let(:group) { ::Guard::Group.new("frontend") }
 
-    subject do
-      Guard
-    end
-
     before do
       allow(::Guard::Notifier).to receive(:connect)
       allow(::Guard::UI).to receive(:action_with_scopes)
       allow(::Guard::UI).to receive(:clear)
-
-      stub_guardfile(" ")
-      stub_user_guard_rb
     end
 
     context "with a given scope" do
@@ -201,8 +194,6 @@ RSpec.describe Guard::Commander do
         allow(Guard).to receive(:listener).and_return(listener)
         allow(listener).to receive(:paused?) { false }
 
-        stub_guardfile(" ")
-        stub_user_guard_rb
       end
 
       [:toggle, nil, :paused].each do |mode|
@@ -238,8 +229,6 @@ RSpec.describe Guard::Commander do
         allow(Guard).to receive(:listener).and_return(listener)
         allow(listener).to receive(:paused?) { true }
 
-        stub_guardfile(" ")
-        stub_user_guard_rb
       end
 
       [:toggle, nil, :unpaused].each do |mode|

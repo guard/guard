@@ -474,7 +474,7 @@ RSpec.describe Guard::Notifier::Tmux do
         "option1 setting1\noption2 setting2\n"
       end
 
-      allow(Guard::Notifier::Tmux::Client).to receive(:clients) { ["tty"] }
+      allow(described_class::Client).to receive(:clients) { ["tty"] }
     end
 
     context "when off" do
@@ -519,7 +519,7 @@ RSpec.describe Guard::Notifier::Tmux do
         "option1 setting1\noption2 setting2\n"
       end
 
-      allow(Guard::Notifier::Tmux::Client).to receive(:clients) { ["tty"] }
+      allow(described_class::Client).to receive(:clients) { ["tty"] }
 
       allow(sheller).to receive(:run).
         with("tmux set -t tty -q -u status-left-bg")

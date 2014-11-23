@@ -14,22 +14,22 @@ module Guard
     class TerminalSettings
       def initialize
         @settings = nil
-        @works = ::Guard::Sheller.run("hash", "stty") || false
+        @works = Sheller.run("hash", "stty") || false
       end
 
       def restore
         return unless configurable? && @settings
-        ::Guard::Sheller.run("stty #{ @setting } 2>#{IO::NULL}")
+        Sheller.run("stty #{ @setting } 2>#{IO::NULL}")
       end
 
       def save
         return unless configurable?
-        @settings = ::Guard::Sheller.stdout("stty -g 2>#{IO::NULL}").chomp
+        @settings = Sheller.stdout("stty -g 2>#{IO::NULL}").chomp
       end
 
       def echo
         return unless configurable?
-        ::Guard::Sheller.run("stty echo 2>#{IO::NULL}")
+        Sheller.run("stty echo 2>#{IO::NULL}")
       end
 
       def configurable?
@@ -69,15 +69,16 @@ module Guard
       end
 
       def foreground
-        ::Guard::UI.debug "Start interactor"
+        UI.debug "Start interactor"
         @terminal_settings.save
+
 
         _switch_to_pry
         # TODO: rename :stopped to continue
         _killed? ? :stopped : :exit
       ensure
-        ::Guard::UI.reset_line
-        ::Guard::UI.debug "Interactor was stopped or killed"
+        UI.reset_line
+        UI.debug "Interactor was stopped or killed"
         @terminal_settings.restore
       end
 
@@ -132,13 +133,13 @@ module Guard
 
         _add_hooks(options)
 
-        ::Guard::Commands::All.import
-        ::Guard::Commands::Change.import
-        ::Guard::Commands::Notification.import
-        ::Guard::Commands::Pause.import
-        ::Guard::Commands::Reload.import
-        ::Guard::Commands::Show.import
-        ::Guard::Commands::Scope.import
+        Commands::All.import
+        Commands::Change.import
+        Commands::Notification.import
+        Commands::Pause.import
+        Commands::Reload.import
+        Commands::Show.import
+        Commands::Scope.import
 
         _setup_commands
         _configure_prompt
@@ -224,7 +225,7 @@ module Guard
       # `rspec` is created that runs `all rspec`.
       #
       def _create_guard_commands
-        ::Guard.plugins.each do |guard_plugin|
+        Guard.plugins.each do |guard_plugin|
           cmd = "Run all #{ guard_plugin.title }"
           Pry.commands.create_command guard_plugin.name, cmd do
             group "Guard"
@@ -242,7 +243,7 @@ module Guard
       # `frontend` is created that runs `all frontend`.
       #
       def _create_group_commands
-        ::Guard.groups.each do |group|
+        Guard.groups.each do |group|
           next if group.name == :default
 
           cmd = "Run all #{ group.title }"
@@ -287,7 +288,7 @@ module Guard
       def _prompt(ending_char)
         proc do |target_self, nest_level, pry|
           history = pry.input_array.size
-          process = ::Guard.listener.paused? ? "pause" : "guard"
+          process = Guard.listener.paused? ? "pause" : "guard"
           level   = ":#{ nest_level }" unless nest_level.zero?
 
           "[#{ history }] #{ _scope_for_prompt }#{ process }"\

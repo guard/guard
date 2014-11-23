@@ -35,7 +35,7 @@ module Guard
       @plugins = []
       reset_groups
       # NOTE: must be set before anything calls Guard::UI.debug
-      ::Guard::Internals::Debugging.start if options[:debug]
+      Internals::Debugging.start if options[:debug]
     end
 
     def add_group(name, options = {})
@@ -137,15 +137,6 @@ module Guard
       @plugins.delete(plugin)
     end
 
-    # TODO: move elsewhere
-    def add_builtin_plugins(guardfile)
-      return unless guardfile
-
-      pattern = _relative_pathname(guardfile).to_s
-      watcher = ::Guard::Watcher.new(pattern)
-      ::Guard.add_plugin(:reevaluator, watchers: [watcher], group: :common)
-    end
-
     def add_plugin(name, options = {})
       # TODO: too many steps and classes/methods to just add an object to
       # and array. Use something like a "PluginWrapper" instead?
@@ -157,7 +148,7 @@ module Guard
     def reset_scope
       # calls Guard.scope=() to set the instance variable directly, as opposed
       # to Guard.scope()
-      ::Guard.scope = { groups: [], plugins: [] }
+      Guard.scope = { groups: [], plugins: [] }
     end
 
     # Called by Pry scope command

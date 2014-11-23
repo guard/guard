@@ -20,7 +20,6 @@ RSpec.describe Guard::Dsl do
     stub_const "Guard::Bar", instance_double(Guard::Plugin)
     stub_const "Guard::Baz", instance_double(Guard::Plugin)
     allow(Guard::Notifier).to receive(:turn_on)
-    allow(::Guard).to receive(:add_builtin_plugins)
     allow(Listen).to receive(:to).with(Dir.pwd, {})
     allow(Guard::Interactor).to receive(:new).and_return(interactor)
     allow(::Guard).to receive(:listener) { listener }
@@ -159,7 +158,7 @@ RSpec.describe Guard::Dsl do
 
   describe "#group" do
     context "no plugins in group" do
-      let(:contents) { guardfile_string_with_empty_group }
+      let(:contents) { "group :w" }
 
       it "displays an error" do
         expect(::Guard::UI).to receive(:error).
@@ -633,9 +632,5 @@ RSpec.describe Guard::Dsl do
       guard :less
     end
     '
-  end
-
-  def guardfile_string_with_empty_group
-    "group :w"
   end
 end

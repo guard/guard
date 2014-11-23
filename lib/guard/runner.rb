@@ -173,7 +173,7 @@ module Guard
     end
 
     def _instantiate(meth, obj)
-      (obj.is_a?(Symbol) || obj.is_a?(String)) ? ::Guard.send(meth, obj) : obj
+      (obj.is_a?(Symbol) || obj.is_a?(String)) ? Guard.send(meth, obj) : obj
     end
 
     # Find the first non empty element in the given possibilities

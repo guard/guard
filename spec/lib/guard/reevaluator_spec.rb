@@ -1,7 +1,4 @@
-require "guard/plugin"
-
 require "guard/reevaluator.rb"
-require "guard/ui"
 
 RSpec.describe Guard::Reevaluator do
   let(:options) { {} }

@@ -25,7 +25,6 @@ RSpec.describe Guard::Guardfile::Evaluator do
 
     allow(Guard::Interactor).to receive(:new).with(false)
     allow(Guard).to receive(:add_plugin)
-    allow(Guard).to receive(:add_builtin_plugins)
     allow(Guard::Dsl).to receive(:new).and_return(dsl)
     allow(dsl).to receive(:instance_eval)
   end
