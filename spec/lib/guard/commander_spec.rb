@@ -271,4 +271,18 @@ RSpec.describe Guard::Commander do
       end
     end
   end
+
+  describe ".show" do
+    let(:dsl_describer) { instance_double("Guard::DslDescriber") }
+
+    before do
+      allow(Guard::DslDescriber).to receive(:new).with(no_args).
+        and_return(dsl_describer)
+    end
+
+    it "shows list of plugins" do
+      expect(dsl_describer).to receive(:show)
+      Guard.show
+    end
+  end
 end
