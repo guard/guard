@@ -267,6 +267,8 @@ module Guard
       # prompt.
       #
       def _scope_for_prompt
+        # titles = Guard.scope_titles.join(",")
+        # titles.empty? ? "" : titles + " "
         scope_name = [:plugins, :groups].detect do |name|
           ! ::Guard.scope[name].empty?
         end
