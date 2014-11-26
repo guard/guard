@@ -172,19 +172,12 @@ RSpec.configure do |config|
     stub_const("FileUtils", class_double(FileUtils))
 
     excluded = []
+    excluded += Array(example.metadata[:exclude_stubs])
     excluded << Guard::Config if Guard.constants.include?(:Config)
     excluded << Guard::Options if Guard.constants.include?(:Options)
-    excluded << Guard::Group if Guard.constants.include?(:Group)
     excluded << Guard::Jobs::Base if Guard.constants.include?(:Jobs)
 
     excluded << Guard::DuMmy if Guard.constants.include?(:DuMmy)
-
-    if Guard.constants.include?(:Plugin)
-      excluded << Guard::Plugin
-      if Guard::Plugin.constants.include?(:Base)
-        excluded << Guard::Plugin::Base
-      end
-    end
 
     if Guard.constants.include?(:Notifier)
       if Guard::Notifier.constants.include?(:NotServer)
