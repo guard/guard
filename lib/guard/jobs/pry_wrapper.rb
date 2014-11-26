@@ -72,11 +72,9 @@ module Guard
         ::Guard::UI.debug "Start interactor"
         @terminal_settings.save
 
-        _start_pry
-        @thread.join
-        thread = @thread
+        _switch_to_pry
         # TODO: rename :stopped to continue
-        thread.nil? ? :stopped : :exit
+        _killed? ? :stopped : :exit
       ensure
         ::Guard::UI.reset_line
         ::Guard::UI.debug "Interactor was stopped or killed"
@@ -97,13 +95,24 @@ module Guard
 
       attr_reader :thread
 
-      def _start_pry
+      def _switch_to_pry
+        th = nil
         @mutex.synchronize do
           unless @thread
             @thread = Thread.new { Pry.start }
             @thread.join(0.5) # give pry a chance to start
+            th = @thread
           end
         end
+        # check for nill, because it might've been killed between the mutex and
+        # now
+        th.join unless th.nil?
+      end
+
+      def _killed?
+        th = nil
+        @mutex.synchronize { th = @thread }
+        th.nil?
       end
 
       def _kill_pry
