@@ -49,9 +49,6 @@ The following options are available:
 `-B`, `--no-bundler-warning`
   Turn off warning when Bundler is not present.
 
-`--show-deprecations`
-  Turn on deprecation warnings.
-
 `-l`, `--latency`
   Overwrite Listen's default latency.
 
