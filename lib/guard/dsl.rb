@@ -363,5 +363,19 @@ module Guard
     def scope(scope = {})
       ::Guard.setup_scope(scope)
     end
+
+    # Sets the directories to pass to Listen
+    #
+    # @example watch only given directories
+    #   directories %w(lib specs)
+    #
+    # @param [Array] directories directories for Listen to watch
+    #
+    def directories(directories)
+      directories.each do |dir|
+        fail "Directory #{dir.inspect} does not exist!" unless Dir.exist?(dir)
+      end
+      ::Guard.watchdirs = directories
+    end
   end
 end

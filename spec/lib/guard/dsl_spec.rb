@@ -545,6 +545,45 @@ RSpec.describe Guard::Dsl do
     end
   end
 
+  describe "#directories" do
+    context "with valid directories" do
+      let(:contents) { "directories %w(foo bar)" }
+      before do
+        allow(Dir).to receive(:exist?).with("foo").and_return(true)
+        allow(Dir).to receive(:exist?).with("bar").and_return(true)
+      end
+
+      it "sets the watchdirs to given values" do
+        expect(::Guard).to receive(:watchdirs=).with(%w(foo bar))
+        evaluator.call(contents)
+      end
+    end
+
+    context "with no parameters" do
+      let(:contents) { "directories []" }
+
+      it "sets the watchdirs to empty" do
+        expect(::Guard).to receive(:watchdirs=).with([])
+        evaluator.call(contents)
+      end
+    end
+
+    context "with non-existing directory" do
+      let(:contents) { "directories ['foo']" }
+
+      before do
+        allow(Dir).to receive(:exist?).with("foo").and_return(false)
+      end
+
+      it "fails with an error" do
+        expect(::Guard).to_not receive(:watchdirs=)
+        expect do
+          evaluator.call(contents)
+        end.to raise_error(RuntimeError, "Directory \"foo\" does not exist!")
+      end
+    end
+  end
+
   private
 
   def valid_guardfile_string

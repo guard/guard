@@ -85,7 +85,7 @@ module Guard
     def self.match_guardfile?(files)
       # TODO: move this method elsewhere
       require "guard/guardfile/evaluator"
-      path = ::Guard::Guardfile::Evaluator.new.guardfile_path
+      path = Guard.options[:guardfile]
       files.any? { |file| File.expand_path(file) == path }
     end
 
