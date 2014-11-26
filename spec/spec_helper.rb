@@ -223,6 +223,7 @@ RSpec.configure do |config|
     # Needed for debugging
     allow(ENV).to receive(:[]).with("DISABLE_PRY").and_call_original
     allow(ENV).to receive(:[]).with("PRYRC").and_call_original
+    allow(ENV).to receive(:[]).with("PAGER").and_call_original
 
     # Workarounds for Cli inheriting from Thor
     allow(ENV).to receive(:[]).with("ANSICON").and_call_original
