@@ -6,7 +6,7 @@ module Guard
     def run_on_modifications(files)
       return unless ::Guard::Watcher.match_guardfile?(files)
       ::Guard.save_scope
-      Guard::Guardfile::Evaluator.new.reevaluate_guardfile
+      Guard::Guardfile::Evaluator.new(Guard.options).reevaluate_guardfile
     rescue ScriptError, StandardError => e
       ::Guard::UI.warning("Failed to reevaluate file: #{e}")
 

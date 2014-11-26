@@ -370,6 +370,7 @@ RSpec.describe Guard::Notifier do
           end
 
           it "shows a deprecation message" do
+            pending
             expect(Guard::UI).to receive(:deprecation).
               with(/Notifier.notify\(\) without a prior Notifier.connect/)
 
