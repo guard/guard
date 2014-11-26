@@ -35,10 +35,16 @@ end
 
 When(/^I wait for Guard to become idle$/) do
   expected = "guard(main)>"
-  Timeout::timeout(exit_timeout) do
-    loop do
-      break if assert_partial_output_interactive(expected)
-      sleep 0.1
+  begin
+    Timeout::timeout(exit_timeout) do
+      loop do
+        break if assert_partial_output_interactive(expected)
+        sleep 0.1
+      end
     end
+  rescue Timeout::Error
+    STDERR.puts all_stdout
+    STDERR.puts all_stderr
+    fail
   end
 end

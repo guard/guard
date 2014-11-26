@@ -15,6 +15,7 @@ RSpec.describe Guard do
     allow(Dir).to receive(:chdir)
     allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
     allow(evaluator).to receive(:evaluate_guardfile)
+    allow(evaluator).to receive(:guardfile_path).and_return("Guardfile")
 
     stub_notifier
   end
@@ -753,9 +754,18 @@ RSpec.describe Guard do
     it "evaluates the Guardfile" do
       allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
       allow(Guard).to receive(:plugins).and_return([foo_plugin])
+
+      allow(Guard).to receive(:options).and_return({})
+
       expect(evaluator).to receive(:evaluate_guardfile)
 
       Guard.evaluate_guardfile
+    end
+
+    it "sets options for evaluator" do
+      allow(Guard).to receive(:options).and_return({})
+      Guard.evaluate_guardfile
+      expect(Guard.options).to include(guardfile: "Guardfile")
     end
   end
 
@@ -780,6 +790,15 @@ RSpec.describe Guard do
     context "with interactions disabled" do
       before { Guard.setup(no_interactions: true) }
       it { is_expected.to have_received(:new).with(true) }
+    end
+  end
+
+  describe ".watchdirs=" do
+    subject { Guard.watchdirs }
+    before { Guard.watchdirs = dirs }
+    context "with no values" do
+      let(:dirs) { [] }
+      it { is_expected.to eq [Dir.pwd] }
     end
   end
 end

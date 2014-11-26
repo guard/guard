@@ -167,7 +167,7 @@ module Guard
     end
 
     def restore_scope
-      ::Guard.setup_scope(@saved_scope)
+      ::Guard.setup_scope(@saved_scope || {})
     end
 
     private

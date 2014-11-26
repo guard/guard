@@ -193,6 +193,10 @@ RSpec.configure do |config|
       end
     end
 
+    allow(Dir).to receive(:exist?).with(anything) do |*args, &_block|
+      abort "stub me! (Dir#exist?(#{args.map(&:inspect) * ", "}))"
+    end
+
     # TODO: remove (instance vars cleared anyway)
     Guard.send(:_reset_for_tests) if ::Guard.respond_to?(:add_group)
 

@@ -60,15 +60,15 @@ module Guard
       ::Guard::Internals::Debugging.start if options[:debug]
 
       @queue = Queue.new
-      @watchdirs = _setup_watchdirs
+      self.watchdirs = Array(options[:watchdir])
 
       ::Guard::UI.reset_and_clear
-
-      @listener = _setup_listener
 
       _reset_all
       evaluate_guardfile
       setup_scope
+
+      @listener = _setup_listener
 
       ::Guard::Notifier.connect(notify: options[:notify])
 
@@ -132,9 +132,17 @@ module Guard
     def evaluate_guardfile
       evaluator = Guard::Guardfile::Evaluator.new(options)
       evaluator.evaluate_guardfile
+
+      # FIXME: temporary hack while due to upcoming refactorings
+      options[:guardfile] = evaluator.guardfile_path
+
       msg = "No plugins found in Guardfile, please add at least one."
       ::Guard::UI.error msg if _pluginless_guardfile?
     end
+
+    # @private api
+    # used solely for match_guardfile?
+    attr_reader :guardfile_path
 
     # Asynchronously trigger changes
     #
@@ -154,6 +162,11 @@ module Guard
 
     def pending_changes?
       ! @queue.empty?
+    end
+
+    def watchdirs=(dirs)
+      dirs = [Dir.pwd] if dirs.empty?
+      @watchdirs = dirs.map { |dir| File.expand_path dir }
     end
 
     private
@@ -221,11 +234,6 @@ module Guard
       end
     end
 
-    def _setup_watchdirs
-      dirs = Array(options[:watchdir])
-      dirs.empty? ? [Dir.pwd] : dirs.map { |dir| File.expand_path dir }
-    end
-
     def _listener_callback
       lambda do |modified, added, removed|
         relative_paths = {
@@ -261,7 +269,6 @@ module Guard
     def _reset_for_tests
       @options = nil
       @queue = nil
-      @watchdirs = nil
       @watchdirs = nil
       @listener = nil
       @interactor = nil

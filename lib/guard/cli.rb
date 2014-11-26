@@ -126,6 +126,7 @@ module Guard
     # @see Guard::DslDescriber.notifiers
     #
     def notifiers
+      ::Guard.reset_options(options)
       ::Guard::DslDescriber.new(options).notifiers
     end
 

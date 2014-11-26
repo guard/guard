@@ -474,6 +474,9 @@ RSpec.describe Guard::Watcher do
   describe ".match_guardfile?" do
     before do
       evaluator = instance_double(Guard::Guardfile::Evaluator)
+      allow(Guard).to receive(:options).
+        and_return(guardfile: File.expand_path("Guardfile"))
+
       allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
       allow(evaluator).to receive(:guardfile_path).
         and_return(File.expand_path("Guardfile"))

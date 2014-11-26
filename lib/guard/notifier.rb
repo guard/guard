@@ -97,7 +97,7 @@ module Guard
       end
 
       turn_off if active?
-      @detected.reset
+      @detected.reset unless @detected.nil?
       _env.notify_pid = nil
       @detected = nil
     end
@@ -194,8 +194,8 @@ module Guard
     #
     def notify(message, message_opts = {})
       if _client?
-        # TODO: remove
-        UI.deprecation(DEPRECTED_IMPLICIT_CONNECT)
+        # TODO: reenable again?
+        # UI.deprecation(DEPRECTED_IMPLICIT_CONNECT)
         return unless enabled?
         connect(notify: true)
       else

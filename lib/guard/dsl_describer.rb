@@ -115,7 +115,7 @@ module Guard
       _evaluate_guardfile
 
       supported = ::Guard::Notifier::SUPPORTED
-      Notifier.connect
+      Notifier.connect(notify: false)
       detected = Notifier.notifiers
       Notifier.disconnect
 
