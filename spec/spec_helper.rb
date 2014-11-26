@@ -253,12 +253,6 @@ RSpec.configure do |config|
       abort "stub me! (Dir#exist?(#{args.map(&:inspect) * ", "}))"
     end
 
-    # TODO: remove (instance vars cleared anyway)
-    Guard.send(:_reset_for_tests) if ::Guard.respond_to?(:add_group)
-
-    # TODO: remove (instance vars cleared anyway)
-    Guard.clear_options if ::Guard.respond_to?(:add_group)
-
     # TODO: use metadata to stub out all used classes
     if Guard.const_defined?("UI")
       # Stub all UI methods, so no visible output appears for the UI class
