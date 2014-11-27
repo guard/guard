@@ -34,7 +34,7 @@ module Guard
 
         def guards(filter = nil)
           ::Guard::UI.deprecation(GUARDS)
-          plugins(filter)
+          ::Guard.state.session.plugins.all(filter)
         end
 
         # @deprecated Use `Guard.add_plugin(name, options = {})` instead.
@@ -133,6 +133,15 @@ module Guard
           UI.deprecation(LOCK)
         end
 
+        LISTENER_ASSIGN = <<-EOS.gsub(/^\s*/, "")
+          listener= should not be used
+        EOS
+
+        def listener=(_)
+          UI.deprecation(LISTENER_ASSIGN)
+          ::Guard.listener
+        end
+
         EVALUATOR = <<-EOS.gsub(/^\s*/, "")
           Starting with Guard 2.8.2 this method shouldn't be used
         EOS
@@ -183,6 +192,86 @@ module Guard
         def options
           UI.deprecation(OPTIONS)
           ::Guard.state.session.options
+        end
+
+        ADD_GROUP = <<-EOS.gsub(/^\s*/, "")
+          add_group is deprecated since 2.10.0 in favor of
+          Guard.state.session.groups.add
+        EOS
+
+        def add_group(name, options = {})
+          UI.deprecation(ADD_GROUP)
+          ::Guard.state.session.groups.add(name, options)
+        end
+
+        ADD_PLUGIN = <<-EOS.gsub(/^\s*/, "")
+          add_plugin is deprecated since 2.10.0 in favor of
+          Guard.state.session.plugins.add
+        EOS
+
+        def add_plugin(name, options = {})
+          UI.deprecation(ADD_PLUGIN)
+          ::Guard.state.session.plugins.add(name, options)
+        end
+
+        GROUP = <<-EOS.gsub(/^\s*/, "")
+          group is deprecated since 2.10.0 in favor of
+          Guard.state.session.group.add(filter).first
+        EOS
+
+        def group(filter)
+          UI.deprecation(GROUP)
+          ::Guard.state.session.groups.all(filter).first
+        end
+
+        PLUGIN = <<-EOS.gsub(/^\s*/, "")
+          plugin is deprecated since 2.10.0 in favor of
+          Guard.state.session.group.add(filter).first
+        EOS
+
+        def plugin(filter)
+          UI.deprecation(PLUGIN)
+          ::Guard.state.session.plugins.all(filter).first
+        end
+
+        GROUPS = <<-EOS.gsub(/^\s*/, "")
+          group is deprecated since 2.10.0 in favor of
+          Guard.state.session.groups.all(filter)
+        EOS
+
+        def groups(filter)
+          UI.deprecation(GROUPS)
+          ::Guard.state.session.groups.all(filter)
+        end
+
+        PLUGINS = <<-EOS.gsub(/^\s*/, "")
+          plugins is deprecated since 2.10.0 in favor of
+          Guard.state.session.plugins.all(filter)
+        EOS
+
+        def plugins(filter)
+          UI.deprecation(PLUGINS)
+          ::Guard.state.session.plugins.all(filter)
+        end
+
+        SCOPE = <<-EOS.gsub(/^\s*/, "")
+          scope is deprecated since 2.10.0 in favor of
+          Guard.state.scope.to_hash
+        EOS
+
+        def scope
+          UI.deprecation(SCOPE)
+          ::Guard.state.scope.to_hash
+        end
+
+        SCOPE_ASSIGN = <<-EOS.gsub(/^\s*/, "")
+          scope= is deprecated since 2.10.0 in favor of
+          Guard.state.scope.to_hash
+        EOS
+
+        def scope=(scope)
+          UI.deprecation(SCOPE_ASSIGN)
+          ::Guard.state.scope.from_interactor(scope)
         end
       end
     end
