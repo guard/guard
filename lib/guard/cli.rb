@@ -2,9 +2,8 @@ require "thor"
 
 require "guard"
 require "guard/version"
-require "guard/dsl_describer"
-require "guard/guardfile/evaluator"
 require "guard/guardfile/generator"
+require "guard/dsl_describer"
 
 module Guard
   # Facade for the Guard command line interface managed by
@@ -49,6 +48,7 @@ module Guard
                   aliases: "-P",
                   banner:  "Run only the passed plugins"
 
+    # TODO: make it plural
     method_option :watchdir,
                   type:    :array,
                   aliases: "-w",
@@ -105,7 +105,7 @@ module Guard
     #
     def start
       _verify_bundler_presence unless options[:no_bundler_warning]
-      ::Guard.start(options)
+      _start(options)
     end
 
     desc "list", "Lists Guard plugins that can be used with init"
@@ -116,7 +116,8 @@ module Guard
     # @see Guard::DslDescriber.list
     #
     def list
-      ::Guard::DslDescriber.new(options).list
+      _require_guardfile(options) # just to show which plugins are actually used
+      DslDescriber.new.list
     end
 
     desc "notifiers", "Lists notifiers and its options"
@@ -126,8 +127,8 @@ module Guard
     # @see Guard::DslDescriber.notifiers
     #
     def notifiers
-      ::Guard.reset_options(options)
-      ::Guard::DslDescriber.new(options).notifiers
+      _require_guardfile(options)
+      DslDescriber.new.notifiers
     end
 
     desc "version", "Show the Guard version"
@@ -138,7 +139,7 @@ module Guard
     # @see Guard::VERSION
     #
     def version
-      $stdout.puts "Guard version #{ ::Guard::VERSION }"
+      $stdout.puts "Guard version #{ VERSION }"
     end
 
     desc "init [GUARDS]", "Generates a Guardfile at the current directory"\
@@ -164,19 +165,23 @@ module Guard
     #
     def init(*plugin_names)
       _verify_bundler_presence unless options[:no_bundler_warning]
+      bare = options[:bare]
 
-      ::Guard.reset_options(options) # Since UI.deprecated uses config
+      generator = Guardfile::Generator.new
+      Guard.init(options)
+      session = Guard.state.session
 
-      generator = Guardfile::Generator.new(abort_on_existence: options[:bare])
-      generator.create_guardfile
+      begin
+        Guardfile::Evaluator.new(session.evaluator_options).evaluate
+      rescue Guardfile::Evaluator::NoGuardfileError
+        generator.create_guardfile
+      end
 
-      # Note: this reset "hack" will be fixed after refactoring
-      ::Guard.reset_plugins
+      return if bare
 
       # Evaluate because it might have existed and creating was skipped
-      ::Guard::Guardfile::Evaluator.new(Guard.options).evaluate_guardfile
-
-      return if options[:bare]
+      # FIXME: still, I don't know why this is needed
+      Guardfile::Evaluator.new(session.evaluator_options).evaluate
 
       if plugin_names.empty?
         generator.initialize_all_templates
@@ -196,7 +201,9 @@ module Guard
     # @see Guard::DslDescriber.show
     #
     def show
-      ::Guard::DslDescriber.new(options).show
+      _require_guardfile(options)
+      # TODO: use Metadata class
+      DslDescriber.new.show
     end
 
     private
@@ -204,11 +211,12 @@ module Guard
     # Verifies if Guard is run with `bundle exec` and
     # shows a hint to do so if not.
     #
+    # TODO: move this elsewhere!!! (because of complex specs)
     def _verify_bundler_presence
       return unless File.exist?("Gemfile")
       return if ENV["BUNDLE_GEMFILE"] || ENV["RUBYGEMS_GEMDEPS"]
 
-      ::Guard::UI.info <<EOF
+      UI.info <<EOF
 
 Guard here! It looks like your project has a Gemfile, yet you are running
 `guard` outside of Bundler. If this is your intent, feel free to ignore this
@@ -216,6 +224,30 @@ message. Otherwise, consider using `bundle exec guard` to ensure your
 dependencies are loaded correctly.
 (You can run `guard` with --no-bundler-warning to get rid of this message.)
 EOF
+    end
+
+    def _require_guardfile(options)
+      Guard.init(options) # to setup metadata
+      session = Guard.state.session
+      Guardfile::Evaluator.new(session.evaluator_options).evaluate
+    rescue Dsl::Error,
+           Guardfile::Evaluator::NoPluginsError,
+           Guardfile::Evaluator::NoGuardfileError,
+           Guardfile::Evaluator::NoCustomGuardfile => e
+      # catch to throw message instead of call stack
+      UI.error(e.message)
+      abort
+    end
+
+    def _start(options)
+      Guard.start(options)
+    rescue Dsl::Error,
+           Guardfile::Evaluator::NoPluginsError,
+           Guardfile::Evaluator::NoGuardfileError,
+           Guardfile::Evaluator::NoCustomGuardfile => e
+      # catch to throw message instead of call stack
+      UI.error(e.message)
+      abort
     end
   end
 end

@@ -26,10 +26,10 @@ module Guard
   # {Notifier} for more information about the supported libraries.
   #
   # A more advanced DSL use is the {#callback} keyword that allows you to
-  # execute arbitrary code before or after any of the {Plugin::Base#start},
-  # {Plugin::Base#stop}, {Plugin::Base#reload}, {Plugin::Base#run_all},
-  # {Plugin::Base#run_on_changes}, {Plugin::Base#run_on_additions},
-  # {Plugin::Base#run_on_modifications} and {Plugin::Base#run_on_removals}
+  # execute arbitrary code before or after any of the {Plugin#start},
+  # {Plugin#stop}, {Plugin#reload}, {Plugin#run_all},
+  # {Plugin#run_on_changes}, {Plugin#run_on_additions},
+  # {Plugin#run_on_modifications} and {Plugin#run_on_removals}
   # Guard plugins method.
   # You can even insert more hooks inside these methods. Please [checkout the
   # Wiki page](https://github.com/guard/guard/wiki/Hooks-and-callbacks) for
@@ -49,6 +49,10 @@ module Guard
   #
   class Dsl
     Deprecated::Dsl.add_deprecated(self) unless Config.new.strict?
+
+    # Wrap exceptions during parsing Guardfile
+    class Error < RuntimeError
+    end
 
     WARN_INVALID_LOG_LEVEL = "Invalid log level `%s` ignored. "\
       "Please use either :debug, :info, :warn or :error."
@@ -88,9 +92,9 @@ module Guard
     def interactor(options)
       case options
       when :off
-        ::Guard::Interactor.enabled = false
+        Interactor.enabled = false
       when Hash
-        ::Guard::Interactor.options = options
+        Interactor.options = options
       end
     end
 
@@ -128,7 +132,7 @@ module Guard
 
       if block_given?
         groups.each do |group|
-          ::Guard.add_group(group, options)
+          Guard.state.session.groups.add(group, options)
         end
 
         @current_groups ||= []
@@ -138,7 +142,7 @@ module Guard
 
         @current_groups.pop
       else
-        ::Guard::UI.error \
+        UI.error \
           "No Guard plugins found in the group '#{ groups.join(", ") }',"\
           " please add at least one."
       end
@@ -176,7 +180,8 @@ module Guard
       @current_groups ||= []
       groups = @current_groups && @current_groups.last || [:default]
       groups.each do |group|
-        ::Guard.add_plugin(name, @plugin_options.merge(group: group))
+        opts = @plugin_options.merge(group: group)
+        Guard.state.session.plugins.add(name, opts)
       end
 
       @plugin_options = nil
@@ -214,7 +219,7 @@ module Guard
       @plugin_options ||= nil
       return guard(:plugin) { watch(pattern, &action) } unless @plugin_options
 
-      @plugin_options[:watchers] << ::Guard::Watcher.new(pattern, action)
+      @plugin_options[:watchers] << Watcher.new(pattern, action)
     end
 
     # Defines a callback to execute arbitrary code before or after any of
@@ -236,8 +241,6 @@ module Guard
     #
     # @param [Array] args the callback arguments
     # @yield a callback block
-    #
-    # @see Guard::Hooker
     #
     def callback(*args, &block)
       @plugin_options ||= nil
@@ -262,8 +265,10 @@ module Guard
     #
     def ignore(*regexps)
       # TODO: instead, use Guard.reconfigure(ignore: regexps) or something
-      ::Guard.listener.ignore(regexps) if ::Guard.listener
+      Guard.listener.ignore(regexps) if Guard.listener
     end
+
+    # TODO: deprecate
     alias filter ignore
 
     # Replaces ignored paths globally
@@ -276,7 +281,7 @@ module Guard
     def ignore!(*regexps)
       @ignore_regexps ||= []
       @ignore_regexps << regexps
-      ::Guard.listener.ignore!(@ignore_regexps) if ::Guard.listener
+      Guard.listener.ignore!(@ignore_regexps) if Guard.listener
     end
     alias filter! ignore!
 
@@ -341,7 +346,7 @@ module Guard
         options[name] = Regexp.new(list.join("|"), Regexp::IGNORECASE)
       end
 
-      ::Guard::UI.options.merge!(options)
+      UI.options.merge!(options)
     end
 
     # Sets the default scope on startup
@@ -361,7 +366,43 @@ module Guard
     # @param [Hash] scopes the scope for the groups and plugins
     #
     def scope(scope = {})
-      ::Guard.setup_scope(scope)
+      Guard.state.session.guardfile_scope(scope)
+    end
+
+    def evaluate(contents, filename, lineno) # :nodoc
+      instance_eval(contents, filename.to_s, lineno)
+    rescue StandardError, ScriptError => e
+      prefix = "\n\t(dsl)> "
+      cleaned_backtrace = _cleanup_backtrace(e.backtrace)
+      backtrace = "#{prefix}#{cleaned_backtrace.join(prefix)}"
+      msg = "Invalid Guardfile, original error is: \n\n%s, \nbacktrace: %s"
+      raise Error, format(msg, e, backtrace)
+    end
+
+    private
+
+    def _cleanup_backtrace(backtrace)
+      dirs = { File.realpath(Dir.pwd) => ".", }
+
+      gem_env = ENV["GEM_HOME"] || ""
+      dirs[gem_env] = "$GEM_HOME" unless gem_env.empty?
+
+      gem_paths = (ENV["GEM_PATH"] || "").split(File::PATH_SEPARATOR)
+      gem_paths.each_with_index do |path, index|
+        dirs[path] = "$GEM_PATH[#{index}]"
+      end
+
+      backtrace.dup.map do |raw_line|
+        path = nil
+        symlinked_path = raw_line.split(":").first
+        begin
+          path = raw_line.sub(symlinked_path, File.realpath(symlinked_path))
+          dirs.detect { |dir, name| path.sub!(File.realpath(dir), name) }
+          path
+        rescue Errno::ENOENT
+          path || symlinked_path
+        end
+      end
     end
 
     # Sets the directories to pass to Listen
@@ -375,7 +416,7 @@ module Guard
       directories.each do |dir|
         fail "Directory #{dir.inspect} does not exist!" unless Dir.exist?(dir)
       end
-      ::Guard.watchdirs = directories
+      Guard.state.session.watchdirs = directories
     end
   end
 end

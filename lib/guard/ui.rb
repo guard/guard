@@ -1,8 +1,8 @@
 require "lumberjack"
 
+require "guard/internals/state"
+
 require "guard/options"
-require "guard/session"
-require "guard/metadata"
 
 require "guard/ui/colors"
 
@@ -104,8 +104,6 @@ module Guard
       # @option options [String] plugin manually define the calling plugin
       #
       def deprecation(message, options = {})
-        msg = "neither ::Guard.setup nor ::Guard.reset_options was called"
-        fail msg if ::Guard.options.nil?
         unless ENV["GUARD_GEM_SILENCE_DEPRECATIONS"] == "1"
           backtrace = Thread.current.backtrace[1..5].join("\n\t >")
           msg = format("%s\nDeprecation backtrace: %s", message, backtrace)
@@ -132,13 +130,13 @@ module Guard
       # Clear the output if clearable.
       #
       def clear(opts = {})
-        return unless ::Guard.options[:clear]
+        return unless Guard.state.session.clear?
 
         fail "UI not set up!" if @clearable.nil?
         return unless @clearable || opts[:force]
 
         @clearable = false
-        ::Guard::Terminal.clear
+        Terminal.clear
       rescue Errno::ENOENT => e
         warning("Failed to clear the screen: #{e.inspect}")
       end
@@ -162,27 +160,11 @@ module Guard
       # @param [Hash] scope hash with a guard or a group scope
       #
       def action_with_scopes(action, scope)
-        first_non_blank_scope = _first_non_blank_scope(scope)
-        unless first_non_blank_scope.nil?
-          scope_message = first_non_blank_scope.map(&:title).join(", ")
-        end
-
-        info "#{ action } #{ scope_message || "all" }"
+        titles = Guard.state.scope.titles(scope)
+        info "#{action} #{titles.join(", ")}"
       end
 
       private
-
-      # Returns the first non-blank scope by searching in the given `scope`
-      # hash and in Guard.scope. Returns nil if no non-blank scope is found.
-      #
-      def _first_non_blank_scope(scope)
-        [:plugins, :groups].each do |scope_name|
-          s = scope[scope_name] || ::Guard.scope[scope_name]
-          return s if !s.nil? && !s.empty?
-        end
-
-        nil
-      end
 
       # Filters log messages depending on either the
       # `:only`` or `:except` option.

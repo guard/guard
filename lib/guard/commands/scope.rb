@@ -29,8 +29,7 @@ module Guard
               return
             end
 
-            # TODO: provide a way for guard to know this was called from Pry
-            ::Guard.setup_scope(scope)
+            Guard.state.scope.from_interactor(scope)
           end
         end
       end

@@ -5,7 +5,7 @@ if Guard::Config.new.strict?
 else
   require "guard/deprecated/guardfile"
 
-  # TODO: deprecate this whole file
+  # TODO: remove this file in next major version
 
   module Guard
     unless Guard::Config.new.silence_deprecations?

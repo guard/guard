@@ -54,180 +54,123 @@ RSpec.describe Guard::Watcher do
   end
 
   describe ".match_files" do
-    before(:all) do
-      @plugin = Guard::Plugin.new
-      @plugin_any_return = Guard::Plugin.new
-      @plugin_any_return.options[:any_return] = true
+    let(:plugin) { instance_double("Guard::Plugin", options: {}) }
+
+    def matched(files)
+      described_class.match_files(plugin, files)
     end
 
     context "with a watcher without action" do
+      before do
+        allow(plugin).to receive(:watchers).
+          and_return([described_class.new(pattern)])
+      end
+
       context "that is a regex pattern" do
-        before(:all) do
-          @plugin.watchers = [described_class.new(/.*_spec\.rb/)]
-        end
-
+        let(:pattern) { /.*_spec\.rb/ }
         it "returns the paths that matches the regex" do
-          result = described_class.match_files(
-            @plugin,
-            ["guard_rocks_spec.rb", "guard_rocks.rb"]
-          )
-
-          expect(result).to eq ["guard_rocks_spec.rb"]
+          expect(matched(%w(foo_spec.rb foo.rb))).to eq %w(foo_spec.rb)
         end
       end
 
       context "that is a string pattern" do
-        before(:all) do
-          @plugin.watchers = [described_class.new("guard_rocks_spec.rb")]
-        end
-
+        let(:pattern) { "foo_spec.rb" }
         it "returns the path that matches the string" do
-          result = described_class.match_files(
-            @plugin,
-            ["guard_rocks_spec.rb", "guard_rocks.rb"]
-          )
-          expect(result).to eq ["guard_rocks_spec.rb"]
+          expect(matched(%w(foo_spec.rb foo.rb))).to eq ["foo_spec.rb"]
         end
       end
     end
 
     context "with a watcher action without parameter" do
       context "for a watcher that matches file strings" do
-        before(:all) do
+        before do
           klass = described_class
-          @plugin.watchers = [
+          allow(plugin).to receive(:watchers).and_return([
             klass.new("spec_helper.rb", lambda { "spec" }),
             klass.new("addition.rb", lambda { 1 + 1 }),
             klass.new("hash.rb", lambda { Hash[:foo, "bar"] }),
             klass.new("array.rb", lambda { %w(foo bar) }),
             klass.new("blank.rb", lambda { "" }),
             klass.new(/^uptime\.rb/, lambda { "" })
-          ]
+          ])
         end
 
         it "returns a single file specified within the action" do
-          result = described_class.match_files(
-            @plugin,
-            ["spec_helper.rb"])
-
-          expect(result).to eq ["spec"]
+          expect(matched(%w(spec_helper.rb))).to eq ["spec"]
         end
 
         it "returns multiple files specified within the action" do
-          expect(described_class.match_files(@plugin, ["hash.rb"])).
-            to eq %w(foo bar)
+          expect(matched(%w(hash.rb))).to eq %w(foo bar)
         end
 
         it "combines files from results of different actions" do
-          result = described_class.match_files(
-            @plugin,
-            ["spec_helper.rb",
-             "array.rb"])
-          expect(result).to eq %w(spec foo bar)
+          expect(matched(%w(spec_helper.rb array.rb))).to eq %w(spec foo bar)
         end
 
         context "when action returns non-string or array of non-strings" do
           it "returns nothing" do
-            result = described_class.match_files(@plugin, ["addition.rb"])
-            expect(result).to eq []
+            expect(matched(%w(addition.rb))).to eq []
           end
         end
 
         it "returns nothing if the action response is empty" do
-          result = described_class.match_files(@plugin, ["blank.rb"])
-          expect(result).to eq []
+          expect(matched(%w(blank.rb))).to eq []
         end
 
         it "returns nothing if the action returns nothing" do
-          result = described_class.match_files(@plugin, ["uptime.rb"])
-          expect(result).to eq []
+          expect(matched(%w(uptime.rb))).to eq []
         end
       end
 
       context "for a watcher that matches information objects" do
-        before(:all) do
+        before do
+          allow(plugin).to receive(:options).and_return(any_return: true)
+
           klass = described_class
-          @plugin_any_return.watchers = [
+          allow(plugin).to receive(:watchers).and_return([
             klass.new("spec_helper.rb", lambda { "spec" }),
             klass.new("addition.rb", lambda { 1 + 1 }),
             klass.new("hash.rb", lambda { Hash[:foo, "bar"] }),
             klass.new("array.rb", lambda { %w(foo bar) }),
             klass.new("blank.rb", lambda { "" }),
             klass.new(/^uptime\.rb/, lambda { "" })
-          ]
+          ])
         end
 
         it "returns a single file specified within the action" do
-          result = described_class.match_files(
-            @plugin_any_return,
-            ["spec_helper.rb"])
-          expect(result.class).to be Array
-
-          result = described_class.match_files(
-            @plugin_any_return,
-            ["spec_helper.rb"])
-
-          expect(result.empty?).to be_falsey
+          expect(matched(%w(spec_helper.rb)).class).to be Array
+          expect(matched(%w(spec_helper.rb))).to_not be_empty
         end
 
         it "returns multiple files specified within the action" do
-          result = described_class.match_files(
-            @plugin_any_return,
-            ["hash.rb"]
-          )
-
-          expect(result).to eq [{ foo: "bar" }]
+          expect(matched(%w(hash.rb))).to eq [{ foo: "bar" }]
         end
 
         it "combines the results of different actions" do
-          result = described_class.match_files(
-            @plugin_any_return,
-            ["spec_helper.rb", "array.rb"]
-          )
-
-          expect(result).to eq ["spec", %w(foo bar)]
+          expect(matched(%w(spec_helper.rb array.rb))).
+                 to eq ["spec", %w(foo bar)]
         end
 
         it "returns the evaluated addition argument in an array" do
-          result = described_class.match_files(
-            @plugin_any_return,
-            ["addition.rb"]
-          )
-
-          expect(result.class).to be Array
-          result = described_class.match_files(
-            @plugin_any_return,
-            ["addition.rb"]
-          )
-
-          expect(result[0]).to eq 2
+          expect(matched(%w(addition.rb)).class).to be(Array)
+          expect(matched(%w(addition.rb))[0]).to eq 2
         end
 
         it "returns nothing if the action response is empty string" do
-          result = described_class.match_files(
-            @plugin_any_return,
-            ["blank.rb"]
-          )
-
-          expect(result).to eq [""]
+          expect(matched(%w(blank.rb))).to eq [""]
         end
 
         it "returns nothing if the action returns empty string" do
-          result = described_class.match_files(
-            @plugin_any_return,
-            ["uptime.rb"]
-          )
-
-          expect(result).to eq [""]
+          expect(matched(%w(uptime.rb))).to eq [""]
         end
       end
     end
 
     context "with a watcher action that takes a parameter" do
       context "for a watcher that matches file strings" do
-        before(:all) do
+        before do
           klass = described_class
-          @plugin.watchers = [
+          allow(plugin).to receive(:watchers).and_return [
             klass.new(%r{lib/(.*)\.rb}, lambda { |m| "spec/#{m[1]}_spec.rb" }),
             klass.new(/addition(.*)\.rb/, lambda { |_m| 1 + 1 }),
             klass.new("hash.rb",  lambda { |_m| Hash[:foo, "bar"] }),
@@ -238,117 +181,80 @@ RSpec.describe Guard::Watcher do
         end
 
         it "returns a substituted single file specified within the action" do
-          result = described_class.match_files(
-            @plugin,
-            ["lib/my_wonderful_lib.rb"])
-
-          expect(result).to eq ["spec/my_wonderful_lib_spec.rb"]
+          expect(matched(%w(lib/foo.rb))).to eq ["spec/foo_spec.rb"]
         end
 
         it "returns multiple files specified within the action" do
-          result = described_class.match_files(@plugin, ["hash.rb"])
-          expect(result).to eq %w(foo bar)
+          expect(matched(%w(hash.rb))).to eq %w(foo bar)
         end
 
         it "combines results of different actions" do
-          result = described_class.match_files(
-            @plugin,
-            ["lib/my_wonderful_lib.rb", "array.rb"]
-          )
-
-          expect(result).to eq ["spec/my_wonderful_lib_spec.rb", "foo", "bar"]
+          expect(matched(%w(lib/foo.rb array.rb))).
+            to eq %w(spec/foo_spec.rb foo bar)
         end
 
         it "returns nothing if action returns non-string or non-string array" do
-          result = described_class.match_files(@plugin, ["addition.rb"])
-          expect(result).to eq []
+          expect(matched(%w(addition.rb))).to eq []
         end
 
         it "returns nothing if the action response is empty" do
-          result = described_class.match_files(@plugin, ["blank.rb"])
-          expect(result).to eq []
+          expect(matched(%w(blank.rb))).to eq []
         end
 
         it "returns nothing if the action returns nothing" do
-          result = described_class.match_files(@plugin, ["uptime.rb"])
-          expect(result).to eq []
+          expect(matched(%w(uptime.rb))).to eq []
         end
       end
 
       context "for a watcher that matches information objects" do
-        before(:all) do
+        before do
+          allow(plugin).to receive(:options).and_return(any_return: true)
+
           kl = described_class
-          @plugin_any_return.watchers = [
+          allow(plugin).to receive(:watchers).and_return([
             kl.new(%r{lib/(.*)\.rb}, lambda { |m| "spec/#{m[1]}_spec.rb" }),
             kl.new(/addition(.*)\.rb/, lambda { |m| (1 + 1).to_s + m[0] }),
             kl.new("hash.rb", lambda { |m| { foo: "bar", file_name: m[0] } }),
             kl.new(/array(.*)\.rb/, lambda { |m| ["foo", "bar", m[0]] }),
             kl.new(/blank(.*)\.rb/, lambda { |_m| "" }),
             kl.new(/^uptime\.rb/, lambda { "" })
-          ]
+          ])
         end
 
         it "returns a substituted single file specified within the action" do
-          result = described_class.match_files(
-            @plugin_any_return,
-            ["lib/my_wonderful_lib.rb"]
-          )
-
-          expect(result).to eq ["spec/my_wonderful_lib_spec.rb"]
+          expect(matched(%w(lib/foo.rb))).to eq %w(spec/foo_spec.rb)
         end
 
         it "returns a hash specified within the action" do
-          result = described_class.match_files(
-            @plugin_any_return,
-            ["hash.rb"]
-          )
-
-          expect(result).to eq [{ foo: "bar", file_name: "hash.rb" }]
+          expect(matched(%w(hash.rb))).to eq [
+            { foo: "bar", file_name: "hash.rb" }
+          ]
         end
 
         it "combinines results of different actions" do
-          result = described_class.match_files(
-            @plugin_any_return,
-            ["lib/my_wonderful_lib.rb", "array.rb"]
-          )
-
-          expected = ["spec/my_wonderful_lib_spec.rb", %w(foo bar array.rb)]
-          expect(result).to eq expected
+          expect(matched(%w(lib/foo.rb array.rb))).
+            to eq ["spec/foo_spec.rb", %w(foo bar array.rb)]
         end
 
         it "returns the evaluated addition argument + the path" do
-          result = described_class.match_files(
-            @plugin_any_return,
-            ["addition.rb"]
-          )
-
-          expect(result).to eq ["2addition.rb"]
+          expect(matched(%w(addition.rb))).to eq ["2addition.rb"]
         end
 
         it "returns nothing if the action response is empty string" do
-          result = described_class.match_files(
-            @plugin_any_return,
-            ["blank.rb"]
-          )
-
-          expect(result).to eq [""]
+          expect(matched(%w(blank.rb))).to eq [""]
         end
 
         it "returns nothing if the action returns is IO::NULL" do
-          result = described_class.match_files(
-            @plugin_any_return,
-            ["uptime.rb"]
-          )
-
-          expect(result).to eq [""]
+          expect(matched(%w(uptime.rb))).to eq [""]
         end
       end
     end
 
     context "with an exception that is raised" do
-      before(:all) do
-        result = described_class.new("evil.rb", lambda { fail "EVIL" })
-        @plugin.watchers = [result]
+      before do
+        allow(plugin).to receive(:watchers).and_return(
+          [described_class.new("evil.rb", lambda { fail "EVIL" })]
+        )
       end
 
       it "displays the error and backtrace" do
@@ -357,13 +263,13 @@ RSpec.describe Guard::Watcher do
           expect(msg).to include("EVIL")
         end
 
-        described_class.match_files(@plugin, ["evil.rb"])
+        described_class.match_files(plugin, ["evil.rb"])
       end
     end
 
     context "for ambiguous watchers" do
-      before(:all) do
-        @plugin.watchers = [
+      before do
+        expect(plugin).to receive(:watchers).and_return [
           described_class.new("awesome_helper.rb", lambda {}),
           described_class.new(/.+some_helper.rb/, lambda { "foo.rb" }),
           described_class.new(/.+_helper.rb/, lambda { "bar.rb" }),
@@ -371,39 +277,31 @@ RSpec.describe Guard::Watcher do
       end
 
       context "when the :first_match option is turned off" do
-        before(:all) do
-          @plugin.options[:first_match] = false
+        before do
+          allow(plugin).to receive(:options).and_return(first_match: false)
         end
 
         it "returns multiple files by combining the results of the watchers" do
           expect(described_class.match_files(
-            @plugin, ["awesome_helper.rb"])).to eq(["foo.rb", "bar.rb"])
+            plugin, ["awesome_helper.rb"])).to eq(["foo.rb", "bar.rb"])
         end
       end
 
       context "when the :first_match option is turned on" do
-        before(:all) do
-          @plugin.options[:first_match] = true
+        before do
+          plugin.options[:first_match] = true
         end
 
         it "returns only the files from the first watcher" do
           expect(described_class.match_files(
-            @plugin, ["awesome_helper.rb"])).to eq(["foo.rb"])
+            plugin, ["awesome_helper.rb"])).to eq(["foo.rb"])
         end
       end
     end
   end
 
   describe ".match_files?" do
-    before(:all) do
-      result = described_class.new(/.*_spec\.rb/)
-      @guard1 = Guard::Plugin.new(watchers: [result])
-
-      result = described_class.new("spec_helper.rb", "spec")
-      @guard2 = Guard::Plugin.new(watchers: [result])
-
-      @plugins = [@guard1, @guard2]
-    end
+    pending
   end
 
   describe ".match" do
@@ -467,35 +365,6 @@ RSpec.describe Guard::Watcher do
 
       context "with no watcher that matches a file" do
         specify { expect(subject.match("lib/my_wonderful_lib.rb")).to be_nil }
-      end
-    end
-  end
-
-  describe ".match_guardfile?" do
-    before do
-      evaluator = instance_double(Guard::Guardfile::Evaluator)
-      allow(Guard).to receive(:options).
-        and_return(guardfile: File.expand_path("Guardfile"))
-
-      allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
-      allow(evaluator).to receive(:guardfile_path).
-        and_return(File.expand_path("Guardfile"))
-    end
-
-    context "with files that match the Guardfile" do
-      specify do
-        klass = described_class
-        result = klass.match_guardfile?(["Guardfile", "guard_rocks_spec.rb"])
-        expect(result).to be_truthy
-      end
-    end
-
-    context "with no files that match the Guardfile" do
-      specify do
-        result = described_class.match_guardfile?(
-          ["guard_rocks.rb", "guard_rocks_spec.rb"])
-
-        expect(result).to be_falsey
       end
     end
   end

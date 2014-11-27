@@ -20,7 +20,7 @@ unless Guard::Config.new.strict?
       before { stub_guardfile(" ") }
       before { stub_user_guardfile }
       before { stub_user_project_guardfile }
-      let(:evaluator) { instance_double(Guard::Guardfile::Evaluator) }
+      let(:evaluator) { instance_double("Guard::Guardfile::Evaluator") }
 
       before do
         # TODO: this is a workaround for a bad require loop
@@ -31,6 +31,7 @@ unless Guard::Config.new.strict?
 
         allow(Guard::Guardfile::Evaluator).to receive(:new).
           and_return(evaluator)
+
         allow(evaluator).to receive(:evaluate_guardfile)
 
         allow(Guard::UI).to receive(:deprecation)

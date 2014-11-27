@@ -3,6 +3,8 @@ require "listen"
 require "guard/notifier"
 require "guard/interactor"
 require "guard/runner"
+require "guard/reevaluator"
+require "guard/dsl_describer"
 require "guard"
 
 module Guard
@@ -28,16 +30,16 @@ module Guard
     #
     def start(options = {})
       setup(options)
-      ::Guard::UI.debug "Guard starts all plugins"
-      Guard::Runner.new.run(:start)
+      UI.debug "Guard starts all plugins"
+      Runner.new.run(:start)
       listener.start
 
-      watched = ::Guard.watchdirs.join("', '")
-      ::Guard::UI.info "Guard is now watching at '#{ watched }'"
+      watched = Guard.state.session.watchdirs.join("', '")
+      UI.info "Guard is now watching at '#{ watched }'"
 
       begin
         while interactor.foreground != :exit
-          _process_queue while pending_changes?
+          Guard.queue.process while Guard.queue.pending?
         end
       rescue Interrupt
       end
@@ -45,14 +47,13 @@ module Guard
       stop
     end
 
-    # TODO: refactor (left to avoid breaking too many specs)
     def stop
       listener.stop
       interactor.background
-      ::Guard::UI.debug "Guard stops all plugins"
-      Guard::Runner.new.run(:stop)
-      ::Guard::Notifier.disconnect
-      ::Guard::UI.info "Bye bye...", reset: true
+      UI.debug "Guard stops all plugins"
+      Runner.new.run(:stop)
+      Notifier.disconnect
+      UI.info "Bye bye...", reset: true
     end
 
     # Reload Guardfile and all Guard plugins currently enabled.
@@ -63,13 +64,13 @@ module Guard
     #
     def reload(scopes = {})
       # TODO: guard reevaluator should probably handle all this
-      ::Guard::UI.clear(force: true)
-      ::Guard::UI.action_with_scopes("Reload", scopes)
+      UI.clear(force: true)
+      UI.action_with_scopes("Reload", scopes)
 
       if scopes.empty?
-        Guard::Guardfile::Evaluator.new(Guard.options).reevaluate_guardfile
+        Reevaluator.new.reevaluate
       else
-        Guard::Runner.new.run(:reload, scopes)
+        Runner.new.run(:reload, scopes)
       end
     end
 
@@ -78,8 +79,8 @@ module Guard
     # @param [Hash] scopes hash with a Guard plugin or a group scope
     #
     def run_all(scopes = {})
-      ::Guard::UI.clear(force: true)
-      ::Guard::UI.action_with_scopes("Run", scopes)
+      UI.clear(force: true)
+      UI.action_with_scopes("Run", scopes)
       Guard::Runner.new.run(:run_all, scopes)
     end
 
@@ -97,7 +98,7 @@ module Guard
     end
 
     def show
-      ::Guard::DslDescriber.new(::Guard.options).show
+      DslDescriber.new.show
     end
   end
   extend Commander

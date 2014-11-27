@@ -4,7 +4,7 @@ RSpec.describe Guard::Terminal do
   subject { described_class }
   it { is_expected.to respond_to(:clear) }
 
-  let(:sheller) { class_double(::Guard::Sheller) }
+  let(:sheller) { class_double("Guard::Sheller") }
 
   before do
     stub_const("::Guard::Sheller", sheller)

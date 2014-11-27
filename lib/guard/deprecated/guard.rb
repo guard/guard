@@ -138,10 +138,9 @@ module Guard
         EOS
 
         def evaluator
-          # TODO: probably deprecate once it isn't used internally
-          # TODO: this will be changed to the following when scope is reworked
           UI.deprecation(EVALUATOR)
-          ::Guard::Guardfile::Evaluator.new(::Guard.options)
+          options = ::Guard.state.session.evaluator_options
+          ::Guard::Guardfile::Evaluator.new(options)
         end
 
         RESET_EVALUATOR = <<-EOS.gsub(/^\s*/, "")
@@ -159,6 +158,19 @@ module Guard
         def runner
           UI.deprecation(RUNNER)
           ::Guard::Runner.new
+        end
+
+        EVALUATE_GUARDFILE = <<-EOS.gsub(/^\s*/, "")
+          Starting with Guard 2.8.2 this method shouldn't be used
+        EOS
+
+        def evaluate_guardfile
+          UI.deprecation(EVALUATE_GUARDFILE)
+          options = ::Guard.state.session.evaluator_options
+          evaluator = ::Guard::Guardfile::Evaluator.new(options)
+          evaluator.evaluate
+          msg = "No plugins found in Guardfile, please add at least one."
+          ::Guard::UI.error msg if _pluginless_guardfile?
         end
       end
     end

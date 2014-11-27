@@ -1,6 +1,5 @@
 require "pry"
 
-# TODO: should not be necessary!
 require "guard/interactor"
 require "guard"
 
@@ -22,7 +21,7 @@ module Guard
           BANNER
 
           def process(*entries)
-            scopes, unknown = ::Guard::Interactor.convert_scope(entries)
+            scopes, unknown = Interactor.convert_scope(entries)
 
             unless unknown.empty?
               output.puts "Unknown scopes: #{ unknown.join(", ") }"

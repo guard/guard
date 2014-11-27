@@ -6,26 +6,39 @@ RSpec.describe Guard::Dsl do
 
   let(:guardfile_evaluator) { instance_double(Guard::Guardfile::Evaluator) }
   let(:interactor) { instance_double(Guard::Interactor) }
-  let(:listener) { instance_double(Listen::Listener) }
+  let(:listener) { instance_double("Listen::Listener") }
+
+  let(:session) { instance_double("Guard::Internals::Session") }
+  let(:plugins) { instance_double("Guard::Internals::Plugins") }
+  let(:groups) { instance_double("Guard::Internals::Groups") }
+  let(:state) { instance_double("Guard::Internals::State") }
+  let(:scope) { instance_double("Guard::Internals::Scope") }
 
   let(:evaluator) do
     Proc.new do |contents|
-      options = { guardfile_contents: contents }
-      ::Guard::Guardfile::Evaluator.new(options).evaluate_guardfile
+      Guard::Dsl.new.evaluate(contents, "", 1)
     end
   end
 
   before do
     stub_user_guard_rb
-    stub_notifier
-    stub_const "Guard::Foo", Class.new(Guard::Plugin)
-    stub_const "Guard::Bar", Class.new(Guard::Plugin)
-    stub_const "Guard::Baz", Class.new(Guard::Plugin)
+    stub_const "Guard::Foo", instance_double(Guard::Plugin)
+    stub_const "Guard::Bar", instance_double(Guard::Plugin)
+    stub_const "Guard::Baz", instance_double(Guard::Plugin)
     allow(Guard::Notifier).to receive(:turn_on)
-    allow(::Guard).to receive(:add_builtin_plugins)
     allow(Listen).to receive(:to).with(Dir.pwd, {})
     allow(Guard::Interactor).to receive(:new).and_return(interactor)
-    allow(::Guard).to receive(:listener) { listener }
+    allow(Guard).to receive(:listener) { listener }
+
+    allow(state).to receive(:scope).and_return(scope)
+    allow(session).to receive(:plugins).and_return(plugins)
+    allow(session).to receive(:groups).and_return(groups)
+    allow(state).to receive(:session).and_return(session)
+    allow(Guard).to receive(:state).and_return(state)
+
+    # For backtrace cleanup
+    allow(ENV).to receive(:[]).with("GEM_HOME").and_call_original
+    allow(ENV).to receive(:[]).with("GEM_PATH").and_call_original
   end
 
   describe "#ignore" do
@@ -113,8 +126,7 @@ RSpec.describe Guard::Dsl do
       let(:contents) { "notification :growl" }
 
       it "adds a notification to the notifier" do
-        expect(::Guard::Notifier).to receive(:add).
-          with(:growl,  silent: false)
+        expect(::Guard::Notifier).to receive(:add).with(:growl,  silent: false)
 
         evaluator.call(contents)
       end
@@ -126,8 +138,7 @@ RSpec.describe Guard::Dsl do
       end
 
       it "adds multiple notifiers" do
-        expect(::Guard::Notifier).to receive(:add).
-          with(:growl,  silent: false)
+        expect(::Guard::Notifier).to receive(:add).with(:growl,  silent: false)
 
         expect(::Guard::Notifier).to receive(:add).
           with(:ruby_gntp,  host: "192.168.1.5", silent: false)
@@ -141,23 +152,25 @@ RSpec.describe Guard::Dsl do
     context "with interactor :off" do
       let(:contents) { "interactor :off" }
       it "disables the interactions with :off" do
+        expect(Guard::Interactor).to receive(:enabled=).with(false)
         evaluator.call(contents)
-        expect(Guard::Interactor).to_not be_enabled
       end
     end
 
     context "with interactor options" do
       let(:contents) { 'interactor option1: \'a\', option2: 123' }
       it "passes the options to the interactor" do
+        expect(Guard::Interactor).to receive(:options=).
+          with(option1: "a", option2: 123)
+
         evaluator.call(contents)
-        expect(Guard::Interactor.options).to include(option1: "a", option2: 123)
       end
     end
   end
 
   describe "#group" do
     context "no plugins in group" do
-      let(:contents) { guardfile_string_with_empty_group }
+      let(:contents) { "group :w" }
 
       it "displays an error" do
         expect(::Guard::UI).to receive(:error).
@@ -173,7 +186,9 @@ RSpec.describe Guard::Dsl do
 
       it "raises an error" do
         expect { evaluator.call(contents) }.
-          to raise_error(ArgumentError, "'all' is not an allowed group name!")
+          to raise_error(
+            Guard::Dsl::Error,
+            /'all' is not an allowed group name!/)
       end
     end
 
@@ -182,7 +197,9 @@ RSpec.describe Guard::Dsl do
 
       it "raises an error" do
         expect { evaluator.call(contents) }.
-          to raise_error(ArgumentError, "'all' is not an allowed group name!")
+          to raise_error(
+            Guard::Dsl::Error,
+            /'all' is not an allowed group name!/)
       end
     end
 
@@ -190,18 +207,23 @@ RSpec.describe Guard::Dsl do
       let(:contents) { valid_guardfile_string }
 
       it "evaluates all groups" do
-        expect(::Guard).to receive(:add_plugin).
-          with(:pow,    watchers: [], callbacks: [], group: :default)
+        expect(groups).to receive(:add).with(:w, {})
+        expect(groups).to receive(:add).with(:y, {})
+        expect(groups).to receive(:add).with(:x, halt_on_fail: true)
 
-        expect(::Guard).to receive(:add_plugin).
-          with(:test,   watchers: [], callbacks: [], group: :w)
+        expect(plugins).to receive(:add).
+          with(:pow, watchers: [], callbacks: [], group: :default)
 
-        expect(::Guard).to receive(:add_plugin).
-          with(:rspec,  watchers: [], callbacks: [], group: :x).twice
+        expect(plugins).to receive(:add).
+          with(:test, watchers: [], callbacks: [], group: :w)
 
-        expect(::Guard).to receive(:add_plugin).
-          with(:less,   watchers: [], callbacks: [], group: :y)
+        expect(plugins).to receive(:add).
+          with(:rspec, watchers: [], callbacks: [], group: :x).twice
 
+        expect(plugins).to receive(:add).
+          with(:less, watchers: [], callbacks: [], group: :y)
+
+        allow(Guard::Notifier).to receive(:add).with(:growl, silent: false)
         evaluator.call(contents)
       end
     end
@@ -209,8 +231,8 @@ RSpec.describe Guard::Dsl do
     context "with multiple names" do
       let(:contents) { "group :foo, :bar do; end" }
       it "adds all given groups" do
-        expect(::Guard).to receive(:add_group).with(:foo, {})
-        expect(::Guard).to receive(:add_group).with(:bar, {})
+        expect(groups).to receive(:add).with(:foo, {})
+        expect(groups).to receive(:add).with(:bar, {})
 
         evaluator.call(contents)
       end
@@ -222,7 +244,7 @@ RSpec.describe Guard::Dsl do
       let(:contents) { 'guard \'test\'' }
 
       it "loads a guard specified as a quoted string from the DSL" do
-        expect(::Guard).to receive(:add_plugin).
+        expect(plugins).to receive(:add).
           with("test",  watchers: [], callbacks: [], group: :default)
 
         evaluator.call(contents)
@@ -233,7 +255,7 @@ RSpec.describe Guard::Dsl do
       let(:contents) { 'guard "test"' }
 
       it "loads a guard specified as a double quoted string from the DSL" do
-        expect(::Guard).to receive(:add_plugin).
+        expect(plugins).to receive(:add).
           with("test",  watchers: [], callbacks: [], group: :default)
 
         evaluator.call(contents)
@@ -244,7 +266,7 @@ RSpec.describe Guard::Dsl do
       let(:contents) { "guard :test" }
 
       it "loads a guard specified as a symbol from the DSL" do
-        expect(::Guard).to receive(:add_plugin).
+        expect(plugins).to receive(:add).
           with(:test,  watchers: [], callbacks: [], group: :default)
 
         evaluator.call(contents)
@@ -255,7 +277,7 @@ RSpec.describe Guard::Dsl do
       let(:contents) { "guard(:test)" }
 
       it "adds the plugin" do
-        expect(::Guard).to receive(:add_plugin).
+        expect(plugins).to receive(:add).
           with(:test,  watchers: [], callbacks: [], group: :default)
         evaluator.call(contents)
       end
@@ -273,7 +295,7 @@ RSpec.describe Guard::Dsl do
           group: :default
         }
 
-        expect(::Guard).to receive(:add_plugin).with("test",  options)
+        expect(plugins).to receive(:add).with("test",  options)
         evaluator.call(contents)
       end
     end
@@ -282,7 +304,9 @@ RSpec.describe Guard::Dsl do
       let(:contents) { "group :foo do; group :bar do; guard :test; end; end" }
 
       it "adds plugin with group info" do
-        expect(::Guard).to receive(:add_plugin).
+        expect(groups).to receive(:add).with(:foo, {})
+        expect(groups).to receive(:add).with(:bar, {})
+        expect(plugins).to receive(:add).
           with(:test,  watchers: [], callbacks: [], group: :bar)
 
         evaluator.call(contents)
@@ -295,10 +319,13 @@ RSpec.describe Guard::Dsl do
       end
 
       it "assigns plugins to correct groups" do
-        expect(::Guard).to receive(:add_plugin).
+        expect(groups).to receive(:add).with(:foo, {})
+        expect(groups).to receive(:add).with(:bar, {})
+
+        expect(plugins).to receive(:add).
           with(:test,  watchers: [], callbacks: [], group: :bar)
 
-        expect(::Guard).to receive(:add_plugin).
+        expect(plugins).to receive(:add).
           with(:rspec,  watchers: [], callbacks: [], group: :default)
 
         evaluator.call(contents)
@@ -307,7 +334,16 @@ RSpec.describe Guard::Dsl do
   end
 
   describe "#watch" do
+    # TODO: this is testing too much
     context "with watchers" do
+      let(:watcher_a) do
+        instance_double("Guard::Watcher", pattern: "a", action: proc { "b" })
+      end
+
+      let(:watcher_c) do
+        instance_double("Guard::Watcher", pattern: "c", action: nil)
+      end
+
       let(:contents) do
         '
         guard :dummy do
@@ -323,7 +359,7 @@ RSpec.describe Guard::Dsl do
           group: :default
         }
 
-        expect(::Guard).to receive(:add_plugin).
+        expect(plugins).to receive(:add).
           with(:dummy, call_params) do |_, options|
           expect(options[:watchers].size).to eq 2
           expect(options[:watchers][0].pattern).to eq "a"
@@ -332,12 +368,21 @@ RSpec.describe Guard::Dsl do
           expect(options[:watchers][1].action).to be_nil
         end
 
+        allow(Guard::Watcher).to receive(:new).with("a", anything).
+          and_return(watcher_a)
+
+        allow(Guard::Watcher).to receive(:new).with("c", nil).
+          and_return(watcher_c)
+
         evaluator.call(contents)
       end
     end
 
     context "with watch in main scope" do
       let(:contents) { 'watch(\'a\')' }
+      let(:watcher) do
+        instance_double("Guard::Watcher", pattern: "a", action: nil)
+      end
 
       it "should create an implicit no-op guard when outside a guard block" do
         plugin_options = {
@@ -346,13 +391,16 @@ RSpec.describe Guard::Dsl do
           group: :default
         }
 
-        expect(::Guard).to receive(:add_plugin).
+        expect(plugins).to receive(:add).
           with(:plugin, plugin_options) do |_, options|
 
           expect(options[:watchers].size).to eq 1
           expect(options[:watchers][0].pattern).to eq "a"
           expect(options[:watchers][0].action).to be_nil
         end
+
+        allow(Guard::Watcher).to receive(:new).with("a", nil).
+          and_return(watcher)
 
         evaluator.call(contents)
       end
@@ -386,7 +434,7 @@ RSpec.describe Guard::Dsl do
           group: :default
         }
 
-        expect(::Guard).to receive(:add_plugin).with(:rspec, params) do |_, opt|
+        expect(plugins).to receive(:add).with(:rspec, params) do |_, opt|
           # TODO: this whole block is too verbose, tests too many things at
           # once and needs refactoring
 
@@ -396,7 +444,7 @@ RSpec.describe Guard::Dsl do
 
           expect(callback_0[:events]).to eq :start_end
 
-          plugin = instance_double(Guard::Plugin, title: "RSpec")
+          plugin = instance_double("Guard::Plugin", title: "RSpec")
           result = callback_0[:listener].call(plugin, :start_end, "foo")
 
           expect(result).to eq 'RSpec executed \'start_end\' hook'\
@@ -539,7 +587,7 @@ RSpec.describe Guard::Dsl do
       let(:contents) { "scope plugins: [:foo, :bar]" }
 
       it "sets the guardfile's default scope" do
-        expect(::Guard).to receive(:setup_scope).with(plugins: [:foo, :bar])
+        expect(session).to receive(:guardfile_scope).with(plugins: [:foo, :bar])
         evaluator.call(contents)
       end
     end
@@ -554,7 +602,7 @@ RSpec.describe Guard::Dsl do
       end
 
       it "sets the watchdirs to given values" do
-        expect(::Guard).to receive(:watchdirs=).with(%w(foo bar))
+        expect(session).to receive(:watchdirs=).with(%w(foo bar))
         evaluator.call(contents)
       end
     end
@@ -563,7 +611,7 @@ RSpec.describe Guard::Dsl do
       let(:contents) { "directories []" }
 
       it "sets the watchdirs to empty" do
-        expect(::Guard).to receive(:watchdirs=).with([])
+        expect(session).to receive(:watchdirs=).with([])
         evaluator.call(contents)
       end
     end
@@ -576,10 +624,10 @@ RSpec.describe Guard::Dsl do
       end
 
       it "fails with an error" do
-        expect(::Guard).to_not receive(:watchdirs=)
+        expect(session).to_not receive(:watchdirs=)
         expect do
           evaluator.call(contents)
-        end.to raise_error(RuntimeError, "Directory \"foo\" does not exist!")
+        end.to raise_error(Guard::Dsl::Error, /Directory "foo" does not exist!/)
       end
     end
   end
@@ -605,9 +653,5 @@ RSpec.describe Guard::Dsl do
       guard :less
     end
     '
-  end
-
-  def guardfile_string_with_empty_group
-    "group :w"
   end
 end

@@ -4,11 +4,16 @@ require "guard/guardfile/evaluator"
 
 RSpec.describe Guard::PluginUtil do
 
-  let(:guard_rspec_class) { class_double(Guard::Plugin) }
-  let(:guard_rspec) { instance_double(Guard::Plugin) }
-  let(:evaluator) { instance_double(Guard::Guardfile::Evaluator) }
+  let(:guard_rspec_class) { class_double("Guard::Plugin") }
+  let(:guard_rspec) { instance_double("Guard::Plugin") }
+  let(:evaluator) { instance_double("Guard::Guardfile::Evaluator") }
+  let(:session) { instance_double("Guard::Internals::Session") }
+  let(:state) { instance_double("Guard::Internals::State") }
 
   before do
+    allow(session).to receive(:evaluator_options).and_return({})
+    allow(state).to receive(:session).and_return(session)
+    allow(Guard).to receive(:state).and_return(state)
     allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
   end
 
@@ -185,15 +190,16 @@ RSpec.describe Guard::PluginUtil do
     end
 
     context "with an inline Guard class" do
-      it "returns the Guard class" do
-        plugin = described_class.new("inline")
-        module Guard
-          class Inline < ::Guard::Plugin
-          end
-        end
+      subject { described_class.new("inline") }
+      let(:plugin_class) { class_double("Guard::Plugin") }
 
-        expect(plugin).to_not receive(:require)
-        expect(plugin.plugin_class).to eq Guard::Inline
+      it "returns the Guard class" do
+        allow(Guard).to receive(:constants).and_return([:Inline])
+        allow(Guard).to receive(:const_get).with(:Inline).
+          and_return(plugin_class)
+
+        expect(subject).to_not receive(:require)
+        expect(subject.plugin_class).to eq plugin_class
       end
     end
 
@@ -211,7 +217,8 @@ RSpec.describe Guard::PluginUtil do
 
   describe "#add_to_guardfile" do
     before do
-      allow(evaluator).to receive(:evaluate_guardfile)
+      allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
+      allow(evaluator).to receive(:evaluate)
     end
 
     context "when the Guard is already in the Guardfile" do
@@ -229,34 +236,30 @@ RSpec.describe Guard::PluginUtil do
 
     context "when the Guard is not in the Guardfile" do
       let(:plugin_util) { described_class.new("myguard") }
-
-      let(:long_path_not_sure_why) do
-        "/Users/me/projects/guard-myguard/lib"\
-          "/guard/myguard/templates/Guardfile"
-      end
+      let(:plugin_class) { class_double("Guard::Plugin") }
+      let(:location) { "/Users/me/projects/guard-myguard" }
+      let(:gem_spec) { instance_double("Gem::Specification") }
+      let(:io) { StringIO.new }
 
       before do
-        stub_const "Guard::Myguard", Class.new(Guard::Plugin)
-        allow(plugin_util).to receive(:plugin_class) { Guard::Myguard }
-
-        expect(plugin_util).to receive(:plugin_location) do
-          "/Users/me/projects/guard-myguard"
-        end
-
+        allow(gem_spec).to receive(:full_gem_path).and_return(location)
         allow(evaluator).to receive(:guardfile_include?) { false }
+        allow(Guard).to receive(:constants).and_return([:MyGuard])
+        allow(Guard).to receive(:const_get).with(:MyGuard).
+          and_return(plugin_class)
+
+        allow(Gem::Specification).to receive(:find_by_name).
+          with("guard-myguard").and_return(gem_spec)
+
+        allow(plugin_class).to receive(:template).with(location).
+          and_return("Template content")
+
+        allow(File).to receive(:read).with("Guardfile") { "Guardfile content" }
+        allow(File).to receive(:open).with("Guardfile", "wb").and_yield io
       end
 
       it "appends the template to the Guardfile" do
-        expect(File).to receive(:read).with("Guardfile") { "Guardfile content" }
-
-        expect(File).to receive(:read).
-          with(long_path_not_sure_why) { "Template content" }
-
-        io = StringIO.new
-        expect(File).to receive(:open).with("Guardfile", "wb").and_yield io
-
         plugin_util.add_to_guardfile
-
         expect(io.string).to eq "Guardfile content\n\nTemplate content\n"
       end
     end

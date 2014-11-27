@@ -44,25 +44,39 @@ def stub_user_project_guardfile(contents = nil, &block)
   stub_file(File.expand_path(".Guardfile"), contents, &block)
 end
 
-def stub_notifier
-  allow(Guard::Notifier).to receive(:connect)
-  allow(Guard::Notifier).to receive(:disconnect)
-  allow(Guard::Notifier).to receive(:turn_on)
-  allow(Guard::Notifier).to receive(:turn_off)
-  allow(Guard::Notifier).to receive(:notify)
-  allow(Guard::Notifier).to receive(:add)
+def stub_mod(mod, excluded)
+  mod.constants.each do |klass_name|
+    klass = mod.const_get(klass_name)
+    if klass.is_a?(Class)
+      unless klass == described_class
+        unless excluded.include?(klass)
+          inst = instance_double(klass)
+          allow(klass).to receive(:new).and_return(inst)
+          # TODO: use object_double?
+          class_double(klass.to_s).
+            as_stubbed_const(transfer_nested_constants: true)
+        end
+      end
+    elsif klass.is_a?(Module)
+      stub_mod(klass, excluded)
+    end
+  end
 end
 
-# TODO: I can't wait to replace these with IO.read + rescuing Errno:ENOENT
 def stub_file(path, contents = nil, &block)
   exists = !contents.nil?
   allow(File).to receive(:exist?).with(path).and_return(exists)
-  return unless exists
-  if block.nil?
-    allow(File).to receive(:read).with(path).and_return(contents)
+  if exists
+    if block.nil?
+      allow(IO).to receive(:read).with(path).and_return(contents)
+    else
+      allow(IO).to receive(:read).with(path) do
+        block.call
+      end
+    end
   else
-    allow(File).to receive(:read).with(path) do
-      block.call
+    allow(IO).to receive(:read).with(path) do
+      fail Errno::ENOENT
     end
   end
 end
@@ -156,12 +170,38 @@ RSpec.configure do |config|
   config.before(:each) do |example|
     stub_const("FileUtils", class_double(FileUtils))
 
+    excluded = []
+    excluded += Array(example.metadata[:exclude_stubs])
+    excluded << Guard::Config if Guard.constants.include?(:Config)
+    excluded << Guard::Options if Guard.constants.include?(:Options)
+    excluded << Guard::Jobs::Base if Guard.constants.include?(:Jobs)
+
+    excluded << Guard::DuMmy if Guard.constants.include?(:DuMmy)
+
+    if Guard.constants.include?(:Notifier)
+      if Guard::Notifier.constants.include?(:NotServer)
+        excluded << Guard::Notifier::NotServer
+      end
+      if Guard::Notifier.constants.include?(:FooBar)
+        excluded << Guard::Notifier::FooBar
+      end
+      if Guard::Notifier.constants.include?(:Base)
+        excluded << Guard::Notifier::Base
+      end
+    end
+
+    modules = [Guard]
+    modules << Listen if Object.const_defined?(:Listen)
+    modules.each do |mod|
+      stub_mod(mod, excluded)
+    end
+
     allow(ENV).to receive(:[]=) do |*args|
-      fail "stub me: ENV[#{args.first}]= #{args.map(&:inspect)[1..-1] * ","}!"
+      abort "stub me: ENV[#{args.first}]= #{args.map(&:inspect)[1..-1] * ","}!"
     end
 
     allow(ENV).to receive(:[]) do |*args|
-      fail "stub me: ENV[#{args.first}]!"
+      abort "stub me: ENV[#{args.first}]!"
     end
 
     allow(ENV).to receive(:key?) do |*args|
@@ -181,6 +221,8 @@ RSpec.configure do |config|
 
     # Needed for debugging
     allow(ENV).to receive(:[]).with("DISABLE_PRY").and_call_original
+    allow(ENV).to receive(:[]).with("PRYRC").and_call_original
+    allow(ENV).to receive(:[]).with("PAGER").and_call_original
 
     # Workarounds for Cli inheriting from Thor
     allow(ENV).to receive(:[]).with("ANSICON").and_call_original
@@ -189,7 +231,20 @@ RSpec.configure do |config|
 
     %w(read write exist?).each do |meth|
       allow(File).to receive(meth.to_sym).with(anything) do |*args, &_block|
-        abort "stub me! (File.#{meth}(#{args.inspect}))"
+        abort "stub me! (File.#{meth}(#{args.map(&:inspect).join(", ")}))"
+      end
+    end
+
+    %w(read write binwrite binread).each do |meth|
+      allow(IO).to receive(meth.to_sym).with(anything) do |*args, &_block|
+        abort "stub me! (IO.#{meth}(#{args.map(&:inspect).join(", ")}))"
+      end
+    end
+
+    %w(exist?).each do |meth|
+      allow_any_instance_of(Pathname).
+        to receive(meth.to_sym) do |*args, &_block|
+        abort "stub me! (Pathname##{meth}(#{args.map(&:inspect).join(", ")}))"
       end
     end
 
@@ -197,39 +252,13 @@ RSpec.configure do |config|
       abort "stub me! (Dir#exist?(#{args.map(&:inspect) * ", "}))"
     end
 
-    # TODO: remove (instance vars cleared anyway)
-    Guard.send(:_reset_for_tests) if ::Guard.respond_to?(:add_group)
-
-    # TODO: remove (instance vars cleared anyway)
-    Guard.clear_options if ::Guard.respond_to?(:add_group)
-
-    # TODO: use metadata to stub out all used classes
     if Guard.const_defined?("UI")
       # Stub all UI methods, so no visible output appears for the UI class
-      allow(::Guard::UI).to receive(:info)
-      allow(::Guard::UI).to receive(:warning)
-      allow(::Guard::UI).to receive(:error)
-      allow(::Guard::UI).to receive(:debug)
-      allow(::Guard::UI).to receive(:deprecation)
-    end
-
-    if Guard.const_defined?("Notifier")
-      # TODO: use metadata to stub out all used classes
-      if Guard::Notifier.const_defined?("TerminalTitle")
-        # Avoid clobbering the terminal
-        allow(Guard::Notifier::TerminalTitle).to receive(:puts)
-      end
-
-      # TODO: use metadata to stub out all used classes
-      if Guard::Notifier.const_defined?("Tmux")
-        allow(Guard::Notifier::Tmux).to receive(:system) do |*args|
-          fail "stub for system() called with: #{args.inspect}"
-        end
-
-        allow(Guard::Notifier::Tmux).to receive(:`) do |*args|
-          fail "stub for `(backtick) called with: #{args.inspect}"
-        end
-      end
+      allow(Guard::UI).to receive(:info)
+      allow(Guard::UI).to receive(:warning)
+      allow(Guard::UI).to receive(:error)
+      allow(Guard::UI).to receive(:debug)
+      allow(Guard::UI).to receive(:deprecation)
     end
 
     allow(Kernel).to receive(:system) do |*args|
@@ -244,16 +273,6 @@ RSpec.configure do |config|
         end
       end
     end
-
-    # TODO: use metadata to stub out all used classes
-    if Object.const_defined?("Listen")
-      allow(Listen).to receive(:to) do |*args|
-        fail "stub for Listen.to called with: #{args.inspect}"
-      end
-    end
-
-    # TODO: remove (instance vars cleared anyway)
-    ::Guard.reset_groups if ::Guard.respond_to?(:add_group)
   end
 
   config.after(:each) do

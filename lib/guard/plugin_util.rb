@@ -96,21 +96,19 @@ module Guard
     def plugin_class(options = {})
       options = { fail_gracefully: false }.merge(options)
 
-      try_require = false
-      begin
-        if try_require
-          require "guard/#{name.downcase}"
-        end
+      const = _plugin_constant
+      fail TypeError, "no constant: #{_constant_name}" unless const
+      @plugin_class ||= Guard.const_get(const)
 
-        @plugin_class ||= ::Guard.const_get(_plugin_constant)
+    rescue TypeError
+      begin
+        require "guard/#{ name.downcase }"
+        const = _plugin_constant
+        @plugin_class ||= Guard.const_get(const)
+
       rescue TypeError => error
-        if try_require
-          ::Guard::UI.error "Could not find class Guard::#{ _constant_name }"
-          ::Guard::UI.error error.backtrace.join("\n")
-        else
-          try_require = true
-          retry
-        end
+        UI.error "Could not find class Guard::#{ _constant_name }"
+        UI.error error.backtrace.join("\n")
       rescue LoadError => error
         unless options[:fail_gracefully]
           UI.error ERROR_NO_GUARD_OR_CLASS % [name.downcase, _constant_name]
@@ -123,18 +121,21 @@ module Guard
     # Adds a plugin's template to the Guardfile.
     #
     def add_to_guardfile
+      klass = plugin_class # call here to avoid failing later
+
       require "guard/guardfile/evaluator"
-      # TODO: move this method to Generator?
-      evaluator = Guard::Guardfile::Evaluator.new
-      evaluator.evaluate_guardfile
+      # TODO: move this to Generator?
+      options = Guard.state.session.evaluator_options
+      evaluator = Guardfile::Evaluator.new(options)
+      evaluator.evaluate
       if evaluator.guardfile_include?(name)
-        ::Guard::UI.info "Guardfile already includes #{ name } guard"
+        UI.info "Guardfile already includes #{ name } guard"
       else
         content = File.read("Guardfile")
         File.open("Guardfile", "wb") do |f|
           f.puts(content)
           f.puts("")
-          f.puts(plugin_class.template(plugin_location))
+          f.puts(klass.template(plugin_location))
         end
 
         UI.info INFO_ADDED_GUARD_TO_GUARDFILE % name
@@ -150,7 +151,7 @@ module Guard
     #   => Guard::RSpec
     #
     def _plugin_constant
-      @_plugin_constant ||= ::Guard.constants.detect do |c|
+      @_plugin_constant ||= Guard.constants.detect do |c|
         c.to_s.downcase == _constant_name.downcase
       end
     end

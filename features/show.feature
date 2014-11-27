@@ -23,4 +23,4 @@ Feature: Show
     end
     """
     When I run `guard show`
-    Then the output should match /^\s+\| Default \| Cucumber\s+ \|/
+    Then the output should match /^\s+\| Default \| Cucumber\s+\|/

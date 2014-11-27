@@ -3,53 +3,30 @@ require "guard/plugin"
 require "guard/dsl_describer"
 require "formatador"
 
-# TODO: temporary to get specs working
-require "listen"
-
 RSpec.describe Guard::DslDescriber do
   let(:interactor) { instance_double(Guard::Interactor) }
-
-  let(:guardfile) do
-    <<-GUARDFILE
-      ignore! %r{tmp/}
-      filter! %r{\.log}
-      notification :gntp, sticky: true
-
-      guard :test, a: :b, c: :d do
-        watch('c')
-      end
-
-      group :a do
-        guard 'test', x: 1, y: 2 do
-          watch('c')
-        end
-      end
-
-      group "b" do
-        guard :another do
-          watch('c')
-        end
-      end
-    GUARDFILE
-  end
-
   let(:env) { double("ENV") }
 
+  let(:session) { instance_double("Guard::Internals::Session") }
+  let(:plugins) { instance_double("Guard::Internals::Plugins") }
+  let(:groups) { instance_double("Guard::Internals::Groups") }
+  let(:state) { instance_double("Guard::Internals::State") }
+
   before do
-    # TODO: remove once the evaluator is stubbed
-    stub_const("ENV", env)
+    allow(session).to receive(:groups).and_return(groups)
+    allow(session).to receive(:plugins).and_return(plugins)
+    allow(state).to receive(:session).and_return(session)
+    allow(Guard).to receive(:state).and_return(state)
+
     allow(env).to receive(:[]).with("GUARD_NOTIFY_PID")
     allow(env).to receive(:[]).with("GUARD_NOTIFY")
     allow(env).to receive(:[]).with("GUARD_NOTIFIERS")
     allow(env).to receive(:[]=).with("GUARD_NOTIFIERS", anything)
 
-    allow(Guard::Interactor).to receive(:new).and_return(interactor)
     allow(Guard::Notifier).to receive(:turn_on)
-    allow(::Guard).to receive(:add_builtin_plugins)
-    allow(Listen).to receive(:to).with(Dir.pwd, {})
 
-    stub_const "Guard::Test", Class.new(Guard::Plugin)
-    stub_const "Guard::Another", Class.new(Guard::Plugin)
+    stub_const "Guard::Test", class_double("Guard::Plugin")
+    stub_const "Guard::Another", class_double("Guard::Plugin")
 
     @output = ""
 
@@ -77,18 +54,22 @@ RSpec.describe Guard::DslDescriber do
       OUTPUT
     end
 
+    let(:another) { instance_double("Guard::Plugin", title: "Another") }
+    let(:test) { instance_double("Guard::Plugin", title: "Test") }
+
     before do
-      stub_user_guard_rb
-      allow(::Guard::PluginUtil).to receive(:plugin_names) do
+      allow(plugins).to receive(:all).with("another").and_return([another])
+      allow(plugins).to receive(:all).with("test").and_return([test])
+      allow(plugins).to receive(:all).with("even").and_return([])
+      allow(plugins).to receive(:all).with("more").and_return([])
+
+      allow(Guard::PluginUtil).to receive(:plugin_names) do
         %w(test another even more)
       end
     end
 
     it "lists the available Guards declared as strings or symbols" do
-      # TODO: temporary hack to get specs working
-      allow(Guard::Notifier).to receive(:add)
-
-      ::Guard::DslDescriber.new(guardfile_contents: guardfile).list
+      subject.list
       expect(@output).to eq result
     end
   end
@@ -110,14 +91,30 @@ RSpec.describe Guard::DslDescriber do
       OUTPUT
     end
 
+    before do
+      allow(groups).to receive(:all).and_return [
+        instance_double("Guard::Group", name: :default, title: "Default"),
+        instance_double("Guard::Group", name: :a, title: "A"),
+        instance_double("Guard::Group", name: :b, title: "B"),
+      ]
+
+      allow(plugins).to receive(:all).with(group: :default) do
+        options = { a: :b, c: :d }
+        [instance_double("Guard::Plugin", title: "Test", options: options)]
+      end
+
+      allow(plugins).to receive(:all).with(group: :a) do
+        options = { x: 1, y: 2 }
+        [instance_double("Guard::Plugin", title: "Test", options: options)]
+      end
+
+      allow(plugins).to receive(:all).with(group: :b).and_return [
+        instance_double("Guard::Plugin", title: "Another", options: [])
+      ]
+    end
+
     it "shows the Guards and their options" do
-      stub_user_guard_rb
-
-      # TODO: temporary hack to get specs working
-      allow(Guard::Notifier).to receive(:add)
-
-      ::Guard::DslDescriber.new(guardfile_contents: guardfile).show
-
+      subject.show
       expect(@output).to eq result
     end
   end
@@ -145,11 +142,11 @@ RSpec.describe Guard::DslDescriber do
       allow(::Guard::Notifier::GNTP).to receive(:available?) { true }
       allow(::Guard::Notifier::TerminalTitle).to receive(:available?) { false }
 
-      allow(::Guard::Notifier).to receive(:notifiers).and_return [
-        { name: :gntp, options: { sticky: true } }
-      ]
-      stub_user_guard_rb
-      stub_notifier
+      allow(Guard::Notifier).to receive(:connect).once.ordered
+      allow(::Guard::Notifier).to receive(:notifiers).
+        and_return([{ name: :gntp, options: { sticky: true } }])
+
+      allow(Guard::Notifier).to receive(:disconnect).once.ordered
     end
 
     it "properly connects and disconnects" do
@@ -160,14 +157,11 @@ RSpec.describe Guard::DslDescriber do
 
       expect(Guard::Notifier).to receive(:disconnect).once.ordered
 
-      ::Guard::DslDescriber.new(guardfile_contents: guardfile).notifiers
+      subject.notifiers
     end
 
     it "shows the notifiers and their options" do
-      # TODO: quick hacks until this spec uses proper stubs
-
-      ::Guard::DslDescriber.new(guardfile_contents: guardfile).notifiers
-
+      subject.notifiers
       expect(@output).to eq result
     end
   end

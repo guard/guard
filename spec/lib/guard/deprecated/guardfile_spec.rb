@@ -9,17 +9,22 @@ unless Guard::Config.new.strict?
       module TestModule; end.tap { |mod| described_class.add_deprecated(mod) }
     end
 
+    let(:generator) { instance_double("Guard::Guardfile::Generator") }
+
     before do
       allow(Guard::UI).to receive(:deprecation)
     end
-
-    let(:generator) { instance_double(Guard::Guardfile::Generator) }
 
     describe ".create_guardfile" do
       before do
         allow(File).to receive(:exist?).with("Guardfile").and_return(false)
         template = Guard::Guardfile::Generator::GUARDFILE_TEMPLATE
         allow(FileUtils).to receive(:cp).with(template, "Guardfile")
+
+        allow(Guard::Guardfile::Generator).to receive(:new).
+          and_return(generator)
+
+        allow(generator).to receive(:create_guardfile)
       end
 
       it "displays a deprecation warning to the user" do

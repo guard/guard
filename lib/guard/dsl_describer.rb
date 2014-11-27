@@ -1,9 +1,11 @@
 # encoding: utf-8
 require "formatador"
 
-require "guard/guardfile/evaluator"
 require "guard/ui"
-require "guard/metadata"
+require "guard/notifier"
+
+require "set"
+require "ostruct"
 
 module Guard
   # The DslDescriber evaluates the Guardfile and creates an internal structure
@@ -14,20 +16,8 @@ module Guard
   # @see Guard::CLI
   #
   class DslDescriber
-    # Initializes a new DslDescriber object.
-    #
-    # @option options [String] guardfile the path to a valid Guardfile
-    #
-    # @option options [String] guardfile_contents a string representing the
-    # content of a valid Guardfile
-    #
-    # @see Guard::Guardfile::Evaluator#initialize
-    #
-    def initialize(options = {})
-      ::Guard.reset_groups
-      ::Guard.reset_plugins
-      ::Guard.reset_scope
-      ::Guard.reset_options(options)
+    def initialize(options = nil)
+      fail "options passed to DslDescriber are ignored!" unless options.nil?
     end
 
     # List the Guard plugins that are available for use in your system and marks
@@ -36,17 +26,21 @@ module Guard
     # @see CLI#list
     #
     def list
-      _evaluate_guardfile
-      names = ::Guard::PluginUtil.plugin_names.sort.uniq
-      final_rows = names.inject([]) do |rows, name|
-        used = ::Guard.plugins(name).any?
-        rows << {
-          Plugin: name.capitalize,
-          Guardfile: used ? "✔" : "✘"
-        }
+      # collect metadata
+      data = PluginUtil.plugin_names.sort.inject({}) do |hash, name|
+        hash[name.capitalize] = Guard.state.session.plugins.all(name).any?
+        hash
       end
 
-      Formatador.display_compact_table(final_rows, [:Plugin, :Guardfile])
+      # presentation
+      header = [:Plugin, :Guardfile]
+      final_rows = []
+      data.each do |name, used|
+        final_rows << { Plugin: name, Guardfile: used ? "✔" : "✘" }
+      end
+
+      # render
+      Formatador.display_compact_table(final_rows, header)
     end
 
     # Shows all Guard plugins and their options that are defined in
@@ -55,53 +49,52 @@ module Guard
     # @see CLI#show
     #
     def show
-      _evaluate_guardfile
-      groups = ::Guard.groups
+      # collect metadata
+      groups = Guard.state.session.groups.all
 
-      final_rows = groups.each_with_object([]) do |group, rows|
+      objects = []
 
-        plugins = Array(::Guard.plugins(group: group.name))
+      empty_plugin = OpenStruct.new
+      empty_plugin.options = [["", nil]]
 
+      groups.each do |group|
+        plugins = Array(Guard.state.session.plugins.all(group: group.name))
+        plugins = [empty_plugin] if plugins.empty?
         plugins.each do |plugin|
-          options = plugin.options.inject({}) do |o, (k, v)|
-            o.tap { |option| option[k.to_s] = v }
-          end.sort
-
-          if options.empty?
-            rows << :split
-            rows << {
-              Group: group.title,
-              Plugin: plugin.title,
-              Option: "",
-              Value: ""
-            }
-          else
-            options.each_with_index do |(option, value), index|
-              if index == 0
-                rows << :split
-                rows << {
-                  Group: group.title,
-                  Plugin: plugin.title,
-                  Option: option.to_s,
-                  Value: value.inspect
-                }
-              else
-                rows << {
-                  Group: "",
-                  Plugin: "",
-                  Option: option.to_s,
-                  Value: value.inspect
-                }
-              end
-            end
+          options = plugin.options
+          options = [["", nil]] if options.empty?
+          options.each do |option, raw_value|
+            value = raw_value.nil? ? "" : raw_value.inspect
+            objects << [group.title, plugin.title, option.to_s, value]
           end
         end
-
-        rows
       end
 
+      # presentation
+      rows = []
+      prev_group = prev_plugin = prev_option = prev_value = nil
+      objects.each do |group, plugin, option, value|
+        group_changed = prev_group != group
+        plugin_changed = (prev_plugin != plugin || group_changed)
+
+        rows << :split if group_changed || plugin_changed
+
+        rows << {
+          Group: group_changed ? group : "",
+          Plugin: plugin_changed ? plugin : "",
+          Option: option,
+          Value: value
+        }
+
+        prev_group = group
+        prev_plugin = plugin
+        prev_option = option
+        prev_value = value
+      end
+
+      # render
       Formatador.display_compact_table(
-        final_rows.drop(1),
+        rows.drop(1),
         [:Group, :Plugin, :Option, :Value]
       )
     end
@@ -112,8 +105,6 @@ module Guard
     # @see CLI#show
     #
     def notifiers
-      _evaluate_guardfile
-
       supported = ::Guard::Notifier::SUPPORTED
       Notifier.connect(notify: false)
       detected = Notifier.notifiers
@@ -155,15 +146,6 @@ module Guard
     end
 
     private
-
-    # Evaluates the `Guardfile` by delegating to
-    #   {Guard::Guardfile::Evaluator#evaluate_guardfile}.
-    #
-    def _evaluate_guardfile
-      ::Guard.save_scope
-      ::Guard::Guardfile::Evaluator.new(::Guard.options).evaluate_guardfile
-      ::Guard.restore_scope
-    end
 
     def _merge_options(klass, notifier)
       notify_options = notifier ? notifier[:options] : {}

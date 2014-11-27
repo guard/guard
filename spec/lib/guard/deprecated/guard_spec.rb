@@ -9,6 +9,9 @@ unless Guard::Config.new.strict?
   require "guard/config"
 
   RSpec.describe Guard::Deprecated::Guard do
+    let(:session) { instance_double("Guard::Internals::Session") }
+    let(:state) { instance_double("Guard::Internals::State") }
+
     subject do
       module TestModule
         def self.plugins(_filter)
@@ -16,12 +19,19 @@ unless Guard::Config.new.strict?
 
         def self.add_plugin(*_args)
         end
+
+        def self._pluginless_guardfile?
+          false
+        end
       end
       TestModule.tap { |mod| described_class.add_deprecated(mod) }
     end
 
     before do
       allow(Guard::UI).to receive(:deprecation)
+      allow(session).to receive(:evaluator_options).and_return({})
+      allow(state).to receive(:session).and_return(session)
+      allow(Guard).to receive(:state).and_return(state)
     end
 
     describe ".guards" do
@@ -60,7 +70,7 @@ unless Guard::Config.new.strict?
 
     describe ".get_guard_class" do
       let(:plugin_util) do
-        instance_double(Guard::PluginUtil, plugin_class: true)
+        instance_double("Guard::PluginUtil", plugin_class: true)
       end
 
       before do
@@ -91,7 +101,7 @@ unless Guard::Config.new.strict?
 
     describe ".locate_guard" do
       let(:plugin_util) do
-        instance_double(Guard::PluginUtil, plugin_location: true)
+        instance_double("Guard::PluginUtil", plugin_location: true)
       end
 
       before do
@@ -165,6 +175,26 @@ unless Guard::Config.new.strict?
         expect(Guard::UI).to receive(:deprecation).
           with(Guard::Deprecated::Guard::ClassMethods::EVALUATOR)
         subject.evaluator
+      end
+    end
+
+    describe "evaluate_guardfile" do
+      let(:evaluator) { instance_double("Guard::Guardfile::Evaluator") }
+
+      before do
+        allow(::Guard::Guardfile::Evaluator).to receive(:new).
+          and_return(evaluator)
+        allow(evaluator).to receive(:evaluate)
+      end
+
+      it "show deprecation warning" do
+        expect(Guard::UI).to receive(:deprecation).
+          with(Guard::Deprecated::Guard::ClassMethods::EVALUATOR)
+        subject.evaluate_guardfile
+      end
+
+      it "evaluates the guardfile" do
+        subject.evaluate_guardfile
       end
     end
   end
