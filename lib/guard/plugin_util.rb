@@ -121,9 +121,12 @@ module Guard
     # Adds a plugin's template to the Guardfile.
     #
     def add_to_guardfile
+      klass = plugin_class # call here to avoid failing later
+
       require "guard/guardfile/evaluator"
       # TODO: move this to Generator?
-      evaluator = Guardfile::Evaluator.new(Guard.options)
+      options = Guard.state.session.evaluator_options
+      evaluator = Guardfile::Evaluator.new(options)
       evaluator.evaluate
       if evaluator.guardfile_include?(name)
         UI.info "Guardfile already includes #{ name } guard"
@@ -132,7 +135,7 @@ module Guard
         File.open("Guardfile", "wb") do |f|
           f.puts(content)
           f.puts("")
-          f.puts(plugin_class.template(plugin_location))
+          f.puts(klass.template(plugin_location))
         end
 
         UI.info INFO_ADDED_GUARD_TO_GUARDFILE % name
@@ -148,7 +151,7 @@ module Guard
     #   => Guard::RSpec
     #
     def _plugin_constant
-      @_plugin_constant ||= ::Guard.constants.detect do |c|
+      @_plugin_constant ||= Guard.constants.detect do |c|
         c.to_s.downcase == _constant_name.downcase
       end
     end

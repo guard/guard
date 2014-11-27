@@ -1,12 +1,9 @@
 require "guard/config"
+
 require "guard/options"
 require "guard/plugin"
 
-# TODO: this class shouldn't use notify directly
-require "guard/notifier"
-
 require "guard/dsl"
-require "guard/metadata"
 
 require "guard/deprecated/evaluator" unless Guard::Config.new.strict?
 
@@ -52,7 +49,6 @@ module Guard
       # content of a valid Guardfile
       #
       def initialize(opts = {})
-        @evaluated = false
         @type = nil
         @path = nil
         @user_config = nil
@@ -87,17 +83,12 @@ module Guard
       #   Guard::Guardfile::Evaluator.new(options).evaluate
       #
       def evaluate
-        Guard.reset(:evaluate)
         inline? || _use_provided || _use_default!
-
-        # TODO: remove?
-        @evaluated = true
 
         contents = _guardfile_contents
         fail NoPluginsError, ERROR_NO_PLUGINS unless /guard/m =~ contents
 
         Dsl.new.evaluate(contents, @path || "", 1)
-        Guard.refresh(:evaluate)
       end
 
       # Tests if the current `Guardfile` contains a specific Guard plugin.
@@ -145,7 +136,6 @@ module Guard
       private
 
       def _guardfile_contents_without_user_config
-        fail "BUG: no data - Guardfile wasn't evaluated" unless @evaluated
         @guardfile_contents || ""
       end
 
@@ -211,7 +201,6 @@ module Guard
       end
 
       def _guardfile_contents
-        fail "BUG: no data - Guardfile wasn't evaluated" unless @evaluated
         @user_config ||= Pathname("~/.guard.rb").expand_path.read
         [@contents, @user_config].compact.join("\n")
       rescue Errno::ENOENT

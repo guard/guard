@@ -16,7 +16,8 @@ module Guard
         def match_guardfile?(files)
           require "guard/guardfile/evaluator"
           UI.deprecation(MATCH_GUARDFILE)
-          evaluator = ::Guard::Guardfile::Evaluator.new(::Guard.options)
+          options = ::Guard.state.session.evaluator_options
+          evaluator = ::Guard::Guardfile::Evaluator.new(options)
           path = evaluator.guardfile_path
           files.any? { |file| File.expand_path(file) == path }
         end

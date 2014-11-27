@@ -76,7 +76,7 @@ module Guard
 
     # Reset all callbacks.
     #
-    # TODO: remove
+    # TODO: remove (not used anywhere)
     def self.reset_callbacks!
       @callbacks = nil
     end
@@ -118,7 +118,7 @@ module Guard
                     event
                   end
 
-      ::Guard::UI.debug "Hook :#{ hook_name } executed for #{ self.class }"
+      UI.debug "Hook :#{ hook_name } executed for #{ self.class }"
 
       self.class.notify(self, hook_name.to_sym, *args)
     end
@@ -268,21 +268,6 @@ module Guard
 
     private
 
-    # Sets the @group, @watchers, @callbacks and @options variables from the
-    # given options hash.
-    #
-    # @param [Hash] options the Guard plugin options
-    #
-    # @see Guard::Plugin.initialize
-    #
-    def _set_instance_variables_from_options(options)
-      group_name = options.delete(:group) { :default }
-      @group = ::Guard.add_group(group_name)
-      @watchers  = options.delete(:watchers) { [] }
-      @callbacks = options.delete(:callbacks) { [] }
-      @options   = options
-    end
-
     # Initializes a Guard plugin.
     # Don't do any work here, especially as Guard plugins get initialized even
     # if they are not in an active group!
@@ -295,7 +280,11 @@ module Guard
     #   a watcher
     #
     def initialize(options = {})
-      _set_instance_variables_from_options(options)
+      group_name = options.delete(:group) { :default }
+      @group = Guard.state.session.groups.add(group_name)
+      @watchers = options.delete(:watchers) { [] }
+      @callbacks = options.delete(:callbacks) { [] }
+      @options  = options
       _register_callbacks
     end
 

@@ -68,10 +68,12 @@ module Guard
         scopes  = { plugins: [], groups: [] }
         unknown = []
 
+        session = Guard.state.session
+
         entries.each do |entry|
-          if plugin = ::Guard.plugin(entry)
+          if plugin = session.plugins.all(entry).first
             scopes[:plugins] << plugin
-          elsif group = ::Guard.group(entry)
+          elsif group = session.groups.all(entry).first
             scopes[:groups] << group
           else
             unknown << entry

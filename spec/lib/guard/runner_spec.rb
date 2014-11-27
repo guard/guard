@@ -4,43 +4,38 @@ require "guard/plugin"
 
 RSpec.describe Guard::Runner do
   let(:backend_group) do
-    instance_double(::Guard::Group, options: {}, name: :backend)
+    instance_double("Guard::Group", options: {}, name: :backend)
   end
 
   let(:frontend_group) do
-    instance_double(::Guard::Group, options: {}, name: :frontend)
+    instance_double("Guard::Group", options: {}, name: :frontend)
   end
 
   let(:foo_plugin) { double("foo", group: backend_group, hook: nil) }
   let(:bar_plugin) { double("bar", group: frontend_group, hook: nil) }
   let(:baz_plugin) { double("baz", group: frontend_group, hook: nil) }
 
+  let(:scope) { instance_double("Guard::Internals::Scope") }
+  let(:plugins) { instance_double("Guard::Internals::Plugins") }
+  let(:state) { instance_double("Guard::Internals::State") }
+  let(:session) { instance_double("Guard::Internals::Session") }
+
   before do
-    allow(Guard).to receive(:scope).and_return({})
+    allow(session).to receive(:plugins).and_return(plugins)
+    allow(state).to receive(:session).and_return(session)
+    allow(state).to receive(:scope).and_return(scope)
+    allow(Guard).to receive(:state).and_return(state)
   end
 
   describe "#run" do
     before do
-      # TODO: these should be replaced when new Scop class is implemented
-      allow(::Guard).to receive(:groups).with(no_args).
-        and_return([backend_group, frontend_group])
-
-      allow(::Guard).to receive(:groups).with(:common).
-        and_return([double("group", name: :common)])
-
-      allow(::Guard).to receive(:plugins).with(group: :common).
-        and_return([])
-
-      allow(::Guard).to receive(:plugins).with(group: :backend).
-        and_return([foo_plugin])
-
-      allow(::Guard).to receive(:plugins).with(group: :frontend).
-        and_return([bar_plugin, baz_plugin])
+      allow(scope).to receive(:grouped_plugins).with({}).
+        and_return([[nil, [foo_plugin, bar_plugin, baz_plugin]]])
     end
 
     it "executes supervised task on all registered plugins implementing it" do
       [foo_plugin, bar_plugin].each do |plugin|
-        expect(plugin).to receive(:my_hard_task) {}
+        expect(plugin).to receive(:my_hard_task)
       end
 
       subject.run(:my_hard_task)
@@ -54,7 +49,7 @@ RSpec.describe Guard::Runner do
     context "with interrupted task" do
       before do
         allow(foo_plugin).to receive(:failing).and_raise(Interrupt)
-        allow(::Guard).to receive(:plugins).and_return([foo_plugin])
+        # allow(Guard).to receive(:plugins).and_return([foo_plugin])
       end
 
       it "catches the thrown symbol" do
@@ -66,7 +61,8 @@ RSpec.describe Guard::Runner do
       let(:scope_hash) { { plugin: :bar } }
 
       it "executes the supervised task on the specified plugin only" do
-        expect(::Guard).to receive(:plugins).and_return([bar_plugin])
+        expect(scope).to receive(:grouped_plugins).with(scope_hash).
+          and_return([[nil, [bar_plugin]]])
 
         expect(bar_plugin).to receive(:my_task)
         expect(foo_plugin).to_not receive(:my_task)
@@ -80,22 +76,6 @@ RSpec.describe Guard::Runner do
       let(:scope_hash) { nil }
 
       it "executes the supervised task using current scope" do
-        # TODO: this should be cleaned up once scopes are reimplemented
-        allow(::Guard).to receive(:groups).with(no_args).
-          and_return([backend_group, frontend_group])
-
-        allow(::Guard).to receive(:groups).with(:common).
-          and_return([double("group", name: :common)])
-
-        allow(::Guard).to receive(:plugins).with(group: :common).
-          and_return([])
-
-        allow(::Guard).to receive(:plugins).with(group: :backend).
-          and_return([foo_plugin])
-
-        allow(::Guard).to receive(:plugins).with(group: :frontend).
-          and_return([bar_plugin, baz_plugin])
-
         expect(bar_plugin).to receive(:my_task)
         expect(foo_plugin).to receive(:my_task)
         expect(baz_plugin).to receive(:my_task)
@@ -110,8 +90,6 @@ RSpec.describe Guard::Runner do
     let(:watcher_module) { Guard::Watcher }
 
     before do
-      Guard.reset_groups
-
       allow(watcher_module).to receive(:match_files) { [] }
       allow(Guard::UI).to receive(:clear)
 
@@ -130,25 +108,28 @@ RSpec.describe Guard::Runner do
       allow(bar_plugin).to receive(:my_task)
       allow(baz_plugin).to receive(:my_task)
 
-      allow(::Guard).to receive(:plugins).and_return([foo_plugin])
       allow(foo_plugin).to receive(:name).and_return("Foo")
-      # ::Guard.setup
-      allow(::Guard).to receive(:plugins) do |args|
+
+      allow(scope).to receive(:grouped_plugins) do |args|
         fail "stub me (#{args.inspect})!"
       end
 
       # disable reevaluator
-      allow(::Guard).to receive(:plugins).with(group: :common).
-        and_return([])
+      allow(scope).to receive(:grouped_plugins).with(group: :common).
+        and_return([[nil, []]])
 
       # foo in default group
-      allow(::Guard).to receive(:plugins).with(group: :default).
-        and_return([foo_plugin])
+      allow(scope).to receive(:grouped_plugins).with(group: :default).
+        and_return([[nil, [foo_plugin]]])
+
+      allow(scope).to receive(:grouped_plugins).with(no_args).
+        and_return([[nil, [foo_plugin]]])
     end
 
     it "always calls UI.clearable" do
       expect(Guard::UI).to receive(:clearable)
-      allow(Guard).to receive(:scope).and_return({})
+      expect(scope).to receive(:grouped_plugins).with(no_args).
+        and_return([[nil, [foo_plugin]]])
 
       subject.run_on_changes(*changes)
     end
@@ -156,6 +137,8 @@ RSpec.describe Guard::Runner do
     context "when clearable" do
       it "clear UI" do
         expect(Guard::UI).to receive(:clear)
+        expect(scope).to receive(:grouped_plugins).with(no_args).
+          and_return([[nil, [foo_plugin]]])
         subject.run_on_changes(*changes)
       end
     end
@@ -284,9 +267,8 @@ RSpec.describe Guard::Runner do
         end
 
         it "does not remove the Guard" do
-          expect do
-            subject.send(:_supervise, foo_plugin, :regular_without_arg)
-          end.to_not change(::Guard.plugins, :size)
+          expect(plugins).to_not receive(:remove)
+          subject.send(:_supervise, foo_plugin, :regular_without_arg)
         end
 
         it "returns the result of the task" do
@@ -322,14 +304,12 @@ RSpec.describe Guard::Runner do
         end
 
         it "does not remove the Guard" do
-          expect do
-            subject.send(
-              :_supervise,
-              foo_plugin,
-              :regular_with_arg,
-              "given_path")
-
-          end.to_not change(::Guard.plugins, :size)
+          expect(plugins).to_not receive(:remove)
+          subject.send(
+            :_supervise,
+            foo_plugin,
+            :regular_with_arg,
+            "given_path")
         end
 
         it "returns the result of the task" do
@@ -375,11 +355,11 @@ RSpec.describe Guard::Runner do
     context "with a task that raises an exception" do
       before do
         allow(foo_plugin).to receive(:failing) { fail "I break your system" }
-        allow(::Guard).to receive(:remove_plugin).with(foo_plugin)
+        allow(plugins).to receive(:remove).with(foo_plugin)
       end
 
       it "removes the Guard" do
-        expect(::Guard).to receive(:remove_plugin).with(foo_plugin) {}
+        expect(plugins).to receive(:remove).with(foo_plugin) {}
         subject.send(:_supervise, foo_plugin, :failing)
       end
 
@@ -405,13 +385,16 @@ RSpec.describe Guard::Runner do
   end
 
   describe ".stopping_symbol_for" do
-    let(:guard_plugin) { instance_double(Guard::Plugin).as_null_object }
+    let(:guard_plugin) { instance_double("Guard::Plugin") }
+    let(:group) { instance_double("Guard::Group", title: "Foo") }
+
+    before do
+      allow(guard_plugin).to receive(:group).and_return(group)
+    end
 
     context "for a group with :halt_on_fail" do
       before do
-        allow(guard_plugin.group).to receive(:options) do
-          { halt_on_fail: true }
-        end
+        allow(group).to receive(:options).and_return(halt_on_fail: true)
       end
 
       it "returns :no_catch" do
@@ -422,9 +405,7 @@ RSpec.describe Guard::Runner do
 
     context "for a group without :halt_on_fail" do
       before do
-        allow(guard_plugin.group).to receive(:options) do
-          { halt_on_fail: false }
-        end
+        allow(group).to receive(:options).and_return(halt_on_fail: false)
       end
 
       it "returns :task_has_failed" do

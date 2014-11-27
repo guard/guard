@@ -132,7 +132,7 @@ module Guard
 
       if block_given?
         groups.each do |group|
-          Guard.add_group(group, options)
+          Guard.state.session.groups.add(group, options)
         end
 
         @current_groups ||= []
@@ -180,7 +180,8 @@ module Guard
       @current_groups ||= []
       groups = @current_groups && @current_groups.last || [:default]
       groups.each do |group|
-        Guard.add_plugin(name, @plugin_options.merge(group: group))
+        opts = @plugin_options.merge(group: group)
+        Guard.state.session.plugins.add(name, opts)
       end
 
       @plugin_options = nil
@@ -266,6 +267,8 @@ module Guard
       # TODO: instead, use Guard.reconfigure(ignore: regexps) or something
       Guard.listener.ignore(regexps) if Guard.listener
     end
+
+    # TODO: deprecate
     alias filter ignore
 
     # Replaces ignored paths globally
@@ -363,8 +366,7 @@ module Guard
     # @param [Hash] scopes the scope for the groups and plugins
     #
     def scope(scope = {})
-      # Guard.add_scope(:dsl, scope)
-      Guard.setup_scope(scope)
+      Guard.state.session.guardfile_scope(scope)
     end
 
     def evaluate(contents, filename, lineno) # :nodoc
@@ -391,10 +393,15 @@ module Guard
       end
 
       backtrace.dup.map do |raw_line|
+        path = nil
         symlinked_path = raw_line.split(":").first
-        path = raw_line.sub(symlinked_path, File.realpath(symlinked_path))
-        dirs.detect { |dir, name| path.sub!(File.realpath(dir), name) }
-        path
+        begin
+          path = raw_line.sub(symlinked_path, File.realpath(symlinked_path))
+          dirs.detect { |dir, name| path.sub!(File.realpath(dir), name) }
+          path
+        rescue Errno::ENOENT
+          path || symlinked_path
+        end
       end
     end
 
@@ -409,7 +416,7 @@ module Guard
       directories.each do |dir|
         fail "Directory #{dir.inspect} does not exist!" unless Dir.exist?(dir)
       end
-      ::Guard.watchdirs = directories
+      Guard.state.session.watchdirs = directories
     end
   end
 end

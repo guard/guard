@@ -72,7 +72,6 @@ module Guard
         UI.debug "Start interactor"
         @terminal_settings.save
 
-
         _switch_to_pry
         # TODO: rename :stopped to continue
         _killed? ? :stopped : :exit
@@ -225,7 +224,7 @@ module Guard
       # `rspec` is created that runs `all rspec`.
       #
       def _create_guard_commands
-        Guard.plugins.each do |guard_plugin|
+        Guard.state.session.plugins.all.each do |guard_plugin|
           cmd = "Run all #{ guard_plugin.title }"
           Pry.commands.create_command guard_plugin.name, cmd do
             group "Guard"
@@ -243,7 +242,7 @@ module Guard
       # `frontend` is created that runs `all frontend`.
       #
       def _create_group_commands
-        Guard.groups.each do |group|
+        Guard.state.session.groups.all.each do |group|
           next if group.name == :default
 
           cmd = "Run all #{ group.title }"
@@ -268,18 +267,8 @@ module Guard
       # prompt.
       #
       def _scope_for_prompt
-        # titles = Guard.scope_titles.join(",")
-        # titles.empty? ? "" : titles + " "
-        scope_name = [:plugins, :groups].detect do |name|
-          ! ::Guard.scope[name].empty?
-        end
-        scope_name ? "#{_join_scope_for_prompt(scope_name)} " : ""
-      end
-
-      # Joins the scope corresponding to the given scope name with commas.
-      #
-      def _join_scope_for_prompt(scope_name)
-        ::Guard.scope[scope_name].map(&:title).join(",")
+        titles = Guard.state.scope.titles.join(",")
+        titles == "all" ? "" : titles + " "
       end
 
       # Returns a proc that will return itself a string ending with the given

@@ -7,7 +7,15 @@ RSpec.describe Guard::Commander do
   let(:runner) { instance_double("Guard::Runner", run: true) }
   let(:reevaluator) { instance_double("Guard::Reevaluator") }
 
+  let(:scope) { instance_double("Guard::Internals::Scope") }
+  let(:state) { instance_double("Guard::Internals::State") }
+  let(:session) { instance_double("Guard::Internals::Session") }
+
   before do
+    allow(state).to receive(:scope).and_return(scope)
+    allow(state).to receive(:session).and_return(session)
+    allow(Guard).to receive(:state).and_return(state)
+
     allow(Guard::Interactor).to receive(:new) { interactor }
     allow(Guard::Runner).to receive(:new).and_return(runner)
   end
@@ -26,7 +34,7 @@ RSpec.describe Guard::Commander do
       # from stop()
       allow(Guard).to receive(:setup)
       allow(Guard).to receive(:listener).and_return(listener)
-      allow(Guard).to receive(:watchdirs).and_return(%w(dir1 dir2))
+      allow(session).to receive(:watchdirs).and_return(%w(dir1 dir2))
       allow(Guard).to receive(:interactor).and_return(interactor)
 
       # Simulate Ctrl-D in Pry, or Ctrl-C in non-interactive mode
@@ -37,28 +45,28 @@ RSpec.describe Guard::Commander do
     end
 
     it "calls Guard setup" do
-      expect(::Guard).to receive(:setup).with(foo: "bar")
-      ::Guard.start(foo: "bar")
+      expect(Guard).to receive(:setup).with(foo: "bar")
+      Guard.start(foo: "bar")
     end
 
     it "displays an info message" do
-      expect(::Guard::UI).to receive(:info).
+      expect(Guard::UI).to receive(:info).
         with("Guard is now watching at 'dir1', 'dir2'")
 
-      ::Guard.start
+      Guard.start
     end
 
     it "tell the runner to run the :start task" do
 
       expect(runner).to receive(:run).with(:start)
       allow(listener).to receive(:stop)
-      ::Guard.start
+      Guard.start
     end
 
     it "start the listener" do
       expect(listener).to receive(:start)
 
-      ::Guard.start
+      Guard.start
     end
 
     context "when finished" do
@@ -69,9 +77,9 @@ RSpec.describe Guard::Commander do
         expect(interactor).to receive(:background)
         expect(listener).to receive(:stop)
         expect(runner).to receive(:run).with(:stop)
-        expect(::Guard::UI).to receive(:info).with("Bye bye...", reset: true)
+        expect(Guard::UI).to receive(:info).with("Bye bye...", reset: true)
 
-        ::Guard.start
+        Guard.start
       end
     end
   end
@@ -95,7 +103,7 @@ RSpec.describe Guard::Commander do
     end
 
     it "turns the notifier off" do
-      expect(::Guard::Notifier).to have_received(:disconnect)
+      expect(Guard::Notifier).to have_received(:disconnect)
     end
 
     it "tell the runner to run the :stop task" do
@@ -109,23 +117,23 @@ RSpec.describe Guard::Commander do
 
   describe ".reload" do
     let(:runner) { instance_double("Guard::Runner", run: true) }
-    let(:group) { Guard::Group.new("frontend") }
+    let(:group) { instance_double("Guard::Group", name: "frontend") }
 
     before do
       allow(Guard::Notifier).to receive(:connect)
-      allow(Guard).to receive(:scope) { {} }
       allow(Guard::UI).to receive(:info)
       allow(Guard::UI).to receive(:clear)
 
       allow(Guard::Reevaluator).to receive(:new).and_return(reevaluator)
       allow(reevaluator).to receive(:reevaluate)
+      allow(scope).to receive(:titles).and_return(["all"])
 
       stub_guardfile(" ")
       stub_user_guard_rb
     end
 
     it "clears the screen" do
-      expect(::Guard::UI).to receive(:clear)
+      expect(Guard::UI).to receive(:clear)
 
       Guard.reload
     end
@@ -160,7 +168,7 @@ RSpec.describe Guard::Commander do
   end
 
   describe ".run_all" do
-    let(:group) { ::Guard::Group.new("frontend") }
+    let(:group) { instance_double("Guard::Group", name: "frontend") }
 
     before do
       allow(::Guard::Notifier).to receive(:connect)

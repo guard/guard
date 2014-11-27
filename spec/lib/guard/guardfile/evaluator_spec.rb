@@ -20,11 +20,7 @@ RSpec.describe Guard::Guardfile::Evaluator do
   end
 
   before do
-    # TODO: this will be removed/fixed in the future
-    allow(Guard).to receive(:setup_scope)
-
     allow(Guard::Interactor).to receive(:new).with(false)
-    allow(Guard).to receive(:add_plugin)
     allow(Guard::Dsl).to receive(:new).and_return(dsl)
     allow(dsl).to receive(:instance_eval)
   end

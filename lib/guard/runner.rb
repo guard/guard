@@ -1,6 +1,5 @@
 require "lumberjack"
 
-require "guard/metadata"
 require "guard/ui"
 require "guard/watcher"
 
@@ -17,11 +16,16 @@ module Guard
     #
     def run(task, scope_hash = {})
       Lumberjack.unit_of_work do
-        _scoped_plugins(scope_hash || {}) do |plugin|
-          _supervise(plugin, task) if plugin.respond_to?(task)
+        items = Guard.state.scope.grouped_plugins(scope_hash || {})
+        items.each do |_group, plugins|
+          _run_group_plugins(plugins) do |plugin|
+            _supervise(plugin, task) if plugin.respond_to?(task)
+          end
         end
       end
     end
+
+    PLUGIN_FAILED = "%s has failed, other group's plugins will be skipped."
 
     MODIFICATION_TASKS = [
       :run_on_modifications, :run_on_changes, :run_on_change
@@ -44,18 +48,18 @@ module Guard
         REMOVAL_TASKS => removed
       }
 
-      ::Guard::UI.clearable
+      UI.clearable
 
-      _scoped_plugins do |plugin|
-        ::Guard::UI.clear
-
-        types.each do |tasks, unmatched_paths|
-          next if unmatched_paths.empty?
-          match_result = ::Guard::Watcher.match_files(plugin, unmatched_paths)
-          next if match_result.empty?
-
-          next unless (task = tasks.detect { |meth| plugin.respond_to?(meth) })
-          _supervise(plugin, task, match_result)
+      Guard.state.scope.grouped_plugins.each do |_group, plugins|
+        _run_group_plugins(plugins) do |plugin|
+          UI.clear
+          types.each do |tasks, unmatched_paths|
+            next if unmatched_paths.empty?
+            match_result = Watcher.match_files(plugin, unmatched_paths)
+            next if match_result.empty?
+            task = tasks.detect { |meth| plugin.respond_to?(meth) }
+            _supervise(plugin, task, match_result) if task
+          end
         end
       end
     end
@@ -83,12 +87,12 @@ module Guard
         result
       end
     rescue ScriptError, StandardError, RuntimeError
-      ::Guard::UI.error("#{ plugin.class.name } failed to achieve its"\
+      UI.error("#{ plugin.class.name } failed to achieve its"\
                         " <#{ task }>, exception was:" \
                         "\n#{ $!.class }: #{ $!.message }" \
                         "\n#{ $!.backtrace.join("\n") }")
-      ::Guard.remove_plugin(plugin)
-      ::Guard::UI.info("\n#{ plugin.class.name } has just been fired")
+      Guard.state.session.plugins.remove(plugin)
+      UI.info("\n#{ plugin.class.name } has just been fired")
       $!
     end
 
@@ -97,7 +101,6 @@ module Guard
     # @note If a Guard group is being run and it has the `:halt_on_fail`
     #   option set, this method returns :no_catch as it will be caught at the
     #   group level.
-    # @see ._scoped_plugins
     #
     # @param [Guard::Plugin] guard the Guard plugin to execute
     # @return [Symbol] the symbol to catch
@@ -108,97 +111,16 @@ module Guard
 
     private
 
-    # Loop through all groups and run the given task for each Guard plugin.
-    #
-    # If no scope is supplied, the global Guard scope is taken into account.
-    # If both a plugin and a group scope is given, then only the plugin scope
-    # is used.
-    #
-    # Stop the task run for the all Guard plugins within a group if one Guard
-    # throws `:task_has_failed`.
-    #
-    # @param [Hash] scopes hash with plugins or a groups scope
-    # @yield the task to run
-    #
-    def _scoped_plugins(scopes = {})
-      fail "NO PLUGIN SCOPE" if scopes.nil?
-      if plugins = _current_plugins_scope(scopes)
-        plugins.each do |guard|
-          yield(guard)
-        end
-      else
-        _current_groups_scope(scopes).each do |group|
-          fail "Invalid group: #{group.inspect}" unless group.respond_to?(:name)
-          current_plugin = nil
-          block_return = catch :task_has_failed do
-            ::Guard.plugins(group: group.name).each do |guard|
-              current_plugin = guard
-              yield(guard)
-            end
-          end
-
-          next unless block_return.nil?
-
-          ::Guard::UI.info "#{ current_plugin.class.name } has failed,"\
-            " other group's plugins execution has been halted."
+    def _run_group_plugins(plugins)
+      failed_plugin = nil
+      catch :task_has_failed do
+        plugins.each do |plugin|
+          failed_plugin = plugin
+          yield plugin
+          failed_plugin = nil
         end
       end
-    end
-
-    # Returns the current plugins scope.
-    # Local plugins scope wins over global plugins scope.
-    # If no plugins scope is found, then NO plugins are returned.
-    #
-    # @param [Hash] scopes hash with a local plugins or a groups scope
-    # @return [Array<Guard::Plugin>] the plugins to scope to
-    #
-    def _current_plugins_scope(scope)
-      return nil unless (plugins = _find_non_empty_plugins_scope(scope))
-
-      Array(plugins).map { |plugin| _instantiate(:plugin, plugin) }
-    end
-
-    # Returns the current groups scope.
-    # Local groups scope wins over global groups scope.
-    # If no groups scope is found, then ALL groups are returned.
-    #
-    # @param [Hash] scopes hash with a local plugins or a groups scope
-    # @return [Array<Guard::Group>] the groups to scope to
-    #
-    def _current_groups_scope(scope)
-      found = _find_non_empty_groups_scope(scope)
-      groups = Array(found).map { |group| _instantiate(:group, group) }
-      return groups if groups.any? { |g| g.name == :common }
-      ([_instantiate(:group, :common)] + Array(found)).compact
-    end
-
-    def _instantiate(meth, obj)
-      (obj.is_a?(Symbol) || obj.is_a?(String)) ? Guard.send(meth, obj) : obj
-    end
-
-    # Find the first non empty element in the given possibilities
-    #
-    def _find_non_empty_scope(type, local_scope, *additional_possibilities)
-      found = [
-        local_scope[:"#{type}s"],
-        [local_scope[type.to_sym]],
-        ::Guard.scope[:"#{type}s"],
-        additional_possibilities.flatten
-      ]
-      found.compact.detect { |a| !Array(a).compact.empty? }
-    end
-
-    # Find the first non empty plugins scope
-    #
-    def _find_non_empty_plugins_scope(scope)
-      fail "NO PLUGIN SCOPE" if scope.nil?
-      _find_non_empty_scope(:plugin, scope)
-    end
-
-    # Find the first non empty groups scope
-    #
-    def _find_non_empty_groups_scope(scope)
-      _find_non_empty_scope(:group, scope, ::Guard.groups)
+      UI.info format(PLUGIN_FAILED, failed_plugin.class.name) if failed_plugin
     end
   end
 end

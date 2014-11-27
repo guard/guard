@@ -1,6 +1,5 @@
 require "pry"
 
-# TODO: remove
 require "guard"
 
 module Guard
@@ -23,7 +22,7 @@ module Guard
               return
             end
 
-            ::Guard.async_queue_add(modified: files, added: [], removed: [])
+            Guard.async_queue_add(modified: files, added: [], removed: [])
           end
         end
       end

@@ -3,10 +3,11 @@ require "guard/config"
 unless Guard::Config.new.strict?
 
   require "guard/deprecated/watcher"
-  require "guard/metadata"
   require "guard/guardfile/evaluator"
 
   RSpec.describe Guard::Deprecated::Watcher do
+    let(:session) { instance_double("Guard::Internals::Session") }
+
     subject do
       module TestModule; end.tap { |mod| described_class.add_deprecated(mod) }
     end
@@ -14,8 +15,12 @@ unless Guard::Config.new.strict?
     let(:evaluator) { instance_double("Guard::Guardfile::Evaluator") }
     let(:options) { { guardfile: "foo" } }
 
+    let(:state) { instance_double("Guard::Internals::State") }
+
     before do
-      allow(Guard).to receive(:options).and_return(options)
+      allow(session).to receive(:evaluator_options).and_return(options)
+      allow(state).to receive(:session).and_return(session)
+      allow(Guard).to receive(:state).and_return(state)
 
       allow(evaluator).to receive(:guardfile_path).
         and_return(File.expand_path("foo"))

@@ -9,6 +9,9 @@ unless Guard::Config.new.strict?
   require "guard/config"
 
   RSpec.describe Guard::Deprecated::Guard do
+    let(:session) { instance_double("Guard::Internals::Session") }
+    let(:state) { instance_double("Guard::Internals::State") }
+
     subject do
       module TestModule
         def self.plugins(_filter)
@@ -26,6 +29,9 @@ unless Guard::Config.new.strict?
 
     before do
       allow(Guard::UI).to receive(:deprecation)
+      allow(session).to receive(:evaluator_options).and_return({})
+      allow(state).to receive(:session).and_return(session)
+      allow(Guard).to receive(:state).and_return(state)
     end
 
     describe ".guards" do

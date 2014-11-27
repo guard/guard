@@ -19,7 +19,6 @@ RSpec.describe Guard::Interactor do
 
     @interactor_enabled = described_class.enabled?
     described_class.enabled = nil
-    Guard.init({})
   end
 
   after { described_class.enabled = @interactor_enabled }
@@ -61,38 +60,35 @@ RSpec.describe Guard::Interactor do
     let(:backend) { instance_double("Guard::Group", name: "backend") }
     let(:frontend) { instance_double("Guard::Group", name: "frontend") }
 
+    let(:session) { instance_double("Guard::Internals::Session") }
+    let(:groups) { instance_double("Guard::Internals::Groups") }
+    let(:plugins) { instance_double("Guard::Internals::Plugins") }
+    let(:state) { instance_double("Guard::Internals::State") }
+
     before do
-      allow(::Guard::Notifier).to receive(:turn_on) { nil }
+      allow(Guard::Notifier).to receive(:turn_on) { nil }
       allow(Listen).to receive(:to).with(Dir.pwd, {})
 
       stub_const "Guard::Foo", class_double("Guard::Plugin")
       stub_const "Guard::Bar", class_double("Guard::Plugin")
 
-      allow(Guard).to receive(:plugin) do |*args|
-        fail "stub me: plugin(#{args.map(&:inspect) * ", "})"
-      end
+      allow(state).to receive(:session).and_return(session)
+      allow(Guard).to receive(:state).and_return(state)
 
-      allow(Guard).to receive(:group) do |*args|
-        fail "stub me: group(#{args.map(&:inspect) * ", "})"
-      end
+      allow(session).to receive(:plugins).and_return(plugins)
+      allow(session).to receive(:groups).and_return(groups)
 
-      allow(Guard).to receive(:plugin).with("backend").and_return(nil)
-      allow(Guard).to receive(:group).with("backend").and_return(backend)
+      allow(plugins).to receive(:all).with("backend").and_return([])
+      allow(plugins).to receive(:all).with("frontend").and_return([])
+      allow(plugins).to receive(:all).with("foo").and_return([foo])
+      allow(plugins).to receive(:all).with("bar").and_return([bar])
+      allow(plugins).to receive(:all).with("unknown").and_return([])
+      allow(plugins).to receive(:all).with("scope").and_return([])
 
-      allow(Guard).to receive(:plugin).with("frontend").and_return(nil)
-      allow(Guard).to receive(:group).with("frontend").and_return(frontend)
-
-      allow(Guard).to receive(:plugin).with("unknown").and_return(nil)
-      allow(Guard).to receive(:group).with("unknown").and_return(nil)
-
-      allow(Guard).to receive(:plugin).with("scope").and_return(nil)
-      allow(Guard).to receive(:group).with("scope").and_return(nil)
-
-      allow(Guard).to receive(:plugin).with("foo").and_return(foo)
-      allow(Guard).to receive(:group).with("foo").and_return(nil)
-
-      allow(Guard).to receive(:plugin).with("bar").and_return(bar)
-      allow(Guard).to receive(:group).with("bar").and_return(nil)
+      allow(groups).to receive(:all).with("backend").and_return([backend])
+      allow(groups).to receive(:all).with("frontend").and_return([frontend])
+      allow(groups).to receive(:all).with("unknown").and_return([])
+      allow(groups).to receive(:all).with("scope").and_return([])
     end
 
     it "returns a group scope" do

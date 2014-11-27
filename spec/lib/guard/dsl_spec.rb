@@ -8,6 +8,12 @@ RSpec.describe Guard::Dsl do
   let(:interactor) { instance_double(Guard::Interactor) }
   let(:listener) { instance_double("Listen::Listener") }
 
+  let(:session) { instance_double("Guard::Internals::Session") }
+  let(:plugins) { instance_double("Guard::Internals::Plugins") }
+  let(:groups) { instance_double("Guard::Internals::Groups") }
+  let(:state) { instance_double("Guard::Internals::State") }
+  let(:scope) { instance_double("Guard::Internals::Scope") }
+
   let(:evaluator) do
     Proc.new do |contents|
       Guard::Dsl.new.evaluate(contents, "", 1)
@@ -22,7 +28,13 @@ RSpec.describe Guard::Dsl do
     allow(Guard::Notifier).to receive(:turn_on)
     allow(Listen).to receive(:to).with(Dir.pwd, {})
     allow(Guard::Interactor).to receive(:new).and_return(interactor)
-    allow(::Guard).to receive(:listener) { listener }
+    allow(Guard).to receive(:listener) { listener }
+
+    allow(state).to receive(:scope).and_return(scope)
+    allow(session).to receive(:plugins).and_return(plugins)
+    allow(session).to receive(:groups).and_return(groups)
+    allow(state).to receive(:session).and_return(session)
+    allow(Guard).to receive(:state).and_return(state)
 
     # For backtrace cleanup
     allow(ENV).to receive(:[]).with("GEM_HOME").and_call_original
@@ -195,17 +207,21 @@ RSpec.describe Guard::Dsl do
       let(:contents) { valid_guardfile_string }
 
       it "evaluates all groups" do
-        expect(::Guard).to receive(:add_plugin).
-          with(:pow,    watchers: [], callbacks: [], group: :default)
+        expect(groups).to receive(:add).with(:w, {})
+        expect(groups).to receive(:add).with(:y, {})
+        expect(groups).to receive(:add).with(:x, halt_on_fail: true)
 
-        expect(::Guard).to receive(:add_plugin).
-          with(:test,   watchers: [], callbacks: [], group: :w)
+        expect(plugins).to receive(:add).
+          with(:pow, watchers: [], callbacks: [], group: :default)
 
-        expect(::Guard).to receive(:add_plugin).
-          with(:rspec,  watchers: [], callbacks: [], group: :x).twice
+        expect(plugins).to receive(:add).
+          with(:test, watchers: [], callbacks: [], group: :w)
 
-        expect(::Guard).to receive(:add_plugin).
-          with(:less,   watchers: [], callbacks: [], group: :y)
+        expect(plugins).to receive(:add).
+          with(:rspec, watchers: [], callbacks: [], group: :x).twice
+
+        expect(plugins).to receive(:add).
+          with(:less, watchers: [], callbacks: [], group: :y)
 
         allow(Guard::Notifier).to receive(:add).with(:growl, silent: false)
         evaluator.call(contents)
@@ -215,8 +231,8 @@ RSpec.describe Guard::Dsl do
     context "with multiple names" do
       let(:contents) { "group :foo, :bar do; end" }
       it "adds all given groups" do
-        expect(::Guard).to receive(:add_group).with(:foo, {})
-        expect(::Guard).to receive(:add_group).with(:bar, {})
+        expect(groups).to receive(:add).with(:foo, {})
+        expect(groups).to receive(:add).with(:bar, {})
 
         evaluator.call(contents)
       end
@@ -228,7 +244,7 @@ RSpec.describe Guard::Dsl do
       let(:contents) { 'guard \'test\'' }
 
       it "loads a guard specified as a quoted string from the DSL" do
-        expect(::Guard).to receive(:add_plugin).
+        expect(plugins).to receive(:add).
           with("test",  watchers: [], callbacks: [], group: :default)
 
         evaluator.call(contents)
@@ -239,7 +255,7 @@ RSpec.describe Guard::Dsl do
       let(:contents) { 'guard "test"' }
 
       it "loads a guard specified as a double quoted string from the DSL" do
-        expect(::Guard).to receive(:add_plugin).
+        expect(plugins).to receive(:add).
           with("test",  watchers: [], callbacks: [], group: :default)
 
         evaluator.call(contents)
@@ -250,7 +266,7 @@ RSpec.describe Guard::Dsl do
       let(:contents) { "guard :test" }
 
       it "loads a guard specified as a symbol from the DSL" do
-        expect(::Guard).to receive(:add_plugin).
+        expect(plugins).to receive(:add).
           with(:test,  watchers: [], callbacks: [], group: :default)
 
         evaluator.call(contents)
@@ -261,7 +277,7 @@ RSpec.describe Guard::Dsl do
       let(:contents) { "guard(:test)" }
 
       it "adds the plugin" do
-        expect(::Guard).to receive(:add_plugin).
+        expect(plugins).to receive(:add).
           with(:test,  watchers: [], callbacks: [], group: :default)
         evaluator.call(contents)
       end
@@ -279,7 +295,7 @@ RSpec.describe Guard::Dsl do
           group: :default
         }
 
-        expect(::Guard).to receive(:add_plugin).with("test",  options)
+        expect(plugins).to receive(:add).with("test",  options)
         evaluator.call(contents)
       end
     end
@@ -288,7 +304,9 @@ RSpec.describe Guard::Dsl do
       let(:contents) { "group :foo do; group :bar do; guard :test; end; end" }
 
       it "adds plugin with group info" do
-        expect(::Guard).to receive(:add_plugin).
+        expect(groups).to receive(:add).with(:foo, {})
+        expect(groups).to receive(:add).with(:bar, {})
+        expect(plugins).to receive(:add).
           with(:test,  watchers: [], callbacks: [], group: :bar)
 
         evaluator.call(contents)
@@ -301,10 +319,13 @@ RSpec.describe Guard::Dsl do
       end
 
       it "assigns plugins to correct groups" do
-        expect(::Guard).to receive(:add_plugin).
+        expect(groups).to receive(:add).with(:foo, {})
+        expect(groups).to receive(:add).with(:bar, {})
+
+        expect(plugins).to receive(:add).
           with(:test,  watchers: [], callbacks: [], group: :bar)
 
-        expect(::Guard).to receive(:add_plugin).
+        expect(plugins).to receive(:add).
           with(:rspec,  watchers: [], callbacks: [], group: :default)
 
         evaluator.call(contents)
@@ -338,7 +359,7 @@ RSpec.describe Guard::Dsl do
           group: :default
         }
 
-        expect(::Guard).to receive(:add_plugin).
+        expect(plugins).to receive(:add).
           with(:dummy, call_params) do |_, options|
           expect(options[:watchers].size).to eq 2
           expect(options[:watchers][0].pattern).to eq "a"
@@ -370,7 +391,7 @@ RSpec.describe Guard::Dsl do
           group: :default
         }
 
-        expect(::Guard).to receive(:add_plugin).
+        expect(plugins).to receive(:add).
           with(:plugin, plugin_options) do |_, options|
 
           expect(options[:watchers].size).to eq 1
@@ -413,7 +434,7 @@ RSpec.describe Guard::Dsl do
           group: :default
         }
 
-        expect(::Guard).to receive(:add_plugin).with(:rspec, params) do |_, opt|
+        expect(plugins).to receive(:add).with(:rspec, params) do |_, opt|
           # TODO: this whole block is too verbose, tests too many things at
           # once and needs refactoring
 
@@ -566,7 +587,7 @@ RSpec.describe Guard::Dsl do
       let(:contents) { "scope plugins: [:foo, :bar]" }
 
       it "sets the guardfile's default scope" do
-        expect(::Guard).to receive(:setup_scope).with(plugins: [:foo, :bar])
+        expect(session).to receive(:guardfile_scope).with(plugins: [:foo, :bar])
         evaluator.call(contents)
       end
     end
@@ -581,7 +602,7 @@ RSpec.describe Guard::Dsl do
       end
 
       it "sets the watchdirs to given values" do
-        expect(::Guard).to receive(:watchdirs=).with(%w(foo bar))
+        expect(session).to receive(:watchdirs=).with(%w(foo bar))
         evaluator.call(contents)
       end
     end
@@ -590,7 +611,7 @@ RSpec.describe Guard::Dsl do
       let(:contents) { "directories []" }
 
       it "sets the watchdirs to empty" do
-        expect(::Guard).to receive(:watchdirs=).with([])
+        expect(session).to receive(:watchdirs=).with([])
         evaluator.call(contents)
       end
     end
@@ -603,10 +624,10 @@ RSpec.describe Guard::Dsl do
       end
 
       it "fails with an error" do
-        expect(::Guard).to_not receive(:watchdirs=)
+        expect(session).to_not receive(:watchdirs=)
         expect do
           evaluator.call(contents)
-        end.to raise_error(RuntimeError, "Directory \"foo\" does not exist!")
+        end.to raise_error(Guard::Dsl::Error, /Directory "foo" does not exist!/)
       end
     end
   end

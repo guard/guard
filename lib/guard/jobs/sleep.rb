@@ -5,13 +5,12 @@ module Guard
   module Jobs
     class Sleep < Base
       def foreground
-        # TODO: cleanup the namespace
-        ::Guard::UI.debug "Guards jobs done. Sleeping..."
+        UI.debug "Guards jobs done. Sleeping..."
         sleep
-        ::Guard::UI.debug "Sleep interrupted by events."
+        UI.debug "Sleep interrupted by events."
         :stopped
       rescue Interrupt
-        ::Guard::UI.debug "Sleep interrupted by user."
+        UI.debug "Sleep interrupted by user."
         :exit
       end
 

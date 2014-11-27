@@ -6,6 +6,7 @@ require "guard/internals/helpers"
 module Guard
   class Reevaluator < Plugin
     include Internals::Helpers
+
     def run_on_modifications(files)
       # TODO: this is messed up, because reevaluator adds itself
       # anyway, so it know what the path is
@@ -25,14 +26,11 @@ module Guard
 
       Runner.new.run(:stop)
 
-      Guard.save_scope
-      Guard.reset_groups
-      Guard.reset_plugins
-      Guard.reset_scope
+      Guard.state.reset_session
 
       Notifier.disconnect
       evaluator.evaluate
-      Notifier.connect(Guard.options)
+      Notifier.connect(Guard.state.session.notify_options)
 
       if Guard.send(:_pluginless_guardfile?)
         Notifier.notify(
@@ -43,25 +41,21 @@ module Guard
         msg = "Guardfile has been re-evaluated."
         UI.info(msg)
         Notifier.notify(msg, title: "Guard re-evaluate")
-
-        Guard.setup_scope
         Runner.new.run(:start)
       end
-    ensure
-      Guard.restore_scope
     end
 
     private
 
     def _evaluator
-      Guardfile::Evaluator.new(Guard.options)
+      Guardfile::Evaluator.new(Guard.state.session.evaluator_options)
     end
 
     def _add_self_to_plugins
       # TODO: do this on reload as well
       pattern = _relative_pathname(_evaluator.path).to_s
       options = { watchers: [Watcher.new(pattern)], group: :common }
-      Guard.add_plugin(:reevaluator, options)
+      Guard.state.session.plugins.add(:reevaluator, options)
     end
   end
 end

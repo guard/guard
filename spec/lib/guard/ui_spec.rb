@@ -2,13 +2,20 @@ require "guard/notifier"
 
 RSpec.describe Guard::UI do
   let(:interactor) { instance_double("Guard::Interactor") }
-  let(:options) { instance_double("Guard::Options") }
-  let(:scope) { double("scope") }
   let(:logger) { instance_double("Lumberjack::Logger") }
 
+  let(:terminal) { class_double("Guard::Terminal") }
+
+  let(:session) { instance_double("Guard::Internals::Session") }
+  let(:state) { instance_double("Guard::Internals::State") }
+  let(:scope) { instance_double("Guard::Internals::Scope") }
+
   before do
-    allow(Guard).to receive(:options).and_return(options)
-    allow(Guard).to receive(:scope).and_return(scope)
+    allow(state).to receive(:scope).and_return(scope)
+    allow(state).to receive(:session).and_return(session)
+    allow(Guard).to receive(:state).and_return(state)
+
+    stub_const("Guard::Terminal", terminal)
 
     allow(Guard::Notifier).to receive(:turn_on) {}
 
@@ -330,14 +337,9 @@ RSpec.describe Guard::UI do
   end
 
   describe ".clear" do
-    let(:terminal) { class_double("Guard::Terminal") }
-
-    before { stub_const("Guard::Terminal", terminal) }
-
     context "with UI set up and ready" do
       before do
-        # disable avoid calling clear during before()
-        allow(options).to receive(:[]).with(:clear).and_return(false)
+        allow(session).to receive(:clear?).and_return(false)
 
         Guard::UI.reset_and_clear
       end
@@ -351,7 +353,7 @@ RSpec.describe Guard::UI do
 
       context "when clear option is enabled" do
         before do
-          allow(options).to receive(:[]).with(:clear).and_return(true)
+          allow(session).to receive(:clear?).and_return(true)
         end
 
         context "when the screen is marked as needing clearing" do
@@ -407,10 +409,13 @@ RSpec.describe Guard::UI do
   describe ".action_with_scopes" do
     let(:rspec) { double("Rspec", title: "Rspec") }
     let(:jasmine) { double("Jasmine", title: "Jasmine") }
-    let(:group) { instance_double(Guard::Group, title: "Frontend") }
+    let(:group) { instance_double("Guard::Group", title: "Frontend") }
 
     context "with a plugins scope" do
       it "shows the plugin scoped action" do
+        allow(scope).to receive(:titles).with(plugins: [rspec, jasmine]).
+          and_return(%w(Rspec Jasmine))
+
         expect(Guard::UI).to receive(:info).with("Reload Rspec, Jasmine")
         Guard::UI.action_with_scopes("Reload",  plugins: [rspec, jasmine])
       end
@@ -418,7 +423,9 @@ RSpec.describe Guard::UI do
 
     context "with a groups scope" do
       it "shows the group scoped action" do
-        allow(scope).to receive(:[]).with(:plugins).and_return([])
+        allow(scope).to receive(:titles).with(groups: [group]).
+          and_return(%w(Frontend))
+
         expect(Guard::UI).to receive(:info).with("Reload Frontend")
         Guard::UI.action_with_scopes("Reload",  groups: [group])
       end
@@ -427,8 +434,7 @@ RSpec.describe Guard::UI do
     context "without a scope" do
       context "with a global plugin scope" do
         it "shows the global plugin scoped action" do
-          plugins = [rspec, jasmine]
-          allow(scope).to receive(:[]).with(:plugins).and_return(plugins)
+          allow(scope).to receive(:titles).and_return(%w(Rspec Jasmine))
           expect(Guard::UI).to receive(:info).with("Reload Rspec, Jasmine")
           Guard::UI.action_with_scopes("Reload", {})
         end
@@ -436,8 +442,7 @@ RSpec.describe Guard::UI do
 
       context "with a global group scope" do
         it "shows the global group scoped action" do
-          allow(scope).to receive(:[]).with(:plugins).and_return([])
-          allow(scope).to receive(:[]).with(:groups).and_return([group])
+          allow(scope).to receive(:titles).and_return(%w(Frontend))
           expect(Guard::UI).to receive(:info).with("Reload Frontend")
           Guard::UI.action_with_scopes("Reload", {})
         end

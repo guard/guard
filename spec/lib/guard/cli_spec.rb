@@ -21,8 +21,6 @@ RSpec.shared_examples "gem dependency warning" do |meth|
   let(:gemfile) { nil }
 
   before do
-    allow(guard_options).to receive(:[]).with(:debug).and_return(false)
-    allow(Guard).to receive(:options).and_return(guard_options)
     allow(ENV).to receive(:[]).with("BUNDLE_GEMFILE").and_return(gemfile)
     allow(ENV).to receive(:[]).with("RUBYGEMS_GEMDEPS").and_return(gemdeps)
   end
@@ -74,6 +72,9 @@ RSpec.describe Guard::CLI do
   let(:generator) { instance_double("Guard::Guardfile::Generator") }
   let(:obsolete_guardfile) { class_double("Guard::Guardfile") }
 
+  let(:session) { instance_double("Guard::Internals::Session") }
+  let(:state) { instance_double("Guard::Internals::State") }
+
   before do
     @options = {}
     allow(subject).to receive(:options).and_return(@options)
@@ -103,6 +104,9 @@ RSpec.describe Guard::CLI do
   describe "#list" do
     before do
       allow(evaluator).to receive(:evaluate)
+      allow(session).to receive(:evaluator_options)
+      allow(state).to receive(:session).and_return(session)
+      allow(Guard::Internals::State).to receive(:new).and_return(state)
     end
 
     it "outputs the Guard plugins list" do
@@ -113,7 +117,11 @@ RSpec.describe Guard::CLI do
 
   describe "#notifiers" do
     before do
+      # TODO: refactor this out (here and above)
       allow(evaluator).to receive(:evaluate)
+      allow(session).to receive(:evaluator_options)
+      allow(state).to receive(:session).and_return(session)
+      allow(Guard::Internals::State).to receive(:new).and_return(state)
     end
 
     it "outputs the notifiers list" do
@@ -138,17 +146,14 @@ RSpec.describe Guard::CLI do
       allow(evaluator).to receive(:evaluate)
       allow(generator).to receive(:create_guardfile)
       allow(generator).to receive(:initialize_all_templates)
+
+      allow(session).to receive(:evaluator_options)
+      allow(state).to receive(:session).and_return(session)
+      allow(Guard::Internals::State).to receive(:new).and_return(state)
     end
 
-    # TODO: this is a code smell suggesting the use of global variables
-    # instead of object oriented programming
     context "with bare option" do
       before { @options[:bare] = true }
-
-      it "resets plugins, so add_plugin can work" do
-        expect(Guard.plugins).to eq([])
-        subject.init
-      end
 
       it "Only creates the Guardfile without initializing any Guard template" do
         allow(evaluator).to receive(:evaluate).
@@ -213,6 +218,13 @@ RSpec.describe Guard::CLI do
   end
 
   describe "#show" do
+    before do
+      # TODO: refactor this out (here and above)
+      allow(session).to receive(:evaluator_options)
+      allow(state).to receive(:session).and_return(session)
+      allow(Guard::Internals::State).to receive(:new).and_return(state)
+    end
+
     it "outputs the Guard::DslDescriber.list result" do
       evaluator = instance_double("Guard::Guardfile::Evaluator")
       allow(evaluator).to receive(:evaluate)

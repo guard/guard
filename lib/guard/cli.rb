@@ -48,6 +48,7 @@ module Guard
                   aliases: "-P",
                   banner:  "Run only the passed plugins"
 
+    # TODO: make it plural
     method_option :watchdir,
                   type:    :array,
                   aliases: "-w",
@@ -167,10 +168,11 @@ module Guard
       bare = options[:bare]
 
       generator = Guardfile::Generator.new
+      Guard.init(options)
+      session = Guard.state.session
 
       begin
-        Guard.init(options)
-        Guardfile::Evaluator.new(Guard.options).evaluate
+        Guardfile::Evaluator.new(session.evaluator_options).evaluate
       rescue Guardfile::Evaluator::NoGuardfileError
         generator.create_guardfile
       end
@@ -179,7 +181,7 @@ module Guard
 
       # Evaluate because it might have existed and creating was skipped
       # FIXME: still, I don't know why this is needed
-      Guardfile::Evaluator.new(Guard.options).evaluate
+      Guardfile::Evaluator.new(session.evaluator_options).evaluate
 
       if plugin_names.empty?
         generator.initialize_all_templates
@@ -225,8 +227,9 @@ EOF
     end
 
     def _require_guardfile(options)
-      Guard.init(options)
-      Guardfile::Evaluator.new(Guard.options).evaluate
+      Guard.init(options) # to setup metadata
+      session = Guard.state.session
+      Guardfile::Evaluator.new(session.evaluator_options).evaluate
     rescue Dsl::Error,
            Guardfile::Evaluator::NoPluginsError,
            Guardfile::Evaluator::NoGuardfileError,

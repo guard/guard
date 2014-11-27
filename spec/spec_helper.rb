@@ -63,7 +63,6 @@ def stub_mod(mod, excluded)
   end
 end
 
-# TODO: I can't wait to replace these with IO.read + rescuing Errno:ENOENT
 def stub_file(path, contents = nil, &block)
   exists = !contents.nil?
   allow(File).to receive(:exist?).with(path).and_return(exists)
@@ -253,14 +252,13 @@ RSpec.configure do |config|
       abort "stub me! (Dir#exist?(#{args.map(&:inspect) * ", "}))"
     end
 
-    # TODO: use metadata to stub out all used classes
     if Guard.const_defined?("UI")
       # Stub all UI methods, so no visible output appears for the UI class
-      allow(::Guard::UI).to receive(:info)
-      allow(::Guard::UI).to receive(:warning)
-      allow(::Guard::UI).to receive(:error)
-      allow(::Guard::UI).to receive(:debug)
-      allow(::Guard::UI).to receive(:deprecation)
+      allow(Guard::UI).to receive(:info)
+      allow(Guard::UI).to receive(:warning)
+      allow(Guard::UI).to receive(:error)
+      allow(Guard::UI).to receive(:debug)
+      allow(Guard::UI).to receive(:deprecation)
     end
 
     allow(Kernel).to receive(:system) do |*args|

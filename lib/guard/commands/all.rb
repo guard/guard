@@ -1,7 +1,6 @@
 # required for async_queue_add
 require "pry"
 
-# TODO: remove this dependency
 require "guard/interactor"
 require "guard"
 
@@ -23,7 +22,7 @@ module Guard
           BANNER
 
           def process(*entries)
-            scopes, unknown = ::Guard::Interactor.convert_scope(entries)
+            scopes, unknown = Interactor.convert_scope(entries)
 
             unless unknown.empty?
               output.puts "Unknown scopes: #{ unknown.join(", ") }"

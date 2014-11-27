@@ -3,6 +3,22 @@ require "guard/plugin"
 require "guard/watcher"
 
 RSpec.describe Guard::Plugin do
+  let(:default) { instance_double("Guard::Group") }
+  let(:test) { instance_double("Guard::Group") }
+
+  let(:session) { instance_double("Guard::Internals::Session") }
+  let(:groups) { instance_double("Guard::Internals::Groups") }
+  let(:state) { instance_double("Guard::Internals::State") }
+
+  before do
+    allow(groups).to receive(:add).with(:default).and_return(default)
+    allow(groups).to receive(:add).with(:test).and_return(test)
+
+    allow(session).to receive(:groups).and_return(groups)
+    allow(state).to receive(:session).and_return(session)
+    allow(Guard).to receive(:state).and_return(state)
+  end
+
   describe "#initialize" do
     it "assigns the defined watchers" do
       watchers = [double("foo")]
@@ -16,13 +32,14 @@ RSpec.describe Guard::Plugin do
 
     context "with a group in the options" do
       it "assigns the given group" do
-        expect(Guard::Plugin.new(group: :test).group).to eq Guard.group(:test)
+        expect(Guard::Plugin.new(group: :test).group).to eq test
       end
     end
 
     context "without a group in the options" do
       it "assigns a default group" do
-        expect(Guard::Plugin.new.group).to eq Guard.group(:default)
+        allow(groups).to receive(:add).with(:default).and_return(default)
+        expect(Guard::Plugin.new.group).to eq default
       end
     end
   end
@@ -78,11 +95,11 @@ RSpec.describe Guard::Plugin do
     end
 
     describe "#to_s" do
+      let(:default) { instance_double("Guard::Group", name: :default) }
+
       it "output the short plugin name" do
         expect(subject.new.to_s).
-          to eq "#<Guard::DuMmy @name=dummy "\
-          "@group=#<Guard::Group @name=default @options={}>"\
-          " @watchers=[] @callbacks=[] @options={}>"
+          to match(/#<Guard::DuMmy @name=dummy .*>/)
       end
     end
   end

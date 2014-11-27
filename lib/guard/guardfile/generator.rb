@@ -1,6 +1,15 @@
 require "guard/ui"
 require "guard/plugin_util"
 
+# Add Pathname#binwrite to 1.9.3
+unless Pathname.instance_methods.include?(:binwrite)
+  class Pathname
+    def binwrite(*args)
+      IO.binwrite(to_s, *args)
+    end
+  end
+end
+
 module Guard
   module Guardfile
     # This class is responsible for generating the Guardfile and adding Guard'
@@ -56,7 +65,7 @@ module Guard
         guardfile = Pathname("Guardfile")
 
         plugin_util = ::Guard::PluginUtil.new(plugin_name)
-        # TODO: change to "plugin_class?" method
+        # TODO: change to "valid?" method
         if plugin_util.plugin_class(fail_gracefully: true)
           plugin_util.add_to_guardfile
           return

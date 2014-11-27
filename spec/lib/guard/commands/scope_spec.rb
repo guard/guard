@@ -5,6 +5,9 @@ require "guard/group"
 RSpec.describe Guard::Commands::Scope do
   let(:output) { instance_double(Pry::Output) }
 
+  let(:state) { instance_double("Guard::Internals::State") }
+  let(:scope) { instance_double("Guard::Internals::Scope") }
+
   class FakePry < Pry::Command
     def self.output; end
   end
@@ -14,6 +17,9 @@ RSpec.describe Guard::Commands::Scope do
     allow(Pry::Commands).to receive(:create_command).with("scope") do |&block|
       FakePry.instance_eval(&block)
     end
+
+    allow(state).to receive(:scope).and_return(scope)
+    allow(Guard).to receive(:state).and_return(state)
 
     described_class.import
   end
@@ -36,7 +42,7 @@ RSpec.describe Guard::Commands::Scope do
 
     it "does not call :scope= and shows usage" do
       expect(output).to receive(:puts).with("Usage: scope <scope>")
-      expect(Guard).to_not receive(:scope=)
+      expect(scope).to_not receive(:from_interactor)
       FakePry.process
     end
   end
@@ -46,7 +52,7 @@ RSpec.describe Guard::Commands::Scope do
     let(:converted_scope) { [{ groups: [foo_group], plugins: [] }, []] }
 
     it "sets up the scope with the given scope" do
-      expect(Guard).to receive(:setup_scope).
+      expect(scope).to receive(:from_interactor).
         with(groups: [foo_group], plugins: [])
       FakePry.process("foo")
     end
@@ -57,7 +63,7 @@ RSpec.describe Guard::Commands::Scope do
     let(:converted_scope) { [{ groups: [], plugins: [bar_guard] }, []] }
 
     it "runs the :scope= action with the given scope" do
-      expect(Guard).to receive(:setup_scope).
+      expect(scope).to receive(:from_interactor).
         with(plugins: [bar_guard], groups: [])
       FakePry.process("bar")
     end
@@ -69,7 +75,7 @@ RSpec.describe Guard::Commands::Scope do
 
     it "does not change the scope and shows unknown scopes" do
       expect(output).to receive(:puts).with("Unknown scopes: baz")
-      expect(Guard).to_not receive(:scope=)
+      expect(scope).to_not receive(:from_interactor)
       FakePry.process("baz")
     end
   end

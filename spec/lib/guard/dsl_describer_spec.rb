@@ -7,9 +7,17 @@ RSpec.describe Guard::DslDescriber do
   let(:interactor) { instance_double(Guard::Interactor) }
   let(:env) { double("ENV") }
 
+  let(:session) { instance_double("Guard::Internals::Session") }
+  let(:plugins) { instance_double("Guard::Internals::Plugins") }
+  let(:groups) { instance_double("Guard::Internals::Groups") }
+  let(:state) { instance_double("Guard::Internals::State") }
+
   before do
-    # TODO: remove once the evaluator is stubbed
-    stub_const("ENV", env)
+    allow(session).to receive(:groups).and_return(groups)
+    allow(session).to receive(:plugins).and_return(plugins)
+    allow(state).to receive(:session).and_return(session)
+    allow(Guard).to receive(:state).and_return(state)
+
     allow(env).to receive(:[]).with("GUARD_NOTIFY_PID")
     allow(env).to receive(:[]).with("GUARD_NOTIFY")
     allow(env).to receive(:[]).with("GUARD_NOTIFIERS")
@@ -46,17 +54,15 @@ RSpec.describe Guard::DslDescriber do
       OUTPUT
     end
 
+    let(:another) { instance_double("Guard::Plugin", title: "Another") }
+    let(:test) { instance_double("Guard::Plugin", title: "Test") }
+
     before do
-      allow(Guard).to receive(:plugins).with("another") do
-        [instance_double("Guard::Plugin", title: "Another")]
-      end
+      allow(plugins).to receive(:all).with("another").and_return([another])
+      allow(plugins).to receive(:all).with("test").and_return([test])
+      allow(plugins).to receive(:all).with("even").and_return([])
+      allow(plugins).to receive(:all).with("more").and_return([])
 
-      allow(Guard).to receive(:plugins).with("test") do
-        [instance_double("Guard::Plugin", title: "Test")]
-      end
-
-      allow(Guard).to receive(:plugins).with("even").and_return([])
-      allow(Guard).to receive(:plugins).with("more").and_return([])
       allow(Guard::PluginUtil).to receive(:plugin_names) do
         %w(test another even more)
       end
@@ -86,23 +92,23 @@ RSpec.describe Guard::DslDescriber do
     end
 
     before do
-      allow(Guard).to receive(:groups).and_return [
-        instance_double(Guard::Group, name: :default, title: "Default"),
-        instance_double(Guard::Group, name: :a, title: "A"),
-        instance_double(Guard::Group, name: :b, title: "B"),
+      allow(groups).to receive(:all).and_return [
+        instance_double("Guard::Group", name: :default, title: "Default"),
+        instance_double("Guard::Group", name: :a, title: "A"),
+        instance_double("Guard::Group", name: :b, title: "B"),
       ]
 
-      allow(Guard).to receive(:plugins).with(group: :default) do
+      allow(plugins).to receive(:all).with(group: :default) do
         options = { a: :b, c: :d }
         [instance_double("Guard::Plugin", title: "Test", options: options)]
       end
 
-      allow(Guard).to receive(:plugins).with(group: :a) do
+      allow(plugins).to receive(:all).with(group: :a) do
         options = { x: 1, y: 2 }
         [instance_double("Guard::Plugin", title: "Test", options: options)]
       end
 
-      allow(Guard).to receive(:plugins).with(group: :b).and_return [
+      allow(plugins).to receive(:all).with(group: :b).and_return [
         instance_double("Guard::Plugin", title: "Another", options: [])
       ]
     end

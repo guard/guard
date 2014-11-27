@@ -3,7 +3,6 @@ require "formatador"
 
 require "guard/ui"
 require "guard/notifier"
-require "guard/metadata"
 
 require "set"
 require "ostruct"
@@ -27,10 +26,9 @@ module Guard
     # @see CLI#list
     #
     def list
-      # TODO: use Guard::Metadata
       # collect metadata
-      data = ::Guard::PluginUtil.plugin_names.sort.inject({}) do |hash, name|
-        hash[name.capitalize] = ::Guard.plugins(name).any?
+      data = PluginUtil.plugin_names.sort.inject({}) do |hash, name|
+        hash[name.capitalize] = Guard.state.session.plugins.all(name).any?
         hash
       end
 
@@ -52,7 +50,7 @@ module Guard
     #
     def show
       # collect metadata
-      groups = Guard.groups
+      groups = Guard.state.session.groups.all
 
       objects = []
 
@@ -60,7 +58,7 @@ module Guard
       empty_plugin.options = [["", nil]]
 
       groups.each do |group|
-        plugins = Array(Guard.plugins(group: group.name))
+        plugins = Array(Guard.state.session.plugins.all(group: group.name))
         plugins = [empty_plugin] if plugins.empty?
         plugins.each do |plugin|
           options = plugin.options
@@ -72,7 +70,7 @@ module Guard
         end
       end
 
-      # present
+      # presentation
       rows = []
       prev_group = prev_plugin = prev_option = prev_value = nil
       objects.each do |group, plugin, option, value|

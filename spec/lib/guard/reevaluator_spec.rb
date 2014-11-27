@@ -1,28 +1,44 @@
 require "guard/reevaluator.rb"
 
-RSpec.describe Guard::Reevaluator do
+RSpec.describe Guard::Reevaluator, exclude_stubs: Guard::Plugin do
   let(:options) { {} }
   subject { described_class.new(options) }
 
   let(:evaluator) { instance_double("Guard::Guardfile::Evaluator") }
   let(:runner) { instance_double("Guard::Runner") }
 
-  before do
-    allow(Guard).to receive(:save_scope)
-    allow(Guard).to receive(:setup_scope)
-    allow(Guard).to receive(:restore_scope)
+  let(:session) { instance_double("Guard::Internals::Session") }
+  let(:state) { instance_double("Guard::Internals::State") }
+  let(:plugins) { instance_double("Guard::Internals::Plugins") }
+  let(:groups) { instance_double("Guard::Internals::Groups") }
+  let(:default) { instance_double("Guard::Group") }
 
+  before do
     allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
     allow(Guard::Runner).to receive(:new).and_return(runner)
     allow(evaluator).to receive(:path).and_return(Pathname("Guardfile"))
+
+    allow(plugins).to receive(:all).and_return([])
+
+    allow(session).to receive(:evaluator_options).and_return(guardfile: nil)
+    allow(session).to receive(:notify_options).and_return(notify: true)
+    allow(session).to receive(:plugins).and_return(plugins)
+    allow(session).to receive(:groups).and_return(groups)
+
+    allow(state).to receive(:session).and_return(session)
+    allow(Guard).to receive(:state).and_return(state)
+
+    allow(groups).to receive(:add).with(:default).and_return(default)
   end
 
   context "when Guardfile is modified" do
     let(:watcher) { instance_double("Guard::Watcher") }
+
     before do
-      allow(Guard).to receive(:add_plugin).with(:reevaluator, anything)
+      allow(plugins).to receive(:add).with(:reevaluator, anything)
       allow(Guard::Watcher).to receive(:new). and_return(watcher)
 
+      allow(state).to receive(:reset_session)
       allow(evaluator).to receive(:evaluate)
       allow(runner).to receive(:run)
       allow(Guard::Notifier).to receive(:connect)
@@ -44,6 +60,11 @@ RSpec.describe Guard::Reevaluator do
     context "when not inline" do
       before do
         allow(evaluator).to receive(:inline?).and_return(false)
+      end
+
+      it "should reset the session" do
+        expect(state).to receive(:reset_session)
+        subject.run_on_modifications(["Guardfile"])
       end
 
       it "should reevaluate" do
@@ -90,14 +111,6 @@ RSpec.describe Guard::Reevaluator do
         end
       end
 
-      it "should restore the scope" do
-        expect(Guard).to receive(:restore_scope)
-
-        catch(:task_has_failed) do
-          subject.run_on_modifications(["Guardfile"])
-        end
-      end
-
       it "should notify eval failed with a :task_has_failed error" do
         expect { subject.run_on_modifications(["Guardfile"]) }.
           to throw_symbol(:task_has_failed)
@@ -111,7 +124,7 @@ RSpec.describe Guard::Reevaluator do
           and_return(watcher)
 
         options = { watchers: [watcher], group: :common }
-        expect(Guard).to receive(:add_plugin).with(:reevaluator, options)
+        expect(plugins).to receive(:add).with(:reevaluator, options)
 
         catch(:task_has_failed) do
           subject.run_on_modifications(["Guardfile"])
@@ -138,43 +151,21 @@ RSpec.describe Guard::Reevaluator do
       allow(Guard::Notifier).to receive(:notify)
       allow(evaluator).to receive(:inline?).and_return(false)
       allow(evaluator).to receive(:evaluate)
+
+      allow(state).to receive(:reset_session)
     end
 
     context "before reevaluation" do
       before do
-        allow(Guard).to receive(:setup_scope)
-        allow(Guard).to receive(:reset_scope)
-        allow(Guard).to receive(:reset_plugins)
-        allow(Guard).to receive(:reset_groups)
         allow(runner).to receive(:run).with(:stop)
         allow(runner).to receive(:run).with(:start)
       end
 
-      after do
-        subject.reevaluate
-      end
+      after { subject.reevaluate }
 
       it "stops all Guards" do
         allow(evaluator).to receive(:evaluate) do
           expect(runner).to have_received(:run).with(:stop)
-        end
-      end
-
-      it "resets all Guard plugins" do
-        allow(evaluator).to receive(:evaluate) do
-          expect(Guard).to have_received(:reset_plugins)
-        end
-      end
-
-      it "resets all groups" do
-        allow(evaluator).to receive(:evaluate) do
-          expect(Guard).to have_received(:reset_groups)
-        end
-      end
-
-      it "resets all scopes" do
-        allow(evaluator).to receive(:evaluate) do
-          expect(Guard).to have_received(:reset_scope)
         end
       end
 
@@ -183,12 +174,17 @@ RSpec.describe Guard::Reevaluator do
           expect(Guard::Notifier).to have_received(:disconnect)
         end
       end
+
+      it "resets the session" do
+        allow(evaluator).to receive(:evaluate) do
+          expect(state).to have_received(:reset_session)
+        end
+      end
     end
 
     it "evaluates the Guardfile" do
       allow(evaluator).to receive(:evaluate)
       allow(Guard).to receive(:_pluginless_guardfile?).and_return(false)
-      expect(Guard).to receive(:setup_scope)
       subject.reevaluate
     end
 
@@ -245,7 +241,7 @@ RSpec.describe Guard::Reevaluator do
           # TODO: temporary hack to continue refactoring notifier
           # TODO: this whole spec needs stubbing
           foo = instance_double("Guard::Plugin", name: "reevaluator")
-          allow(Guard).to receive(:plugins).and_return([foo])
+          allow(plugins).to receive(:all).and_return([foo])
 
           expect(Guard::Notifier).to receive(:notify).
             with(
@@ -254,12 +250,6 @@ RSpec.describe Guard::Reevaluator do
               image: :failed)
           subject.reevaluate
         end
-      end
-
-      it "configures the scope" do
-        expect(Guard).to receive(:setup_scope)
-        allow(Guard).to receive(:_pluginless_guardfile?).and_return(false)
-        subject.reevaluate
       end
     end
   end

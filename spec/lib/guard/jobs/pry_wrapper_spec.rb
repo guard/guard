@@ -9,6 +9,12 @@ RSpec.describe Guard::Jobs::PryWrapper do
   let(:pry_hooks) { double("pry_hooks") }
   let(:terminal_settings) { instance_double("Guard::Jobs::TerminalSettings") }
 
+  let(:session) { instance_double("Guard::Internals::Session") }
+  let(:plugins) { instance_double("Guard::Internals::Plugins") }
+  let(:groups) { instance_double("Guard::Internals::Groups") }
+  let(:state) { instance_double("Guard::Internals::State") }
+  let(:scope) { instance_double("Guard::Internals::Scope") }
+
   before do
     # TODO: this are here to mock out Pry completely
     allow(pry_config).to receive(:prompt=)
@@ -27,6 +33,15 @@ RSpec.describe Guard::Jobs::PryWrapper do
     allow(Guard).to receive(:listener).and_return(listener)
     allow(Pry).to receive(:config).and_return(pry_config)
     allow(Guard::Sheller).to receive(:run).with(*%w(hash stty)) { false }
+
+    allow(groups).to receive(:all).and_return([])
+    allow(session).to receive(:groups).and_return(groups)
+
+    allow(plugins).to receive(:all).and_return([])
+    allow(session).to receive(:plugins).and_return(plugins)
+    allow(state).to receive(:session).and_return(session)
+    allow(state).to receive(:scope).and_return(scope)
+    allow(Guard).to receive(:state).and_return(state)
 
     allow(Guard::Commands::All).to receive(:import)
     allow(Guard::Commands::Change).to receive(:import)
@@ -118,9 +133,7 @@ RSpec.describe Guard::Jobs::PryWrapper do
 
     before do
       allow(Guard::Sheller).to receive(:run).with(*%w(hash stty)) { false }
-      allow(::Guard).to receive(:scope).and_return({})
-      allow(::Guard.scope).to receive(:[]).with(:plugins).and_return([])
-      allow(::Guard.scope).to receive(:[]).with(:groups).and_return([])
+      allow(scope).to receive(:titles).and_return(["all"])
 
       allow(listener).to receive(:paused?).and_return(false)
 
@@ -149,8 +162,7 @@ RSpec.describe Guard::Jobs::PryWrapper do
 
     context "with a groups scope" do
       before do
-        allow(::Guard.scope).to receive(:[]).with(:groups).
-          and_return([double(title: "Backend"), double(title: "Frontend")])
+        allow(scope).to receive(:titles).and_return(%w(Backend Frontend))
       end
 
       it "displays the group scope title in the prompt" do
@@ -161,10 +173,8 @@ RSpec.describe Guard::Jobs::PryWrapper do
     end
 
     context "with a plugins scope" do
-
       before do
-        allow(::Guard.scope).to receive(:[]).with(:plugins).
-          and_return([double(title: "RSpec"), double(title: "Ronn")])
+        allow(scope).to receive(:titles).and_return(%w(RSpec Ronn))
       end
 
       it "displays the group scope title in the prompt" do
@@ -172,6 +182,5 @@ RSpec.describe Guard::Jobs::PryWrapper do
         expect(result).to eq "[0] RSpec,Ronn guard(main)> "
       end
     end
-
   end
 end
