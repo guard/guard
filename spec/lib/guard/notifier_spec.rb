@@ -89,12 +89,22 @@ RSpec.describe Guard::Notifier do
           expect(env).to receive(:notify_pid=).with($$)
           subject.connect(options)
         end
+
+        it "autodetects" do
+          expect(detected).to receive(:detect)
+          subject.connect(options)
+        end
       end
 
       context "when disabled with options" do
         let(:options) { { notify: false } }
         it "assigns a pid anyway" do
           expect(env).to receive(:notify_pid=).with($$)
+          subject.connect(options)
+        end
+
+        it "does not autodetect" do
+          expect(detected).to_not receive(:detect)
           subject.connect(options)
         end
       end
