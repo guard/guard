@@ -85,6 +85,8 @@ module Guard
 
       return unless enabled? && options[:notify]
 
+      @detected.detect
+
       turn_on
     rescue Detected::NoneAvailableError => e
       ::Guard::UI.info e.to_s
