@@ -19,6 +19,14 @@ RSpec.describe Guard::Plugin do
     allow(Guard).to receive(:state).and_return(state)
   end
 
+  # TODO: this should already be done in spec_helper!
+  after do
+    klass = described_class
+    klass.instance_variables.each do |var|
+      klass.instance_variable_set(var, nil)
+    end
+  end
+
   describe "#initialize" do
     it "assigns the defined watchers" do
       watchers = [double("foo")]
@@ -40,6 +48,16 @@ RSpec.describe Guard::Plugin do
       it "assigns a default group" do
         allow(groups).to receive(:add).with(:default).and_return(default)
         expect(Guard::Plugin.new.group).to eq default
+      end
+    end
+
+    context "with a callback" do
+      it "adds the callback" do
+        block = instance_double(Proc)
+        events = [:start_begin, :start_end]
+        callbacks = [{ events: events, listener: block }]
+        Guard::Plugin.new(callbacks: callbacks)
+        expect(Guard::Plugin.callbacks.first[0][0].callbacks).to eq(callbacks)
       end
     end
   end

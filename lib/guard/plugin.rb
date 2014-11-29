@@ -293,7 +293,7 @@ module Guard
     #
     def _register_callbacks
       callbacks.each do |callback|
-        Hooker.add_callback(callback[:listener], self, callback[:events])
+        self.class.add_callback(callback[:listener], self, callback[:events])
       end
     end
   end
