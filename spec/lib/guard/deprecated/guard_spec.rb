@@ -194,6 +194,7 @@ unless Guard::Config.new.strict?
       end
 
       it "evaluates the guardfile" do
+        expect(evaluator).to receive(:evaluate)
         subject.evaluate_guardfile
       end
     end
