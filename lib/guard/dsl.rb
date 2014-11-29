@@ -379,6 +379,20 @@ module Guard
       raise Error, format(msg, e, backtrace)
     end
 
+    # Sets the directories to pass to Listen
+    #
+    # @example watch only given directories
+    #   directories %w(lib specs)
+    #
+    # @param [Array] directories directories for Listen to watch
+    #
+    def directories(directories)
+      directories.each do |dir|
+        fail "Directory #{dir.inspect} does not exist!" unless Dir.exist?(dir)
+      end
+      Guard.state.session.watchdirs = directories
+    end
+
     private
 
     def _cleanup_backtrace(backtrace)
@@ -403,20 +417,6 @@ module Guard
           path || symlinked_path
         end
       end
-    end
-
-    # Sets the directories to pass to Listen
-    #
-    # @example watch only given directories
-    #   directories %w(lib specs)
-    #
-    # @param [Array] directories directories for Listen to watch
-    #
-    def directories(directories)
-      directories.each do |dir|
-        fail "Directory #{dir.inspect} does not exist!" unless Dir.exist?(dir)
-      end
-      Guard.state.session.watchdirs = directories
     end
   end
 end
