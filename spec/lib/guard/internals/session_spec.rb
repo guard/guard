@@ -3,11 +3,11 @@ require "guard/internals/session"
 RSpec.describe Guard::Internals::Session do
   subject { described_class.new(options) }
 
-  describe "#initialize" do
-    let(:plugins) { instance_double("Guard::Internals::Plugins") }
-    let(:groups) { instance_double("Guard::Internals::Plugins") }
-    let(:scope) { instance_double("Guard::Internals::Scope") }
+  let(:plugins) { instance_double("Guard::Internals::Plugins") }
+  let(:groups) { instance_double("Guard::Internals::Plugins") }
+  let(:scope) { instance_double("Guard::Internals::Scope") }
 
+  describe "#initialize" do
     before do
       allow(Guard::Internals::Plugins).to receive(:new).and_return(plugins)
       allow(Guard::Internals::Groups).to receive(:new).and_return(groups)
@@ -89,6 +89,38 @@ RSpec.describe Guard::Internals::Session do
 
       it "initializes the group scope" do
         expect(subject.cmdline_groups).to match_array(%w(backend frontend))
+      end
+    end
+  end
+
+  describe "#clearing" do
+    let(:options) { {} }
+
+    before do
+      allow(Guard::Internals::Plugins).to receive(:new).and_return(plugins)
+      allow(Guard::Internals::Groups).to receive(:new).and_return(groups)
+    end
+
+    context "when not set" do
+      context "when clearing is not set from commandline" do
+        it { is_expected.to_not be_clearing }
+      end
+
+      context "when clearing is set from commandline" do
+        let(:options) { { clear: false } }
+        it { is_expected.to_not be_clearing }
+      end
+    end
+
+    context "when set from guardfile" do
+      context "when set to :on" do
+        before { subject.clearing(true) }
+        it { is_expected.to be_clearing }
+      end
+
+      context "when set to :off" do
+        before { subject.clearing(false) }
+        it { is_expected.to_not be_clearing }
       end
     end
   end

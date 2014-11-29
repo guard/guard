@@ -393,6 +393,17 @@ module Guard
       Guard.state.session.watchdirs = directories
     end
 
+    # Sets Guard to clear the screen before every task is run
+    #
+    # @example switching clearing the screen on
+    #   clearing(:on)
+    #
+    # @param [Symbol] on ':on' to turn on, ':off' (default) to turn off
+    #
+    def clearing(on)
+      Guard.state.session.clearing(on == :on)
+    end
+
     private
 
     def _cleanup_backtrace(backtrace)

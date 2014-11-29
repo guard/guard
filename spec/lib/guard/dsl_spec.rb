@@ -632,6 +632,24 @@ RSpec.describe Guard::Dsl do
     end
   end
 
+  describe "#clear" do
+    context "with clear :off" do
+      let(:contents) { "clearing :off" }
+      it "disables clearing the screen after every task" do
+        expect(session).to receive(:clearing).with(false)
+        evaluator.call(contents)
+      end
+    end
+
+    context "with clear :on" do
+      let(:contents) { "clearing :on" }
+      it "enabled clearing the screen after every task" do
+        expect(session).to receive(:clearing).with(true)
+        evaluator.call(contents)
+      end
+    end
+  end
+
   private
 
   def valid_guardfile_string

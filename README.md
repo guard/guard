@@ -198,10 +198,11 @@ $ bundle exec guard --clear
 $ bundle exec guard -c # shortcut
 ```
 
-You can add the following snippet to your `~/.guardrc` to have the clear option always be enabled:
+You may prefer to enable clearing in all projects by addin the `clearing`
+statement (described below) in you `~/.guardrc` instead:
 
-```
-Guard.options[:clear] = true
+```ruby
+clearing :on
 ```
 
 #### `-n`/`--notify` option
@@ -666,6 +667,16 @@ back, e.g.
 mkdir config
 mv Gemfile config
 ln -s config/Gemfile Gemfile
+```
+
+### clearing
+
+Guard can clear the screen before every action (which some people prefer).
+
+The this clearing behavior can be set to `:on` or `:off`:
+
+```ruby
+clearing :on
 ```
 
 ### notification
