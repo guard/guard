@@ -194,7 +194,27 @@ unless Guard::Config.new.strict?
       end
 
       it "evaluates the guardfile" do
+        expect(evaluator).to receive(:evaluate)
         subject.evaluate_guardfile
+      end
+    end
+
+    describe "options" do
+      let(:options) { instance_double("Guard::Options") }
+
+      before do
+        allow(session).to receive(:options).and_return(options)
+      end
+
+      it "show deprecation warning" do
+        expect(Guard::UI).to receive(:deprecation).
+          with(Guard::Deprecated::Guard::ClassMethods::OPTIONS)
+        subject.options
+      end
+
+      it "provides an alternative implementation" do
+        expect(session).to receive(:options).and_return(options)
+        expect(subject.options).to be(options)
       end
     end
   end

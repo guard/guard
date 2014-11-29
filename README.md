@@ -198,10 +198,11 @@ $ bundle exec guard --clear
 $ bundle exec guard -c # shortcut
 ```
 
-You can add the following snippet to your `~/.guardrc` to have the clear option always be enabled:
+You may prefer to enable clearing in all projects by addin the `clearing`
+statement (described below) in you `~/.guardrc` instead:
 
-```
-Guard.options[:clear] = true
+```ruby
+clearing :on
 ```
 
 #### `-n`/`--notify` option
@@ -261,6 +262,9 @@ directory - by selecting which ones to actually track.*
 
 If your watched directories are outside the current one, or if `--watchdirs` isn't working
 as you expect, be sure to read: [Correctly using watchdirs](https://github.com/guard/guard/wiki/Correctly-using-the---watchdir-option)
+
+You may find it more convenient to use the `directories` statement (described
+below) in your Guardfile
 
 
 #### `-G`/`--guardfile` option
@@ -640,6 +644,40 @@ If you define both the plugin and group scope, the plugin scope has precedence. 
 plural and the singular option, the plural has precedence.
 
 **Please be sure to call the `scope` method after you've declared your Guard plugins!**
+
+### directories
+
+This option limits the directories watch to those given, which can improve
+responsiveness, performance and help reduce resource usage (CPU, memory) on
+larger projects.
+
+```ruby
+directories %w(app config lib spec features)
+```
+
+Note: The `--watchdir` option overrides this. (see `--watchdir` above for extra
+info).
+
+Note: Since recursion cannot be diabled on OSX, all other backends were made
+recursive - so if you want to watch selected directories AND files in the root
+directory of your project, move them to another directory and create symlinks
+back, e.g.
+
+```
+mkdir config
+mv Gemfile config
+ln -s config/Gemfile Gemfile
+```
+
+### clearing
+
+Guard can clear the screen before every action (which some people prefer).
+
+The this clearing behavior can be set to `:on` or `:off`:
+
+```ruby
+clearing :on
+```
 
 ### notification
 

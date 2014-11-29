@@ -15,6 +15,9 @@ RSpec.describe Guard do
   let(:state) { instance_double("Guard::Internals::State") }
   let(:queue) { instance_double("Guard::Internals::Queue") }
 
+  # TODO: needed only for clearing hack
+  let(:guard_options) { instance_double("Guard::Options") }
+
   before do
     allow(Guard::Interactor).to receive(:new).and_return(interactor)
     allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
@@ -25,6 +28,11 @@ RSpec.describe Guard do
     allow(Guard::Internals::Session).to receive(:new).and_return(session)
     allow(Guard::Internals::Scope).to receive(:new).and_return(scope)
     allow(Guard::Internals::Queue).to receive(:new).and_return(queue)
+
+    # TODO: these 3 are needed only for clearing hack
+    allow(session).to receive(:options).and_return(guard_options)
+    allow(session).to receive(:clearing)
+    allow(guard_options).to receive(:[])
   end
 
   # TODO: setup has too many responsibilities
@@ -162,6 +170,56 @@ RSpec.describe Guard do
         let(:type) { :sleep }
         let(:options) { { no_interactions: true } }
         it { is_expected.to have_received(:new).with(true) }
+      end
+    end
+
+    describe "UI" do
+      subject { Guard::UI }
+
+      context "gets reset clearing is configured" do
+        before { Guard.setup(options) }
+        it { is_expected.to have_received(:reset_and_clear) }
+      end
+
+      # TODO: this is hideous - remove once Guard.options is removed
+      context "with clearing set in a depreacted way" do
+        context "with successful evaluation" do
+          it "resets after guardfile evaluation" do
+            evaluator_called = nil
+            called_after_evaluator = nil
+            clearing_called = nil
+
+            allow(evaluator).to receive(:evaluate) do
+              evaluator_called = true
+              allow(guard_options).to receive(:[]).with(:clear).and_return(:foo)
+            end
+
+            expect(session).to receive(:clearing).with(:foo) do
+              clearing_called = true
+            end
+
+            expect(Guard::UI).to receive(:reset_and_clear) do
+              called_after_evaluator = evaluator_called
+            end
+
+            Guard.setup(options)
+            expect(called_after_evaluator).to be
+            expect(clearing_called).to be
+          end
+        end
+
+        context "with evaluation failure" do
+          before do
+            allow(evaluator).to receive(:evaluate).
+              and_raise(Guard::Guardfile::Evaluator::NoPluginsError)
+          end
+
+          it "does not clear the screen, even when enabled" do
+            expect(Guard::UI).to_not receive(:reset_and_clear)
+            expect(Guard::UI).to receive(:error)
+            Guard.setup(options)
+          end
+        end
       end
     end
   end

@@ -81,10 +81,15 @@ module Guard
       attr_reader :guardfile_group_scope
       attr_reader :guardfile_plugin_scope
 
-      # TODO: not tested
-      def clear?
+      def clearing(on)
+        @clear = on
+      end
+
+      def clearing?
         @clear
       end
+
+      alias :clear? :clearing?
 
       def debug?
         @debug

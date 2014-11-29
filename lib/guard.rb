@@ -57,8 +57,6 @@ module Guard
 
       @queue = Internals::Queue.new(Guard)
 
-      UI.reset_and_clear
-
       _evaluate(state.session.evaluator_options)
 
       # NOTE: this should be *after* evaluate so :directories can work
@@ -146,6 +144,12 @@ module Guard
     def _evaluate(options)
       evaluator = Guardfile::Evaluator.new(options)
       evaluator.evaluate
+
+      # TODO: remove this workaround when options are removed
+      state.session.clearing(state.session.options[:clear])
+
+      UI.reset_and_clear
+
       msg = "No plugins found in Guardfile, please add at least one."
       UI.error msg if _pluginless_guardfile?
 

@@ -172,6 +172,18 @@ module Guard
           msg = "No plugins found in Guardfile, please add at least one."
           ::Guard::UI.error msg if _pluginless_guardfile?
         end
+
+        OPTIONS = <<-EOS.gsub(/^\s*/, "")
+          Starting with Guard 2.9.0 Guard.options is deprecated and ideally you
+          should be able to set specific options through an API or a DSL
+          method. Feel free to add feature requests if there's something
+          missing.
+        EOS
+
+        def options
+          UI.deprecation(OPTIONS)
+          ::Guard.state.session.options
+        end
       end
     end
   end
