@@ -5,8 +5,6 @@ require "guard/ui"
 require "guard/watcher"
 
 require "guard/deprecated/dsl" unless Guard::Config.new.strict?
-
-# TODO: only for listener
 require "guard"
 
 module Guard
@@ -267,8 +265,8 @@ module Guard
     # @param [Regexp] regexps a pattern (or list of patterns) for ignoring paths
     #
     def ignore(*regexps)
-      # TODO: instead, use Guard.reconfigure(ignore: regexps) or something
-      Guard.listener.ignore(regexps) if Guard.listener
+      # TODO: use guardfile results class
+      Guard.state.session.guardfile_ignore = regexps
     end
 
     # TODO: deprecate
@@ -284,7 +282,8 @@ module Guard
     def ignore!(*regexps)
       @ignore_regexps ||= []
       @ignore_regexps << regexps
-      Guard.listener.ignore!(@ignore_regexps) if Guard.listener
+      # TODO: use guardfile results class
+      Guard.state.session.guardfile_ignore_bang = @ignore_regexps
     end
 
     # TODO: deprecate

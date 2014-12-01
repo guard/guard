@@ -1,18 +1,18 @@
 require "guard/internals/session"
 
 RSpec.describe Guard::Internals::Session do
+  let(:options) { {} }
   subject { described_class.new(options) }
 
   let(:plugins) { instance_double("Guard::Internals::Plugins") }
   let(:groups) { instance_double("Guard::Internals::Plugins") }
-  let(:scope) { instance_double("Guard::Internals::Scope") }
+
+  before do
+    allow(Guard::Internals::Plugins).to receive(:new).and_return(plugins)
+    allow(Guard::Internals::Groups).to receive(:new).and_return(groups)
+  end
 
   describe "#initialize" do
-    before do
-      allow(Guard::Internals::Plugins).to receive(:new).and_return(plugins)
-      allow(Guard::Internals::Groups).to receive(:new).and_return(groups)
-      allow(Guard::Internals::Scope).to receive(:new).and_return(scope)
-    end
 
     describe "#listener_args" do
       subject { described_class.new(options).listener_args }
@@ -94,13 +94,6 @@ RSpec.describe Guard::Internals::Session do
   end
 
   describe "#clearing" do
-    let(:options) { {} }
-
-    before do
-      allow(Guard::Internals::Plugins).to receive(:new).and_return(plugins)
-      allow(Guard::Internals::Groups).to receive(:new).and_return(groups)
-    end
-
     context "when not set" do
       context "when clearing is not set from commandline" do
         it { is_expected.to_not be_clearing }
@@ -122,6 +115,28 @@ RSpec.describe Guard::Internals::Session do
         before { subject.clearing(false) }
         it { is_expected.to_not be_clearing }
       end
+    end
+  end
+
+  describe "#guardfile_ignore=" do
+    context "when set from guardfile" do
+      before { subject.guardfile_ignore = [/foo/] }
+      specify { expect(subject.guardfile_ignore).to eq([/foo/]) }
+    end
+
+    context "when unset" do
+      specify { expect(subject.guardfile_ignore).to eq([]) }
+    end
+  end
+
+  describe "#guardfile_ignore_bang=" do
+    context "when set from guardfile" do
+      before { subject.guardfile_ignore_bang = [/foo/] }
+      specify { expect(subject.guardfile_ignore_bang).to eq([/foo/]) }
+    end
+
+    context "when unset" do
+      specify { expect(subject.guardfile_ignore_bang).to eq([]) }
     end
   end
 end
