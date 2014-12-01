@@ -185,13 +185,7 @@ module Guard
         yield plugin
       end
 
-      # Display a message of the type `method` and with the color `color_name`
-      # (no color by default) conditionnaly given a `plugin_name`.
-      #
-      # @param [String] plugin_name the calling plugin name
-      # @option options [Boolean] reset whether to clean the output before
-      # @option options [String] plugin manually define the calling plugin
-      #
+      # @private
       def _filtered_logger_message(message, method, color_name, options = {})
         message = color(message, color_name) if color_name
 

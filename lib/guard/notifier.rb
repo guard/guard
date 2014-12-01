@@ -9,8 +9,7 @@ require_relative "ui"
 
 module Guard
   # The notifier handles sending messages to different notifiers. Currently the
-  # following
-  # libraries are supported:
+  # following libraries are supported:
   #
   # * Ruby GNTP
   # * Growl
@@ -109,13 +108,13 @@ module Guard
     # @param [Hash] options the turn_on options
     # @option options [Boolean] silent disable any logging
     #
-    def turn_on(opts = {})
+    def turn_on(options = {})
       _check_server!
       return unless enabled?
 
       fail "Already active!" if active?
 
-      silent = opts[:silent]
+      silent = options[:silent]
 
       @detected.available.each do |klass, _|
         ::Guard::UI.info(format(USING_NOTIFIER, klass.title)) unless silent
@@ -171,7 +170,7 @@ module Guard
     # @option options [String] silent disable any error message
     # @return [Boolean] if the notification could be added
     #
-    def add(name, opts = {})
+    def add(name, options = {})
       _check_server!
 
       return false unless enabled?
@@ -182,7 +181,7 @@ module Guard
       end
 
       # ok to pass new instance when called without connect (e.g. evaluator)
-      (@detected || Detected.new(SUPPORTED)).add(name, opts)
+      (@detected || Detected.new(SUPPORTED)).add(name, options)
     end
 
     # TODO: deprecate/remove

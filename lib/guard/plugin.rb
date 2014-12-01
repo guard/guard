@@ -91,7 +91,7 @@ module Guard
     #     hook :foo
     #   end
     #
-    # Here, when {Guard::Plugin::Base#run_all} is called, {#hook} will notify
+    # Here, when {Guard::Plugin#run_all} is called, {#hook} will notify
     # callbacks registered for the "run_all_foo" event.
     #
     # When event is a String, {#hook} will directly turn the String
@@ -103,7 +103,7 @@ module Guard
     #     hook "foo_bar"
     #   end
     #
-    # When {Guard::Plugin::Base#run_all} is called, {#hook} will notify
+    # When {Guard::Plugin::run_all} is called, {#hook} will notify
     # callbacks registered for the "foo_bar" event.
     #
     # @param [Symbol, String] event the name of the Guard event

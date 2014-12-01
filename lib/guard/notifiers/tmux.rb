@@ -173,41 +173,41 @@ module Guard
       # to true, and may further disable the colorization by setting
       # `change_color` to false.
       #
-      # @param [String] title the notification title
-      # @param [Hash] opts additional notification library options
-      # @option opts [String] type the notification type. Either 'success',
+      # @param [String] message the notification message
+      # @param [Hash] options additional notification library options
+      # @option options [String] type the notification type. Either 'success',
       #   'pending', 'failed' or 'notify'
-      # @option opts [String] message the notification message body
-      # @option opts [String] image the path to the notification image
-      # @option opts [Boolean] change_color whether to show a color
+      # @option options [String] message the notification message body
+      # @option options [String] image the path to the notification image
+      # @option options [Boolean] change_color whether to show a color
       #   notification
-      # @option opts [String,Array] color_location the location where to draw
+      # @option options [String,Array] color_location the location where to draw
       #   the color notification
-      # @option opts [Boolean] display_message whether to display a message
+      # @option options [Boolean] display_message whether to display a message
       #   or not
-      # @option opts [Boolean] display_on_all_clients whether to display a
+      # @option options [Boolean] display_on_all_clients whether to display a
       #   message on all tmux clients or not
       #
-      def notify(message, opts = {})
+      def notify(message, options = {})
         super
-        opts.delete(:image)
+        options.delete(:image)
 
-        change_color = Defaults.option(opts, :change_color)
-        options = Array(Defaults.option(opts, :color_location))
-        display_the_title = Defaults.option(opts, :display_title)
-        display_message = Defaults.option(opts, :display_message)
-        type  = opts.delete(:type).to_s
-        title = opts.delete(:title)
+        change_color = Defaults.option(options, :change_color)
+        locations = Array(Defaults.option(options, :color_location))
+        display_the_title = Defaults.option(options, :display_title)
+        display_message = Defaults.option(options, :display_message)
+        type  = options.delete(:type).to_s
+        title = options.delete(:title)
 
         if change_color
-          color = tmux_color(type, opts)
-          options.each { |location| Client.set(_all?, location, color) }
+          color = tmux_color(type, options)
+          locations.each { |location| Client.set(_all?, location, color) }
         end
 
-        display_title(type, title, message, opts) if display_the_title
+        display_title(type, title, message, options) if display_the_title
 
         return unless display_message
-        display_message(type, title, message, opts)
+        display_message(type, title, message, options)
       end
 
       # Displays a message in the title bar of the terminal.
@@ -224,10 +224,10 @@ module Guard
       # @option options [String] default_message_format a string to use as
       #   formatter when no format per type is defined.
       #
-      def display_title(type, title, message, opts = {})
+      def display_title(type, title, message, options = {})
         format = "#{type}_title_format".to_sym
-        options = Defaults.option(opts, :default_title_format)
-        title_format   = opts.fetch(format, options)
+        default_title_format = Defaults.option(options, :default_title_format)
+        title_format   = options.fetch(format, default_title_format)
         teaser_message = message.split("\n").first
         display_title  = title_format % [title, teaser_message]
 

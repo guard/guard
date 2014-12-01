@@ -86,9 +86,11 @@ module Guard
     #
     # Currently supported args:
     #
-    #   old style hash: {modified: ['foo'], added: ['bar'], removed: []}
+    #   @example Old style hash:
+    #     async_queue_add(modified: ['foo'], added: ['bar'], removed: [])
     #
-    #   new style signals with args: [:guard_pause, :unpaused ]
+    #   @example New style signals with args:
+    #     async_queue_add([:guard_pause, :unpaused ])
     #
     def async_queue_add(changes)
       @queue << changes

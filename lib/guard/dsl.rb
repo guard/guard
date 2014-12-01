@@ -227,11 +227,10 @@ module Guard
     # `run_on_additions`, `run_on_modifications` and `run_on_removals` plugin
     # method.
     #
-    # @example Define a callback that'll be called before the `reload` action.
+    # @example Add callback before the `reload` action.
     #   callback(:reload_begin) { puts "Let's reload!" }
     #
-    # @example Define a callback that'll be called before the `start` and
-    # `stop` actions.
+    # @example Add callback before the `start` and `stop` actions.
     #
     #   my_lambda = lambda do |plugin, event, *args|
     #     puts "Let's #{event} #{plugin} with #{args}!"
