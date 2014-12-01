@@ -75,6 +75,7 @@ module Guard
     # @see Guard::Notifier for available notifier and its options.
     #
     def notification(notifier, options = {})
+      # TODO: remove dependency on Notifier (let session handle this)
       Notifier.add(notifier.to_sym, options.merge(silent: false))
     end
 
@@ -90,6 +91,7 @@ module Guard
     #   options
     #
     def interactor(options)
+      # TODO: remove dependency on Interactor (let session handle this)
       case options
       when :off
         Interactor.enabled = false
@@ -132,6 +134,7 @@ module Guard
 
       if block_given?
         groups.each do |group|
+          # TODO: let groups be added *after* evaluation
           Guard.state.session.groups.add(group, options)
         end
 
@@ -181,6 +184,7 @@ module Guard
       groups = @current_groups && @current_groups.last || [:default]
       groups.each do |group|
         opts = @plugin_options.merge(group: group)
+        # TODO: let plugins be added *after* evaluation
         Guard.state.session.plugins.add(name, opts)
       end
 
@@ -282,6 +286,8 @@ module Guard
       @ignore_regexps << regexps
       Guard.listener.ignore!(@ignore_regexps) if Guard.listener
     end
+
+    # TODO: deprecate
     alias filter! ignore!
 
     # Configures the Guard logger.
@@ -365,6 +371,7 @@ module Guard
     # @param [Hash] scopes the scope for the groups and plugins
     #
     def scope(scope = {})
+      # TODO: use a Guardfile::Results class
       Guard.state.session.guardfile_scope(scope)
     end
 
