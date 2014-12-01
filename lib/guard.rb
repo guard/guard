@@ -60,7 +60,14 @@ module Guard
       _evaluate(state.session.evaluator_options)
 
       # NOTE: this should be *after* evaluate so :directories can work
+      # TODO: move listener setup to session?
       @listener = Listen.send(*state.session.listener_args, &_listener_callback)
+
+      ignores = state.session.guardfile_ignore
+      @listener.ignore(ignores) unless ignores.empty?
+
+      ignores = state.session.guardfile_ignore_bang
+      @listener.ignore!(ignores) unless ignores.empty?
 
       Notifier.connect(state.session.notify_options)
 

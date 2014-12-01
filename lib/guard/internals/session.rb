@@ -69,6 +69,8 @@ module Guard
 
         @guardfile_plugin_scope = []
         @guardfile_group_scope = []
+        @guardfile_ignore = []
+        @guardfile_ignore_bang = []
       end
 
       def guardfile_scope(scope)
@@ -78,8 +80,11 @@ module Guard
         fail "Unknown options: #{opts.inspect}" unless opts.empty?
       end
 
+      # TODO: create a EvaluatorResult class?
       attr_reader :guardfile_group_scope
       attr_reader :guardfile_plugin_scope
+      attr_accessor :guardfile_ignore
+      attr_accessor :guardfile_ignore_bang
 
       def clearing(on)
         @clear = on

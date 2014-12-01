@@ -26,9 +26,7 @@ RSpec.describe Guard::Dsl do
     stub_const "Guard::Bar", instance_double(Guard::Plugin)
     stub_const "Guard::Baz", instance_double(Guard::Plugin)
     allow(Guard::Notifier).to receive(:turn_on)
-    allow(Listen).to receive(:to).with(Dir.pwd, {})
     allow(Guard::Interactor).to receive(:new).and_return(interactor)
-    allow(Guard).to receive(:listener) { listener }
 
     allow(state).to receive(:scope).and_return(scope)
     allow(session).to receive(:plugins).and_return(plugins)
@@ -46,9 +44,7 @@ RSpec.describe Guard::Dsl do
       let(:contents) { "ignore %r{^foo}, /bar/" }
 
       it "adds ignored regexps to the listener" do
-        expect(listener).to receive(:ignore).
-          with([/^foo/, /bar/]).and_return(listener)
-
+        expect(session).to receive(:guardfile_ignore=).with([/^foo/, /bar/])
         evaluator.call(contents)
       end
     end
@@ -59,66 +55,43 @@ RSpec.describe Guard::Dsl do
       let(:contents) { "ignore! %r{^foo}, /bar/" }
 
       it "replaces listener regexps" do
-        expect(listener).to receive(:ignore!).
-          with([[/^foo/, /bar/]]).and_return(listener)
+        expect(session).to receive(:guardfile_ignore_bang=).
+          with([[/^foo/, /bar/]])
 
         evaluator.call(contents)
       end
     end
 
-    context "when filtering *.txt and *.zip and ignoring only foo*" do
-      let(:contents) { "filter! %r{.txt$}, /.*\\.zip/\n ignore! %r{^foo}" }
+    context "when ignoring *.txt and *.zip and ignoring! only foo*" do
+      let(:contents) { "ignore! %r{.txt$}, /.*\\.zip/\n ignore! %r{^foo}" }
 
-      it "replaces listener ignores, but keeps filter! ignores" do
-        allow(listener).to receive(:ignore!).
-          with([[/.txt$/, /.*\.zip/]]).and_return(listener)
+      it "replaces listener ignores, but keeps ignore! ignores" do
+        allow(session).to receive(:guardfile_ignore_bang=).
+          with([[/.txt$/, /.*\.zip/]])
 
-        expect(listener).to receive(:ignore!).
-          with([[/.txt$/, /.*\.zip/], [/^foo/]]).and_return(listener)
-
-        evaluator.call(contents)
-      end
-    end
-  end
-
-  describe "#filter" do
-    context "with filter regexp" do
-      let(:contents) { "filter %r{.txt$}, /.*.zip/" }
-
-      it "adds ignored regexps to the listener" do
-        expect(listener).to receive(:ignore).
-          with([/.txt$/, /.*.zip/]).and_return(listener)
+        expect(session).to receive(:guardfile_ignore_bang=).
+          with([[/.txt$/, /.*\.zip/], [/^foo/]])
 
         evaluator.call(contents)
       end
     end
   end
 
-  describe "#filter!" do
-    context "when filter!" do
-      let(:contents) {  "filter! %r{.txt$}, /.*.zip/" }
+  # TODO: remove this hack (after deprecating filter)
+  def method_for(klass, meth)
+    klass.instance_method(meth)
+  end
 
-      it "replaces ignored regexps in the listener" do
-        expect(listener).to receive(:ignore!).
-          with([[/.txt$/, /.*.zip/]]).and_return(listener)
+  # TODO: deprecated #filter
+  describe "#filter alias method" do
+    subject { method_for(described_class, :filter) }
+    it { is_expected.to eq(method_for(described_class, :ignore)) }
+  end
 
-        evaluator.call(contents)
-      end
-    end
-
-    context "with ignore! and filter!" do
-      let(:contents) { "ignore! %r{^foo}\n filter! %r{.txt$}, /.*.zip/" }
-
-      it "replaces listener ignores, but keeps guardfile ignore!" do
-        expect(listener).to receive(:ignore!).
-          with([[/^foo/]]).and_return(listener)
-
-        expect(listener).to receive(:ignore!).
-          with([[/^foo/], [/.txt$/, /.*.zip/]]).and_return(listener)
-
-        evaluator.call(contents)
-      end
-    end
+  # TODO: deprecated #filter
+  describe "#filter! alias method" do
+    subject { method_for(described_class, :filter!) }
+    it { is_expected.to eq(method_for(described_class, :ignore!)) }
   end
 
   describe "#notification" do

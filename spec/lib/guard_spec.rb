@@ -42,7 +42,7 @@ RSpec.describe Guard do
 
     let(:options) { { my_opts: true, guardfile: guardfile } }
 
-    let(:listener) { instance_double(Listen::Listener) }
+    let(:listener) { instance_double("Listen::Listener") }
 
     before do
       allow(Listen).to receive(:to).with(Dir.pwd, {}) { listener }
@@ -63,13 +63,19 @@ RSpec.describe Guard do
       allow(Guard::Notifier).to receive(:connect)
 
       allow(Guard::UI).to receive(:reset_and_clear)
+      allow(plugins).to receive(:all).and_return([])
+
       allow(session).to receive(:listener_args).and_return([:to, Dir.pwd, {}])
       allow(session).to receive(:evaluator_options).and_return({})
       allow(session).to receive(:cmdline_groups).and_return({})
       allow(session).to receive(:cmdline_plugins).and_return({})
       allow(session).to receive(:notify_options).and_return(notify: true)
       allow(session).to receive(:interactor_name).and_return(:foo)
-      allow(plugins).to receive(:all).and_return([])
+      allow(session).to receive(:guardfile_ignore).and_return([])
+      allow(session).to receive(:guardfile_ignore_bang).and_return([])
+
+      allow(listener).to receive(:ignore)
+      allow(listener).to receive(:ignore!)
 
       allow(Guard::Internals::State).to receive(:new).and_return(state)
     end
@@ -79,7 +85,9 @@ RSpec.describe Guard do
     end
 
     it "initializes the listener" do
-      allow(Listen).to receive(:to).with("/foo", latency: 2, wait_for_delay: 1)
+      allow(Listen).to receive(:to).
+        with("/foo", latency: 2, wait_for_delay: 1).and_return(listener)
+
       allow(session).to receive(:listener_args).and_return(
         [:to, "/foo", { latency: 2, wait_for_delay: 1 }]
       )
@@ -122,6 +130,30 @@ RSpec.describe Guard do
       allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
 
       subject
+    end
+
+    describe "listener" do
+      subject { listener }
+
+      context "with ignores 'ignore(/foo/)' and 'ignore!(/bar/)'" do
+        before do
+          allow(evaluator).to receive(:evaluate) do
+            allow(session).to receive(:guardfile_ignore).and_return([/foo/])
+            allow(session).to receive(:guardfile_ignore_bang).
+              and_return([/bar/])
+          end
+          Guard.setup(options)
+        end
+
+        it { is_expected.to have_received(:ignore).with([/foo/]) }
+        it { is_expected.to have_received(:ignore!).with([/bar/]) }
+      end
+
+      context "without ignores" do
+        before { Guard.setup(options) }
+        it { is_expected.to_not have_received(:ignore) }
+        it { is_expected.to_not have_received(:ignore!) }
+      end
     end
 
     it "displays an error message when no guard are defined in Guardfile" do
