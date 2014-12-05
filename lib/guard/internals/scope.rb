@@ -82,10 +82,12 @@ module Guard
           !source.empty?
         end
 
+        # TODO: not tested when groups/plugins given don't exist
+
         # TODO: should already be instantiated
         Array(items).map do |name|
           (type == :group ? _groups : _plugins).all(name).first
-        end
+        end.compact
       end
 
       def _instantiate(meth, obj)
