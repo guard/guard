@@ -1,5 +1,7 @@
 directories %w(spec lib config features man)
 
+watch ("config/Guardfile") { UI.info "Exiting guard because config changed"; exit 0 }
+
 group :specs, halt_on_fail: true do
   guard :rspec, cmd: "bundle exec rspec", failed_mode: :keep do
     watch(%r{^spec/.+_spec\.rb$})
