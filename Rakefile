@@ -1,9 +1,13 @@
 require "bundler/gem_tasks"
 
+
+default_tasks = []
+
 require "rspec/core/rake_task"
 RSpec::Core::RakeTask.new(:spec) do |t|
-  t.verbose = false unless ENV.key?("CI")
+  t.verbose = false unless ENV["CI"] == 'true'
 end
+default_tasks << :spec
 
 require "guard/rake_task"
 
@@ -15,14 +19,16 @@ require "cucumber/rake/task"
 Cucumber::Rake::Task.new(:features) do |t|
   t.cucumber_opts = "features --format pretty"
 end
+default_tasks << :features
+
 
 if ENV["CI"] != "true"
   require "rubocop/rake_task"
   RuboCop::RakeTask.new(:rubocop)
-  task default: [:spec, :features, :rubocop]
-else
-  task default: [:spec, :features]
+  default_tasks << :rubocop
 end
+
+task default: default_tasks
 
 # Coveralls:
 #
