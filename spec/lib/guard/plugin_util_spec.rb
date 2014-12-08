@@ -24,6 +24,7 @@ RSpec.describe Guard::PluginUtil do
         instance_double(spec, name: "guard-myplugin"),
         instance_double(spec, name: "gem1", full_gem_path: "/gem1"),
         instance_double(spec, name: "gem2", full_gem_path: "/gem2"),
+        instance_double(spec, name: "guard-compat"),
       ]
       allow(File).to receive(:exist?).
         with("/gem1/lib/guard/gem1.rb") { false }
@@ -42,6 +43,10 @@ RSpec.describe Guard::PluginUtil do
 
     it "returns the list of embedded guard gems" do
       expect(described_class.plugin_names).to include("gem2")
+    end
+
+    it "ignores guard-compat" do
+      expect(described_class.plugin_names).to_not include("compat")
     end
   end
 

@@ -168,6 +168,7 @@ module Guard
     end
 
     def self._gem_valid?(gem)
+      return false if gem.name == "guard-compat"
       return true if gem.name =~ /^guard-/
       full_path = gem.full_gem_path
       file = File.join(full_path, "lib", "guard", "#{gem.name}.rb")

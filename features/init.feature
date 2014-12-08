@@ -12,4 +12,4 @@ Feature: Guard "init" command
   Scenario: Create a Guardfile using a plugin's template
     When I run `guard init rspec`
     Then the output should match /Writing new Guardfile to .*Guardfile$/
-    And the file "Guardfile" should match /^guard :rspec, cmd: 'bundle exec rspec' do$/
+    And the file "Guardfile" should match /^guard :rspec, cmd: ['"]bundle exec rspec["'] do$/
