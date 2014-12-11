@@ -14,15 +14,16 @@ require "guard/interactor"
 
 # Guard is the main module for all Guard related modules and classes.
 # Also Guard plugins should use this namespace.
-#
 module Guard
   Deprecated::Guard.add_deprecated(self) unless Config.new.strict?
 
   class << self
+    attr_reader :state
+    attr_reader :queue
     attr_reader :listener
+    attr_reader :interactor
 
     # @private api
-    attr_reader :queue
 
     include Internals::Helpers
 
@@ -72,10 +73,6 @@ module Guard
     def init(cmdline_options)
       @state = Internals::State.new(cmdline_options)
     end
-
-    attr_reader :state
-
-    attr_reader :interactor
 
     # Asynchronously trigger changes
     #
