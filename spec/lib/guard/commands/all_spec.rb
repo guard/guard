@@ -2,10 +2,16 @@ require "guard/plugin"
 
 require "guard/commands/all"
 
+require "guard/internals/session"
+require "guard/internals/state"
+
 RSpec.describe Guard::Commands::All do
   let(:foo_group) { instance_double(Guard::Group) }
-  let(:bar_guard) { instance_double(Guard::PluginUtil) }
+  let(:bar_guard) { instance_double(Guard::Plugin) }
   let(:output) { instance_double(Pry::Output) }
+
+  let(:state) { instance_double("Guard::Internals::State") }
+  let(:session) { instance_double("Guard::Internals::Session") }
 
   class FakePry < Pry::Command
     def self.output
@@ -13,12 +19,11 @@ RSpec.describe Guard::Commands::All do
   end
 
   before do
-    allow(Guard::Interactor).to receive(:convert_scope) do |*args|
-      fail "Interactor#convert_scope stub called with: #{args.inspect}"
-    end
-
-    allow(Guard::Interactor).to receive(:convert_scope).with(given_scope).
+    allow(session).to receive(:convert_scope).with(given_scope).
       and_return(converted_scope)
+
+    allow(state).to receive(:session).and_return(session)
+    allow(Guard).to receive(:state).and_return(state)
 
     allow(FakePry).to receive(:output).and_return(output)
     allow(Pry::Commands).to receive(:create_command).with("all") do |&block|

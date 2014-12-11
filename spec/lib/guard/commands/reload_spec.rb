@@ -1,36 +1,34 @@
 require "guard/commands/reload"
 
-require "guard/group"
+require "guard/internals/session"
+require "guard/internals/state"
 
 RSpec.describe Guard::Commands::Reload do
   let(:output) { instance_double(Pry::Output) }
+
+  let(:state) { instance_double("Guard::Internals::State") }
+  let(:session) { instance_double("Guard::Internals::Session") }
+
+  let(:foo_group) { instance_double(Guard::Group) }
+  let(:bar_guard) { instance_double(Guard::Plugin) }
 
   class FakePry < Pry::Command
     def self.output; end
   end
 
   before do
+    allow(session).to receive(:convert_scope).with(given_scope).
+      and_return(converted_scope)
+
+    allow(state).to receive(:session).and_return(session)
+    allow(Guard).to receive(:state).and_return(state)
+
     allow(FakePry).to receive(:output).and_return(output)
     allow(Pry::Commands).to receive(:create_command).with("reload") do |&block|
       FakePry.instance_eval(&block)
     end
 
     described_class.import
-  end
-
-  before { described_class.import }
-
-  let(:foo_group) { instance_double(Guard::Group) }
-  let(:bar_guard) { instance_double(Guard::PluginUtil) }
-
-  before do
-    # TODO: refactor convert_scope out of Interactor
-    allow(Guard::Interactor).to receive(:convert_scope) do |*args|
-      fail "Interactor#convert_scope stub called with: #{args.inspect}"
-    end
-
-    allow(Guard::Interactor).to receive(:convert_scope).with(given_scope).
-      and_return(converted_scope)
   end
 
   context "without scope" do

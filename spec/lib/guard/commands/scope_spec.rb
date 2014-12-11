@@ -1,18 +1,29 @@
 require "guard/commands/scope"
 
-require "guard/group"
+require "guard/internals/session"
+require "guard/internals/state"
 
 RSpec.describe Guard::Commands::Scope do
   let(:output) { instance_double(Pry::Output) }
 
   let(:state) { instance_double("Guard::Internals::State") }
   let(:scope) { instance_double("Guard::Internals::Scope") }
+  let(:session) { instance_double("Guard::Internals::Session") }
+
+  let(:foo_group) { instance_double(Guard::Group) }
+  let(:bar_guard) { instance_double(Guard::PluginUtil) }
 
   class FakePry < Pry::Command
     def self.output; end
   end
 
   before do
+    allow(session).to receive(:convert_scope).with(given_scope).
+      and_return(converted_scope)
+
+    allow(state).to receive(:session).and_return(session)
+    allow(Guard).to receive(:state).and_return(state)
+
     allow(FakePry).to receive(:output).and_return(output)
     allow(Pry::Commands).to receive(:create_command).with("scope") do |&block|
       FakePry.instance_eval(&block)
@@ -22,18 +33,6 @@ RSpec.describe Guard::Commands::Scope do
     allow(Guard).to receive(:state).and_return(state)
 
     described_class.import
-  end
-
-  let(:foo_group) { instance_double(Guard::Group) }
-  let(:bar_guard) { instance_double(Guard::PluginUtil) }
-
-  before do
-    allow(Guard::Interactor).to receive(:convert_scope) do |*args|
-      fail "Interactor#convert_scope stub called with: #{args.inspect}"
-    end
-
-    allow(Guard::Interactor).to receive(:convert_scope).with(given_scope).
-      and_return(converted_scope)
   end
 
   context "without scope" do

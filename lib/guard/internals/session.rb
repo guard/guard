@@ -140,6 +140,24 @@ module Guard
       def interactor_name
         @interactor_name
       end
+
+      # TODO: call this from within action, not within interactor command
+      def convert_scope(entries)
+        scopes  = { plugins: [], groups: [] }
+        unknown = []
+
+        entries.each do |entry|
+          if plugin = plugins.all(entry).first
+            scopes[:plugins] << plugin
+          elsif group = groups.all(entry).first
+            scopes[:groups] << group
+          else
+            unknown << entry
+          end
+        end
+
+        [scopes, unknown]
+      end
     end
   end
 end

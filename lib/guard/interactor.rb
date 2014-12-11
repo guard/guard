@@ -55,33 +55,6 @@ module Guard
 
       # TODO: handle switching interactors during runtime?
       attr_writer :enabled
-
-      # Converts and validates a plain text scope
-      # to a valid plugin or group scope.
-      #
-      # @param [Array<String>] entries the text scope
-      # @return [Hash, Array<String>] the plugin or group scope, the unknown
-      #   entries
-      #
-      # TODO: call this from within action, not within interactor command
-      def convert_scope(entries)
-        scopes  = { plugins: [], groups: [] }
-        unknown = []
-
-        session = Guard.state.session
-
-        entries.each do |entry|
-          if plugin = session.plugins.all(entry).first
-            scopes[:plugins] << plugin
-          elsif group = session.groups.all(entry).first
-            scopes[:groups] << group
-          else
-            unknown << entry
-          end
-        end
-
-        [scopes, unknown]
-      end
     end
 
     private
