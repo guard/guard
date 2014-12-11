@@ -3,6 +3,7 @@ require "guard/group"
 require "guard/plugin_util"
 require "guard/internals/session"
 require "guard/internals/scope"
+require "guard/runner"
 
 module Guard
   module Internals

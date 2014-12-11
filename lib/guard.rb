@@ -3,26 +3,14 @@ require "listen"
 
 require "guard/config"
 require "guard/deprecated/guard" unless Guard::Config.new.strict?
+require "guard/internals/helpers"
 
 require "guard/internals/debugging"
 require "guard/internals/traps"
-require "guard/internals/helpers"
-
 require "guard/internals/queue"
-require "guard/internals/state"
 
-require "guard/options"
-require "guard/commander"
-require "guard/dsl"
-require "guard/group"
+# TODO: remove this class altogether
 require "guard/interactor"
-require "guard/notifier"
-require "guard/plugin_util"
-require "guard/runner"
-require "guard/sheller"
-require "guard/ui"
-require "guard/watcher"
-require "guard/guardfile/evaluator"
 
 # Guard is the main module for all Guard related modules and classes.
 # Also Guard plugins should use this namespace.

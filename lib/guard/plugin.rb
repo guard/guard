@@ -1,3 +1,6 @@
+require "guard"
+require "guard/internals/groups"
+
 module Guard
   # Base class from which every Guard plugin implementation must inherit.
   #

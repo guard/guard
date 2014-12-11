@@ -1,5 +1,3 @@
-require "guard/ui"
-
 module Guard
   class Interactor
     # Initializes the interactor. This configures

@@ -1,11 +1,10 @@
 require "guard/config"
+require "guard/deprecated/evaluator" unless Guard::Config.new.strict?
 
 require "guard/options"
 require "guard/plugin"
 
 require "guard/dsl"
-
-require "guard/deprecated/evaluator" unless Guard::Config.new.strict?
 
 module Guard
   module Guardfile

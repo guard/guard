@@ -5,7 +5,8 @@ require "guard/interactor"
 require "guard/runner"
 require "guard/reevaluator"
 require "guard/dsl_describer"
-require "guard"
+
+require "guard/internals/state"
 
 module Guard
   # Commands supported by guard

@@ -3,7 +3,11 @@ require "thor"
 require "guard"
 require "guard/version"
 require "guard/guardfile/generator"
+require "guard/guardfile/evaluator"
 require "guard/dsl_describer"
+require "guard/commander"
+require "guard/internals/state"
+require "guard/internals/session"
 
 module Guard
   # Facade for the Guard command line interface managed by

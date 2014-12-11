@@ -3,6 +3,7 @@ require "formatador"
 
 require "guard/ui"
 require "guard/notifier"
+require "guard"
 
 require "set"
 require "ostruct"

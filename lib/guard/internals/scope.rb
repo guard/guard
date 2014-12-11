@@ -1,3 +1,5 @@
+require "guard"
+
 module Guard
   # @private api
   module Internals
