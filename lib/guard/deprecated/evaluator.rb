@@ -26,8 +26,11 @@ module Guard
       end
 
       def reevaluate_guardfile
+        # require guard only when needed, becuase
+        # guard's deprecations require us
+        require "guard"
         UI.deprecation(REEVALUATE_GUARDFILE)
-        ::Guard::Reevaluator.new.reevaluate
+        ::Guard.state.reset_session { evaluate }
       end
     end
   end

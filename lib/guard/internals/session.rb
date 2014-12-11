@@ -8,9 +8,6 @@ module Guard
   module Internals
     # TODO: split into a commandline class and session (plugins, groups)
     # TODO: swap session and metadata
-    # This class contains variables set during
-    # evaluation of the guardfile (and are reset
-    # before reevaluation)
     class Session
       attr_reader :options
       attr_reader :plugins

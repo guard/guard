@@ -118,21 +118,15 @@ module Guard
           removed: _relative_pathnames(removed)
         }
 
+        _guardfile_deprecated_check(relative_paths[:modified])
+
         async_queue_add(relative_paths) if _relevant_changes?(relative_paths)
       end
     end
 
     # TODO: obsoleted? (move to Dsl?)
     def _pluginless_guardfile?
-      # no Reevaluator means there was no Guardfile configured that could be
-      # reevaluated, so we don't have a pluginless guardfile, because we don't
-      # have a Guardfile to begin with...
-      #
-      # But, if we have a Guardfile, we'll at least have the built-in
-      # Reevaluator, so the following will work:
-
-      plugins = state.session.plugins.all
-      plugins.empty? || plugins.map(&:name) == ["reevaluator"]
+      state.session.plugins.all.empty?
     end
 
     def _evaluate(options)
@@ -154,6 +148,30 @@ module Guard
       end
     rescue Guardfile::Evaluator::NoPluginsError => e
       UI.error(e.message)
+    end
+
+    # TODO: remove at some point
+    def _guardfile_deprecated_check(modified)
+      modified.map!(&:to_s)
+      guardfile = modified.detect { |path| /^(?:.+\/)?Guardfile$/.match(path) }
+      return unless guardfile
+
+      if modified.any? { |path| /^Guardfile$/.match(path) }
+        UI.warning <<EOS
+Guardfile changed - Guard will exit so you can restart it manually.
+
+more info here: https://github.com/guard/guard/wiki/Guard-2.10.3-exits-when-Guardfile-is-changed
+EOS
+        exit 1 # 1 nonzero to break any while loop
+      else
+        UI.info <<EOS
+The Guardfile #{guardfile.inspect} has been modified.
+
+Guard is exiting so you can reload it with the changed configuration.
+EOS
+        # Exit 0 to so any shell while loop can continue
+        exit 0
+      end
     end
   end
 end

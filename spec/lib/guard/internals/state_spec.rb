@@ -46,11 +46,69 @@ RSpec.describe Guard::Internals::State do
   describe "#reset_session" do
     context "with existing options" do
       let(:options) { { watchdir: "abc" } }
+      let(:runner) { instance_double("Guard::Runner") }
+      let(:session) { instance_double("Guard::Internals::Session") }
 
-      it "keeps options" do
+      before do
+        allow(session).to receive(:notify_options).and_return(notify: false)
         allow(session).to receive(:options).and_return(options)
-        expect(Guard::Internals::Session).to receive(:new).with(options)
-        subject.reset_session
+        allow(Guard::Notifier).to receive(:disconnect)
+        allow(runner).to receive(:run).with(:stop)
+        allow(Guard::Runner).to receive(:new).and_return(runner)
+        allow(Guard::Internals::Session).to receive(:new).with(options).
+          and_return(session)
+        allow(Guard::Notifier).to receive(:connect)
+        allow(runner).to receive(:run).with(:start)
+      end
+
+      # TODO: better tests (before/after eval)
+      it "yields the block" do
+        expect { |b| subject.reset_session(&b) }.to yield_control
+      end
+
+      describe "notification" do
+        subject { Guard::Notifier }
+
+        before do
+          begin
+            described_class.new(options).reset_session(&evaluation)
+          rescue RuntimeError
+          end
+        end
+
+        context "when evaluation succeeds" do
+          let(:evaluation) { proc {} }
+          it { is_expected.to have_received(:disconnect) }
+          it { is_expected.to have_received(:connect) }
+        end
+
+        context "when evaluation fails" do
+          let(:evaluation) { proc { fail "some failure" } }
+          it { is_expected.to have_received(:disconnect) }
+          it { is_expected.to have_received(:connect) }
+        end
+      end
+
+      describe "runner" do
+        subject { runner }
+        before do
+          begin
+            described_class.new(options).reset_session(&evaluation)
+          rescue RuntimeError
+          end
+        end
+
+        context "when evaluation succeeds" do
+          let(:evaluation) { proc {} }
+          it { is_expected.to have_received(:run).with(:stop) }
+          it { is_expected.to have_received(:run).with(:start) }
+        end
+
+        context "when evaluation fails" do
+          let(:evaluation) { proc { fail "some failure" } }
+          it { is_expected.to have_received(:run).with(:stop) }
+          it { is_expected.to_not have_received(:run).with(:start) }
+        end
       end
     end
   end

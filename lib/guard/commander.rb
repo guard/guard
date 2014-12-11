@@ -3,7 +3,6 @@ require "listen"
 require "guard/notifier"
 require "guard/interactor"
 require "guard/runner"
-require "guard/reevaluator"
 require "guard/dsl_describer"
 
 require "guard/internals/state"
@@ -64,15 +63,9 @@ module Guard
     # @param [Hash] scopes hash with a Guard plugin or a group scope
     #
     def reload(scopes = {})
-      # TODO: guard reevaluator should probably handle all this
       UI.clear(force: true)
       UI.action_with_scopes("Reload", scopes)
-
-      if scopes.empty?
-        Reevaluator.new.reevaluate
-      else
-        Runner.new.run(:reload, scopes)
-      end
+      Runner.new.run(:reload, scopes)
     end
 
     # Trigger `run_all` on all Guard plugins currently enabled.

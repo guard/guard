@@ -10,10 +10,8 @@ module Guard
     class State
       # Minimal setup for non-interactive commands (list, init, show, etc.)
       def initialize(cmdline_opts)
-        # NOTE: this is reset during reevaluation
         @session = Session.new(cmdline_opts)
 
-        # NOTE: this should persist across reevaluate() calls
         @scope = Scope.new
 
         # NOTE: must be set before anything calls Guard::UI.debug
@@ -24,10 +22,16 @@ module Guard
       attr_reader :session
 
       # @private api
-      # used to clear instance variables during reevaluation
-      def reset_session
+      # TODO: REMOVE!
+      def reset_session(&block)
+        Runner.new.run(:stop)
+        Notifier.disconnect
         options = @session.options.dup
         @session = Session.new(options)
+        block.call
+        Runner.new.run(:start)
+      ensure
+        Notifier.connect(session.notify_options)
       end
     end
   end
