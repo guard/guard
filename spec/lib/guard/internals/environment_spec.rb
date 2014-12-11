@@ -108,17 +108,24 @@ RSpec.describe Guard::Internals::Environment do
       let(:instance) { described_class.new(namespace) }
 
       describe "creating a method" do
-        subject { instance.create_method(:foo) }
+        subject { instance }
+
+        before do
+          subject.create_method(:foo)
+        end
 
         context "when the method does not exist" do
           it { expect { is_expected.to_not raise_error } }
         end
 
         context "when the method already exists" do
-          before { instance.create_method(:foo) }
           let(:error) { described_class::AlreadyExistsError }
           let(:message) { "Method :foo already exists" }
-          it { expect { subject.foo }.to raise_error(error, message) }
+          specify do
+            expect do
+              subject.create_method(:foo)
+            end.to raise_error(error, message)
+          end
         end
       end
 

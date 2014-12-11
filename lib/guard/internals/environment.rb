@@ -69,6 +69,8 @@ module Guard
         @methods[meth] = block
       end
 
+      # TODO: add respond_to support
+
       def method_missing(*args)
         meth, raw_value = *args
         fail NoMethodError, meth unless @methods.key?(meth)
