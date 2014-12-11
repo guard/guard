@@ -55,8 +55,8 @@ module Guard
       def initialize(new_options)
         @options = Options.new(new_options, DEFAULT_OPTIONS)
 
-        @plugins = Internals::Plugins.new
-        @groups = Internals::Groups.new
+        @plugins = Plugins.new
+        @groups = Groups.new
 
         @cmdline_groups = @options[:group]
         @cmdline_plugins = @options[:plugin]
