@@ -1,6 +1,6 @@
 require "guard/notifier"
 
-RSpec.describe Guard::Notifier do
+RSpec.describe Guard::Notifier, exclude_stubs: [Nenv, Guard::Notifier::Env] do
   subject { described_class }
 
   # Use tmux as base, because it has both :turn_on and :turn_off
@@ -19,25 +19,7 @@ RSpec.describe Guard::Notifier do
   let(:foo_object) { instance_double("Guard::Notifier::Tmux") }
   let(:bar_object) { instance_double("Guard::Notifier::Tmux") }
 
-  class FakeEnvironment < Guard::Internals::Environment
-    def notify?
-    end
-
-    # TODO: shorten? (using namespace)
-    def notify_pid=(_value)
-    end
-
-    def notify_pid
-    end
-
-    def notify_active=(_value)
-    end
-
-    def notify_active?
-    end
-  end
-
-  let(:env) { instance_double(FakeEnvironment) }
+  let(:env) { instance_double(Guard::Notifier::Env) }
   let(:detected) { instance_double("Guard::Notifier::Detected") }
 
   before do
@@ -45,14 +27,7 @@ RSpec.describe Guard::Notifier do
       Guard::Notifier.instance_variable_set(var, nil)
     end
 
-    allow(Guard::Internals::Environment).to receive(:new).with("GUARD").
-      and_return(env)
-
-    allow(env).to receive(:create_method).with(:notify?)
-    allow(env).to receive(:create_method).with(:notify_active=)
-    allow(env).to receive(:create_method).with(:notify_active?)
-    allow(env).to receive(:create_method).with(:notify_pid)
-    allow(env).to receive(:create_method).with(:notify_pid=)
+    allow(Guard::Notifier::Env).to receive(:new).with("guard").and_return(env)
 
     # DEFAULTS FOR TESTS
     allow(env).to receive(:notify?).and_return(true)

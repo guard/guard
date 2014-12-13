@@ -21,6 +21,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "pry",        ">= 0.9.12"
   s.add_runtime_dependency "lumberjack", "~> 1.0"
   s.add_runtime_dependency "formatador", ">= 0.2.4"
+  s.add_runtime_dependency "nenv", "~> 0.1"
 
   s.files        = Dir.glob("{bin,images,lib}/**/*") \
     + %w(CHANGELOG.md LICENSE man/guard.1 man/guard.1.html README.md)
