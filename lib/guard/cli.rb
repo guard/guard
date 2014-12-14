@@ -1,13 +1,10 @@
 require "thor"
 
-require "guard"
 require "guard/version"
-require "guard/guardfile/generator"
-require "guard/guardfile/evaluator"
+
 require "guard/dsl_describer"
-require "guard/commander"
-require "guard/internals/state"
-require "guard/internals/session"
+require "guard/cli/environments/valid"
+require "guard/cli/environments/evaluate_only"
 
 module Guard
   # Facade for the Guard command line interface managed by
@@ -108,8 +105,7 @@ module Guard
     # @see Guard.start
     #
     def start
-      _verify_bundler_presence unless options[:no_bundler_warning]
-      _start(options)
+      exit(Cli::Environments::Valid.new(options).start_guard)
     end
 
     desc "list", "Lists Guard plugins that can be used with init"
@@ -120,7 +116,7 @@ module Guard
     # @see Guard::DslDescriber.list
     #
     def list
-      _require_guardfile(options) # just to show which plugins are actually used
+      Cli::Environments::EvaluateOnly.new(options).evaluate
       DslDescriber.new.list
     end
 
@@ -131,7 +127,8 @@ module Guard
     # @see Guard::DslDescriber.notifiers
     #
     def notifiers
-      _require_guardfile(options)
+      Cli::Environments::EvaluateOnly.new(options).evaluate
+      # TODO: pass the data directly to the notifiers?
       DslDescriber.new.notifiers
     end
 
@@ -168,32 +165,9 @@ module Guard
     # initialize
     #
     def init(*plugin_names)
-      _verify_bundler_presence unless options[:no_bundler_warning]
-      bare = options[:bare]
-
-      generator = Guardfile::Generator.new
-      Guard.init(options)
-      session = Guard.state.session
-
-      begin
-        Guardfile::Evaluator.new(session.evaluator_options).evaluate
-      rescue Guardfile::Evaluator::NoGuardfileError
-        generator.create_guardfile
-      end
-
-      return if bare
-
-      # Evaluate because it might have existed and creating was skipped
-      # FIXME: still, I don't know why this is needed
-      Guardfile::Evaluator.new(session.evaluator_options).evaluate
-
-      if plugin_names.empty?
-        generator.initialize_all_templates
-      else
-        plugin_names.each do |plugin_name|
-          generator.initialize_template(plugin_name)
-        end
-      end
+      env = Cli::Environments::Valid.new(options)
+      exitcode = env.initialize_guardfile(plugin_names)
+      exit(exitcode)
     end
 
     desc "show", "Show all defined Guard plugins and their options"
@@ -205,53 +179,8 @@ module Guard
     # @see Guard::DslDescriber.show
     #
     def show
-      _require_guardfile(options)
-      # TODO: use Metadata class
+      Cli::Environments::EvaluateOnly.new(options).evaluate
       DslDescriber.new.show
-    end
-
-    private
-
-    # Verifies if Guard is run with `bundle exec` and
-    # shows a hint to do so if not.
-    #
-    # TODO: move this elsewhere!!! (because of complex specs)
-    def _verify_bundler_presence
-      return unless File.exist?("Gemfile")
-      return if ENV["BUNDLE_GEMFILE"] || ENV["RUBYGEMS_GEMDEPS"]
-
-      UI.info <<EOF
-
-Guard here! It looks like your project has a Gemfile, yet you are running
-`guard` outside of Bundler. If this is your intent, feel free to ignore this
-message. Otherwise, consider using `bundle exec guard` to ensure your
-dependencies are loaded correctly.
-(You can run `guard` with --no-bundler-warning to get rid of this message.)
-EOF
-    end
-
-    def _require_guardfile(options)
-      Guard.init(options) # to setup metadata
-      session = Guard.state.session
-      Guardfile::Evaluator.new(session.evaluator_options).evaluate
-    rescue Dsl::Error,
-           Guardfile::Evaluator::NoPluginsError,
-           Guardfile::Evaluator::NoGuardfileError,
-           Guardfile::Evaluator::NoCustomGuardfile => e
-      # catch to throw message instead of call stack
-      UI.error(e.message)
-      abort
-    end
-
-    def _start(options)
-      Guard.start(options)
-    rescue Dsl::Error,
-           Guardfile::Evaluator::NoPluginsError,
-           Guardfile::Evaluator::NoGuardfileError,
-           Guardfile::Evaluator::NoCustomGuardfile => e
-      # catch to throw message instead of call stack
-      UI.error(e.message)
-      abort
     end
   end
 end

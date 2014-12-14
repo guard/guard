@@ -37,14 +37,18 @@ module Guard
       watched = Guard.state.session.watchdirs.join("', '")
       UI.info "Guard is now watching at '#{ watched }'"
 
+      exitcode = 0
       begin
         while interactor.foreground != :exit
           Guard.queue.process while Guard.queue.pending?
         end
       rescue Interrupt
+      rescue SystemExit => e
+        exitcode = e.status
       end
 
       stop
+      exitcode
     end
 
     def stop

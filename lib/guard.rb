@@ -151,26 +151,23 @@ module Guard
     end
 
     # TODO: remove at some point
+    # TODO: not tested because collides with ongoing refactoring
     def _guardfile_deprecated_check(modified)
       modified.map!(&:to_s)
-      guardfile = modified.detect { |path| /^(?:.+\/)?Guardfile$/.match(path) }
-      return unless guardfile
+      guardfiles = modified.select { |path| /^(?:.+\/)?Guardfile$/.match(path) }
+      return if guardfiles.empty?
 
-      if modified.any? { |path| /^Guardfile$/.match(path) }
+      if guardfiles.any? { |path| /^Guardfile$/.match(path) }
         UI.warning <<EOS
 Guardfile changed - Guard will exit so you can restart it manually.
 
-more info here: https://github.com/guard/guard/wiki/Guard-2.10.3-exits-when-Guardfile-is-changed
+More info here: https://github.com/guard/guard/wiki/Guard-2.10.3-exits-when-Guardfile-is-changed
 EOS
-        exit 1 # 1 nonzero to break any while loop
+        exit 2 # nonzero to break any while loop
       else
-        UI.info <<EOS
-The Guardfile #{guardfile.inspect} has been modified.
-
-Guard is exiting so you can reload it with the changed configuration.
-EOS
-        # Exit 0 to so any shell while loop can continue
-        exit 0
+        msg = "Config changed: %s - Guard will exit so it can be restarted."
+        UI.info format(msg, guardfiles.inspect)
+        exit 0 # 0 so any shell while loop can continue
       end
     end
   end
