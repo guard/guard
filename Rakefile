@@ -1,13 +1,12 @@
+require "nenv"
 require "bundler/gem_tasks"
-
 
 default_tasks = []
 
 require "rspec/core/rake_task"
-RSpec::Core::RakeTask.new(:spec) do |t|
-  t.verbose = false unless ENV["CI"] == 'true'
+default_tasks << RSpec::Core::RakeTask.new(:spec) do |t|
+  t.verbose = Nenv.ci?
 end
-default_tasks << :spec
 
 require "guard/rake_task"
 
@@ -19,16 +18,14 @@ require "cucumber/rake/task"
 Cucumber::Rake::Task.new(:features) do |t|
   t.cucumber_opts = "features --format pretty"
 end
-default_tasks << :features
+default_tasks << Struct.new(:name).new(:features)
 
-
-if ENV["CI"] != "true"
+unless Nenv.ci?
   require "rubocop/rake_task"
-  RuboCop::RakeTask.new(:rubocop)
-  default_tasks << :rubocop
+  default_tasks << RuboCop::RakeTask.new(:rubocop)
 end
 
-task default: default_tasks
+task default: default_tasks.map(&:name)
 
 # Coveralls:
 #
