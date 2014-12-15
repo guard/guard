@@ -1,13 +1,27 @@
 directories %w(spec lib config features man)
 
+watch ("config/Guardfile") { UI.info "Exiting guard because config changed"; exit 0 }
+
 group :specs, halt_on_fail: true do
   guard :rspec, cmd: "bundle exec rspec", failed_mode: :keep do
-    watch(%r{^spec/.+_spec\.rb$})
-    watch(%r{^(lib/.+)\.rb$})                { |m| "spec/#{m[1]}_spec.rb" }
-    watch("lib/guard/notifier.rb")           { "spec/guard/notifiers" }
-    watch("lib/guard/interactor.rb")         { "spec/guard/commands" }
-    watch(%r{^lib/guard/(guard|plugin).rb$}) { "spec/guard/plugin" }
-    watch("spec/spec_helper.rb")             { "spec" }
+    require "guard/rspec/dsl"
+    dsl = Guard::RSpec::Dsl.new(self)
+
+    # Feel free to open issues for suggestions and improvements
+
+    # RSpec files
+    rspec = dsl.rspec
+    watch(rspec.spec_helper) { rspec.spec_dir }
+    watch(rspec.spec_support) { rspec.spec_dir }
+    watch(rspec.spec_files)
+
+    # Ruby files
+    ruby = dsl.ruby
+    dsl.watch_spec_files_for(ruby.lib_files)
+
+    #  watch("lib/guard/notifier.rb")           { "spec/guard/notifiers" }
+    #  watch("lib/guard/interactor.rb")         { "spec/guard/commands" }
+    #  watch(%r{^lib/guard/(guard|plugin).rb$}) { "spec/guard/plugin" }
   end
 
   guard :rubocop, all_on_start: false, cli: "--rails" do

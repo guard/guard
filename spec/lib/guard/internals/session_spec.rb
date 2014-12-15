@@ -13,7 +13,6 @@ RSpec.describe Guard::Internals::Session do
   end
 
   describe "#initialize" do
-
     describe "#listener_args" do
       subject { described_class.new(options).listener_args }
 
@@ -137,6 +136,65 @@ RSpec.describe Guard::Internals::Session do
 
     context "when unset" do
       specify { expect(subject.guardfile_ignore_bang).to eq([]) }
+    end
+  end
+
+  describe ".convert_scope" do
+    let(:foo) { instance_double("Guard::Plugin", name: "foo") }
+    let(:bar) { instance_double("Guard::Plugin", name: "bar") }
+    let(:backend) { instance_double("Guard::Group", name: "backend") }
+    let(:frontend) { instance_double("Guard::Group", name: "frontend") }
+
+    before do
+      stub_const "Guard::Foo", class_double("Guard::Plugin")
+      stub_const "Guard::Bar", class_double("Guard::Plugin")
+
+      allow(plugins).to receive(:all).with("backend").and_return([])
+      allow(plugins).to receive(:all).with("frontend").and_return([])
+      allow(plugins).to receive(:all).with("foo").and_return([foo])
+      allow(plugins).to receive(:all).with("bar").and_return([bar])
+      allow(plugins).to receive(:all).with("unknown").and_return([])
+      allow(plugins).to receive(:all).with("scope").and_return([])
+
+      allow(groups).to receive(:all).with("backend").and_return([backend])
+      allow(groups).to receive(:all).with("frontend").and_return([frontend])
+      allow(groups).to receive(:all).with("unknown").and_return([])
+      allow(groups).to receive(:all).with("scope").and_return([])
+    end
+
+    it "returns a group scope" do
+      scopes, _ = subject.convert_scope %w(backend)
+      expect(scopes).to eq(groups: [backend], plugins: [])
+      scopes, _ = subject.convert_scope %w(frontend)
+      expect(scopes).to eq(groups: [frontend], plugins: [])
+    end
+
+    it "returns a plugin scope" do
+      scopes, _ = subject.convert_scope %w(foo)
+      expect(scopes).to eq(plugins: [foo], groups: [])
+      scopes, _ = subject.convert_scope %w(bar)
+      expect(scopes).to eq(plugins: [bar], groups: [])
+    end
+
+    it "returns multiple group scopes" do
+      scopes, _ = subject.convert_scope %w(backend frontend)
+      expected = { groups: [backend, frontend], plugins: [] }
+      expect(scopes).to eq(expected)
+    end
+
+    it "returns multiple plugin scopes" do
+      scopes, _ = subject.convert_scope %w(foo bar)
+      expect(scopes).to eq(plugins: [foo, bar], groups: [])
+    end
+
+    it "returns a plugin and group scope" do
+      scopes, _ = subject.convert_scope %w(foo backend)
+      expect(scopes).to eq(plugins: [foo], groups: [backend])
+    end
+
+    it "returns the unkown scopes" do
+      _, unknown = subject.convert_scope %w(unknown scope)
+      expect(unknown).to eq %w(unknown scope)
     end
   end
 end

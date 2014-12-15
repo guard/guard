@@ -5,7 +5,6 @@ RSpec.describe Guard::Commander do
 
   let(:interactor) { instance_double("Guard::Interactor") }
   let(:runner) { instance_double("Guard::Runner", run: true) }
-  let(:reevaluator) { instance_double("Guard::Reevaluator") }
 
   let(:scope) { instance_double("Guard::Internals::Scope") }
   let(:state) { instance_double("Guard::Internals::State") }
@@ -124,8 +123,6 @@ RSpec.describe Guard::Commander do
       allow(Guard::UI).to receive(:info)
       allow(Guard::UI).to receive(:clear)
 
-      allow(Guard::Reevaluator).to receive(:new).and_return(reevaluator)
-      allow(reevaluator).to receive(:reevaluate)
       allow(scope).to receive(:titles).and_return(["all"])
 
       stub_guardfile(" ")
@@ -138,32 +135,9 @@ RSpec.describe Guard::Commander do
       Guard.reload
     end
 
-    context "with a given scope" do
-      it "does not re-evaluate the Guardfile" do
-        expect(reevaluator).to_not receive(:reevaluate)
-
-        Guard.reload(groups: [group])
-      end
-
-      it "reloads Guard" do
-        expect(runner).to receive(:run).with(:reload,  groups: [group])
-
-        Guard.reload(groups: [group])
-      end
-    end
-
-    context "with an empty scope" do
-      it "does re-evaluate the Guardfile" do
-        expect(reevaluator).to receive(:reevaluate)
-
-        Guard.reload
-      end
-
-      it "does not reload Guard" do
-        expect(runner).to_not receive(:run).with(:reload, {})
-
-        Guard.reload
-      end
+    it "reloads Guard" do
+      expect(runner).to receive(:run).with(:reload,  groups: [group])
+      Guard.reload(groups: [group])
     end
   end
 

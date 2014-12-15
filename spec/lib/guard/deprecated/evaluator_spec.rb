@@ -3,7 +3,7 @@ require "guard/config"
 unless Guard::Config.new.strict?
 
   require "guard/deprecated/evaluator"
-  require "guard/reevaluator"
+  require "guard/internals/state"
 
   RSpec.describe Guard::Deprecated::Evaluator do
     subject do
@@ -15,8 +15,11 @@ unless Guard::Config.new.strict?
       TestClass.new
     end
 
+    let(:state) { instance_double("Guard::Internals::State") }
+
     before do
       allow(Guard::UI).to receive(:deprecation)
+      allow(Guard).to receive(:state).and_return(state)
     end
 
     describe "#evaluate_guardfile" do
@@ -37,12 +40,11 @@ unless Guard::Config.new.strict?
     end
 
     describe "#reevaluate_guardfile" do
-      let(:reevaluator) { instance_double("Guard::Reevaluator") }
       before do
-        allow(Guard::Reevaluator).to receive(:new).and_return(reevaluator)
-        allow(reevaluator).to receive(:reevaluate)
+        allow(state).to receive(:reset_session) do |&block|
+          block.call
+        end
       end
-
       it "displays a deprecation warning to the user" do
         expect(Guard::UI).to receive(:deprecation).
           with(Guard::Deprecated::Evaluator::REEVALUATE_GUARDFILE)
@@ -50,7 +52,6 @@ unless Guard::Config.new.strict?
       end
 
       it "calls the recommended method" do
-        expect(reevaluator).to receive(:reevaluate)
         subject.reevaluate_guardfile
       end
     end

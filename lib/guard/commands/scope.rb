@@ -17,7 +17,7 @@ module Guard
           BANNER
 
           def process(*entries)
-            scope, unknown = ::Guard::Interactor.convert_scope(entries)
+            scope, unknown = Guard.state.session.convert_scope(entries)
 
             unless unknown.empty?
               output.puts "Unknown scopes: #{unknown.join(",") }"

@@ -1,4 +1,4 @@
-require "guard/internals/environment"
+require "nenv"
 
 require_relative "../notifiers/emacs"
 require_relative "../notifiers/file_notifier"
@@ -14,6 +14,13 @@ require_relative "../notifiers/tmux"
 module Guard
   module Notifier
     # @private api
+
+    YamlEnvStorage = Nenv::Builder.build do
+      create_method(:notifiers=) { |data| YAML::dump(data) }
+      create_method(:notifiers) { |data| data ? YAML::load(data) : [] }
+    end
+
+    # @private api
     class Detected
       NO_SUPPORTED_NOTIFIERS = "Guard could not detect any of the supported" +
         " notification libraries."
@@ -23,10 +30,7 @@ module Guard
 
       def initialize(supported)
         @supported = supported
-        @environment = Internals::Environment.new("GUARD").tap do |env|
-          env.create_method(:notifiers=) { |data| YAML::dump(data) }
-          env.create_method(:notifiers) { |data| data ? YAML::load(data) : [] }
-        end
+        @environment = YamlEnvStorage.new("guard")
       end
 
       def reset

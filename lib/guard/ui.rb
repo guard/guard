@@ -1,10 +1,3 @@
-require "lumberjack"
-
-# TODO: remove this dep!
-require "guard/internals/state"
-
-require "guard/options"
-
 require "guard/ui/colors"
 
 require "guard/terminal"

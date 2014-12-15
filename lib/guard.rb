@@ -3,38 +3,27 @@ require "listen"
 
 require "guard/config"
 require "guard/deprecated/guard" unless Guard::Config.new.strict?
+require "guard/internals/helpers"
 
 require "guard/internals/debugging"
 require "guard/internals/traps"
-require "guard/internals/helpers"
-
 require "guard/internals/queue"
-require "guard/internals/state"
 
-require "guard/options"
-require "guard/commander"
-require "guard/dsl"
-require "guard/group"
+# TODO: remove this class altogether
 require "guard/interactor"
-require "guard/notifier"
-require "guard/plugin_util"
-require "guard/runner"
-require "guard/sheller"
-require "guard/ui"
-require "guard/watcher"
-require "guard/guardfile/evaluator"
 
 # Guard is the main module for all Guard related modules and classes.
 # Also Guard plugins should use this namespace.
-#
 module Guard
   Deprecated::Guard.add_deprecated(self) unless Config.new.strict?
 
   class << self
+    attr_reader :state
+    attr_reader :queue
     attr_reader :listener
+    attr_reader :interactor
 
     # @private api
-    attr_reader :queue
 
     include Internals::Helpers
 
@@ -85,10 +74,6 @@ module Guard
       @state = Internals::State.new(cmdline_options)
     end
 
-    attr_reader :state
-
-    attr_reader :interactor
-
     # Asynchronously trigger changes
     #
     # Currently supported args:
@@ -133,21 +118,15 @@ module Guard
           removed: _relative_pathnames(removed)
         }
 
+        _guardfile_deprecated_check(relative_paths[:modified])
+
         async_queue_add(relative_paths) if _relevant_changes?(relative_paths)
       end
     end
 
     # TODO: obsoleted? (move to Dsl?)
     def _pluginless_guardfile?
-      # no Reevaluator means there was no Guardfile configured that could be
-      # reevaluated, so we don't have a pluginless guardfile, because we don't
-      # have a Guardfile to begin with...
-      #
-      # But, if we have a Guardfile, we'll at least have the built-in
-      # Reevaluator, so the following will work:
-
-      plugins = state.session.plugins.all
-      plugins.empty? || plugins.map(&:name) == ["reevaluator"]
+      state.session.plugins.all.empty?
     end
 
     def _evaluate(options)
@@ -169,6 +148,27 @@ module Guard
       end
     rescue Guardfile::Evaluator::NoPluginsError => e
       UI.error(e.message)
+    end
+
+    # TODO: remove at some point
+    # TODO: not tested because collides with ongoing refactoring
+    def _guardfile_deprecated_check(modified)
+      modified.map!(&:to_s)
+      guardfiles = modified.select { |path| /^(?:.+\/)?Guardfile$/.match(path) }
+      return if guardfiles.empty?
+
+      if guardfiles.any? { |path| /^Guardfile$/.match(path) }
+        UI.warning <<EOS
+Guardfile changed - Guard will exit so you can restart it manually.
+
+More info here: https://github.com/guard/guard/wiki/Guard-2.10.3-exits-when-Guardfile-is-changed
+EOS
+        exit 2 # nonzero to break any while loop
+      else
+        msg = "Config changed: %s - Guard will exit so it can be restarted."
+        UI.info format(msg, guardfiles.inspect)
+        exit 0 # 0 so any shell while loop can continue
+      end
     end
   end
 end

@@ -1,24 +1,18 @@
-require "guard/internals/environment"
+require "nenv"
 
 module Guard
-  class Config
-    def strict?
-      _env.strict?
+  config_class = Nenv::Builder.build do
+    create_method(:strict?)
+    create_method(:gem_silence_deprecations?)
+  end
+
+  class Config < config_class
+    def initialize
+      super "guard"
     end
 
     def silence_deprecations?
-    end
-
-    private
-
-    def _env
-      @env ||= _create_env
-    end
-
-    def _create_env
-      Internals::Environment.new("GUARD").tap do |env|
-        env.create_method(:strict?)
-      end
+      gem_silence_deprecations?
     end
   end
 end

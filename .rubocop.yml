@@ -12,5 +12,7 @@ AllCops:
     - db/schema.rb
     - tmp/aruba/Guardfile
     - tmp/aruba/Gemfile
+    - Guardfile
+    - config/Guardfile
 
 # TODO: put your overrides here:

@@ -1,8 +1,8 @@
 require "yaml"
 require "rbconfig"
 require "pathname"
+require "nenv"
 
-require_relative "internals/environment"
 require_relative "notifier/detected"
 
 require_relative "ui"
@@ -70,6 +70,14 @@ module Guard
       { terminal_title: TerminalTitle },
       { file: FileNotifier }
     ]
+
+    Env = Nenv::Builder.build do
+      create_method(:notify?) { |data| data != "false" }
+      create_method(:notify_pid) { |data| data && Integer(data) }
+      create_method(:notify_pid=)
+      create_method(:notify_active?)
+      create_method(:notify_active=)
+    end
 
     class NotServer < RuntimeError
     end
@@ -216,17 +224,7 @@ module Guard
     private
 
     def _env
-      (@environment ||= _create_env)
-    end
-
-    def _create_env
-      Internals::Environment.new("GUARD").tap do |env|
-        env.create_method(:notify?) { |data| data != "false" }
-        env.create_method(:notify_pid) { |data| data && Integer(data) }
-        env.create_method(:notify_pid=)
-        env.create_method(:notify_active?)
-        env.create_method(:notify_active=)
-      end
+      @environment ||= Env.new("guard")
     end
 
     def _check_server!

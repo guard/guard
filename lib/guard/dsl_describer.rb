@@ -3,6 +3,7 @@ require "formatador"
 
 require "guard/ui"
 require "guard/notifier"
+require "guard"
 
 require "set"
 require "ostruct"
@@ -26,6 +27,7 @@ module Guard
     # @see CLI#list
     #
     def list
+      # TODO: remove dependency on Guard in this whole file
       # collect metadata
       data = PluginUtil.plugin_names.sort.inject({}) do |hash, name|
         hash[name.capitalize] = Guard.state.session.plugins.all(name).any?
