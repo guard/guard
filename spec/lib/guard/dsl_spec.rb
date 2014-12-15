@@ -48,6 +48,16 @@ RSpec.describe Guard::Dsl do
         evaluator.call(contents)
       end
     end
+
+    context "with multiple ignore calls" do
+      let(:contents) { "ignore(/foo/); ignore(/bar/)" }
+
+      it "adds all ignored regexps to the listener" do
+        expect(session).to receive(:guardfile_ignore=).with([/foo/]).once
+        expect(session).to receive(:guardfile_ignore=).with([/bar/]).once
+        evaluator.call(contents)
+      end
+    end
   end
 
   describe "#ignore!" do

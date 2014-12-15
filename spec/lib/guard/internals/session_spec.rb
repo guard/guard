@@ -123,6 +123,14 @@ RSpec.describe Guard::Internals::Session do
       specify { expect(subject.guardfile_ignore).to eq([/foo/]) }
     end
 
+    context "when set multiple times from guardfile" do
+      before do
+        subject.guardfile_ignore = [/foo/]
+        subject.guardfile_ignore = [/bar/]
+      end
+      specify { expect(subject.guardfile_ignore).to eq([/foo/, /bar/]) }
+    end
+
     context "when unset" do
       specify { expect(subject.guardfile_ignore).to eq([]) }
     end
