@@ -1,5 +1,7 @@
 require "guard/ui/colors"
 
+require "guard/terminal"
+
 module Guard
   # The UI class helps to format messages for the user. Everything that is
   # logged through this class is considered either as an error message or a

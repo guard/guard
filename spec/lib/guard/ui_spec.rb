@@ -1,5 +1,13 @@
 require "guard/notifier"
 
+# NOTE: this is here so that no UI does not require anything,
+# since it could be activated by guard plugins during development
+# (it they are tested by other guard plugins)
+#
+# TODO: regardless, the dependency on Guard.state should be removed
+#
+require "guard"
+
 RSpec.describe Guard::UI do
   let(:interactor) { instance_double("Guard::Interactor") }
   let(:logger) { instance_double("Lumberjack::Logger") }
