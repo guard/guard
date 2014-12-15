@@ -80,8 +80,12 @@ module Guard
       # TODO: create a EvaluatorResult class?
       attr_reader :guardfile_group_scope
       attr_reader :guardfile_plugin_scope
-      attr_accessor :guardfile_ignore
       attr_accessor :guardfile_ignore_bang
+
+      attr_reader :guardfile_ignore
+      def guardfile_ignore=(ignores)
+        @guardfile_ignore += Array(ignores).flatten
+      end
 
       def clearing(on)
         @clear = on
