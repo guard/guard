@@ -4,20 +4,14 @@ gemspec unless ENV["USE_INSTALLED_GUARD"] == "1"
 
 gem "rake"
 
-group :development, :test do
-  # This plugin is required in the tests!
-  gem "guard-rspec", require: false
-  gem "rspec", ">= 3.0.0", require: false
-  gem "rubocop", "~> 0.26.1", require: false
-  gem "guard-rubocop", require: false
-  gem "guard-cucumber", require: false
-  gem "aruba", require: false
-end
-
 # The development group will not be
 # installed on Travis CI.
 
 group :development do
+
+  gem "rubocop", "~> 0.26.1", require: false
+  gem "guard-rubocop", require: false
+
   gem "yard", require: false, platform: :mri
   gem "redcarpet", require: false, platform: :mri
   gem "guard-ronn", require: false, platform: :mri
@@ -32,7 +26,13 @@ end
 # installed on Travis CI
 #
 group :test do
+  # Both guard-rspec and guard-cucumber are used by cucumber features
+  gem "guard-cucumber", require: false
+  gem "guard-rspec", require: false
+
   gem "coveralls", require: false
+  gem "rspec", ">= 3.0.0", require: false
+  gem "aruba", require: false
 end
 
 # Needed for Travis
