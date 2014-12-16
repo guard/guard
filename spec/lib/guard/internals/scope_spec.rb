@@ -46,8 +46,12 @@ RSpec.describe Guard::Internals::Scope do
           subject.to_hash[:"#{scope}s"].map(&:name).map(&:to_s)
         end
 
+        # NOTE: interactor returns objects
         context "when set from interactor" do
-          before { subject.from_interactor(:"#{scope}s" => :baz) }
+          before do
+            stub_obj = send("baz_#{scope}")
+            subject.from_interactor(:"#{scope}s" => stub_obj)
+          end
 
           it "uses interactor scope" do
             expect(hash).to contain_exactly("baz")

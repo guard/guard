@@ -11,8 +11,8 @@ module Guard
 
       def to_hash
         {
-          plugins: _build_scope(:plugin),
-          groups: _build_scope(:group)
+          plugins: _hashify_scope(:plugin),
+          groups: _hashify_scope(:group)
         }.dup.freeze
       end
 
@@ -72,7 +72,7 @@ module Guard
 
       # TODO: let the Plugins and Groups classes handle this?
       # TODO: why even instantiate?? just to check if it exists?
-      def _build_scope(type)
+      def _hashify_scope(type)
         # TODO: get cmdline passed to initialize above?
         cmdline = Array(Guard.state.session.send("cmdline_#{type}s"))
         guardfile = Guard.state.session.send(:"guardfile_#{type}_scope")
@@ -87,8 +87,13 @@ module Guard
         # TODO: not tested when groups/plugins given don't exist
 
         # TODO: should already be instantiated
-        Array(items).map do |name|
-          (type == :group ? _groups : _plugins).all(name).first
+        Array(items).map do |obj|
+          if obj.respond_to?(:name)
+            obj
+          else
+            name = obj
+            (type == :group ? _groups : _plugins).all(name).first
+          end
         end.compact
       end
 
