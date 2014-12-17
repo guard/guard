@@ -120,7 +120,7 @@ Usage
 
 Guard is run from the command line. Please open your terminal and go to your project work directory.
 
-Look here for a full [list of Guard commands](https://github.com/guard/guard/wiki/list of Guard commands)
+Look here for a full [list of Guard commands](https://github.com/guard/guard/wiki/List-of-Guard-Commands)
 
 ### Start
 
@@ -133,16 +133,16 @@ $ bundle exec guard
 Guard will look for a `Guardfile` in your current directory. If it does not find one, it will look in your `$HOME`
 directory for a `.Guardfile`.
 
-Please look here to see all the [command line options for Guard](https://github.com/guard/guard/wiki/command line options for Guard)
+Please look here to see all the [command line options for Guard](https://github.com/guard/guard/wiki/Command-line options-for-Guard)
 
 Interactions
 ------------
-Please read how to [interact with Guard](https://github.com/guard/guard/wiki/interacting with Guard) on the console and which [signals](https://github.com/guard/guard/wiki/|Interacting with Guard#guard-signals) Guard accepts
+Please read how to [interact with Guard](https://github.com/guard/guard/wiki/Interacting-with-Guard) on the console and which [signals](https://github.com/guard/guard/wiki/Interacting-with-Guard#guard-signals) Guard accepts
 
 
 Guardfile DSL
 -------------
-For details on extending your `Guardfile` look at [[Guardfile examples]] or look at a list of commands [[Guardfile-DSL / Configuring-Guard|Guardfile-DSL---Configuring-Guard]]
+For details on extending your `Guardfile` look at [Guardfile examples](https://github.com/guard/guard/wiki/Guardfile-examples) or look at a list of commands [Guardfile-DSL / Configuring-Guard](https://github.com/guard/guard/wiki/Guardfile-DSL---Configuring-Guard)
 
 Issues
 ------
