@@ -499,13 +499,17 @@ guard :coffeescript, input: 'specs', output: 'specs'
 
 ### watch
 
-The `watch` method allows you to define which files are watched by a Guard:
+~~The `watch` method allows you to define which files are watched by a Guard~~
+
+The `watch` method tells Guard which changed files the plugin should respond to:
 
 ```ruby
 guard :bundler do
   watch('Gemfile')
 end
 ```
+
+This means: *"out of all the files that get modified, added and removed, only let the file `Gemfile` (all file paths are relative to the current directory) be handled by this plugin ('bundler' in this case)"*.
 
 String watch patterns are matched with [String#==](http://www.ruby-doc.org/core-1.9.3/String.html#method-i-3D-3D).
 You can also pass a regular expression to the watch method:
