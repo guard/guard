@@ -133,7 +133,7 @@ $ bundle exec guard
 Guard will look for a `Guardfile` in your current directory. If it does not find one, it will look in your `$HOME`
 directory for a `.Guardfile`.
 
-Please look here to see all the [command line options for Guard](https://github.com/guard/guard/wiki/Command-line options-for-Guard)
+Please look here to see all the [command line options for Guard](https://github.com/guard/guard/wiki/Command-line-options-for-Guard)
 
 Interactions
 ------------
