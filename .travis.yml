@@ -11,3 +11,4 @@ matrix:
     - rvm: rbx
     - rvm: jruby
   irc: 'irc.freenode.org#guard'
+sudo: false
