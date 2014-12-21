@@ -1,3 +1,5 @@
+scope(groups: %w(specs))
+
 directories %w(spec lib config features man)
 
 watch ("config/Guardfile") { UI.info "Exiting guard because config changed"; exit 0 }
