@@ -147,6 +147,41 @@ RSpec.describe Guard::Internals::Session do
     end
   end
 
+  describe "#guardfile_scope" do
+    before do
+      subject.guardfile_scope(scope)
+    end
+
+    context "with a groups scope" do
+      let(:scope) { { groups: [:foo] } }
+      it "sets the groups" do
+        expect(subject.guardfile_group_scope).to eq([:foo])
+      end
+    end
+
+    context "with a group scope" do
+      let(:scope) { { group: [:foo] } }
+      it "sets the groups" do
+        expect(subject.guardfile_group_scope).to eq([:foo])
+      end
+    end
+
+    context "with a plugin scope" do
+      let(:scope) { { plugin: [:foo] } }
+      it "sets the plugins" do
+        expect(subject.guardfile_plugin_scope).to eq([:foo])
+      end
+    end
+
+    context "with a plugins scope" do
+      let(:scope) { { plugins: [:foo] } }
+      it "sets the plugins" do
+        expect(subject.guardfile_plugin_scope).to eq([:foo])
+      end
+    end
+
+  end
+
   describe ".convert_scope" do
     let(:foo) { instance_double("Guard::Plugin", name: "foo") }
     let(:bar) { instance_double("Guard::Plugin", name: "bar") }
