@@ -96,6 +96,11 @@ module Guard
                   banner:  "Specify a network address to Listen on for "\
                   "file change events (e.g. for use in VMs)"
 
+    def self.help(shell, subcommand = false)
+      super
+      self.command_help(shell, default_task)
+    end
+
     # Start Guard by initializing the defined Guard plugins and watch the file
     # system.
     #
