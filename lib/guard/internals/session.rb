@@ -72,8 +72,15 @@ module Guard
 
       def guardfile_scope(scope)
         opts = scope.dup
-        @guardfile_plugin_scope = Array(opts.delete(:plugins))
-        @guardfile_group_scope = Array(opts.delete(:groups))
+
+        groups = Array(opts.delete(:groups))
+        group = Array(opts.delete(:group))
+        @guardfile_group_scope = Array(groups) + Array(group)
+
+        plugins = Array(opts.delete(:plugins))
+        plugin = Array(opts.delete(:plugin))
+        @guardfile_plugin_scope = Array(plugins) + Array(plugin)
+
         fail "Unknown options: #{opts.inspect}" unless opts.empty?
       end
 
