@@ -98,7 +98,7 @@ module Guard
 
     def self.help(shell, subcommand = false)
       super
-      self.command_help(shell, default_task)
+      command_help(shell, default_task)
     end
 
     # Start Guard by initializing the defined Guard plugins and watch the file
