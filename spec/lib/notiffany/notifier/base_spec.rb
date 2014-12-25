@@ -1,192 +1,181 @@
-require "guard/notifier"
+require "notiffany/notifier/base"
 
-RSpec.describe Guard::Notifier::Base do
-  let(:gntp) do
-    double("GNTP notifier", name: "gntp", title: "GNTP", options: {})
+# TODO: no point in testing the base class, really
+RSpec.describe Notiffany::Notifier::Base do
+  let(:ui) { double("UI") }
+  let(:fake) { double ("fake_lib") }
+  let(:options) { {} }
+  subject { Notiffany::Notifier::FooBar.new(ui, { fake: fake }.merge(options)) }
+
+  before do
+    allow(Kernel).to receive(:require)
   end
 
-  let(:growl) do
-    double("Growl notifier", name: "growl", title: "Growl", options: {})
-  end
-
-  module Guard
+  module Notiffany
     module Notifier
       class FooBar < Notifier::Base
-        def self.supported_hosts
+        DEFAULTS = { foo: :bar }
+
+        def supported_hosts
           %w(freebsd solaris)
+        end
+
+        def _perform_notify(message, options)
+          options[:fake].notify(message, options)
+        end
+
+        def available?
+          super && require_gem_safely
         end
       end
     end
   end
 
-  before { allow(subject).to receive(:require) }
-
-  describe ".name" do
-    it 'un-modulizes the class, replaces "xY" with "x_Y" and downcase' do
-      expect(Guard::Notifier::FooBar.name).to eq "foo_bar"
-    end
-  end
-
   describe "#name" do
-    it "delegates to the class" do
-      expect(Guard::Notifier::FooBar.new.name).
-        to eq Guard::Notifier::FooBar.name
-    end
-  end
-
-  describe ".title" do
-    it "un-modulize the class" do
-      expect(Guard::Notifier::FooBar.title).to eq "FooBar"
+    it 'un-modulizes the class, replaces "xY" with "x_Y" and downcase' do
+      expect(subject.name).to eq "foo_bar"
     end
   end
 
   describe "#title" do
-    it "delegates to the class" do
-      expect(Guard::Notifier::FooBar.new.title).
-        to eq Guard::Notifier::FooBar.title
+    it "un-modulize the class" do
+      expect(subject.title).to eq "FooBar"
     end
   end
 
-  describe ".normalize_standard_options!" do
-    context "no opts given" do
-      let(:opts) { {} }
+  describe "#notify" do
+    let(:opts) { {} }
 
-      it "returns the Guard title image when no :title is defined" do
-        described_class.new.normalize_standard_options!(opts)
-
-        expect(opts[:title]).to eq "Guard"
-      end
-
-      it "returns the :success type when no :type is defined" do
-        described_class.new.normalize_standard_options!(opts)
-
-        expect(opts[:type]).to eq :success
-      end
-
-      it "returns the success.png image when no image is defined" do
-        described_class.new.normalize_standard_options!(opts)
-
-        expect(opts[:image]).to match(/success.png/)
+    context "with no notify title overrides" do
+      it "supplies default title" do
+        expect(fake).to receive(:notify).
+          with("foo", hash_including(title: "Notiffany"))
+        subject.notify("foo", opts)
       end
     end
 
-    context ":title given" do
+    context "with notify title override" do
       let(:opts) { { title: "Hi" } }
-
-      it "returns the passed :title" do
-        described_class.new.normalize_standard_options!(opts)
-
-        expect(opts[:title]).to eq "Hi"
+      it "uses given title" do
+        expect(fake).to receive(:notify).
+          with("foo", hash_including(title: "Hi"))
+        subject.notify("foo", opts)
       end
     end
 
-    context "type: :foo given" do
+    context "with no type overrides" do
+      it "supplies default type" do
+        expect(fake).to receive(:notify).
+          with("foo", hash_including(type: :success))
+        subject.notify("foo", opts)
+      end
+    end
+
+    context "with type given" do
       let(:opts) { { type: :foo } }
-
-      it "returns the passed :type" do
-        described_class.new.normalize_standard_options!(opts)
-
-        expect(opts[:type]).to eq :foo
+      it "uses given type" do
+        expect(fake).to receive(:notify).
+          with("foo", hash_including(type: :foo))
+        subject.notify("foo", opts)
       end
     end
 
-    context "image: nil given" do
+    context "with no image overrides" do
+      it "supplies default image" do
+        expect(fake).to receive(:notify).
+          with("foo", hash_including(image: /success.png$/))
+        subject.notify("foo", opts)
+      end
+    end
+
+    %w(failed pending success guard).each do |img|
+      context "with #{img.to_sym.inspect} image" do
+        let(:opts) { { image: img.to_sym } }
+        it "converts to image path" do
+          expect(fake).to receive(:notify).
+            with("foo", hash_including(image: /#{img}.png$/))
+          subject.notify("foo", opts)
+        end
+      end
+    end
+
+    context "with a custom image" do
+      let(:opts) { { image: "foo.jpg" } }
+      it "uses given image" do
+        expect(fake).to receive(:notify).
+          with("foo", hash_including(image: "foo.jpg"))
+        subject.notify("foo", opts)
+      end
+    end
+
+    context "with nil image" do
       let(:opts) { { image: nil } }
+      it "set the notify image to nil" do
+        expect(fake).to receive(:notify).
+          with("foo", hash_including(image: nil))
+        subject.notify("foo", opts)
+      end
 
-      it 'sets the "notify" type' do
-        described_class.new.normalize_standard_options!(opts)
-
-        expect(opts[:type]).to eq :notify
-        expect(opts[:image]).to be_nil
+      it "uses the default type" do
+        expect(fake).to receive(:notify).
+          with("foo", hash_including(type: :notify))
+        subject.notify("foo", opts)
       end
     end
 
-    context "image: :failed given" do
-      let(:opts) { { image: :failed } }
-
-      it 'sets the "failed" type' do
-        described_class.new.normalize_standard_options!(opts)
-
-        expect(opts[:image]).to match(/failed.png/)
-      end
-    end
-
-    context "image: :pending given" do
-      let(:opts) { { image: :pending } }
-
-      it 'sets the "pending" type' do
-        described_class.new.normalize_standard_options!(opts)
-
-        expect(opts[:image]).to match(/pending.png/)
-      end
-    end
-
-    context "image: :success given" do
-      let(:opts) { { image: :success } }
-
-      it 'sets the "success" type' do
-        described_class.new.normalize_standard_options!(opts)
-
-        expect(opts[:image]).to match(/success.png/)
-      end
-    end
-
-    context 'image: "foo.png" given' do
-      let(:opts) { { image: "foo.png" } }
-
-      it 'sets the "success" type' do
-        described_class.new.normalize_standard_options!(opts)
-
-        expect(opts[:image]).to eq "foo.png"
-      end
-    end
   end
 
   describe ".available?" do
-    context "without the silent option" do
-      it "shows an error message when not available on the host OS" do
-        expect(::Guard::UI).to receive(:error).
-          with "The :foo_bar notifier runs only on FreeBSD, Solaris."
-
-        expect(RbConfig::CONFIG).to receive(:[]).with("host_os") { "mswin" }
-
-        Guard::Notifier::FooBar.available?
-      end
+    before do
+      expect(RbConfig::CONFIG).to receive(:[]).with("host_os") { os }
     end
-  end
 
-  describe ".require_gem_safely" do
-    context "library loads normally" do
-      it "returns true" do
-        expect(Guard::Notifier::FooBar).to receive(:require).with("foo_bar")
-
-        expect(Guard::Notifier::FooBar.require_gem_safely).to be_truthy
+    context "on unsupported os" do
+      let(:os) { "mswin" }
+      context "without the silent option" do
+        it "shows an error message when not available on the host OS" do
+          expect(ui).to receive(:error).
+            with "The :foo_bar notifier runs only on FreeBSD, Solaris."
+          subject.available?
+        end
       end
     end
 
-    context "library fails to load" do
-      it "shows an error message when the gem cannot be loaded" do
-        expect(::Guard::UI).to receive(:error).
-          with "Please add \"gem 'foo_bar'\" to your Gemfile"\
-          " and run Guard with \"bundle exec\"."
+    context "on supported os" do
+      let(:os) { "freebsd" }
 
-        expect(Guard::Notifier::FooBar).to receive(:require).
-          with("foo_bar").and_raise LoadError
-
-        expect(Guard::Notifier::FooBar.require_gem_safely).to be_falsey
+      context "library loads normally" do
+        it "returns true" do
+          expect(Kernel).to receive(:require).with("foo_bar")
+          expect(subject).to be_available
+        end
       end
 
-      context "with the silent option" do
-        it "does not show an error message when the gem cannot be loaded" do
-          expect(::Guard::UI).to_not receive(:error).
-            with "Please add \"gem 'growl_notify'\" to your Gemfile'\
-            ' and run Guard with \"bundle exec\"."
+      context "when library fails to load" do
+        before do
+          allow(Kernel).to receive(:require).with("foo_bar").
+            and_raise LoadError
+          allow(ui).to receive(:error)
+        end
 
-          expect(Guard::Notifier::FooBar).to receive(:require).
-            with("foo_bar").and_raise LoadError
+        it { is_expected.to_not be_available }
 
-          result = Guard::Notifier::FooBar.require_gem_safely(silent: true)
-          expect(result).to be_falsey
+        context "without the silent option" do
+          it "shows an error message when the gem cannot be loaded" do
+            expect(ui).to receive(:error).
+              with "Please add \"gem 'foo_bar'\" to your Gemfile"\
+              " and run your app with \"bundle exec\"."
+
+            subject.available?
+          end
+        end
+
+        context "with the silent option" do
+          let(:options) { { silent: true } }
+          it "does not show an error message when the gem cannot be loaded" do
+            expect(ui).to_not receive(:error)
+            subject.available?
+          end
         end
       end
     end
