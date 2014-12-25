@@ -96,7 +96,7 @@ module Guard
 
       turn_on
     rescue Detected::NoneAvailableError => e
-      ::Guard::UI.info e.to_s
+      UI.info e.to_s
     end
 
     def disconnect
@@ -125,7 +125,7 @@ module Guard
       silent = options[:silent]
 
       @detected.available.each do |klass, _|
-        ::Guard::UI.info(format(USING_NOTIFIER, klass.title)) unless silent
+        UI.info(format(USING_NOTIFIER, klass.title)) unless silent
         klass.turn_on if klass.respond_to?(:turn_on)
       end
 
@@ -148,12 +148,12 @@ module Guard
     # Toggle the system notifications on/off
     def toggle
       unless enabled?
-        ::Guard::UI.error NOTIFICATIONS_DISABLED
+        UI.error NOTIFICATIONS_DISABLED
         return
       end
 
       if active?
-        ::Guard::UI.info "Turn off notifications"
+        UI.info "Turn off notifications"
         turn_off
         return
       end
@@ -239,8 +239,8 @@ module Guard
       notifier = klass.new(options)
       notifier.notify(message, message_options.dup)
     rescue RuntimeError => e
-      ::Guard::UI.error "Notification failed for #{notifier.name}: #{e.message}"
-      ::Guard::UI.debug e.backtrace.join("\n")
+      UI.error "Notification failed for #{notifier.name}: #{e.message}"
+      UI.debug e.backtrace.join("\n")
     end
   end
 end
