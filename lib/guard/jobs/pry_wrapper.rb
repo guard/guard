@@ -5,7 +5,7 @@ require "guard/commands/pause"
 require "guard/commands/reload"
 require "guard/commands/scope"
 require "guard/commands/show"
-require "guard/sheller"
+require "shellany/sheller"
 
 require "guard/jobs/base"
 
@@ -14,22 +14,22 @@ module Guard
     class TerminalSettings
       def initialize
         @settings = nil
-        @works = Sheller.run("hash", "stty") || false
+        @works = Shellany::Sheller.run("hash", "stty") || false
       end
 
       def restore
         return unless configurable? && @settings
-        Sheller.run("stty #{ @setting } 2>#{IO::NULL}")
+        Shellany::Sheller.run("stty #{ @setting } 2>#{IO::NULL}")
       end
 
       def save
         return unless configurable?
-        @settings = Sheller.stdout("stty -g 2>#{IO::NULL}").chomp
+        @settings = Shellany::Sheller.stdout("stty -g 2>#{IO::NULL}").chomp
       end
 
       def echo
         return unless configurable?
-        Sheller.run("stty echo 2>#{IO::NULL}")
+        Shellany::Sheller.run("stty echo 2>#{IO::NULL}")
       end
 
       def configurable?

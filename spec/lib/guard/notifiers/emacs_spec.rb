@@ -2,7 +2,7 @@ require "guard/notifiers/emacs"
 
 RSpec.describe Guard::Notifier::Emacs do
   let(:notifier) { described_class.new }
-  let(:sheller) { Guard::Sheller }
+  let(:sheller) { Shellany::Sheller }
 
   describe ".available?" do
     subject { described_class }

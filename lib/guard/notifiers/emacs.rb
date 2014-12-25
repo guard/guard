@@ -1,5 +1,5 @@
 require "guard/notifiers/base"
-require "guard/sheller"
+require "shellany/sheller"
 
 module Guard
   module Notifier
@@ -23,7 +23,7 @@ module Guard
 
         client_name = opts.fetch(:client, DEFAULTS[:client])
         cmd = "#{client_name} --eval '1' 2> #{IO::NULL} || echo 'N/A'"
-        stdout = Sheller.stdout(cmd)
+        stdout = Shellany::Sheller.stdout(cmd)
         return false if stdout.nil?
         !%w(N/A 'N/A').include?(stdout.chomp)
       end
@@ -92,7 +92,7 @@ module Guard
       private
 
       def _run_cmd(cmd, *args)
-        Sheller.run(cmd, *args)
+        Shellany::Sheller.run(cmd, *args)
       end
     end
   end

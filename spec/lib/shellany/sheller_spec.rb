@@ -1,6 +1,6 @@
-require "guard/sheller"
+require "shellany/sheller"
 
-RSpec.describe Guard::Sheller, :sheller_specs do
+RSpec.describe Shellany::Sheller, :sheller_specs do
   before do
     allow(Kernel).to receive(:system) do |args|
       fail "Stub called with: #{args.inspect}"

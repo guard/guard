@@ -46,7 +46,7 @@ RSpec.describe Guard::Notifier::NotifySend do
       end
 
       it "uses these options by default" do
-        expect(Guard::Sheller).to receive(:run) do |command, *arguments|
+        expect(Shellany::Sheller).to receive(:run) do |command, *arguments|
           expect(command).to eql "notify-send"
           expect(arguments).to include "-i", "/tmp/hello.png"
           expect(arguments).to include "-u", "low"
@@ -58,7 +58,7 @@ RSpec.describe Guard::Notifier::NotifySend do
       end
 
       it "overwrites object options with passed options" do
-        expect(Guard::Sheller).to receive(:run) do |command, *arguments|
+        expect(Shellany::Sheller).to receive(:run) do |command, *arguments|
           expect(command).to eql "notify-send"
           expect(arguments).to include "-i", "/tmp/welcome.png"
           expect(arguments).to include "-u", "low"
@@ -70,7 +70,7 @@ RSpec.describe Guard::Notifier::NotifySend do
       end
 
       it "uses the title provided in the options" do
-        expect(Guard::Sheller).to receive(:run) do |command, *arguments|
+        expect(Shellany::Sheller).to receive(:run) do |command, *arguments|
           expect(command).to eql "notify-send"
           expect(arguments).to include "Welcome to Guard"
           expect(arguments).to include "test title"
@@ -79,7 +79,7 @@ RSpec.describe Guard::Notifier::NotifySend do
       end
 
       it "converts notification type failed to normal urgency" do
-        expect(Guard::Sheller).to receive(:run) do |command, *arguments|
+        expect(Shellany::Sheller).to receive(:run) do |command, *arguments|
           expect(command).to eql "notify-send"
           expect(arguments).to include "-u", "normal"
         end
@@ -88,7 +88,7 @@ RSpec.describe Guard::Notifier::NotifySend do
       end
 
       it "converts notification type pending to low urgency" do
-        expect(Guard::Sheller).to receive(:run) do |command, *arguments|
+        expect(Shellany::Sheller).to receive(:run) do |command, *arguments|
           expect(command).to eql "notify-send"
           expect(arguments).to include "-u", "low"
         end
@@ -99,7 +99,7 @@ RSpec.describe Guard::Notifier::NotifySend do
 
     context "without additional options" do
       it "shows the notification with the default options" do
-        expect(Guard::Sheller).to receive(:run) do |command, *arguments|
+        expect(Shellany::Sheller).to receive(:run) do |command, *arguments|
           expect(command).to eql "notify-send"
           expect(arguments).to include "-i", "/tmp/welcome.png"
           expect(arguments).to include "-u", "low"
@@ -113,7 +113,7 @@ RSpec.describe Guard::Notifier::NotifySend do
 
     context "with additional options" do
       it "can override the default options" do
-        expect(Guard::Sheller).to receive(:run) do |command, *arguments|
+        expect(Shellany::Sheller).to receive(:run) do |command, *arguments|
           expect(command).to eql "notify-send"
           expect(arguments).to include "-i", "/tmp/wait.png"
           expect(arguments).to include "-u", "critical"

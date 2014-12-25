@@ -1,6 +1,6 @@
 require "open3"
 
-module Guard
+module Shellany
   # The Guard sheller abstract the actual subshell
   # calls and allow easier stubbing.
   #
@@ -130,9 +130,10 @@ module Guard
       return args unless args.size == 1
       return args unless /[;<>]/ =~ args.first
 
-      # NOTE: guard basically only uses UNIX commands anyway
-      # while JRuby doesn't support options to Kernel.system and doesn't
-      # automatically shell when there's a metacharacter in the command
+      # NOTE: Sheller was originally meant for Guard (which basically only uses
+      # UNIX commands anyway) and JRuby doesn't support options to
+      # Kernel.system (and doesn't automatically shell when there's a
+      # metacharacter in the command).
       #
       # So ... I'm assuming /bin/sh exists - if not, PRs are welcome,
       # because I have no clue what to do if /bin/sh doesn't exist.

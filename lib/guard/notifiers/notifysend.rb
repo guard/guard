@@ -1,5 +1,5 @@
 require "guard/notifiers/base"
-require "guard/sheller"
+require "shellany/sheller"
 
 module Guard
   module Notifier
@@ -32,7 +32,7 @@ module Guard
       # @return [Boolean] whether or not the notify-send binary is available
       #
       def self._notifysend_binary_available?
-        !::Guard::Sheller.stdout("which notify-send").empty?
+        !Shellany::Sheller.stdout("which notify-send").empty?
       end
 
       # @private
@@ -76,7 +76,8 @@ module Guard
           u: _notifysend_urgency(opts.delete(:type))
         ).merge(opts)
 
-        Sheller.run("notify-send", *_to_arguments(command, SUPPORTED, opts))
+        Shellany::Sheller.
+          run("notify-send", *_to_arguments(command, SUPPORTED, opts))
       end
 
       private

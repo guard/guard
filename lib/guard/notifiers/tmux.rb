@@ -1,5 +1,5 @@
 require "guard/notifiers/base"
-require "guard/sheller"
+require "shellany/sheller"
 
 module Guard
   module Notifier
@@ -101,11 +101,11 @@ module Guard
           end
 
           def _capture(*args)
-            Sheller.stdout(([CLIENT] + args).join(" "))
+            Shellany::Sheller.stdout(([CLIENT] + args).join(" "))
           end
 
           def _run(*args)
-            Sheller.run(([CLIENT] + args).join(" "))
+            Shellany::Sheller.run(([CLIENT] + args).join(" "))
           end
         end
       end
