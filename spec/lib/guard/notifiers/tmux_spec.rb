@@ -3,10 +3,10 @@ require "guard/notifiers/tmux"
 RSpec.describe Guard::Notifier::Tmux do
   let(:notifier) { described_class.new }
   let(:tmux_version) { 1.7 }
-  let(:sheller) { class_double("Guard::Sheller") }
+  let(:sheller) { class_double("Shellany::Sheller") }
 
   before do
-    stub_const("Guard::Sheller", sheller)
+    stub_const("Shellany::Sheller", sheller)
   end
 
   after do
