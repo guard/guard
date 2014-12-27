@@ -10,5 +10,4 @@ matrix:
   allow_failures:
     - rvm: rbx
     - rvm: jruby
-  irc: 'irc.freenode.org#guard'
 sudo: false
