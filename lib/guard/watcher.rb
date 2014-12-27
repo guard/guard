@@ -29,8 +29,8 @@ module Guard
       return unless @pattern.is_a?(String) && @pattern =~ regexp
 
       unless @@warning_printed
-        ::Guard::UI.info "*" * 20 + "\nDEPRECATION WARNING!\n" + "*" * 20
-        ::Guard::UI.info <<-MSG
+        UI.info "*" * 20 + "\nDEPRECATION WARNING!\n" + "*" * 20
+        UI.info <<-MSG
             You have a string in your Guardfile watch patterns that seem to
             represent a Regexp.
 
@@ -43,7 +43,7 @@ module Guard
       end
 
       new_regexp = Regexp.new(@pattern).inspect
-      ::Guard::UI.info "\"#{@pattern}\" has been converted to #{ new_regexp }\n"
+      UI.info "\"#{@pattern}\" has been converted to #{ new_regexp }\n"
       @pattern = Regexp.new(@pattern)
     end
 

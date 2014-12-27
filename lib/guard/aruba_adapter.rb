@@ -11,7 +11,7 @@ module Guard
       @kernel = kernel
 
       if ENV["INSIDE_ARUBA_TEST"] == "1"
-        ::Guard::UI.options = ::Guard::UI.options.merge(flush_seconds: 0)
+        UI.options = UI.options.merge(flush_seconds: 0)
       end
     end
 
@@ -29,7 +29,7 @@ module Guard
       $stdout = @stdout
 
       # Run our normal Thor app the way we know and love.
-      ::Guard::CLI.start(@argv)
+      CLI.start(@argv)
 
       # Thor::Base#start does not have a return value, assume
       # success if no exception is raised.
@@ -45,10 +45,10 @@ module Guard
       e.status
     ensure
       # flush the logger so the output doesn't appear in next CLI invocation
-      ::Guard.listener.stop if ::Guard.listener
-      ::Guard::UI.logger.flush
-      ::Guard::UI.logger.close
-      ::Guard::UI.reset_logger
+      Guard.listener.stop if Guard.listener
+      UI.logger.flush
+      UI.logger.close
+      UI.reset_logger
 
       # ...then we put them back.
       $stderr = STDERR

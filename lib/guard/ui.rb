@@ -37,7 +37,7 @@ module Guard
       # @return [Hash] the logger options
       #
       def options
-        @options ||= ::Guard::Options.new(
+        @options ||= Options.new(
           level: :info,
           template: ":time - :severity - :message",
           time_format: "%H:%M:%S")
@@ -52,7 +52,7 @@ module Guard
       #
       # TODO: deprecate?
       def options=(options)
-        @options = ::Guard::Options.new(options)
+        @options = Options.new(options)
       end
 
       # Assigns a log level

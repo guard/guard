@@ -15,7 +15,7 @@ module Guard
           BANNER
 
           def process
-            ::Guard.async_queue_add([:guard_show])
+            Guard.async_queue_add([:guard_show])
           end
         end
       end

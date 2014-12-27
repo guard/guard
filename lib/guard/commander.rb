@@ -79,7 +79,7 @@ module Guard
     def run_all(scopes = {})
       UI.clear(force: true)
       UI.action_with_scopes("Run", scopes)
-      Guard::Runner.new.run(:run_all, scopes)
+      Runner.new.run(:run_all, scopes)
     end
 
     # Pause Guard listening to file changes.

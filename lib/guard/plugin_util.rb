@@ -73,7 +73,7 @@ module Guard
     def plugin_location
       @plugin_location ||= _full_gem_path("guard-#{name}")
     rescue Gem::LoadError
-      ::Guard::UI.error "Could not find 'guard-#{ name }' gem path."
+      UI.error "Could not find 'guard-#{ name }' gem path."
     end
 
     # Tries to load the Guard plugin main class. This transforms the supplied

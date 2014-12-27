@@ -17,7 +17,7 @@ module Guard
           BANNER
 
           def process
-            ::Guard::Notifier.toggle
+            Notifier.toggle
           end
         end
       end
