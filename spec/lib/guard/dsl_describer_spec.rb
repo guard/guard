@@ -133,17 +133,13 @@ RSpec.describe Guard::DslDescriber do
     end
 
     before do
-      # TODO: clean using stubs
-      stub_const "Guard::Notifier::SUPPORTED", [
-        { gntp: ::Guard::Notifier::GNTP },
-        { terminal_title: ::Guard::Notifier::TerminalTitle }
-      ]
-
-      allow(::Guard::Notifier::GNTP).to receive(:available?) { true }
-      allow(::Guard::Notifier::TerminalTitle).to receive(:available?) { false }
+      allow(Guard::Notifier).to receive(:supported).and_return(
+        gntp: ::Notiffany::Notifier::GNTP,
+        terminal_title: ::Notiffany::Notifier::TerminalTitle
+      )
 
       allow(Guard::Notifier).to receive(:connect).once.ordered
-      allow(::Guard::Notifier).to receive(:notifiers).
+      allow(Guard::Notifier).to receive(:detected).
         and_return([{ name: :gntp, options: { sticky: true } }])
 
       allow(Guard::Notifier).to receive(:disconnect).once.ordered
@@ -151,7 +147,7 @@ RSpec.describe Guard::DslDescriber do
 
     it "properly connects and disconnects" do
       expect(Guard::Notifier).to receive(:connect).once.ordered
-      expect(::Guard::Notifier).to receive(:notifiers).once.ordered.and_return [
+      expect(::Guard::Notifier).to receive(:detected).once.ordered.and_return [
         { name: :gntp, options: { sticky: true } }
       ]
 

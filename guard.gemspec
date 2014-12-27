@@ -23,6 +23,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "formatador", ">= 0.2.4"
   s.add_runtime_dependency "nenv", "~> 0.1"
   s.add_runtime_dependency "shellany", "~> 0.0"
+  s.add_runtime_dependency "notiffany", "~> 0.0"
 
   s.files = `git ls-files -z`.split("\x0").select do |f|
     /^(?:bin|images|lib)\/.*$/ =~ f

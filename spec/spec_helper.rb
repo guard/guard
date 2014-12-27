@@ -192,6 +192,8 @@ RSpec.configure do |config|
 
     modules = [Guard]
     modules << Listen if Object.const_defined?(:Listen)
+    modules << Shellany if Object.const_defined?(:Shellany)
+    modules << Notiffany if Object.const_defined?(:Notiffany)
     modules.each do |mod|
       stub_mod(mod, excluded)
     end

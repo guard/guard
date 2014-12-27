@@ -107,22 +107,20 @@ module Guard
     # @see CLI#show
     #
     def notifiers
-      supported = ::Guard::Notifier::SUPPORTED
-      Notifier.connect(notify: false)
-      detected = Notifier.notifiers
+      supported = Notifier.supported
+      Notifier.connect(notify: true, silent: true)
+      detected = Notifier.detected
       Notifier.disconnect
 
-      merged_notifiers = supported.inject(:merge)
-      final_rows = merged_notifiers.each_with_object([]) do |definition, rows|
+      detected_names = detected.map { |item| item[:name] }
 
-        name      = definition[0]
-        clazz     = definition[1]
-        available = clazz.available?(silent: true) ? "✔" : "✘"
+      final_rows = supported.each_with_object([]) do |(name, _), rows|
+        available = detected_names.include?(name) ? "✔" : "✘"
+
         notifier  = detected.detect { |n| n[:name] == name }
         used      = notifier ? "✔" : "✘"
 
-        options = _merge_options(clazz, notifier)
-        options.delete(:silent)
+        options = notifier ? notifier[:options] : {}
 
         if options.empty?
           rows << :split
@@ -148,16 +146,6 @@ module Guard
     end
 
     private
-
-    def _merge_options(klass, notifier)
-      notify_options = notifier ? notifier[:options] : {}
-
-      if klass.const_defined?(:DEFAULTS)
-        klass.const_get(:DEFAULTS).merge(notify_options)
-      else
-        notify_options
-      end
-    end
 
     def _add_row(rows, name, available, used, option, value)
       rows << {

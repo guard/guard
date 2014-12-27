@@ -68,6 +68,8 @@ module Guard
         @guardfile_group_scope = []
         @guardfile_ignore = []
         @guardfile_ignore_bang = []
+
+        @guardfile_notifier_options = {}
       end
 
       def guardfile_scope(scope)
@@ -142,7 +144,17 @@ module Guard
       end
 
       def notify_options
-        { notify: @options[:notify] }
+        names = @guardfile_notifier_options.keys
+        return { notify: false } if names.include?(:off)
+
+        {
+          notify: @options[:notify],
+          notifiers: @guardfile_notifier_options
+        }
+      end
+
+      def guardfile_notification=(config)
+        @guardfile_notifier_options.merge!(config)
       end
 
       def interactor_name
