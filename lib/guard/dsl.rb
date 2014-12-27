@@ -72,9 +72,8 @@ module Guard
     #
     # @see Guard::Notifier for available notifier and its options.
     #
-    def notification(notifier, options = {})
-      # TODO: remove dependency on Notifier (let session handle this)
-      Notifier.add(notifier.to_sym, options.merge(silent: false))
+    def notification(notifier, opts = {})
+      Guard.state.session.guardfile_notification = { notifier.to_sym => opts }
     end
 
     # Sets the interactor options or disable the interactor.

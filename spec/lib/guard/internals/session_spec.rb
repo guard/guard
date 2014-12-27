@@ -240,4 +240,44 @@ RSpec.describe Guard::Internals::Session do
       expect(unknown).to eq %w(unknown scope)
     end
   end
+
+  describe "#guardfile_notification=" do
+    context "when set from guardfile" do
+      before do
+        subject.guardfile_notification = { foo: { bar: :baz }  }
+      end
+
+      specify do
+        expect(subject.notify_options).to eq(
+          notify: true,
+          notifiers: {
+            foo: { bar: :baz }
+          }
+        )
+      end
+    end
+
+    context "when set multiple times from guardfile" do
+      before do
+        subject.guardfile_notification = { foo: { param: 1 }  }
+        subject.guardfile_notification = { bar: { param: 2 }  }
+      end
+
+      it "merges results" do
+        expect(subject.notify_options).to eq(
+          notify: true,
+          notifiers: {
+            foo: { param: 1 },
+            bar: { param: 2 }
+          }
+        )
+      end
+    end
+
+    context "when unset" do
+      specify do
+        expect(subject.notify_options).to eq(notify: true, notifiers: {})
+      end
+    end
+  end
 end

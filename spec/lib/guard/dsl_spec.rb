@@ -109,7 +109,7 @@ RSpec.describe Guard::Dsl do
       let(:contents) { "notification :growl" }
 
       it "adds a notification to the notifier" do
-        expect(::Guard::Notifier).to receive(:add).with(:growl,  silent: false)
+        expect(session).to receive(:guardfile_notification=).with(growl: {})
 
         evaluator.call(contents)
       end
@@ -121,10 +121,10 @@ RSpec.describe Guard::Dsl do
       end
 
       it "adds multiple notifiers" do
-        expect(::Guard::Notifier).to receive(:add).with(:growl,  silent: false)
-
-        expect(::Guard::Notifier).to receive(:add).
-          with(:ruby_gntp,  host: "192.168.1.5", silent: false)
+        expect(session).to receive(:guardfile_notification=).with(growl: {})
+        expect(session).to receive(:guardfile_notification=).with(
+          ruby_gntp:  { host: "192.168.1.5" }
+        )
 
         evaluator.call(contents)
       end
@@ -206,7 +206,7 @@ RSpec.describe Guard::Dsl do
         expect(plugins).to receive(:add).
           with(:less, watchers: [], callbacks: [], group: :y)
 
-        allow(Guard::Notifier).to receive(:add).with(:growl, silent: false)
+        expect(session).to receive(:guardfile_notification=).with(growl: {})
         evaluator.call(contents)
       end
     end
