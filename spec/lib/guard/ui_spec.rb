@@ -6,7 +6,9 @@ require "guard/notifier"
 #
 # TODO: regardless, the dependency on Guard.state should be removed
 #
-require "guard"
+require "guard/ui"
+
+require "guard/internals/session"
 
 RSpec.describe Guard::UI do
   let(:interactor) { instance_double("Guard::Interactor") }
