@@ -217,21 +217,58 @@ unless Guard::Config.new.strict?
     end
 
     describe "options" do
-      let(:options) { instance_double("Guard::Options") }
-
       before do
-        allow(session).to receive(:options).and_return(options)
+        allow(session).to receive(:clearing?)
+        allow(session).to receive(:debug?)
+        allow(session).to receive(:watchdirs)
+        allow(session).to receive(:notify_options).and_return({})
+        allow(session).to receive(:interactor_name)
       end
+
       it "show deprecation warning" do
         expect(Guard::UI).to receive(:deprecation).
           with(Guard::Deprecated::Guard::ClassMethods::OPTIONS)
         subject.options
       end
 
-      it "provides an alternative implementation" do
-        expect(session).to receive(:options).and_return(options)
-        expect(subject.options).to be(options)
+      describe ":clear" do
+        before do
+          allow(session).to receive(:clearing?).and_return(clearing)
+        end
+        context "when being set to true" do
+          let(:clearing) { true }
+          it "sets the clearing option accordingly" do
+            expect(session).to receive(:clearing).with(true)
+            subject.options[:clear] = true
+          end
+        end
+
+        context "when being set to false" do
+          let(:clearing) { false }
+          it "sets the clearing option accordingly" do
+            expect(session).to receive(:clearing).with(false)
+            subject.options[:clear] = false
+          end
+        end
+
+        context "when being read" do
+          context "when not set" do
+            let(:clearing) { false }
+            it "provides an alternative implementation" do
+              expect(subject.options).to include(clear: false)
+            end
+          end
+
+          context "when set" do
+            let(:clearing) { true }
+            it "provides an alternative implementation" do
+              expect(subject.options).to include(clear: true)
+            end
+          end
+        end
       end
+
+      # TODO: other options?
     end
 
     describe ".add_group" do

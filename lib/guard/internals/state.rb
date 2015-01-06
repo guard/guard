@@ -20,19 +20,6 @@ module Guard
 
       attr_reader :scope
       attr_reader :session
-
-      # @private api
-      # TODO: REMOVE!
-      def reset_session(&block)
-        Runner.new.run(:stop)
-        Notifier.disconnect
-        options = @session.options.dup
-        @session = Session.new(options)
-        block.call
-        Runner.new.run(:start)
-      ensure
-        Notifier.connect(session.notify_options)
-      end
     end
   end
 end

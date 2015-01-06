@@ -40,18 +40,9 @@ unless Guard::Config.new.strict?
     end
 
     describe "#reevaluate_guardfile" do
-      before do
-        allow(state).to receive(:reset_session) do |&block|
-          block.call
-        end
-      end
       it "displays a deprecation warning to the user" do
         expect(Guard::UI).to receive(:deprecation).
           with(Guard::Deprecated::Evaluator::REEVALUATE_GUARDFILE)
-        subject.reevaluate_guardfile
-      end
-
-      it "calls the recommended method" do
         subject.reevaluate_guardfile
       end
     end

@@ -9,7 +9,6 @@ module Guard
     # TODO: split into a commandline class and session (plugins, groups)
     # TODO: swap session and metadata
     class Session
-      attr_reader :options
       attr_reader :plugins
       attr_reader :groups
 
@@ -122,12 +121,12 @@ module Guard
       end
 
       def listener_args
-        if options[:listen_on]
-          [:on, options[:listen_on]]
+        if @options[:listen_on]
+          [:on, @options[:listen_on]]
         else
           listener_options = {}
           [:latency, :force_polling, :wait_for_delay].each do |option|
-            listener_options[option] = options[option] if options[option]
+            listener_options[option] = @options[option] if @options[option]
           end
           expanded_watchdirs = watchdirs.map { |dir| File.expand_path dir }
           [:to, *expanded_watchdirs, listener_options]
@@ -135,10 +134,10 @@ module Guard
       end
 
       def evaluator_options
-        opts = { guardfile: options[:guardfile] }
+        opts = { guardfile: @options[:guardfile] }
         # TODO: deprecate :guardfile_contents
-        if options[:guardfile_contents]
-          opts[:contents] = options[:guardfile_contents]
+        if @options[:guardfile_contents]
+          opts[:contents] = @options[:guardfile_contents]
         end
         opts
       end
