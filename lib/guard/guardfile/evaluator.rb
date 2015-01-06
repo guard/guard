@@ -141,7 +141,7 @@ module Guard
       def _instance_eval_guardfile(contents)
         Dsl.new.evaluate(contents, @guardfile_path || "", 1)
       rescue => ex
-        ::Guard::UI.error "Invalid Guardfile, original error is:\n#{ $! }"
+        UI.error "Invalid Guardfile, original error is:\n#{ $! }"
         raise ex
       end
 
@@ -163,7 +163,7 @@ module Guard
         @source   = :inline
         @guardfile_contents = options[:guardfile_contents]
 
-        ::Guard::UI.info "Using inline Guardfile."
+        UI.info "Using inline Guardfile."
         true
       end
 
@@ -193,9 +193,9 @@ module Guard
       rescue Errno::ENOENT
         fail
       rescue SystemCallError => e
-        ::Guard::UI.error "Error reading file #{full_path}:"
-        ::Guard::UI.error e.inspect
-        ::Guard::UI.error e.backtrace
+        UI.error "Error reading file #{full_path}:"
+        UI.error e.inspect
+        UI.error e.backtrace
         abort
       end
 

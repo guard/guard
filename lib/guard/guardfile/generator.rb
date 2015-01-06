@@ -64,7 +64,7 @@ module Guard
       def initialize_template(plugin_name)
         guardfile = Pathname("Guardfile")
 
-        plugin_util = ::Guard::PluginUtil.new(plugin_name)
+        plugin_util = PluginUtil.new(plugin_name)
         # TODO: change to "valid?" method
         if plugin_util.plugin_class(fail_gracefully: true)
           plugin_util.add_to_guardfile
@@ -91,13 +91,13 @@ module Guard
       # @see Guard::CLI#init
       #
       def initialize_all_templates
-        ::Guard::PluginUtil.plugin_names.each { |g| initialize_template(g) }
+        PluginUtil.plugin_names.each { |g| initialize_template(g) }
       end
 
       private
 
       def _ui(*args)
-        ::Guard::UI.send(*args)
+        UI.send(*args)
       end
     end
   end

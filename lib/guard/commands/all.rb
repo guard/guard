@@ -21,14 +21,14 @@ module Guard
           BANNER
 
           def process(*entries)
-            scopes, unknown = ::Guard.state.session.convert_scope(entries)
+            scopes, unknown = Guard.state.session.convert_scope(entries)
 
             unless unknown.empty?
               output.puts "Unknown scopes: #{ unknown.join(", ") }"
               return
             end
 
-            ::Guard.async_queue_add([:guard_run_all, scopes])
+            Guard.async_queue_add([:guard_run_all, scopes])
           end
         end
       end

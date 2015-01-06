@@ -28,7 +28,7 @@ module Guard
 
           Thread.abort_on_exception = true
 
-          ::Guard::UI.level = Logger::DEBUG
+          UI.level = Logger::DEBUG
 
           TRACES.each { |mod, meth| _trace(mod, meth, &method(:_notify)) }
           @traced = true
@@ -36,14 +36,14 @@ module Guard
 
         def stop
           return unless @started ||= false
-          ::Guard::UI.level = Logger::INFO
+          UI.level = Logger::INFO
           _reset
         end
 
         private
 
         def _notify(*args)
-          ::Guard::UI.debug "Command execution: #{args.join(" ")}"
+          UI.debug "Command execution: #{args.join(" ")}"
         end
 
         # reset singleton - called by tests
@@ -55,11 +55,11 @@ module Guard
         end
 
         def _trace(mod, meth, &block)
-          ::Guard::Internals::Tracing.trace(mod, meth, &block)
+          Tracing.trace(mod, meth, &block)
         end
 
         def _untrace(mod, meth)
-          ::Guard::Internals::Tracing.untrace(mod, meth)
+          Tracing.untrace(mod, meth)
         end
       end
     end

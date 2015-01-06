@@ -55,6 +55,7 @@ module Guard
       @notifier.turn_on
     end
 
+    # Used by dsl describer
     def self.supported
       Notiffany::Notifier::SUPPORTED.inject(:merge)
     end
