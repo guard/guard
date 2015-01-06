@@ -1,6 +1,11 @@
 require "guard/ui/colors"
 
 require "guard/terminal"
+require "guard/options"
+
+# TODO: rework this class from the bottom-up
+#  - remove dependency on Session and Scope
+#  - extract into a separate gem
 
 module Guard
   # The UI class helps to format messages for the user. Everything that is
