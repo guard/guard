@@ -30,7 +30,7 @@ module Guard
 
           Please use 'Guard.plugins(filter)' instead.
 
-            #{MORE_INFO_ON_UPGRADING_TO_GUARD_2 % "#deprecated-methods"}
+        #{MORE_INFO_ON_UPGRADING_TO_GUARD_2 % "#deprecated-methods"}
         EOS
 
         def guards(filter = nil)
@@ -192,7 +192,62 @@ module Guard
 
         def options
           UI.deprecation(OPTIONS)
-          ::Guard.state.session.options
+
+          Class.new(Hash) do
+            def initialize
+              super(to_hash)
+            end
+
+            def to_hash
+              session = ::Guard.state.session
+              {
+                clear: session.clearing?,
+                debug: session.debug?,
+                watchdir: Array(session.watchdirs).map(&:to_s),
+                notify: session.notify_options[:notify],
+                no_interactions: (session.interactor_name == :sleep)
+              }
+            end
+
+            def to_a
+              to_hash.to_a
+            end
+
+            def fetch(key, *args)
+              hash = to_hash
+              verify_key!(hash, key)
+              hash.fetch(key, *args)
+            end
+
+            def []=(key, value)
+              case key
+              when :clear
+                ::Guard.state.session.clearing(value)
+              else
+                msg = "Oops! Guard.option[%s]= is unhandled or unsupported." \
+                  "Please file an issue if you rely on this option working."
+                fail NotImplementedError, format(msg, key)
+              end
+            end
+
+            def keys
+              to_hash.keys
+            end
+
+            def include?(value)
+              keys.include? value
+            end
+
+            private
+
+            def verify_key!(hash, key)
+              return if hash.key?(key)
+              msg = "Oops! Guard.option[%s] is unhandled or unsupported." \
+                "Please file an issue if you rely on this option working."
+              fail NotImplementedError, format(msg, key)
+            end
+
+          end.new
         end
 
         ADD_GROUP = <<-EOS.gsub(/^\s*/, "")

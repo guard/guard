@@ -18,6 +18,9 @@ module Guard
       REEVALUATE_GUARDFILE = <<-EOS.gsub(/^\s*/, "")
         Starting with Guard 2.8.3 'Guard::Evaluator#reevaluate_guardfile' is
         deprecated in favor of '#reevaluate'.
+
+        NOTE: this method no longer does anything since it could not be
+        implemented reliably.
       EOS
 
       def evaluate_guardfile
@@ -30,7 +33,6 @@ module Guard
         # guard's deprecations require us
         require "guard"
         UI.deprecation(REEVALUATE_GUARDFILE)
-        ::Guard.state.reset_session { evaluate }
       end
     end
   end

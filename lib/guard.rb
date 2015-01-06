@@ -133,9 +133,6 @@ module Guard
       evaluator = Guardfile::Evaluator.new(options)
       evaluator.evaluate
 
-      # TODO: remove this workaround when options are removed
-      state.session.clearing(state.session.options[:clear])
-
       UI.reset_and_clear
 
       msg = "No plugins found in Guardfile, please add at least one."
