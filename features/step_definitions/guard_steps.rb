@@ -2,10 +2,19 @@ Given(/^my Guardfile contains:$/) do |contents|
   write_file("Guardfile", contents)
 end
 
+Given(/^my Rakefile contains:$/) do |contents|
+  write_file("Rakefile", contents)
+end
+
+Given(/^my Gemfile includes "([^"]*)"$/) do |gem|
+  (@gems ||= []) << gem
+end
+
 Given(/^Guard is bundled using source$/) do
-  write_file(
-    "Gemfile",
-    "gem 'guard', path: File.expand_path(File.join(Dir.pwd, '..', '..'))\n")
+  gems = @gems || []
+  gems << "gem 'guard', path: File.expand_path(File.join(Dir.pwd, '..', '..'))"
+
+  write_file("Gemfile", "#{gems.join("\n")}\n")
 
   run_simple(unescape("bundle install --quiet"), true)
 end
