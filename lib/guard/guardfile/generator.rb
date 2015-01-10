@@ -76,13 +76,14 @@ module Guard
 
         _ui(:info, format(INFO_TEMPLATE_ADDED, plugin_name))
 
-      rescue Errno::ENOENT
+      rescue Errno::ENOENT => error
 
         name = plugin_name.downcase
         class_name = name.gsub("-", "").capitalize
         _ui(:error, "Could not load 'guard/#{name}'"\
             " or '~/.guard/templates/#{name}'"\
             " or find class Guard::#{class_name}")
+        _ui(:error, "Error is: #{error}")
       end
 
       # Adds the templates of all installed Guard implementations to an
