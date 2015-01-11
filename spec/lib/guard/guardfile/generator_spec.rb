@@ -121,6 +121,10 @@ RSpec.describe Guard::Guardfile::Generator do
           "Could not load 'guard/foo' or '~/.guard/templates/foo'"\
           " or find class Guard::Foo"
         )
+        expect(::Guard::UI).to receive(:error).with(
+          /Error is: No such file or directory/
+        )
+
         described_class.new.initialize_template("foo")
       end
     end
