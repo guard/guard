@@ -14,7 +14,7 @@
 ##  $ while bundle exec guard; do echo "Restarting Guard..."; done
 ##
 ## Note: if you are using the `directories` clause above and you are not
-## watching the project directory ('.'), the you will want to move the Guardfile
+## watching the project directory ('.'), then you will want to move the Guardfile
 ## to a watched dir and symlink it back, e.g.
 #
 #  $ mkdir config
