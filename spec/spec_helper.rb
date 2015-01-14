@@ -18,10 +18,8 @@
 
 require "fileutils"
 
-if ENV.key?("CI")
-  require "coveralls"
-  Coveralls.wear!
-end
+require "codeclimate-test-reporter"
+CodeClimate::TestReporter.start
 
 path = "#{File.expand_path("..", __FILE__)}/support/**/*.rb"
 Dir[path].each { |f| require f }
