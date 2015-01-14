@@ -30,7 +30,7 @@ group :test do
   gem "guard-cucumber", require: false
   gem "guard-rspec", require: false
 
-  gem "coveralls", require: false
+  gem "codeclimate-test-reporter", require: nil
   gem "rspec", ">= 3.0.0", require: false
   gem "aruba", require: false
 end

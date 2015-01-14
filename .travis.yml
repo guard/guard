@@ -11,3 +11,6 @@ matrix:
     - rvm: rbx
     - rvm: jruby
 sudo: false
+addons:
+  code_climate:
+    repo_token: 185a714e42214b9369217d0ddfd5a02d528d9a616a34482119a16c63241d6afd
