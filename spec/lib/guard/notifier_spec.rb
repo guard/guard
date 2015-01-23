@@ -2,17 +2,20 @@ require "guard/notifier"
 
 RSpec.describe Guard::Notifier do
   subject { described_class }
+  let(:notifier) { instance_double("Notiffany::Notifier") }
+
+  before do
+    allow(Notiffany::Notifier).to receive(:new).and_return(notifier)
+  end
+
+  after do
+    Guard::Notifier.instance_variable_set(:@notifier, nil)
+  end
 
   describe "toggle_notification" do
-    let(:notifier) { instance_double("Notiffany::Notifier") }
 
     before do
-      allow(Notiffany::Notifier).to receive(:new).and_return(notifier)
       allow(notifier).to receive(:enabled?).and_return(true)
-    end
-
-    after do
-      Guard::Notifier.instance_variable_set(:@notifier, nil)
     end
 
     context "with available notifiers" do
@@ -40,5 +43,29 @@ RSpec.describe Guard::Notifier do
         end
       end
     end
+  end
+
+  describe ".notify" do
+
+    before do
+      subject.connect
+      allow(notifier).to receive(:notify)
+    end
+
+    context "with no options" do
+      it "notifies" do
+        expect(notifier).to receive(:notify).with("A", {})
+        subject.notify("A")
+      end
+    end
+
+    context "with multiple parameters" do
+      it "notifies" do
+        expect(notifier).to receive(:notify).
+          with("A", priority: 2, image: :failed)
+        subject.notify("A", priority: 2, image: :failed)
+      end
+    end
+
   end
 end
