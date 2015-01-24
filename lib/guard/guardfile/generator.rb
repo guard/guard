@@ -46,8 +46,14 @@ module Guard
       def create_guardfile
         path = Pathname("Guardfile").expand_path
         if path.exist?
-          _ui(:error, "Guardfile already exists at #{path}")
-          abort
+          contents = path.read
+          if contents.empty?
+            _ui(:info, "Writing to existing empty Guardfile at #{path}")
+            FileUtils.cp(GUARDFILE_TEMPLATE, path.to_s)
+          else
+            _ui(:error, "Guardfile already exists at #{path}")
+            abort
+          end
         end
 
         _ui(:info, "Writing new Guardfile to #{path}")

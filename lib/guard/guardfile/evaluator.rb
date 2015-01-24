@@ -85,6 +85,9 @@ module Guard
         inline? || _use_provided || _use_default!
 
         contents = _guardfile_contents
+
+        fail NoGuardfileError, ERROR_NO_GUARDFILE if contents.empty?
+
         fail NoPluginsError, ERROR_NO_PLUGINS unless /guard/m =~ contents
 
         Dsl.new.evaluate(contents, @path || "", 1)

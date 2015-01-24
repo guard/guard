@@ -34,7 +34,17 @@ RSpec.describe Guard::Guardfile::Generator do
         end
       end
 
+      it "does not error out on existing empty Guardfile" do
+        expect(::Guard::UI).to_not receive(:error)
+        expect(described_class).to_not receive(:abort)
+        begin
+          subject.create_guardfile
+        rescue SystemExit
+        end
+      end
+
       it "displays an error message" do
+        allow_any_instance_of(Pathname).to receive(:read).and_return("Guard")
         expect(::Guard::UI).to receive(:error).
           with(/Guardfile already exists at .*\/Guardfile/)
         begin
