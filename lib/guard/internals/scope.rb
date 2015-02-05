@@ -55,8 +55,10 @@ module Guard
 
       def titles(scope = nil)
         hash = scope || to_hash
-        return hash[:plugins].map(&:title) unless hash[:plugins].empty?
-        return hash[:groups].map(&:title) unless hash[:groups].empty?
+        plugins = hash[:plugins]
+        groups = hash[:groups]
+        return plugins.map(&:title) unless plugins.nil? || plugins.empty?
+        return hash[:groups].map(&:title) unless groups.nil? || groups.empty?
         ["all"]
       end
 
