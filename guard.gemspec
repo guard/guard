@@ -29,6 +29,6 @@ Gem::Specification.new do |s|
     /^(?:bin|images|lib)\/.*$/ =~ f
   end + %w(CHANGELOG.md LICENSE man/guard.1 man/guard.1.html README.md)
 
-  s.executable   = "guard"
+  s.executables   = %w[guard _guard-core]
   s.require_path = "lib"
 end

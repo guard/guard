@@ -155,11 +155,7 @@ module Guard
       return if guardfiles.empty?
 
       if guardfiles.any? { |path| /^Guardfile$/.match(path) }
-        UI.warning <<EOS
-Guardfile changed - Guard will exit so you can restart it manually.
-
-More info here: https://github.com/guard/guard/wiki/Guard-2.10.3-exits-when-Guardfile-is-changed
-EOS
+        UI.warning "Guardfile changed -- _guard-core will exit.\n"
         exit 2 # nonzero to break any while loop
       else
         msg = "Config changed: %s - Guard will exit so it can be restarted."
