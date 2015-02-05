@@ -1,11 +1,12 @@
 #!/usr/bin/env ruby
 
-require "guard"
+require "pathname"
+ENV["BUNDLE_GEMFILE"] ||= (Pathname(__FILE__).realpath + "../../Gemfile").to_s
 
-begin
-  require "guard/aruba_adapter"
-rescue LoadError => e
-  abort "#{e.inspect} - perhaps you need to run using `bundle exec`?"
+require "rubygems"
+require "bundler/setup"
+
+while !system(Gem.bin_path("guard", "_guard-core"), *ARGV) && $?.exitstatus == 2
+  puts("Restarting guard...")
 end
-
-Guard::ArubaAdapter.new(ARGV.dup).execute!
+exit($?.exitstatus)
