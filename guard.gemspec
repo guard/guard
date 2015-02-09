@@ -27,7 +27,8 @@ Gem::Specification.new do |s|
 
   s.files = `git ls-files -z`.split("\x0").select do |f|
     /^(?:bin|images|lib)\/.*$/ =~ f
-  end + %w(CHANGELOG.md LICENSE man/guard.1 man/guard.1.html README.md Gemfile)
+  end + %w(CHANGELOG.md LICENSE man/guard.1 man/guard.1.html README.md Gemfile
+    guard.gemspec)
 
   s.executables   = %w[guard _guard-core]
   s.require_path = "lib"
