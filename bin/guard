@@ -6,7 +6,7 @@ begin
   if gemfile.exist?
     ENV["BUNDLE_GEMFILE"] ||= gemfile.to_s
     require "rubygems"
-    require "bundler/setup" if File.exist?(ENV["BUNDLE_GEMFILE"])
+    require "bundler/setup"
   else
     require "rubygems"
   end
