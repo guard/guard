@@ -9,8 +9,8 @@ module Guard
   # * Add its template to the Guardfile.
   #
   class PluginUtil
-    ERROR_NO_GUARD_OR_CLASS = "Could not load 'guard/%s' or'\
-    ' find class Guard::%s"
+    ERROR_NO_GUARD_OR_CLASS = "Could not load 'guard/%s' or" \
+      " find class Guard::%s"
 
     INFO_ADDED_GUARD_TO_GUARDFILE = "%s guard added to Guardfile,"\
       " feel free to edit it"
