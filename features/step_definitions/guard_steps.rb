@@ -57,3 +57,13 @@ When(/^I wait for Guard to become idle$/) do
     fail
   end
 end
+
+When(/^I type in "([^"]*)"$/) do |line|
+  type line
+end
+
+When(/^I press Ctrl-C$/) do
+  # Probably needs to be fixed on Windows
+  Process.kill("SIGINT", @interactive.instance_variable_get(:@process).pid)
+  step "I wait for Guard to become idle"
+end

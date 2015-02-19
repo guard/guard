@@ -12,7 +12,16 @@ begin
   end
 end
 
-while !system(Gem.bin_path("guard", "_guard-core"), *ARGV) && $?.exitstatus == 2
+def ignore_interrupts(*args)
+  pid = spawn(*args)
+  begin
+    Process.wait(pid)
+  rescue Interrupt
+    retry
+  end
+end
+
+while !ignore_interrupts(Gem.bin_path("guard", "_guard-core"), *ARGV) && $?.exitstatus == 2
   puts("Restarting guard...")
 end
 exit($?.exitstatus)
