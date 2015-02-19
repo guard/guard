@@ -10,6 +10,10 @@ Before("@spawn") do
 
   set_env "BUNDLE_GEMFILE", File.expand_path(File.join(current_dir, "Gemfile"))
   set_env "RUBY_OPT", "-W0"
+  set_env "GUARD_NOTIFY", nil
+  set_env "GUARD_NOTIFY_PID", nil
+  set_env "GUARD_NOTIFY_ACTIVE", nil
+  set_env "GUARD_NOTIFIERS", "---\n- :name: :terminal_title\n  :options: {}\n"
 end
 
 Before("~@spawn") do
