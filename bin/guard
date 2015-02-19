@@ -23,7 +23,8 @@ def ignore_interrupts(*args)
   end
 end
 
-while !ignore_interrupts(Gem.bin_path("guard", "_guard-core"), *ARGV) && $?.exitstatus == 2
+guard_core_path = Gem.bin_path("guard", "_guard-core")
+while !ignore_interrupts(guard_core_path, *ARGV) && $?.exitstatus == 2
   puts("Restarting guard...")
 end
 exit($?.exitstatus)
