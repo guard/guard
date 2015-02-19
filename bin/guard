@@ -1,15 +1,17 @@
 #!/usr/bin/env ruby
 
-begin
-  require "pathname"
-  gemfile = Pathname(__FILE__).realpath + "../../Gemfile"
-  if gemfile.exist?
-    ENV["BUNDLE_GEMFILE"] ||= gemfile.to_s
-    require "rubygems"
-    require "bundler/setup"
-  else
-    require "rubygems"
-  end
+require "pathname"
+
+default = Pathname(ENV.fetch("BUNDLE_GEMFILE", "Gemfile"))
+relative_to_binstub = Pathname(__FILE__).realpath + "../../Gemfile"
+gemfile = [default, relative_to_binstub].detect(&:exist?)
+
+if gemfile
+  ENV["BUNDLE_GEMFILE"] = gemfile.to_s
+  require "rubygems"
+  require "bundler/setup"
+else
+  require "rubygems"
 end
 
 def ignore_interrupts(*args)
