@@ -32,7 +32,7 @@ module Guard
 
       @notifier.notify(message, options)
     rescue RuntimeError => e
-      UI.error "Notification failed for #{notifier.name}: #{e.message}"
+      UI.error "Notification failed for #{@notifier.class.name}: #{e.message}"
       UI.debug e.backtrace.join("\n")
     end
 

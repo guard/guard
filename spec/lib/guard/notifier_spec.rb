@@ -67,5 +67,17 @@ RSpec.describe Guard::Notifier do
       end
     end
 
+    context "with a runtime error" do
+      before do
+        allow(notifier).to receive(:notify).and_raise(RuntimeError, "an error")
+      end
+
+      it "shows an error" do
+        expect(Guard::UI).to receive(:error).
+          with(/Notification failed for .+: an error/)
+
+        subject.notify("A", priority: 2, image: :failed)
+      end
+    end
   end
 end
