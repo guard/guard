@@ -5,6 +5,7 @@ require "guard/options"
 require "guard/plugin"
 
 require "guard/dsl"
+require "guard/dsl_reader"
 
 module Guard
   module Guardfile
@@ -105,7 +106,9 @@ module Guard
       # @return [Boolean] whether the Guard plugin has been declared
       #
       def guardfile_include?(plugin_name)
-        /^\s*guard\s*\(?\s*['":]#{plugin_name}['"]?/.match(@contents)
+        reader = DslReader.new
+        reader.evaluate(@contents, @path || "", 1)
+        reader.plugin_names.include?(plugin_name)
       end
 
       attr_reader :path

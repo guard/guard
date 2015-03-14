@@ -182,38 +182,40 @@ RSpec.describe Guard::Guardfile::Evaluator do
     subject do
       evaluator = described_class.new(options)
       evaluator.evaluate
-      evaluator.guardfile_include?("test")
+      evaluator
     end
+
+    let(:dsl_reader) { instance_double(Guard::DslReader) }
 
     before do
       allow(dsl).to receive(:evaluate)
+      allow(Guard::DslReader).to receive(:new).and_return(dsl_reader)
+      allow(dsl_reader).to receive(:evaluate)
       stub_user_guard_rb
     end
 
-    context "with a double quoted string" do
+    context "when plugin is present" do
       let(:options) { { contents: 'guard "test" {watch("c")}' } }
-      it { is_expected.to be_truthy }
+
+      it "returns true" do
+        allow(dsl_reader).
+          to receive(:evaluate).with('guard "test" {watch("c")}', "", 1)
+
+        allow(dsl_reader).to receive(:plugin_names).and_return(["test"])
+        expect(subject).to be_guardfile_include("test")
+      end
     end
 
-    context "with a single quoted string" do
-      let(:options) { { contents: 'guard \'test\' {watch("c")}' } }
-      it { is_expected.to be_truthy }
-    end
+    context "when plugin is not present" do
+      let(:options) { { contents: 'guard "other" {watch("c")}' } }
 
-    context "with a symbol" do
-      let(:options) { { contents: 'guard :test {watch("c")}' } }
-      it { is_expected.to be_truthy }
-    end
+      it "returns false" do
+        allow(dsl_reader).
+          to receive(:evaluate).with('guard "test" {watch("c")}', "", 1)
 
-    context "with parentheses" do
-      let(:options) { { contents: 'guard("test") {watch("c")}' } }
-      it { is_expected.to be_truthy }
-    end
-
-    context "when in group and with preceding space" do
-      let(:content) { "group :foo do\n  guard :test do\n end\nend\n" }
-      let(:options) { { contents: content } }
-      it { is_expected.to be_truthy }
+        allow(dsl_reader).to receive(:plugin_names).and_return(["other"])
+        expect(subject).to_not be_guardfile_include("test")
+      end
     end
   end
 end
