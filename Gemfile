@@ -8,8 +8,7 @@ gem "rake"
 # installed on Travis CI.
 
 group :development do
-
-  gem "rubocop", "~> 0.26.1", require: false
+  gem "rubocop", "~> 0.29", require: false
   gem "guard-rubocop", require: false
 
   gem "yard", require: false, platform: :mri

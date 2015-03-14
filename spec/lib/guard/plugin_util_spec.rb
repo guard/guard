@@ -3,7 +3,6 @@ require "guard/plugin_util"
 require "guard/guardfile/evaluator"
 
 RSpec.describe Guard::PluginUtil do
-
   let(:guard_rspec_class) { class_double("Guard::Plugin") }
   let(:guard_rspec) { instance_double("Guard::Plugin") }
   let(:evaluator) { instance_double("Guard::Guardfile::Evaluator") }
@@ -75,7 +74,6 @@ RSpec.describe Guard::PluginUtil do
       end
 
       it "instantiate the plugin using the new API" do
-
         options = { watchers: ["watcher"], group: "foo" }
         expect(guard_rspec_class).to receive(:new).with(options) { guard_rspec }
 

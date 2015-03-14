@@ -22,7 +22,7 @@ def ignore_interrupts(*args)
   rescue Interrupt
     retry
   end
-  return $? == 0
+  $? == 0
 end
 
 guard_core_path = Gem.bin_path("guard", "_guard-core")

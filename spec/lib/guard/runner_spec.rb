@@ -244,7 +244,6 @@ RSpec.describe Guard::Runner do
         changes[2] = removed
         expect(watcher_module).to receive(:match_files).
           with(foo_plugin, removed) { removed }
-
       end
 
       it "executes the :run_on_removals task" do
@@ -286,7 +285,7 @@ RSpec.describe Guard::Runner do
           subject.send(:_supervise, foo_plugin, :regular_without_arg)
         end
 
-        it "passes the result of the supervised method to the :end hook"  do
+        it "passes the result of the supervised method to the :end hook" do
           expect(foo_plugin).to receive(:hook).
             with("regular_without_arg_begin")
 

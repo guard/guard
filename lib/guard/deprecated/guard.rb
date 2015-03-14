@@ -30,7 +30,7 @@ module Guard
 
           Please use 'Guard.plugins(filter)' instead.
 
-        #{MORE_INFO_ON_UPGRADING_TO_GUARD_2 % "#deprecated-methods"}
+        #{MORE_INFO_ON_UPGRADING_TO_GUARD_2 % '#deprecated-methods'}
         EOS
 
         def guards(filter = nil)
@@ -49,7 +49,7 @@ module Guard
 
           Please use 'Guard.add_plugin(name, options = {})' instead.
 
-        #{MORE_INFO_ON_UPGRADING_TO_GUARD_2 % "#deprecated-methods"}
+        #{MORE_INFO_ON_UPGRADING_TO_GUARD_2 % '#deprecated-methods'}
         EOS
 
         def add_guard(*args)
@@ -71,7 +71,7 @@ module Guard
           Please use 'Guard::PluginUtil.new(name).plugin_class(fail_gracefully:
           fail_gracefully)' instead.
 
-        #{MORE_INFO_ON_UPGRADING_TO_GUARD_2 % "#deprecated-methods"}
+        #{MORE_INFO_ON_UPGRADING_TO_GUARD_2 % '#deprecated-methods'}
         EOS
 
         def get_guard_class(name, fail_gracefully = false)
@@ -89,7 +89,7 @@ module Guard
 
           Please use 'Guard::PluginUtil.new(name).plugin_location' instead.
 
-        #{MORE_INFO_ON_UPGRADING_TO_GUARD_2 % "#deprecated-methods"}
+        #{MORE_INFO_ON_UPGRADING_TO_GUARD_2 % '#deprecated-methods'}
         EOS
 
         def locate_guard(name)
@@ -108,7 +108,7 @@ module Guard
 
           Please use 'Guard::PluginUtil.plugin_names' instead.
 
-        #{MORE_INFO_ON_UPGRADING_TO_GUARD_2 % "#deprecated-methods"}
+        #{MORE_INFO_ON_UPGRADING_TO_GUARD_2 % '#deprecated-methods'}
         EOS
 
         def guard_gem_names
@@ -246,7 +246,6 @@ module Guard
                 "Please file an issue if you rely on this option working."
               fail NotImplementedError, format(msg, key)
             end
-
           end.new
         end
 

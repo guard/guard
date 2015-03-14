@@ -43,14 +43,14 @@ RSpec.describe Guard::Internals::Session do
     context "with the plugin option" do
       let(:options) do
         {
-          plugin:             %w(cucumber jasmine),
+          plugin: %w(cucumber jasmine),
           guardfile_contents: "guard :jasmine do; end; "\
           "guard :cucumber do; end; guard :coffeescript do; end"
         }
       end
 
       let(:jasmine) { instance_double("Guard::Plugin") }
-      let(:cucumber) {  instance_double("Guard::Plugin") }
+      let(:cucumber) { instance_double("Guard::Plugin") }
       let(:coffeescript) { instance_double("Guard::Plugin") }
 
       before do
@@ -179,7 +179,6 @@ RSpec.describe Guard::Internals::Session do
         expect(subject.guardfile_plugin_scope).to eq([:foo])
       end
     end
-
   end
 
   describe ".convert_scope" do
@@ -244,7 +243,7 @@ RSpec.describe Guard::Internals::Session do
   describe "#guardfile_notification=" do
     context "when set from guardfile" do
       before do
-        subject.guardfile_notification = { foo: { bar: :baz }  }
+        subject.guardfile_notification = { foo: { bar: :baz } }
       end
 
       specify do
@@ -259,8 +258,8 @@ RSpec.describe Guard::Internals::Session do
 
     context "when set multiple times from guardfile" do
       before do
-        subject.guardfile_notification = { foo: { param: 1 }  }
-        subject.guardfile_notification = { bar: { param: 2 }  }
+        subject.guardfile_notification = { foo: { param: 1 } }
+        subject.guardfile_notification = { bar: { param: 2 } }
       end
 
       it "merges results" do

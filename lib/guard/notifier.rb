@@ -20,8 +20,9 @@ module Guard
       @notifier = nil
     end
 
-    DEPRECATED_IMPLICIT_CONNECT = "Calling Notiffany::Notifier.notify()" +
-      " without a prior Notifier.connect() is deprecated"
+    DEPRECATED_IMPLICIT_CONNECT = "Calling Notiffany::Notifier.notify()"\
+                                  " without a prior Notifier.connect() is"\
+                                  " deprecated"
 
     def self.notify(message, options = {})
       unless @notifier

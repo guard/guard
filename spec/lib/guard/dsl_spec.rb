@@ -3,7 +3,6 @@ require "guard/plugin"
 require "guard/dsl"
 
 RSpec.describe Guard::Dsl do
-
   let(:guardfile_evaluator) { instance_double(Guard::Guardfile::Evaluator) }
   let(:interactor) { instance_double(Guard::Interactor) }
   let(:listener) { instance_double("Listen::Listener") }
@@ -123,7 +122,7 @@ RSpec.describe Guard::Dsl do
       it "adds multiple notifiers" do
         expect(session).to receive(:guardfile_notification=).with(growl: {})
         expect(session).to receive(:guardfile_notification=).with(
-          ruby_gntp:  { host: "192.168.1.5" }
+          ruby_gntp: { host: "192.168.1.5" }
         )
 
         evaluator.call(contents)
@@ -228,7 +227,7 @@ RSpec.describe Guard::Dsl do
 
       it "loads a guard specified as a quoted string from the DSL" do
         expect(plugins).to receive(:add).
-          with("test",  watchers: [], callbacks: [], group: :default)
+          with("test", watchers: [], callbacks: [], group: :default)
 
         evaluator.call(contents)
       end
@@ -239,7 +238,7 @@ RSpec.describe Guard::Dsl do
 
       it "loads a guard specified as a double quoted string from the DSL" do
         expect(plugins).to receive(:add).
-          with("test",  watchers: [], callbacks: [], group: :default)
+          with("test", watchers: [], callbacks: [], group: :default)
 
         evaluator.call(contents)
       end
@@ -250,7 +249,7 @@ RSpec.describe Guard::Dsl do
 
       it "loads a guard specified as a symbol from the DSL" do
         expect(plugins).to receive(:add).
-          with(:test,  watchers: [], callbacks: [], group: :default)
+          with(:test, watchers: [], callbacks: [], group: :default)
 
         evaluator.call(contents)
       end
@@ -261,7 +260,7 @@ RSpec.describe Guard::Dsl do
 
       it "adds the plugin" do
         expect(plugins).to receive(:add).
-          with(:test,  watchers: [], callbacks: [], group: :default)
+          with(:test, watchers: [], callbacks: [], group: :default)
         evaluator.call(contents)
       end
     end
@@ -278,7 +277,7 @@ RSpec.describe Guard::Dsl do
           group: :default
         }
 
-        expect(plugins).to receive(:add).with("test",  options)
+        expect(plugins).to receive(:add).with("test", options)
         evaluator.call(contents)
       end
     end
@@ -290,7 +289,7 @@ RSpec.describe Guard::Dsl do
         expect(groups).to receive(:add).with(:foo, {})
         expect(groups).to receive(:add).with(:bar, {})
         expect(plugins).to receive(:add).
-          with(:test,  watchers: [], callbacks: [], group: :bar)
+          with(:test, watchers: [], callbacks: [], group: :bar)
 
         evaluator.call(contents)
       end
@@ -306,10 +305,10 @@ RSpec.describe Guard::Dsl do
         expect(groups).to receive(:add).with(:bar, {})
 
         expect(plugins).to receive(:add).
-          with(:test,  watchers: [], callbacks: [], group: :bar)
+          with(:test, watchers: [], callbacks: [], group: :bar)
 
         expect(plugins).to receive(:add).
-          with(:rspec,  watchers: [], callbacks: [], group: :default)
+          with(:rspec, watchers: [], callbacks: [], group: :default)
 
         evaluator.call(contents)
       end
@@ -376,7 +375,6 @@ RSpec.describe Guard::Dsl do
 
         expect(plugins).to receive(:add).
           with(:plugin, plugin_options) do |_, options|
-
           expect(options[:watchers].size).to eq 1
           expect(options[:watchers][0].pattern).to eq "a"
           expect(options[:watchers][0].action).to be_nil
@@ -561,7 +559,6 @@ RSpec.describe Guard::Dsl do
           expect(Guard::UI.options[:except]).to be_nil
         end
       end
-
     end
   end
 

@@ -109,11 +109,13 @@ module Guard
       rescue TypeError => error
         UI.error "Could not find class Guard::#{ _constant_name }"
         UI.error error.backtrace.join("\n")
+        # TODO: return value or move exception higher
       rescue LoadError => error
         unless options[:fail_gracefully]
           UI.error ERROR_NO_GUARD_OR_CLASS % [name.downcase, _constant_name]
           UI.error "Error is: #{error}"
           UI.error error.backtrace.join("\n")
+          # TODO: return value or move exception higher
         end
       end
     end
@@ -164,7 +166,7 @@ module Guard
     #
     def _constant_name
       @_constant_name ||= name.gsub(/\/(.?)/) { "::#{ $1.upcase }" }.
-        gsub(/(?:^|[_-])(.)/) { $1.upcase }
+                          gsub(/(?:^|[_-])(.)/) { $1.upcase }
     end
 
     def self._gem_valid?(gem)

@@ -4,7 +4,6 @@ require "guard/watcher"
 require "guard/guardfile/evaluator"
 
 RSpec.describe Guard::Watcher do
-
   describe "#initialize" do
     it "requires a pattern parameter" do
       expect { described_class.new }.to raise_error(ArgumentError)
@@ -148,7 +147,7 @@ RSpec.describe Guard::Watcher do
 
         it "combines the results of different actions" do
           expect(matched(%w(spec_helper.rb array.rb))).
-                 to eq ["spec", %w(foo bar)]
+            to eq ["spec", %w(foo bar)]
         end
 
         it "returns the evaluated addition argument in an array" do
@@ -173,7 +172,7 @@ RSpec.describe Guard::Watcher do
           allow(plugin).to receive(:watchers).and_return [
             klass.new(%r{lib/(.*)\.rb}, lambda { |m| "spec/#{m[1]}_spec.rb" }),
             klass.new(/addition(.*)\.rb/, lambda { |_m| 1 + 1 }),
-            klass.new("hash.rb",  lambda { |_m| Hash[:foo, "bar"] }),
+            klass.new("hash.rb", lambda { |_m| Hash[:foo, "bar"] }),
             klass.new(/array(.*)\.rb/, lambda { |_m| %w(foo bar) }),
             klass.new(/blank(.*)\.rb/, lambda { |_m| "" }),
             klass.new(/^uptime\.rb/, lambda { "" })
@@ -283,7 +282,7 @@ RSpec.describe Guard::Watcher do
 
         it "returns multiple files by combining the results of the watchers" do
           expect(described_class.match_files(
-            plugin, ["awesome_helper.rb"])).to eq(["foo.rb", "bar.rb"])
+                   plugin, ["awesome_helper.rb"])).to eq(["foo.rb", "bar.rb"])
         end
       end
 
@@ -294,7 +293,7 @@ RSpec.describe Guard::Watcher do
 
         it "returns only the files from the first watcher" do
           expect(described_class.match_files(
-            plugin, ["awesome_helper.rb"])).to eq(["foo.rb"])
+                   plugin, ["awesome_helper.rb"])).to eq(["foo.rb"])
         end
       end
     end

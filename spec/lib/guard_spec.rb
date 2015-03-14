@@ -29,7 +29,6 @@ RSpec.describe Guard do
 
   # TODO: setup has too many responsibilities
   describe ".setup" do
-
     subject { Guard.setup(options) }
 
     let(:options) { { my_opts: true, guardfile: guardfile } }

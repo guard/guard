@@ -66,8 +66,18 @@ module Guard
 
         plugin_util = PluginUtil.new(plugin_name)
         # TODO: change to "valid?" method
-        if plugin_util.plugin_class(fail_gracefully: true)
-          plugin_util.add_to_guardfile
+        plugin_class = plugin_util.plugin_class(fail_gracefully: true)
+        if plugin_class
+          begin
+            plugin_util.add_to_guardfile
+          rescue Errno::ENOENT => error
+            # TODO: refactor
+            template = plugin_class.template(plugin_util.plugin_location)
+            _ui(:error, "Found class #{plugin_class} but loading it's template"\
+              "failed: '#{template}'")
+            _ui(:error, "Error is: #{error}")
+            return
+          end
           return
         end
 

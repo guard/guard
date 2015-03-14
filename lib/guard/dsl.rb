@@ -143,7 +143,7 @@ module Guard
         @current_groups.pop
       else
         UI.error \
-          "No Guard plugins found in the group '#{ groups.join(", ") }',"\
+          "No Guard plugins found in the group '#{ groups.join(', ') }',"\
           " please add at least one."
       end
     end

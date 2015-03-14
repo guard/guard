@@ -1,6 +1,6 @@
 require "guard/config"
 
-RSpec.describe Guard::Config, exclude_stubs: [:Nenv]  do
+RSpec.describe Guard::Config, exclude_stubs: [:Nenv] do
   it { is_expected.to respond_to(:strict?) }
   it { is_expected.to respond_to(:silence_deprecations?) }
 

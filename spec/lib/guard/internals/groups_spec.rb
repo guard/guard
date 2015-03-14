@@ -32,7 +32,7 @@ RSpec.describe Guard::Internals::Groups do
       end
 
       context "with no arguments" do
-        let(:args)  { [] }
+        let(:args) { [] }
         it "returns all groups" do
           expect(subject.all(*args)).to eq [common, default, frontend, backend]
         end

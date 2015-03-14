@@ -43,7 +43,7 @@ module Guard
         private
 
         def _notify(*args)
-          UI.debug "Command execution: #{args.join(" ")}"
+          UI.debug "Command execution: #{args.join(' ')}"
         end
 
         # reset singleton - called by tests

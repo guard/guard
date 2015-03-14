@@ -12,8 +12,8 @@ unless Guard::Config.new.strict?
     let(:session) { instance_double("Guard::Internals::Session") }
     let(:state) { instance_double("Guard::Internals::State") }
     let(:plugins) { instance_double("Guard::Internals::Plugins") }
-    let(:groups)  { instance_double("Guard::Internals::Groups") }
-    let(:scope)  { instance_double("Guard::Internals::Scope") }
+    let(:groups) { instance_double("Guard::Internals::Groups") }
+    let(:scope) { instance_double("Guard::Internals::Scope") }
 
     subject do
       module TestModule

@@ -83,7 +83,7 @@ RSpec.describe Guard::UI do
   describe ".info" do
     it "resets the line with the :reset option" do
       expect(Guard::UI).to receive :reset_line
-      Guard::UI.info("Info",  reset: true)
+      Guard::UI.info("Info", reset: true)
     end
 
     it "logs the message to with the info severity" do
@@ -123,7 +123,7 @@ RSpec.describe Guard::UI do
   describe ".warning" do
     it "resets the line with the :reset option" do
       expect(Guard::UI).to receive :reset_line
-      Guard::UI.warning("Warning",  reset: true)
+      Guard::UI.warning("Warning", reset: true)
     end
 
     it "logs the message to with the warn severity" do
@@ -175,7 +175,7 @@ RSpec.describe Guard::UI do
   describe ".error" do
     it "resets the line with the :reset option" do
       expect(Guard::UI).to receive :reset_line
-      Guard::UI.error("Error message",  reset: true)
+      Guard::UI.error("Error message", reset: true)
     end
 
     it "logs the message to with the error severity" do
@@ -244,7 +244,7 @@ RSpec.describe Guard::UI do
 
       it "resets the line with the :reset option" do
         expect(Guard::UI).to receive :reset_line
-        Guard::UI.deprecation("Deprecator message",  reset: true)
+        Guard::UI.deprecation("Deprecator message", reset: true)
       end
 
       it "logs the message to with the warn severity" do
@@ -297,7 +297,7 @@ RSpec.describe Guard::UI do
   describe ".debug" do
     it "resets the line with the :reset option" do
       expect(Guard::UI).to receive :reset_line
-      Guard::UI.debug("Debug message",  reset: true)
+      Guard::UI.debug("Debug message", reset: true)
     end
 
     it "logs the message to with the debug severity" do
@@ -427,7 +427,7 @@ RSpec.describe Guard::UI do
           and_return(%w(Rspec Jasmine))
 
         expect(Guard::UI).to receive(:info).with("Reload Rspec, Jasmine")
-        Guard::UI.action_with_scopes("Reload",  plugins: [rspec, jasmine])
+        Guard::UI.action_with_scopes("Reload", plugins: [rspec, jasmine])
       end
     end
 
@@ -437,7 +437,7 @@ RSpec.describe Guard::UI do
           and_return(%w(Frontend))
 
         expect(Guard::UI).to receive(:info).with("Reload Frontend")
-        Guard::UI.action_with_scopes("Reload",  groups: [group])
+        Guard::UI.action_with_scopes("Reload", groups: [group])
       end
     end
 

@@ -32,12 +32,10 @@ module Guard
       task name => ["#{name}:start"]
 
       namespace(name) do
-
         desc "Starts Guard with options: '#{options}'"
         task(:start) do
           ::Guard::CLI.start(options.split)
         end
-
       end
     end
   end

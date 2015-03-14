@@ -56,7 +56,6 @@ RSpec.describe Guard::Commander do
     end
 
     it "tell the runner to run the :start task" do
-
       expect(runner).to receive(:run).with(:start)
       allow(listener).to receive(:stop)
       Guard.start
@@ -136,7 +135,7 @@ RSpec.describe Guard::Commander do
     end
 
     it "reloads Guard" do
-      expect(runner).to receive(:run).with(:reload,  groups: [group])
+      expect(runner).to receive(:run).with(:reload, groups: [group])
       Guard.reload(groups: [group])
     end
   end
@@ -152,7 +151,7 @@ RSpec.describe Guard::Commander do
 
     context "with a given scope" do
       it "runs all with the scope" do
-        expect(runner).to receive(:run).with(:run_all,  groups: [group])
+        expect(runner).to receive(:run).with(:run_all, groups: [group])
 
         subject.run_all(groups: [group])
       end
@@ -175,7 +174,6 @@ RSpec.describe Guard::Commander do
         allow(::Guard::Notifier).to receive(:connect)
         allow(Guard).to receive(:listener).and_return(listener)
         allow(listener).to receive(:paused?) { false }
-
       end
 
       [:toggle, nil, :paused].each do |mode|
@@ -210,7 +208,6 @@ RSpec.describe Guard::Commander do
         allow(::Guard::Notifier).to receive(:connect)
         allow(Guard).to receive(:listener).and_return(listener)
         allow(listener).to receive(:paused?) { true }
-
       end
 
       [:toggle, nil, :unpaused].each do |mode|
