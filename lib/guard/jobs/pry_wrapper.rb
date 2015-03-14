@@ -48,16 +48,16 @@ module Guard
 
       # List of shortcuts for each interactor command
       SHORTCUTS = {
-        help:         "h",
-        all:          "a",
-        reload:       "r",
-        change:       "c",
-        show:         "s",
-        scope:        "o",
+        help: "h",
+        all: "a",
+        reload: "r",
+        change: "c",
+        show: "s",
+        scope: "o",
         notification: "n",
-        pause:        "p",
-        exit:         "e",
-        quit:         "q"
+        pause: "p",
+        exit: "e",
+        quit: "q"
       }
 
       def initialize(options)
@@ -246,7 +246,7 @@ module Guard
           next if group.name == :default
 
           cmd = "Run all #{ group.title }"
-          Pry.commands.create_command group.name.to_s, cmd  do
+          Pry.commands.create_command group.name.to_s, cmd do
             group "Guard"
 
             def process
@@ -278,7 +278,7 @@ module Guard
         proc do |target_self, nest_level, pry|
           history = pry.input_array.size
           process = Guard.listener.paused? ? "pause" : "guard"
-          level   = ":#{ nest_level }" unless nest_level.zero?
+          level = ":#{ nest_level }" unless nest_level.zero?
 
           "[#{ history }] #{ _scope_for_prompt }#{ process }"\
             "(#{ _clip_name(target_self) })#{ level }#{ ending_char } "

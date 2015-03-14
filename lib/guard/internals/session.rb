@@ -162,7 +162,7 @@ module Guard
 
       # TODO: call this from within action, not within interactor command
       def convert_scope(entries)
-        scopes  = { plugins: [], groups: [] }
+        scopes = { plugins: [], groups: [] }
         unknown = []
 
         entries.each do |entry|

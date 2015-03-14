@@ -60,7 +60,6 @@ RSpec.describe Guard::Jobs::PryWrapper do
   end
 
   describe "#foreground" do
-
     before do
       allow(Pry).to receive(:start) do
         # sleep for a long time (anything > 0.6)
@@ -107,7 +106,6 @@ RSpec.describe Guard::Jobs::PryWrapper do
 
       expect(subject.foreground).to be(:stopped)
     end
-
   end
 
   describe "#background" do
@@ -168,7 +166,6 @@ RSpec.describe Guard::Jobs::PryWrapper do
       it "displays the group scope title in the prompt" do
         expect(prompt.call(double, 0, pry)).
           to eq "[0] Backend,Frontend guard(main)> "
-
       end
     end
 

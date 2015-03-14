@@ -24,7 +24,7 @@ module Guard
             scopes, unknown = Guard.state.session.convert_scope(entries)
 
             unless unknown.empty?
-              output.puts "Unknown scopes: #{ unknown.join(", ") }"
+              output.puts "Unknown scopes: #{ unknown.join(', ') }"
               return
             end
 

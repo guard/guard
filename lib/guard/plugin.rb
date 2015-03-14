@@ -287,7 +287,7 @@ module Guard
       @group = Guard.state.session.groups.add(group_name)
       @watchers = options.delete(:watchers) { [] }
       @callbacks = options.delete(:callbacks) { [] }
-      @options  = options
+      @options = options
       _register_callbacks
     end
 

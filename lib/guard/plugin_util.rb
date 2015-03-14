@@ -166,7 +166,7 @@ module Guard
     #
     def _constant_name
       @_constant_name ||= name.gsub(/\/(.?)/) { "::#{ $1.upcase }" }.
-        gsub(/(?:^|[_-])(.)/) { $1.upcase }
+                          gsub(/(?:^|[_-])(.)/) { $1.upcase }
     end
 
     def self._gem_valid?(gem)

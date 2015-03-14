@@ -46,7 +46,7 @@ RSpec.describe Guard::Internals::Plugins do
     end
 
     context "with no arguments" do
-      let(:args)  { [] }
+      let(:args) { [] }
       it "returns all plugins" do
         expect(subject.all(*args)).to eq [
           foo_bar_frontend,

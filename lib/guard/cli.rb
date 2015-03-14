@@ -20,45 +20,45 @@ module Guard
     desc "start", "Starts Guard"
 
     method_option :clear,
-                  type:    :boolean,
+                  type: :boolean,
                   default: false,
                   aliases: "-c",
-                  banner:  "Auto clear shell before each action"
+                  banner: "Auto clear shell before each action"
 
     method_option :notify,
-                  type:    :boolean,
+                  type: :boolean,
                   default: true,
                   aliases: "-n",
-                  banner:  "Notifications feature"
+                  banner: "Notifications feature"
 
     method_option :debug,
-                  type:    :boolean,
+                  type: :boolean,
                   default: false,
                   aliases: "-d",
-                  banner:  "Show debug information"
+                  banner: "Show debug information"
 
     method_option :group,
-                  type:    :array,
+                  type: :array,
                   default: [],
                   aliases: "-g",
-                  banner:  "Run only the passed groups"
+                  banner: "Run only the passed groups"
 
     method_option :plugin,
-                  type:    :array,
+                  type: :array,
                   default: [],
                   aliases: "-P",
-                  banner:  "Run only the passed plugins"
+                  banner: "Run only the passed plugins"
 
     # TODO: make it plural
     method_option :watchdir,
-                  type:    :array,
+                  type: :array,
                   aliases: "-w",
-                  banner:  "Specify the directories to watch"
+                  banner: "Specify the directories to watch"
 
     method_option :guardfile,
-                  type:    :string,
+                  type: :string,
                   aliases: "-G",
-                  banner:  "Specify a Guardfile"
+                  banner: "Specify a Guardfile"
 
     method_option :no_interactions,
                   type: :boolean,
@@ -74,26 +74,26 @@ module Guard
 
     # Listen options
     method_option :latency,
-                  type:    :numeric,
+                  type: :numeric,
                   aliases: "-l",
-                  banner:  'Overwrite Listen\'s default latency'
+                  banner: 'Overwrite Listen\'s default latency'
 
     method_option :force_polling,
-                  type:    :boolean,
+                  type: :boolean,
                   default: false,
                   aliases: "-p",
-                  banner:  "Force usage of the Listen polling listener"
+                  banner: "Force usage of the Listen polling listener"
 
     method_option :wait_for_delay,
-                  type:    :numeric,
+                  type: :numeric,
                   aliases: "-y",
-                  banner:  'Overwrite Listen\'s default wait_for_delay'
+                  banner: 'Overwrite Listen\'s default wait_for_delay'
 
     method_option :listen_on,
-                  type:    :string,
+                  type: :string,
                   aliases: "-o",
                   default: false,
-                  banner:  "Specify a network address to Listen on for "\
+                  banner: "Specify a network address to Listen on for "\
                   "file change events (e.g. for use in VMs)"
 
     def self.help(shell, subcommand = false)

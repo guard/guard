@@ -163,7 +163,7 @@ module Guard
 
         return false unless (source_from_option) || inline
 
-        @source   = :inline
+        @source = :inline
         @guardfile_contents = options[:guardfile_contents]
 
         UI.info "Using inline Guardfile."

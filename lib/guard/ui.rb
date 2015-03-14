@@ -161,7 +161,7 @@ module Guard
       #
       def action_with_scopes(action, scope)
         titles = Guard.state.scope.titles(scope)
-        info "#{action} #{titles.join(", ")}"
+        info "#{action} #{titles.join(', ')}"
       end
 
       private
@@ -174,7 +174,7 @@ module Guard
       # @yieldparam [String] param the calling plugin name
       #
       def _filter(plugin)
-        only   = options[:only]
+        only = options[:only]
         except = options[:except]
         plugin ||= calling_plugin_name
 

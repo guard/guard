@@ -33,7 +33,7 @@ module Guard
     #   throws `:task_has_failed`
     #
     def initialize(name, options = {})
-      @name    = name.to_sym
+      @name = name.to_sym
       @options = options
     end
 

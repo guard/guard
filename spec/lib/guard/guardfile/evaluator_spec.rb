@@ -117,7 +117,6 @@ RSpec.describe Guard::Guardfile::Evaluator do
     end
 
     describe "selection of the Guardfile data contents" do
-
       context "with a valid :contents option" do
         before do
           stub_user_guard_rb

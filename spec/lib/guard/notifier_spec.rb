@@ -13,7 +13,6 @@ RSpec.describe Guard::Notifier do
   end
 
   describe "toggle_notification" do
-
     before do
       allow(notifier).to receive(:enabled?).and_return(true)
     end
@@ -46,7 +45,6 @@ RSpec.describe Guard::Notifier do
   end
 
   describe ".notify" do
-
     before do
       subject.connect
       allow(notifier).to receive(:notify)

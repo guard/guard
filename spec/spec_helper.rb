@@ -21,7 +21,7 @@ require "fileutils"
 require "codeclimate-test-reporter"
 CodeClimate::TestReporter.start
 
-path = "#{File.expand_path("..", __FILE__)}/support/**/*.rb"
+path = "#{File.expand_path('..', __FILE__)}/support/**/*.rb"
 Dir[path].each { |f| require f }
 
 # TODO: these shouldn't be necessary with proper specs
@@ -197,7 +197,7 @@ RSpec.configure do |config|
     end
 
     allow(ENV).to receive(:[]=) do |*args|
-      abort "stub me: ENV[#{args.first}]= #{args.map(&:inspect)[1..-1] * ","}!"
+      abort "stub me: ENV[#{args.first}]= #{args.map(&:inspect)[1..-1] * ','}!"
     end
 
     allow(ENV).to receive(:[]) do |*args|
@@ -231,25 +231,25 @@ RSpec.configure do |config|
 
     %w(read write exist?).each do |meth|
       allow(File).to receive(meth.to_sym).with(anything) do |*args, &_block|
-        abort "stub me! (File.#{meth}(#{args.map(&:inspect).join(", ")}))"
+        abort "stub me! (File.#{meth}(#{args.map(&:inspect).join(', ')}))"
       end
     end
 
     %w(read write binwrite binread).each do |meth|
       allow(IO).to receive(meth.to_sym).with(anything) do |*args, &_block|
-        abort "stub me! (IO.#{meth}(#{args.map(&:inspect).join(", ")}))"
+        abort "stub me! (IO.#{meth}(#{args.map(&:inspect).join(', ')}))"
       end
     end
 
     %w(exist?).each do |meth|
       allow_any_instance_of(Pathname).
         to receive(meth.to_sym) do |*args, &_block|
-        abort "stub me! (Pathname##{meth}(#{args.map(&:inspect).join(", ")}))"
+        abort "stub me! (Pathname##{meth}(#{args.map(&:inspect).join(', ')}))"
       end
     end
 
     allow(Dir).to receive(:exist?).with(anything) do |*args, &_block|
-      abort "stub me! (Dir#exist?(#{args.map(&:inspect) * ", "}))"
+      abort "stub me! (Dir#exist?(#{args.map(&:inspect) * ', '}))"
     end
 
     if Guard.const_defined?("UI")

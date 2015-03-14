@@ -27,7 +27,7 @@ module Guard
           Please use 'Guard::Guardfile::Generator.new(options).create_guardfile'
           instead.
 
-          #{MORE_INFO_ON_UPGRADING_TO_GUARD_2 % "#deprecated-methods-2"}
+          #{MORE_INFO_ON_UPGRADING_TO_GUARD_2 % '#deprecated-methods-2'}
         EOS
 
         def create_guardfile(options = {})
@@ -49,7 +49,7 @@ module Guard
           'Guard::Guardfile::Generator.new.initialize_template(plugin_name)'
           instead.
 
-          #{MORE_INFO_ON_UPGRADING_TO_GUARD_2 % "#deprecated-methods-2"}
+          #{MORE_INFO_ON_UPGRADING_TO_GUARD_2 % '#deprecated-methods-2'}
         EOS
 
         def initialize_template(plugin_name)
@@ -71,7 +71,7 @@ module Guard
           Please use 'Guard::Guardfile::Generator.new.initialize_all_templates'
           instead.
 
-          #{MORE_INFO_ON_UPGRADING_TO_GUARD_2 % "#deprecated-methods-2"}
+          #{MORE_INFO_ON_UPGRADING_TO_GUARD_2 % '#deprecated-methods-2'}
         EOS
 
         def initialize_all_templates

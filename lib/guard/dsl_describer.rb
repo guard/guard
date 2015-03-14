@@ -117,8 +117,8 @@ module Guard
       final_rows = supported.each_with_object([]) do |(name, _), rows|
         available = detected_names.include?(name) ? "✔" : "✘"
 
-        notifier  = detected.detect { |n| n[:name] == name }
-        used      = notifier ? "✔" : "✘"
+        notifier = detected.detect { |n| n[:name] == name }
+        used = notifier ? "✔" : "✘"
 
         options = notifier ? notifier[:options] : {}
 

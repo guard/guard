@@ -29,7 +29,7 @@ module Guard
           'Guard::Guardfile::Evaluator.new(options).evaluate_guardfile'
           instead.
 
-          #{MORE_INFO_ON_UPGRADING_TO_GUARD_2 % "#deprecated-methods-1"}
+          #{MORE_INFO_ON_UPGRADING_TO_GUARD_2 % '#deprecated-methods-1'}
         EOS
 
         def evaluate_guardfile(options = {})

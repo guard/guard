@@ -7,7 +7,7 @@ RSpec.describe Guard::Options do
     end
 
     it "has indifferent access" do
-      options = described_class.new({ foo: "bar" }, { "foo2" => "baz" })
+      options = described_class.new({ foo: "bar" }, "foo2" => "baz")
 
       expect(options[:foo]).to eq "bar"
       expect(options["foo"]).to eq "bar"
@@ -17,16 +17,15 @@ RSpec.describe Guard::Options do
     end
 
     it "can be passed defaults" do
-      options = described_class.new({}, { foo: "bar" })
+      options = described_class.new({}, foo: "bar")
 
       expect(options[:foo]).to eq "bar"
     end
 
     it "merges the sensible defaults to the given options" do
-      options = described_class.new({ plugin: ["rspec"] }, { plugin: ["test"] })
+      options = described_class.new({ plugin: ["rspec"] }, plugin: ["test"])
 
       expect(options[:plugin]).to eq ["rspec"]
     end
   end
-
 end
