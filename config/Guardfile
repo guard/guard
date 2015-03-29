@@ -31,7 +31,7 @@ group :specs, halt_on_fail: true do
     watch(%r{(?:.+/)?\.rubocop\.yml$}) { |m| File.dirname(m[0]) }
   end
 
-  guard "cucumber", keep_failed: true, all_on_start: false do
+  guard "cucumber", keep_failed: true, all_on_start: false, cli: '--profile guard' do
     watch(%r{^features/.+\.feature$})
     watch(%r{^features/support/.+$})          { "features" }
     watch(%r{^features/step_definitions/(.+)_steps\.rb$}) do |m|
