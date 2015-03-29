@@ -33,14 +33,26 @@ RSpec.describe Guard::Jobs::Sleep do
       status = "unknown"
 
       Thread.new do
-        sleep 0.1
+        sleep 0.1 # give enough time for foreground to put main thread to sleep
+
         subject.background
+
+        sleep 0.1 # cause test to fail every time (without busy loop below)
+
         status = Thread.main.status
 
         Thread.main.wakeup # to get "red" in TDD without hanging
       end
 
-      subject.foreground
+      subject.foreground # go to sleep
+
+      # Keep main thread busy until above thread has a chance to get status
+      begin
+        value = 0
+        Timeout.timeout(0.1) { loop { value += 1 } }
+      rescue Timeout::Error
+      end
+
       expect(status).to eq("run")
     end
   end
