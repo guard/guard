@@ -1,1 +1,2 @@
 default: --format pretty --strict --color
+guard: --format pretty --strict --color
