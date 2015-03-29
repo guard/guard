@@ -154,10 +154,15 @@ module Guard
       guardfiles = modified.select { |path| /^(?:.+\/)?Guardfile$/.match(path) }
       return if guardfiles.empty?
 
-      if guardfiles.any? { |path| /^Guardfile$/.match(path) }
+      guardfile = Pathname("Guardfile").realpath
+      real_guardfiles = guardfiles.detect do |path|
+        /^Guardfile$/.match(path) || Pathname(path).expand_path == guardfile
+      end
+
+      if real_guardfiles
         UI.warning "Guardfile changed -- _guard-core will exit.\n"
         exit 2 # nonzero to break any while loop
-      else
+      else # e.g. templates/Guardfile
         msg = "Config changed: %s - Guard will exit so it can be restarted."
         UI.info format(msg, guardfiles.inspect)
         exit 0 # 0 so any shell while loop can continue
