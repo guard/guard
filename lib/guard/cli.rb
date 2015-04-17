@@ -110,6 +110,15 @@ module Guard
     # @see Guard.start
     #
     def start
+      if defined?(JRUBY_VERSION)
+        unless options[:no_interactions]
+          abort "\nSorry, JRuby and interactive mode are incompatible.\n"\
+            "As a workaround, use the '-i' option instead.\n\n"\
+            "More info: \n"\
+            " * https://github.com/guard/guard/issues/754\n"\
+            " * https://github.com/jruby/jruby/issues/2383\n\n"
+        end
+      end
       exit(Cli::Environments::Valid.new(options).start_guard)
     end
 
