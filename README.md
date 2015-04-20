@@ -17,10 +17,10 @@ If you have
 any questions about the Guard usage or want to share some information with the Guard community, please go to one of
 the following places:
 
-* [Google+ community](https://plus.google.com/u/1/communities/110022199336250745477)
-* [Google group](http://groups.google.com/group/guard-dev)
-* [StackOverflow](http://stackoverflow.com/questions/tagged/guard)
-* IRC channel `#guard` (irc.freenode.net) for chatting
+* [Google+ community](https://plus.google.com/u/1/communities/110022199336250745477).
+* [Google group](http://groups.google.com/group/guard-dev).
+* [StackOverflow](http://stackoverflow.com/questions/tagged/guard).
+* IRC channel `#guard` (irc.freenode.net) for chatting.
 
 Information on advanced topics like creating your own Guard plugin, programatic use of Guard, hooks and callbacks and
 more can be found in the [Guard wiki](https://github.com/guard/guard/wiki).
@@ -86,7 +86,7 @@ If you're getting sick of typing `bundle exec` all the time, try one of the foll
 
 * (Recommended) Running `bundle binstub guard` will create `bin/guard` in your
   project, which means running `bin/guard` (tab completion will save you a key
-  stroke or two) will have the exact same result as `bundle exec guard`
+  stroke or two) will have the exact same result as `bundle exec guard`.
 
 * Or, for RubyGems >= 2.2.0 (at least, though the more recent the better),
   simply set the `RUBYGEMS_GEMDEPS` environment variable to `-` (for autodetecting
@@ -171,9 +171,9 @@ Please try to follow these simple rules:
 
 #### Core Team
 
-* R.I.P. :broken_heart: [Michael Kessler](https://github.com/netzpirat) ([@netzpirat](http://twitter.com/netzpirat), [flinkfinger.com](http://www.flinkfinger.com))
-* [Rémy Coutable](https://github.com/rymai)
-* [Thibaud Guillaume-Gentil](https://github.com/thibaudgg) ([@thibaudgg](http://twitter.com/thibaudgg), [thibaud.gg](http://thibaud.gg/))
+* R.I.P. :broken_heart: [Michael Kessler](https://github.com/netzpirat) ([@netzpirat](http://twitter.com/netzpirat), [flinkfinger.com](http://www.flinkfinger.com)).
+* [Rémy Coutable](https://github.com/rymai).
+* [Thibaud Guillaume-Gentil](https://github.com/thibaudgg) ([@thibaudgg](http://twitter.com/thibaudgg), [thibaud.gg](http://thibaud.gg/)).
 
 #### Contributors
 
