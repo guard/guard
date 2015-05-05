@@ -22,7 +22,7 @@ the following places:
 * [StackOverflow](http://stackoverflow.com/questions/tagged/guard).
 * IRC channel `#guard` (irc.freenode.net) for chatting.
 
-Information on advanced topics like creating your own Guard plugin, programatic use of Guard, hooks and callbacks and
+Information on advanced topics like creating your own Guard plugin, programmatic use of Guard, hooks and callbacks and
 more can be found in the [Guard wiki](https://github.com/guard/guard/wiki).
 
 Before you file an issue, make sure you have read the _[known issues](#issues)_ and _[file an issue](#file-an-issue)_ sections that contains some important information.
