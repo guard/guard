@@ -13,3 +13,11 @@ Feature: Guard "init" command
     When I run `guard init rspec`
     Then the output should match /Writing new Guardfile to .*Guardfile$/
     And the file "Guardfile" should match /^guard :rspec, cmd: ['"]bundle exec rspec["'] do$/
+
+  Scenario: Init to existing Guardfile
+    Given my Guardfile contains:
+    """
+    """
+    When I run `guard init -b`
+    Then the output should match /Writing to existing empty Guardfile at .*Guardfile$/
+    And the file "Guardfile" should contain "# A sample Guardfile"
