@@ -237,6 +237,39 @@ RSpec.describe Guard::PluginUtil do
       end
     end
 
+    context "when Guardfile is empty" do
+      let(:plugin_util) { described_class.new("myguard") }
+      let(:plugin_class) { class_double("Guard::Plugin") }
+      let(:location) { "/Users/me/projects/guard-myguard" }
+      let(:gem_spec) { instance_double("Gem::Specification") }
+      let(:io) { StringIO.new }
+
+      before do
+        allow(evaluator).to receive(:evaluate).
+          and_raise(Guard::Guardfile::Evaluator::NoPluginsError)
+
+        allow(gem_spec).to receive(:full_gem_path).and_return(location)
+        allow(evaluator).to receive(:guardfile_include?) { false }
+        allow(Guard).to receive(:constants).and_return([:MyGuard])
+        allow(Guard).to receive(:const_get).with(:MyGuard).
+          and_return(plugin_class)
+
+        allow(Gem::Specification).to receive(:find_by_name).
+          with("guard-myguard").and_return(gem_spec)
+
+        allow(plugin_class).to receive(:template).with(location).
+          and_return("Template content")
+
+        allow(File).to receive(:read).with("Guardfile") { "Guardfile content" }
+        allow(File).to receive(:open).with("Guardfile", "wb").and_yield io
+      end
+
+      it "appends the template to the Guardfile" do
+        plugin_util.add_to_guardfile
+        expect(io.string).to eq "Guardfile content\n\nTemplate content\n"
+      end
+    end
+
     context "when the Guard is not in the Guardfile" do
       let(:plugin_util) { described_class.new("myguard") }
       let(:plugin_class) { class_double("Guard::Plugin") }
