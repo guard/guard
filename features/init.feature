@@ -21,3 +21,12 @@ Feature: Guard "init" command
     When I run `guard init rspec`
     Then the output should match /rspec guard added to Guardfile, feel free to edit it$/
     And the file "Guardfile" should match /^guard :rspec, cmd: ['"]bundle exec rspec["'] do$/
+
+  Scenario: Add plugin when Guardfile contains only options
+    Given my Guardfile contains:
+    """
+    notification :off
+    """
+    When I run `guard init rspec`
+    Then the output should match /rspec guard added to Guardfile, feel free to edit it$/
+    And the file "Guardfile" should match /^guard :rspec, cmd: ['"]bundle exec rspec["'] do$/
