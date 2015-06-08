@@ -15,7 +15,7 @@ module Guard
     end
 
     # Stub everything else
-    def notification
+    def notification(_notifier, _opts = {})
     end
 
     def interactor(_options)

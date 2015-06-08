@@ -34,13 +34,17 @@ module Guard
             Guardfile::Evaluator.new(session.evaluator_options).evaluate
           rescue Guardfile::Evaluator::NoGuardfileError
             generator.create_guardfile
+          rescue Guard::Guardfile::Evaluator::NoPluginsError
+            # Do nothing - just the error
           end
 
           return 0 if bare # 0 - exit code
 
           # Evaluate because it might have existed and creating was skipped
-          # FIXME: still, I don't know why this is needed
-          Guardfile::Evaluator.new(session.evaluator_options).evaluate
+          begin
+            Guardfile::Evaluator.new(session.evaluator_options).evaluate
+          rescue Guard::Guardfile::Evaluator::NoPluginsError
+          end
 
           if plugin_names.empty?
             generator.initialize_all_templates

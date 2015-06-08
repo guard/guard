@@ -129,7 +129,11 @@ module Guard
       # TODO: move this to Generator?
       options = Guard.state.session.evaluator_options
       evaluator = Guardfile::Evaluator.new(options)
-      evaluator.evaluate
+      begin
+        evaluator.evaluate
+      rescue Guard::Guardfile::Evaluator::NoPluginsError
+      end
+
       if evaluator.guardfile_include?(name)
         UI.info "Guardfile already includes #{ name } guard"
       else

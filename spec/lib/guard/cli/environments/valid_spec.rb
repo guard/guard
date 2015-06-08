@@ -207,10 +207,26 @@ RSpec.describe Guard::Cli::Environments::Valid do
       end
 
       context "when passed a guard name" do
+        context "when the Guardfile is empty" do
+          before do
+            allow(evaluator).to receive(:evaluate).
+              and_raise Guard::Guardfile::Evaluator::NoPluginsError
+            allow(generator).to receive(:initialize_template)
+          end
+
+          it "works without without errors" do
+            expect(subject.initialize_guardfile(%w(rspec))).to be_zero
+          end
+
+          it "adds the template" do
+            expect(generator).to receive(:initialize_template).with("rspec")
+            subject.initialize_guardfile(%w(rspec))
+          end
+        end
+
         it "initializes the template of the passed Guard" do
           expect(generator).to receive(:initialize_template).with("rspec")
-
-          subject.initialize_guardfile(["rspec"])
+          subject.initialize_guardfile(%w(rspec))
         end
       end
 
