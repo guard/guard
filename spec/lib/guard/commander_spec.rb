@@ -187,7 +187,7 @@ RSpec.describe Guard::Commander do
 
       context "with :unpaused" do
         it "does nothing" do
-          expect(listener).to_not receive(:unpause)
+          expect(listener).to_not receive(:start)
           expect(listener).to_not receive(:pause)
           Guard.pause(:unpaused)
         end
@@ -213,7 +213,7 @@ RSpec.describe Guard::Commander do
       [:toggle, nil, :unpaused].each do |mode|
         context "with #{mode.inspect}" do
           it "unpauses" do
-            expect(listener).to receive(:unpause)
+            expect(listener).to receive(:start)
             Guard.pause(mode)
           end
         end
@@ -221,7 +221,7 @@ RSpec.describe Guard::Commander do
 
       context "with :paused" do
         it "does nothing" do
-          expect(listener).to_not receive(:unpause)
+          expect(listener).to_not receive(:start)
           expect(listener).to_not receive(:pause)
           Guard.pause(:paused)
         end

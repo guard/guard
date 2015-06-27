@@ -91,7 +91,7 @@ module Guard
       fail ArgumentError, "invalid mode: #{expected.inspect}" if pause.nil?
       return if pause == paused
 
-      listener.send(pause ? :pause : :unpause)
+      listener.public_send(pause ? :pause : :start)
       UI.info "File modification listening is now #{pause.to_s.upcase}"
     end
 
