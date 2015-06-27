@@ -8,7 +8,9 @@ gem "rake"
 # installed on Travis CI.
 
 group :development do
-  gem "rubocop", "~> 0.29", require: false
+  # NOTE: version should match HoundCi RuboCop version
+  gem "rubocop", "= 0.29.1", require: false
+
   gem "guard-rubocop", require: false
 
   gem "yard", require: false, platform: :mri

@@ -310,6 +310,8 @@ Style/PredicateName:
   - have_
   NamePrefixBlacklist:
   - is_
+  Exclude:
+  - spec/**/*
 Style/RaiseArgs:
   Description: Checks the arguments passed to raise/fail.
   StyleGuide: https://github.com/bbatsov/ruby-style-guide#exception-class-messages
