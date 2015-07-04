@@ -25,9 +25,15 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "shellany", "~> 0.0"
   s.add_runtime_dependency "notiffany", "~> 0.0"
 
-  s.files = `git ls-files -z`.split("\x0").select do |f|
-    /^(?:bin|images|lib)\/.*$/ =~ f
-  end + %w(CHANGELOG.md LICENSE man/guard.1 man/guard.1.html README.md)
+  git_files = `git ls-files -z`.split("\x0")
+  files = git_files.select { |f| /^(?:bin|lib)\/.*$/ =~ f }
+  files += %w(CHANGELOG.md LICENSE  README.md)
+  files += %w(man/guard.1 man/guard.1.html)
+
+  # skip the large images/guard.png
+  files += %w(images/pending.png images/failed.png images/success.png)
+
+  s.files = files
 
   s.executables = %w[guard _guard-core]
   s.require_path = "lib"
