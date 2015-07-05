@@ -20,7 +20,7 @@ Given(/^Guard is bundled using source$/) do
 end
 
 When(/^I start `([^`]*)`$/) do |cmd|
-  run_interactive(unescape(cmd))
+  @interactive = run(unescape(cmd))
   step "I wait for Guard to become idle"
 end
 

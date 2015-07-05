@@ -33,7 +33,7 @@ group :test do
 
   gem "codeclimate-test-reporter", require: nil
   gem "rspec", ">= 3.0.0", require: false
-  gem "aruba", require: false
+  gem "aruba", "~> 0.7", require: false
   gem "notiffany", ">= 0.0.6", require: false
 end
 
