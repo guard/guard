@@ -105,6 +105,7 @@ module Guard
       # @param [String] plugin_name the name of the Guard
       # @return [Boolean] whether the Guard plugin has been declared
       #
+      # TODO: rename this method to it matches RSpec examples better
       def guardfile_include?(plugin_name)
         reader = DslReader.new
         reader.evaluate(@contents, @path || "", 1)
