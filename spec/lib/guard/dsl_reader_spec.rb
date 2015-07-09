@@ -16,8 +16,28 @@ RSpec.describe Guard::DslReader, exclude_stubs: [Guard::Dsl] do
   end
 
   describe "guard" do
-    it "works without errors" do
-      expect { subject.guard("foo", bar: :baz) }.to_not raise_error
+    context "when it is a String" do
+      let(:name) { "foo" }
+      it "works without errors" do
+        expect { subject.guard(name, bar: :baz) }.to_not raise_error
+      end
+
+      it "reports the name as a String" do
+        subject.guard("foo", bar: :baz)
+        expect(subject.plugin_names).to eq(%w(foo))
+      end
+    end
+
+    context "when it is a Symbol" do
+      let(:name) { :foo }
+      it "works without errors" do
+        expect { subject.guard(name, bar: :baz) }.to_not raise_error
+      end
+
+      it "reports the name as a String" do
+        subject.guard(name, bar: :baz)
+        expect(subject.plugin_names).to eq(%w(foo))
+      end
     end
   end
 
