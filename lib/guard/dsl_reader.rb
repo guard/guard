@@ -11,7 +11,7 @@ module Guard
     end
 
     def guard(name, _options = {})
-      @plugin_names << name
+      @plugin_names << name.to_s
     end
 
     # Stub everything else
