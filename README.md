@@ -9,9 +9,9 @@ Guard
 <img src="http://cl.ly/image/1k3o1r2Z3a0J/guard-Icon.png" alt="Guard Icon" align="right" />
 Guard automates various tasks by running custom rules whenever file or directories are modified.
 
-It's frequently used by software developers, web designers, writers and other specialists to avoid mundane, repetitive "relaunching" tools.
+It's frequently used by software developers, web designers, writers and other specialists to avoid mundane, repetitive actions and commands such as "relaunching" tools after changing source files or configurations.
 
-Guard is frequently used to replace IDE's, replace web development environments/tools, designing "smart" and "responsive" build systems/workflows and automating various project tasks.
+Common use cases include: an IDE replacement, web development tools, designing "smart" and "responsive" build systems/workflows, automating various project tasks and installing/monitoring various system services.
 
 If you have
 any questions about Guard or want to share some information with the Guard community, please go to one of
