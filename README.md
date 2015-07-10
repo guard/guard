@@ -7,24 +7,21 @@ Guard
 [![Gem Version](https://img.shields.io/gem/v/guard.svg?style=flat)](https://rubygems.org/gems/guard) [![Build Status](https://travis-ci.org/guard/guard.svg)](https://travis-ci.org/guard/guard) [![Dependency Status](https://gemnasium.com/guard/guard.png)](https://gemnasium.com/guard/guard) [![Code Climate](https://codeclimate.com/github/guard/guard/badges/gpa.svg)](https://codeclimate.com/github/guard/guard) [![Test Coverage](https://codeclimate.com/github/guard/guard/badges/coverage.svg)](https://codeclimate.com/github/guard/guard) [![Inline docs](http://inch-ci.org/github/guard/guard.svg)](http://inch-ci.org/github/guard/guard)
 
 <img src="http://cl.ly/image/1k3o1r2Z3a0J/guard-Icon.png" alt="Guard Icon" align="right" />
-Guard is a command line tool to easily handle events on file system modifications.
+Guard automates various tasks by running custom rules whenever file or directories are modified.
 
-Guard has many very handy features, so read this document through at least once
-to be aware of them - or you'll likely miss out on really cool ideas and tricks.
+It's frequently used by software developers, web designers, writers and other specialists to avoid mundane, repetitive "relaunching" tools.
 
-Also, by reading through you'll likely avoid common and time-consuming problems which Guard simply can't automatically solve.
+Guard is frequently used to replace IDE's, replace web development environments/tools, designing "smart" and "responsive" build systems/workflows and automating various project tasks.
 
 If you have
-any questions about the Guard usage or want to share some information with the Guard community, please go to one of
+any questions about Guard or want to share some information with the Guard community, please go to one of
 the following places:
 
+* [Guard Wiki](https://github.com/guard/guard/wiki)
 * [Google+ community](https://plus.google.com/u/1/communities/110022199336250745477).
 * [Google group](http://groups.google.com/group/guard-dev).
 * [StackOverflow](http://stackoverflow.com/questions/tagged/guard).
 * IRC channel `#guard` (irc.freenode.net) for chatting.
-
-Information on advanced topics like creating your own Guard plugin, programmatic use of Guard, hooks and callbacks and
-more can be found in the [Guard wiki](https://github.com/guard/guard/wiki).
 
 Before you file an issue, make sure you have read the _[known issues](#issues)_ and _[file an issue](#file-an-issue)_ sections that contains some important information.
 
