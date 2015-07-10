@@ -1,4 +1,4 @@
-### :exclamation::exclamation: Guard is [currently accepting more maintainers/contributors](https://groups.google.com/forum/#!topic/guard-dev/2Td0QTvTIsE). :exclamation::exclamation: 
+:exclamation::exclamation: Guard is [currently accepting more maintainers/contributors](https://groups.google.com/forum/#!topic/guard-dev/2Td0QTvTIsE). :exclamation::exclamation: 
 :exclamation::exclamation: Please [contact me](mailto:thibaud@thibaud.gg) or [Cezary Baginski](mailto:cezary@chronomantic.net) if you're interested in joining the team. :exclamation::exclamation:
 
 Guard
