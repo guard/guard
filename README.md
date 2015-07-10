@@ -15,6 +15,8 @@ It's frequently used by software developers, web designers, writers and other sp
 
 Common use cases include: an IDE replacement, web development tools, designing "smart" and "responsive" build systems/workflows, automating various project tasks and installing/monitoring various system services.
 
+For a full categorized list of known Guard plugins, look here: https://github.com/guard/guard/wiki/Guard-Plugins
+
 If you have
 any questions about Guard or want to share some information with the Guard community, please go to one of
 the following places:
