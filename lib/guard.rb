@@ -1,5 +1,6 @@
 require "thread"
 require "listen"
+require "pathname"
 
 require "guard/config"
 require "guard/deprecated/guard" unless Guard::Config.new.strict?

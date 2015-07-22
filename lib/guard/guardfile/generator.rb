@@ -1,3 +1,5 @@
+require "pathname"
+
 require "guard/ui"
 require "guard/plugin_util"
 
