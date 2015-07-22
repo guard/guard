@@ -1,3 +1,5 @@
+require "pathname"
+
 module Guard
   # @private api
   module Internals

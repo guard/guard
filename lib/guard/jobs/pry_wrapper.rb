@@ -1,3 +1,5 @@
+require "pathname"
+
 require "guard/commands/all"
 require "guard/commands/change"
 require "guard/commands/notification"

@@ -1,3 +1,5 @@
+require "pathname"
+
 require "guard/config"
 require "guard/deprecated/evaluator" unless Guard::Config.new.strict?
 

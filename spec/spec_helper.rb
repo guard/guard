@@ -16,6 +16,7 @@
 # users commonly want.
 #
 
+require "pathname"
 require "fileutils"
 
 require "codeclimate-test-reporter"
