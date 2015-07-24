@@ -4,15 +4,13 @@ RSpec.describe Guard::Internals::Debugging do
   let(:null) { IO::NULL }
   let(:ui) { class_double(::Guard::UI) }
   let(:tracing) { class_spy(::Guard::Internals::Tracing) }
-  let(:thread_class) { class_double(Thread) }
 
   before do
     stub_const("::Guard::Internals::Tracing", tracing)
     stub_const("::Guard::UI", ui)
-    stub_const("::Thread", thread_class)
     allow(ui).to receive(:debug)
     allow(ui).to receive(:level=)
-    allow(thread_class).to receive(:abort_on_exception=)
+    allow(Thread).to receive(:abort_on_exception=)
   end
 
   after do
@@ -54,7 +52,7 @@ RSpec.describe Guard::Internals::Debugging do
       end
 
       it "makes threads abort on exceptions" do
-        expect(thread_class).to have_received(:abort_on_exception=).with(true)
+        expect(Thread).to have_received(:abort_on_exception=).with(true)
       end
     end
 
