@@ -14,19 +14,18 @@ else
   require "rubygems"
 end
 
-def ignore_interrupts(*args)
-  args.unshift(RbConfig.ruby) if Gem.win_platform?
-  pid = spawn(*args)
-  begin
-    Process.wait(pid)
-  rescue Interrupt
-    retry
-  end
-  $? == 0
+def wait_ignoring_interrupts(pid)
+  Process.wait2(pid)[1].exitstatus
+rescue Interrupt
+  retry
+rescue Errno::ECHILD
+  1
 end
 
 guard_core_path = Gem.bin_path("guard", "_guard-core")
-while !ignore_interrupts(guard_core_path, *ARGV) && $?.exitstatus == 2
-  puts("Restarting guard...")
+args = [guard_core_path] + ARGV
+args.unshift(RbConfig.ruby) if Gem.win_platform?
+loop do
+  exitcode = wait_ignoring_interrupts(spawn(*args))
+  exit(exitcode) if exitcode != 2
 end
-exit($?.exitstatus)
