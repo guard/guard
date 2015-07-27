@@ -21,6 +21,8 @@ require "fileutils"
 require "codeclimate-test-reporter"
 CodeClimate::TestReporter.start
 
+ENV["GUARD_SPECS_RUNNING"] = "1"
+
 path = "#{File.expand_path('..', __FILE__)}/support/**/*.rb"
 Dir[path].each { |f| require f }
 
