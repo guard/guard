@@ -4,6 +4,7 @@ Feature: Notifiers
   As a developer using Guard
   I want to see a table of notifiers and their options
 
+  @in-process
   Scenario: Show notifiers and their configuration
     Given a file named "Guardfile" with:
     # NOTE: don't actually add notifiers, because Guard detects notifier client
