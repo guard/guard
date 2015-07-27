@@ -107,7 +107,7 @@ class GuardReloader
   end
 end
 
-unless ENV['GUARD_SPECS_RUNNING']
+unless ENV["GUARD_SPECS_RUNNING"]
   config = GuardReloader::Config.new
   reloader = GuardReloader.new(config)
   reloader.setup
