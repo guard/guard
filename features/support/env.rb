@@ -6,28 +6,29 @@ require "aruba/spawn_process"
 require "guard/aruba_adapter"
 
 Before("@spawn") do
-  Aruba::process = Aruba::Processes::SpawnProcess
+  aruba.config.command_launcher = :spawn
 
-  gemfile_path = File.join(current_directory, "Gemfile")
-  set_env "BUNDLE_GEMFILE", File.expand_path(gemfile_path)
-  set_env "RUBY_OPT", "-W0"
-  set_env "GUARD_NOTIFY", nil
-  set_env "GUARD_NOTIFY_PID", nil
-  set_env "GUARD_NOTIFY_ACTIVE", nil
-  set_env "GUARD_NOTIFIERS", "---\n- :name: :terminal_title\n  :options: {}\n"
+  gemfile_path = expand_path("Gemfile")
+  set_environment_variable "BUNDLE_GEMFILE", File.expand_path(gemfile_path)
+  set_environment_variable "RUBY_OPT", "-W0"
+
+  set_environment_variable(
+    "GUARD_NOTIFIERS",
+    "---\n- :name: :terminal_title\n  :options: {}\n"
+  )
 end
 
-Before("~@spawn") do
-  Aruba.process = Aruba::Processes::InProcess
-  Aruba.process.main_class = Guard::ArubaAdapter
+Before("@in-process") do
+  aruba.config.command_launcher = :in_process
+  aruba.config.main_class = Guard::ArubaAdapter
 end
 
 Before do
-  set_env "INSIDE_ARUBA_TEST", "1"
-  set_env "HOME", File.expand_path(File.join(current_directory, "home"))
+  set_environment_variable "INSIDE_ARUBA_TEST", "1"
 
-  # disable annoying Ruby warnings due to cucumber using Kernel.load()
-  FileUtils.mkdir_p ENV["HOME"]
+  home = expand_path("home")
+  set_environment_variable "HOME", home
+  FileUtils.mkdir(home)
 
   @aruba_timeout_seconds = Cucumber::JRUBY ? 35 : 15
 end

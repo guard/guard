@@ -21,6 +21,8 @@ require "fileutils"
 require "codeclimate-test-reporter"
 CodeClimate::TestReporter.start
 
+ENV["GUARD_SPECS_RUNNING"] = "1"
+
 path = "#{File.expand_path('..', __FILE__)}/support/**/*.rb"
 Dir[path].each { |f| require f }
 
@@ -244,7 +246,9 @@ RSpec.configure do |config|
     %w(exist?).each do |meth|
       allow_any_instance_of(Pathname).
         to receive(meth.to_sym) do |*args, &_block|
-        abort "stub me! (Pathname##{meth}(#{args.map(&:inspect).join(', ')}))"
+        obj = args.first
+        formatted_args = args[1..-1].map(&:inspect).join(", ")
+        abort "stub me! (#{obj.inspect}##{meth}(#{formatted_args}))"
       end
     end
 

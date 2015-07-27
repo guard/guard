@@ -16,11 +16,11 @@ Given(/^Guard is bundled using source$/) do
 
   write_file("Gemfile", "#{gems.join("\n")}\n")
 
-  run_simple(unescape("bundle install --quiet"), true)
+  run_simple(Aruba::Platform.unescape("bundle install --quiet"), true)
 end
 
 When(/^I start `([^`]*)`$/) do |cmd|
-  @interactive = run(unescape(cmd))
+  @interactive = run(Aruba::Platform.unescape(cmd))
   step "I wait for Guard to become idle"
 end
 
@@ -64,6 +64,8 @@ end
 
 When(/^I press Ctrl-C$/) do
   # Probably needs to be fixed on Windows
-  Process.kill("SIGINT", @interactive.instance_variable_get(:@process).pid)
+  obj = @interactive.instance_variable_get(:@delegate_sd_obj)
+  pid = obj.instance_variable_get(:@process).pid
+  Process.kill("SIGINT", pid)
   step "I wait for Guard to become idle"
 end
