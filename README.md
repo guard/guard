@@ -1,7 +1,7 @@
 :exclamation::exclamation: Guard is [currently accepting more maintainers/contributors](https://groups.google.com/forum/#!topic/guard-dev/2Td0QTvTIsE). :exclamation::exclamation: 
 
 
-:exclamation::exclamation: Please [contact me](mailto:thibaud@thibaud.gg) or [Cezary Baginski](mailto:cezary@chronomantic.net) if you're interested in joining the team. :exclamation::exclamation:
+:exclamation::exclamation: Please [read this](https://github.com/guard/guard/wiki/Maintainers) then [contact me](mailto:thibaud@thibaud.gg) or [Cezary Baginski](mailto:cezary@chronomantic.net) if you're interested in joining the team. :exclamation::exclamation:
 
 Guard
 =====
@@ -155,17 +155,6 @@ Development / Contributing
 --------------------------
 
 See the [Contributing Guide](https://github.com/guard/guard/blob/master/CONTRIBUTING.md#development).
-
-
-#### Open Commit Bit
-
-Guard has an open commit bit policy: Anyone with an accepted pull request gets added as a repository collaborator.
-Please try to follow these simple rules:
-
-* Commit directly onto the master branch only for typos, improvements to the readme and documentation (please add
-  `[ci skip]` to the commit message).
-* Create a feature branch and open a pull-request early for any new features to get feedback.
-* Make sure you adhere to the general pull request rules above.
 
 #### Author
 
