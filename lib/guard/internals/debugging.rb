@@ -13,6 +13,7 @@ module Guard
       class << self
         TRACES = [
           [Kernel, :system],
+          [Kernel, :spawn],
           [Kernel, :`],
           [Open3, :popen3]
         ]
