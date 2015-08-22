@@ -16,11 +16,11 @@ Given(/^Guard is bundled using source$/) do
 
   write_file("Gemfile", "#{gems.join("\n")}\n")
 
-  run_simple(Aruba::Platform.unescape("bundle install --quiet"), true)
+  run_simple("bundle install --quiet", true)
 end
 
 When(/^I start `([^`]*)`$/) do |cmd|
-  @interactive = run(Aruba::Platform.unescape(cmd))
+  @interactive = run(cmd)
   step "I wait for Guard to become idle"
 end
 
@@ -45,9 +45,9 @@ end
 When(/^I wait for Guard to become idle$/) do
   expected = "guard(main)>"
   begin
-    Timeout::timeout(exit_timeout) do
+    Timeout::timeout(aruba.config.exit_timeout) do
       loop do
-        break if assert_partial_output_interactive(expected)
+        break if last_command_started.stdout.include?(expected)
         sleep 0.1
       end
     end
