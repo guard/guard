@@ -42,5 +42,6 @@ Feature: Guard "init" command
     """
     When I run `guard init rspec`
     And I run `guard init rspec`
-    Then the output should match /rspec guard added to Guardfile, feel free to edit it\n.*Guardfile already includes rspec guard$/
+    Then the output should match /rspec guard added to Guardfile, feel free to edit it/
+    And the output should match /.*Guardfile already includes rspec guard/
     And the file "Guardfile" should match /^guard :rspec, cmd: ['"]bundle exec rspec["'] do$/

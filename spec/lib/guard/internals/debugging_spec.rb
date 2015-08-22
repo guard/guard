@@ -44,6 +44,15 @@ RSpec.describe Guard::Internals::Debugging do
       described_class.start
     end
 
+    it "traces Kernel.spawn" do
+      expect(tracing).to receive(:trace).with(Kernel, :spawn) do |*_, &block|
+        expect(ui).to receive(:debug).with("Command execution: foo")
+        block.call("foo")
+      end
+
+      described_class.start
+    end
+
     context "when not started" do
       before { described_class.start }
 
