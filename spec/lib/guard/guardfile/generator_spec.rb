@@ -125,7 +125,8 @@ RSpec.describe Guard::Guardfile::Generator do
           /Error is: No such file or directory/
         )
 
-        described_class.new.initialize_template("foo")
+        expect { described_class.new.initialize_template("foo") }.
+          to raise_error(Errno::ENOENT)
       end
     end
   end

@@ -46,13 +46,18 @@ module Guard
           rescue Guard::Guardfile::Evaluator::NoPluginsError
           end
 
-          if plugin_names.empty?
-            generator.initialize_all_templates
-          else
-            plugin_names.each do |plugin_name|
-              generator.initialize_template(plugin_name)
+          begin
+            if plugin_names.empty?
+              generator.initialize_all_templates
+            else
+              plugin_names.each do |plugin_name|
+                generator.initialize_template(plugin_name)
+              end
             end
+          rescue Errno::ENOENT
+            return 1
           end
+
           # TODO: capture exceptions to show msg and return exit code on
           # failures
           0 # exit code
