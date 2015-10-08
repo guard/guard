@@ -54,7 +54,8 @@ module Guard
                 generator.initialize_template(plugin_name)
               end
             end
-          rescue Errno::ENOENT
+          rescue Guardfile::Generator::Error => e
+            UI.error(e.message)
             return 1
           end
 

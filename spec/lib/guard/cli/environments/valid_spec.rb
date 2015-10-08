@@ -237,10 +237,14 @@ RSpec.describe Guard::Cli::Environments::Valid do
       context "when passed an unknown guard name" do
         before do
           expect(generator).to receive(:initialize_template).with("foo").
-            and_raise(Errno::ENOENT)
+            and_raise(Guard::Guardfile::Generator::NoSuchPlugin, "foo")
         end
 
         it "returns an exit code" do
+          expect(::Guard::UI).to receive(:error).with(
+            "Could not load 'guard/foo' or '~/.guard/templates/foo'"\
+            " or find class Guard::Foo\n"
+          )
           expect(subject.initialize_guardfile(%w(foo))).to be(1)
         end
       end
