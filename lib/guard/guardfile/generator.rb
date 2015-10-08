@@ -38,6 +38,24 @@ module Guard
         HOME_TEMPLATES = Pathname("/").expand_path
       end
 
+      class Error < RuntimeError
+      end
+
+      class NoSuchPlugin < Error
+        attr_reader :plugin_name, :class_name
+
+        def initialize(plugin_name)
+          @plugin_name = plugin_name
+          @class_name = plugin_name.gsub("-", "").capitalize
+        end
+
+        def message
+          "Could not load 'guard/#{plugin_name}'"\
+          " or '~/.guard/templates/#{plugin_name}'"\
+          " or find class Guard::#{class_name}\n"
+        end
+      end
+
       # Creates the initial Guardfile template when it does not
       # already exist.
       #
@@ -86,14 +104,8 @@ module Guard
 
         _ui(:info, format(INFO_TEMPLATE_ADDED, plugin_name))
 
-      rescue Errno::ENOENT => error
-
-        name = plugin_name.downcase
-        class_name = name.gsub("-", "").capitalize
-        _ui(:error, "Could not load 'guard/#{name}'"\
-            " or '~/.guard/templates/#{name}'"\
-            " or find class Guard::#{class_name}")
-        _ui(:error, "Error is: #{error}")
+      rescue Errno::ENOENT
+        fail NoSuchPlugin, plugin_name.downcase
       end
 
       # Adds the templates of all installed Guard implementations to an

@@ -231,8 +231,22 @@ RSpec.describe Guard::Cli::Environments::Valid do
       end
 
       it "returns an exit code" do
-        # TODO: ideally, we'd capture known exceptions and return nonzero
         expect(subject.initialize_guardfile).to be_zero
+      end
+
+      context "when passed an unknown guard name" do
+        before do
+          expect(generator).to receive(:initialize_template).with("foo").
+            and_raise(Guard::Guardfile::Generator::NoSuchPlugin, "foo")
+        end
+
+        it "returns an exit code" do
+          expect(::Guard::UI).to receive(:error).with(
+            "Could not load 'guard/foo' or '~/.guard/templates/foo'"\
+            " or find class Guard::Foo\n"
+          )
+          expect(subject.initialize_guardfile(%w(foo))).to be(1)
+        end
       end
     end
   end
