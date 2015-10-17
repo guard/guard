@@ -159,14 +159,10 @@ module Guard
         /^Guardfile$/.match(path) || Pathname(path).expand_path == guardfile
       end
 
-      if real_guardfiles
-        UI.warning "Guardfile changed -- _guard-core will exit.\n"
-        exit 2 # nonzero to break any while loop
-      else # e.g. templates/Guardfile
-        msg = "Config changed: %s - Guard will exit so it can be restarted."
-        UI.info format(msg, guardfiles.inspect)
-        exit 0 # 0 so any shell while loop can continue
-      end
+      return unless real_guardfiles
+
+      UI.warning "Guardfile changed -- _guard-core will exit.\n"
+      exit 2 # nonzero to break any while loop
     end
   end
 end
