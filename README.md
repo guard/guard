@@ -5,7 +5,7 @@ Guard
 
 [![Gem Version](https://img.shields.io/gem/v/guard.svg?style=flat)](https://rubygems.org/gems/guard) [![Build Status](https://travis-ci.org/guard/guard.svg)](https://travis-ci.org/guard/guard) [![Dependency Status](https://gemnasium.com/guard/guard.png)](https://gemnasium.com/guard/guard) [![Code Climate](https://codeclimate.com/github/guard/guard/badges/gpa.svg)](https://codeclimate.com/github/guard/guard) [![Test Coverage](https://codeclimate.com/github/guard/guard/badges/coverage.svg)](https://codeclimate.com/github/guard/guard) [![Inline docs](http://inch-ci.org/github/guard/guard.svg)](http://inch-ci.org/github/guard/guard)
 
-<img src="http://cl.ly/image/1k3o1r2Z3a0J/guard-Icon.png" alt="Guard Icon" align="right" />
+<img src="http://f.cl.ly/items/0A0M3W2x3I1P450z341U/guard-Icon.png" alt="Guard Icon" align="right" />
 Guard automates various tasks by running custom rules whenever file or directories are modified.
 
 It's frequently used by software developers, web designers, writers and other specialists to avoid mundane, repetitive actions and commands such as "relaunching" tools after changing source files or configurations.
@@ -19,8 +19,8 @@ any questions about Guard or want to share some information with the Guard commu
 the following places:
 
 * [Guard Wiki](https://github.com/guard/guard/wiki)
-* [Google+ community](https://plus.google.com/u/1/communities/110022199336250745477).
-* [Google group](http://groups.google.com/group/guard-dev).
+* [Google+ community](https://plus.google.com/communities/110022199336250745477).
+* [Google group](http://groups.google.com/forum/%23!forum/guard-dev).
 * [StackOverflow](http://stackoverflow.com/questions/tagged/guard).
 * IRC channel `#guard` (irc.freenode.net) for chatting.
 
@@ -43,7 +43,7 @@ Two nice screencasts are available to help you get started:
 Installation
 ------------
 
-The simplest way to install Guard is to use [Bundler](http://gembundler.com/).
+The simplest way to install Guard is to use [Bundler](http://bundler.io).
 
 Add Guard (and any other dependencies) to a `Gemfile` in your project’s root:
 
@@ -95,7 +95,7 @@ If you're getting sick of typing `bundle exec` all the time, try one of the foll
 
 *NOTE: this Rubygems feature is still under development still lacks many features of bundler*
 
-* Or, for RubyGems < 2.2.0 check out the [Rubygems Bundler](https://github.com/mpapis/rubygems-bundler).
+* Or, for RubyGems < 2.2.0 check out the [Rubygems Bundler](https://github.com/rvm/rubygems-bundler).
 
 #### Add Guard plugins
 
@@ -155,13 +155,13 @@ See the [Contributing Guide](https://github.com/guard/guard/blob/master/CONTRIBU
 
 #### Author
 
-[Thibaud Guillaume-Gentil](https://github.com/thibaudgg) ([@thibaudgg](http://twitter.com/thibaudgg))
+[Thibaud Guillaume-Gentil](https://github.com/thibaudgg) ([@thibaudgg](https://twitter.com/thibaudgg))
 
 #### Core Team
 
-* R.I.P. :broken_heart: [Michael Kessler](https://github.com/netzpirat) ([@netzpirat](http://twitter.com/netzpirat), [flinkfinger.com](http://www.flinkfinger.com)).
+* R.I.P. :broken_heart: [Michael Kessler](https://github.com/netzpirat) ([@netzpirat](https://twitter.com/netzpirat), [flinkfinger.com](http://www.flinkfinger.com)).
 * [Rémy Coutable](https://github.com/rymai).
-* [Thibaud Guillaume-Gentil](https://github.com/thibaudgg) ([@thibaudgg](http://twitter.com/thibaudgg), [thibaud.gg](http://thibaud.gg/)).
+* [Thibaud Guillaume-Gentil](https://github.com/thibaudgg) ([@thibaudgg](https://twitter.com/thibaudgg), [thibaud.gg](http://thibaud.gg/)).
 
 #### Contributors
 
