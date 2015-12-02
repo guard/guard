@@ -159,7 +159,7 @@ See the [Contributing Guide](https://github.com/guard/guard/blob/master/CONTRIBU
 
 #### Core Team
 
-* R.I.P. :broken_heart: [Michael Kessler](https://github.com/netzpirat) ([@netzpirat](https://twitter.com/netzpirat), [flinkfinger.com](http://www.flinkfinger.com)).
+* R.I.P. :broken_heart: [Michael Kessler](https://github.com/netzpirat) ([flinkfinger.com](http://www.flinkfinger.com)).
 * [Rémy Coutable](https://github.com/rymai).
 * [Thibaud Guillaume-Gentil](https://github.com/thibaudgg) ([@thibaudgg](https://twitter.com/thibaudgg), [thibaud.gg](http://thibaud.gg/)).
 
