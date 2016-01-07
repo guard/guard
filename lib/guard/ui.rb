@@ -26,7 +26,7 @@ module Guard
         @logger ||= begin
                       require "lumberjack"
                       Lumberjack::Logger.new(
-                        options.fetch(:device) { $stderr },
+                        options.fetch('device') { $stderr },
                         options
                       )
                     end
