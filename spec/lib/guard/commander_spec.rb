@@ -178,8 +178,18 @@ RSpec.describe Guard::Commander do
 
       [:toggle, nil, :paused].each do |mode|
         context "with #{mode.inspect}" do
+          before do
+            allow(listener).to receive(:pause)
+          end
+
           it "pauses" do
             expect(listener).to receive(:pause)
+            Guard.pause(mode)
+          end
+
+          it "shows a message" do
+            expected = /File event handling has been paused/
+            expect(Guard::UI).to receive(:info).with(expected)
             Guard.pause(mode)
           end
         end
@@ -212,8 +222,18 @@ RSpec.describe Guard::Commander do
 
       [:toggle, nil, :unpaused].each do |mode|
         context "with #{mode.inspect}" do
+          before do
+            allow(listener).to receive(:start)
+          end
+
           it "unpauses" do
             expect(listener).to receive(:start)
+            Guard.pause(mode)
+          end
+
+          it "shows a message" do
+            expected = /File event handling has been resumed/
+            expect(Guard::UI).to receive(:info).with(expected)
             Guard.pause(mode)
           end
         end
