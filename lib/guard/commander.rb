@@ -92,7 +92,7 @@ module Guard
       return if pause == paused
 
       listener.public_send(pause ? :pause : :start)
-      UI.info "File modification listening is now #{pause.to_s.upcase}"
+      UI.info "File event handling has been #{pause ? 'paused' : 'resumed'}"
     end
 
     def show
