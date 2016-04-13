@@ -29,7 +29,7 @@ module Guard
       end
 
       def reevaluate_guardfile
-        # require guard only when needed, becuase
+        # require guard only when needed, because
         # guard's deprecations require us
         require "guard"
         UI.deprecation(REEVALUATE_GUARDFILE)
