@@ -1,3 +1,5 @@
+## IMPORTANT: [Ruby 2.1 is officially outdated and unsupported!](https://www.ruby-lang.org/en/news/2016/03/30/ruby-2-1-9-released/) Please upgrade to Ruby 2.2 before installing Guard!
+
 :exclamation: Guard is currently accepting more maintainers. Please [read this](https://github.com/guard/guard/wiki/Maintainers) if you're interested in joining the team.
 
 Guard
