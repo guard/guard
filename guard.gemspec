@@ -17,7 +17,7 @@ Gem::Specification.new do |s|
   s.required_ruby_version = ">= 1.9.3"
 
   s.add_runtime_dependency "thor", ">= 0.18.1"
-  s.add_runtime_dependency "listen", ">= 2.7", "<= 4.0"
+  s.add_runtime_dependency "listen", ">= 2.7", "< 4.0"
   s.add_runtime_dependency "pry", ">= 0.9.12"
   s.add_runtime_dependency "lumberjack", "~> 1.0"
   s.add_runtime_dependency "formatador", ">= 0.2.4"
