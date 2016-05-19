@@ -2,6 +2,7 @@ require "guard/config"
 require "guard/deprecated/watcher" unless Guard::Config.new.strict?
 
 require "guard/ui"
+require "guard/watcher/pattern"
 
 module Guard
   # The watcher defines a RegExp that will be matched against file system
@@ -21,30 +22,8 @@ module Guard
     #   the Guard plugin
     #
     def initialize(pattern, action = nil)
-      @pattern, @action = pattern, action
-      @@warning_printed ||= false
-
-      # deprecation warning
-      regexp = /(^(\^))|(>?(\\\.)|(\.\*))|(\(.*\))|(\[.*\])|(\$$)/
-      return unless @pattern.is_a?(String) && @pattern =~ regexp
-
-      unless @@warning_printed
-        UI.info "*" * 20 + "\nDEPRECATION WARNING!\n" + "*" * 20
-        UI.info <<-MSG
-            You have a string in your Guardfile watch patterns that seem to
-            represent a Regexp.
-
-            Guard matches String with == and Regexp with Regexp#match.
-
-            You should either use plain String (without Regexp special
-            characters) or real Regexp.
-        MSG
-        @@warning_printed = true
-      end
-
-      new_regexp = Regexp.new(@pattern).inspect
-      UI.info "\"#{@pattern}\" has been converted to #{ new_regexp }\n"
-      @pattern = Regexp.new(@pattern)
+      @action = action
+      @pattern = Pattern.create(pattern)
     end
 
     # Finds the files that matches a Guard plugin.
@@ -81,20 +60,9 @@ module Guard
       end
     end
 
-    # Test the watchers pattern against a file.
-    #
-    # @param [String] file the file to test
-    # @return [Array<String>] an array of matches (or containing a single path
-    #   if the pattern is a string)
-    #
     def match(string_or_pathname)
-      # TODO: use only match() - and show fnmatch example
-      file = string_or_pathname.to_s
-      return (file == @pattern ? [file] : nil) unless @pattern.is_a?(Regexp)
-      return unless (m = @pattern.match(file))
-      m = m.to_a
-      m[0] = file
-      m
+      m = pattern.match(string_or_pathname)
+      m.nil? ? nil : Pattern::MatchResult.new(m, string_or_pathname)
     end
 
     # Executes a watcher action.

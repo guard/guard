@@ -4,39 +4,23 @@ require "guard/watcher"
 require "guard/guardfile/evaluator"
 
 RSpec.describe Guard::Watcher do
+  let(:args) { [] }
+  subject { described_class.new(*args) }
   describe "#initialize" do
-    it "requires a pattern parameter" do
-      expect { described_class.new }.to raise_error(ArgumentError)
+    context "with no arguments" do
+      let(:args) { [] }
+      it "raises an error" do
+        expect { subject }.to raise_error(ArgumentError)
+      end
     end
 
     context "with a pattern parameter" do
-      context "that is a string" do
-        it "keeps the string pattern unmodified" do
-          expect(described_class.new("spec_helper.rb").pattern).
-            to eq "spec_helper.rb"
-        end
-      end
+      let(:pattern) { ["spec_helper.rb"] }
+      let(:args) { [pattern] }
 
-      context "that is a regexp" do
-        it "keeps the regex pattern unmodified" do
-          expect(described_class.new(/spec_helper\.rb/).pattern).
-            to eq(/spec_helper\.rb/)
-        end
-      end
-
-      context "that is a string looking like a regex (deprecated)" do
-        before(:each) { allow(Guard::UI).to receive(:info) }
-
-        it "converts the string automatically to a regex" do
-          expect(described_class.new("^spec_helper.rb").pattern).
-            to eq(/^spec_helper.rb/)
-          expect(described_class.new("spec_helper.rb$").pattern).
-            to eq(/spec_helper.rb$/)
-          expect(described_class.new('spec_helper\.rb').pattern).
-            to eq(/spec_helper\.rb/)
-          expect(described_class.new(".*_spec.rb").pattern).
-            to eq(/.*_spec.rb/)
-        end
+      it "creates a matcher" do
+        expect(described_class::Pattern).to receive(:create).with(pattern)
+        subject
       end
     end
   end
@@ -59,20 +43,20 @@ RSpec.describe Guard::Watcher do
       described_class.match_files(plugin, files)
     end
 
-    context "with a watcher without action" do
+    context "without a watcher action" do
       before do
         allow(plugin).to receive(:watchers).
           and_return([described_class.new(pattern)])
       end
 
-      context "that is a regex pattern" do
+      context "with a regex pattern" do
         let(:pattern) { /.*_spec\.rb/ }
         it "returns the paths that matches the regex" do
           expect(matched(%w(foo_spec.rb foo.rb))).to eq %w(foo_spec.rb)
         end
       end
 
-      context "that is a string pattern" do
+      context "with a string pattern" do
         let(:pattern) { "foo_spec.rb" }
         it "returns the path that matches the string" do
           expect(matched(%w(foo_spec.rb foo.rb))).to eq ["foo_spec.rb"]
@@ -307,71 +291,60 @@ RSpec.describe Guard::Watcher do
     end
   end
 
-  describe ".match_files?" do
-    pending
-  end
-
-  describe ".match" do
+  describe "#match" do
     subject { described_class.new(pattern).match(file) }
 
-    context "with a file name pattern" do
-      let(:pattern) { "guard_rocks_spec.rb" }
+    let(:matcher) { instance_double(described_class::Pattern::Matcher) }
+    let(:match) { instance_double(described_class::Pattern::MatchResult) }
 
-      context "with matching normal file" do
-        let(:file) { "guard_rocks_spec.rb" }
-        it { is_expected.to eq ["guard_rocks_spec.rb"] }
-      end
+    before do
+      allow(described_class::Pattern).to receive(:create).with(pattern).
+        and_return(matcher)
 
-      context "with matching pathname" do
-        let(:file) { Pathname("guard_rocks_spec.rb") }
-        it { is_expected.to eq ["guard_rocks_spec.rb"] }
-      end
+      allow(matcher).to receive(:match).with(pattern).
+        and_return(match_data)
 
-      context "with not-matching normal file" do
-        let(:file) { "lib/my_wonderful_lib.rb" }
-        it { is_expected.to be_nil }
-      end
-
-      context "with matching file containing $" do
-        let(:pattern) { "lib$/guard_rocks_spec.rb" }
-        let(:file) { "lib$/guard_rocks_spec.rb" }
-        it { is_expected.to eq ["lib$/guard_rocks_spec.rb"] }
-      end
+      allow(described_class::Pattern::MatchResult).to receive(:new).
+        with(match_data, file).and_return(match)
     end
 
-    context "with a string representing a regexp (deprecated)" do
-      let(:pattern) { '^guard_(rocks)_spec\.rb$' }
+    context "with a valid pattern" do
+      let(:pattern) { "foo.rb" }
+      context "with a valid file name to match" do
+        let(:file) { "foo.rb" }
+        context "when matching is successful" do
+          let(:match_data) { double("match data", to_a: ["foo"]) }
+          it "returns the match result" do
+            expect(subject).to be(match)
+          end
+        end
 
-      context "with matching normal file" do
-        let(:file) { "guard_rocks_spec.rb" }
-        it { is_expected.to eq ["guard_rocks_spec.rb", "rocks"] }
-      end
-
-      context "with not-matching normal file" do
-        let(:file) { "lib/my_wonderful_lib.rb" }
-        it { is_expected.to be_nil }
+        context "when matching is not successful" do
+          let(:match_data) { nil }
+          it "returns nil" do
+            expect(subject).to be_nil
+          end
+        end
       end
     end
+  end
 
-    context "with a regexp pattern" do
-      subject { described_class.new(/(.*)_spec\.rb/) }
+  describe "integration" do
+    describe "#match" do
+      subject { described_class.new(pattern) }
+      context "with a named regexp pattern" do
+        let(:pattern) { /(?<foo>.*)_spec\.rb/ }
 
-      context "with a watcher that matches a file" do
-        specify do
-          expect(subject.match("guard_rocks_spec.rb")).
-            to eq ["guard_rocks_spec.rb", "guard_rocks"]
+        context "with a watcher that matches a file" do
+          specify do
+            expect(subject.match("bar_spec.rb")[0]).to eq("bar_spec.rb")
+            expect(subject.match("bar_spec.rb")[1]).to eq("bar")
+          end
+
+          it "provides the match by name" do
+            expect(subject.match("bar_spec.rb")[:foo]).to eq("bar")
+          end
         end
-      end
-
-      context "with a file containing a $" do
-        specify do
-          result = subject.match("lib$/guard_rocks_spec.rb")
-          expect(result).to eq ["lib$/guard_rocks_spec.rb", "lib$/guard_rocks"]
-        end
-      end
-
-      context "with no watcher that matches a file" do
-        specify { expect(subject.match("lib/my_wonderful_lib.rb")).to be_nil }
       end
     end
   end
