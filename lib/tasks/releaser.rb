@@ -25,6 +25,7 @@ class Releaser
   end
 
   def rubygems
+    input = nil
     loop do
       STDOUT.puts "Release #{@project_name} #{@version} to RubyGems? (y/n)"
       input = STDIN.gets.chomp.downcase
@@ -96,6 +97,7 @@ class Releaser
   end
 
   def _confirm_publish
+    input = nil
     loop do
       STDOUT.puts "Would you like to publish this GitHub release now? (y/n)"
       input = STDIN.gets.chomp.downcase
