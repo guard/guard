@@ -1,14 +1,16 @@
 language: ruby
 bundler_args: --without development
 rvm:
-  - 2.2.2
-  - jruby-head
+  - 2.2.5
+  - 2.3.1
+  - jruby-9.0.5.0
   - rbx
 matrix:
   allow_failures:
     - rvm: rbx
-    - rvm: jruby-head
+    - rvm: jruby-9.0.5.0
 sudo: false
+cache: bundler
 addons:
   code_climate:
     repo_token: 185a714e42214b9369217d0ddfd5a02d528d9a616a34482119a16c63241d6afd
