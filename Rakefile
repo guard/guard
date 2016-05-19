@@ -17,6 +17,7 @@ end
 require "cucumber/rake/task"
 Cucumber::Rake::Task.new(:features) do |t|
   t.cucumber_opts = "features --format pretty"
+  t.profile = Nenv.ci? ? 'guard' : 'travis'
 end
 default_tasks << Struct.new(:name).new(:features)
 

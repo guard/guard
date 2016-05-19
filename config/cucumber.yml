@@ -1,2 +1,3 @@
 default: --format pretty --strict --color
 guard: --format pretty --strict --color
+travis: --format pretty --strict --color
