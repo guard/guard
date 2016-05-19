@@ -59,7 +59,7 @@ module Guard
       files.inject([]) do |paths, file|
         guard.watchers.each do |watcher|
           matches = watcher.match(file)
-          next unless matches
+          next(paths) unless matches
 
           if watcher.action
             result = watcher.call_action(matches)
@@ -68,7 +68,7 @@ module Guard
             elsif result.respond_to?(:empty?) && !result.empty?
               paths << Array(result)
             else
-              next
+              next(paths)
             end
           else
             paths << matches[0]
@@ -106,7 +106,7 @@ module Guard
     def call_action(matches)
       @action.arity > 0 ? @action.call(matches) : @action.call
     rescue => ex
-      UI.error "Problem with watch action!\n#{ ex.message }"
+      UI.error "Problem with watch action!\n#{ex.message}"
       UI.error ex.backtrace.join("\n")
     end
   end
