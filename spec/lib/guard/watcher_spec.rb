@@ -47,7 +47,7 @@ RSpec.describe Guard::Watcher do
     end
 
     it "sets the action to the supplied block" do
-      action = lambda { |m| "spec/#{m[1]}_spec.rb" }
+      action = ->(m) { "spec/#{m[1]}_spec.rb" }
       expect(described_class.new(%r{^lib/(.*).rb}, action).action).to eq action
     end
   end
@@ -84,14 +84,16 @@ RSpec.describe Guard::Watcher do
       context "for a watcher that matches file strings" do
         before do
           klass = described_class
-          allow(plugin).to receive(:watchers).and_return([
-            klass.new("spec_helper.rb", lambda { "spec" }),
-            klass.new("addition.rb", lambda { 1 + 1 }),
-            klass.new("hash.rb", lambda { Hash[:foo, "bar"] }),
-            klass.new("array.rb", lambda { %w(foo bar) }),
-            klass.new("blank.rb", lambda { "" }),
-            klass.new(/^uptime\.rb/, lambda { "" })
-          ])
+          allow(plugin).to receive(:watchers).and_return(
+            [
+              klass.new("spec_helper.rb", -> { "spec" }),
+              klass.new("addition.rb", -> { 1 + 1 }),
+              klass.new("hash.rb", -> { Hash[:foo, "bar"] }),
+              klass.new("array.rb", -> { %w(foo bar) }),
+              klass.new("blank.rb", -> { "" }),
+              klass.new(/^uptime\.rb/, -> { "" })
+            ]
+          )
         end
 
         it "returns a single file specified within the action" do
@@ -126,14 +128,16 @@ RSpec.describe Guard::Watcher do
           allow(plugin).to receive(:options).and_return(any_return: true)
 
           klass = described_class
-          allow(plugin).to receive(:watchers).and_return([
-            klass.new("spec_helper.rb", lambda { "spec" }),
-            klass.new("addition.rb", lambda { 1 + 1 }),
-            klass.new("hash.rb", lambda { Hash[:foo, "bar"] }),
-            klass.new("array.rb", lambda { %w(foo bar) }),
-            klass.new("blank.rb", lambda { "" }),
-            klass.new(/^uptime\.rb/, lambda { "" })
-          ])
+          allow(plugin).to receive(:watchers).and_return(
+            [
+              klass.new("spec_helper.rb", -> { "spec" }),
+              klass.new("addition.rb", -> { 1 + 1 }),
+              klass.new("hash.rb", -> { Hash[:foo, "bar"] }),
+              klass.new("array.rb", -> { %w(foo bar) }),
+              klass.new("blank.rb", -> { "" }),
+              klass.new(/^uptime\.rb/, -> { "" })
+            ]
+          )
         end
 
         it "returns a single file specified within the action" do
@@ -170,12 +174,12 @@ RSpec.describe Guard::Watcher do
         before do
           klass = described_class
           allow(plugin).to receive(:watchers).and_return [
-            klass.new(%r{lib/(.*)\.rb}, lambda { |m| "spec/#{m[1]}_spec.rb" }),
-            klass.new(/addition(.*)\.rb/, lambda { |_m| 1 + 1 }),
-            klass.new("hash.rb", lambda { |_m| Hash[:foo, "bar"] }),
-            klass.new(/array(.*)\.rb/, lambda { |_m| %w(foo bar) }),
-            klass.new(/blank(.*)\.rb/, lambda { |_m| "" }),
-            klass.new(/^uptime\.rb/, lambda { "" })
+            klass.new(%r{lib/(.*)\.rb}, ->(m) { "spec/#{m[1]}_spec.rb" }),
+            klass.new(/addition(.*)\.rb/, ->(_m) { 1 + 1 }),
+            klass.new("hash.rb", ->(_m) { Hash[:foo, "bar"] }),
+            klass.new(/array(.*)\.rb/, ->(_m) { %w(foo bar) }),
+            klass.new(/blank(.*)\.rb/, ->(_m) { "" }),
+            klass.new(/^uptime\.rb/, -> { "" })
           ]
         end
 
@@ -210,14 +214,16 @@ RSpec.describe Guard::Watcher do
           allow(plugin).to receive(:options).and_return(any_return: true)
 
           kl = described_class
-          allow(plugin).to receive(:watchers).and_return([
-            kl.new(%r{lib/(.*)\.rb}, lambda { |m| "spec/#{m[1]}_spec.rb" }),
-            kl.new(/addition(.*)\.rb/, lambda { |m| (1 + 1).to_s + m[0] }),
-            kl.new("hash.rb", lambda { |m| { foo: "bar", file_name: m[0] } }),
-            kl.new(/array(.*)\.rb/, lambda { |m| ["foo", "bar", m[0]] }),
-            kl.new(/blank(.*)\.rb/, lambda { |_m| "" }),
-            kl.new(/^uptime\.rb/, lambda { "" })
-          ])
+          allow(plugin).to receive(:watchers).and_return(
+            [
+              kl.new(%r{lib/(.*)\.rb}, ->(m) { "spec/#{m[1]}_spec.rb" }),
+              kl.new(/addition(.*)\.rb/, ->(m) { (1 + 1).to_s + m[0] }),
+              kl.new("hash.rb", ->(m) { { foo: "bar", file_name: m[0] } }),
+              kl.new(/array(.*)\.rb/, ->(m) { ["foo", "bar", m[0]] }),
+              kl.new(/blank(.*)\.rb/, ->(_m) { "" }),
+              kl.new(/^uptime\.rb/, -> { "" })
+            ]
+          )
         end
 
         it "returns a substituted single file specified within the action" do
@@ -252,7 +258,7 @@ RSpec.describe Guard::Watcher do
     context "with an exception that is raised" do
       before do
         allow(plugin).to receive(:watchers).and_return(
-          [described_class.new("evil.rb", lambda { fail "EVIL" })]
+          [described_class.new("evil.rb", -> { fail "EVIL" })]
         )
       end
 
@@ -269,9 +275,9 @@ RSpec.describe Guard::Watcher do
     context "for ambiguous watchers" do
       before do
         expect(plugin).to receive(:watchers).and_return [
-          described_class.new("awesome_helper.rb", lambda {}),
-          described_class.new(/.+some_helper.rb/, lambda { "foo.rb" }),
-          described_class.new(/.+_helper.rb/, lambda { "bar.rb" }),
+          described_class.new("awesome_helper.rb", -> {}),
+          described_class.new(/.+some_helper.rb/, -> { "foo.rb" }),
+          described_class.new(/.+_helper.rb/, -> { "bar.rb" }),
         ]
       end
 
@@ -282,7 +288,8 @@ RSpec.describe Guard::Watcher do
 
         it "returns multiple files by combining the results of the watchers" do
           expect(described_class.match_files(
-                   plugin, ["awesome_helper.rb"])).to eq(["foo.rb", "bar.rb"])
+                   plugin, ["awesome_helper.rb"]
+          )).to eq(["foo.rb", "bar.rb"])
         end
       end
 
@@ -293,7 +300,8 @@ RSpec.describe Guard::Watcher do
 
         it "returns only the files from the first watcher" do
           expect(described_class.match_files(
-                   plugin, ["awesome_helper.rb"])).to eq(["foo.rb"])
+                   plugin, ["awesome_helper.rb"]
+          )).to eq(["foo.rb"])
         end
       end
     end
