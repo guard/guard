@@ -9,7 +9,7 @@ gem "rake"
 
 group :development do
   # NOTE: version should match HoundCi RuboCop version
-  gem "rubocop", "= 0.29.1", require: false
+  gem "rubocop", require: false
 
   gem "guard-rubocop", require: false
 
