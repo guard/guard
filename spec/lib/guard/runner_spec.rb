@@ -150,7 +150,8 @@ RSpec.describe Guard::Runner do
           run_on_change
           run_on_additions
           run_on_removals
-          run_on_deletion).each do |task|
+          run_on_deletion
+        ).each do |task|
           expect(foo_plugin).to_not receive(task.to_sym)
         end
         subject.run_on_changes(*changes)
@@ -308,7 +309,8 @@ RSpec.describe Guard::Runner do
             :_supervise,
             foo_plugin,
             :regular_with_arg,
-            "given_path")
+            "given_path"
+          )
         end
 
         it "returns the result of the task" do
@@ -316,7 +318,8 @@ RSpec.describe Guard::Runner do
             :_supervise,
             foo_plugin,
             :regular_with_arg,
-            "given_path")
+            "given_path"
+          )
 
           expect(result).to eq "I'm a success"
         end

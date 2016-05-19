@@ -2,6 +2,7 @@ require "guard/ui/colors"
 
 require "guard/terminal"
 require "guard/options"
+require "forwardable"
 
 # TODO: rework this class from the bottom-up
 #  - remove dependency on Session and Scope
@@ -26,7 +27,8 @@ module Guard
                       require "lumberjack"
                       Lumberjack::Logger.new(
                         options.fetch(:device) { $stderr },
-                        options)
+                        options
+                      )
                     end
       end
 
@@ -46,7 +48,8 @@ module Guard
         @options ||= Options.new(
           level: :info,
           template: ":time - :severity - :message",
-          time_format: "%H:%M:%S")
+          time_format: "%H:%M:%S"
+        )
       end
 
       # Set the logger options
@@ -62,9 +65,8 @@ module Guard
       end
 
       # Assigns a log level
-      def level=(new_level)
-        logger.level = new_level
-      end
+      extend Forwardable
+      def_delegator :logger, :level=
 
       # Show an info message.
       #
@@ -202,7 +204,7 @@ module Guard
       # @return [String] the Guard plugin name
       #
       def calling_plugin_name(depth = 2)
-        name = /(guard\/[a-z_]*)(\/[a-z_]*)?.rb:/i.match(caller[depth])
+        name = %r{(guard\/[a-z_]*)(/[a-z_]*)?.rb:}i.match(caller[depth])
         return "Guard" unless name
         name[1].split("/").map do |part|
           part.split(/[^a-z0-9]/i).map(&:capitalize).join
@@ -217,26 +219,19 @@ module Guard
         @color_enabled_initialized ||= false
         @color_enabled = nil unless @color_enabled_initialized
         @color_enabled_initialized = true
-        if @color_enabled.nil?
-          if Gem.win_platform?
-            if ENV["ANSICON"]
-              @color_enabled = true
-            else
-              begin
-                require "rubygems" unless ENV["NO_RUBYGEMS"]
-                require "Win32/Console/ANSI"
-                @color_enabled = true
-              rescue LoadError
-                @color_enabled = false
-                info "Run 'gem install win32console' to use color on Windows"
-              end
-            end
-          else
-            @color_enabled = true
-          end
-        end
+        return @color_enabled unless @color_enabled.nil?
+        return (@color_enabled = true) unless Gem.win_platform?
+        return (@color_enabled = true) if ENV["ANSICON"]
 
-        @color_enabled
+        @color_enabled =
+          begin
+            require "rubygems" unless ENV["NO_RUBYGEMS"]
+            require "Win32/Console/ANSI"
+            true
+          rescue LoadError
+            info "Run 'gem install win32console' to use color on Windows"
+            false
+          end
       end
 
       # Colorizes a text message. See the constant in the UI class for possible

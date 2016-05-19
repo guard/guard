@@ -203,7 +203,7 @@ RSpec.describe Guard::Cli::Environments::Valid do
         expect(generator).to receive(:initialize_template).with("rspec")
         expect(generator).to receive(:initialize_template).with("pow")
 
-        subject.initialize_guardfile(["rspec", "pow"])
+        subject.initialize_guardfile(%w(rspec pow))
       end
 
       context "when passed a guard name" do

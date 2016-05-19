@@ -156,9 +156,7 @@ module Guard
         @guardfile_notifier_options.merge!(config)
       end
 
-      def interactor_name
-        @interactor_name
-      end
+      attr_reader :interactor_name
 
       # TODO: call this from within action, not within interactor command
       def convert_scope(entries)

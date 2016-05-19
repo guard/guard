@@ -28,9 +28,9 @@ module Guard
       def matcher_for(filter)
         case filter
         when String, Symbol
-          lambda { |group| group.name == filter.to_sym }
+          ->(group) { group.name == filter.to_sym }
         when Regexp
-          lambda { |group| group.name.to_s =~ filter }
+          ->(group) { group.name.to_s =~ filter }
         else
           fail "Invalid filter: #{filter.inspect}"
         end

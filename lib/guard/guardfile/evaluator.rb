@@ -58,11 +58,9 @@ module Guard
         if opts[:contents]
           @type = :inline
           @contents = opts[:contents]
-        else
-          if opts[:guardfile]
-            @type = :custom
-            @path = Pathname(opts[:guardfile]) # may be updated by _read
-          end
+        elsif opts[:guardfile]
+          @type = :custom
+          @path = Pathname(opts[:guardfile]) # may be updated by _read
         end
       end
 
@@ -162,7 +160,7 @@ module Guard
         source_from_option = @source.nil? && options[:guardfile_contents]
         inline = @source == :inline
 
-        return false unless (source_from_option) || inline
+        return false unless source_from_option || inline
 
         @source = :inline
         @guardfile_contents = options[:guardfile_contents]

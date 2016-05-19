@@ -112,9 +112,10 @@ module Guard
         # TODO: return value or move exception higher
       rescue LoadError => error
         unless options[:fail_gracefully]
-          UI.error ERROR_NO_GUARD_OR_CLASS % [name.downcase, _constant_name]
-          UI.error "Error is: #{error}"
-          UI.error error.backtrace.join("\n")
+          msg = format(ERROR_NO_GUARD_OR_CLASS, name.downcase, _constant_name)
+          UI.error(msg)
+          UI.error("Error is: #{error}")
+          UI.error(error.backtrace.join("\n"))
           # TODO: return value or move exception higher
         end
       end
@@ -158,7 +159,7 @@ module Guard
     #
     def _plugin_constant
       @_plugin_constant ||= Guard.constants.detect do |c|
-        c.to_s.downcase == _constant_name.downcase
+        c.to_s.casecmp(_constant_name.downcase).zero?
       end
     end
 
@@ -169,20 +170,22 @@ module Guard
     #   => "Rspec"
     #
     def _constant_name
-      @_constant_name ||= name.gsub(/\/(.?)/) { "::#{ $1.upcase }" }.
+      @_constant_name ||= name.gsub(%r{/(.?)}) { "::#{ $1.upcase }" }.
                           gsub(/(?:^|[_-])(.)/) { $1.upcase }
-    end
-
-    def self._gem_valid?(gem)
-      return false if gem.name == "guard-compat"
-      return true if gem.name =~ /^guard-/
-      full_path = gem.full_gem_path
-      file = File.join(full_path, "lib", "guard", "#{gem.name}.rb")
-      File.exist?(file)
     end
 
     def _full_gem_path(name)
       Gem::Specification.find_by_name(name).full_gem_path
+    end
+
+    class << self
+      def _gem_valid?(gem)
+        return false if gem.name == "guard-compat"
+        return true if gem.name =~ /^guard-/
+        full_path = gem.full_gem_path
+        file = File.join(full_path, "lib", "guard", "#{gem.name}.rb")
+        File.exist?(file)
+      end
     end
   end
 end

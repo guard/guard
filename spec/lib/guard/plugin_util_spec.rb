@@ -181,11 +181,11 @@ RSpec.describe Guard::PluginUtil do
         mod = nil
         allow(plugin).to receive(:require) do |classname|
           expect(classname).to eq "guard/vspec"
-          module ::Guard
+          module Guard
             class VSpec
             end
           end
-          mod = ::Guard::VSpec
+          mod = Guard::VSpec
         end
         expect(plugin.plugin_class).to eq mod
         expect(mod).to be

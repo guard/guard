@@ -45,7 +45,7 @@ end
 When(/^I wait for Guard to become idle$/) do
   expected = "guard(main)>"
   begin
-    Timeout::timeout(aruba.config.exit_timeout) do
+    Timeout.timeout(aruba.config.exit_timeout) do
       loop do
         break if last_command_started.stdout.include?(expected)
         sleep 0.1

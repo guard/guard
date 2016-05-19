@@ -14,7 +14,7 @@ RSpec.describe Guard::Dsl do
   let(:scope) { instance_double("Guard::Internals::Scope") }
 
   let(:evaluator) do
-    Proc.new do |contents|
+    proc do |contents|
       Guard::Dsl.new.evaluate(contents, "", 1)
     end
   end
@@ -170,7 +170,8 @@ RSpec.describe Guard::Dsl do
         expect { evaluator.call(contents) }.
           to raise_error(
             Guard::Dsl::Error,
-            /'all' is not an allowed group name!/)
+            /'all' is not an allowed group name!/
+          )
       end
     end
 
@@ -181,7 +182,8 @@ RSpec.describe Guard::Dsl do
         expect { evaluator.call(contents) }.
           to raise_error(
             Guard::Dsl::Error,
-            /'all' is not an allowed group name!/)
+            /'all' is not an allowed group name!/
+          )
       end
     end
 

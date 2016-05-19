@@ -205,32 +205,32 @@ RSpec.describe Guard::Internals::Session do
     end
 
     it "returns a group scope" do
-      scopes, _ = subject.convert_scope %w(backend)
+      scopes, = subject.convert_scope %w(backend)
       expect(scopes).to eq(groups: [backend], plugins: [])
-      scopes, _ = subject.convert_scope %w(frontend)
+      scopes, = subject.convert_scope %w(frontend)
       expect(scopes).to eq(groups: [frontend], plugins: [])
     end
 
     it "returns a plugin scope" do
-      scopes, _ = subject.convert_scope %w(foo)
+      scopes, = subject.convert_scope %w(foo)
       expect(scopes).to eq(plugins: [foo], groups: [])
-      scopes, _ = subject.convert_scope %w(bar)
+      scopes, = subject.convert_scope %w(bar)
       expect(scopes).to eq(plugins: [bar], groups: [])
     end
 
     it "returns multiple group scopes" do
-      scopes, _ = subject.convert_scope %w(backend frontend)
+      scopes, = subject.convert_scope %w(backend frontend)
       expected = { groups: [backend, frontend], plugins: [] }
       expect(scopes).to eq(expected)
     end
 
     it "returns multiple plugin scopes" do
-      scopes, _ = subject.convert_scope %w(foo bar)
+      scopes, = subject.convert_scope %w(foo bar)
       expect(scopes).to eq(plugins: [foo, bar], groups: [])
     end
 
     it "returns a plugin and group scope" do
-      scopes, _ = subject.convert_scope %w(foo backend)
+      scopes, = subject.convert_scope %w(foo backend)
       expect(scopes).to eq(plugins: [foo], groups: [backend])
     end
 

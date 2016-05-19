@@ -1,6 +1,8 @@
 require "nenv"
 require "bundler/gem_tasks"
 
+require "forwardable"
+
 default_tasks = []
 
 require "rspec/core/rake_task"
@@ -63,10 +65,11 @@ class Releaser
   end
 
   def rubygems
-    begin
+    loop do
       STDOUT.puts "Release #{@project_name} #{@version} to RubyGems? (y/n)"
       input = STDIN.gets.chomp.downcase
-    end while !%w(y n).include?(input)
+      break if %w(y n).include?(input)
+    end
 
     exit if input == "n"
 
@@ -133,10 +136,11 @@ class Releaser
   end
 
   def _confirm_publish
-    begin
+    loop do
       STDOUT.puts "Would you like to publish this GitHub release now? (y/n)"
       input = STDIN.gets.chomp.downcase
-    end while !%w(y n).include?(input)
+      break if %w(y n).include?(input)
+    end
 
     exit if input == "n"
   end
@@ -152,12 +156,19 @@ end
 PROJECT_NAME = "Guard"
 CURRENT_VERSION = Guard::VERSION
 
-def releaser
-  $releaser ||= Releaser.new(
-    project_name: PROJECT_NAME,
-    gem_name: "guard",
-    github_repo: "guard/guard",
-    version: CURRENT_VERSION)
+class GuardReleaser
+  extend Forwardable
+  def_delegator self, :rubygems, to: :releaser
+  def_delegator self, :full, to: :releaser
+
+  def self.releaser
+    @releaser ||= Releaser.new(
+      project_name: PROJECT_NAME,
+      gem_name: "guard",
+      github_repo: "guard/guard",
+      version: CURRENT_VERSION
+    )
+  end
 end
 
 namespace :release do
@@ -168,11 +179,11 @@ namespace :release do
 
   desc "Push #{PROJECT_NAME} #{CURRENT_VERSION} to RubyGems"
   task :gem do
-    releaser.rubygems
+    GuardReleaser.rubygems
   end
 
   desc "Publish #{PROJECT_NAME} #{CURRENT_VERSION} GitHub release"
   task :github do
-    releaser.github
+    GuardReleaser.github
   end
 end

@@ -71,7 +71,7 @@ def stub_file(path, contents = nil, &block)
       allow(IO).to receive(:read).with(path).and_return(contents)
     else
       allow(IO).to receive(:read).with(path) do
-        block.call
+        yield
       end
     end
   else

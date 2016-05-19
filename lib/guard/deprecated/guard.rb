@@ -1,6 +1,8 @@
 require "guard/config"
 fail "Deprecations disabled (strict mode)" if Guard::Config.new.strict?
 
+require "forwardable"
+
 require "guard/ui"
 require "guard/internals/session"
 require "guard/internals/state"
@@ -209,9 +211,9 @@ module Guard
               }
             end
 
-            def to_a
-              to_hash.to_a
-            end
+            extend Forwardable
+            delegate [:to_a, :keys] => :to_hash
+            delegate [:include?] => :keys
 
             def fetch(key, *args)
               hash = to_hash
@@ -228,14 +230,6 @@ module Guard
                   "Please file an issue if you rely on this option working."
                 fail NotImplementedError, format(msg, key)
               end
-            end
-
-            def keys
-              to_hash.keys
-            end
-
-            def include?(value)
-              keys.include? value
             end
 
             private
