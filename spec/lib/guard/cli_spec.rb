@@ -27,6 +27,8 @@ RSpec.describe Guard::CLI do
     end
 
     it "delegates to Guard::Environment.start" do
+      pending "needs JRuby support first" if defined?(JRUBY_VERSION)
+
       expect(valid_environment).to receive(:start_guard).and_return(0)
       begin
         subject.start
@@ -35,6 +37,8 @@ RSpec.describe Guard::CLI do
     end
 
     it "exits with given exit code" do
+      pending "needs JRuby support first" if defined?(JRUBY_VERSION)
+
       allow(valid_environment).to receive(:start_guard).and_return(4)
       expect { subject.start }.to raise_error(SystemExit) do |exception|
         expect(exception.status).to eq(4)
@@ -43,6 +47,8 @@ RSpec.describe Guard::CLI do
     end
 
     it "passes options" do
+      pending "needs JRuby support first" if defined?(JRUBY_VERSION)
+
       expect(Guard::Cli::Environments::Valid).to receive(:new).with(@options).
         and_return(valid_environment)
       begin

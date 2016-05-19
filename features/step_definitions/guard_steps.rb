@@ -20,6 +20,7 @@ Given(/^Guard is bundled using source$/) do
 end
 
 When(/^I start `([^`]*)`$/) do |cmd|
+  skip_this_scenario if defined?(JRUBY_VERSION)
   @interactive = run(cmd)
   step "I wait for Guard to become idle"
 end
