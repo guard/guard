@@ -45,7 +45,7 @@ end
 When(/^I wait for Guard to become idle$/) do
   expected = "guard(main)>"
   begin
-    Timeout::timeout(aruba.config.exit_timeout) do
+    Timeout.timeout(aruba.config.exit_timeout) do
       loop do
         break if last_command_started.stdout.include?(expected)
         sleep 0.1
@@ -63,6 +63,7 @@ When(/^I type in "([^"]*)"$/) do |line|
 end
 
 When(/^I press Ctrl-C$/) do
+  skip_this_scenario if Nenv.ci?
   # Probably needs to be fixed on Windows
   obj = @interactive.instance_variable_get(:@delegate_sd_obj)
   pid = obj.instance_variable_get(:@process).pid

@@ -8,7 +8,8 @@ module Guard
 
       # Process the change queue, running tasks within the main Guard thread
       def process
-        actions, changes = [], { modified: [], added: [], removed: [] }
+        actions = []
+        changes = { modified: [], added: [], removed: [] }
 
         while pending?
           if (item = @queue.pop).first.is_a?(Symbol)
@@ -24,7 +25,7 @@ module Guard
       end
 
       def pending?
-        ! @queue.empty?
+        !@queue.empty?
       end
 
       def <<(changes)

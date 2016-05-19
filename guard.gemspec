@@ -26,7 +26,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "notiffany", "~> 0.0"
 
   git_files = `git ls-files -z`.split("\x0")
-  files = git_files.select { |f| /^(?:bin|lib)\/.*$/ =~ f }
+  files = git_files.select { |f| %r{^(?:bin|lib)/.*$} =~ f }
   files += %w(CHANGELOG.md LICENSE  README.md)
   files += %w(man/guard.1 man/guard.1.html)
 

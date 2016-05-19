@@ -27,7 +27,8 @@ module Guard
       # The Guardfile template for `guard init`
       GUARDFILE_TEMPLATE = File.expand_path(
         "../../../guard/templates/Guardfile",
-        __FILE__)
+        __FILE__
+      )
 
       # The location of user defined templates
       begin
@@ -46,7 +47,7 @@ module Guard
 
         def initialize(plugin_name)
           @plugin_name = plugin_name
-          @class_name = plugin_name.gsub("-", "").capitalize
+          @class_name = plugin_name.delete("-").capitalize
         end
 
         def message

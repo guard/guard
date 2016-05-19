@@ -1,3 +1,5 @@
+require "forwardable"
+
 module Guard
   class Interactor
     # Initializes the interactor. This configures
@@ -19,19 +21,8 @@ module Guard
       @interactive
     end
 
-    # Run in foreground and wait until interrupted or closed
-    def foreground
-      idle_job.foreground
-    end
-
-    # Remove interactor so other tasks can run in foreground
-    def background
-      idle_job.background
-    end
-
-    def handle_interrupt
-      idle_job.handle_interrupt
-    end
+    extend Forwardable
+    delegate [:foreground, :background, :handle_interrupt] => :idle_job
 
     # TODO: everything below is just so the DSL can set options
     # before setup() is called, which makes it useless for when

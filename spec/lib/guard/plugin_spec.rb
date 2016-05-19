@@ -131,7 +131,8 @@ RSpec.describe Guard::Plugin do
       described_class.add_callback(
         listener,
         foo,
-        :run_on_modifications_begin)
+        :run_on_modifications_begin
+      )
 
       result = described_class.callbacks[[foo, :run_on_modifications_begin]]
       expect(result).to include(listener)

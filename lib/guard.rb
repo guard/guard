@@ -151,7 +151,8 @@ module Guard
     # TODO: not tested because collides with ongoing refactoring
     def _guardfile_deprecated_check(modified)
       modified.map!(&:to_s)
-      guardfiles = modified.select { |path| /^(?:.+\/)?Guardfile$/.match(path) }
+      regexp = %r{^(?:.+/)?Guardfile$}
+      guardfiles = modified.select { |path| regexp.match(path) }
       return if guardfiles.empty?
 
       guardfile = Pathname("Guardfile").realpath

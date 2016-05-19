@@ -326,7 +326,7 @@ module Guard
         options[:level] = options[:level].to_sym
 
         unless [:debug, :info, :warn, :error].include? options[:level]
-          UI.warning WARN_INVALID_LOG_LEVEL % [options[:level]]
+          UI.warning(format(WARN_INVALID_LOG_LEVEL, options[:level]))
           options.delete :level
         end
       end

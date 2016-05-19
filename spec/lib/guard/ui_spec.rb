@@ -73,6 +73,14 @@ RSpec.describe Guard::UI do
     end
   end
 
+  describe ".level=" do
+    it "sets the logger level" do
+      level = Logger::WARN
+      expect(Guard::UI.logger).to receive(:level=).with(level)
+      Guard::UI.level = level
+    end
+  end
+
   describe ".options=" do
     it "sets the logger options" do
       Guard::UI.options = { hi: :ho }

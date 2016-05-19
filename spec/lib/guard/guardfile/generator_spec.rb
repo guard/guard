@@ -36,7 +36,7 @@ RSpec.describe Guard::Guardfile::Generator do
 
       it "displays an error message" do
         expect(::Guard::UI).to receive(:error).
-          with(/Guardfile already exists at .*\/Guardfile/)
+          with(%r{Guardfile already exists at .*/Guardfile})
         begin
           subject.create_guardfile
         rescue SystemExit

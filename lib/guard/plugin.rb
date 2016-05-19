@@ -160,7 +160,7 @@ module Guard
     # @param [String] plugin_location the plugin location
     #
     def self.template(plugin_location)
-      File.read TEMPLATE_FORMAT % [plugin_location, non_namespaced_name]
+      File.read(format(TEMPLATE_FORMAT, plugin_location, non_namespaced_name))
     end
 
     # Called once when Guard starts. Please override initialize method to
