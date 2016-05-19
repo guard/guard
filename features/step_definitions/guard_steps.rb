@@ -63,6 +63,7 @@ When(/^I type in "([^"]*)"$/) do |line|
 end
 
 When(/^I press Ctrl-C$/) do
+  skip_this_scenario if Nenv.ci?
   # Probably needs to be fixed on Windows
   obj = @interactive.instance_variable_get(:@delegate_sd_obj)
   pid = obj.instance_variable_get(:@process).pid
