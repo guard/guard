@@ -4,8 +4,8 @@ fail "Deprecations disabled (strict mode)" if Guard::Config.new.strict?
 module Guard
   module Deprecated
     module Watcher
-      def self.add_deprecated(dsl_klass)
-        dsl_klass.send(:extend, ClassMethods)
+      def self.add_deprecated(klass)
+        klass.send(:extend, ClassMethods)
       end
 
       module ClassMethods
