@@ -203,8 +203,8 @@ module Guard
       # @param [Integer] depth the stack depth
       # @return [String] the Guard plugin name
       #
-      def calling_plugin_name(depth = 6)
-        name = caller.take(depth).lazy.map do |line|
+      def calling_plugin_name#(depth = 6)
+        name = caller.lazy.map do |line|
           %r{(?<!guard\/lib)\/(guard\/[a-z_]*)(/[a-z_]*)?.rb:}i.match(line)
         end.reject(&:nil?).take(1).force.first
         return "Guard" unless name || (name && name[1] == "guard/lib")
