@@ -207,6 +207,7 @@ module Guard
         name = caller.take(depth).lazy.map do |line|
           %r{(?<!guard\/lib)\/(guard\/[a-z_]*)(/[a-z_]*)?.rb:}i.match(line)
         end.reject(&:nil?).take(1).force
+        return "Guard" unless name or name == "guard/lib"
         name[1].split("/").map do |part|
           part.split(/[^a-z0-9]/i).map(&:capitalize).join
         end.join("::")
