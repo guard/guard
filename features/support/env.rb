@@ -14,7 +14,10 @@ Before("@spawn") do
 
   set_environment_variable(
     "GUARD_NOTIFIERS",
-    "---\n- :name: :terminal_title\n  :options: {}\n"
+    "---\n"\
+    "- :name: :file\n"\
+    "  :options:\n"\
+    "    :path: '/dev/stdout'\n"
   )
 end
 

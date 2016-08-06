@@ -126,7 +126,7 @@ module Guard
     def add_to_guardfile
       klass = plugin_class # call here to avoid failing later
 
-      require "guard/guardfile/evaluator"
+      require_relative "guardfile/evaluator"
       # TODO: move this to Generator?
       options = Guard.state.session.evaluator_options
       evaluator = Guardfile::Evaluator.new(options)

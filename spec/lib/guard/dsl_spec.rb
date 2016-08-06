@@ -3,6 +3,8 @@ require "guard/plugin"
 require "guard/dsl"
 
 RSpec.describe Guard::Dsl do
+  let(:ui_config) { instance_double("Guard::UI::Config") }
+
   let(:guardfile_evaluator) { instance_double(Guard::Guardfile::Evaluator) }
   let(:interactor) { instance_double(Guard::Interactor) }
   let(:listener) { instance_double("Listen::Listener") }
@@ -36,6 +38,8 @@ RSpec.describe Guard::Dsl do
     # For backtrace cleanup
     allow(ENV).to receive(:[]).with("GEM_HOME").and_call_original
     allow(ENV).to receive(:[]).with("GEM_PATH").and_call_original
+
+    allow(Guard::UI::Config).to receive(:new).and_return(ui_config)
   end
 
   describe "#ignore" do
@@ -459,12 +463,14 @@ RSpec.describe Guard::Dsl do
   end
 
   describe "#logger" do
+    before do
+      Guard::UI.options = nil
+      allow(ui_config).to receive(:merge!)
+    end
+
     after do
-      Guard::UI.options = {
-        level: :info,
-        template: ":time - :severity - :message",
-        time_format: "%H:%M:%S"
-      }
+      Guard::UI.reset_logger
+      Guard::UI.options = nil
     end
 
     describe "options" do
@@ -474,56 +480,65 @@ RSpec.describe Guard::Dsl do
         evaluator.call(contents)
       end
 
-      subject { Guard::UI.options }
+      subject { ui_config }
 
       context "with logger level :errror" do
         let(:contents) { "logger level: :error" }
-        it { is_expected.to include("level" => :error) }
+        it { is_expected.to have_received(:merge!).with(level: :error) }
       end
 
       context "with logger level 'errror'" do
         let(:contents) { 'logger level: \'error\'' }
-        it { is_expected.to include("level" => :error) }
+        it { is_expected.to have_received(:merge!).with(level: :error) }
       end
 
       context "with logger template" do
         let(:contents) { 'logger template: \':message - :severity\'' }
-        it { is_expected.to include("template" => ":message - :severity") }
+        it do
+          is_expected.to have_received(:merge!).
+            with(template: ":message - :severity")
+        end
       end
 
       context "with a logger time format" do
         let(:contents) { 'logger time_format: \'%Y\'' }
-        it { is_expected.to include("time_format" => "%Y") }
+        it { is_expected.to have_received(:merge!).with(time_format: "%Y") }
       end
 
       context "with a logger only filter from a symbol" do
         let(:contents) { "logger only: :cucumber" }
-        it { is_expected.to include("only" => /cucumber/i) }
+        it { is_expected.to have_received(:merge!).with(only: /cucumber/i) }
       end
 
       context "with logger only filter from a string" do
         let(:contents) { 'logger only: \'jasmine\'' }
-        it { is_expected.to include("only" => /jasmine/i) }
+        it { is_expected.to have_received(:merge!).with(only: /jasmine/i) }
       end
 
       context "with logger only filter from an array of symbols and string" do
         let(:contents) { 'logger only: [:rspec, \'cucumber\']' }
-        it { is_expected.to include("only" => /rspec|cucumber/i) }
+        it do
+          is_expected.to have_received(:merge!).
+            with(only: /rspec|cucumber/i)
+        end
       end
 
       context "with logger except filter from a symbol" do
         let(:contents) { "logger except: :jasmine" }
-        it { is_expected.to include("except" => /jasmine/i) }
+        it { is_expected.to have_received(:merge!).with(except: /jasmine/i) }
       end
 
       context "with logger except filter from a string" do
         let(:contents) { 'logger except: \'jasmine\'' }
-        it { is_expected.to include("except" => /jasmine/i) }
+        it { is_expected.to have_received(:merge!).with(except: /jasmine/i) }
       end
 
       context "with logger except filter from array of symbols and string" do
         let(:contents) { 'logger except: [:rspec, \'cucumber\', :jasmine]' }
-        it { is_expected.to include("except" => /rspec|cucumber|jasmine/i) }
+        it do
+          is_expected.to have_received(:merge!).
+            with(except: /rspec|cucumber|jasmine/i)
+        end
       end
     end
 
@@ -540,8 +555,8 @@ RSpec.describe Guard::Dsl do
         end
 
         it "does not set the invalid value" do
+          expect(ui_config).to receive(:merge!).with({})
           evaluator.call(contents)
-          expect(Guard::UI.options).to include("level" => :info)
         end
       end
 
@@ -556,9 +571,8 @@ RSpec.describe Guard::Dsl do
         end
 
         it "removes the options" do
+          expect(ui_config).to receive(:merge!).with({})
           evaluator.call(contents)
-          expect(Guard::UI.options[:only]).to be_nil
-          expect(Guard::UI.options[:except]).to be_nil
         end
       end
     end

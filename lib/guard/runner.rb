@@ -78,10 +78,12 @@ module Guard
     def _supervise(plugin, task, *args)
       catch self.class.stopping_symbol_for(plugin) do
         plugin.hook("#{ task }_begin", *args)
-        begin
-          result = plugin.send(task, *args)
-        rescue Interrupt
-          throw(:task_has_failed)
+        result = UI.options.with_progname(plugin.class.name) do
+          begin
+            plugin.send(task, *args)
+          rescue Interrupt
+            throw(:task_has_failed)
+          end
         end
         plugin.hook("#{ task }_end", result)
         result

@@ -13,5 +13,10 @@ module Guard
     def initialize(opts = {}, default_opts = {})
       super(default_opts.merge(opts || {}))
     end
+
+    # workaround for: https://github.com/erikhuda/thor/issues/504
+    def fetch(name)
+      super(name.to_s)
+    end
   end
 end

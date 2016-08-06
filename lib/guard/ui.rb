@@ -1,12 +1,13 @@
 require "guard/ui/colors"
+require "guard/ui/config"
 
 require "guard/terminal"
-require "guard/options"
 require "forwardable"
 
 # TODO: rework this class from the bottom-up
 #  - remove dependency on Session and Scope
 #  - extract into a separate gem
+# - change UI to class
 
 module Guard
   # The UI class helps to format messages for the user. Everything that is
@@ -23,13 +24,11 @@ module Guard
       # Get the Guard::UI logger instance
       #
       def logger
-        @logger ||= begin
-                      require "lumberjack"
-                      Lumberjack::Logger.new(
-                        options.fetch('device') { $stderr },
-                        options
-                      )
-                    end
+        @logger ||=
+          begin
+            require "lumberjack"
+            Lumberjack::Logger.new(options.device, options.logger_config)
+          end
       end
 
       # Since logger is global, for Aruba in-process to properly
@@ -45,11 +44,7 @@ module Guard
       # @return [Hash] the logger options
       #
       def options
-        @options ||= Options.new(
-          level: :info,
-          template: ":time - :severity - :message",
-          time_format: "%H:%M:%S"
-        )
+        @options ||= Config.new
       end
 
       # Set the logger options
@@ -61,12 +56,14 @@ module Guard
       #
       # TODO: deprecate?
       def options=(options)
-        @options = Options.new(options)
+        @options = Config.new(options)
       end
 
       # Assigns a log level
-      extend Forwardable
-      def_delegator :logger, :level=
+      def level=(new_level)
+        options.logger_config.level = new_level
+        @logger.level = new_level if @logger
+      end
 
       # Show an info message.
       #
@@ -176,9 +173,9 @@ module Guard
       # @yieldparam [String] param the calling plugin name
       #
       def _filter(plugin)
-        only = options[:only]
-        except = options[:except]
-        plugin ||= calling_plugin_name
+        only = options.only
+        except = options.except
+        plugin ||= _calling_plugin_name
 
         match = !(only || except)
         match ||= (only && only.match(plugin))
@@ -191,9 +188,9 @@ module Guard
       def _filtered_logger_message(message, method, color_name, options = {})
         message = color(message, color_name) if color_name
 
-        _filter(options[:plugin]) do |plugin|
+        _filter(options[:plugin]) do
           reset_line if options[:reset]
-          logger.send(method, message, plugin)
+          logger.send(method, message)
         end
       end
 
@@ -203,9 +200,11 @@ module Guard
       # @param [Integer] depth the stack depth
       # @return [String] the Guard plugin name
       #
-      def calling_plugin_name(depth = 2)
-        name = %r{(guard\/[a-z_]*)(/[a-z_]*)?.rb:}i.match(caller[depth])
-        return "Guard" unless name
+      def _calling_plugin_name
+        name = caller.lazy.map do |line|
+          %r{(?<!guard\/lib)\/(guard\/[a-z_]*)(/[a-z_]*)?.rb:}i.match(line)
+        end.reject(&:nil?).take(1).force.first
+        return "Guard" unless name || (name && name[1] == "guard/lib")
         name[1].split("/").map do |part|
           part.split(/[^a-z0-9]/i).map(&:capitalize).join
         end.join("::")
