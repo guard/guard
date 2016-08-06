@@ -65,8 +65,7 @@ module Guard
       interactor.background
       UI.info "Bye bye...", reset: true
       interactor.destroy
-      UI.logger.flush
-      UI.logger.close
+      UI.disconnect
     end
 
     # Reload Guardfile and all Guard plugins currently enabled.
