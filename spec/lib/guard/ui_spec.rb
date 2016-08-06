@@ -13,6 +13,8 @@ require "guard/internals/session"
 RSpec.describe Guard::UI do
   let(:interactor) { instance_double("Guard::Interactor") }
   let(:logger) { instance_double("Lumberjack::Logger") }
+  let(:config) { instance_double("Guard::UI::Config") }
+  let(:logger_config) { instance_double("Guard::UI::Logger::Config") }
 
   let(:terminal) { class_double("Guard::Terminal") }
 
@@ -30,6 +32,8 @@ RSpec.describe Guard::UI do
     allow(Guard::Notifier).to receive(:turn_on) {}
 
     allow(Lumberjack::Logger).to receive(:new).and_return(logger)
+    allow(Guard::UI::Config).to receive(:new).and_return(config)
+    allow(Guard::UI::Logger::Config).to receive(:new).and_return(logger_config)
 
     # The spec helper stubs all UI classes, so other specs doesn't have
     # to explicit take care of it. We unstub and move the stubs one layer
@@ -45,190 +49,133 @@ RSpec.describe Guard::UI do
     allow(logger).to receive(:error)
     allow(logger).to receive(:debug)
 
+    allow(config).to receive(:device)
+    allow(config).to receive(:only)
+    allow(config).to receive(:except)
+
+    allow(config).to receive(:logger_config).and_return(logger_config)
+
     allow($stderr).to receive(:print)
   end
 
-  after do
-    # TODO: a session object would be better
-    Guard::UI.reset_logger
+  before do
+    Guard::UI.options = nil
+  end
 
-    Guard::UI.options = {
-      level: :info,
-      device: $stderr,
-      template: ":time - :severity - :message",
-      time_format: "%H:%M:%S"
-    }
+  after do
+    Guard::UI.reset_logger
+    Guard::UI.options = nil
   end
 
   describe ".logger" do
-    it "returns the logger instance" do
-      expect(Guard::UI.logger).to be(logger)
+    before do
+      allow(config).to receive(:device).and_return(device)
     end
 
-    it "sets the logger device" do
-      expect(Lumberjack::Logger).to receive(:new).
-        with($stderr, Guard::UI.options)
+    context "with no logger set yet" do
+      let(:device) { "foo.log" }
 
-      Guard::UI.logger
+      it "returns the logger instance" do
+        expect(Guard::UI.logger).to be(logger)
+      end
+
+      it "sets the logger device" do
+        expect(Lumberjack::Logger).to receive(:new).
+          with(device, logger_config)
+
+        Guard::UI.logger
+      end
     end
   end
 
   describe ".level=" do
     it "sets the logger level" do
       level = Logger::WARN
-      expect(Guard::UI.logger).to receive(:level=).with(level)
+      expect(logger).to receive(:level=).with(level)
       Guard::UI.level = level
     end
   end
 
   describe ".options=" do
+    let(:new_config) { instance_double("Guard::UI::Config") }
+
+    before do
+      allow(Guard::UI::Config).to receive(:new).with(hi: :ho).
+        and_return(new_config)
+
+      allow(new_config).to receive(:[]).with(:hi).and_return(:ho)
+    end
+
     it "sets the logger options" do
       Guard::UI.options = { hi: :ho }
       expect(Guard::UI.options[:hi]).to eq :ho
     end
   end
 
-  describe ".info" do
+  shared_examples_for "a logger method" do
     it "resets the line with the :reset option" do
       expect(Guard::UI).to receive :reset_line
-      Guard::UI.info("Info", reset: true)
+      Guard::UI.send(ui_method, input, reset: true)
     end
 
-    it "logs the message to with the info severity" do
-      expect(Guard::UI.logger).to receive(:info).with("Info")
-      Guard::UI.info "Info"
+    it "logs the message with the given severity" do
+      expect(logger).to receive(severity).with(output)
+      Guard::UI.send(ui_method, input)
     end
 
     context "with the :only option" do
-      before { Guard::UI.options[:only] = /A/ }
+      before { allow(config).to receive(:only).and_return(/A/) }
 
-      it "shows only the matching messages" do
-        expect(Guard::UI.logger).to receive(:info).with("Info")
-        expect(Guard::UI.logger).to_not receive(:info).with("Info")
-        expect(Guard::UI.logger).to_not receive(:info).with("Info")
+      it "allows logging matching messages" do
+        expect(logger).to receive(severity).with(output)
+        Guard::UI.send(ui_method, input, plugin: "A")
+      end
 
-        Guard::UI.info "Info", plugin: "A"
-        Guard::UI.info "Info", plugin: "B"
-        Guard::UI.info "Info", plugin: "C"
+      it "prevents logging other messages" do
+        expect(logger).to_not receive(severity)
+        Guard::UI.send(ui_method, input, plugin: "B")
       end
     end
 
     context "with the :except option" do
-      before { Guard::UI.options[:except] = /A/ }
+      before { allow(config).to receive(:except).and_return(/A/) }
 
-      it "shows only the matching messages" do
-        expect(Guard::UI.logger).to_not receive(:info).with("Info")
-        expect(Guard::UI.logger).to receive(:info).with("Info")
-        expect(Guard::UI.logger).to receive(:info).with("Info")
-
-        Guard::UI.info "Info", plugin: "A"
-        Guard::UI.info "Info", plugin: "B"
-        Guard::UI.info "Info", plugin: "C"
+      it "prevents logging matching messages" do
+        expect(logger).to_not receive(severity)
+        Guard::UI.send(ui_method, input, plugin: "A")
       end
+
+      it "allows logging other messages" do
+        expect(logger).to receive(severity).with(output)
+        Guard::UI.send(ui_method, input, plugin: "B")
+      end
+    end
+  end
+
+  describe ".info" do
+    it_behaves_like "a logger method" do
+      let(:ui_method) { :info }
+      let(:severity) { :info }
+      let(:input) { "Info" }
+      let(:output) { "Info" }
     end
   end
 
   describe ".warning" do
-    it "resets the line with the :reset option" do
-      expect(Guard::UI).to receive :reset_line
-      Guard::UI.warning("Warning", reset: true)
-    end
-
-    it "logs the message to with the warn severity" do
-      expect(Guard::UI.logger).to receive(:warn).
-        with("\e[0;33mWarning\e[0m")
-
-      Guard::UI.warning "Warning"
-    end
-
-    context "with the :only option" do
-      before { Guard::UI.options[:only] = /A/ }
-
-      it "shows only the matching messages" do
-        expect(Guard::UI.logger).to receive(:warn).
-          with("\e[0;33mWarning\e[0m")
-
-        expect(Guard::UI.logger).to_not receive(:warn).
-          with("\e[0;33mWarning\e[0m")
-
-        expect(Guard::UI.logger).to_not receive(:warn).
-          with("\e[0;33mWarning\e[0m")
-
-        Guard::UI.warning "Warning", plugin: "A"
-        Guard::UI.warning "Warning", plugin: "B"
-        Guard::UI.warning "Warning", plugin: "C"
-      end
-    end
-
-    context "with the :except option" do
-      before { Guard::UI.options[:except] = /A/ }
-
-      it "shows only the matching messages" do
-        expect(Guard::UI.logger).to_not receive(:warn).
-          with("\e[0;33mWarning\e[0m")
-
-        expect(Guard::UI.logger).to receive(:warn).
-          with("\e[0;33mWarning\e[0m")
-
-        expect(Guard::UI.logger).to receive(:warn).
-          with("\e[0;33mWarning\e[0m")
-
-        Guard::UI.warning "Warning", plugin: "A"
-        Guard::UI.warning "Warning", plugin: "B"
-        Guard::UI.warning "Warning", plugin: "C"
-      end
+    it_behaves_like "a logger method" do
+      let(:ui_method) { :warning }
+      let(:severity) { :warn }
+      let(:input) { "Warning" }
+      let(:output) { "\e[0;33mWarning\e[0m" }
     end
   end
 
   describe ".error" do
-    it "resets the line with the :reset option" do
-      expect(Guard::UI).to receive :reset_line
-      Guard::UI.error("Error message", reset: true)
-    end
-
-    it "logs the message to with the error severity" do
-      expect(Guard::UI.logger).to receive(:error).
-        with("\e[0;31mError message\e[0m")
-
-      Guard::UI.error "Error message"
-    end
-
-    context "with the :only option" do
-      before { Guard::UI.options[:only] = /A/ }
-
-      it "shows only the matching messages" do
-        expect(Guard::UI.logger).to receive(:error).
-          with("\e[0;31mError message\e[0m")
-
-        expect(Guard::UI.logger).to_not receive(:error).
-          with("\e[0;31mError message\e[0m")
-
-        expect(Guard::UI.logger).to_not receive(:error).
-          with("\e[0;31mError message\e[0m")
-
-        Guard::UI.error "Error message", plugin: "A"
-        Guard::UI.error "Error message", plugin: "B"
-        Guard::UI.error "Error message", plugin: "C"
-      end
-    end
-
-    context "with the :except option" do
-      before { Guard::UI.options[:except] = /A/ }
-
-      it "shows only the matching messages" do
-        expect(Guard::UI.logger).to_not receive(:error).
-          with("\e[0;31mError message\e[0m")
-
-        expect(Guard::UI.logger).to receive(:error).
-          with("\e[0;31mError message\e[0m")
-
-        expect(Guard::UI.logger).to receive(:error).
-          with("\e[0;31mError message\e[0m")
-
-        Guard::UI.error "Error message", plugin: "A"
-        Guard::UI.error "Error message", plugin: "B"
-        Guard::UI.error "Error message", plugin: "C"
-      end
+    it_behaves_like "a logger method" do
+      let(:ui_method) { :error }
+      let(:severity) { :error }
+      let(:input) { "Error" }
+      let(:output) { "\e[0;31mError\e[0m" }
     end
   end
 
@@ -250,107 +197,23 @@ RSpec.describe Guard::UI do
     context "with GUARD_GEM_SILENCE_DEPRECATIONS unset" do
       let(:value) { nil }
 
-      it "resets the line with the :reset option" do
-        expect(Guard::UI).to receive :reset_line
-        Guard::UI.deprecation("Deprecator message", reset: true)
-      end
-
-      it "logs the message to with the warn severity" do
-        expect(Guard::UI.logger).to receive(:warn).
-          with(/Deprecator message/m)
-
-        Guard::UI.deprecation "Deprecator message"
-      end
-
-      context "with the :only option" do
-        before { Guard::UI.options[:only] = /A/ }
-
-        it "shows only the matching messages" do
-          expect(Guard::UI.logger).to receive(:warn).
-            with(/Deprecator message/)
-
-          expect(Guard::UI.logger).to_not receive(:warn).
-            with(/Deprecator message/)
-
-          expect(Guard::UI.logger).to_not receive(:warn).
-            with(/Deprecator message/)
-
-          Guard::UI.deprecation "Deprecator message", plugin: "A"
-          Guard::UI.deprecation "Deprecator message", plugin: "B"
-          Guard::UI.deprecation "Deprecator message", plugin: "C"
-        end
-      end
-
-      context "with the :except option" do
-        before { Guard::UI.options[:except] = /A/ }
-
-        it "shows only the matching messages" do
-          expect(Guard::UI.logger).to_not receive(:warn).
-            with(/Deprecator message/)
-
-          expect(Guard::UI.logger).to receive(:warn).
-            with(/Deprecator message/)
-
-          expect(Guard::UI.logger).to receive(:warn).
-            with(/Deprecator message/)
-
-          Guard::UI.deprecation "Deprecator message", plugin: "A"
-          Guard::UI.deprecation "Deprecator message", plugin: "B"
-          Guard::UI.deprecation "Deprecator message", plugin: "C"
+      it_behaves_like "a logger method" do
+        let(:ui_method) { :deprecation }
+        let(:severity) { :warn }
+        let(:input) { "Deprecated" }
+        let(:output) do
+          /^\e\[0;33mDeprecated\nDeprecation backtrace: .*\e\[0m$/m
         end
       end
     end
   end
 
   describe ".debug" do
-    it "resets the line with the :reset option" do
-      expect(Guard::UI).to receive :reset_line
-      Guard::UI.debug("Debug message", reset: true)
-    end
-
-    it "logs the message to with the debug severity" do
-      expect(Guard::UI.logger).to receive(:debug).
-        with("\e[0;33mDebug message\e[0m")
-
-      Guard::UI.debug "Debug message"
-    end
-
-    context "with the :only option" do
-      before { Guard::UI.options[:only] = /A/ }
-
-      it "shows only the matching messages" do
-        expect(Guard::UI.logger).to receive(:debug).
-          with("\e[0;33mDebug message\e[0m")
-
-        expect(Guard::UI.logger).to_not receive(:debug).
-          with("\e[0;33mDebug message\e[0m")
-
-        expect(Guard::UI.logger).to_not receive(:debug).
-          with("\e[0;33mDebug message\e[0m")
-
-        Guard::UI.debug "Debug message", plugin: "A"
-        Guard::UI.debug "Debug message", plugin: "B"
-        Guard::UI.debug "Debug message", plugin: "C"
-      end
-    end
-
-    context "with the :except option" do
-      before { Guard::UI.options[:except] = /A/ }
-
-      it "shows only the matching messages" do
-        expect(Guard::UI.logger).to_not receive(:debug).
-          with("\e[0;33mDebug message\e[0m")
-
-        expect(Guard::UI.logger).to receive(:debug).
-          with("\e[0;33mDebug message\e[0m")
-
-        expect(Guard::UI.logger).to receive(:debug).
-          with("\e[0;33mDebug message\e[0m")
-
-        Guard::UI.debug "Debug message", plugin: "A"
-        Guard::UI.debug "Debug message", plugin: "B"
-        Guard::UI.debug "Debug message", plugin: "C"
-      end
+    it_behaves_like "a logger method" do
+      let(:ui_method) { :debug }
+      let(:severity) { :debug }
+      let(:input) { "Debug" }
+      let(:output) { "\e[0;33mDebug\e[0m" }
     end
   end
 
@@ -358,7 +221,6 @@ RSpec.describe Guard::UI do
     context "with UI set up and ready" do
       before do
         allow(session).to receive(:clear?).and_return(false)
-
         Guard::UI.reset_and_clear
       end
 

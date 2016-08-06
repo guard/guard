@@ -256,7 +256,7 @@ RSpec.configure do |config|
       abort "stub me! (Dir#exist?(#{args.map(&:inspect) * ', '}))"
     end
 
-    if Guard.const_defined?("UI")
+    if Guard.const_defined?("UI") && Guard::UI.respond_to?(:info)
       # Stub all UI methods, so no visible output appears for the UI class
       allow(Guard::UI).to receive(:info)
       allow(Guard::UI).to receive(:warning)

@@ -3,6 +3,7 @@ require "guard/runner"
 require "guard/plugin"
 
 RSpec.describe Guard::Runner do
+  let(:ui_config) { instance_double("Guard::UI::Config") }
   let(:backend_group) do
     instance_double("Guard::Group", options: {}, name: :backend)
   end
@@ -25,12 +26,25 @@ RSpec.describe Guard::Runner do
     allow(state).to receive(:session).and_return(session)
     allow(state).to receive(:scope).and_return(scope)
     allow(Guard).to receive(:state).and_return(state)
+
+    allow(Guard::UI::Config).to receive(:new).and_return(ui_config)
+  end
+
+  before do
+    Guard::UI.options = nil
+  end
+
+  after do
+    Guard::UI.reset_logger
+    Guard::UI.options = nil
   end
 
   describe "#run" do
     before do
       allow(scope).to receive(:grouped_plugins).with({}).
         and_return([[nil, [foo_plugin, bar_plugin, baz_plugin]]])
+
+      allow(ui_config).to receive(:with_progname).and_yield
     end
 
     it "executes supervised task on all registered plugins implementing it" do
@@ -124,6 +138,8 @@ RSpec.describe Guard::Runner do
 
       allow(scope).to receive(:grouped_plugins).with(no_args).
         and_return([[nil, [foo_plugin]]])
+
+      allow(ui_config).to receive(:with_progname).and_yield
     end
 
     it "always calls UI.clearable" do
@@ -255,6 +271,10 @@ RSpec.describe Guard::Runner do
   end
 
   describe "#_supervise" do
+    before do
+      allow(ui_config).to receive(:with_progname).and_yield
+    end
+
     it "executes the task on the passed guard" do
       expect(foo_plugin).to receive(:my_task)
       subject.send(:_supervise, foo_plugin, :my_task)
