@@ -1,3 +1,5 @@
+require "guard/options"
+
 module Guard
   module UI
     class Logger
@@ -17,6 +19,10 @@ module Guard
 
         def initialize(options = {})
           super(options, DEFAULTS)
+        end
+
+        def level=(value)
+          self["level"] = value
         end
       end
     end

@@ -89,10 +89,41 @@ RSpec.describe Guard::UI do
   end
 
   describe ".level=" do
-    it "sets the logger level" do
-      level = Logger::WARN
-      expect(logger).to receive(:level=).with(level)
-      Guard::UI.level = level
+    before do
+      allow(logger).to receive(:level=)
+      allow(logger_config).to receive(:level=)
+    end
+
+    context "when logger is set up" do
+      before { Guard::UI.logger }
+
+      it "sets the logger's level" do
+        level = Logger::WARN
+        expect(logger).to receive(:level=).with(level)
+        Guard::UI.level = level
+      end
+
+      it "sets the logger's config level" do
+        level = Logger::WARN
+        expect(logger_config).to receive(:level=).with(level)
+        Guard::UI.level = level
+      end
+    end
+
+    context "when logger is not set up yet" do
+      before { Guard::UI.reset_logger }
+
+      it "sets the logger's config level" do
+        level = Logger::WARN
+        expect(logger_config).to receive(:level=).with(level)
+        Guard::UI.level = level
+      end
+
+      it "does not autocreate the logger" do
+        level = Logger::WARN
+        expect(logger).to_not receive(:level=).with(level)
+        Guard::UI.level = level
+      end
     end
   end
 
