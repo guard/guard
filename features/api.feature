@@ -20,4 +20,4 @@ Feature: using Guard API
 
     """
     Given I run `bundle exec rake`
-    Then the output should match /\[bar\] foo/
+    Then the output should match /bar\nfoo/
