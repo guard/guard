@@ -2,12 +2,9 @@ inherit_from:
   - vendor/hound/config/style_guides/ruby.yml
   - .rubocop_todo.yml
 
-# Rails cops
-AllCops:
-  RunRailsCops: true
-
 # Files you want to exclude
 AllCops:
+  TargetRubyVersion: 2.2
   Exclude:
     - db/schema.rb
     - tmp/aruba/Guardfile
