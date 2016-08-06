@@ -61,7 +61,7 @@ module Guard
 
       # Assigns a log level
       def level=(new_level)
-        @options.logger_config.level = new_level
+        options.logger_config.level = new_level
         @logger.level = new_level if @logger
       end
 
