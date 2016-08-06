@@ -82,6 +82,7 @@ module Guard
           begin
             plugin.send(task, *args)
           rescue Interrupt
+            STDERR.puts "Guard: interrupting task"
             throw(:task_has_failed)
           end
         end

@@ -16,6 +16,10 @@ module Guard
       # anything other than signaling threads
       def handle_interrupt
       end
+
+      # Kill the job and cleanup for an exit
+      def destroy
+      end
     end
   end
 end

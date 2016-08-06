@@ -38,6 +38,11 @@ module Guard
     end
 
     class PryWrapper < Base
+      class Error < RuntimeError
+        class Interrupted < Error
+        end
+      end
+
       # The default Ruby script to configure Guard Pry if the option `:guard_rc`
       # is not defined.
       GUARD_RC = "~/.guardrc"
@@ -64,11 +69,14 @@ module Guard
         @mutex = Mutex.new
         @thread = nil
         @terminal_settings = TerminalSettings.new
-
+        @interrupt_guard = false
+        @exit = false
         _setup(options)
       end
 
       def foreground
+        return :exit if @exit
+        return :interrupted if @interrupt_guard
         UI.debug "Start interactor"
         @terminal_settings.save
 
@@ -76,7 +84,9 @@ module Guard
         # TODO: rename :stopped to continue
         _killed? ? :stopped : :exit
       ensure
-        UI.reset_line
+        # Disable reset, since it seems to mess up output when exiting
+        # UI.reset_line
+
         UI.debug "Interactor was stopped or killed"
         @terminal_settings.restore
       end
@@ -85,10 +95,26 @@ module Guard
         _kill_pry
       end
 
+      def destroy
+        @exit = true
+        _kill_pry
+      end
+
       def handle_interrupt
+        STDERR.puts "Guard Pry job: handling interrupt"
         thread = @thread
-        fail Interrupt unless thread
-        thread.raise Interrupt
+        unless thread
+          STDERR.puts "Guard Pry job: no thread, interrupting Guard"
+          @interrupt_guard = true
+          fail Error::Interrupted
+        end
+        STDERR.puts "Guard Pry job: interrupting Pry thread"
+        thread.kill
+        begin
+          thread.wakeup
+        rescue ThreadError
+        end
+        thread.join
       end
 
       private
@@ -106,7 +132,12 @@ module Guard
         end
         # check for nill, because it might've been killed between the mutex and
         # now
-        th.join unless th.nil?
+        unless th.nil?
+          begin
+            th.join
+          rescue Interrupt
+          end
+        end
       end
 
       def _killed?
@@ -119,6 +150,11 @@ module Guard
         @mutex.synchronize do
           unless @thread.nil?
             @thread.kill
+            begin
+              @thread.wakeup
+            rescue ThreadError
+            end
+            @thread.join
             @thread = nil # set to nil so we know we were killed
           end
         end

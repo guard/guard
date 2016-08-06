@@ -21,6 +21,11 @@ module Guard
       def handle_interrupt
         Thread.main.raise Interrupt
       end
+
+      # kill running jobs and clean up
+      def destroy
+        Thread.main.wakeup
+      end
     end
   end
 end
