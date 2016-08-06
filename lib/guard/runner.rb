@@ -79,7 +79,9 @@ module Guard
       catch self.class.stopping_symbol_for(plugin) do
         plugin.hook("#{ task }_begin", *args)
         begin
-          result = plugin.send(task, *args)
+          result = UI.logger.set_progname(plugin.class.name) do
+            plugin.send(task, *args)
+          end
         rescue Interrupt
           throw(:task_has_failed)
         end

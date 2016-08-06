@@ -95,7 +95,7 @@ RSpec.describe Guard::UI do
     end
 
     it "logs the message to with the info severity" do
-      expect(Guard::UI.logger).to receive(:info).with("Info", "Guard::Ui")
+      expect(Guard::UI.logger).to receive(:info).with("Info")
       Guard::UI.info "Info"
     end
 
@@ -103,9 +103,9 @@ RSpec.describe Guard::UI do
       before { Guard::UI.options[:only] = /A/ }
 
       it "shows only the matching messages" do
-        expect(Guard::UI.logger).to receive(:info).with("Info", "A")
-        expect(Guard::UI.logger).to_not receive(:info).with("Info", "B")
-        expect(Guard::UI.logger).to_not receive(:info).with("Info", "C")
+        expect(Guard::UI.logger).to receive(:info).with("Info")
+        expect(Guard::UI.logger).to_not receive(:info).with("Info")
+        expect(Guard::UI.logger).to_not receive(:info).with("Info")
 
         Guard::UI.info "Info", plugin: "A"
         Guard::UI.info "Info", plugin: "B"
@@ -117,9 +117,9 @@ RSpec.describe Guard::UI do
       before { Guard::UI.options[:except] = /A/ }
 
       it "shows only the matching messages" do
-        expect(Guard::UI.logger).to_not receive(:info).with("Info", "A")
-        expect(Guard::UI.logger).to receive(:info).with("Info", "B")
-        expect(Guard::UI.logger).to receive(:info).with("Info", "C")
+        expect(Guard::UI.logger).to_not receive(:info).with("Info")
+        expect(Guard::UI.logger).to receive(:info).with("Info")
+        expect(Guard::UI.logger).to receive(:info).with("Info")
 
         Guard::UI.info "Info", plugin: "A"
         Guard::UI.info "Info", plugin: "B"
@@ -136,7 +136,7 @@ RSpec.describe Guard::UI do
 
     it "logs the message to with the warn severity" do
       expect(Guard::UI.logger).to receive(:warn).
-        with("\e[0;33mWarning\e[0m", "Guard::Ui")
+        with("\e[0;33mWarning\e[0m")
 
       Guard::UI.warning "Warning"
     end
@@ -146,13 +146,13 @@ RSpec.describe Guard::UI do
 
       it "shows only the matching messages" do
         expect(Guard::UI.logger).to receive(:warn).
-          with("\e[0;33mWarning\e[0m", "A")
+          with("\e[0;33mWarning\e[0m")
 
         expect(Guard::UI.logger).to_not receive(:warn).
-          with("\e[0;33mWarning\e[0m", "B")
+          with("\e[0;33mWarning\e[0m")
 
         expect(Guard::UI.logger).to_not receive(:warn).
-          with("\e[0;33mWarning\e[0m", "C")
+          with("\e[0;33mWarning\e[0m")
 
         Guard::UI.warning "Warning", plugin: "A"
         Guard::UI.warning "Warning", plugin: "B"
@@ -165,13 +165,13 @@ RSpec.describe Guard::UI do
 
       it "shows only the matching messages" do
         expect(Guard::UI.logger).to_not receive(:warn).
-          with("\e[0;33mWarning\e[0m", "A")
+          with("\e[0;33mWarning\e[0m")
 
         expect(Guard::UI.logger).to receive(:warn).
-          with("\e[0;33mWarning\e[0m", "B")
+          with("\e[0;33mWarning\e[0m")
 
         expect(Guard::UI.logger).to receive(:warn).
-          with("\e[0;33mWarning\e[0m", "C")
+          with("\e[0;33mWarning\e[0m")
 
         Guard::UI.warning "Warning", plugin: "A"
         Guard::UI.warning "Warning", plugin: "B"
@@ -188,7 +188,7 @@ RSpec.describe Guard::UI do
 
     it "logs the message to with the error severity" do
       expect(Guard::UI.logger).to receive(:error).
-        with("\e[0;31mError message\e[0m", "Guard::Ui")
+        with("\e[0;31mError message\e[0m")
 
       Guard::UI.error "Error message"
     end
@@ -198,13 +198,13 @@ RSpec.describe Guard::UI do
 
       it "shows only the matching messages" do
         expect(Guard::UI.logger).to receive(:error).
-          with("\e[0;31mError message\e[0m", "A")
+          with("\e[0;31mError message\e[0m")
 
         expect(Guard::UI.logger).to_not receive(:error).
-          with("\e[0;31mError message\e[0m", "B")
+          with("\e[0;31mError message\e[0m")
 
         expect(Guard::UI.logger).to_not receive(:error).
-          with("\e[0;31mError message\e[0m", "C")
+          with("\e[0;31mError message\e[0m")
 
         Guard::UI.error "Error message", plugin: "A"
         Guard::UI.error "Error message", plugin: "B"
@@ -217,13 +217,13 @@ RSpec.describe Guard::UI do
 
       it "shows only the matching messages" do
         expect(Guard::UI.logger).to_not receive(:error).
-          with("\e[0;31mError message\e[0m", "A")
+          with("\e[0;31mError message\e[0m")
 
         expect(Guard::UI.logger).to receive(:error).
-          with("\e[0;31mError message\e[0m", "B")
+          with("\e[0;31mError message\e[0m")
 
         expect(Guard::UI.logger).to receive(:error).
-          with("\e[0;31mError message\e[0m", "C")
+          with("\e[0;31mError message\e[0m")
 
         Guard::UI.error "Error message", plugin: "A"
         Guard::UI.error "Error message", plugin: "B"
@@ -257,7 +257,7 @@ RSpec.describe Guard::UI do
 
       it "logs the message to with the warn severity" do
         expect(Guard::UI.logger).to receive(:warn).
-          with(/Deprecator message/m, "Guard::Ui")
+          with(/Deprecator message/m)
 
         Guard::UI.deprecation "Deprecator message"
       end
@@ -267,13 +267,13 @@ RSpec.describe Guard::UI do
 
         it "shows only the matching messages" do
           expect(Guard::UI.logger).to receive(:warn).
-            with(/Deprecator message/, "A")
+            with(/Deprecator message/)
 
           expect(Guard::UI.logger).to_not receive(:warn).
-            with(/Deprecator message/, "B")
+            with(/Deprecator message/)
 
           expect(Guard::UI.logger).to_not receive(:warn).
-            with(/Deprecator message/, "C")
+            with(/Deprecator message/)
 
           Guard::UI.deprecation "Deprecator message", plugin: "A"
           Guard::UI.deprecation "Deprecator message", plugin: "B"
@@ -286,13 +286,13 @@ RSpec.describe Guard::UI do
 
         it "shows only the matching messages" do
           expect(Guard::UI.logger).to_not receive(:warn).
-            with(/Deprecator message/, "A")
+            with(/Deprecator message/)
 
           expect(Guard::UI.logger).to receive(:warn).
-            with(/Deprecator message/, "B")
+            with(/Deprecator message/)
 
           expect(Guard::UI.logger).to receive(:warn).
-            with(/Deprecator message/, "C")
+            with(/Deprecator message/)
 
           Guard::UI.deprecation "Deprecator message", plugin: "A"
           Guard::UI.deprecation "Deprecator message", plugin: "B"
@@ -310,7 +310,7 @@ RSpec.describe Guard::UI do
 
     it "logs the message to with the debug severity" do
       expect(Guard::UI.logger).to receive(:debug).
-        with("\e[0;33mDebug message\e[0m", "Guard::Ui")
+        with("\e[0;33mDebug message\e[0m")
 
       Guard::UI.debug "Debug message"
     end
@@ -320,13 +320,13 @@ RSpec.describe Guard::UI do
 
       it "shows only the matching messages" do
         expect(Guard::UI.logger).to receive(:debug).
-          with("\e[0;33mDebug message\e[0m", "A")
+          with("\e[0;33mDebug message\e[0m")
 
         expect(Guard::UI.logger).to_not receive(:debug).
-          with("\e[0;33mDebug message\e[0m", "B")
+          with("\e[0;33mDebug message\e[0m")
 
         expect(Guard::UI.logger).to_not receive(:debug).
-          with("\e[0;33mDebug message\e[0m", "C")
+          with("\e[0;33mDebug message\e[0m")
 
         Guard::UI.debug "Debug message", plugin: "A"
         Guard::UI.debug "Debug message", plugin: "B"
@@ -339,13 +339,13 @@ RSpec.describe Guard::UI do
 
       it "shows only the matching messages" do
         expect(Guard::UI.logger).to_not receive(:debug).
-          with("\e[0;33mDebug message\e[0m", "A")
+          with("\e[0;33mDebug message\e[0m")
 
         expect(Guard::UI.logger).to receive(:debug).
-          with("\e[0;33mDebug message\e[0m", "B")
+          with("\e[0;33mDebug message\e[0m")
 
         expect(Guard::UI.logger).to receive(:debug).
-          with("\e[0;33mDebug message\e[0m", "C")
+          with("\e[0;33mDebug message\e[0m")
 
         Guard::UI.debug "Debug message", plugin: "A"
         Guard::UI.debug "Debug message", plugin: "B"
