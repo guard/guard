@@ -204,7 +204,7 @@ module Guard
       # @return [String] the Guard plugin name
       #
       def calling_plugin_name(depth = 2)
-        name = caller.take(depth).lazy.map do |line| 
+        name = caller.take(depth).lazy.map do |line|
           %r{(?<!guard\/lib)\/(guard\/[a-z_]*)(/[a-z_]*)?.rb:}i.match(line)
         end.reject(&:nil?).take(1).force
         name[1].split("/").map do |part|
