@@ -28,7 +28,7 @@ end
 #
 group :test do
   # Both guard-rspec and guard-cucumber are used by cucumber features
-  gem "guard-cucumber", require: false
+  gem "guard-cucumber", "~> 2.1", require: false
   gem "guard-rspec", require: false
 
   gem "codeclimate-test-reporter", require: nil
