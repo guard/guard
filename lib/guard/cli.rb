@@ -92,7 +92,7 @@ module Guard
     method_option :listen_on,
                   type: :string,
                   aliases: "-o",
-                  default: false,
+                  default: nil,
                   banner: "Specify a network address to Listen on for "\
                   "file change events (e.g. for use in VMs)"
 
