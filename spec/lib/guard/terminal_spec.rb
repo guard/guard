@@ -18,7 +18,8 @@ RSpec.describe Guard::Terminal do
         let(:result) { [0, "\e[H\e[2J", ""] }
 
         it "clears the screen using 'clear'" do
-          expect(sheller).to receive(:system).with("clear;").and_return(result)
+          expect(sheller).to receive(:system).with("printf '\33c\e[3J';").
+            and_return(result)
           ::Guard::Terminal.clear
         end
       end
@@ -27,7 +28,8 @@ RSpec.describe Guard::Terminal do
         let(:result) { [nil, nil, "Guard failed to run \"clear;\""] }
 
         before do
-          allow(sheller).to receive(:system).with("clear;").and_return(result)
+          allow(sheller).to receive(:system).with("printf '\33c\e[3J';").
+            and_return(result)
         end
 
         it "fails" do
