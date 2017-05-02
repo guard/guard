@@ -118,6 +118,31 @@ end
 See the init section of the Guard usage below to see how to install the supplied plugin template that you can install and
 to suit your needs.
 
+System Configuration
+--------------------
+
+It is not uncommon to encounter a system limit on the number of files you can monitor.  
+Example: Ubuntu Lucid's (64bit) inotify limit is/can be 8192 (`$ cat /proc/sys/fs/inotify/max_user_watches`)
+
+### On Linux
+Temporary change
+
+    sudo sysctl fs.inotify.max_user_watches=524288
+    sudo sysctl -p
+
+Permanent change   
+
+    echo fs.inotify.max_user_watches=524288 |sudo tee -a /etc/sysctl.conf
+    sudo sysctl -p
+
+You may also need to pay attention to the values of `max_queued_events` and `max_user_instances`.
+
+### On Windows
+TBA
+
+### On Mac
+TBA
+
 Usage
 -----
 
