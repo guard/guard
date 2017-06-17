@@ -54,6 +54,8 @@ module Guard
     #
     def initialize_plugin(options)
       klass = plugin_class
+      klass = klass.const_get("Plugin") if klass.const_defined?("Plugin")
+
       fail "Could not load class: #{_constant_name.inspect}" unless klass
       if klass.ancestors.include?(Guard)
         klass.new(options.delete(:watchers), options)

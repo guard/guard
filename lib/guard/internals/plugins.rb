@@ -1,5 +1,6 @@
 require "guard/plugin_util"
 require "guard/group"
+require "guard/api"
 require "guard/plugin"
 
 module Guard
