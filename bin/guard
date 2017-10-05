@@ -41,10 +41,6 @@ class GuardReloader
       Gem.win_platform?
     end
 
-    def default_system_ruby
-      RbConfig.ruby
-    end
-
     def exit_with(code)
       exit(code)
     end
@@ -98,8 +94,8 @@ class GuardReloader
   end
 
   def auto_restart
-    args = [config.guard_core_path] + config.program_arguments
-    args.unshift(config.default_system_ruby) if config.windows?
+    args = [Gem.ruby, config.guard_core_path] + config.program_arguments
+
     loop do
       exitcode = config.wait_ignoring_interrupts(config.spawn_with(*args))
       config.exit_with(exitcode) if exitcode != 2
