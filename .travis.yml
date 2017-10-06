@@ -1,19 +1,21 @@
 language: ruby
-bundler_args: --without development
+sudo: false
 rvm:
   - 2.2.6
   - 2.3.3
   - 2.4.0
-  - jruby-9.0.5.0
-  - rbx
+  - jruby-9.1.13.0
+  - rbx-2
 matrix:
   allow_failures:
-    - rvm: rbx
-    - rvm: jruby-9.0.5.0
+    - rvm: rbx-2
+env:
+  global:
+    - JRUBY_OPTS="--debug"
 script:
   - bundle exec rake
   - bundle exec codeclimate-test-reporter
-sudo: false
+bundler_args: --without development
 cache: bundler
 addons:
   code_climate:
