@@ -9,6 +9,9 @@ rvm:
 matrix:
   allow_failures:
     - rvm: rbx-2
+env:
+  global:
+    - JRUBY_OPTS="--debug"
 script:
   - bundle exec rake
   - bundle exec codeclimate-test-reporter
