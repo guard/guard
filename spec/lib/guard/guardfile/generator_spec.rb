@@ -75,7 +75,7 @@ RSpec.describe Guard::Guardfile::Generator do
         expect(Guard::PluginUtil).to receive(:new) { plugin_util }
 
         expect(plugin_util).to receive(:plugin_class) do
-          double("Guard::Foo").as_null_object
+          # double("Guard::Foo").as_null_object
         end
       end
 

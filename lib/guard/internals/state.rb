@@ -9,10 +9,9 @@ module Guard
   module Internals
     class State
       # Minimal setup for non-interactive commands (list, init, show, etc.)
-      def initialize(cmdline_opts)
-        @session = Session.new(cmdline_opts)
-
-        @scope = Scope.new
+      def initialize(engine:, cmdline_opts:)
+        @session = Session.new(engine: engine, options: cmdline_opts)
+        @scope = Scope.new(session: @session)
 
         # NOTE: must be set before anything calls Guard::UI.debug
         Debugging.start if session.debug?

@@ -23,7 +23,7 @@ RSpec.describe Guard::Dsl do
 
   before do
     stub_user_guard_rb
-    stub_const "Guard::Foo", instance_double(Guard::Plugin)
+    # stub_const "Guard::Foo", instance_double(Guard::Plugin)
     stub_const "Guard::Bar", instance_double(Guard::Plugin)
     stub_const "Guard::Baz", instance_double(Guard::Plugin)
     allow(Guard::Notifier).to receive(:turn_on)

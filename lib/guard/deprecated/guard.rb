@@ -37,7 +37,7 @@ module Guard
 
         def guards(filter = nil)
           ::Guard::UI.deprecation(GUARDS)
-          ::Guard.state.session.plugins.all(filter)
+          @engine.state.session.plugins.all(filter)
         end
 
         # @deprecated Use `Guard.add_plugin(name, options = {})` instead.
@@ -151,7 +151,7 @@ module Guard
 
         def evaluator
           UI.deprecation(EVALUATOR)
-          options = ::Guard.state.session.evaluator_options
+          options = @engine.state.session.evaluator_options
           ::Guard::Guardfile::Evaluator.new(options)
         end
 
@@ -178,7 +178,7 @@ module Guard
 
         def evaluate_guardfile
           UI.deprecation(EVALUATE_GUARDFILE)
-          options = ::Guard.state.session.evaluator_options
+          options = @engine.state.session.evaluator_options
           evaluator = ::Guard::Guardfile::Evaluator.new(options)
           evaluator.evaluate
           msg = "No plugins found in Guardfile, please add at least one."
@@ -201,7 +201,7 @@ module Guard
             end
 
             def to_hash
-              session = ::Guard.state.session
+              session = @engine.state.session
               {
                 clear: session.clearing?,
                 debug: session.debug?,
@@ -224,7 +224,7 @@ module Guard
             def []=(key, value)
               case key
               when :clear
-                ::Guard.state.session.clearing(value)
+                @engine.state.session.clearing(value)
               else
                 msg = "Oops! Guard.option[%s]= is unhandled or unsupported." \
                   "Please file an issue if you rely on this option working."
@@ -250,7 +250,7 @@ module Guard
 
         def add_group(name, options = {})
           UI.deprecation(ADD_GROUP)
-          ::Guard.state.session.groups.add(name, options)
+          @engine.state.session.groups.add(name, options)
         end
 
         ADD_PLUGIN = <<-EOS.gsub(/^\s*/, "")
@@ -260,7 +260,7 @@ module Guard
 
         def add_plugin(name, options = {})
           UI.deprecation(ADD_PLUGIN)
-          ::Guard.state.session.plugins.add(name, options)
+          @engine.state.session.plugins.add(name, options)
         end
 
         GROUP = <<-EOS.gsub(/^\s*/, "")
@@ -270,7 +270,7 @@ module Guard
 
         def group(filter)
           UI.deprecation(GROUP)
-          ::Guard.state.session.groups.all(filter).first
+          @engine.state.session.groups.all(filter).first
         end
 
         PLUGIN = <<-EOS.gsub(/^\s*/, "")
@@ -280,7 +280,7 @@ module Guard
 
         def plugin(filter)
           UI.deprecation(PLUGIN)
-          ::Guard.state.session.plugins.all(filter).first
+          @engine.state.session.plugins.all(filter).first
         end
 
         GROUPS = <<-EOS.gsub(/^\s*/, "")
@@ -290,7 +290,7 @@ module Guard
 
         def groups(filter)
           UI.deprecation(GROUPS)
-          ::Guard.state.session.groups.all(filter)
+          @engine.state.session.groups.all(filter)
         end
 
         PLUGINS = <<-EOS.gsub(/^\s*/, "")
@@ -300,7 +300,7 @@ module Guard
 
         def plugins(filter)
           UI.deprecation(PLUGINS)
-          ::Guard.state.session.plugins.all(filter)
+          @engine.state.session.plugins.all(filter)
         end
 
         SCOPE = <<-EOS.gsub(/^\s*/, "")
@@ -310,7 +310,7 @@ module Guard
 
         def scope
           UI.deprecation(SCOPE)
-          ::Guard.state.scope.to_hash
+          @engine.state.scope.to_hash
         end
 
         SCOPE_ASSIGN = <<-EOS.gsub(/^\s*/, "")
@@ -320,7 +320,7 @@ module Guard
 
         def scope=(scope)
           UI.deprecation(SCOPE_ASSIGN)
-          ::Guard.state.scope.from_interactor(scope)
+          @engine.state.scope.from_interactor(scope)
         end
       end
     end

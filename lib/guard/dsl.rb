@@ -56,6 +56,10 @@ module Guard
     WARN_INVALID_LOG_OPTIONS = "You cannot specify the logger options"\
       " :only and :except at the same time."
 
+    def initialize(engine:)
+      @engine = engine
+    end
+
     # Set notification options for the system notifications.
     # You can set multiple notifications, which allows you to show local
     # system notifications and remote notifications with separate libraries.
@@ -71,7 +75,7 @@ module Guard
     # @see Guard::Notifier for available notifier and its options.
     #
     def notification(notifier, opts = {})
-      Guard.state.session.guardfile_notification = { notifier.to_sym => opts }
+      @engine.state.session.guardfile_notification = { notifier.to_sym => opts }
     end
 
     # Sets the interactor options or disable the interactor.
@@ -130,7 +134,7 @@ module Guard
       if block_given?
         groups.each do |group|
           # TODO: let groups be added *after* evaluation
-          Guard.state.session.groups.add(group, options)
+          @engine.groups.add(group, options)
         end
 
         @current_groups ||= []
@@ -180,7 +184,7 @@ module Guard
       groups.each do |group|
         opts = @plugin_options.merge(group: group)
         # TODO: let plugins be added *after* evaluation
-        Guard.state.session.plugins.add(name, opts)
+        @engine.session.plugins.add(name, opts)
       end
 
       @plugin_options = nil
@@ -216,7 +220,7 @@ module Guard
       # Allow watches in the global scope (to execute arbitrary commands) by
       # building a generic Guard::Plugin.
       @plugin_options ||= nil
-      return guard(:plugin) { watch(pattern, &action) } unless @plugin_options
+      return guard(:default_plugin) { watch(pattern, &action) } unless @plugin_options
 
       @plugin_options[:watchers] << Watcher.new(pattern, action)
     end
@@ -263,7 +267,7 @@ module Guard
     #
     def ignore(*regexps)
       # TODO: use guardfile results class
-      Guard.state.session.guardfile_ignore = regexps
+      @engine.state.session.guardfile_ignore = regexps
     end
 
     # TODO: deprecate
@@ -280,7 +284,7 @@ module Guard
       @ignore_regexps ||= []
       @ignore_regexps << regexps
       # TODO: use guardfile results class
-      Guard.state.session.guardfile_ignore_bang = @ignore_regexps
+      @engine.state.session.guardfile_ignore_bang = @ignore_regexps
     end
 
     # TODO: deprecate
@@ -368,7 +372,7 @@ module Guard
     #
     def scope(scope = {})
       # TODO: use a Guardfile::Results class
-      Guard.state.session.guardfile_scope(scope)
+      @engine.state.session.guardfile_scope(scope)
     end
 
     def evaluate(contents, filename, lineno) # :nodoc
@@ -392,7 +396,7 @@ module Guard
       directories.each do |dir|
         fail "Directory #{dir.inspect} does not exist!" unless Dir.exist?(dir)
       end
-      Guard.state.session.watchdirs = directories
+      @engine.state.session.watchdirs = directories
     end
 
     # Sets Guard to clear the screen before every task is run
@@ -403,7 +407,7 @@ module Guard
     # @param [Symbol] on ':on' to turn on, ':off' (default) to turn off
     #
     def clearing(on)
-      Guard.state.session.clearing(on == :on)
+      @engine.state.session.clearing(on == :on)
     end
 
     private

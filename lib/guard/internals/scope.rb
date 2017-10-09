@@ -2,7 +2,8 @@ module Guard
   # @private api
   module Internals
     class Scope
-      def initialize
+      def initialize(session:)
+        @session = session
         @interactor_plugin_scope = []
         @interactor_group_scope = []
       end
@@ -25,12 +26,12 @@ module Guard
         unless items
           # TODO: no coverage here!!
           found = _find_non_empty_scope(:groups, scope)
-          found ||= Guard.state.session.groups.all
+          found ||= @session.groups.all
           groups = Array(found).map { |group| _instantiate(:group, group) }
           if groups.any? { |g| g.name == :common }
             items = groups
           else
-            items = ([_instantiate(:group, :common)] + Array(found)).compact
+            items = ([_instantiate(:group, :common)] + Array(groups)).compact
           end
         end
 
@@ -40,7 +41,7 @@ module Guard
           if plugin_or_group.is_a?(Group)
             # TODO: no coverage here!
             group = plugin_or_group
-            plugins = Guard.state.session.plugins.all(group: group.name)
+            plugins = @session.plugins.all(group: group.name)
           end
           [group, plugins]
         end
@@ -74,8 +75,8 @@ module Guard
       # TODO: why even instantiate?? just to check if it exists?
       def _hashify_scope(type)
         # TODO: get cmdline passed to initialize above?
-        cmdline = Array(Guard.state.session.send("cmdline_#{type}s"))
-        guardfile = Guard.state.session.send(:"guardfile_#{type}_scope")
+        cmdline = Array(@session.send("cmdline_#{type}s"))
+        guardfile = @session.send(:"guardfile_#{type}_scope")
         interactor = instance_variable_get(:"@interactor_#{type}_scope")
 
         # TODO: session should decide whether to use cmdline or guardfile -
@@ -100,7 +101,7 @@ module Guard
       def _instantiate(meth, obj)
         # TODO: no coverage
         return obj unless obj.is_a?(Symbol) || obj.is_a?(String)
-        Guard.state.session.send("#{meth}s".to_sym).all(obj).first
+        @session.send("#{meth}s".to_sym).find(obj)
       end
 
       def _find_non_empty_scope(type, local_scope)
@@ -108,11 +109,11 @@ module Guard
       end
 
       def _groups
-        Guard.state.session.groups
+        @session.groups
       end
 
       def _plugins
-        Guard.state.session.plugins
+        @session.plugins
       end
     end
   end

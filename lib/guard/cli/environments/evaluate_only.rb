@@ -18,8 +18,8 @@ module Guard
           # not global Guard object (setting global state only needed before
           # start() is called)
           #
-          Guard.init(@options)
-          session = Guard.state.session
+          engine = Guard.init(@options)
+          session = engine.state.session
           Guardfile::Evaluator.new(session.evaluator_options).evaluate
         rescue \
           Dsl::Error,

@@ -7,6 +7,12 @@ module Guard
   # The runner is responsible for running all methods defined on each plugin.
   #
   class Runner
+    attr_reader :engine
+
+    def initialize(engine:)
+      @engine = engine
+    end
+
     # Runs a Guard-task on all registered plugins.
     #
     # @param [Symbol] task the task to run
@@ -16,7 +22,7 @@ module Guard
     #
     def run(task, scope_hash = {})
       Lumberjack.unit_of_work do
-        items = Guard.state.scope.grouped_plugins(scope_hash || {})
+        items = engine.scope.grouped_plugins(scope_hash || {})
         items.each do |_group, plugins|
           _run_group_plugins(plugins) do |plugin|
             _supervise(plugin, task) if plugin.respond_to?(task)
@@ -50,7 +56,7 @@ module Guard
 
       UI.clearable
 
-      Guard.state.scope.grouped_plugins.each do |_group, plugins|
+      engine.scope.grouped_plugins.each do |_group, plugins|
         _run_group_plugins(plugins) do |plugin|
           UI.clear
           types.each do |tasks, unmatched_paths|
@@ -80,7 +86,7 @@ module Guard
         plugin.hook("#{ task }_begin", *args)
         result = UI.options.with_progname(plugin.class.name) do
           begin
-            plugin.send(task, *args)
+            plugin.public_send(task, *args)
           rescue Interrupt
             throw(:task_has_failed)
           end
@@ -93,7 +99,7 @@ module Guard
                         " <#{ task }>, exception was:" \
                         "\n#{ $!.class }: #{ $!.message }" \
                         "\n#{ $!.backtrace.join("\n") }")
-      Guard.state.session.plugins.remove(plugin)
+      engine.session.plugins.remove(plugin)
       UI.info("\n#{ plugin.class.name } has just been fired")
       $!
     end

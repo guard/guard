@@ -1,11 +1,15 @@
 require "pry"
 
-require "guard"
+require "guard/commands/with_engine"
 
 module Guard
   module Commands
     class Change
-      def self.import
+      extend WithEngine
+
+      def self.import(engine:)
+        super
+
         Pry::Commands.create_command "change" do
           group "Guard"
           description "Trigger a file change."
@@ -22,7 +26,7 @@ module Guard
               return
             end
 
-            Guard.async_queue_add(modified: files, added: [], removed: [])
+            Change.engine.async_queue_add(modified: files, added: [], removed: [])
           end
         end
       end

@@ -60,7 +60,8 @@ module Guard
         quit: "q"
       }
 
-      def initialize(options)
+      def initialize(engine:, options: {})
+        @engine = engine
         @mutex = Mutex.new
         @thread = nil
         @terminal_settings = TerminalSettings.new
@@ -132,13 +133,13 @@ module Guard
 
         _add_hooks(options)
 
-        Commands::All.import
-        Commands::Change.import
-        Commands::Notification.import
-        Commands::Pause.import
-        Commands::Reload.import
-        Commands::Show.import
-        Commands::Scope.import
+        Commands::All.import(engine: @engine)
+        Commands::Change.import(engine: @engine)
+        Commands::Notification.import(engine: @engine)
+        Commands::Pause.import(engine: @engine)
+        Commands::Reload.import(engine: @engine)
+        Commands::Show.import(engine: @engine)
+        Commands::Scope.import(engine: @engine)
 
         _setup_commands
         _configure_prompt
@@ -159,7 +160,9 @@ module Guard
       # Add a `when_started` hook that loads a global .guardrc if it exists.
       #
       def _add_load_guard_rc_hook(guard_rc)
-        Pry.config.hooks.add_hook :when_started, :load_guard_rc do
+        return if Pry.hooks.hook_exists?(:when_started, :load_guard_rc)
+
+        Pry.hooks.add_hook :when_started, :load_guard_rc do
           guard_rc.expand_path.tap { |p| load p if p.exist? }
         end
       end
@@ -167,7 +170,9 @@ module Guard
       # Add a `when_started` hook that loads a project .guardrc if it exists.
       #
       def _add_load_project_guard_rc_hook(guard_rc)
-        Pry.config.hooks.add_hook :when_started, :load_project_guard_rc do
+        return if Pry.hooks.hook_exists?(:when_started, :load_project_guard_rc)
+
+        Pry.hooks.add_hook :when_started, :load_project_guard_rc do
           load guard_rc if guard_rc.exist?
         end
       end
@@ -175,7 +180,9 @@ module Guard
       # Add a `after_eval` hook that restores visibility after a command is
       # eval.
       def _add_restore_visibility_hook
-        Pry.config.hooks.add_hook :after_eval, :restore_visibility do
+        return if Pry.hooks.hook_exists?(:after_eval, :restore_visibility)
+
+        Pry.hooks.add_hook :after_eval, :restore_visibility do
           @terminal_settings.echo
         end
       end
@@ -224,7 +231,7 @@ module Guard
       # `rspec` is created that runs `all rspec`.
       #
       def _create_guard_commands
-        Guard.state.session.plugins.all.each do |guard_plugin|
+        engine.state.session.plugins.all.each do |guard_plugin|
           cmd = "Run all #{ guard_plugin.title }"
           Pry.commands.create_command guard_plugin.name, cmd do
             group "Guard"
@@ -242,7 +249,7 @@ module Guard
       # `frontend` is created that runs `all frontend`.
       #
       def _create_group_commands
-        Guard.state.session.groups.all.each do |group|
+        engine.state.session.groups.all.each do |group|
           next if group.name == :default
 
           cmd = "Run all #{ group.title }"
@@ -267,7 +274,7 @@ module Guard
       # prompt.
       #
       def _scope_for_prompt
-        titles = Guard.state.scope.titles.join(",")
+        titles = engine.state.scope.titles.join(",")
         titles == "all" ? "" : titles + " "
       end
 
@@ -277,7 +284,7 @@ module Guard
       def _prompt(ending_char)
         proc do |target_self, nest_level, pry|
           history = pry.input_array.size
-          process = Guard.listener.paused? ? "pause" : "guard"
+          process = engine.listener.paused? ? "pause" : "guard"
           level = ":#{ nest_level }" unless nest_level.zero?
 
           "[#{ history }] #{ _scope_for_prompt }#{ process }"\

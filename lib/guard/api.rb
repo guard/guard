@@ -9,51 +9,14 @@ module Guard
     require "guard/ui"
 
     def self.included(base)
-      base.extend(ClassMethods)
+      # Don't extend modules, extend only classes
+      base.extend(ClassMethods) if base.respond_to?(:superclass)
       base.class_eval do
-        attr_accessor :group, :watchers, :callbacks, :options
+        attr_accessor :engine, :group, :watchers, :callbacks, :options
       end
     end
 
     module ClassMethods
-      # Get all callbacks registered for all Guard plugins present in the
-      # Guardfile.
-      #
-      def callbacks
-        @callbacks ||= Hash.new { |hash, key| hash[key] = [] }
-      end
-
-      # Add a callback.
-      #
-      # @param [Block] listener the listener to notify
-      # @param [Guard::Plugin] guard_plugin the Guard plugin to add the callback
-      # @param [Array<Symbol>] events the events to register
-      #
-      def add_callback(listener, guard_plugin, events)
-        Array(events).each do |event|
-          callbacks[[guard_plugin, event]] << listener
-        end
-      end
-
-      # Notify a callback.
-      #
-      # @param [Guard::Plugin] guard_plugin the Guard plugin to add the callback
-      # @param [Symbol] event the event to trigger
-      # @param [Array] args the arguments for the listener
-      #
-      def notify(guard_plugin, event, *args)
-        callbacks[[guard_plugin, event]].each do |listener|
-          listener.call(guard_plugin, event, *args)
-        end
-      end
-
-      # Reset all callbacks.
-      #
-      # TODO: remove (not used anywhere)
-      def reset_callbacks!
-        @callbacks = nil
-      end
-
       # Returns the non-namespaced class name of the plugin
       #
       #
@@ -129,7 +92,31 @@ module Guard
 
       UI.debug "Hook :#{hook_name} executed for #{self.class}"
 
-      self.class.notify(self, hook_name.to_sym, *args)
+      notify(hook_name.to_sym, *args)
+    end
+
+    # Add a callback.
+    #
+    # @param [Block] listener the listener to notify
+    # @param [Guard::Plugin] guard_plugin the Guard plugin to add the callback
+    # @param [Array<Symbol>] events the events to register
+    #
+    def add_callback(events, block)
+      Array(events).each do |event|
+        callbacks[event] << block
+      end
+    end
+
+    # Notify a callback.
+    #
+    # @param [Guard::Plugin] guard_plugin the Guard plugin to add the callback
+    # @param [Symbol] event the event to trigger
+    # @param [Array] args the arguments for the listener
+    #
+    def notify(event, *args)
+      callbacks[event].each do |block|
+        block.call(self, event, *args)
+      end
     end
 
     # Called once when Guard starts. Please override initialize method to
@@ -251,21 +238,26 @@ module Guard
     # @option options [Boolean] any_return allow any object to be returned from
     #   a watcher
     #
-    def initialize(opts = {})
-      group_name = opts.delete(:group) { :default }
-      @group = Guard.state.session.groups.add(group_name)
-      @watchers = opts.delete(:watchers) { [] }
-      @callbacks = opts.delete(:callbacks) { [] }
-      @options = opts
-      _register_callbacks
+    def initialize(engine:, options: {})
+      @engine = engine
+      @options = options
+      _init
+      _register_callbacks(options.delete(:callbacks) { [] })
+    end
+
+    def _init
+      group_name = options.delete(:group) { :default }
+      @group = engine.groups.add(group_name)
+      @watchers = options.delete(:watchers) { [] }
+      @callbacks ||= Hash.new { |hash, key| hash[key] = [] }
     end
 
     # Add all the Guard::Plugin's callbacks to the global @callbacks array
     # that's used by Guard to know which callbacks to notify.
     #
-    def _register_callbacks
+    def _register_callbacks(callbacks)
       callbacks.each do |callback|
-        self.class.add_callback(callback[:listener], self, callback[:events])
+        add_callback(callback[:events], callback[:listener])
       end
     end
   end
