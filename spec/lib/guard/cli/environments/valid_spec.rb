@@ -4,8 +4,10 @@ require "guard/cli/environments/valid"
 require "guard/cli/environments/bundler"
 
 RSpec.describe Guard::Cli::Environments::Valid do
-  subject { described_class.new(options) }
+  let!(:engine) { Guard.init }
   let(:options) { double("options") }
+
+  subject { described_class.new(options) }
 
   before do
     # TODO: start should be an instance method of something
@@ -128,20 +130,13 @@ RSpec.describe Guard::Cli::Environments::Valid do
   describe "#initialize_guardfile" do
     let(:evaluator) { instance_double("Guard::Guardfile::Evaluator") }
     let(:generator) { instance_double("Guard::Guardfile::Generator") }
-    let(:state) { instance_double("Guard::Internals::State") }
-    let(:session) { instance_double("Guard::Internals::Session") }
 
     before do
       stub_file("Gemfile")
 
       allow(evaluator).to receive(:evaluate)
-      allow(generator).to receive(:create_guardfile)
       allow(generator).to receive(:initialize_all_templates)
-
-      allow(session).to receive(:evaluator_options)
-      allow(state).to receive(:session).and_return(session)
-
-      allow(Guard::Internals::State).to receive(:new).and_return(state)
+      allow(Guard).to receive(:init).and_return(engine)
       allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
       allow(Guard::Guardfile::Generator).to receive(:new).and_return(generator)
     end

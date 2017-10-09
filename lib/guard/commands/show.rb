@@ -1,9 +1,15 @@
 require "pry"
 
+require "guard/commands/with_engine"
+
 module Guard
   module Commands
     class Show
-      def self.import
+      extend WithEngine
+
+      def self.import(engine:)
+        super
+
         Pry::Commands.create_command "show" do
           group "Guard"
           description "Show all Guard plugins."
@@ -15,7 +21,7 @@ module Guard
           BANNER
 
           def process
-            Guard.async_queue_add([:guard_show])
+            Show.engine.async_queue_add([:guard_show])
           end
         end
       end

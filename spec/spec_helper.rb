@@ -27,6 +27,8 @@ end
 
 ENV["GUARD_SPECS_RUNNING"] = "1"
 
+require "guard"
+
 path = "#{File.expand_path(__dir__)}/support/**/*.rb"
 Dir[path].each { |f| require f }
 
@@ -187,17 +189,49 @@ RSpec.configure do |config|
     mocks.verify_partial_doubles = true
   end
 
+  config.before(:context, :pry) do |example|
+    let(:fake_pry_class) do
+      Class.new(Pry::Command) do
+        def self.output; end
+      end
+    end
+  end
+
   config.before(:each) do |example|
     stub_const("FileUtils", class_double(FileUtils))
 
     excluded = []
     excluded += Array(example.metadata[:exclude_stubs])
+    excluded << Guard::Engine if Guard.constants.include?(:Engine)
+    excluded << Guard::Commands::All if Guard.constants.include?(:Commands) && Guard::Commands.constants.include?(:All)
+    excluded << Guard::Commands::Change if Guard.constants.include?(:Commands) && Guard::Commands.constants.include?(:Change)
+    excluded << Guard::Commands::Notification if Guard.constants.include?(:Commands) && Guard::Commands.constants.include?(:Notification)
+    excluded << Guard::Commands::Pause if Guard.constants.include?(:Commands) && Guard::Commands.constants.include?(:Pause)
+    excluded << Guard::Commands::Reload if Guard.constants.include?(:Commands) && Guard::Commands.constants.include?(:Reload)
+    excluded << Guard::Commands::Scope if Guard.constants.include?(:Commands) && Guard::Commands.constants.include?(:Scope)
+    excluded << Guard::Commands::Show if Guard.constants.include?(:Commands) && Guard::Commands.constants.include?(:Show)
     excluded << Guard::Config if Guard.constants.include?(:Config)
+    excluded << Guard::DefaultPlugin if Guard.constants.include?(:DefaultPlugin)
+    excluded << Guard::Group if Guard.constants.include?(:Group)
+    excluded << Guard::Interactor if Guard.constants.include?(:Group)
     excluded << Guard::Options if Guard.constants.include?(:Options)
     excluded << Guard::Jobs::Base if Guard.constants.include?(:Jobs)
+    excluded << Guard::Jobs::PryWrapper if Guard.constants.include?(:Jobs)
+    excluded << Guard::Jobs::TerminalSettings if Guard.constants.include?(:Jobs)
+    excluded << Guard::Internals::Groups if Guard.constants.include?(:Internals)
+    excluded << Guard::Internals::Plugins if Guard.constants.include?(:Internals)
+    excluded << Guard::Internals::Queue if Guard.constants.include?(:Internals)
+    excluded << Guard::Internals::Scope if Guard.constants.include?(:Internals)
+    excluded << Guard::Internals::Session if Guard.constants.include?(:Internals)
+    excluded << Guard::Internals::State if Guard.constants.include?(:Internals)
     excluded << Guard::PluginUtil if Guard.constants.include?(:PluginUtil)
 
     excluded << Guard::DuMmy if Guard.constants.include?(:DuMmy)
+    excluded << Guard::Foo if Guard.constants.include?(:Foo)
+    excluded << Guard::Bar if Guard.constants.include?(:Bar)
+    excluded << Guard::Baz if Guard.constants.include?(:Baz)
+    excluded << Guard::Foobar if Guard.constants.include?(:Foobar)
+    excluded << Guard::Foobaz if Guard.constants.include?(:Foobaz)
 
     if Guard.constants.include?(:Notifier)
       if Guard::Notifier.constants.include?(:NotServer)
@@ -212,12 +246,70 @@ RSpec.configure do |config|
     end
 
     modules = [Guard]
-    modules << Listen if Object.const_defined?(:Listen)
-    modules << Shellany if Object.const_defined?(:Shellany)
+    # modules << Listen if Object.const_defined?(:Listen)
+    # modules << Shellany if Object.const_defined?(:Shellany)
     modules << Notiffany if Object.const_defined?(:Notiffany)
     modules.each do |mod|
       stub_mod(mod, excluded)
     end
+    #
+    # allow(ENV).to receive(:[]=) do |*args|
+    #   abort "stub me: ENV[#{args.first}]= #{args.map(&:inspect)[1..-1] * ','}!"
+    # end
+    #
+    # allow(ENV).to receive(:[]) do |*args|
+    #   abort "stub me: ENV[#{args.first}]!"
+    # end
+    #
+    # allow(ENV).to receive(:key?) do |*args|
+    #   fail "stub me: ENV.key?(#{args.first})!"
+    # end
+    #
+    # # NOTE: call original, so we can run tests depending on this variable
+    # allow(ENV).to receive(:[]).with("GUARD_STRICT").and_call_original
+    #
+    # # FIXME: instead, properly stub PluginUtil in the evaluator specs!
+    # # and remove this!
+    # allow(ENV).to receive(:[]).with("SPEC_OPTS").and_call_original
+    #
+    # # FIXME: properly stub out Pry instead of this!
+    # allow(ENV).to receive(:[]).with("ANSICON").and_call_original
+    # allow(ENV).to receive(:[]).with("TERM").and_call_original
+    #
+    # # Needed for debugging
+    # allow(ENV).to receive(:[]).with("DISABLE_PRY").and_call_original
+    # allow(ENV).to receive(:[]).with("PRYRC").and_call_original
+    # allow(ENV).to receive(:[]).with("PAGER").and_call_original
+    #
+    # # Workarounds for Cli inheriting from Thor
+    # allow(ENV).to receive(:[]).with("ANSICON").and_call_original
+    # allow(ENV).to receive(:[]).with("THOR_SHELL").and_call_original
+    # allow(ENV).to receive(:[]).with("GEM_SKIP").and_call_original
+    #
+    # # %w(read write exist?).each do |meth|
+    # #   allow(File).to receive(meth.to_sym).with(anything) do |*args, &_block|
+    # #     abort "stub me! (File.#{meth}(#{args.map(&:inspect).join(', ')}))"
+    # #   end
+    # # end
+    #
+    # %w(read write binwrite binread).each do |meth|
+    #   allow(IO).to receive(meth.to_sym).with(anything) do |*args, &_block|
+    #     abort "stub me! (IO.#{meth}(#{args.map(&:inspect).join(', ')}))"
+    #   end
+    # end
+    #
+    # %w(exist?).each do |meth|
+    #   allow_any_instance_of(Pathname).
+    #     to receive(meth.to_sym) do |*args, &_block|
+    #     obj = args.first
+    #     formatted_args = args[1..-1].map(&:inspect).join(", ")
+    #     abort "stub me! (#{obj.inspect}##{meth}(#{formatted_args}))"
+    #   end
+    # end
+    #
+    # allow(Dir).to receive(:exist?).with(anything) do |*args, &_block|
+    #   abort "stub me! (Dir#exist?(#{args.map(&:inspect) * ', '}))"
+    # end
 
     if Guard.const_defined?("UI") && Guard::UI.respond_to?(:info)
       # Stub all UI methods, so no visible output appears for the UI class

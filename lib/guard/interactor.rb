@@ -2,11 +2,14 @@ require "forwardable"
 
 module Guard
   class Interactor
+    attr_reader :engine
+
     # Initializes the interactor. This configures
     # Pry and creates some custom commands and aliases
     # for Guard.
     #
-    def initialize(no_interaction = false)
+    def initialize(engine:)
+      no_interaction = engine.session.interactor_name == :sleep
       @interactive = !no_interaction && self.class.enabled?
 
       # TODO: only require the one used
@@ -14,7 +17,7 @@ module Guard
       require "guard/jobs/pry_wrapper"
 
       job_klass = interactive? ? Jobs::PryWrapper : Jobs::Sleep
-      @idle_job = job_klass.new(self.class.options)
+      @idle_job = job_klass.new(engine: engine, options: self.class.options)
       @enabled = nil
     end
 

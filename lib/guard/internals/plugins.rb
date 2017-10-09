@@ -7,7 +7,8 @@ module Guard
   # @private api
   module Internals
     class Plugins
-      def initialize
+      def initialize(engine:)
+        @engine = engine
         @plugins = []
       end
 
@@ -17,6 +18,10 @@ module Guard
         @plugins.select { |plugin| matcher.call(plugin) }
       end
 
+      def find(filter = nil)
+        all(filter)[0]
+      end
+
       def remove(plugin)
         @plugins.delete(plugin)
       end
@@ -24,7 +29,9 @@ module Guard
       # TODO: should it allow duplicates? (probably yes because of different
       # configs or groups)
       def add(name, options)
-        @plugins << PluginUtil.new(name).initialize_plugin(options)
+        plugin_util = PluginUtil.new(engine: @engine, name: name)
+        @plugins << plugin_util.initialize_plugin(options)
+        @plugins
       end
 
       private

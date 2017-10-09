@@ -1,5 +1,4 @@
 require "guard/cli/environments/bundler"
-require "guard/commander"
 require "guard/guardfile/generator"
 
 module Guard
@@ -26,8 +25,8 @@ module Guard
         def initialize_guardfile(plugin_names = [])
           bare = @options[:bare]
 
-          Guard.init(@options)
-          session = Guard.state.session
+          engine = Guard.init(@options)
+          session = engine.state.session
 
           generator = Guardfile::Generator.new
           begin

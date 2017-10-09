@@ -1,11 +1,15 @@
 require "pry"
 
-require "guard"
+require "guard/commands/with_engine"
 
 module Guard
   module Commands
     class Reload
-      def self.import
+      extend WithEngine
+
+      def self.import(engine:)
+        super
+
         Pry::Commands.create_command "reload" do
           group "Guard"
           description "Reload all plugins."
@@ -20,14 +24,14 @@ module Guard
           BANNER
 
           def process(*entries)
-            scopes, unknown = Guard.state.session.convert_scope(entries)
+            scopes, unknown = Reload.engine.session.convert_scope(entries)
 
             unless unknown.empty?
               output.puts "Unknown scopes: #{ unknown.join(', ') }"
               return
             end
 
-            Guard.async_queue_add([:guard_reload, scopes])
+            Reload.engine.async_queue_add([:guard_reload, scopes])
           end
         end
       end

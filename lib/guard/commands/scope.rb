@@ -1,11 +1,15 @@
 require "pry"
-require "guard/interactor"
-require "guard"
+
+require "guard/commands/with_engine"
 
 module Guard
   module Commands
     class Scope
-      def self.import
+      extend WithEngine
+
+      def self.import(engine:)
+        super
+
         Pry::Commands.create_command "scope" do
           group "Guard"
           description "Scope Guard actions to groups and plugins."
@@ -17,7 +21,7 @@ module Guard
           BANNER
 
           def process(*entries)
-            scope, unknown = Guard.state.session.convert_scope(entries)
+            scope, unknown = Scope.engine.session.convert_scope(entries)
 
             unless unknown.empty?
               output.puts "Unknown scopes: #{unknown.join(',') }"
@@ -29,7 +33,7 @@ module Guard
               return
             end
 
-            Guard.state.scope.from_interactor(scope)
+            Scope.engine.scope.from_interactor(scope)
           end
         end
       end
