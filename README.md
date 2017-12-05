@@ -1,11 +1,8 @@
-## IMPORTANT: [Ruby 2.1 is officially outdated and unsupported!](https://www.ruby-lang.org/en/news/2016/03/30/ruby-2-1-9-released/) Please upgrade to Ruby >=2.3 or >=2.2.8 before installing Guard!
+# Guard
 
-### (To install for older versions, update Bundler at least 1.12: `gem update bundler` and Bundler should correctly resolve to earlier gems for your given Ruby version).
+**IMPORTANT: [Ruby 2.1 is officially outdated and unsupported!](https://www.ruby-lang.org/en/news/2016/03/30/ruby-2-1-9-released/) Please upgrade to Ruby >=2.3 or >=2.2.8 before installing Guard! To install for older versions, update Bundler at least 1.12: `gem update bundler` and Bundler should correctly resolve to earlier gems for your given Ruby version.**
 
 :exclamation: Guard is currently accepting more maintainers. Please [read this](https://github.com/guard/guard/wiki/Maintainers) if you're interested in joining the team.
-
-Guard
-=====
 
 [![Gem Version](https://img.shields.io/gem/v/guard.svg?style=flat)](https://rubygems.org/gems/guard) [![Build Status](https://travis-ci.org/guard/guard.svg?branch=master)](https://travis-ci.org/guard/guard) [![Dependency Status](https://gemnasium.com/guard/guard.svg)](https://gemnasium.com/guard/guard) [![Code Climate](https://codeclimate.com/github/guard/guard/badges/gpa.svg)](https://codeclimate.com/github/guard/guard) [![Test Coverage](https://codeclimate.com/github/guard/guard/badges/coverage.svg)](https://codeclimate.com/github/guard/guard) [![Inline docs](http://inch-ci.org/github/guard/guard.svg)](http://inch-ci.org/github/guard/guard)
 
@@ -30,22 +27,21 @@ the following places:
 
 Before you file an issue, make sure you have read the _[known issues](#issues)_ and _[file an issue](#file-an-issue)_ sections that contains some important information.
 
-#### Features
+## Features
 
 * File system changes handled by our awesome [Listen](https://github.com/guard/listen) gem.
 * Support for visual system notifications.
 * Huge eco-system with [more than 220](https://rubygems.org/search?query=guard-) Guard plugins.
 * Tested against Ruby 2.2.8, 2.3.5, 2.4.2, JRuby & Rubinius.
 
-#### Screencast
+## Screencast
 
 Two nice screencasts are available to help you get started:
 
 * [Guard](http://railscasts.com/episodes/264-guard) on RailsCast.
 * [Guard is Your Best Friend](http://net.tutsplus.com/tutorials/tools-and-tips/guard-is-your-best-friend) on Net Tuts+.
 
-Installation
-------------
+## Installation
 
 The simplest way to install Guard is to use [Bundler](http://bundler.io).
 
@@ -81,7 +77,7 @@ to Ruby on Mac OS
 X](https://github.com/guard/guard/wiki/Add-Readline-support-to-Ruby-on-Mac-OS-X).
 
 
-#### Avoiding gem/dependency problems
+## Avoiding gem/dependency problems
 
 **It's important that you always run Guard through Bundler to avoid errors.**
 
@@ -105,7 +101,7 @@ If you're getting sick of typing `bundle exec` all the time, try one of the foll
 
 * Or, for RubyGems < 2.2.0 check out the [Rubygems Bundler](https://github.com/rvm/rubygems-bundler).
 
-#### Add Guard plugins
+## Add Guard plugins
 
 Guard is now ready to use and you should add some Guard plugins for your specific use. Start exploring the many Guard
 plugins available by browsing the [Guard organization](https://github.com/guard) on GitHub or by searching for `guard-`
@@ -122,8 +118,7 @@ end
 See the init section of the Guard usage below to see how to install the supplied plugin template that you can install and
 to suit your needs.
 
-Usage
------
+## Usage
 
 Guard is run from the command line. Please open your terminal and go to your project work directory.
 
@@ -142,35 +137,32 @@ directory for a `.Guardfile`.
 
 Please look here to see all the [command line options for Guard](https://github.com/guard/guard/wiki/Command-line-options-for-Guard)
 
-Interactions
-------------
+## Interactions
+
 Please read how to [interact with Guard](https://github.com/guard/guard/wiki/Interacting-with-Guard) on the console and which [signals](https://github.com/guard/guard/wiki/Interacting-with-Guard#guard-signals) Guard accepts
 
 
-Guardfile DSL
--------------
+## Guardfile DSL
+
 For details on extending your `Guardfile` look at [Guardfile examples](https://github.com/guard/guard/wiki/Guardfile-examples) or look at a list of commands [Guardfile-DSL / Configuring-Guard](https://github.com/guard/guard/wiki/Guardfile-DSL---Configuring-Guard)
 
-Issues
-------
+## Issues
 
 Before reporting a problem, please read how to [File an issue](https://github.com/guard/guard/blob/master/CONTRIBUTING.md#file-an-issue).
 
-Development / Contributing
---------------------------
+## Development / Contributing
 
 See the [Contributing Guide](https://github.com/guard/guard/blob/master/CONTRIBUTING.md#development).
-
-#### Author
+### Author
 
 [Thibaud Guillaume-Gentil](https://github.com/thibaudgg) ([@thibaudgg](https://twitter.com/thibaudgg))
 
-#### Core Team
+### Core Team
 
 * R.I.P. :broken_heart: [Michael Kessler](https://github.com/netzpirat) ([flinkfinger.com](http://www.flinkfinger.com)).
 * [Rémy Coutable](https://github.com/rymai).
 * [Thibaud Guillaume-Gentil](https://github.com/thibaudgg) ([@thibaudgg](https://twitter.com/thibaudgg), [thibaud.gg](http://thibaud.gg/)).
 
-#### Contributors
+### Contributors
 
 [https://github.com/guard/guard/graphs/contributors](https://github.com/guard/guard/graphs/contributors)
