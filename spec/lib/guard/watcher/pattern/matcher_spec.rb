@@ -42,6 +42,18 @@ RSpec.describe Guard::Watcher::Pattern::Matcher do
     end
   end
 
+  describe "#==" do
+    it "returns true for equal matchers" do
+      expect(described_class.new(/spec_helper\.rb/)).
+        to eq(described_class.new(/spec_helper\.rb/))
+    end
+
+    it "returns false for unequal matchers" do
+      expect(described_class.new(/spec_helper\.rb/)).
+        not_to eq(described_class.new(/spec_helper\.r/))
+    end
+  end
+
   describe "integration" do
     describe "#match result" do
       subject { described_class.new(obj).match(filename) }

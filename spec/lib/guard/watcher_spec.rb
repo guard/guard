@@ -36,6 +36,18 @@ RSpec.describe Guard::Watcher do
     end
   end
 
+  describe "#==" do
+    it "returns true for equal watchers" do
+      expect(described_class.new(/spec_helper\.rb/)).
+        to eq(described_class.new(/spec_helper\.rb/))
+    end
+
+    it "returns false for unequal watchers" do
+      expect(described_class.new(/spec_helper\.rb/)).
+        not_to eq(described_class.new(/spec_helper\.r/))
+    end
+  end
+
   describe ".match_files" do
     let(:plugin) { instance_double("Guard::Plugin", options: {}) }
 

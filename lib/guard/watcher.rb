@@ -26,6 +26,13 @@ module Guard
       @pattern = Pattern.create(pattern)
     end
 
+    # Compare with other watcher
+    # @param other [Guard::Watcher] other watcher for comparing
+    # @return [true, false] equal or not
+    def ==(other)
+      action == other.action && pattern == other.pattern
+    end
+
     # Finds the files that matches a Guard plugin.
     #
     # @param [Guard::Plugin] guard the Guard plugin which watchers are used
