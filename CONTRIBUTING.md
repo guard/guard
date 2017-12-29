@@ -39,6 +39,10 @@ Development
 
 * Documentation hosted at [RubyDoc](http://rubydoc.info/github/guard/guard/master/frames).
 * Source hosted at [GitHub](https://github.com/guard/guard).
+* The [wiki](https://github.com/guard/guard/wiki/) has useful developer documentation, including:
+  * [how to create a guard plugin](https://github.com/guard/guard/wiki/Create-a-guard), and
+  * [understanding Guard](https://github.com/guard/guard/wiki/Understanding-Guard),
+    which contains useful debugging tips.
 
 Pull requests are very welcome! Please try to follow these simple rules if applicable:
 
