@@ -464,7 +464,7 @@ RSpec.describe Guard::Dsl do
 
   describe "#logger" do
     before do
-      allow(Guard::UI).to receive(:options).and_return( {} )
+      allow(Guard::UI).to receive(:options).and_return({})
       allow(Guard::UI).to receive(:options=)
     end
 
@@ -482,7 +482,7 @@ RSpec.describe Guard::Dsl do
         it { is_expected.to have_received(:options=).with(level: :error) }
       end
 
-     context "with logger level 'error'" do
+      context "with logger level 'error'" do
         let(:contents) { 'logger level: \'error\'' }
         it { is_expected.to have_received(:options=).with(level: :error) }
       end
@@ -490,8 +490,8 @@ RSpec.describe Guard::Dsl do
       context "with logger template" do
         let(:contents) { 'logger template: \':message - :severity\'' }
         it do
-          is_expected.to have_received(:options=)
-            .with(template: ":message - :severity")
+          is_expected.to have_received(:options=).
+            with(template: ":message - :severity")
         end
       end
 
@@ -570,7 +570,7 @@ RSpec.describe Guard::Dsl do
           expect(Guard::UI).to receive(:options=).with({})
           evaluator.call(contents)
         end
-     end
+      end
     end
   end
 
