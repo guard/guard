@@ -464,13 +464,8 @@ RSpec.describe Guard::Dsl do
 
   describe "#logger" do
     before do
-      Guard::UI.options = nil
-      allow(ui_config).to receive(:merge!)
-    end
-
-    after do
-      Guard::UI.reset_logger
-      Guard::UI.options = nil
+      allow(Guard::UI).to receive(:options).and_return({})
+      allow(Guard::UI).to receive(:options=)
     end
 
     describe "options" do
@@ -480,63 +475,64 @@ RSpec.describe Guard::Dsl do
         evaluator.call(contents)
       end
 
-      subject { ui_config }
+      subject { Guard::UI }
 
-      context "with logger level :errror" do
+      context "with logger level :error" do
         let(:contents) { "logger level: :error" }
-        it { is_expected.to have_received(:merge!).with(level: :error) }
+        it { is_expected.to have_received(:options=).with(level: :error) }
       end
 
-      context "with logger level 'errror'" do
+      context "with logger level 'error'" do
         let(:contents) { 'logger level: \'error\'' }
-        it { is_expected.to have_received(:merge!).with(level: :error) }
+        it { is_expected.to have_received(:options=).with(level: :error) }
       end
 
       context "with logger template" do
         let(:contents) { 'logger template: \':message - :severity\'' }
         it do
-          is_expected.to have_received(:merge!).
+          is_expected.to have_received(:options=).
             with(template: ":message - :severity")
         end
       end
 
       context "with a logger time format" do
         let(:contents) { 'logger time_format: \'%Y\'' }
-        it { is_expected.to have_received(:merge!).with(time_format: "%Y") }
+        it do
+          is_expected.to have_received(:options=).with(time_format: "%Y")
+        end
       end
 
       context "with a logger only filter from a symbol" do
         let(:contents) { "logger only: :cucumber" }
-        it { is_expected.to have_received(:merge!).with(only: /cucumber/i) }
+        it { is_expected.to have_received(:options=).with(only: /cucumber/i) }
       end
 
       context "with logger only filter from a string" do
         let(:contents) { 'logger only: \'jasmine\'' }
-        it { is_expected.to have_received(:merge!).with(only: /jasmine/i) }
+        it { is_expected.to have_received(:options=).with(only: /jasmine/i) }
       end
 
       context "with logger only filter from an array of symbols and string" do
         let(:contents) { 'logger only: [:rspec, \'cucumber\']' }
         it do
-          is_expected.to have_received(:merge!).
-            with(only: /rspec|cucumber/i)
+          is_expected.to have_received(:options=).with(only: /rspec|cucumber/i)
         end
       end
 
       context "with logger except filter from a symbol" do
         let(:contents) { "logger except: :jasmine" }
-        it { is_expected.to have_received(:merge!).with(except: /jasmine/i) }
+        it { is_expected.to have_received(:options=).with(except: /jasmine/i) }
       end
 
       context "with logger except filter from a string" do
         let(:contents) { 'logger except: \'jasmine\'' }
-        it { is_expected.to have_received(:merge!).with(except: /jasmine/i) }
+        it { is_expected.to have_received(:options=).with(except: /jasmine/i) }
       end
 
       context "with logger except filter from array of symbols and string" do
         let(:contents) { 'logger except: [:rspec, \'cucumber\', :jasmine]' }
         it do
-          is_expected.to have_received(:merge!).
+          is_expected.to have_received(:options=).
             with(except: /rspec|cucumber|jasmine/i)
         end
       end
@@ -555,7 +551,7 @@ RSpec.describe Guard::Dsl do
         end
 
         it "does not set the invalid value" do
-          expect(ui_config).to receive(:merge!).with({})
+          expect(Guard::UI).to receive(:options=).with({})
           evaluator.call(contents)
         end
       end
@@ -571,7 +567,7 @@ RSpec.describe Guard::Dsl do
         end
 
         it "removes the options" do
-          expect(ui_config).to receive(:merge!).with({})
+          expect(Guard::UI).to receive(:options=).with({})
           evaluator.call(contents)
         end
       end

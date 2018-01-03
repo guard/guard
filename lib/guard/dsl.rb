@@ -349,7 +349,7 @@ module Guard
         options[name] = Regexp.new(list.join("|"), Regexp::IGNORECASE)
       end
 
-      UI.options.merge!(options)
+      UI.options = UI.options.merge(options)
     end
 
     # Sets the default scope on startup
