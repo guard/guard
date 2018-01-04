@@ -138,11 +138,11 @@ RSpec.describe Guard::DslDescriber do
         terminal_title: ::Notiffany::Notifier::TerminalTitle
       )
 
-      allow(Guard::Notifier).to receive(:connect).once.ordered
+      allow(Guard::Notifier).to receive(:connect).once
       allow(Guard::Notifier).to receive(:detected).
         and_return([{ name: :gntp, options: { sticky: true } }])
 
-      allow(Guard::Notifier).to receive(:disconnect).once.ordered
+      allow(Guard::Notifier).to receive(:disconnect).once
     end
 
     it "properly connects and disconnects" do
