@@ -2,8 +2,18 @@ module Guard
   class Watcher
     class Pattern
       class Matcher
+        attr_reader :matcher
+
         def initialize(obj)
           @matcher = obj
+        end
+
+        # Compare with other matcher
+        # @param other [Guard::Watcher::Pattern::Matcher]
+        #   other matcher for comparing
+        # @return [true, false] equal or not
+        def ==(other)
+          matcher == other.matcher
         end
 
         def match(string_or_pathname)
