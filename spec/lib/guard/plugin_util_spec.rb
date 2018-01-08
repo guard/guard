@@ -71,7 +71,7 @@ RSpec.describe Guard::PluginUtil do
 
     context "with a plugin inheriting from Guard::Plugin" do
       before do
-        expect(guard_rspec_class).to receive(:superclass) { ::Guard::Plugin }
+        expect(guard_rspec_class).to receive(:ancestors) { [::Guard::Plugin] }
       end
 
       it "instantiate the plugin using the new API" do
