@@ -8,8 +8,14 @@ gem "rake"
 # installed on Travis CI.
 
 group :development do
-  # NOTE: version should match HoundCi RuboCop version
-  gem "rubocop", require: false
+  # Force rubocop local runs to match HoundCI rubocop version
+  # (https://github.com/houndci/linters/blob/master/Gemfile.lock).
+  #
+  # This needs to be manually updated until there's a resolution
+  # on HoundCI's side.
+  #
+  # See https://github.com/houndci/hound/issues/1250
+  gem "rubocop", "0.51.0", require: false
 
   gem "guard-rubocop", require: false
 
