@@ -1,9 +1,10 @@
-require "guard"
+# frozen_string_literal: true
+
 require "guard/internals/groups"
 
 module Guard
   module API
-    TEMPLATE_FORMAT = "%s/lib/guard/%s/templates/Guardfile"
+    TEMPLATE_FORMAT = "%s/lib/guard/%s/templates/Guardfile".freeze
 
     require "guard/ui"
 
@@ -63,7 +64,7 @@ module Guard
       # @return [String]
       #
       def non_namespaced_classname
-        to_s.sub("Guard::", "")
+        to_s.sub(/\AGuard::/, "").sub(/::Plugin\z/, "")
       end
 
       # Returns the non-namespaced name of the plugin
@@ -120,13 +121,13 @@ module Guard
     #
     def hook(event, *args)
       hook_name = if event.is_a? Symbol
-                    calling_method = caller[0][/`([^']*)'/, 1]
-                    "#{ calling_method }_#{ event }"
+                    calling_method = caller(1..1).first[/`([^']*)'/, 1]
+                    "#{calling_method}_#{event}"
                   else
                     event
                   end
 
-      UI.debug "Hook :#{ hook_name } executed for #{ self.class }"
+      UI.debug "Hook :#{hook_name} executed for #{self.class}"
 
       self.class.notify(self, hook_name.to_sym, *args)
     end
@@ -137,8 +138,7 @@ module Guard
     # @raise [:task_has_failed] when start has failed
     # @return [Object] the task result
     #
-    def start
-    end
+    def start; end
 
     # Called when `stop|quit|exit|s|q|e + enter` is pressed (when Guard
     # quits).
@@ -146,8 +146,7 @@ module Guard
     # @raise [:task_has_failed] when stop has failed
     # @return [Object] the task result
     #
-    def stop
-    end
+    def stop; end
 
     # Called when `reload|r|z + enter` is pressed.
     # This method should be mainly used for "reload" (really!) actions like
@@ -156,8 +155,7 @@ module Guard
     # @raise [:task_has_failed] when reload has failed
     # @return [Object] the task result
     #
-    def reload
-    end
+    def reload; end
 
     # Called when just `enter` is pressed
     # This method should be principally used for long action like running all
@@ -166,8 +164,7 @@ module Guard
     # @raise [:task_has_failed] when run_all has failed
     # @return [Object] the task result
     #
-    def run_all
-    end
+    def run_all; end
 
     # Default behaviour on file(s) changes that the Guard plugin watches.
     #
@@ -175,8 +172,7 @@ module Guard
     # @raise [:task_has_failed] when run_on_changes has failed
     # @return [Object] the task result
     #
-    def run_on_changes(paths)
-    end
+    def run_on_changes(paths); end
 
     # Called on file(s) additions that the Guard plugin watches.
     #
@@ -184,8 +180,7 @@ module Guard
     # @raise [:task_has_failed] when run_on_additions has failed
     # @return [Object] the task result
     #
-    def run_on_additions(paths)
-    end
+    def run_on_additions(paths); end
 
     # Called on file(s) modifications that the Guard plugin watches.
     #
@@ -193,8 +188,7 @@ module Guard
     # @raise [:task_has_failed] when run_on_modifications has failed
     # @return [Object] the task result
     #
-    def run_on_modifications(paths)
-    end
+    def run_on_modifications(paths); end
 
     # Called on file(s) removals that the Guard plugin watches.
     #
@@ -202,8 +196,7 @@ module Guard
     # @raise [:task_has_failed] when run_on_removals has failed
     # @return [Object] the task result
     #
-    def run_on_removals(paths)
-    end
+    def run_on_removals(paths); end
 
     # Returns the plugin's name (without "guard-").
     #

@@ -76,7 +76,7 @@ module Guard
     method_option :latency,
                   type: :numeric,
                   aliases: "-l",
-                  banner: 'Overwrite Listen\'s default latency'
+                  banner: "Overwrite Listen's default latency"
 
     method_option :force_polling,
                   type: :boolean,
@@ -87,7 +87,7 @@ module Guard
     method_option :wait_for_delay,
                   type: :numeric,
                   aliases: "-y",
-                  banner: 'Overwrite Listen\'s default wait_for_delay'
+                  banner: "Overwrite Listen's default wait_for_delay"
 
     method_option :listen_on,
                   type: :string,

@@ -2,16 +2,16 @@ require "guard/commands/change"
 
 RSpec.describe Guard::Commands::Change do
   let(:output) { instance_double(Pry::Output) }
-
-  class FakePry < Pry::Command
-    def self.output
+  let(:fake_pry_class) do
+    Class.new(Pry::Command) do
+      def self.output; end
     end
   end
 
   before do
-    allow(FakePry).to receive(:output).and_return(output)
+    allow(fake_pry_class).to receive(:output).and_return(output)
     allow(Pry::Commands).to receive(:create_command).with("change") do |&block|
-      FakePry.instance_eval(&block)
+      fake_pry_class.instance_eval(&block)
     end
 
     described_class.import
@@ -22,7 +22,7 @@ RSpec.describe Guard::Commands::Change do
       expect(::Guard).to receive(:async_queue_add).
         with(modified: ["foo"], added: [], removed: [])
 
-      FakePry.process("foo")
+      fake_pry_class.process("foo")
     end
   end
 
@@ -31,7 +31,7 @@ RSpec.describe Guard::Commands::Change do
       expect(::Guard).to receive(:async_queue_add).
         with(modified: %w(foo bar baz), added: [], removed: [])
 
-      FakePry.process("foo", "bar", "baz")
+      fake_pry_class.process("foo", "bar", "baz")
     end
   end
 
@@ -40,7 +40,7 @@ RSpec.describe Guard::Commands::Change do
       expect(::Guard).to_not receive(:async_queue_add)
       expect(output).to receive(:puts).with("Please specify a file.")
 
-      FakePry.process
+      fake_pry_class.process
     end
   end
 end

@@ -175,6 +175,7 @@ RSpec.configure do |config|
     excluded << Guard::Config if Guard.constants.include?(:Config)
     excluded << Guard::Options if Guard.constants.include?(:Options)
     excluded << Guard::Jobs::Base if Guard.constants.include?(:Jobs)
+    excluded << Guard::PluginUtil if Guard.constants.include?(:PluginUtil)
 
     excluded << Guard::DuMmy if Guard.constants.include?(:DuMmy)
 
@@ -196,64 +197,6 @@ RSpec.configure do |config|
     modules << Notiffany if Object.const_defined?(:Notiffany)
     modules.each do |mod|
       stub_mod(mod, excluded)
-    end
-
-    allow(ENV).to receive(:[]=) do |*args|
-      abort "stub me: ENV[#{args.first}]= #{args.map(&:inspect)[1..-1] * ','}!"
-    end
-
-    allow(ENV).to receive(:[]) do |*args|
-      abort "stub me: ENV[#{args.first}]!"
-    end
-
-    allow(ENV).to receive(:key?) do |*args|
-      fail "stub me: ENV.key?(#{args.first})!"
-    end
-
-    # NOTE: call original, so we can run tests depending on this variable
-    allow(ENV).to receive(:[]).with("GUARD_STRICT").and_call_original
-
-    # FIXME: instead, properly stub PluginUtil in the evaluator specs!
-    # and remove this!
-    allow(ENV).to receive(:[]).with("SPEC_OPTS").and_call_original
-
-    # FIXME: properly stub out Pry instead of this!
-    allow(ENV).to receive(:[]).with("ANSICON").and_call_original
-    allow(ENV).to receive(:[]).with("TERM").and_call_original
-
-    # Needed for debugging
-    allow(ENV).to receive(:[]).with("DISABLE_PRY").and_call_original
-    allow(ENV).to receive(:[]).with("PRYRC").and_call_original
-    allow(ENV).to receive(:[]).with("PAGER").and_call_original
-
-    # Workarounds for Cli inheriting from Thor
-    allow(ENV).to receive(:[]).with("ANSICON").and_call_original
-    allow(ENV).to receive(:[]).with("THOR_SHELL").and_call_original
-    allow(ENV).to receive(:[]).with("GEM_SKIP").and_call_original
-
-    %w(read write exist?).each do |meth|
-      allow(File).to receive(meth.to_sym).with(anything) do |*args, &_block|
-        abort "stub me! (File.#{meth}(#{args.map(&:inspect).join(', ')}))"
-      end
-    end
-
-    %w(read write binwrite binread).each do |meth|
-      allow(IO).to receive(meth.to_sym).with(anything) do |*args, &_block|
-        abort "stub me! (IO.#{meth}(#{args.map(&:inspect).join(', ')}))"
-      end
-    end
-
-    %w(exist?).each do |meth|
-      allow_any_instance_of(Pathname).
-        to receive(meth.to_sym) do |*args, &_block|
-        obj = args.first
-        formatted_args = args[1..-1].map(&:inspect).join(", ")
-        abort "stub me! (#{obj.inspect}##{meth}(#{formatted_args}))"
-      end
-    end
-
-    allow(Dir).to receive(:exist?).with(anything) do |*args, &_block|
-      abort "stub me! (Dir#exist?(#{args.map(&:inspect) * ', '}))"
     end
 
     if Guard.const_defined?("UI") && Guard::UI.respond_to?(:info)

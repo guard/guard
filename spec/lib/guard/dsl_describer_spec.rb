@@ -146,12 +146,12 @@ RSpec.describe Guard::DslDescriber do
     end
 
     it "properly connects and disconnects" do
-      expect(Guard::Notifier).to receive(:connect).once.ordered
-      expect(::Guard::Notifier).to receive(:detected).once.ordered.and_return [
+      expect(Guard::Notifier).to receive(:connect).once
+      expect(::Guard::Notifier).to receive(:detected).once.and_return([
         { name: :gntp, options: { sticky: true } }
-      ]
+      ])
 
-      expect(Guard::Notifier).to receive(:disconnect).once.ordered
+      expect(Guard::Notifier).to receive(:disconnect).once
 
       subject.notifiers
     end

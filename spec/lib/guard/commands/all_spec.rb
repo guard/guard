@@ -12,9 +12,9 @@ RSpec.describe Guard::Commands::All do
 
   let(:state) { instance_double("Guard::Internals::State") }
   let(:session) { instance_double("Guard::Internals::Session") }
-
-  class FakePry < Pry::Command
-    def self.output
+  let(:fake_pry_class) do
+    Class.new(Pry::Command) do
+      def self.output; end
     end
   end
 
@@ -25,9 +25,9 @@ RSpec.describe Guard::Commands::All do
     allow(state).to receive(:session).and_return(session)
     allow(Guard).to receive(:state).and_return(state)
 
-    allow(FakePry).to receive(:output).and_return(output)
+    allow(fake_pry_class).to receive(:output).and_return(output)
     allow(Pry::Commands).to receive(:create_command).with("all") do |&block|
-      FakePry.instance_eval(&block)
+      fake_pry_class.instance_eval(&block)
     end
 
     described_class.import
@@ -41,7 +41,7 @@ RSpec.describe Guard::Commands::All do
       expect(Guard).to receive(:async_queue_add).
         with([:guard_run_all, groups: [], plugins: []])
 
-      FakePry.process
+      fake_pry_class.process
     end
   end
 
@@ -53,7 +53,7 @@ RSpec.describe Guard::Commands::All do
       expect(Guard).to receive(:async_queue_add).
         with([:guard_run_all, groups: [foo_group], plugins: []])
 
-      FakePry.process("foo")
+      fake_pry_class.process("foo")
     end
   end
 
@@ -65,7 +65,7 @@ RSpec.describe Guard::Commands::All do
       expect(Guard).to receive(:async_queue_add).
         with([:guard_run_all, plugins: [bar_guard], groups: []])
 
-      FakePry.process("bar")
+      fake_pry_class.process("bar")
     end
   end
 
@@ -77,7 +77,7 @@ RSpec.describe Guard::Commands::All do
       expect(output).to receive(:puts).with("Unknown scopes: baz")
       expect(Guard).to_not receive(:async_queue_add)
 
-      FakePry.process("baz")
+      fake_pry_class.process("baz")
     end
   end
 end

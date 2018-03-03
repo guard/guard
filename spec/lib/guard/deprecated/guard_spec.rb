@@ -1,10 +1,8 @@
 require "guard/config"
 
 unless Guard::Config.new.strict?
-
   # require guard, to avoid circular require
   require "guard"
-  # require "guard/deprecated/guard"
 
   require "guard/config"
 
@@ -16,15 +14,15 @@ unless Guard::Config.new.strict?
     let(:scope) { instance_double("Guard::Internals::Scope") }
 
     subject do
-      module TestModule
-        def self.listener
-        end
+      mod =
+        Module.new do
+          def self.listener; end
 
-        def self._pluginless_guardfile?
-          false
+          def self._pluginless_guardfile?
+            false
+          end
         end
-      end
-      TestModule.tap { |mod| described_class.add_deprecated(mod) }
+      mod.tap { |m| described_class.add_deprecated(m) }
     end
 
     before do
@@ -40,9 +38,6 @@ unless Guard::Config.new.strict?
     end
 
     describe ".guards" do
-      before do
-      end
-
       it "displays a deprecation warning to the user" do
         expect(Guard::UI).to receive(:deprecation).
           with(Guard::Deprecated::Guard::ClassMethods::GUARDS)
