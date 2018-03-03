@@ -1,11 +1,9 @@
-require "guard/guardfile/evaluator"
 require "guard/interactor"
 require "guard/notifier"
 require "guard/ui"
 require "guard/watcher"
 
 require "guard/deprecated/dsl" unless Guard::Config.new.strict?
-require "guard"
 
 module Guard
   # The Dsl class provides the methods that are used in each `Guardfile` to

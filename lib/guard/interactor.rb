@@ -15,6 +15,7 @@ module Guard
 
       job_klass = interactive? ? Jobs::PryWrapper : Jobs::Sleep
       @idle_job = job_klass.new(self.class.options)
+      @enabled = nil
     end
 
     def interactive?

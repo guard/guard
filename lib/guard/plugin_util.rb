@@ -52,7 +52,7 @@ module Guard
     #   Guard 2.0, please head over to:
     #   https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0
     #
-    def initialize_plugin(options)
+    def initialize_plugin(options = {})
       klass = plugin_class
       klass = klass.const_get("Plugin") if klass.const_defined?("Plugin")
 

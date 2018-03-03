@@ -65,27 +65,30 @@ RSpec.describe Guard::Plugin do
   end
 
   context "with a plugin instance" do
-    subject do
+    before do
       module Guard
-        class DuMmy < Guard::Plugin
+        module Dummy
+          class Plugin
+            include Guard::API
+          end
         end
       end
-      Guard::DuMmy
     end
 
     after do
-      Guard.send(:remove_const, :DuMmy)
+      Guard::Dummy.send(:remove_const, :Plugin)
+      Guard.send(:remove_const, :Dummy)
     end
 
     describe ".non_namespaced_classname" do
       it "remove the Guard:: namespace" do
-        expect(subject.non_namespaced_classname).to eq "DuMmy"
+        expect(Guard::Dummy::Plugin.non_namespaced_classname).to eq "Dummy"
       end
     end
 
     describe ".non_namespaced_name" do
       it "remove the Guard:: namespace and downcase" do
-        expect(subject.non_namespaced_name).to eq "dummy"
+        expect(Guard::Dummy::Plugin.non_namespaced_name).to eq "dummy"
       end
     end
 
@@ -98,28 +101,26 @@ RSpec.describe Guard::Plugin do
         expect(File).to receive(:read)
           .with("/guard-dummy/lib/guard/dummy/templates/Guardfile") { true }
 
-        subject.template("/guard-dummy")
+        Guard::Dummy::Plugin.template("/guard-dummy")
       end
     end
 
     describe "#name" do
       it "outputs the short plugin name" do
-        expect(subject.new.name).to eq "dummy"
+        expect(Guard::PluginUtil.new("dummy").initialize_plugin.name).to eq "dummy"
       end
     end
 
     describe "#title" do
       it "outputs the plugin title" do
-        expect(subject.new.title).to eq "DuMmy"
+        expect(Guard::PluginUtil.new("dummy").initialize_plugin.title).to eq "Dummy"
       end
     end
 
     describe "#to_s" do
-      let(:default) { instance_double("Guard::Group", name: :default) }
-
       it "output the short plugin name" do
-        expect(subject.new.to_s)
-          .to match(/#<Guard::DuMmy @name=dummy .*>/)
+        expect(Guard::PluginUtil.new("dummy").initialize_plugin.to_s)
+          .to match(/#<Guard::Dummy::Plugin @name=dummy .*>/)
       end
     end
   end
@@ -191,39 +192,43 @@ RSpec.describe Guard::Plugin do
     end
 
     it "notifies the hooks" do
-      class Foo < described_class
-        def run_all
-          hook :begin
-          hook :end
+      foo_class =
+        Class.new(described_class) do
+          def run_all
+            hook :begin
+            hook :end
+          end
         end
-      end
 
-      foo = Foo.new
+      foo = foo_class.new
       expect(described_class).to receive(:notify).with(foo, :run_all_begin)
       expect(described_class).to receive(:notify).with(foo, :run_all_end)
       foo.run_all
     end
 
     it "passes the hooks name" do
-      class Foo < described_class
-        def start
-          hook "my_hook"
+      foo_class =
+        Class.new(described_class) do
+          def start
+            hook "my_hook"
+          end
         end
-      end
 
-      foo = Foo.new
+      foo = foo_class.new
       expect(described_class).to receive(:notify).with(foo, :my_hook)
       foo.start
     end
 
     it "accepts extra arguments" do
-      class Foo < described_class
-        def stop
-          hook :begin, "args"
-          hook "special_sauce", "first_arg", "second_arg"
+      foo_class =
+        Class.new(described_class) do
+          def stop
+            hook :begin, "args"
+            hook "special_sauce", "first_arg", "second_arg"
+          end
         end
-      end
-      foo = Foo.new
+
+      foo = foo_class.new
 
       expect(described_class).to receive(:notify)
         .with(foo, :stop_begin, "args")
