@@ -3,45 +3,34 @@
 require "guard/cli/environments/evaluate_only"
 
 RSpec.describe Guard::Cli::Environments::EvaluateOnly do
+  let!(:engine) { Guard.init }
+  let(:options) { { foo: 'bar' } }
+  let(:evaluator) { double(evaluate: true) }
+
   subject { described_class.new(options) }
-  let(:options) { double("options") }
 
   describe "#evaluate" do
-    let(:evaluator) { instance_double("Guard::Guardfile::Evaluator") }
-    let(:state) { instance_double("Guard::Internals::State") }
-    let(:session) { instance_double("Guard::Internals::Session") }
-
     before do
-      allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
-      allow(evaluator).to receive(:evaluate)
-      allow(Guard).to receive(:init)
-      allow(Guard).to receive(:state).and_return(state)
-      allow(state).to receive(:session).and_return(session)
-      allow(session).to receive(:evaluator_options)
+      allow(Guard).to receive(:init).with(options).and_return(engine)
+      allow(Guard::Guardfile::Evaluator).to receive(:new).
+        with(engine: engine).and_return(evaluator)
     end
 
-    it "calls Guard.init" do
-      expect(Guard).to receive(:init)
+    it "calls Guard.init with options" do
+      expect(Guard).to receive(:init).with(options).and_return(engine)
+
       subject.evaluate
     end
 
-    it "initializes Guard with options" do
-      expect(Guard).to receive(:init).with(options)
+    it "passes engine to evaluator" do
+      expect(Guard::Guardfile::Evaluator).to receive(:new).
+        with(engine: engine).and_return(evaluator)
+
       subject.evaluate
     end
 
     it "evaluates the guardfile" do
       expect(evaluator).to receive(:evaluate)
-      subject.evaluate
-    end
-
-    it "passes options to evaluator" do
-      evaluator_options = double("evaluator_options")
-      allow(session).to receive(:evaluator_options)
-        .and_return(evaluator_options)
-
-      expect(Guard::Guardfile::Evaluator).to receive(:new)
-        .with(evaluator_options).and_return(evaluator)
 
       subject.evaluate
     end

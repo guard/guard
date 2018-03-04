@@ -2,7 +2,9 @@
 
 require "guard/commands/scope"
 
-RSpec.describe Guard::Commands::Scope, :pry do
+RSpec.describe Guard::Commands::Scope do
+  include_context 'with fake_pry_class'
+
   let!(:engine) { Guard.init }
   let(:output) { instance_double(Pry::Output) }
   let(:foo_group) { instance_double(Guard::Group) }

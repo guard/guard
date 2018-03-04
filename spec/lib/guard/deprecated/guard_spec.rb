@@ -9,51 +9,43 @@ unless Guard::Config.new.strict?
   require "guard/config"
 
   RSpec.describe Guard::Deprecated::Guard do
-    let(:session) { instance_double("Guard::Internals::Session") }
-    let(:state) { instance_double("Guard::Internals::State") }
-    let(:plugins) { instance_double("Guard::Internals::Plugins") }
-    let(:groups) { instance_double("Guard::Internals::Groups") }
-    let(:scope) { instance_double("Guard::Internals::Scope") }
-
     subject do
       mod =
         Module.new do
+          @engine = Guard::Engine.new(cmdline_opts: {})
+
+          def self.engine
+            @engine
+          end
+
           def self.listener; end
 
           def self._pluginless_guardfile?
             false
           end
+
+          extend self
         end
       mod.tap { |m| described_class.add_deprecated(m) }
-    end
-
-    before do
-      allow(session).to receive(:evaluator_options).and_return({})
-      allow(state).to receive(:scope).and_return(scope)
-      allow(state).to receive(:session).and_return(session)
-      allow(session).to receive(:plugins).and_return(plugins)
-      allow(session).to receive(:groups).and_return(groups)
-      allow(::Guard).to receive(:state).and_return(state)
-      allow(Guard::UI).to receive(:deprecation)
-      allow(plugins).to receive(:all)
-      allow(groups).to receive(:all)
     end
 
     describe ".guards" do
       it "displays a deprecation warning to the user" do
         expect(Guard::UI).to receive(:deprecation)
           .with(Guard::Deprecated::Guard::ClassMethods::GUARDS)
+
         subject.guards
       end
 
       it "delegates to Plugins" do
-        expect(plugins).to receive(:all).with(group: "backend")
+        expect(subject.engine.plugins).to receive(:all).with(group: "backend")
+
         subject.guards(group: "backend")
       end
     end
 
     describe ".add_guard" do
-      before { allow(plugins).to receive(:add).with("rspec", {}) }
+      before { allow(subject.engine.plugins).to receive(:add).with("rspec", {}) }
 
       it "displays a deprecation warning to the user" do
         expect(Guard::UI).to receive(:deprecation)
@@ -63,7 +55,7 @@ unless Guard::Config.new.strict?
       end
 
       it "delegates to Guard.plugins" do
-        expect(subject).to receive(:add_plugin).with("rspec", group: "backend")
+        expect(subject.engine.plugins).to receive(:add).with("rspec", group: "backend")
 
         subject.add_guard("rspec", group: "backend")
       end
@@ -75,19 +67,21 @@ unless Guard::Config.new.strict?
       end
 
       before do
-        allow(Guard::PluginUtil).to receive(:new).with("rspec")
-                                                 .and_return(plugin_util)
+        allow(Guard::PluginUtil).to receive(:new).with(engine: subject.engine, name: "rspec")
+          .and_return(plugin_util)
       end
 
       it "displays a deprecation warning to the user" do
         expect(Guard::UI).to receive(:deprecation)
           .with(Guard::Deprecated::Guard::ClassMethods::GET_GUARD_CLASS)
+
         subject.get_guard_class("rspec")
       end
 
       it "delegates to Guard::PluginUtil" do
         expect(plugin_util).to receive(:plugin_class)
           .with(fail_gracefully: false)
+
         subject.get_guard_class("rspec")
       end
 
@@ -95,6 +89,7 @@ unless Guard::Config.new.strict?
         it "pass it to get_guard_class" do
           expect(plugin_util).to receive(:plugin_class)
             .with(fail_gracefully: true)
+
           subject.get_guard_class("rspec", true)
         end
       end
@@ -117,7 +112,7 @@ unless Guard::Config.new.strict?
       end
 
       it "delegates to Guard::PluginUtil" do
-        expect(Guard::PluginUtil).to receive(:new).with("rspec") { plugin_util }
+        expect(Guard::PluginUtil).to receive(:new).with(engine: subject.engine, name: "rspec") { plugin_util }
         expect(plugin_util).to receive(:plugin_location)
 
         subject.locate_guard("rspec")
@@ -176,18 +171,16 @@ unless Guard::Config.new.strict?
       it "show deprecation warning" do
         expect(Guard::UI).to receive(:deprecation)
           .with(Guard::Deprecated::Guard::ClassMethods::RESET_EVALUATOR)
+
         subject.reset_evaluator({})
       end
     end
 
     describe "evaluator" do
-      before do
-        allow(Guard::Guardfile::Evaluator).to receive(:new)
-          .and_return(double("evaluator"))
-      end
       it "show deprecation warning" do
         expect(Guard::UI).to receive(:deprecation)
           .with(Guard::Deprecated::Guard::ClassMethods::EVALUATOR)
+
         subject.evaluator
       end
     end
@@ -204,46 +197,46 @@ unless Guard::Config.new.strict?
       it "show deprecation warning" do
         expect(Guard::UI).to receive(:deprecation)
           .with(Guard::Deprecated::Guard::ClassMethods::EVALUATOR)
+
         subject.evaluate_guardfile
       end
 
       it "evaluates the guardfile" do
         expect(evaluator).to receive(:evaluate)
+
         subject.evaluate_guardfile
       end
     end
 
     describe "options" do
-      before do
-        allow(session).to receive(:clearing?)
-        allow(session).to receive(:debug?)
-        allow(session).to receive(:watchdirs)
-        allow(session).to receive(:notify_options).and_return({})
-        allow(session).to receive(:interactor_name)
-      end
-
       it "show deprecation warning" do
         expect(Guard::UI).to receive(:deprecation)
           .with(Guard::Deprecated::Guard::ClassMethods::OPTIONS)
+
         subject.options
       end
 
       describe ":clear" do
         before do
-          allow(session).to receive(:clearing?).and_return(clearing)
+          allow(subject.engine.session).to receive(:clearing?).and_return(clearing)
         end
+
         context "when being set to true" do
           let(:clearing) { true }
+
           it "sets the clearing option accordingly" do
-            expect(session).to receive(:clearing).with(true)
+            expect(subject.engine.session).to receive(:clearing).with(true)
+
             subject.options[:clear] = true
           end
         end
 
         context "when being set to false" do
           let(:clearing) { false }
+
           it "sets the clearing option accordingly" do
-            expect(session).to receive(:clearing).with(false)
+            expect(subject.engine.session).to receive(:clearing).with(false)
+
             subject.options[:clear] = false
           end
         end
@@ -251,6 +244,7 @@ unless Guard::Config.new.strict?
         context "when being read" do
           context "when not set" do
             let(:clearing) { false }
+
             it "provides an alternative implementation" do
               expect(subject.options).to include(clear: false)
             end
@@ -264,52 +258,39 @@ unless Guard::Config.new.strict?
           end
         end
       end
-
-      # TODO: other options?
     end
 
     describe ".add_group" do
-      before do
-        allow(groups).to receive(:add)
-      end
-
       it "show deprecation warning" do
         expect(Guard::UI).to receive(:deprecation)
           .with(Guard::Deprecated::Guard::ClassMethods::ADD_GROUP)
+
         subject.add_group(:foo)
       end
 
       it "adds a group" do
-        group = instance_double("Guard::Group")
-        expect(groups).to receive(:add).with(:foo, bar: 3).and_return(group)
-        expect(subject.add_group(:foo, bar: 3)).to eq(group)
+        expect(subject.add_group(:foo, bar: 3)).to eq(subject.engine.groups.find(:foo))
       end
     end
 
     describe ".add_plugin" do
-      before do
-        allow(plugins).to receive(:add)
-      end
-
       it "show deprecation warning" do
         expect(Guard::UI).to receive(:deprecation)
           .with(Guard::Deprecated::Guard::ClassMethods::ADD_PLUGIN)
+
         subject.add_plugin(:foo)
       end
 
       it "adds a plugin" do
-        plugin = instance_double("Guard::Plugin")
-        expect(plugins).to receive(:add).with(:foo, bar: 3).and_return(plugin)
-        expect(subject.add_plugin(:foo, bar: 3)).to be(plugin)
+        expect(subject.add_plugin(:foo, bar: 3)).to be(subject.engine.plugins.find(:foo))
       end
     end
 
     describe ".group" do
-      let(:array) { instance_double(Array) }
+      let(:group) { instance_double("Guard::Group") }
 
       before do
-        allow(groups).to receive(:all).with(:foo).and_return(array)
-        allow(array).to receive(:first)
+        allow(subject.engine.groups).to receive(:all).with(:foo).and_return([group])
       end
 
       it "show deprecation warning" do
@@ -319,24 +300,21 @@ unless Guard::Config.new.strict?
       end
 
       it "provides a similar implementation" do
-        group = instance_double("Guard::Group")
-        expect(array).to receive(:first).and_return(group)
         expect(subject.group(:foo)).to be(group)
       end
     end
 
     describe ".plugin" do
-      let(:array) { instance_double(Array) }
       let(:plugin) { instance_double("Guard::Plugin") }
 
       before do
-        allow(plugins).to receive(:all).with(:foo).and_return(array)
-        allow(array).to receive(:first).and_return(plugin)
+        allow(subject.engine.plugins).to receive(:all).with(:foo).and_return([plugin])
       end
 
       it "show deprecation warning" do
         expect(Guard::UI).to receive(:deprecation)
           .with(Guard::Deprecated::Guard::ClassMethods::PLUGIN)
+
         subject.plugin(:foo)
       end
 
@@ -349,12 +327,13 @@ unless Guard::Config.new.strict?
       let(:array) { instance_double(Array) }
 
       before do
-        allow(groups).to receive(:all).with(:foo).and_return(array)
+        expect(subject.engine.groups).to receive(:all).with(:foo).and_return(array)
       end
 
       it "show deprecation warning" do
         expect(Guard::UI).to receive(:deprecation)
           .with(Guard::Deprecated::Guard::ClassMethods::GROUPS)
+
         subject.groups(:foo)
       end
 
@@ -367,12 +346,13 @@ unless Guard::Config.new.strict?
       let(:array) { instance_double(Array) }
 
       before do
-        allow(plugins).to receive(:all).with(:foo).and_return(array)
+        expect(subject.engine.plugins).to receive(:all).with(:foo).and_return(array)
       end
 
       it "show deprecation warning" do
         expect(Guard::UI).to receive(:deprecation)
           .with(Guard::Deprecated::Guard::ClassMethods::PLUGINS)
+
         subject.plugins(:foo)
       end
 
@@ -382,36 +362,29 @@ unless Guard::Config.new.strict?
     end
 
     describe ".scope" do
-      let(:hash) { instance_double(Hash) }
-
-      before do
-        allow(scope).to receive(:to_hash).and_return(hash)
-      end
-
       it "show deprecation warning" do
         expect(Guard::UI).to receive(:deprecation)
           .with(Guard::Deprecated::Guard::ClassMethods::SCOPE)
+
         subject.scope
       end
 
       it "provides a similar implementation" do
-        expect(subject.scope).to be(hash)
+        expect(subject.scope).to eq(plugins: [], groups: [])
       end
     end
 
     describe ".scope=" do
-      before do
-        allow(scope).to receive(:from_interactor).with(foo: :bar)
-      end
-
       it "show deprecation warning" do
         expect(Guard::UI).to receive(:deprecation)
           .with(Guard::Deprecated::Guard::ClassMethods::SCOPE_ASSIGN)
+
         subject.scope = { foo: :bar }
       end
 
       it "provides a similar implementation" do
-        expect(scope).to receive(:from_interactor).with(foo: :bar)
+        expect(subject.engine.scope).to receive(:from_interactor).with(foo: :bar)
+
         subject.scope = { foo: :bar }
       end
     end

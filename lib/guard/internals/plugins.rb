@@ -30,8 +30,9 @@ module Guard
       # configs or groups)
       def add(name, options)
         plugin_util = PluginUtil.new(engine: @engine, name: name)
-        @plugins << plugin_util.initialize_plugin(options)
-        @plugins
+        plugin = plugin_util.initialize_plugin(options)
+        @plugins << plugin
+        plugin
       end
 
       private

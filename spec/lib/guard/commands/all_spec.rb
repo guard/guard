@@ -1,6 +1,8 @@
 require "guard/commands/all"
 
-RSpec.describe Guard::Commands::All, :pry do
+RSpec.describe Guard::Commands::All do
+  include_context 'with fake_pry_class'
+
   let!(:engine) { Guard.init }
   let(:foo_group) { instance_double(Guard::Group) }
   let(:bar_guard) { instance_double(Guard::Plugin) }

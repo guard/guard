@@ -21,6 +21,8 @@ module Guard
       require "guard"
       require "guard/ui"
 
+      attr_reader :engine
+
       INFO_TEMPLATE_ADDED =
         "%s template added to Guardfile, feel free to edit it"
 
@@ -57,6 +59,10 @@ module Guard
         end
       end
 
+      def initialize(engine:)
+        @engine = engine
+      end
+
       # Creates the initial Guardfile template when it does not
       # already exist.
       #
@@ -83,7 +89,7 @@ module Guard
       def initialize_template(plugin_name)
         guardfile = Pathname.new("Guardfile")
 
-        plugin_util = PluginUtil.new(plugin_name)
+        plugin_util = PluginUtil.new(engine: engine, name: plugin_name)
         # TODO: change to "valid?" method
         plugin_class = plugin_util.plugin_class(fail_gracefully: true)
         if plugin_class

@@ -129,8 +129,7 @@ module Guard
 
       require_relative "guardfile/evaluator"
       # TODO: move this to Generator?
-      options = @engine.state.session.evaluator_options
-      evaluator = Guardfile::Evaluator.new(options)
+      evaluator = Guardfile::Evaluator.new(engine: @engine)
       begin
         evaluator.evaluate
       rescue Guard::Guardfile::Evaluator::NoPluginsError

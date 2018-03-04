@@ -189,69 +189,93 @@ RSpec.configure do |config|
     mocks.verify_partial_doubles = true
   end
 
-  config.before(:context, :pry) do |example|
-    let(:fake_pry_class) do
-      Class.new(Pry::Command) do
-        def self.output; end
+  config.before(:each) do
+    module Guard
+      module Foo
+        class Plugin
+          include Guard::API
+
+          def start
+            hook "my_hook"
+          end
+
+          def run_all
+            hook :begin
+            hook :end
+          end
+
+          def stop
+            hook :begin, "args"
+            hook "special_sauce", "first_arg", "second_arg"
+          end
+        end
+      end
+      class Bar < Plugin
       end
     end
+  end
+
+  config.after(:each) do
+    Guard::Foo.send(:remove_const, :Plugin) if defined?(Guard::Foo::Plugin)
+    Guard.send(:remove_const, :Foo) if defined?(Guard::Foo)
+    Guard.send(:remove_const, :Bar) if defined?(Guard::Bar)
   end
 
   config.before(:each) do |example|
     stub_const("FileUtils", class_double(FileUtils))
 
-    excluded = []
-    excluded += Array(example.metadata[:exclude_stubs])
-    excluded << Guard::Engine if Guard.constants.include?(:Engine)
-    excluded << Guard::Commands::All if Guard.constants.include?(:Commands) && Guard::Commands.constants.include?(:All)
-    excluded << Guard::Commands::Change if Guard.constants.include?(:Commands) && Guard::Commands.constants.include?(:Change)
-    excluded << Guard::Commands::Notification if Guard.constants.include?(:Commands) && Guard::Commands.constants.include?(:Notification)
-    excluded << Guard::Commands::Pause if Guard.constants.include?(:Commands) && Guard::Commands.constants.include?(:Pause)
-    excluded << Guard::Commands::Reload if Guard.constants.include?(:Commands) && Guard::Commands.constants.include?(:Reload)
-    excluded << Guard::Commands::Scope if Guard.constants.include?(:Commands) && Guard::Commands.constants.include?(:Scope)
-    excluded << Guard::Commands::Show if Guard.constants.include?(:Commands) && Guard::Commands.constants.include?(:Show)
-    excluded << Guard::Config if Guard.constants.include?(:Config)
-    excluded << Guard::DefaultPlugin if Guard.constants.include?(:DefaultPlugin)
-    excluded << Guard::Group if Guard.constants.include?(:Group)
-    excluded << Guard::Interactor if Guard.constants.include?(:Group)
-    excluded << Guard::Options if Guard.constants.include?(:Options)
-    excluded << Guard::Jobs::Base if Guard.constants.include?(:Jobs)
-    excluded << Guard::Jobs::PryWrapper if Guard.constants.include?(:Jobs)
-    excluded << Guard::Jobs::TerminalSettings if Guard.constants.include?(:Jobs)
-    excluded << Guard::Internals::Groups if Guard.constants.include?(:Internals)
-    excluded << Guard::Internals::Plugins if Guard.constants.include?(:Internals)
-    excluded << Guard::Internals::Queue if Guard.constants.include?(:Internals)
-    excluded << Guard::Internals::Scope if Guard.constants.include?(:Internals)
-    excluded << Guard::Internals::Session if Guard.constants.include?(:Internals)
-    excluded << Guard::Internals::State if Guard.constants.include?(:Internals)
-    excluded << Guard::PluginUtil if Guard.constants.include?(:PluginUtil)
+    # excluded = []
+    # excluded += Array(example.metadata[:exclude_stubs])
+    # excluded << Guard::Engine if Guard.constants.include?(:Engine)
+    # excluded << Guard::Commands::All if Guard.constants.include?(:Commands) && Guard::Commands.constants.include?(:All)
+    # excluded << Guard::Commands::Change if Guard.constants.include?(:Commands) && Guard::Commands.constants.include?(:Change)
+    # excluded << Guard::Commands::Notification if Guard.constants.include?(:Commands) && Guard::Commands.constants.include?(:Notification)
+    # excluded << Guard::Commands::Pause if Guard.constants.include?(:Commands) && Guard::Commands.constants.include?(:Pause)
+    # excluded << Guard::Commands::Reload if Guard.constants.include?(:Commands) && Guard::Commands.constants.include?(:Reload)
+    # excluded << Guard::Commands::Scope if Guard.constants.include?(:Commands) && Guard::Commands.constants.include?(:Scope)
+    # excluded << Guard::Commands::Show if Guard.constants.include?(:Commands) && Guard::Commands.constants.include?(:Show)
+    # excluded << Guard::Config if Guard.constants.include?(:Config)
+    # excluded << Guard::DefaultPlugin if Guard.constants.include?(:DefaultPlugin)
+    # excluded << Guard::Group if Guard.constants.include?(:Group)
+    # excluded << Guard::Interactor if Guard.constants.include?(:Group)
+    # excluded << Guard::Options if Guard.constants.include?(:Options)
+    # excluded << Guard::Jobs::Base if Guard.constants.include?(:Jobs)
+    # excluded << Guard::Jobs::PryWrapper if Guard.constants.include?(:Jobs)
+    # excluded << Guard::Jobs::TerminalSettings if Guard.constants.include?(:Jobs)
+    # excluded << Guard::Internals::Groups if Guard.constants.include?(:Internals)
+    # excluded << Guard::Internals::Plugins if Guard.constants.include?(:Internals)
+    # excluded << Guard::Internals::Queue if Guard.constants.include?(:Internals)
+    # excluded << Guard::Internals::Scope if Guard.constants.include?(:Internals)
+    # excluded << Guard::Internals::Session if Guard.constants.include?(:Internals)
+    # excluded << Guard::Internals::State if Guard.constants.include?(:Internals)
+    # excluded << Guard::PluginUtil if Guard.constants.include?(:PluginUtil)
+    #
+    # excluded << Guard::DuMmy if Guard.constants.include?(:DuMmy)
+    # excluded << Guard::Foo if Guard.constants.include?(:Foo)
+    # excluded << Guard::Bar if Guard.constants.include?(:Bar)
+    # excluded << Guard::Baz if Guard.constants.include?(:Baz)
+    # excluded << Guard::Foobar if Guard.constants.include?(:Foobar)
+    # excluded << Guard::Foobaz if Guard.constants.include?(:Foobaz)
+    #
+    # if Guard.constants.include?(:Notifier)
+    #   if Guard::Notifier.constants.include?(:NotServer)
+    #     excluded << Guard::Notifier::NotServer
+    #   end
+    #   if Guard::Notifier.constants.include?(:FooBar)
+    #     excluded << Guard::Notifier::FooBar
+    #   end
+    #   if Guard::Notifier.constants.include?(:Base)
+    #     excluded << Guard::Notifier::Base
+    #   end
+    # end
 
-    excluded << Guard::DuMmy if Guard.constants.include?(:DuMmy)
-    excluded << Guard::Foo if Guard.constants.include?(:Foo)
-    excluded << Guard::Bar if Guard.constants.include?(:Bar)
-    excluded << Guard::Baz if Guard.constants.include?(:Baz)
-    excluded << Guard::Foobar if Guard.constants.include?(:Foobar)
-    excluded << Guard::Foobaz if Guard.constants.include?(:Foobaz)
-
-    if Guard.constants.include?(:Notifier)
-      if Guard::Notifier.constants.include?(:NotServer)
-        excluded << Guard::Notifier::NotServer
-      end
-      if Guard::Notifier.constants.include?(:FooBar)
-        excluded << Guard::Notifier::FooBar
-      end
-      if Guard::Notifier.constants.include?(:Base)
-        excluded << Guard::Notifier::Base
-      end
-    end
-
-    modules = [Guard]
-    # modules << Listen if Object.const_defined?(:Listen)
-    # modules << Shellany if Object.const_defined?(:Shellany)
-    modules << Notiffany if Object.const_defined?(:Notiffany)
-    modules.each do |mod|
-      stub_mod(mod, excluded)
-    end
+    # modules = [Guard]
+    # # modules << Listen if Object.const_defined?(:Listen)
+    # # modules << Shellany if Object.const_defined?(:Shellany)
+    # modules << Notiffany if Object.const_defined?(:Notiffany)
+    # modules.each do |mod|
+    #   stub_mod(mod, excluded)
+    # end
     #
     # allow(ENV).to receive(:[]=) do |*args|
     #   abort "stub me: ENV[#{args.first}]= #{args.map(&:inspect)[1..-1] * ','}!"

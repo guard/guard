@@ -3,7 +3,6 @@
 require "guard/config"
 
 unless Guard::Config.new.strict?
-
   # Require listen now, so the requiring below doesn't use File methods
   require "listen"
 

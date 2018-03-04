@@ -4,46 +4,19 @@ RSpec.describe Guard::API do
   let!(:engine) { Guard.init }
   let(:listener) { instance_double(Proc, call: nil) }
 
-  before do
-    module Guard
-      module Foo
-        class Plugin
-          include Guard::API
+  let(:plugin_class) { Guard::Foo::Plugin }
 
-          def start
-            hook "my_hook"
-          end
-
-          def run_all
-            hook :begin
-            hook :end
-          end
-
-          def stop
-            hook :begin, "args"
-            hook "special_sauce", "first_arg", "second_arg"
-          end
-        end
-      end
-    end
-  end
-
-  after do
-    Guard::Foo.remove_const(:Plugin)
-    Guard.remove_const(:Foo)
-  end
-
-  subject { Guard::Foo.new(engine: engine) }
+  subject { plugin_class.new(engine: engine) }
 
   describe ".non_namespaced_classname" do
     it "remove the Guard:: namespace" do
-      expect(Guard::Foo.non_namespaced_classname).to eq "Foo"
+      expect(plugin_class.non_namespaced_classname).to eq "Foo"
     end
   end
 
   describe ".non_namespaced_name" do
     it "remove the Guard:: namespace and downcase" do
-      expect(Guard::Foo.non_namespaced_name).to eq "foo"
+      expect(plugin_class.non_namespaced_name).to eq "foo"
     end
   end
 
@@ -56,7 +29,7 @@ RSpec.describe Guard::API do
       expect(File).to receive(:read).
         with("/guard-foo/lib/guard/foo/templates/Guardfile") { true }
 
-      Guard::Foo.template("/guard-foo")
+      plugin_class.template("/guard-foo")
     end
   end
 
@@ -64,24 +37,24 @@ RSpec.describe Guard::API do
     it "assigns the defined watchers" do
       watchers = [double("foo")]
 
-      expect(Guard::Foo.new(engine: engine, options: { watchers: watchers }).watchers).to eq watchers
+      expect(plugin_class.new(engine: engine, options: { watchers: watchers }).watchers).to eq watchers
     end
 
     it "assigns the defined options" do
       options = { a: 1, b: 2 }
 
-      expect(Guard::Foo.new(engine: engine, options: options).options).to eq options
+      expect(plugin_class.new(engine: engine, options: options).options).to eq options
     end
 
     context "with a group in the options" do
       it "assigns the given group" do
-        expect(Guard::Foo.new(engine: engine, options: { group: :test }).group).to eq engine.groups.find(:test)
+        expect(plugin_class.new(engine: engine, options: { group: :test }).group).to eq engine.groups.find(:test)
       end
     end
 
     context "without a group in the options" do
       it "assigns a default group" do
-        expect(Guard::Foo.new(engine: engine).group).to eq engine.groups.find(:default)
+        expect(plugin_class.new(engine: engine).group).to eq engine.groups.find(:default)
       end
     end
 
@@ -90,7 +63,7 @@ RSpec.describe Guard::API do
         block = instance_double(Proc)
         events = [:start_begin, :start_end]
         callbacks = [{ events: events, listener: block }]
-        plugin = Guard::Foo.new(engine: engine, options: { callbacks: callbacks })
+        plugin = plugin_class.new(engine: engine, options: { callbacks: callbacks })
 
         expect(plugin.callbacks).to eq(start_begin: [block], start_end: [block])
       end
@@ -112,7 +85,7 @@ RSpec.describe Guard::API do
   describe "#to_s" do
     it "output the short plugin name" do
       expect(subject.to_s).
-        to match(/#<Guard::Foo @name=foo .*>/)
+        to match(/#<Guard::Foo::Plugin @name=foo .*>/)
     end
   end
 

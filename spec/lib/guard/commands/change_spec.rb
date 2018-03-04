@@ -2,7 +2,9 @@
 
 require "guard/commands/change"
 
-RSpec.describe Guard::Commands::Change, :pry do
+RSpec.describe Guard::Commands::Change do
+  include_context 'with fake_pry_class'
+
   let!(:engine) { Guard.init }
   let(:output) { instance_double(Pry::Output) }
 

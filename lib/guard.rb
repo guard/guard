@@ -21,6 +21,8 @@ module Guard
   Deprecated::Guard.add_deprecated(self) unless Config.new.strict?
 
   class << self
+    attr_reader :engine
+
     # @private api
 
     # Backward-compatibility with the Guard singleton approach

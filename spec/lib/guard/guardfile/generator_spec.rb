@@ -3,8 +3,10 @@
 require "guard/guardfile/generator"
 
 RSpec.describe Guard::Guardfile::Generator do
+  let!(:engine) { Guard.init }
   let(:plugin_util) { instance_double("Guard::PluginUtil") }
-  let(:guardfile_generator) { described_class.new }
+
+  subject { described_class.new(engine: engine) }
 
   before do
     stub_pathname
@@ -63,15 +65,14 @@ RSpec.describe Guard::Guardfile::Generator do
       it "does not display any kind of error or abort" do
         expect(::Guard::UI).to_not receive(:error)
         expect(described_class).to_not receive(:abort)
-
-        described_class.new.create_guardfile
+        subject.create_guardfile
       end
 
       it "copies the Guardfile template and notifies the user" do
         expect(::Guard::UI).to receive(:info)
         expect(FileUtils).to receive(:cp)
 
-        described_class.new.create_guardfile
+        subject.create_guardfile
       end
     end
   end
@@ -85,13 +86,13 @@ RSpec.describe Guard::Guardfile::Generator do
       before do
         expect(Guard::PluginUtil).to receive(:new) { plugin_util }
         expect(plugin_util).to receive(:plugin_class) do
-          # double("Guard::Foo").as_null_object
+          double("Guard::Foo").as_null_object
         end
       end
 
       it "initializes the Guard" do
         expect(plugin_util).to receive(:add_to_guardfile)
-        described_class.new.initialize_template("foo")
+        subject.initialize_template("foo")
       end
     end
 
@@ -104,14 +105,10 @@ RSpec.describe Guard::Guardfile::Generator do
         stub_file(File.expand_path("~/.guard/templates/bar"), "Template content")
       end
 
-      it "copies the Guardfile template and initializes the Guard" do
-        expect(@guardfile).to receive(:binwrite)
-          .with("\n#{template_content}\n", open_args: ["a"])
-        expect(plugin_util).to receive(:plugin_class).with(fail_gracefully: true)
-        expect(Guard::PluginUtil).to receive(:new).with("bar")
-                                                 .and_return(plugin_util)
+        allow(Guard::PluginUtil).to receive(:new).with(engine: engine, name: "bar")
+          .and_return(plugin_util)
 
-        described_class.new.initialize_template("bar")
+        subject.initialize_template("bar")
       end
     end
 
@@ -124,7 +121,7 @@ RSpec.describe Guard::Guardfile::Generator do
       end
 
       it "notifies the user about the problem" do
-        expect { described_class.new.initialize_template("foo") }
+        expect { subject.initialize_template("foo") }
           .to raise_error(Guard::Guardfile::Generator::Error)
       end
     end

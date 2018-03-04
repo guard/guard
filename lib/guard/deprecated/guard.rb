@@ -22,7 +22,7 @@ module Guard
           over to: https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0%s
         EOS
 
-        # @deprecated Use `Guard.plugins(filter)` instead.
+        # @deprecated Use `Guard.engine.plugins(filter)` instead.
         #
         # @see https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0 How to
         #   upgrade for Guard 2.0
@@ -30,17 +30,17 @@ module Guard
         GUARDS = <<-EOS.gsub(/^\s*/, "")
           Starting with Guard 2.0 'Guard.guards(filter)' is deprecated.
 
-          Please use 'Guard.plugins(filter)' instead.
+          Please use 'Guard.engine.plugins(filter)' instead.
 
         #{MORE_INFO_ON_UPGRADING_TO_GUARD_2 % '#deprecated-methods'}
         EOS
 
         def guards(filter = nil)
           ::Guard::UI.deprecation(GUARDS)
-          @engine.state.session.plugins.all(filter)
+          engine.plugins.all(filter)
         end
 
-        # @deprecated Use `Guard.add_plugin(name, options = {})` instead.
+        # @deprecated Use `Guard.engine.plugins.add(name, options = {})` instead.
         #
         # @see https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0 How to
         #   upgrade for Guard 2.0
@@ -49,7 +49,7 @@ module Guard
           Starting with Guard 2.0 'Guard.add_guard(name, options = {})' is
           deprecated.
 
-          Please use 'Guard.add_plugin(name, options = {})' instead.
+          Please use 'Guard.engine.plugins.add(name, options = {})' instead.
 
         #{MORE_INFO_ON_UPGRADING_TO_GUARD_2 % '#deprecated-methods'}
         EOS
@@ -60,7 +60,7 @@ module Guard
         end
 
         # @deprecated Use
-        #   `Guard::PluginUtil.new(name).plugin_class(fail_gracefully:
+        #   `Guard::PluginUtil.new(engine: engine, name: name).plugin_class(fail_gracefully:
         #   fail_gracefully)` instead.
         #
         # @see https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0 How to
@@ -70,7 +70,7 @@ module Guard
           Starting with Guard 2.0 'Guard.get_guard_class(name, fail_gracefully
           = false)' is deprecated and is now always on.
 
-          Please use 'Guard::PluginUtil.new(name).plugin_class(fail_gracefully:
+          Please use 'Guard::PluginUtil.new(engine: engine, name: name).plugin_class(fail_gracefully:
           fail_gracefully)' instead.
 
         #{MORE_INFO_ON_UPGRADING_TO_GUARD_2 % '#deprecated-methods'}
@@ -78,10 +78,10 @@ module Guard
 
         def get_guard_class(name, fail_gracefully = false)
           UI.deprecation(GET_GUARD_CLASS)
-          PluginUtil.new(name).plugin_class(fail_gracefully: fail_gracefully)
+          PluginUtil.new(engine: engine, name: name).plugin_class(fail_gracefully: fail_gracefully)
         end
 
-        # @deprecated Use `Guard::PluginUtil.new(name).plugin_location` instead.
+        # @deprecated Use `Guard::PluginUtil.new(engine: engine, name: name).plugin_location` instead.
         #
         # @see https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0 How to
         #   upgrade for Guard 2.0
@@ -89,14 +89,14 @@ module Guard
         LOCATE_GUARD = <<-EOS.gsub(/^\s*/, "")
           Starting with Guard 2.0 'Guard.locate_guard(name)' is deprecated.
 
-          Please use 'Guard::PluginUtil.new(name).plugin_location' instead.
+          Please use 'Guard::PluginUtil.new(engine: engine, name: name).plugin_location' instead.
 
         #{MORE_INFO_ON_UPGRADING_TO_GUARD_2 % '#deprecated-methods'}
         EOS
 
         def locate_guard(name)
           UI.deprecation(LOCATE_GUARD)
-          PluginUtil.new(name).plugin_location
+          PluginUtil.new(engine: engine, name: name).plugin_location
         end
 
         # @deprecated Use `Guard::PluginUtil.plugin_names` instead.
@@ -151,8 +151,7 @@ module Guard
 
         def evaluator
           UI.deprecation(EVALUATOR)
-          options = @engine.state.session.evaluator_options
-          ::Guard::Guardfile::Evaluator.new(options)
+          ::Guard::Guardfile::Evaluator.new(engine: engine)
         end
 
         RESET_EVALUATOR = <<-EOS.gsub(/^\s*/, "")
@@ -169,7 +168,7 @@ module Guard
 
         def runner
           UI.deprecation(RUNNER)
-          ::Guard::Runner.new
+          ::Guard::Runner.new(engine: engine)
         end
 
         EVALUATE_GUARDFILE = <<-EOS.gsub(/^\s*/, "")
@@ -178,11 +177,10 @@ module Guard
 
         def evaluate_guardfile
           UI.deprecation(EVALUATE_GUARDFILE)
-          options = @engine.state.session.evaluator_options
-          evaluator = ::Guard::Guardfile::Evaluator.new(options)
+          evaluator = ::Guard::Guardfile::Evaluator.new(engine: engine)
           evaluator.evaluate
           msg = "No plugins found in Guardfile, please add at least one."
-          ::Guard::UI.error msg if _pluginless_guardfile?
+          ::Guard::UI.error(msg) if _pluginless_guardfile?
         end
 
         OPTIONS = <<-EOS.gsub(/^\s*/, "")
@@ -196,12 +194,13 @@ module Guard
           UI.deprecation(OPTIONS)
 
           Class.new(Hash) do
-            def initialize
-              super(to_hash)
+            def initialize(engine:)
+              @engine = engine
+              super(hash)
             end
 
             def to_hash
-              session = @engine.state.session
+              session = @engine.session
               {
                 clear: session.clearing?,
                 debug: session.debug?,
@@ -224,7 +223,7 @@ module Guard
             def []=(key, value)
               case key
               when :clear
-                @engine.state.session.clearing(value)
+                @engine.session.clearing(value)
               else
                 msg = "Oops! Guard.option[%s]= is unhandled or unsupported." \
                   "Please file an issue if you rely on this option working."
@@ -240,87 +239,87 @@ module Guard
                 "Please file an issue if you rely on this option working."
               fail NotImplementedError, format(msg, key)
             end
-          end.new
+          end.new(engine: engine)
         end
 
         ADD_GROUP = <<-EOS.gsub(/^\s*/, "")
           add_group is deprecated since 2.10.0 in favor of
-          Guard.state.session.groups.add
+          Guard.engine.groups.add
         EOS
 
         def add_group(name, options = {})
           UI.deprecation(ADD_GROUP)
-          @engine.state.session.groups.add(name, options)
+          engine.groups.add(name, options)
         end
 
         ADD_PLUGIN = <<-EOS.gsub(/^\s*/, "")
           add_plugin is deprecated since 2.10.0 in favor of
-          Guard.state.session.plugins.add
+          Guard.engine.plugins.add
         EOS
 
         def add_plugin(name, options = {})
           UI.deprecation(ADD_PLUGIN)
-          @engine.state.session.plugins.add(name, options)
+          engine.plugins.add(name, options)
         end
 
         GROUP = <<-EOS.gsub(/^\s*/, "")
           group is deprecated since 2.10.0 in favor of
-          Guard.state.session.group.add(filter).first
+          Guard.engine.groups.all(filter).first
         EOS
 
         def group(filter)
           UI.deprecation(GROUP)
-          @engine.state.session.groups.all(filter).first
+          engine.groups.all(filter).first
         end
 
         PLUGIN = <<-EOS.gsub(/^\s*/, "")
           plugin is deprecated since 2.10.0 in favor of
-          Guard.state.session.group.add(filter).first
+          Guard.engine.plugins.all(filter).first
         EOS
 
         def plugin(filter)
           UI.deprecation(PLUGIN)
-          @engine.state.session.plugins.all(filter).first
+          engine.plugins.all(filter).first
         end
 
         GROUPS = <<-EOS.gsub(/^\s*/, "")
           group is deprecated since 2.10.0 in favor of
-          Guard.state.session.groups.all(filter)
+          Guard.engine.groups.all(filter)
         EOS
 
         def groups(filter)
           UI.deprecation(GROUPS)
-          @engine.state.session.groups.all(filter)
+          engine.groups.all(filter)
         end
 
         PLUGINS = <<-EOS.gsub(/^\s*/, "")
           plugins is deprecated since 2.10.0 in favor of
-          Guard.state.session.plugins.all(filter)
+          Guard.engine.plugins.all(filter)
         EOS
 
         def plugins(filter)
           UI.deprecation(PLUGINS)
-          @engine.state.session.plugins.all(filter)
+          engine.plugins.all(filter)
         end
 
         SCOPE = <<-EOS.gsub(/^\s*/, "")
           scope is deprecated since 2.10.0 in favor of
-          Guard.state.scope.to_hash
+          Guard.engine.scope.to_hash
         EOS
 
         def scope
           UI.deprecation(SCOPE)
-          @engine.state.scope.to_hash
+          engine.scope.to_hash
         end
 
         SCOPE_ASSIGN = <<-EOS.gsub(/^\s*/, "")
           scope= is deprecated since 2.10.0 in favor of
-          Guard.state.scope.to_hash
+          Guard.engine.scope.to_hash
         EOS
 
         def scope=(scope)
           UI.deprecation(SCOPE_ASSIGN)
-          @engine.state.scope.from_interactor(scope)
+          engine.scope.from_interactor(scope)
         end
       end
     end

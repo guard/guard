@@ -2,7 +2,9 @@
 
 require "guard/commands/reload"
 
-RSpec.describe Guard::Commands::Reload, :pry do
+RSpec.describe Guard::Commands::Reload do
+  include_context 'with fake_pry_class'
+
   let!(:engine) { Guard.init }
   let(:output) { instance_double(Pry::Output) }
   let(:foo_group) { instance_double(Guard::Group) }
