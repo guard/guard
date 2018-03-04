@@ -11,6 +11,8 @@ require "guard/ui"
 require "guard/internals/session"
 
 RSpec.describe Guard::UI do
+  let!(:engine) { Guard.init }
+
   let(:interactor) { instance_double("Guard::Interactor") }
   let(:logger) { instance_double("Lumberjack::Logger") }
   let(:config) { instance_double("Guard::UI::Config") }
@@ -252,13 +254,14 @@ RSpec.describe Guard::UI do
     context "with UI set up and ready" do
       before do
         allow(session).to receive(:clear?).and_return(false)
-        Guard::UI.reset_and_clear
+        Guard::UI.reset_and_clear(engine: engine)
       end
 
       context "when clear option is disabled" do
         it "does not clear the output" do
           expect(terminal).to_not receive(:clear)
-          Guard::UI.clear
+
+          Guard::UI.clear(engine: engine)
         end
       end
 
@@ -272,13 +275,15 @@ RSpec.describe Guard::UI do
 
           it "clears the output" do
             expect(terminal).to receive(:clear)
-            Guard::UI.clear
+
+            Guard::UI.clear(engine: engine)
           end
 
           it "clears the output only once" do
             expect(terminal).to receive(:clear).once
-            Guard::UI.clear
-            Guard::UI.clear
+
+            Guard::UI.clear(engine: engine)
+            Guard::UI.clear(engine: engine)
           end
 
           context "when the command fails" do
@@ -291,25 +296,26 @@ RSpec.describe Guard::UI do
               expect(logger).to receive(:warn) do |arg|
                 expect(arg).to match(/failed to run command/)
               end
-              Guard::UI.clear
+
+              Guard::UI.clear(engine: engine)
             end
           end
         end
 
         context "when the screen has just been cleared" do
-          before { Guard::UI.clear }
+          before { Guard::UI.clear(engine: engine) }
 
           it "does not clear" do
             expect(terminal).to_not receive(:clear)
-            Guard::UI.clear
+
+            Guard::UI.clear(engine: engine)
           end
 
           context "when forced" do
-            let(:opts) { { force: true } }
-
             it "clears the outputs if forced" do
               expect(terminal).to receive(:clear)
-              Guard::UI.clear(opts)
+
+              Guard::UI.clear(engine: engine, force: true)
             end
           end
         end
@@ -324,38 +330,40 @@ RSpec.describe Guard::UI do
 
     context "with a plugins scope" do
       it "shows the plugin scoped action" do
-        allow(scope).to receive(:titles).with(plugins: [rspec, jasmine]).
+        allow(engine.scope).to receive(:titles).with(plugins: [rspec, jasmine]).
           and_return(%w(Rspec Jasmine))
-
         expect(Guard::UI).to receive(:info).with("Reload Rspec, Jasmine")
-        Guard::UI.action_with_scopes("Reload", plugins: [rspec, jasmine])
+
+        Guard::UI.action_with_scopes(engine: engine, action: "Reload", scopes: { plugins: [rspec, jasmine] })
       end
     end
 
     context "with a groups scope" do
       it "shows the group scoped action" do
-        allow(scope).to receive(:titles).with(groups: [group]).
+        allow(engine.scope).to receive(:titles).with(groups: [group]).
           and_return(%w(Frontend))
-
         expect(Guard::UI).to receive(:info).with("Reload Frontend")
-        Guard::UI.action_with_scopes("Reload", groups: [group])
+
+        Guard::UI.action_with_scopes(engine: engine, action: "Reload", scopes: { groups: [group] })
       end
     end
 
     context "without a scope" do
       context "with a global plugin scope" do
         it "shows the global plugin scoped action" do
-          allow(scope).to receive(:titles).and_return(%w(Rspec Jasmine))
+          allow(engine.scope).to receive(:titles).and_return(%w(Rspec Jasmine))
           expect(Guard::UI).to receive(:info).with("Reload Rspec, Jasmine")
-          Guard::UI.action_with_scopes("Reload", {})
+
+          Guard::UI.action_with_scopes(engine: engine, action: "Reload", scopes: {})
         end
       end
 
       context "with a global group scope" do
         it "shows the global group scoped action" do
-          allow(scope).to receive(:titles).and_return(%w(Frontend))
+          allow(engine.scope).to receive(:titles).and_return(%w(Frontend))
           expect(Guard::UI).to receive(:info).with("Reload Frontend")
-          Guard::UI.action_with_scopes("Reload", {})
+
+          Guard::UI.action_with_scopes(engine: engine, action: "Reload", scopes: {})
         end
       end
     end

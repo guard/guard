@@ -54,7 +54,7 @@ module Guard
         @path = nil
         @user_config = nil
 
-        opts = _from_deprecated(engine.state.session.evaluator_options)
+        opts = _from_deprecated(engine.session.evaluator_options)
 
         if opts[:contents]
           @type = :inline
@@ -106,7 +106,7 @@ module Guard
       #
       # TODO: rename this method to it matches RSpec examples better
       def guardfile_include?(plugin_name)
-        reader = DslReader.new
+        reader = DslReader.new(engine: engine)
         reader.evaluate(@contents, @path || "", 1)
         reader.plugin_names.include?(plugin_name)
       end
@@ -142,7 +142,7 @@ module Guard
       end
 
       def _instance_eval_guardfile(contents)
-        Dsl.new.evaluate(contents, @guardfile_path || "", 1)
+        Dsl.new(engine: engine).evaluate(contents, @guardfile_path || "", 1)
       rescue => ex
         UI.error "Invalid Guardfile, original error is:\n#{ $! }"
         raise ex

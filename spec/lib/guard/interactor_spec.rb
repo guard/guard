@@ -5,10 +5,14 @@ require "guard/jobs/pry_wrapper"
 require "guard/jobs/sleep"
 
 RSpec.describe Guard::Interactor do
+  let!(:engine) { Guard.init }
+
   let!(:pry_interactor) { instance_double("Guard::Jobs::PryWrapper") }
   let!(:sleep_interactor) { instance_double("Guard::Jobs::Sleep") }
   let(:pry_class) { class_double("Guard::Jobs::PryWrapper") }
   let(:sleep_class) { class_double("Guard::Jobs::Sleep") }
+
+  subject { described_class.new(engine: engine) }
 
   before do
     stub_const("Guard::Jobs::PryWrapper", pry_class)
@@ -104,12 +108,10 @@ RSpec.describe Guard::Interactor do
   end
 
   describe "job selection" do
-    subject do
-      Guard::Interactor.new(no_interactions)
-      Guard::Interactor
-    end
+    let(:interactor_name) { :default }
 
     before do
+      allow(engine.session).to receive(:interactor_name).and_return(interactor_name)
       Guard::Interactor.enabled = dsl_enabled
     end
 
@@ -117,17 +119,18 @@ RSpec.describe Guard::Interactor do
       let(:dsl_enabled) { true }
 
       context "when enabled from the commandline" do
-        let(:no_interactions) { false }
         it "uses only pry" do
           expect(pry_class).to receive(:new)
           expect(sleep_class).to_not receive(:new)
           subject
         end
-        it { is_expected.to be_enabled }
+
+        it { expect(described_class).to be_enabled }
       end
 
       context "when disabled from the commandline" do
-        let(:no_interactions) { true }
+        let(:interactor_name) { :sleep }
+
         it "uses only sleeper" do
           expect(pry_class).to_not receive(:new)
           expect(sleep_class).to receive(:new)
@@ -135,7 +138,7 @@ RSpec.describe Guard::Interactor do
         end
 
         # TODO: this is both a useless case and incorrect value
-        it { is_expected.to be_enabled }
+        it { expect(described_class).to be_enabled }
       end
     end
 
@@ -143,23 +146,25 @@ RSpec.describe Guard::Interactor do
       let(:dsl_enabled) { false }
 
       context "when enabled from the commandline" do
-        let(:no_interactions) { false }
         it "uses only sleeper" do
           expect(pry_class).to_not receive(:new)
           expect(sleep_class).to receive(:new)
           subject
         end
-        it { is_expected.to_not be_enabled }
+
+        it { expect(described_class).to_not be_enabled }
       end
 
       context "when disabled from the commandline" do
-        let(:no_interactions) { true }
+        let(:interactor_name) { :sleep }
+
         it "uses only sleeper" do
           expect(pry_class).to_not receive(:new)
           expect(sleep_class).to receive(:new)
           subject
         end
-        it { is_expected.to_not be_enabled }
+
+        it { expect(described_class).to_not be_enabled }
       end
     end
   end

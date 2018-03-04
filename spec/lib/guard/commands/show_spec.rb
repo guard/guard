@@ -1,6 +1,8 @@
 require "guard/commands/show"
 
-RSpec.describe Guard::Commands::Show, :pry do
+RSpec.describe Guard::Commands::Show do
+  include_context 'with fake_pry_class'
+
   let!(:engine) { Guard.init }
 
   before do

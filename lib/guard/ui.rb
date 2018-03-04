@@ -128,11 +128,11 @@ module Guard
 
       # Clear the output if clearable.
       #
-      def clear(opts = {})
-        return unless Guard.state.session.clear?
+      def clear(engine: engine, force: false)
+        return unless engine.session.clear?
 
         fail "UI not set up!" if @clearable.nil?
-        return unless @clearable || opts[:force]
+        return unless @clearable || force
 
         @clearable = false
         Terminal.clear
@@ -142,9 +142,9 @@ module Guard
 
       # TODO: arguments: UI uses Guard::options anyway
       # @private api
-      def reset_and_clear
+      def reset_and_clear(engine: engine)
         @clearable = false
-        clear(force: true)
+        clear(engine: engine, force: true)
       end
 
       # Allow the screen to be cleared again.
@@ -158,8 +158,8 @@ module Guard
       # @param [String] action the action to show
       # @param [Hash] scope hash with a guard or a group scope
       #
-      def action_with_scopes(action, scope)
-        titles = Guard.state.scope.titles(scope)
+      def action_with_scopes(engine: engine, action: action, scopes: scopes)
+        titles = engine.scope.titles(scopes)
         info "#{action} #{titles.join(', ')}"
       end
 

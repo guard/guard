@@ -94,8 +94,8 @@ module Guard
     # @param [Hash] scopes hash with a Guard plugin or a group scope
     #
     def reload(scopes = {})
-      UI.clear(force: true)
-      UI.action_with_scopes("Reload", scopes)
+      UI.clear(engine: self, force: true)
+      UI.action_with_scopes(engine: self, action: "Reload", scopes: scopes)
       Runner.new(engine: self).run(:reload, scopes)
     end
 
@@ -104,8 +104,8 @@ module Guard
     # @param [Hash] scopes hash with a Guard plugin or a group scope
     #
     def run_all(scopes = {})
-      UI.clear(force: true)
-      UI.action_with_scopes("Run", scopes)
+      UI.clear(engine: self, force: true)
+      UI.action_with_scopes(engine: self, action: "Run", scopes: scopes)
       Runner.new(engine: self).run(:run_all, scopes)
     end
 

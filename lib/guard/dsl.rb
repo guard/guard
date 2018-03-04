@@ -267,7 +267,7 @@ module Guard
     #
     def ignore(*regexps)
       # TODO: use guardfile results class
-      @engine.state.session.guardfile_ignore = regexps
+      @engine.session.guardfile_ignore = regexps
     end
 
     # TODO: deprecate

@@ -1,7 +1,7 @@
 require "guard/jobs/sleep"
 
 RSpec.describe Guard::Jobs::Sleep do
-  subject { described_class.new({}) }
+  subject { described_class.new }
 
   describe "#foreground" do
     it "sleeps" do

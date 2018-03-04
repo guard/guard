@@ -1,6 +1,10 @@
 require "guard/dsl_reader"
 
-RSpec.describe Guard::DslReader, exclude_stubs: [Guard::Dsl] do
+RSpec.describe Guard::DslReader do
+  let!(:engine) { Guard.init }
+
+  subject { described_class.new(engine: engine) }
+
   methods = %w(
     initialize guard notification interactor group watch callback
     ignore ignore! logger scope directories clearing

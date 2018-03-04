@@ -1,7 +1,6 @@
 require "guard/config"
 
 unless Guard::Config.new.strict?
-
   require "guard/deprecated/evaluator"
   require "guard/internals/state"
 
@@ -13,13 +12,6 @@ unless Guard::Config.new.strict?
       end
       described_class.add_deprecated(TestClass)
       TestClass.new
-    end
-
-    let(:state) { instance_double("Guard::Internals::State") }
-
-    before do
-      allow(Guard::UI).to receive(:deprecation)
-      allow(Guard).to receive(:state).and_return(state)
     end
 
     describe "#evaluate_guardfile" do

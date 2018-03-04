@@ -3,7 +3,7 @@ module Guard
     class Base
       attr_reader :engine
 
-      def initialize(_engine:, _options: {}); end
+      def initialize(engine: nil, options: {}); end
 
       # @return [Symbol] :stopped once job is finished
       # @return [Symbol] :exit to tell Guard to terminate

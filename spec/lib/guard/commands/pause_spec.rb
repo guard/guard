@@ -1,6 +1,8 @@
 require "guard/commands/pause"
 
-RSpec.describe Guard::Commands::Pause, :pry do
+RSpec.describe Guard::Commands::Pause do
+  include_context 'with fake_pry_class'
+
   let!(:engine) { Guard.init }
 
   before do

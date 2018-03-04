@@ -35,12 +35,15 @@ unless Guard::Config.new.strict?
       end
 
       it "delegates to Guard::Guardfile::Generator" do
+        options = { foo: "bar" }
+        engine = double
+        expect(::Guard).to receive(:init).with(options) { engine }
         expect(Guard::Guardfile::Generator).to receive(:new).
-          with(foo: "bar") { generator }
+          with(engine: engine) { generator }
 
         expect(generator).to receive(:create_guardfile)
 
-        subject.create_guardfile(foo: "bar")
+        subject.create_guardfile(options)
       end
     end
 

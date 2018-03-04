@@ -1,6 +1,8 @@
 require "guard/commands/notification"
 
-RSpec.describe Guard::Commands::Notification, :pry do
+RSpec.describe Guard::Commands::Notification do
+  include_context 'with fake_pry_class'
+
   let!(:engine) { Guard.init }
 
   before do

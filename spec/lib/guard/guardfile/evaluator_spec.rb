@@ -4,8 +4,9 @@ require "guard/guardfile/evaluator"
 require "guard"
 
 RSpec.describe Guard::Guardfile::Evaluator do
-  let(:options) { {} }
-  subject { described_class.new(options) }
+  let!(:engine) { Guard.init }
+
+  subject { described_class.new(engine: engine) }
 
   let!(:local_guardfile) { (Pathname.pwd + "Guardfile").to_s }
   let!(:home_guardfile) { (Pathname("~").expand_path + ".Guardfile").to_s }
@@ -20,7 +21,6 @@ RSpec.describe Guard::Guardfile::Evaluator do
   end
 
   before do
-    allow(Guard::Interactor).to receive(:new).with(false)
     allow(Guard::Dsl).to receive(:new).and_return(dsl)
     allow(dsl).to receive(:instance_eval)
   end
@@ -179,7 +179,7 @@ RSpec.describe Guard::Guardfile::Evaluator do
 
   describe ".guardfile_include?" do
     subject do
-      evaluator = described_class.new(options)
+      evaluator = described_class.new(engine: engine)
       evaluator.evaluate
       evaluator
     end

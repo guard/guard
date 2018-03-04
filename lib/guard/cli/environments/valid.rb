@@ -26,11 +26,9 @@ module Guard
           bare = @options[:bare]
 
           engine = Guard.init(@options)
-          session = engine.state.session
-
-          generator = Guardfile::Generator.new
+          generator = Guardfile::Generator.new(engine: engine)
           begin
-            Guardfile::Evaluator.new(session.evaluator_options).evaluate
+            Guardfile::Evaluator.new(engine: engine).evaluate
           rescue Guardfile::Evaluator::NoGuardfileError
             generator.create_guardfile
           rescue Guard::Guardfile::Evaluator::NoPluginsError
@@ -41,7 +39,7 @@ module Guard
 
           # Evaluate because it might have existed and creating was skipped
           begin
-            Guardfile::Evaluator.new(session.evaluator_options).evaluate
+            Guardfile::Evaluator.new(engine: engine).evaluate
           rescue Guard::Guardfile::Evaluator::NoPluginsError
           end
 
