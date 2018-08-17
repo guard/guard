@@ -29,7 +29,10 @@ RSpec.describe Guard::DslDescriber do
     stub_const 'Guard::Test', class_double('Guard::Plugin')
     stub_const 'Guard::Another', class_double('Guard::Plugin')
 
-    @output = +''
+    # TODO: Reenable rubocop and refactor to +'' one 2.2 compatibility is dropped
+    # rubocop:disable Performance/UnfreezeString - +'' is incompatible with MRI 2.2.9
+    @output = String.new
+    # rubocop:enable Performance/UnfreezeString
 
     # Strip escape sequences
     allow(STDOUT).to receive(:tty?).and_return(false)
