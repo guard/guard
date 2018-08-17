@@ -20,8 +20,8 @@ RSpec.describe Guard::Commands::All do
   end
 
   before do
-    allow(session).to receive(:convert_scope).with(given_scope).
-      and_return(converted_scope)
+    allow(session).to receive(:convert_scope).with(given_scope)
+      .and_return(converted_scope)
 
     allow(state).to receive(:session).and_return(session)
     allow(Guard).to receive(:state).and_return(state)
@@ -39,8 +39,8 @@ RSpec.describe Guard::Commands::All do
     let(:converted_scope) { [{ groups: [], plugins: [] }, []] }
 
     it 'runs the :run_all action' do
-      expect(Guard).to receive(:async_queue_add).
-        with([:guard_run_all, groups: [], plugins: []])
+      expect(Guard).to receive(:async_queue_add)
+        .with([:guard_run_all, groups: [], plugins: []])
 
       FakePry.process
     end
@@ -51,8 +51,8 @@ RSpec.describe Guard::Commands::All do
     let(:converted_scope) { [{ groups: [foo_group], plugins: [] }, []] }
 
     it 'runs the :run_all action with the given scope' do
-      expect(Guard).to receive(:async_queue_add).
-        with([:guard_run_all, groups: [foo_group], plugins: []])
+      expect(Guard).to receive(:async_queue_add)
+        .with([:guard_run_all, groups: [foo_group], plugins: []])
 
       FakePry.process('foo')
     end
@@ -63,8 +63,8 @@ RSpec.describe Guard::Commands::All do
     let(:converted_scope) { [{ groups: [], plugins: [bar_guard] }, []] }
 
     it 'runs the :run_all action with the given scope' do
-      expect(Guard).to receive(:async_queue_add).
-        with([:guard_run_all, plugins: [bar_guard], groups: []])
+      expect(Guard).to receive(:async_queue_add)
+        .with([:guard_run_all, plugins: [bar_guard], groups: []])
 
       FakePry.process('bar')
     end

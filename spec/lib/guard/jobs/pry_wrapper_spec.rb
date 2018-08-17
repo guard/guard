@@ -52,8 +52,8 @@ RSpec.describe Guard::Jobs::PryWrapper do
     allow(Guard::Commands::Show).to receive(:import)
     allow(Guard::Commands::Scope).to receive(:import)
 
-    allow(Guard::Jobs::TerminalSettings).to receive(:new).
-      and_return(terminal_settings)
+    allow(Guard::Jobs::TerminalSettings).to receive(:new)
+      .and_return(terminal_settings)
 
     allow(terminal_settings).to receive(:configurable?).and_return(false)
     allow(terminal_settings).to receive(:save)
@@ -143,8 +143,8 @@ RSpec.describe Guard::Jobs::PryWrapper do
 
     context 'Guard is not paused' do
       it 'displays "guard"' do
-        expect(prompt.call(double, 0, pry)).
-          to eq '[0] guard(main)> '
+        expect(prompt.call(double, 0, pry))
+          .to eq '[0] guard(main)> '
       end
     end
 
@@ -154,8 +154,8 @@ RSpec.describe Guard::Jobs::PryWrapper do
       end
 
       it 'displays "pause"' do
-        expect(prompt.call(double, 0, pry)).
-          to eq '[0] pause(main)> '
+        expect(prompt.call(double, 0, pry))
+          .to eq '[0] pause(main)> '
       end
     end
 
@@ -165,8 +165,8 @@ RSpec.describe Guard::Jobs::PryWrapper do
       end
 
       it 'displays the group scope title in the prompt' do
-        expect(prompt.call(double, 0, pry)).
-          to eq '[0] Backend,Frontend guard(main)> '
+        expect(prompt.call(double, 0, pry))
+          .to eq '[0] Backend,Frontend guard(main)> '
       end
     end
 

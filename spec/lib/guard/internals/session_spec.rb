@@ -61,11 +61,11 @@ RSpec.describe Guard::Internals::Session do
       end
 
       it 'initializes the plugin scope' do
-        allow(plugins).to receive(:add).with('cucumber', {}).
-          and_return(cucumber)
+        allow(plugins).to receive(:add).with('cucumber', {})
+          .and_return(cucumber)
 
-        allow(plugins).to receive(:add).with('jasmine', {}).
-          and_return(jasmine)
+        allow(plugins).to receive(:add).with('jasmine', {})
+          .and_return(jasmine)
 
         expect(subject.cmdline_plugins).to match_array(%w(cucumber jasmine))
       end

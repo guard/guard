@@ -54,8 +54,8 @@ def stub_mod(mod, excluded)
           inst = instance_double(klass)
           allow(klass).to receive(:new).and_return(inst)
           # TODO: use object_double?
-          class_double(klass.to_s).
-            as_stubbed_const(transfer_nested_constants: true)
+          class_double(klass.to_s)
+            .as_stubbed_const(transfer_nested_constants: true)
         end
       end
     elsif klass.is_a?(Module)
@@ -245,8 +245,8 @@ RSpec.configure do |config|
     end
 
     %w(exist?).each do |meth|
-      allow_any_instance_of(Pathname).
-        to receive(meth.to_sym) do |*args, &_block|
+      allow_any_instance_of(Pathname)
+        .to receive(meth.to_sym) do |*args, &_block|
         obj = args.first
         formatted_args = args[1..-1].map(&:inspect).join(', ')
         abort "stub me! (#{obj.inspect}##{meth}(#{formatted_args}))"

@@ -60,8 +60,8 @@ RSpec.describe Guard::Notifier do
 
     context 'with multiple parameters' do
       it 'notifies' do
-        expect(notifier).to receive(:notify).
-          with('A', priority: 2, image: :failed)
+        expect(notifier).to receive(:notify)
+          .with('A', priority: 2, image: :failed)
         subject.notify('A', priority: 2, image: :failed)
       end
     end
@@ -72,8 +72,8 @@ RSpec.describe Guard::Notifier do
       end
 
       it 'shows an error' do
-        expect(Guard::UI).to receive(:error).
-          with(/Notification failed for .+: an error/)
+        expect(Guard::UI).to receive(:error)
+          .with(/Notification failed for .+: an error/)
 
         subject.notify('A', priority: 2, image: :failed)
       end

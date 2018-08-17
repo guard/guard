@@ -19,8 +19,8 @@ RSpec.describe Guard::Commands::Scope do
   end
 
   before do
-    allow(session).to receive(:convert_scope).with(given_scope).
-      and_return(converted_scope)
+    allow(session).to receive(:convert_scope).with(given_scope)
+      .and_return(converted_scope)
 
     allow(state).to receive(:session).and_return(session)
     allow(Guard).to receive(:state).and_return(state)
@@ -52,8 +52,8 @@ RSpec.describe Guard::Commands::Scope do
     let(:converted_scope) { [{ groups: [foo_group], plugins: [] }, []] }
 
     it 'sets up the scope with the given scope' do
-      expect(scope).to receive(:from_interactor).
-        with(groups: [foo_group], plugins: [])
+      expect(scope).to receive(:from_interactor)
+        .with(groups: [foo_group], plugins: [])
       FakePry.process('foo')
     end
   end
@@ -63,8 +63,8 @@ RSpec.describe Guard::Commands::Scope do
     let(:converted_scope) { [{ groups: [], plugins: [bar_guard] }, []] }
 
     it 'runs the :scope= action with the given scope' do
-      expect(scope).to receive(:from_interactor).
-        with(plugins: [bar_guard], groups: [])
+      expect(scope).to receive(:from_interactor)
+        .with(plugins: [bar_guard], groups: [])
       FakePry.process('bar')
     end
   end

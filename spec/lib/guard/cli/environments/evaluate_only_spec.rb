@@ -36,11 +36,11 @@ RSpec.describe Guard::Cli::Environments::EvaluateOnly do
 
     it 'passes options to evaluator' do
       evaluator_options = double('evaluator_options')
-      allow(session).to receive(:evaluator_options).
-        and_return(evaluator_options)
+      allow(session).to receive(:evaluator_options)
+        .and_return(evaluator_options)
 
-      expect(Guard::Guardfile::Evaluator).to receive(:new).
-        with(evaluator_options).and_return(evaluator)
+      expect(Guard::Guardfile::Evaluator).to receive(:new)
+        .with(evaluator_options).and_return(evaluator)
 
       subject.evaluate
     end
@@ -53,8 +53,8 @@ RSpec.describe Guard::Cli::Environments::EvaluateOnly do
     ].each do |error_class|
       context "when a #{error_class} error occurs" do
         before do
-          allow(Guard).to receive(:init).
-            and_raise(error_class, "#{error_class} error!")
+          allow(Guard).to receive(:init)
+            .and_raise(error_class, "#{error_class} error!")
         end
 
         it 'aborts' do

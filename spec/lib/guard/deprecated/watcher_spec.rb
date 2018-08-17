@@ -23,19 +23,19 @@ unless Guard::Config.new.strict?
       allow(state).to receive(:session).and_return(session)
       allow(Guard).to receive(:state).and_return(state)
 
-      allow(evaluator).to receive(:guardfile_path).
-        and_return(File.expand_path('foo'))
+      allow(evaluator).to receive(:guardfile_path)
+        .and_return(File.expand_path('foo'))
 
-      allow(::Guard::Guardfile::Evaluator).to receive(:new).with(options).
-        and_return(evaluator)
+      allow(::Guard::Guardfile::Evaluator).to receive(:new).with(options)
+        .and_return(evaluator)
 
       allow(Guard::UI).to receive(:deprecation)
     end
 
     describe '.match_guardfile?' do
       it 'displays a deprecation warning to the user' do
-        expect(Guard::UI).to receive(:deprecation).
-          with(Guard::Deprecated::Watcher::ClassMethods::MATCH_GUARDFILE)
+        expect(Guard::UI).to receive(:deprecation)
+          .with(Guard::Deprecated::Watcher::ClassMethods::MATCH_GUARDFILE)
 
         files = %w(foo bar)
         subject.match_guardfile?(files)

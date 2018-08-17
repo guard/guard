@@ -19,23 +19,23 @@ RSpec.describe Guard::Internals::Plugins do
   let(:pu_foobaz) { instance_double('Guard::PluginUtil') }
 
   before do
-    allow(Guard::PluginUtil).to receive(:new).with('foobar').
-      and_return(pu_foobar)
+    allow(Guard::PluginUtil).to receive(:new).with('foobar')
+      .and_return(pu_foobar)
 
-    allow(Guard::PluginUtil).to receive(:new).with('foobaz').
-      and_return(pu_foobaz)
+    allow(Guard::PluginUtil).to receive(:new).with('foobaz')
+      .and_return(pu_foobaz)
 
-    allow(pu_foobar).to receive(:initialize_plugin).with(group: 'frontend').
-      and_return(foo_bar_frontend)
+    allow(pu_foobar).to receive(:initialize_plugin).with(group: 'frontend')
+      .and_return(foo_bar_frontend)
 
-    allow(pu_foobaz).to receive(:initialize_plugin).with(group: 'frontend').
-      and_return(foo_baz_frontend)
+    allow(pu_foobaz).to receive(:initialize_plugin).with(group: 'frontend')
+      .and_return(foo_baz_frontend)
 
-    allow(pu_foobar).to receive(:initialize_plugin).with(group: 'backend').
-      and_return(foo_bar_backend)
+    allow(pu_foobar).to receive(:initialize_plugin).with(group: 'backend')
+      .and_return(foo_bar_backend)
 
-    allow(pu_foobaz).to receive(:initialize_plugin).with(group: 'backend').
-      and_return(foo_baz_backend)
+    allow(pu_foobaz).to receive(:initialize_plugin).with(group: 'backend')
+      .and_return(foo_baz_backend)
   end
 
   describe '#all' do
@@ -60,15 +60,15 @@ RSpec.describe Guard::Internals::Plugins do
 
     context 'find a plugin by as string' do
       it 'returns an array of plugins if plugins are found' do
-        expect(subject.all('foo-bar')).
-          to match_array([foo_bar_backend, foo_bar_frontend])
+        expect(subject.all('foo-bar'))
+          .to match_array([foo_bar_backend, foo_bar_frontend])
       end
     end
 
     context 'find a plugin by as symbol' do
       it 'returns an array of plugins if plugins are found' do
-        expect(subject.all(:'foo-bar')).
-          to match_array([foo_bar_backend, foo_bar_frontend])
+        expect(subject.all(:'foo-bar'))
+          .to match_array([foo_bar_backend, foo_bar_frontend])
       end
 
       it 'returns an empty array when no plugin is found' do
@@ -78,8 +78,8 @@ RSpec.describe Guard::Internals::Plugins do
 
     context 'find plugins matching a regexp' do
       it 'returns an array of plugins if plugins are found' do
-        expect(subject.all(/^foobar/)).
-          to match_array([foo_bar_backend, foo_bar_frontend])
+        expect(subject.all(/^foobar/))
+          .to match_array([foo_bar_backend, foo_bar_frontend])
       end
 
       it 'returns an empty array when no plugin is found' do
@@ -89,15 +89,15 @@ RSpec.describe Guard::Internals::Plugins do
 
     context 'find plugins by their group as a string' do
       it 'returns an array of plugins if plugins are found' do
-        expect(subject.all(group: 'backend')).
-          to eq [foo_bar_backend, foo_baz_backend]
+        expect(subject.all(group: 'backend'))
+          .to eq [foo_bar_backend, foo_baz_backend]
       end
     end
 
     context 'find plugins by their group as a symbol' do
       it 'returns an array of plugins if plugins are found' do
-        expect(subject.all(group: :frontend)).
-          to eq [foo_bar_frontend, foo_baz_frontend]
+        expect(subject.all(group: :frontend))
+          .to eq [foo_bar_frontend, foo_baz_frontend]
       end
 
       it 'returns an empty array when no plugin is found' do
@@ -107,13 +107,13 @@ RSpec.describe Guard::Internals::Plugins do
 
     context 'find plugins by their group & name' do
       it 'returns an array of plugins if plugins are found' do
-        expect(subject.all(group: 'backend', name: 'foo-bar')).
-          to eq [foo_bar_backend]
+        expect(subject.all(group: 'backend', name: 'foo-bar'))
+          .to eq [foo_bar_backend]
       end
 
       it 'returns an empty array when no plugin is found' do
-        expect(subject.all(group: :unknown, name: :'foo-baz')).
-          to be_empty
+        expect(subject.all(group: :unknown, name: :'foo-baz'))
+          .to be_empty
       end
     end
   end

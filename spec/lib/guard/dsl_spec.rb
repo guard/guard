@@ -69,8 +69,8 @@ RSpec.describe Guard::Dsl do
       let(:contents) { 'ignore! %r{^foo}, /bar/' }
 
       it 'replaces listener regexps' do
-        expect(session).to receive(:guardfile_ignore_bang=).
-          with([[/^foo/, /bar/]])
+        expect(session).to receive(:guardfile_ignore_bang=)
+          .with([[/^foo/, /bar/]])
 
         evaluator.call(contents)
       end
@@ -80,11 +80,11 @@ RSpec.describe Guard::Dsl do
       let(:contents) { "ignore! %r{.txt$}, /.*\\.zip/\n ignore! %r{^foo}" }
 
       it 'replaces listener ignores, but keeps ignore! ignores' do
-        allow(session).to receive(:guardfile_ignore_bang=).
-          with([[/.txt$/, /.*\.zip/]])
+        allow(session).to receive(:guardfile_ignore_bang=)
+          .with([[/.txt$/, /.*\.zip/]])
 
-        expect(session).to receive(:guardfile_ignore_bang=).
-          with([[/.txt$/, /.*\.zip/], [/^foo/]])
+        expect(session).to receive(:guardfile_ignore_bang=)
+          .with([[/.txt$/, /.*\.zip/], [/^foo/]])
 
         evaluator.call(contents)
       end
@@ -147,8 +147,8 @@ RSpec.describe Guard::Dsl do
     context 'with interactor options' do
       let(:contents) { 'interactor option1: \'a\', option2: 123' }
       it 'passes the options to the interactor' do
-        expect(Guard::Interactor).to receive(:options=).
-          with(option1: 'a', option2: 123)
+        expect(Guard::Interactor).to receive(:options=)
+          .with(option1: 'a', option2: 123)
 
         evaluator.call(contents)
       end
@@ -160,8 +160,8 @@ RSpec.describe Guard::Dsl do
       let(:contents) { 'group :w' }
 
       it 'displays an error' do
-        expect(::Guard::UI).to receive(:error).
-          with("No Guard plugins found in the group 'w',"\
+        expect(::Guard::UI).to receive(:error)
+          .with("No Guard plugins found in the group 'w',"\
                ' please add at least one.')
 
         evaluator.call(contents)
@@ -172,8 +172,8 @@ RSpec.describe Guard::Dsl do
       let(:contents) { 'group :all' }
 
       it 'raises an error' do
-        expect { evaluator.call(contents) }.
-          to raise_error(
+        expect { evaluator.call(contents) }
+          .to raise_error(
             Guard::Dsl::Error,
             /'all' is not an allowed group name!/
           )
@@ -184,8 +184,8 @@ RSpec.describe Guard::Dsl do
       let(:contents) { "group 'all'" }
 
       it 'raises an error' do
-        expect { evaluator.call(contents) }.
-          to raise_error(
+        expect { evaluator.call(contents) }
+          .to raise_error(
             Guard::Dsl::Error,
             /'all' is not an allowed group name!/
           )
@@ -200,17 +200,17 @@ RSpec.describe Guard::Dsl do
         expect(groups).to receive(:add).with(:y, {})
         expect(groups).to receive(:add).with(:x, halt_on_fail: true)
 
-        expect(plugins).to receive(:add).
-          with(:pow, watchers: [], callbacks: [], group: :default)
+        expect(plugins).to receive(:add)
+          .with(:pow, watchers: [], callbacks: [], group: :default)
 
-        expect(plugins).to receive(:add).
-          with(:test, watchers: [], callbacks: [], group: :w)
+        expect(plugins).to receive(:add)
+          .with(:test, watchers: [], callbacks: [], group: :w)
 
-        expect(plugins).to receive(:add).
-          with(:rspec, watchers: [], callbacks: [], group: :x).twice
+        expect(plugins).to receive(:add)
+          .with(:rspec, watchers: [], callbacks: [], group: :x).twice
 
-        expect(plugins).to receive(:add).
-          with(:less, watchers: [], callbacks: [], group: :y)
+        expect(plugins).to receive(:add)
+          .with(:less, watchers: [], callbacks: [], group: :y)
 
         expect(session).to receive(:guardfile_notification=).with(growl: {})
         evaluator.call(contents)
@@ -233,8 +233,8 @@ RSpec.describe Guard::Dsl do
       let(:contents) { 'guard \'test\'' }
 
       it 'loads a guard specified as a quoted string from the DSL' do
-        expect(plugins).to receive(:add).
-          with('test', watchers: [], callbacks: [], group: :default)
+        expect(plugins).to receive(:add)
+          .with('test', watchers: [], callbacks: [], group: :default)
 
         evaluator.call(contents)
       end
@@ -244,8 +244,8 @@ RSpec.describe Guard::Dsl do
       let(:contents) { 'guard "test"' }
 
       it 'loads a guard specified as a double quoted string from the DSL' do
-        expect(plugins).to receive(:add).
-          with('test', watchers: [], callbacks: [], group: :default)
+        expect(plugins).to receive(:add)
+          .with('test', watchers: [], callbacks: [], group: :default)
 
         evaluator.call(contents)
       end
@@ -255,8 +255,8 @@ RSpec.describe Guard::Dsl do
       let(:contents) { 'guard :test' }
 
       it 'loads a guard specified as a symbol from the DSL' do
-        expect(plugins).to receive(:add).
-          with(:test, watchers: [], callbacks: [], group: :default)
+        expect(plugins).to receive(:add)
+          .with(:test, watchers: [], callbacks: [], group: :default)
 
         evaluator.call(contents)
       end
@@ -266,8 +266,8 @@ RSpec.describe Guard::Dsl do
       let(:contents) { 'guard(:test)' }
 
       it 'adds the plugin' do
-        expect(plugins).to receive(:add).
-          with(:test, watchers: [], callbacks: [], group: :default)
+        expect(plugins).to receive(:add)
+          .with(:test, watchers: [], callbacks: [], group: :default)
         evaluator.call(contents)
       end
     end
@@ -295,8 +295,8 @@ RSpec.describe Guard::Dsl do
       it 'adds plugin with group info' do
         expect(groups).to receive(:add).with(:foo, {})
         expect(groups).to receive(:add).with(:bar, {})
-        expect(plugins).to receive(:add).
-          with(:test, watchers: [], callbacks: [], group: :bar)
+        expect(plugins).to receive(:add)
+          .with(:test, watchers: [], callbacks: [], group: :bar)
 
         evaluator.call(contents)
       end
@@ -311,11 +311,11 @@ RSpec.describe Guard::Dsl do
         expect(groups).to receive(:add).with(:foo, {})
         expect(groups).to receive(:add).with(:bar, {})
 
-        expect(plugins).to receive(:add).
-          with(:test, watchers: [], callbacks: [], group: :bar)
+        expect(plugins).to receive(:add)
+          .with(:test, watchers: [], callbacks: [], group: :bar)
 
-        expect(plugins).to receive(:add).
-          with(:rspec, watchers: [], callbacks: [], group: :default)
+        expect(plugins).to receive(:add)
+          .with(:rspec, watchers: [], callbacks: [], group: :default)
 
         evaluator.call(contents)
       end
@@ -348,8 +348,8 @@ RSpec.describe Guard::Dsl do
           group: :default
         }
 
-        expect(plugins).to receive(:add).
-          with(:dummy, call_params) do |_, options|
+        expect(plugins).to receive(:add)
+          .with(:dummy, call_params) do |_, options|
           expect(options[:watchers].size).to eq 2
           expect(options[:watchers][0].pattern).to eq 'a'
           expect(options[:watchers][0].action.call).to eq proc { 'b' }.call
@@ -357,11 +357,11 @@ RSpec.describe Guard::Dsl do
           expect(options[:watchers][1].action).to be_nil
         end
 
-        allow(Guard::Watcher).to receive(:new).with('a', anything).
-          and_return(watcher_a)
+        allow(Guard::Watcher).to receive(:new).with('a', anything)
+          .and_return(watcher_a)
 
-        allow(Guard::Watcher).to receive(:new).with('c', nil).
-          and_return(watcher_c)
+        allow(Guard::Watcher).to receive(:new).with('c', nil)
+          .and_return(watcher_c)
 
         evaluator.call(contents)
       end
@@ -380,15 +380,15 @@ RSpec.describe Guard::Dsl do
           group: :default
         }
 
-        expect(plugins).to receive(:add).
-          with(:plugin, plugin_options) do |_, options|
+        expect(plugins).to receive(:add)
+          .with(:plugin, plugin_options) do |_, options|
           expect(options[:watchers].size).to eq 1
           expect(options[:watchers][0].pattern).to eq 'a'
           expect(options[:watchers][0].action).to be_nil
         end
 
-        allow(Guard::Watcher).to receive(:new).with('a', nil).
-          and_return(watcher)
+        allow(Guard::Watcher).to receive(:new).with('a', nil)
+          .and_return(watcher)
 
         evaluator.call(contents)
       end
@@ -491,8 +491,8 @@ RSpec.describe Guard::Dsl do
       context 'with logger template' do
         let(:contents) { 'logger template: \':message - :severity\'' }
         it do
-          is_expected.to have_received(:options=).
-            with(template: ':message - :severity')
+          is_expected.to have_received(:options=)
+            .with(template: ':message - :severity')
         end
       end
 
@@ -533,8 +533,8 @@ RSpec.describe Guard::Dsl do
       context 'with logger except filter from array of symbols and string' do
         let(:contents) { 'logger except: [:rspec, \'cucumber\', :jasmine]' }
         it do
-          is_expected.to have_received(:options=).
-            with(except: /rspec|cucumber|jasmine/i)
+          is_expected.to have_received(:options=)
+            .with(except: /rspec|cucumber|jasmine/i)
         end
       end
     end
@@ -544,8 +544,8 @@ RSpec.describe Guard::Dsl do
         let(:contents) { 'logger level: :baz' }
 
         it 'shows a warning' do
-          expect(Guard::UI).to receive(:warning).
-            with 'Invalid log level `baz` ignored.'\
+          expect(Guard::UI).to receive(:warning)
+            .with 'Invalid log level `baz` ignored.'\
             ' Please use either :debug, :info, :warn or :error.'
 
           evaluator.call(contents)
@@ -561,8 +561,8 @@ RSpec.describe Guard::Dsl do
         let(:contents) { 'logger only: :jasmine, except: :rspec' }
 
         it 'shows a warning' do
-          expect(Guard::UI).to receive(:warning).
-            with 'You cannot specify the logger options'\
+          expect(Guard::UI).to receive(:warning)
+            .with 'You cannot specify the logger options'\
             ' :only and :except at the same time.'
           evaluator.call(contents)
         end

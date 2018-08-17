@@ -45,8 +45,8 @@ unless Guard::Config.new.strict?
       end
 
       it 'displays a deprecation warning to the user' do
-        expect(Guard::UI).to receive(:deprecation).
-          with(Guard::Deprecated::Guard::ClassMethods::GUARDS)
+        expect(Guard::UI).to receive(:deprecation)
+          .with(Guard::Deprecated::Guard::ClassMethods::GUARDS)
         subject.guards
       end
 
@@ -60,8 +60,8 @@ unless Guard::Config.new.strict?
       before { allow(plugins).to receive(:add).with('rspec', {}) }
 
       it 'displays a deprecation warning to the user' do
-        expect(Guard::UI).to receive(:deprecation).
-          with(Guard::Deprecated::Guard::ClassMethods::ADD_GUARD)
+        expect(Guard::UI).to receive(:deprecation)
+          .with(Guard::Deprecated::Guard::ClassMethods::ADD_GUARD)
 
         subject.add_guard('rspec')
       end
@@ -79,26 +79,26 @@ unless Guard::Config.new.strict?
       end
 
       before do
-        allow(Guard::PluginUtil).to receive(:new).with('rspec').
-          and_return(plugin_util)
+        allow(Guard::PluginUtil).to receive(:new).with('rspec')
+          .and_return(plugin_util)
       end
 
       it 'displays a deprecation warning to the user' do
-        expect(Guard::UI).to receive(:deprecation).
-          with(Guard::Deprecated::Guard::ClassMethods::GET_GUARD_CLASS)
+        expect(Guard::UI).to receive(:deprecation)
+          .with(Guard::Deprecated::Guard::ClassMethods::GET_GUARD_CLASS)
         subject.get_guard_class('rspec')
       end
 
       it 'delegates to Guard::PluginUtil' do
-        expect(plugin_util).to receive(:plugin_class).
-          with(fail_gracefully: false)
+        expect(plugin_util).to receive(:plugin_class)
+          .with(fail_gracefully: false)
         subject.get_guard_class('rspec')
       end
 
       describe ':fail_gracefully' do
         it 'pass it to get_guard_class' do
-          expect(plugin_util).to receive(:plugin_class).
-            with(fail_gracefully: true)
+          expect(plugin_util).to receive(:plugin_class)
+            .with(fail_gracefully: true)
           subject.get_guard_class('rspec', true)
         end
       end
@@ -114,8 +114,8 @@ unless Guard::Config.new.strict?
       end
 
       it 'displays a deprecation warning to the user' do
-        expect(Guard::UI).to receive(:deprecation).
-          with(Guard::Deprecated::Guard::ClassMethods::LOCATE_GUARD)
+        expect(Guard::UI).to receive(:deprecation)
+          .with(Guard::Deprecated::Guard::ClassMethods::LOCATE_GUARD)
 
         subject.locate_guard('rspec')
       end
@@ -132,8 +132,8 @@ unless Guard::Config.new.strict?
       before { allow(Guard::PluginUtil).to receive(:plugin_names) }
 
       it 'displays a deprecation warning to the user' do
-        expect(Guard::UI).to receive(:deprecation).
-          with(Guard::Deprecated::Guard::ClassMethods::GUARD_GEM_NAMES)
+        expect(Guard::UI).to receive(:deprecation)
+          .with(Guard::Deprecated::Guard::ClassMethods::GUARD_GEM_NAMES)
 
         subject.guard_gem_names
       end
@@ -147,8 +147,8 @@ unless Guard::Config.new.strict?
 
     describe '.running' do
       it 'show deprecation warning' do
-        expect(Guard::UI).to receive(:deprecation).
-          with(Guard::Deprecated::Guard::ClassMethods::RUNNING)
+        expect(Guard::UI).to receive(:deprecation)
+          .with(Guard::Deprecated::Guard::ClassMethods::RUNNING)
 
         subject.running
       end
@@ -156,8 +156,8 @@ unless Guard::Config.new.strict?
 
     describe '.lock' do
       it 'show deprecation warning' do
-        expect(Guard::UI).to receive(:deprecation).
-          with(Guard::Deprecated::Guard::ClassMethods::LOCK)
+        expect(Guard::UI).to receive(:deprecation)
+          .with(Guard::Deprecated::Guard::ClassMethods::LOCK)
 
         subject.lock
       end
@@ -165,8 +165,8 @@ unless Guard::Config.new.strict?
 
     describe '.listener=' do
       it 'show deprecation warning' do
-        expect(Guard::UI).to receive(:deprecation).
-          with(Guard::Deprecated::Guard::ClassMethods::LISTENER_ASSIGN)
+        expect(Guard::UI).to receive(:deprecation)
+          .with(Guard::Deprecated::Guard::ClassMethods::LISTENER_ASSIGN)
 
         subject.listener = 123
       end
@@ -178,20 +178,20 @@ unless Guard::Config.new.strict?
 
     describe 'reset_evaluator' do
       it 'show deprecation warning' do
-        expect(Guard::UI).to receive(:deprecation).
-          with(Guard::Deprecated::Guard::ClassMethods::RESET_EVALUATOR)
+        expect(Guard::UI).to receive(:deprecation)
+          .with(Guard::Deprecated::Guard::ClassMethods::RESET_EVALUATOR)
         subject.reset_evaluator({})
       end
     end
 
     describe 'evaluator' do
       before do
-        allow(Guard::Guardfile::Evaluator).to receive(:new).
-          and_return(double('evaluator'))
+        allow(Guard::Guardfile::Evaluator).to receive(:new)
+          .and_return(double('evaluator'))
       end
       it 'show deprecation warning' do
-        expect(Guard::UI).to receive(:deprecation).
-          with(Guard::Deprecated::Guard::ClassMethods::EVALUATOR)
+        expect(Guard::UI).to receive(:deprecation)
+          .with(Guard::Deprecated::Guard::ClassMethods::EVALUATOR)
         subject.evaluator
       end
     end
@@ -200,14 +200,14 @@ unless Guard::Config.new.strict?
       let(:evaluator) { instance_double('Guard::Guardfile::Evaluator') }
 
       before do
-        allow(::Guard::Guardfile::Evaluator).to receive(:new).
-          and_return(evaluator)
+        allow(::Guard::Guardfile::Evaluator).to receive(:new)
+          .and_return(evaluator)
         allow(evaluator).to receive(:evaluate)
       end
 
       it 'show deprecation warning' do
-        expect(Guard::UI).to receive(:deprecation).
-          with(Guard::Deprecated::Guard::ClassMethods::EVALUATOR)
+        expect(Guard::UI).to receive(:deprecation)
+          .with(Guard::Deprecated::Guard::ClassMethods::EVALUATOR)
         subject.evaluate_guardfile
       end
 
@@ -227,8 +227,8 @@ unless Guard::Config.new.strict?
       end
 
       it 'show deprecation warning' do
-        expect(Guard::UI).to receive(:deprecation).
-          with(Guard::Deprecated::Guard::ClassMethods::OPTIONS)
+        expect(Guard::UI).to receive(:deprecation)
+          .with(Guard::Deprecated::Guard::ClassMethods::OPTIONS)
         subject.options
       end
 
@@ -278,8 +278,8 @@ unless Guard::Config.new.strict?
       end
 
       it 'show deprecation warning' do
-        expect(Guard::UI).to receive(:deprecation).
-          with(Guard::Deprecated::Guard::ClassMethods::ADD_GROUP)
+        expect(Guard::UI).to receive(:deprecation)
+          .with(Guard::Deprecated::Guard::ClassMethods::ADD_GROUP)
         subject.add_group(:foo)
       end
 
@@ -296,8 +296,8 @@ unless Guard::Config.new.strict?
       end
 
       it 'show deprecation warning' do
-        expect(Guard::UI).to receive(:deprecation).
-          with(Guard::Deprecated::Guard::ClassMethods::ADD_PLUGIN)
+        expect(Guard::UI).to receive(:deprecation)
+          .with(Guard::Deprecated::Guard::ClassMethods::ADD_PLUGIN)
         subject.add_plugin(:foo)
       end
 
@@ -317,8 +317,8 @@ unless Guard::Config.new.strict?
       end
 
       it 'show deprecation warning' do
-        expect(Guard::UI).to receive(:deprecation).
-          with(Guard::Deprecated::Guard::ClassMethods::GROUP)
+        expect(Guard::UI).to receive(:deprecation)
+          .with(Guard::Deprecated::Guard::ClassMethods::GROUP)
         subject.group(:foo)
       end
 
@@ -339,8 +339,8 @@ unless Guard::Config.new.strict?
       end
 
       it 'show deprecation warning' do
-        expect(Guard::UI).to receive(:deprecation).
-          with(Guard::Deprecated::Guard::ClassMethods::PLUGIN)
+        expect(Guard::UI).to receive(:deprecation)
+          .with(Guard::Deprecated::Guard::ClassMethods::PLUGIN)
         subject.plugin(:foo)
       end
 
@@ -357,8 +357,8 @@ unless Guard::Config.new.strict?
       end
 
       it 'show deprecation warning' do
-        expect(Guard::UI).to receive(:deprecation).
-          with(Guard::Deprecated::Guard::ClassMethods::GROUPS)
+        expect(Guard::UI).to receive(:deprecation)
+          .with(Guard::Deprecated::Guard::ClassMethods::GROUPS)
         subject.groups(:foo)
       end
 
@@ -375,8 +375,8 @@ unless Guard::Config.new.strict?
       end
 
       it 'show deprecation warning' do
-        expect(Guard::UI).to receive(:deprecation).
-          with(Guard::Deprecated::Guard::ClassMethods::PLUGINS)
+        expect(Guard::UI).to receive(:deprecation)
+          .with(Guard::Deprecated::Guard::ClassMethods::PLUGINS)
         subject.plugins(:foo)
       end
 
@@ -393,8 +393,8 @@ unless Guard::Config.new.strict?
       end
 
       it 'show deprecation warning' do
-        expect(Guard::UI).to receive(:deprecation).
-          with(Guard::Deprecated::Guard::ClassMethods::SCOPE)
+        expect(Guard::UI).to receive(:deprecation)
+          .with(Guard::Deprecated::Guard::ClassMethods::SCOPE)
         subject.scope
       end
 
@@ -409,8 +409,8 @@ unless Guard::Config.new.strict?
       end
 
       it 'show deprecation warning' do
-        expect(Guard::UI).to receive(:deprecation).
-          with(Guard::Deprecated::Guard::ClassMethods::SCOPE_ASSIGN)
+        expect(Guard::UI).to receive(:deprecation)
+          .with(Guard::Deprecated::Guard::ClassMethods::SCOPE_ASSIGN)
         subject.scope = { foo: :bar }
       end
 

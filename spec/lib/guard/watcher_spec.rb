@@ -39,13 +39,13 @@ RSpec.describe Guard::Watcher do
 
   describe '#==' do
     it 'returns true for equal watchers' do
-      expect(described_class.new(/spec_helper\.rb/)).
-        to eq(described_class.new(/spec_helper\.rb/))
+      expect(described_class.new(/spec_helper\.rb/))
+        .to eq(described_class.new(/spec_helper\.rb/))
     end
 
     it 'returns false for unequal watchers' do
-      expect(described_class.new(/spec_helper\.rb/)).
-        not_to eq(described_class.new(/spec_helper\.r/))
+      expect(described_class.new(/spec_helper\.rb/))
+        .not_to eq(described_class.new(/spec_helper\.r/))
     end
   end
 
@@ -58,8 +58,8 @@ RSpec.describe Guard::Watcher do
 
     context 'without a watcher action' do
       before do
-        allow(plugin).to receive(:watchers).
-          and_return([described_class.new(pattern)])
+        allow(plugin).to receive(:watchers)
+          .and_return([described_class.new(pattern)])
       end
 
       context 'with a regex pattern' do
@@ -147,8 +147,8 @@ RSpec.describe Guard::Watcher do
         end
 
         it 'combines the results of different actions' do
-          expect(matched(%w(spec_helper.rb array.rb))).
-            to eq ['spec', %w(foo bar)]
+          expect(matched(%w(spec_helper.rb array.rb)))
+            .to eq ['spec', %w(foo bar)]
         end
 
         it 'returns the evaluated addition argument in an array' do
@@ -189,8 +189,8 @@ RSpec.describe Guard::Watcher do
         end
 
         it 'combines results of different actions' do
-          expect(matched(%w(lib/foo.rb array.rb))).
-            to eq %w(spec/foo_spec.rb foo bar)
+          expect(matched(%w(lib/foo.rb array.rb)))
+            .to eq %w(spec/foo_spec.rb foo bar)
         end
 
         it 'returns nothing if action returns non-string or non-string array' do
@@ -234,8 +234,8 @@ RSpec.describe Guard::Watcher do
         end
 
         it 'combinines results of different actions' do
-          expect(matched(%w(lib/foo.rb array.rb))).
-            to eq ['spec/foo_spec.rb', %w(foo bar array.rb)]
+          expect(matched(%w(lib/foo.rb array.rb)))
+            .to eq ['spec/foo_spec.rb', %w(foo bar array.rb)]
         end
 
         it 'returns the evaluated addition argument + the path' do
@@ -311,14 +311,14 @@ RSpec.describe Guard::Watcher do
     let(:match) { instance_double(described_class::Pattern::MatchResult) }
 
     before do
-      allow(described_class::Pattern).to receive(:create).with(pattern).
-        and_return(matcher)
+      allow(described_class::Pattern).to receive(:create).with(pattern)
+        .and_return(matcher)
 
-      allow(matcher).to receive(:match).with(pattern).
-        and_return(match_data)
+      allow(matcher).to receive(:match).with(pattern)
+        .and_return(match_data)
 
-      allow(described_class::Pattern::MatchResult).to receive(:new).
-        with(match_data, file).and_return(match)
+      allow(described_class::Pattern::MatchResult).to receive(:new)
+        .with(match_data, file).and_return(match)
     end
 
     context 'with a valid pattern' do

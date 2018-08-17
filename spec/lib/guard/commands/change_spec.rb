@@ -20,8 +20,8 @@ RSpec.describe Guard::Commands::Change do
 
   context 'with a file' do
     it 'runs the :run_on_changes action with the given file' do
-      expect(::Guard).to receive(:async_queue_add).
-        with(modified: ['foo'], added: [], removed: [])
+      expect(::Guard).to receive(:async_queue_add)
+        .with(modified: ['foo'], added: [], removed: [])
 
       FakePry.process('foo')
     end
@@ -29,8 +29,8 @@ RSpec.describe Guard::Commands::Change do
 
   context 'with multiple files' do
     it 'runs the :run_on_changes action with the given files' do
-      expect(::Guard).to receive(:async_queue_add).
-        with(modified: %w(foo bar baz), added: [], removed: [])
+      expect(::Guard).to receive(:async_queue_add)
+        .with(modified: %w(foo bar baz), added: [], removed: [])
 
       FakePry.process('foo', 'bar', 'baz')
     end

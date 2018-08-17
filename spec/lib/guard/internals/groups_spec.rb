@@ -22,11 +22,11 @@ RSpec.describe Guard::Internals::Groups do
       let(:backend) { instance_double('Guard::Group', name: :backend) }
 
       before do
-        allow(Guard::Group).to receive(:new).with(:frontend, {}).
-          and_return(frontend)
+        allow(Guard::Group).to receive(:new).with(:frontend, {})
+          .and_return(frontend)
 
-        allow(Guard::Group).to receive(:new).with(:backend, {}).
-          and_return(backend)
+        allow(Guard::Group).to receive(:new).with(:backend, {})
+          .and_return(backend)
 
         subject.add(:frontend)
         subject.add(:backend)
@@ -86,8 +86,8 @@ RSpec.describe Guard::Internals::Groups do
       let(:backend) { instance_double('Guard::Group', name: :backend) }
 
       before do
-        allow(Guard::Group).to receive(:new).with('frontend', {}).
-          and_return(frontend)
+        allow(Guard::Group).to receive(:new).with('frontend', {})
+          .and_return(frontend)
 
         subject.add('frontend')
       end

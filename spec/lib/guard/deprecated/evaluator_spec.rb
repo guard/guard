@@ -29,8 +29,8 @@ unless Guard::Config.new.strict?
       end
 
       it 'displays a deprecation warning to the user' do
-        expect(Guard::UI).to receive(:deprecation).
-          with(Guard::Deprecated::Evaluator::EVALUATE_GUARDFILE)
+        expect(Guard::UI).to receive(:deprecation)
+          .with(Guard::Deprecated::Evaluator::EVALUATE_GUARDFILE)
         subject.evaluate_guardfile
       end
 
@@ -42,8 +42,8 @@ unless Guard::Config.new.strict?
 
     describe '#reevaluate_guardfile' do
       it 'displays a deprecation warning to the user' do
-        expect(Guard::UI).to receive(:deprecation).
-          with(Guard::Deprecated::Evaluator::REEVALUATE_GUARDFILE)
+        expect(Guard::UI).to receive(:deprecation)
+          .with(Guard::Deprecated::Evaluator::REEVALUATE_GUARDFILE)
         subject.reevaluate_guardfile
       end
     end

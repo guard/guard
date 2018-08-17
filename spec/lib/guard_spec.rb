@@ -77,8 +77,8 @@ RSpec.describe Guard do
     end
 
     it 'initializes the listener' do
-      allow(Listen).to receive(:to).
-        with('/foo', latency: 2, wait_for_delay: 1).and_return(listener)
+      allow(Listen).to receive(:to)
+        .with('/foo', latency: 2, wait_for_delay: 1).and_return(listener)
 
       allow(session).to receive(:listener_args).and_return(
         [:to, '/foo', { latency: 2, wait_for_delay: 1 }]
@@ -98,15 +98,15 @@ RSpec.describe Guard do
 
       it 'sets up USR1 trap for pausing' do
         expect(traps).to receive(:handle).with('USR1') { |_, &b| b.call }
-        expect(Guard).to receive(:async_queue_add).
-          with([:guard_pause, :paused])
+        expect(Guard).to receive(:async_queue_add)
+          .with([:guard_pause, :paused])
         subject
       end
 
       it 'sets up USR2 trap for unpausing' do
         expect(traps).to receive(:handle).with('USR2') { |_, &b| b.call }
-        expect(Guard).to receive(:async_queue_add).
-          with([:guard_pause, :unpaused])
+        expect(Guard).to receive(:async_queue_add)
+          .with([:guard_pause, :unpaused])
         subject
       end
 
@@ -131,8 +131,8 @@ RSpec.describe Guard do
         before do
           allow(evaluator).to receive(:evaluate) do
             allow(session).to receive(:guardfile_ignore).and_return([/foo/])
-            allow(session).to receive(:guardfile_ignore_bang).
-              and_return([/bar/])
+            allow(session).to receive(:guardfile_ignore_bang)
+              .and_return([/bar/])
           end
           Guard.setup(options)
         end
@@ -149,8 +149,8 @@ RSpec.describe Guard do
     end
 
     it 'displays an error message when no guard are defined in Guardfile' do
-      expect(Guard::UI).to receive(:error).
-        with('No plugins found in Guardfile, please add at least one.')
+      expect(Guard::UI).to receive(:error)
+        .with('No plugins found in Guardfile, please add at least one.')
 
       subject
     end
@@ -234,8 +234,8 @@ RSpec.describe Guard do
       let(:pathname) { instance_double(Pathname) }
 
       before do
-        allow_any_instance_of(Pathname).to receive(:relative_path_from).
-          with(pwd).and_raise(ArgumentError)
+        allow_any_instance_of(Pathname).to receive(:relative_path_from)
+          .with(pwd).and_raise(ArgumentError)
       end
 
       it { is_expected.to eq(Pathname.new('d:/project/foo')) }

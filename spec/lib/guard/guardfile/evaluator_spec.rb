@@ -34,8 +34,8 @@ RSpec.describe Guard::Guardfile::Evaluator do
         it 'displays an error message and raises original exception' do
           stub_user_guard_rb
 
-          allow(dsl).to receive(:evaluate).
-            and_raise(Guard::Dsl::Error,
+          allow(dsl).to receive(:evaluate)
+            .and_raise(Guard::Dsl::Error,
                       'Invalid Guardfile, original error is:')
 
           expect { subject.evaluate }.to raise_error(Guard::Dsl::Error)
@@ -48,8 +48,8 @@ RSpec.describe Guard::Guardfile::Evaluator do
           stub_user_guardfile
           stub_user_project_guardfile
 
-          expect { subject.evaluate }.
-            to raise_error(Guard::Guardfile::Evaluator::NoGuardfileError)
+          expect { subject.evaluate }
+            .to raise_error(Guard::Guardfile::Evaluator::NoGuardfileError)
         end
       end
 
@@ -77,8 +77,8 @@ RSpec.describe Guard::Guardfile::Evaluator do
           stub_guardfile(' ')
           allow(dsl).to receive(:evaluate).with('', '', 1)
 
-          expect { subject.evaluate }.
-            to raise_error(Guard::Guardfile::Evaluator::NoPluginsError)
+          expect { subject.evaluate }
+            .to raise_error(Guard::Guardfile::Evaluator::NoPluginsError)
         end
       end
 
@@ -111,8 +111,8 @@ RSpec.describe Guard::Guardfile::Evaluator do
         end
 
         it 'raises error' do
-          expect { subject.evaluate }.
-            to raise_error(Guard::Guardfile::Evaluator::NoCustomGuardfile)
+          expect { subject.evaluate }
+            .to raise_error(Guard::Guardfile::Evaluator::NoCustomGuardfile)
         end
       end
     end
@@ -152,8 +152,8 @@ RSpec.describe Guard::Guardfile::Evaluator do
         before do
           stub_file(File.expand_path('../relative_path_to_Guardfile'),
                     valid_guardfile_string)
-          allow(dsl).to receive(:evaluate).
-            with(valid_guardfile_string, anything, 1)
+          allow(dsl).to receive(:evaluate)
+            .with(valid_guardfile_string, anything, 1)
         end
       end
     end
@@ -198,8 +198,8 @@ RSpec.describe Guard::Guardfile::Evaluator do
       let(:options) { { contents: 'guard "test" {watch("c")}' } }
 
       it 'returns true' do
-        allow(dsl_reader).
-          to receive(:evaluate).with('guard "test" {watch("c")}', '', 1)
+        allow(dsl_reader)
+          .to receive(:evaluate).with('guard "test" {watch("c")}', '', 1)
 
         allow(dsl_reader).to receive(:plugin_names).and_return(['test'])
         expect(subject).to be_guardfile_include('test')
@@ -210,8 +210,8 @@ RSpec.describe Guard::Guardfile::Evaluator do
       let(:options) { { contents: 'guard "other" {watch("c")}' } }
 
       it 'returns false' do
-        allow(dsl_reader).
-          to receive(:evaluate).with('guard "test" {watch("c")}', '', 1)
+        allow(dsl_reader)
+          .to receive(:evaluate).with('guard "test" {watch("c")}', '', 1)
 
         allow(dsl_reader).to receive(:plugin_names).and_return(['other'])
         expect(subject).to_not be_guardfile_include('test')

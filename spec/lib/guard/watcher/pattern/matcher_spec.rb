@@ -45,13 +45,13 @@ RSpec.describe Guard::Watcher::Pattern::Matcher do
 
   describe '#==' do
     it 'returns true for equal matchers' do
-      expect(described_class.new(/spec_helper\.rb/)).
-        to eq(described_class.new(/spec_helper\.rb/))
+      expect(described_class.new(/spec_helper\.rb/))
+        .to eq(described_class.new(/spec_helper\.rb/))
     end
 
     it 'returns false for unequal matchers' do
-      expect(described_class.new(/spec_helper\.rb/)).
-        not_to eq(described_class.new(/spec_helper\.r/))
+      expect(described_class.new(/spec_helper\.rb/))
+        .not_to eq(described_class.new(/spec_helper\.r/))
     end
   end
 

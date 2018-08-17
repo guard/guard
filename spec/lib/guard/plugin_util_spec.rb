@@ -26,11 +26,11 @@ RSpec.describe Guard::PluginUtil do
         instance_double(spec, name: 'gem2', full_gem_path: '/gem2'),
         instance_double(spec, name: 'guard-compat'),
       ]
-      allow(File).to receive(:exist?).
-        with('/gem1/lib/guard/gem1.rb') { false }
+      allow(File).to receive(:exist?)
+        .with('/gem1/lib/guard/gem1.rb') { false }
 
-      allow(File).to receive(:exist?).
-        with('/gem2/lib/guard/gem2.rb') { true }
+      allow(File).to receive(:exist?)
+        .with('/gem2/lib/guard/gem2.rb') { true }
 
       gem = class_double(Gem::Specification)
       stub_const('Gem::Specification', gem)
@@ -65,9 +65,9 @@ RSpec.describe Guard::PluginUtil do
     let(:plugin_util) { described_class.new('rspec') }
 
     before do
-      allow_any_instance_of(described_class).
-        to receive(:plugin_class).
-        and_return(guard_rspec_class)
+      allow_any_instance_of(described_class)
+        .to receive(:plugin_class)
+        .and_return(guard_rspec_class)
     end
 
     context 'with a plugin inheriting from Guard::Plugin' do
@@ -88,8 +88,8 @@ RSpec.describe Guard::PluginUtil do
     subject { described_class.new('rspec') }
 
     it 'returns the path of a Guard gem' do
-      expect(Gem::Specification).to receive(:find_by_name).
-        with('guard-rspec') { double(full_gem_path: 'gems/guard-rspec') }
+      expect(Gem::Specification).to receive(:find_by_name)
+        .with('guard-rspec') { double(full_gem_path: 'gems/guard-rspec') }
       expect(subject.plugin_location).to eq 'gems/guard-rspec'
     end
   end
@@ -117,8 +117,8 @@ RSpec.describe Guard::PluginUtil do
       expect(::Guard::UI).to receive(:error).with(/plugin_util.rb/)
 
       plugin = described_class.new('notAGuardClass')
-      allow(plugin).to receive(:require).with('guard/notaguardclass').
-        and_raise(LoadError, 'cannot load such file --')
+      allow(plugin).to receive(:require).with('guard/notaguardclass')
+        .and_raise(LoadError, 'cannot load such file --')
 
       plugin.plugin_class
     end
@@ -200,8 +200,8 @@ RSpec.describe Guard::PluginUtil do
 
       it 'returns the Guard class' do
         allow(Guard).to receive(:constants).and_return([:Inline])
-        allow(Guard).to receive(:const_get).with(:Inline).
-          and_return(plugin_class)
+        allow(Guard).to receive(:const_get).with(:Inline)
+          .and_return(plugin_class)
 
         expect(subject).to_not receive(:require)
         expect(subject.plugin_class).to eq plugin_class
@@ -232,8 +232,8 @@ RSpec.describe Guard::PluginUtil do
       end
 
       it 'shows an info message' do
-        expect(::Guard::UI).to receive(:info).
-          with 'Guardfile already includes myguard guard'
+        expect(::Guard::UI).to receive(:info)
+          .with 'Guardfile already includes myguard guard'
 
         described_class.new('myguard').add_to_guardfile
       end
@@ -247,20 +247,20 @@ RSpec.describe Guard::PluginUtil do
       let(:io) { StringIO.new }
 
       before do
-        allow(evaluator).to receive(:evaluate).
-          and_raise(Guard::Guardfile::Evaluator::NoPluginsError)
+        allow(evaluator).to receive(:evaluate)
+          .and_raise(Guard::Guardfile::Evaluator::NoPluginsError)
 
         allow(gem_spec).to receive(:full_gem_path).and_return(location)
         allow(evaluator).to receive(:guardfile_include?) { false }
         allow(Guard).to receive(:constants).and_return([:MyGuard])
-        allow(Guard).to receive(:const_get).with(:MyGuard).
-          and_return(plugin_class)
+        allow(Guard).to receive(:const_get).with(:MyGuard)
+          .and_return(plugin_class)
 
-        allow(Gem::Specification).to receive(:find_by_name).
-          with('guard-myguard').and_return(gem_spec)
+        allow(Gem::Specification).to receive(:find_by_name)
+          .with('guard-myguard').and_return(gem_spec)
 
-        allow(plugin_class).to receive(:template).with(location).
-          and_return('Template content')
+        allow(plugin_class).to receive(:template).with(location)
+          .and_return('Template content')
 
         allow(File).to receive(:read).with('Guardfile') { 'Guardfile content' }
         allow(File).to receive(:open).with('Guardfile', 'wb').and_yield io
@@ -283,14 +283,14 @@ RSpec.describe Guard::PluginUtil do
         allow(gem_spec).to receive(:full_gem_path).and_return(location)
         allow(evaluator).to receive(:guardfile_include?) { false }
         allow(Guard).to receive(:constants).and_return([:MyGuard])
-        allow(Guard).to receive(:const_get).with(:MyGuard).
-          and_return(plugin_class)
+        allow(Guard).to receive(:const_get).with(:MyGuard)
+          .and_return(plugin_class)
 
-        allow(Gem::Specification).to receive(:find_by_name).
-          with('guard-myguard').and_return(gem_spec)
+        allow(Gem::Specification).to receive(:find_by_name)
+          .with('guard-myguard').and_return(gem_spec)
 
-        allow(plugin_class).to receive(:template).with(location).
-          and_return('Template content')
+        allow(plugin_class).to receive(:template).with(location)
+          .and_return('Template content')
 
         allow(File).to receive(:read).with('Guardfile') { 'Guardfile content' }
         allow(File).to receive(:open).with('Guardfile', 'wb').and_yield io

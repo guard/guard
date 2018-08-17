@@ -12,8 +12,8 @@ RSpec.describe GuardReloader do
   before do
     allow(described_class::Config).to receive(:new).and_return(config)
 
-    allow(config).to receive(:current_bundler_gemfile).
-      and_return(bundle_gemfile_env)
+    allow(config).to receive(:current_bundler_gemfile)
+      .and_return(bundle_gemfile_env)
 
     allow(config).to receive(:using_bundler?).and_return(bundle_gemfile_env)
     allow(config).to receive(:guard_core_path).and_return(guard_core_path)
@@ -55,8 +55,8 @@ RSpec.describe GuardReloader do
 
         context 'when the relative Gemfile exists' do
           before do
-            allow(config).to receive(:exist?).
-              with(Pathname('/my/project/Gemfile')).and_return(true)
+            allow(config).to receive(:exist?)
+              .with(Pathname('/my/project/Gemfile')).and_return(true)
 
             allow(config).to receive(:setup_bundler)
             allow(config).to receive(:setup_bundler_env)
@@ -68,19 +68,19 @@ RSpec.describe GuardReloader do
           end
 
           it 'sets the Gemfile' do
-            expect(config).to receive(:setup_bundler_env).
-              with('/my/project/Gemfile')
+            expect(config).to receive(:setup_bundler_env)
+              .with('/my/project/Gemfile')
             subject.setup
           end
         end
 
         context 'when the relative Gemfile does not exist' do
           before do
-            allow(config).to receive(:exist?).
-              with(Pathname('/my/project/Gemfile')).and_return(false)
+            allow(config).to receive(:exist?)
+              .with(Pathname('/my/project/Gemfile')).and_return(false)
 
-            allow(config).to receive(:exist?).with(Pathname('Gemfile')).
-              and_return(false)
+            allow(config).to receive(:exist?).with(Pathname('Gemfile'))
+              .and_return(false)
           end
 
           it 'does not setup bundler' do
@@ -111,8 +111,8 @@ RSpec.describe GuardReloader do
 
         context 'when Gemfile exists' do
           before do
-            allow(config).to receive(:exist?).with(Pathname('Gemfile')).
-              and_return(true)
+            allow(config).to receive(:exist?).with(Pathname('Gemfile'))
+              .and_return(true)
           end
 
           it 'shows a warning' do
@@ -123,8 +123,8 @@ RSpec.describe GuardReloader do
 
         context 'when no Gemfile exists' do
           before do
-            allow(config).to receive(:exist?).with(Pathname('Gemfile')).
-              and_return(false)
+            allow(config).to receive(:exist?).with(Pathname('Gemfile'))
+              .and_return(false)
           end
 
           it 'shows no warning' do

@@ -18,8 +18,8 @@ RSpec.describe Guard::Commands::Reload do
   end
 
   before do
-    allow(session).to receive(:convert_scope).with(given_scope).
-      and_return(converted_scope)
+    allow(session).to receive(:convert_scope).with(given_scope)
+      .and_return(converted_scope)
 
     allow(state).to receive(:session).and_return(session)
     allow(Guard).to receive(:state).and_return(state)
@@ -37,8 +37,8 @@ RSpec.describe Guard::Commands::Reload do
     let(:converted_scope) { [{ groups: [], plugins: [] }, []] }
 
     it 'triggers the :reload action' do
-      expect(Guard).to receive(:async_queue_add).
-        with([:guard_reload, { groups: [], plugins: [] }])
+      expect(Guard).to receive(:async_queue_add)
+        .with([:guard_reload, { groups: [], plugins: [] }])
       FakePry.process
     end
   end
@@ -48,8 +48,8 @@ RSpec.describe Guard::Commands::Reload do
     let(:converted_scope) { [{ groups: [foo_group], plugins: [] }, []] }
 
     it 'triggers the :reload action with the given scope' do
-      expect(Guard).to receive(:async_queue_add).
-        with([:guard_reload, { groups: [foo_group], plugins: [] }])
+      expect(Guard).to receive(:async_queue_add)
+        .with([:guard_reload, { groups: [foo_group], plugins: [] }])
       FakePry.process('foo')
     end
   end
@@ -59,8 +59,8 @@ RSpec.describe Guard::Commands::Reload do
     let(:converted_scope) { [{ groups: [], plugins: [bar_guard] }, []] }
 
     it 'triggers the :reload action with the given scope' do
-      expect(Guard).to receive(:async_queue_add).
-        with([:guard_reload, { plugins: [bar_guard], groups: [] }])
+      expect(Guard).to receive(:async_queue_add)
+        .with([:guard_reload, { plugins: [bar_guard], groups: [] }])
       FakePry.process('bar')
     end
   end

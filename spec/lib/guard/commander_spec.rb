@@ -50,8 +50,8 @@ RSpec.describe Guard::Commander do
     end
 
     it 'displays an info message' do
-      expect(Guard::UI).to receive(:info).
-        with("Guard is now watching at 'dir1', 'dir2'")
+      expect(Guard::UI).to receive(:info)
+        .with("Guard is now watching at 'dir1', 'dir2'")
 
       Guard.start
     end
@@ -206,8 +206,8 @@ RSpec.describe Guard::Commander do
 
       context 'with invalid parameter' do
         it 'raises an ArgumentError' do
-          expect { Guard.pause(:invalid) }.
-            to raise_error(ArgumentError, 'invalid mode: :invalid')
+          expect { Guard.pause(:invalid) }
+            .to raise_error(ArgumentError, 'invalid mode: :invalid')
         end
       end
     end
@@ -250,8 +250,8 @@ RSpec.describe Guard::Commander do
 
       context 'with invalid parameter' do
         it 'raises an ArgumentError' do
-          expect { Guard.pause(:invalid) }.
-            to raise_error(ArgumentError, 'invalid mode: :invalid')
+          expect { Guard.pause(:invalid) }
+            .to raise_error(ArgumentError, 'invalid mode: :invalid')
         end
       end
     end
@@ -261,8 +261,8 @@ RSpec.describe Guard::Commander do
     let(:dsl_describer) { instance_double('Guard::DslDescriber') }
 
     before do
-      allow(Guard::DslDescriber).to receive(:new).with(no_args).
-        and_return(dsl_describer)
+      allow(Guard::DslDescriber).to receive(:new).with(no_args)
+        .and_return(dsl_describer)
     end
 
     it 'shows list of plugins' do

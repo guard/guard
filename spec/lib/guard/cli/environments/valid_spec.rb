@@ -15,8 +15,8 @@ RSpec.describe Guard::Cli::Environments::Valid do
     let(:bundler) { instance_double('Guard::Cli::Environments::Bundler') }
 
     before do
-      allow(Guard::Cli::Environments::Bundler).to receive(:new).
-        and_return(bundler)
+      allow(Guard::Cli::Environments::Bundler).to receive(:new)
+        .and_return(bundler)
 
       allow(bundler).to receive(:verify)
     end
@@ -25,8 +25,8 @@ RSpec.describe Guard::Cli::Environments::Valid do
       before do
         allow(bundler).to receive(:verify)
 
-        allow(options).to receive(:[]).with(:no_bundler_warning).
-          and_return(false)
+        allow(options).to receive(:[]).with(:no_bundler_warning)
+          .and_return(false)
       end
 
       it 'starts guard' do
@@ -53,8 +53,8 @@ RSpec.describe Guard::Cli::Environments::Valid do
       ].each do |error_class|
         context "when a #{error_class} error occurs" do
           before do
-            allow(Guard).to receive(:start).
-              and_raise(error_class, "#{error_class} error!")
+            allow(Guard).to receive(:start)
+              .and_raise(error_class, "#{error_class} error!")
           end
 
           it 'aborts' do
@@ -151,8 +151,8 @@ RSpec.describe Guard::Cli::Environments::Valid do
       end
 
       it 'Only creates the Guardfile without initializing any Guard template' do
-        allow(evaluator).to receive(:evaluate).
-          and_raise(Guard::Guardfile::Evaluator::NoGuardfileError)
+        allow(evaluator).to receive(:evaluate)
+          .and_raise(Guard::Guardfile::Evaluator::NoGuardfileError)
 
         allow(File).to receive(:exist?).with('Gemfile').and_return(false)
         expect(generator).to receive(:create_guardfile)
@@ -179,12 +179,12 @@ RSpec.describe Guard::Cli::Environments::Valid do
       end
 
       it 'creates a Guardfile' do
-        expect(evaluator).to receive(:evaluate).
-          and_raise(Guard::Guardfile::Evaluator::NoGuardfileError).once
+        expect(evaluator).to receive(:evaluate)
+          .and_raise(Guard::Guardfile::Evaluator::NoGuardfileError).once
         expect(evaluator).to receive(:evaluate)
 
-        expect(Guard::Guardfile::Generator).to receive(:new).
-          and_return(generator)
+        expect(Guard::Guardfile::Generator).to receive(:new)
+          .and_return(generator)
         expect(generator).to receive(:create_guardfile)
 
         subject.initialize_guardfile
@@ -210,8 +210,8 @@ RSpec.describe Guard::Cli::Environments::Valid do
       context 'when passed a guard name' do
         context 'when the Guardfile is empty' do
           before do
-            allow(evaluator).to receive(:evaluate).
-              and_raise Guard::Guardfile::Evaluator::NoPluginsError
+            allow(evaluator).to receive(:evaluate)
+              .and_raise Guard::Guardfile::Evaluator::NoPluginsError
             allow(generator).to receive(:initialize_template)
           end
 
@@ -237,8 +237,8 @@ RSpec.describe Guard::Cli::Environments::Valid do
 
       context 'when passed an unknown guard name' do
         before do
-          expect(generator).to receive(:initialize_template).with('foo').
-            and_raise(Guard::Guardfile::Generator::NoSuchPlugin, 'foo')
+          expect(generator).to receive(:initialize_template).with('foo')
+            .and_raise(Guard::Guardfile::Generator::NoSuchPlugin, 'foo')
         end
 
         it 'returns an exit code' do
