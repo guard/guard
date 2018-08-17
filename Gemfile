@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 source "https://rubygems.org"
 
 gemspec unless ENV["USE_INSTALLED_GUARD"] == "1"
@@ -19,9 +21,9 @@ group :development do
 
   gem "guard-rubocop", require: false
 
-  gem "yard", require: false, platform: :mri
-  gem "redcarpet", require: false, platform: :mri
   gem "guard-ronn", require: false, platform: :mri
+  gem "redcarpet", require: false, platform: :mri
+  gem "yard", require: false, platform: :mri
 
   # Used for release
   gem "gems", require: false, platform: :mri
@@ -37,19 +39,19 @@ group :test do
   gem "guard-cucumber", "~> 2.1", require: false
   gem "guard-rspec", require: false
 
-  gem "codeclimate-test-reporter", require: nil
-  gem "rspec", ">= 3.0.0", require: false
   gem "aruba", "~> 0.9", require: false
+  gem "codeclimate-test-reporter", require: nil
   gem "notiffany", ">= 0.0.6", require: false
+  gem "rspec", ">= 3.0.0", require: false
 end
 
 # Needed for Travis
 # See http://docs.travis-ci.com/user/languages/ruby/#Rubinius
 #
 platforms :rbx do
-  gem "racc"
-  gem "rubysl", "~> 2.0"
-  gem "psych"
   gem "json"
+  gem "psych"
+  gem "racc"
   gem "rubinius-coverage"
+  gem "rubysl", "~> 2.0"
 end
