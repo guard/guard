@@ -118,28 +118,28 @@ Style/TrailingCommaInArguments:
   StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#no-trailing-array-commas'
   Enabled: false
   EnforcedStyleForMultiline: no_comma
-  SupportedStyles:
-  - comma
-  - consistent_comma
-  - no_comma
+  # SupportedStyles:
+  # - comma
+  # - consistent_comma
+  # - no_comma
 Style/TrailingCommaInHashLiteral:
   Description: 'Checks for trailing comma in hash literals.'
   StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#no-trailing-array-commas'
   Enabled: false
   EnforcedStyleForMultiline: no_comma
-  SupportedStyles:
-  - comma
-  - consistent_comma
-  - no_comma
+  # SupportedStyles:
+  # - comma
+  # - consistent_comma
+  # - no_comma
 Style/TrailingCommaInArrayLiteral:
   Description: 'Checks for trailing comma in array literals.'
   StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#no-trailing-array-commas'
   Enabled: false
   EnforcedStyleForMultiline: no_comma
-  SupportedStyles:
-  - comma
-  - consistent_comma
-  - no_comma
+  # SupportedStyles:
+  # - comma
+  # - consistent_comma
+  # - no_comma
 Metrics/AbcSize:
   Description: A calculated magnitude based on number of assignments, branches, and
     conditions.
