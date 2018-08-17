@@ -2,10 +2,10 @@
 require 'guard/dsl_reader'
 
 RSpec.describe Guard::DslReader, exclude_stubs: [Guard::Dsl] do
-  methods = %w(
+  methods = %w[
     initialize guard notification interactor group watch callback
     ignore ignore! logger scope directories clearing
-  ).map(&:to_sym)
+  ].map(&:to_sym)
 
   methods.each do |meth|
     describe "\##{meth} signature" do
@@ -25,7 +25,7 @@ RSpec.describe Guard::DslReader, exclude_stubs: [Guard::Dsl] do
 
       it 'reports the name as a String' do
         subject.guard('foo', bar: :baz)
-        expect(subject.plugin_names).to eq(%w(foo))
+        expect(subject.plugin_names).to eq(%w[foo])
       end
     end
 
@@ -37,7 +37,7 @@ RSpec.describe Guard::DslReader, exclude_stubs: [Guard::Dsl] do
 
       it 'reports the name as a String' do
         subject.guard(name, bar: :baz)
-        expect(subject.plugin_names).to eq(%w(foo))
+        expect(subject.plugin_names).to eq(%w[foo])
       end
     end
   end
@@ -47,7 +47,7 @@ RSpec.describe Guard::DslReader, exclude_stubs: [Guard::Dsl] do
       subject.guard('foo', bar: :baz)
       subject.guard('bar', bar: :baz)
       subject.guard('baz', bar: :baz)
-      expect(subject.plugin_names).to eq(%w(foo bar baz))
+      expect(subject.plugin_names).to eq(%w[foo bar baz])
     end
   end
 

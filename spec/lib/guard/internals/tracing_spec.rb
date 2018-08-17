@@ -55,7 +55,7 @@ RSpec.describe Guard::Internals::Tracing do
       end
 
       context 'with command arguments' do
-        let(:args) { %w(true 123) }
+        let(:args) { %w[true 123] }
 
         context 'when #system' do
           let(:meth) { 'system' }
@@ -97,7 +97,7 @@ RSpec.describe Guard::Internals::Tracing do
       end
 
       context 'with command arguments' do
-        let(:args) { %w(true 123) }
+        let(:args) { %w[true 123] }
 
         context 'when #system' do
           let(:meth) { :system }

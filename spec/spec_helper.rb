@@ -232,19 +232,19 @@ RSpec.configure do |config|
     allow(ENV).to receive(:[]).with('THOR_SHELL').and_call_original
     allow(ENV).to receive(:[]).with('GEM_SKIP').and_call_original
 
-    %w(read write exist?).each do |meth|
+    %w[read write exist?].each do |meth|
       allow(File).to receive(meth.to_sym).with(anything) do |*args, &_block|
         abort "stub me! (File.#{meth}(#{args.map(&:inspect).join(', ')}))"
       end
     end
 
-    %w(read write binwrite binread).each do |meth|
+    %w[read write binwrite binread].each do |meth|
       allow(IO).to receive(meth.to_sym).with(anything) do |*args, &_block|
         abort "stub me! (IO.#{meth}(#{args.map(&:inspect).join(', ')}))"
       end
     end
 
-    %w(exist?).each do |meth|
+    %w[exist?].each do |meth|
       allow_any_instance_of(Pathname)
         .to receive(meth.to_sym) do |*args, &_block|
         obj = args.first

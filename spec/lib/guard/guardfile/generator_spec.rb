@@ -125,7 +125,7 @@ RSpec.describe Guard::Guardfile::Generator do
   end
 
   describe '#initialize_all_templates' do
-    let(:plugins) { %w(rspec spork phpunit) }
+    let(:plugins) { %w[rspec spork phpunit] }
 
     before do
       expect(::Guard::PluginUtil).to receive(:plugin_names) { plugins }

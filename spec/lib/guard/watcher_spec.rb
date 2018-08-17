@@ -65,14 +65,14 @@ RSpec.describe Guard::Watcher do
       context 'with a regex pattern' do
         let(:pattern) { /.*_spec\.rb/ }
         it 'returns the paths that matches the regex' do
-          expect(matched(%w(foo_spec.rb foo.rb))).to eq %w(foo_spec.rb)
+          expect(matched(%w[foo_spec.rb foo.rb])).to eq %w[foo_spec.rb]
         end
       end
 
       context 'with a string pattern' do
         let(:pattern) { 'foo_spec.rb' }
         it 'returns the path that matches the string' do
-          expect(matched(%w(foo_spec.rb foo.rb))).to eq ['foo_spec.rb']
+          expect(matched(%w[foo_spec.rb foo.rb])).to eq ['foo_spec.rb']
         end
       end
     end
@@ -86,7 +86,7 @@ RSpec.describe Guard::Watcher do
               klass.new('spec_helper.rb', -> { 'spec' }),
               klass.new('addition.rb', -> { 1 + 1 }),
               klass.new('hash.rb', -> { Hash[:foo, 'bar'] }),
-              klass.new('array.rb', -> { %w(foo bar) }),
+              klass.new('array.rb', -> { %w[foo bar] }),
               klass.new('blank.rb', -> { '' }),
               klass.new(/^uptime\.rb/, -> { '' })
             ]
@@ -94,29 +94,29 @@ RSpec.describe Guard::Watcher do
         end
 
         it 'returns a single file specified within the action' do
-          expect(matched(%w(spec_helper.rb))).to eq ['spec']
+          expect(matched(%w[spec_helper.rb])).to eq ['spec']
         end
 
         it 'returns multiple files specified within the action' do
-          expect(matched(%w(hash.rb))).to eq %w(foo bar)
+          expect(matched(%w[hash.rb])).to eq %w[foo bar]
         end
 
         it 'combines files from results of different actions' do
-          expect(matched(%w(spec_helper.rb array.rb))).to eq %w(spec foo bar)
+          expect(matched(%w[spec_helper.rb array.rb])).to eq %w[spec foo bar]
         end
 
         context 'when action returns non-string or array of non-strings' do
           it 'returns nothing' do
-            expect(matched(%w(addition.rb))).to eq []
+            expect(matched(%w[addition.rb])).to eq []
           end
         end
 
         it 'returns nothing if the action response is empty' do
-          expect(matched(%w(blank.rb))).to eq []
+          expect(matched(%w[blank.rb])).to eq []
         end
 
         it 'returns nothing if the action returns nothing' do
-          expect(matched(%w(uptime.rb))).to eq []
+          expect(matched(%w[uptime.rb])).to eq []
         end
       end
 
@@ -130,7 +130,7 @@ RSpec.describe Guard::Watcher do
               klass.new('spec_helper.rb', -> { 'spec' }),
               klass.new('addition.rb', -> { 1 + 1 }),
               klass.new('hash.rb', -> { Hash[:foo, 'bar'] }),
-              klass.new('array.rb', -> { %w(foo bar) }),
+              klass.new('array.rb', -> { %w[foo bar] }),
               klass.new('blank.rb', -> { '' }),
               klass.new(/^uptime\.rb/, -> { '' })
             ]
@@ -138,30 +138,30 @@ RSpec.describe Guard::Watcher do
         end
 
         it 'returns a single file specified within the action' do
-          expect(matched(%w(spec_helper.rb)).class).to be Array
-          expect(matched(%w(spec_helper.rb))).to_not be_empty
+          expect(matched(%w[spec_helper.rb]).class).to be Array
+          expect(matched(%w[spec_helper.rb])).to_not be_empty
         end
 
         it 'returns multiple files specified within the action' do
-          expect(matched(%w(hash.rb))).to eq [{ foo: 'bar' }]
+          expect(matched(%w[hash.rb])).to eq [{ foo: 'bar' }]
         end
 
         it 'combines the results of different actions' do
-          expect(matched(%w(spec_helper.rb array.rb)))
-            .to eq ['spec', %w(foo bar)]
+          expect(matched(%w[spec_helper.rb array.rb]))
+            .to eq ['spec', %w[foo bar]]
         end
 
         it 'returns the evaluated addition argument in an array' do
-          expect(matched(%w(addition.rb)).class).to be(Array)
-          expect(matched(%w(addition.rb))[0]).to eq 2
+          expect(matched(%w[addition.rb]).class).to be(Array)
+          expect(matched(%w[addition.rb])[0]).to eq 2
         end
 
         it 'returns nothing if the action response is empty string' do
-          expect(matched(%w(blank.rb))).to eq ['']
+          expect(matched(%w[blank.rb])).to eq ['']
         end
 
         it 'returns nothing if the action returns empty string' do
-          expect(matched(%w(uptime.rb))).to eq ['']
+          expect(matched(%w[uptime.rb])).to eq ['']
         end
       end
     end
@@ -174,35 +174,35 @@ RSpec.describe Guard::Watcher do
             klass.new(%r{lib/(.*)\.rb}, ->(m) { "spec/#{m[1]}_spec.rb" }),
             klass.new(/addition(.*)\.rb/, ->(_m) { 1 + 1 }),
             klass.new('hash.rb', ->(_m) { Hash[:foo, 'bar'] }),
-            klass.new(/array(.*)\.rb/, ->(_m) { %w(foo bar) }),
+            klass.new(/array(.*)\.rb/, ->(_m) { %w[foo bar] }),
             klass.new(/blank(.*)\.rb/, ->(_m) { '' }),
             klass.new(/^uptime\.rb/, -> { '' })
           ]
         end
 
         it 'returns a substituted single file specified within the action' do
-          expect(matched(%w(lib/foo.rb))).to eq ['spec/foo_spec.rb']
+          expect(matched(%w[lib/foo.rb])).to eq ['spec/foo_spec.rb']
         end
 
         it 'returns multiple files specified within the action' do
-          expect(matched(%w(hash.rb))).to eq %w(foo bar)
+          expect(matched(%w[hash.rb])).to eq %w[foo bar]
         end
 
         it 'combines results of different actions' do
-          expect(matched(%w(lib/foo.rb array.rb)))
-            .to eq %w(spec/foo_spec.rb foo bar)
+          expect(matched(%w[lib/foo.rb array.rb]))
+            .to eq %w[spec/foo_spec.rb foo bar]
         end
 
         it 'returns nothing if action returns non-string or non-string array' do
-          expect(matched(%w(addition.rb))).to eq []
+          expect(matched(%w[addition.rb])).to eq []
         end
 
         it 'returns nothing if the action response is empty' do
-          expect(matched(%w(blank.rb))).to eq []
+          expect(matched(%w[blank.rb])).to eq []
         end
 
         it 'returns nothing if the action returns nothing' do
-          expect(matched(%w(uptime.rb))).to eq []
+          expect(matched(%w[uptime.rb])).to eq []
         end
       end
 
@@ -224,30 +224,30 @@ RSpec.describe Guard::Watcher do
         end
 
         it 'returns a substituted single file specified within the action' do
-          expect(matched(%w(lib/foo.rb))).to eq %w(spec/foo_spec.rb)
+          expect(matched(%w[lib/foo.rb])).to eq %w[spec/foo_spec.rb]
         end
 
         it 'returns a hash specified within the action' do
-          expect(matched(%w(hash.rb))).to eq [
+          expect(matched(%w[hash.rb])).to eq [
             { foo: 'bar', file_name: 'hash.rb' }
           ]
         end
 
         it 'combinines results of different actions' do
-          expect(matched(%w(lib/foo.rb array.rb)))
-            .to eq ['spec/foo_spec.rb', %w(foo bar array.rb)]
+          expect(matched(%w[lib/foo.rb array.rb]))
+            .to eq ['spec/foo_spec.rb', %w[foo bar array.rb]]
         end
 
         it 'returns the evaluated addition argument + the path' do
-          expect(matched(%w(addition.rb))).to eq ['2addition.rb']
+          expect(matched(%w[addition.rb])).to eq ['2addition.rb']
         end
 
         it 'returns nothing if the action response is empty string' do
-          expect(matched(%w(blank.rb))).to eq ['']
+          expect(matched(%w[blank.rb])).to eq ['']
         end
 
         it 'returns nothing if the action returns is IO::NULL' do
-          expect(matched(%w(uptime.rb))).to eq ['']
+          expect(matched(%w[uptime.rb])).to eq ['']
         end
       end
     end

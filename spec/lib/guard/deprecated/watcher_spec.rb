@@ -37,13 +37,13 @@ unless Guard::Config.new.strict?
         expect(Guard::UI).to receive(:deprecation)
           .with(Guard::Deprecated::Watcher::ClassMethods::MATCH_GUARDFILE)
 
-        files = %w(foo bar)
+        files = %w[foo bar]
         subject.match_guardfile?(files)
       end
 
       it 'matches against current guardfile' do
-        expect(subject.match_guardfile?(%w(foo bar))).to be(true)
-        expect(subject.match_guardfile?(%w(bar))).to be(false)
+        expect(subject.match_guardfile?(%w[foo bar])).to be(true)
+        expect(subject.match_guardfile?(%w[bar])).to be(false)
       end
     end
   end

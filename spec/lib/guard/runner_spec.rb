@@ -162,13 +162,13 @@ RSpec.describe Guard::Runner do
 
     context 'with no changes' do
       it 'does not run any task' do
-        %w(
+        %w[
           run_on_modifications
           run_on_change
           run_on_additions
           run_on_removals
           run_on_deletion
-        ).each do |task|
+        ].each do |task|
           expect(foo_plugin).to_not receive(task.to_sym)
         end
         subject.run_on_changes(*changes)
@@ -176,7 +176,7 @@ RSpec.describe Guard::Runner do
     end
 
     context 'with modified files but modified paths is empty' do
-      let(:modified) { %w(file.txt image.png) }
+      let(:modified) { %w[file.txt image.png] }
 
       before do
         changes[0] = modified
@@ -193,7 +193,7 @@ RSpec.describe Guard::Runner do
     end
 
     context 'with modified paths' do
-      let(:modified) { %w(file.txt image.png) }
+      let(:modified) { %w[file.txt image.png] }
 
       before do
         changes[0] = modified
@@ -208,7 +208,7 @@ RSpec.describe Guard::Runner do
     end
 
     context 'with added files but added paths is empty' do
-      let(:added) { %w(file.txt image.png) }
+      let(:added) { %w[file.txt image.png] }
 
       before do
         changes[0] = added
@@ -223,7 +223,7 @@ RSpec.describe Guard::Runner do
     end
 
     context 'with added paths' do
-      let(:added) { %w(file.txt image.png) }
+      let(:added) { %w[file.txt image.png] }
 
       before do
         changes[1] = added
@@ -238,7 +238,7 @@ RSpec.describe Guard::Runner do
     end
 
     context 'with non-matching removed paths' do
-      let(:removed) { %w(file.txt image.png) }
+      let(:removed) { %w[file.txt image.png] }
 
       before do
         changes[2] = removed
@@ -256,7 +256,7 @@ RSpec.describe Guard::Runner do
     end
 
     context 'with matching removed paths' do
-      let(:removed) { %w(file.txt image.png) }
+      let(:removed) { %w[file.txt image.png] }
 
       before do
         changes[2] = removed

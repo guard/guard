@@ -18,7 +18,7 @@ RSpec.describe GuardReloader do
     allow(config).to receive(:using_bundler?).and_return(bundle_gemfile_env)
     allow(config).to receive(:guard_core_path).and_return(guard_core_path)
 
-    allow(config).to receive(:program_arguments).and_return(%w(foo bar baz))
+    allow(config).to receive(:program_arguments).and_return(%w[foo bar baz])
     allow(config).to receive(:using_rubygems?).and_return(rubygems_deps_env)
     allow(config).to receive(:program_path).and_return(program_path)
   end

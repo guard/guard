@@ -204,7 +204,7 @@ RSpec.describe Guard::Cli::Environments::Valid do
         expect(generator).to receive(:initialize_template).with('rspec')
         expect(generator).to receive(:initialize_template).with('pow')
 
-        subject.initialize_guardfile(%w(rspec pow))
+        subject.initialize_guardfile(%w[rspec pow])
       end
 
       context 'when passed a guard name' do
@@ -216,18 +216,18 @@ RSpec.describe Guard::Cli::Environments::Valid do
           end
 
           it 'works without without errors' do
-            expect(subject.initialize_guardfile(%w(rspec))).to be_zero
+            expect(subject.initialize_guardfile(%w[rspec])).to be_zero
           end
 
           it 'adds the template' do
             expect(generator).to receive(:initialize_template).with('rspec')
-            subject.initialize_guardfile(%w(rspec))
+            subject.initialize_guardfile(%w[rspec])
           end
         end
 
         it 'initializes the template of the passed Guard' do
           expect(generator).to receive(:initialize_template).with('rspec')
-          subject.initialize_guardfile(%w(rspec))
+          subject.initialize_guardfile(%w[rspec])
         end
       end
 
@@ -246,7 +246,7 @@ RSpec.describe Guard::Cli::Environments::Valid do
             "Could not load 'guard/foo' or '~/.guard/templates/foo'"\
             " or find class Guard::Foo\n"
           )
-          expect(subject.initialize_guardfile(%w(foo))).to be(1)
+          expect(subject.initialize_guardfile(%w[foo])).to be(1)
         end
       end
     end

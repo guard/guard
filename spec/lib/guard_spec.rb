@@ -161,7 +161,7 @@ RSpec.describe Guard do
     end
 
     context 'with the group option' do
-      let(:options) { { group: %w(frontend backend) } }
+      let(:options) { { group: %w[frontend backend] } }
       it 'passes options to session' do
         expect(Guard::Internals::State).to receive(:new).with(options)
         subject
@@ -169,7 +169,7 @@ RSpec.describe Guard do
     end
 
     context 'with the plugin option' do
-      let(:options) { { plugin: %w(cucumber jasmine) } }
+      let(:options) { { plugin: %w[cucumber jasmine] } }
       it 'passes options to session' do
         expect(Guard::Internals::State).to receive(:new).with(options)
         subject

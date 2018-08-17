@@ -34,7 +34,7 @@ RSpec.describe Guard::Commander do
       # from stop()
       allow(Guard).to receive(:setup)
       allow(Guard).to receive(:listener).and_return(listener)
-      allow(session).to receive(:watchdirs).and_return(%w(dir1 dir2))
+      allow(session).to receive(:watchdirs).and_return(%w[dir1 dir2])
       allow(Guard).to receive(:interactor).and_return(interactor)
 
       # Simulate Ctrl-D in Pry, or Ctrl-C in non-interactive mode

@@ -16,7 +16,7 @@ RSpec.describe Guard::Watcher::Pattern::MatchResult do
 
   describe '#[]' do
     context 'with a valid match' do
-      let(:match_result) { double('match_data', to_a: %w(foo bar baz)) }
+      let(:match_result) { double('match_data', to_a: %w[foo bar baz]) }
 
       context 'when asked for the non-first item' do
         let(:index) { 1 }

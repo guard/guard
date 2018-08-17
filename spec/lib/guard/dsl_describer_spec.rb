@@ -65,7 +65,7 @@ RSpec.describe Guard::DslDescriber do
       allow(plugins).to receive(:all).with('more').and_return([])
 
       allow(Guard::PluginUtil).to receive(:plugin_names) do
-        %w(test another even more)
+        %w[test another even more]
       end
     end
 

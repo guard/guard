@@ -595,7 +595,7 @@ RSpec.describe Guard::Dsl do
       end
 
       it 'sets the watchdirs to given values' do
-        expect(session).to receive(:watchdirs=).with(%w(foo bar))
+        expect(session).to receive(:watchdirs=).with(%w[foo bar])
         evaluator.call(contents)
       end
     end
