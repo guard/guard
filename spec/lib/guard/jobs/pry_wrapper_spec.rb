@@ -34,7 +34,7 @@ RSpec.describe Guard::Jobs::PryWrapper do
 
     allow(Guard).to receive(:listener).and_return(listener)
     allow(Pry).to receive(:config).and_return(pry_config)
-    allow(Shellany::Sheller).to receive(:run).with(*%w[hash stty]) { false }
+    allow(Shellany::Sheller).to receive(:run).with('hash', 'stty') { false }
 
     allow(groups).to receive(:all).and_return([])
     allow(session).to receive(:groups).and_return(groups)
@@ -132,7 +132,7 @@ RSpec.describe Guard::Jobs::PryWrapper do
     let(:prompt) { subject.send(:_prompt, '>') }
 
     before do
-      allow(Shellany::Sheller).to receive(:run).with(*%w[hash stty]) { false }
+      allow(Shellany::Sheller).to receive(:run).with('hash', 'stty') { false }
       allow(scope).to receive(:titles).and_return(['all'])
 
       allow(listener).to receive(:paused?).and_return(false)
