@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-path = File.expand_path('../../../../bin/guard', __FILE__)
+path = File.expand_path('../../../bin/guard', __dir__)
 load path
 
 RSpec.describe GuardReloader do

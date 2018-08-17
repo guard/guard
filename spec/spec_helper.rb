@@ -25,7 +25,7 @@ SimpleCov.start
 
 ENV['GUARD_SPECS_RUNNING'] = '1'
 
-path = "#{File.expand_path('..', __FILE__)}/support/**/*.rb"
+path = "#{File.expand_path(__dir__)}/support/**/*.rb"
 Dir[path].each { |f| require f }
 
 # TODO: these shouldn't be necessary with proper specs
