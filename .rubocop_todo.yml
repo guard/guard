@@ -59,7 +59,7 @@ Style/NumericPredicate:
 
 # Offense count: 1
 # Cop supports --auto-correct.
-Style/SpaceInsideArrayPercentLiteral:
+Layout/SpaceInsideArrayPercentLiteral:
   Exclude:
     - 'guard.gemspec'
 
@@ -67,7 +67,7 @@ Style/SpaceInsideArrayPercentLiteral:
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles.
 # SupportedStyles: space, no_space
-Style/SpaceInsideStringInterpolation:
+Layout/SpaceInsideStringInterpolation:
   Exclude:
     - 'lib/guard.rb'
     - 'lib/guard/cli.rb'

@@ -15,7 +15,7 @@ group :development do
   # on HoundCI's side.
   #
   # See https://github.com/houndci/hound/issues/1250
-  gem "rubocop", "0.51.0", require: false
+  gem "rubocop", "0.54.0", require: false
 
   gem "guard-rubocop", require: false
 

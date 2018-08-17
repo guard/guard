@@ -4,8 +4,9 @@ inherit_from:
 
 # Files you want to exclude
 AllCops:
-  TargetRubyVersion: 2.2
+  TargetRubyVersion: 2.3
   Exclude:
+    - vendor/**/*
     - db/schema.rb
     - tmp/aruba/Guardfile
     - tmp/aruba/Gemfile
