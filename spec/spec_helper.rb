@@ -16,12 +16,12 @@
 # users commonly want.
 #
 
-require "fileutils"
+require 'fileutils'
 
-require "simplecov"
+require 'simplecov'
 SimpleCov.start
 
-ENV["GUARD_SPECS_RUNNING"] = "1"
+ENV['GUARD_SPECS_RUNNING'] = '1'
 
 path = "#{File.expand_path('..', __FILE__)}/support/**/*.rb"
 Dir[path].each { |f| require f }
@@ -29,19 +29,19 @@ Dir[path].each { |f| require f }
 # TODO: these shouldn't be necessary with proper specs
 
 def stub_guardfile(contents = nil, &block)
-  stub_file(File.expand_path("Guardfile"), contents, &block)
+  stub_file(File.expand_path('Guardfile'), contents, &block)
 end
 
 def stub_user_guardfile(contents = nil, &block)
-  stub_file(File.expand_path("~/.Guardfile"), contents, &block)
+  stub_file(File.expand_path('~/.Guardfile'), contents, &block)
 end
 
 def stub_user_guard_rb(contents = nil, &block)
-  stub_file(File.expand_path("~/.guard.rb"), contents, &block)
+  stub_file(File.expand_path('~/.guard.rb'), contents, &block)
 end
 
 def stub_user_project_guardfile(contents = nil, &block)
-  stub_file(File.expand_path(".Guardfile"), contents, &block)
+  stub_file(File.expand_path('.Guardfile'), contents, &block)
 end
 
 def stub_mod(mod, excluded)
@@ -114,7 +114,7 @@ RSpec.configure do |config|
   # `:focus` metadata. When nothing is tagged with `:focus`, all examples
   # get run.
   # config.filter_run :focus
-  config.filter_run focus: ENV["CI"] != "true"
+  config.filter_run focus: ENV['CI'] != 'true'
 
   config.run_all_when_everything_filtered = true
 
@@ -168,7 +168,7 @@ RSpec.configure do |config|
   end
 
   config.before(:each) do |example|
-    stub_const("FileUtils", class_double(FileUtils))
+    stub_const('FileUtils', class_double(FileUtils))
 
     excluded = []
     excluded += Array(example.metadata[:exclude_stubs])
@@ -211,25 +211,25 @@ RSpec.configure do |config|
     end
 
     # NOTE: call original, so we can run tests depending on this variable
-    allow(ENV).to receive(:[]).with("GUARD_STRICT").and_call_original
+    allow(ENV).to receive(:[]).with('GUARD_STRICT').and_call_original
 
     # FIXME: instead, properly stub PluginUtil in the evaluator specs!
     # and remove this!
-    allow(ENV).to receive(:[]).with("SPEC_OPTS").and_call_original
+    allow(ENV).to receive(:[]).with('SPEC_OPTS').and_call_original
 
     # FIXME: properly stub out Pry instead of this!
-    allow(ENV).to receive(:[]).with("ANSICON").and_call_original
-    allow(ENV).to receive(:[]).with("TERM").and_call_original
+    allow(ENV).to receive(:[]).with('ANSICON').and_call_original
+    allow(ENV).to receive(:[]).with('TERM').and_call_original
 
     # Needed for debugging
-    allow(ENV).to receive(:[]).with("DISABLE_PRY").and_call_original
-    allow(ENV).to receive(:[]).with("PRYRC").and_call_original
-    allow(ENV).to receive(:[]).with("PAGER").and_call_original
+    allow(ENV).to receive(:[]).with('DISABLE_PRY').and_call_original
+    allow(ENV).to receive(:[]).with('PRYRC').and_call_original
+    allow(ENV).to receive(:[]).with('PAGER').and_call_original
 
     # Workarounds for Cli inheriting from Thor
-    allow(ENV).to receive(:[]).with("ANSICON").and_call_original
-    allow(ENV).to receive(:[]).with("THOR_SHELL").and_call_original
-    allow(ENV).to receive(:[]).with("GEM_SKIP").and_call_original
+    allow(ENV).to receive(:[]).with('ANSICON').and_call_original
+    allow(ENV).to receive(:[]).with('THOR_SHELL').and_call_original
+    allow(ENV).to receive(:[]).with('GEM_SKIP').and_call_original
 
     %w(read write exist?).each do |meth|
       allow(File).to receive(meth.to_sym).with(anything) do |*args, &_block|
@@ -247,7 +247,7 @@ RSpec.configure do |config|
       allow_any_instance_of(Pathname).
         to receive(meth.to_sym) do |*args, &_block|
         obj = args.first
-        formatted_args = args[1..-1].map(&:inspect).join(", ")
+        formatted_args = args[1..-1].map(&:inspect).join(', ')
         abort "stub me! (#{obj.inspect}##{meth}(#{formatted_args}))"
       end
     end
@@ -256,7 +256,7 @@ RSpec.configure do |config|
       abort "stub me! (Dir#exist?(#{args.map(&:inspect) * ', '}))"
     end
 
-    if Guard.const_defined?("UI") && Guard::UI.respond_to?(:info)
+    if Guard.const_defined?('UI') && Guard::UI.respond_to?(:info)
       # Stub all UI methods, so no visible output appears for the UI class
       allow(Guard::UI).to receive(:info)
       allow(Guard::UI).to receive(:warning)
@@ -270,7 +270,7 @@ RSpec.configure do |config|
     end
 
     # TODO: use metadata to stub out all used classes
-    if Guard.const_defined?("Sheller")
+    if Guard.const_defined?('Sheller')
       unless example.metadata[:sheller_specs]
         allow(Guard::Sheller).to receive(:run) do |*args|
           fail "stub for Sheller.run() called with: #{args.inspect}"

@@ -1,19 +1,19 @@
-require "guard"
+require 'guard'
 
 RSpec.describe Guard do
   # Initialize before Guard::Interactor const is stubbed
-  let!(:interactor) { instance_double("Guard::Interactor") }
+  let!(:interactor) { instance_double('Guard::Interactor') }
 
-  let(:guardfile) { File.expand_path("Guardfile") }
+  let(:guardfile) { File.expand_path('Guardfile') }
   let(:traps) { Guard::Internals::Traps }
 
-  let(:evaluator) { instance_double("Guard::Guardfile::Evaluator") }
+  let(:evaluator) { instance_double('Guard::Guardfile::Evaluator') }
 
-  let(:plugins) { instance_double("Guard::Internals::Plugins") }
-  let(:scope) { instance_double("Guard::Internals::Scope") }
-  let(:session) { instance_double("Guard::Internals::Session") }
-  let(:state) { instance_double("Guard::Internals::State") }
-  let(:queue) { instance_double("Guard::Internals::Queue") }
+  let(:plugins) { instance_double('Guard::Internals::Plugins') }
+  let(:scope) { instance_double('Guard::Internals::Scope') }
+  let(:session) { instance_double('Guard::Internals::Session') }
+  let(:state) { instance_double('Guard::Internals::State') }
+  let(:queue) { instance_double('Guard::Internals::Queue') }
 
   before do
     allow(Guard::Interactor).to receive(:new).and_return(interactor)
@@ -28,21 +28,21 @@ RSpec.describe Guard do
   end
 
   # TODO: setup has too many responsibilities
-  describe ".setup" do
+  describe '.setup' do
     subject { Guard.setup(options) }
 
     let(:options) { { my_opts: true, guardfile: guardfile } }
 
-    let(:listener) { instance_double("Listen::Listener") }
+    let(:listener) { instance_double('Listen::Listener') }
 
     before do
       allow(Listen).to receive(:to).with(Dir.pwd, {}) { listener }
 
-      stub_guardfile(" ")
+      stub_guardfile(' ')
       stub_user_guard_rb
 
-      g1 = instance_double("Guard::Group", name: :common, options: {})
-      g2 = instance_double("Guard::Group", name: :default, options: {})
+      g1 = instance_double('Guard::Group', name: :common, options: {})
+      g2 = instance_double('Guard::Group', name: :default, options: {})
       allow(Guard::Group).to receive(:new).with(:common).and_return(g1)
       allow(Guard::Group).to receive(:new).with(:default).and_return(g2)
 
@@ -71,59 +71,59 @@ RSpec.describe Guard do
       allow(Guard::Internals::State).to receive(:new).and_return(state)
     end
 
-    it "returns itself for chaining" do
+    it 'returns itself for chaining' do
       expect(subject).to be Guard
     end
 
-    it "initializes the listener" do
+    it 'initializes the listener' do
       allow(Listen).to receive(:to).
-        with("/foo", latency: 2, wait_for_delay: 1).and_return(listener)
+        with('/foo', latency: 2, wait_for_delay: 1).and_return(listener)
 
       allow(session).to receive(:listener_args).and_return(
-        [:to, "/foo", { latency: 2, wait_for_delay: 1 }]
+        [:to, '/foo', { latency: 2, wait_for_delay: 1 }]
       )
       subject
     end
 
-    it "initializes the interactor" do
+    it 'initializes the interactor' do
       expect(Guard::Interactor).to receive(:new).with(false)
       subject
     end
 
-    context "trapping signals" do
+    context 'trapping signals' do
       before do
         allow(traps).to receive(:handle)
       end
 
-      it "sets up USR1 trap for pausing" do
-        expect(traps).to receive(:handle).with("USR1") { |_, &b| b.call }
+      it 'sets up USR1 trap for pausing' do
+        expect(traps).to receive(:handle).with('USR1') { |_, &b| b.call }
         expect(Guard).to receive(:async_queue_add).
           with([:guard_pause, :paused])
         subject
       end
 
-      it "sets up USR2 trap for unpausing" do
-        expect(traps).to receive(:handle).with("USR2") { |_, &b| b.call }
+      it 'sets up USR2 trap for unpausing' do
+        expect(traps).to receive(:handle).with('USR2') { |_, &b| b.call }
         expect(Guard).to receive(:async_queue_add).
           with([:guard_pause, :unpaused])
         subject
       end
 
-      it "sets up INT trap for cancelling or quitting interactor" do
-        expect(traps).to receive(:handle).with("INT") { |_, &b| b.call }
+      it 'sets up INT trap for cancelling or quitting interactor' do
+        expect(traps).to receive(:handle).with('INT') { |_, &b| b.call }
         expect(interactor).to receive(:handle_interrupt)
         subject
       end
     end
 
-    it "evaluates the Guardfile" do
+    it 'evaluates the Guardfile' do
       expect(evaluator).to receive(:evaluate)
       allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
 
       subject
     end
 
-    describe "listener" do
+    describe 'listener' do
       subject { listener }
 
       context "with ignores 'ignore(/foo/)' and 'ignore!(/bar/)'" do
@@ -140,42 +140,42 @@ RSpec.describe Guard do
         it { is_expected.to have_received(:ignore!).with([/bar/]) }
       end
 
-      context "without ignores" do
+      context 'without ignores' do
         before { Guard.setup(options) }
         it { is_expected.to_not have_received(:ignore) }
         it { is_expected.to_not have_received(:ignore!) }
       end
     end
 
-    it "displays an error message when no guard are defined in Guardfile" do
+    it 'displays an error message when no guard are defined in Guardfile' do
       expect(Guard::UI).to receive(:error).
-        with("No plugins found in Guardfile, please add at least one.")
+        with('No plugins found in Guardfile, please add at least one.')
 
       subject
     end
 
-    it "connects to the notifier" do
+    it 'connects to the notifier' do
       expect(Guard::Notifier).to receive(:connect).with(notify: true)
       subject
     end
 
-    context "with the group option" do
+    context 'with the group option' do
       let(:options) { { group: %w(frontend backend) } }
-      it "passes options to session" do
+      it 'passes options to session' do
         expect(Guard::Internals::State).to receive(:new).with(options)
         subject
       end
     end
 
-    context "with the plugin option" do
+    context 'with the plugin option' do
       let(:options) { { plugin: %w(cucumber jasmine) } }
-      it "passes options to session" do
+      it 'passes options to session' do
         expect(Guard::Internals::State).to receive(:new).with(options)
         subject
       end
     end
 
-    describe ".interactor" do
+    describe '.interactor' do
       subject { Guard::Interactor }
 
       before do
@@ -183,53 +183,53 @@ RSpec.describe Guard do
         Guard.setup(options)
       end
 
-      context "with interactions enabled" do
+      context 'with interactions enabled' do
         let(:type) { :pry_wrapper }
         let(:options) { { no_interactions: false } }
         it { is_expected.to have_received(:new).with(false) }
       end
 
-      context "with interactions disabled" do
+      context 'with interactions disabled' do
         let(:type) { :sleep }
         let(:options) { { no_interactions: true } }
         it { is_expected.to have_received(:new).with(true) }
       end
     end
 
-    describe "UI" do
+    describe 'UI' do
       subject { Guard::UI }
 
-      context "when clearing is configured" do
+      context 'when clearing is configured' do
         before { Guard.setup(options) }
         it { is_expected.to have_received(:reset_and_clear) }
       end
     end
   end
 
-  describe "._relative_pathname" do
+  describe '._relative_pathname' do
     subject { Guard.send(:_relative_pathname, raw_path) }
 
-    let(:pwd) { Pathname("/project") }
+    let(:pwd) { Pathname('/project') }
 
     before { allow(Pathname).to receive(:pwd).and_return(pwd) }
 
-    context "with file in project directory" do
-      let(:raw_path) { "/project/foo" }
-      it { is_expected.to eq(Pathname("foo")) }
+    context 'with file in project directory' do
+      let(:raw_path) { '/project/foo' }
+      it { is_expected.to eq(Pathname('foo')) }
     end
 
-    context "with file within project" do
-      let(:raw_path) { "/project/spec/models/foo_spec.rb" }
-      it { is_expected.to eq(Pathname("spec/models/foo_spec.rb")) }
+    context 'with file within project' do
+      let(:raw_path) { '/project/spec/models/foo_spec.rb' }
+      it { is_expected.to eq(Pathname('spec/models/foo_spec.rb')) }
     end
 
-    context "with file in parent directory" do
-      let(:raw_path) { "/foo" }
-      it { is_expected.to eq(Pathname("../foo")) }
+    context 'with file in parent directory' do
+      let(:raw_path) { '/foo' }
+      it { is_expected.to eq(Pathname('../foo')) }
     end
 
-    context "with file on another drive (e.g. Windows)" do
-      let(:raw_path) { "d:/project/foo" }
+    context 'with file on another drive (e.g. Windows)' do
+      let(:raw_path) { 'd:/project/foo' }
       let(:pathname) { instance_double(Pathname) }
 
       before do
@@ -237,11 +237,11 @@ RSpec.describe Guard do
           with(pwd).and_raise(ArgumentError)
       end
 
-      it { is_expected.to eq(Pathname.new("d:/project/foo")) }
+      it { is_expected.to eq(Pathname.new('d:/project/foo')) }
     end
   end
 
-  describe "#relevant_changes?" do
+  describe '#relevant_changes?' do
     pending
   end
 end

@@ -1,13 +1,13 @@
-require "guard/cli/environments/evaluate_only"
+require 'guard/cli/environments/evaluate_only'
 
 RSpec.describe Guard::Cli::Environments::EvaluateOnly do
   subject { described_class.new(options) }
-  let(:options) { double("options") }
+  let(:options) { double('options') }
 
-  describe "#evaluate" do
-    let(:evaluator) { instance_double("Guard::Guardfile::Evaluator") }
-    let(:state) { instance_double("Guard::Internals::State") }
-    let(:session) { instance_double("Guard::Internals::Session") }
+  describe '#evaluate' do
+    let(:evaluator) { instance_double('Guard::Guardfile::Evaluator') }
+    let(:state) { instance_double('Guard::Internals::State') }
+    let(:session) { instance_double('Guard::Internals::Session') }
 
     before do
       allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
@@ -18,23 +18,23 @@ RSpec.describe Guard::Cli::Environments::EvaluateOnly do
       allow(session).to receive(:evaluator_options)
     end
 
-    it "calls Guard.init" do
+    it 'calls Guard.init' do
       expect(Guard).to receive(:init)
       subject.evaluate
     end
 
-    it "initializes Guard with options" do
+    it 'initializes Guard with options' do
       expect(Guard).to receive(:init).with(options)
       subject.evaluate
     end
 
-    it "evaluates the guardfile" do
+    it 'evaluates the guardfile' do
       expect(evaluator).to receive(:evaluate)
       subject.evaluate
     end
 
-    it "passes options to evaluator" do
-      evaluator_options = double("evaluator_options")
+    it 'passes options to evaluator' do
+      evaluator_options = double('evaluator_options')
       allow(session).to receive(:evaluator_options).
         and_return(evaluator_options)
 
@@ -56,11 +56,11 @@ RSpec.describe Guard::Cli::Environments::EvaluateOnly do
             and_raise(error_class, "#{error_class} error!")
         end
 
-        it "aborts" do
+        it 'aborts' do
           expect { subject.evaluate }.to raise_error(SystemExit)
         end
 
-        it "shows error message" do
+        it 'shows error message' do
           expect(Guard::UI).to receive(:error).with(/#{error_class} error!/)
           begin
             subject.evaluate
