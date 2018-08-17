@@ -14,7 +14,7 @@ RSpec.describe Guard::Internals::Groups do
 
     context 'with only default groups' do
       it 'initializes the groups' do
-        expect(subject.all.map(&:name)).to eq [:common, :default]
+        expect(subject.all.map(&:name)).to eq %i[common default]
       end
     end
 

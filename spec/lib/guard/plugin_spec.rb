@@ -56,7 +56,7 @@ RSpec.describe Guard::Plugin do
     context 'with a callback' do
       it 'adds the callback' do
         block = instance_double(Proc)
-        events = [:start_begin, :start_end]
+        events = %i[start_begin start_end]
         callbacks = [{ events: events, listener: block }]
         Guard::Plugin.new(callbacks: callbacks)
         expect(Guard::Plugin.callbacks.first[0][0].callbacks).to eq(callbacks)
@@ -141,7 +141,7 @@ RSpec.describe Guard::Plugin do
     end
 
     it 'can add multiple callbacks' do
-      described_class.add_callback(listener, foo, [:event1, :event2])
+      described_class.add_callback(listener, foo, %i[event1 event2])
 
       result = described_class.callbacks[[foo, :event1]]
       expect(result).to include(listener)

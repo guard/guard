@@ -100,14 +100,14 @@ RSpec.describe Guard do
       it 'sets up USR1 trap for pausing' do
         expect(traps).to receive(:handle).with('USR1') { |_, &b| b.call }
         expect(Guard).to receive(:async_queue_add)
-          .with([:guard_pause, :paused])
+          .with(%i[guard_pause paused])
         subject
       end
 
       it 'sets up USR2 trap for unpausing' do
         expect(traps).to receive(:handle).with('USR2') { |_, &b| b.call }
         expect(Guard).to receive(:async_queue_add)
-          .with([:guard_pause, :unpaused])
+          .with(%i[guard_pause unpaused])
         subject
       end
 

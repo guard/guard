@@ -98,11 +98,11 @@ RSpec.describe Guard::PluginUtil do
   describe '#plugin_class' do
     after do
       # TODO: use RSpec's stub const
-      consts = [:Classname,
-                :DashedClassName,
-                :UnderscoreClassName,
-                :VSpec,
-                :Inline]
+      consts = %i[Classname
+                DashedClassName
+                UnderscoreClassName
+                VSpec
+                Inline]
 
       consts.each do |const|
         begin

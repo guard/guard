@@ -42,7 +42,7 @@ RSpec.describe Guard::Internals::Scope do
 
   # TODO: move to Session?
   describe '#to_hash' do
-    [:group, :plugin].each do |scope|
+    %i[group plugin].each do |scope|
       describe scope.inspect do
         let(:hash) do
           subject.to_hash[:"#{scope}s"].map(&:name).map(&:to_s)

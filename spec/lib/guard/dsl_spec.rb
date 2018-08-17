@@ -440,7 +440,7 @@ RSpec.describe Guard::Dsl do
             ' with foo!'
 
           callback_1 = opt[:callbacks][1]
-          expect(callback_1[:events]).to eq [:start_begin, :run_all_begin]
+          expect(callback_1[:events]).to eq %i[start_begin run_all_begin]
           expect(callback_1[:listener]).to eq MyCustomCallback
         end
 
@@ -581,7 +581,7 @@ RSpec.describe Guard::Dsl do
       let(:contents) { 'scope plugins: [:foo, :bar]' }
 
       it "sets the guardfile's default scope" do
-        expect(session).to receive(:guardfile_scope).with(plugins: [:foo, :bar])
+        expect(session).to receive(:guardfile_scope).with(plugins: %i[foo bar])
         evaluator.call(contents)
       end
     end
