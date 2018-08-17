@@ -99,10 +99,10 @@ RSpec.describe Guard::PluginUtil do
     after do
       # TODO: use RSpec's stub const
       consts = %i[Classname
-                DashedClassName
-                UnderscoreClassName
-                VSpec
-                Inline]
+                  DashedClassName
+                  UnderscoreClassName
+                  VSpec
+                  Inline]
 
       consts.each do |const|
         begin
