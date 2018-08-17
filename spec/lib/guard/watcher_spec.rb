@@ -275,7 +275,7 @@ RSpec.describe Guard::Watcher do
         expect(plugin).to receive(:watchers).and_return [
           described_class.new('awesome_helper.rb', -> {}),
           described_class.new(/.+some_helper.rb/, -> { 'foo.rb' }),
-          described_class.new(/.+_helper.rb/, -> { 'bar.rb' }),
+          described_class.new(/.+_helper.rb/, -> { 'bar.rb' })
         ]
       end
 

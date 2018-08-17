@@ -25,7 +25,7 @@ RSpec.describe Guard::PluginUtil do
         instance_double(spec, name: 'guard-myplugin'),
         instance_double(spec, name: 'gem1', full_gem_path: '/gem1'),
         instance_double(spec, name: 'gem2', full_gem_path: '/gem2'),
-        instance_double(spec, name: 'guard-compat'),
+        instance_double(spec, name: 'guard-compat')
       ]
       allow(File).to receive(:exist?)
         .with('/gem1/lib/guard/gem1.rb') { false }

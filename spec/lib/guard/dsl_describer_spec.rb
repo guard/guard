@@ -97,7 +97,7 @@ RSpec.describe Guard::DslDescriber do
       allow(groups).to receive(:all).and_return [
         instance_double('Guard::Group', name: :default, title: 'Default'),
         instance_double('Guard::Group', name: :a, title: 'A'),
-        instance_double('Guard::Group', name: :b, title: 'B'),
+        instance_double('Guard::Group', name: :b, title: 'B')
       ]
 
       allow(plugins).to receive(:all).with(group: :default) do
