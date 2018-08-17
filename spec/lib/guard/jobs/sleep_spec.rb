@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'guard/jobs/sleep'
 
 RSpec.describe Guard::Jobs::Sleep do

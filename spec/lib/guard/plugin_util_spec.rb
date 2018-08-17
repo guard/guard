@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'guard/plugin_util'
 
 require 'guard/guardfile/evaluator'

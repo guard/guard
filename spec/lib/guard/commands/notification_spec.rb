@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'guard/commands/notification'
 
 RSpec.describe Guard::Commands::Notification do

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'guard/watcher/pattern/matcher'
 
 RSpec.describe Guard::Watcher::Pattern::Matcher do

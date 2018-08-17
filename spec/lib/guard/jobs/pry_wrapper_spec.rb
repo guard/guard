@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'guard/jobs/pry_wrapper'
 
 RSpec.describe Guard::Jobs::PryWrapper do

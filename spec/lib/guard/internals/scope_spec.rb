@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'guard/internals/scope'
 
 RSpec.describe Guard::Internals::Scope do

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'guard/commands/scope'
 
 require 'guard/internals/session'

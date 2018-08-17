@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'guard/cli/environments/valid'
 require 'guard/cli/environments/bundler'
 

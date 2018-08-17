@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'guard/ui/config'
 
 RSpec.describe Guard::UI::Config do

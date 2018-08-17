@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'guard/commands/reload'
 
 require 'guard/internals/session'

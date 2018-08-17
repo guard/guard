@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'guard/watcher/pattern/deprecated_regexp'
 
 RSpec.describe Guard::Watcher::Pattern::DeprecatedRegexp do

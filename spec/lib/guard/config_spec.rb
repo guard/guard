@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'guard/config'
 
 RSpec.describe Guard::Config, exclude_stubs: [:Nenv] do

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'guard/internals/traps'
 
 RSpec.describe Guard::Internals::Traps do

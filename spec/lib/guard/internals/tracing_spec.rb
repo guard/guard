@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'guard/internals/tracing'
 
 RSpec.describe Guard::Internals::Tracing do

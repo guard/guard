@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'guard/guardfile/evaluator'
 
 # TODO: shouldn't be necessary

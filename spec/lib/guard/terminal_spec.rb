@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'guard/terminal'
 
 RSpec.describe Guard::Terminal do

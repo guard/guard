@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'guard/ui/logger'
 
 RSpec.describe Guard::UI::Logger::Config do

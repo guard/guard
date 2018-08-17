@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'guard/guardfile/generator'
 
 RSpec.describe Guard::Guardfile::Generator do

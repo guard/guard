@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'guard/watcher'
 
 # TODO: shouldn't be needed

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'guard/internals/state'
 
 RSpec.describe Guard::Internals::State do

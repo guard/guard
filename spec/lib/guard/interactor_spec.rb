@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'guard/interactor'
 
 # TODO: this shouldn't be necessary

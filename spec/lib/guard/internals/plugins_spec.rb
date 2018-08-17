@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'guard/internals/plugins'
 
 RSpec.describe Guard::Internals::Plugins do

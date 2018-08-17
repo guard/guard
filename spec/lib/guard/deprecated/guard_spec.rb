@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'guard/config'
 
 unless Guard::Config.new.strict?
