@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'guard/internals/debugging'
 
 RSpec.describe Guard::Internals::Debugging do

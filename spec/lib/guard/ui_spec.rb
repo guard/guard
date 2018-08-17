@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'guard/notifier'
 
 # NOTE: this is here so that no UI does not require anything,

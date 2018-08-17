@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'guard/commands/show'
 
 # TODO: we only need the async queue

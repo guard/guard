@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'guard/watcher/pattern/pathname_path'
 
 RSpec.describe Guard::Watcher::Pattern::PathnamePath do

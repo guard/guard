@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'guard/cli/environments/evaluate_only'
 
 RSpec.describe Guard::Cli::Environments::EvaluateOnly do

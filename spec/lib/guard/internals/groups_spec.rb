@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'guard/internals/groups'
 
 RSpec.describe Guard::Internals::Groups do

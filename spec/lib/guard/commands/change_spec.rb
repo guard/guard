@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'guard/commands/change'
 
 RSpec.describe Guard::Commands::Change do

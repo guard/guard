@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'guard/commands/pause'
 
 RSpec.describe Guard::Commands::Pause do

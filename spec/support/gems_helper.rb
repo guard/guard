@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 def growl_installed?
   require 'growl'
   true

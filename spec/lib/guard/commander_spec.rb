@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'guard/commander'
 
 RSpec.describe Guard::Commander do

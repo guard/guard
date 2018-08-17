@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'guard/cli/environments/bundler'
 
 # TODO: instead of shared examples, use have_received if possible

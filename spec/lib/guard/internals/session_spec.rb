@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'guard/internals/session'
 
 RSpec.describe Guard::Internals::Session do

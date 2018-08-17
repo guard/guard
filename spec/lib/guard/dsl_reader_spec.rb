@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'guard/dsl_reader'
 
 RSpec.describe Guard::DslReader, exclude_stubs: [Guard::Dsl] do

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'guard/cli'
 
 RSpec.describe Guard::CLI do

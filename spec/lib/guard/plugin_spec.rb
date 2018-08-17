@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'guard/plugin'
 
 require 'guard/watcher'

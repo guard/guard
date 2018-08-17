@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 def mac?
   RbConfig::CONFIG['target_os'] =~ /darwin/i
 end

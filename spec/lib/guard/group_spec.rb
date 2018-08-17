@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'guard/group'
 
 RSpec.describe Guard::Group do
