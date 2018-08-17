@@ -27,7 +27,7 @@ RSpec.describe Guard::Cli::Environments::Valid do
         allow(bundler).to receive(:verify)
 
         allow(options).to receive(:[]).with(:no_bundler_warning)
-          .and_return(false)
+                                      .and_return(false)
       end
 
       it 'starts guard' do
@@ -239,7 +239,7 @@ RSpec.describe Guard::Cli::Environments::Valid do
       context 'when passed an unknown guard name' do
         before do
           expect(generator).to receive(:initialize_template).with('foo')
-            .and_raise(Guard::Guardfile::Generator::NoSuchPlugin, 'foo')
+                                                            .and_raise(Guard::Guardfile::Generator::NoSuchPlugin, 'foo')
         end
 
         it 'returns an exit code' do

@@ -14,7 +14,7 @@ RSpec.describe Guard::CLI do
     @options = {}
     allow(subject).to receive(:options).and_return(@options)
     allow(::Guard::DslDescriber).to receive(:new).with(no_args)
-      .and_return(dsl_describer)
+                                                 .and_return(dsl_describer)
 
     allow(Guard::Cli::Environments::EvaluateOnly).to receive(:new)
       .and_return(bare_environment)
@@ -52,7 +52,7 @@ RSpec.describe Guard::CLI do
       pending 'needs JRuby support first' if defined?(JRUBY_VERSION)
 
       expect(Guard::Cli::Environments::Valid).to receive(:new).with(@options)
-        .and_return(valid_environment)
+                                                              .and_return(valid_environment)
       begin
         subject.start
       rescue SystemExit
@@ -122,7 +122,7 @@ RSpec.describe Guard::CLI do
 
     it 'passes options' do
       expect(Guard::Cli::Environments::Valid).to receive(:new).with(@options)
-        .and_return(valid_environment)
+                                                              .and_return(valid_environment)
       begin
         subject.init
       rescue SystemExit

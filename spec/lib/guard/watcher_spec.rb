@@ -313,10 +313,10 @@ RSpec.describe Guard::Watcher do
 
     before do
       allow(described_class::Pattern).to receive(:create).with(pattern)
-        .and_return(matcher)
+                                                         .and_return(matcher)
 
       allow(matcher).to receive(:match).with(pattern)
-        .and_return(match_data)
+                                       .and_return(match_data)
 
       allow(described_class::Pattern::MatchResult).to receive(:new)
         .with(match_data, file).and_return(match)

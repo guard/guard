@@ -22,7 +22,7 @@ RSpec.describe Guard::Commands::All do
 
   before do
     allow(session).to receive(:convert_scope).with(given_scope)
-      .and_return(converted_scope)
+                                             .and_return(converted_scope)
 
     allow(state).to receive(:session).and_return(session)
     allow(Guard).to receive(:state).and_return(state)

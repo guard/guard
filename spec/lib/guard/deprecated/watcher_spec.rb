@@ -28,7 +28,7 @@ unless Guard::Config.new.strict?
         .and_return(File.expand_path('foo'))
 
       allow(::Guard::Guardfile::Evaluator).to receive(:new).with(options)
-        .and_return(evaluator)
+                                                           .and_return(evaluator)
 
       allow(Guard::UI).to receive(:deprecation)
     end

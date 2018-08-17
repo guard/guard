@@ -44,7 +44,7 @@ RSpec.describe Guard::Runner do
   describe '#run' do
     before do
       allow(scope).to receive(:grouped_plugins).with({})
-        .and_return([[nil, [foo_plugin, bar_plugin, baz_plugin]]])
+                                               .and_return([[nil, [foo_plugin, bar_plugin, baz_plugin]]])
 
       allow(ui_config).to receive(:with_progname).and_yield
     end
@@ -78,7 +78,7 @@ RSpec.describe Guard::Runner do
 
       it 'executes the supervised task on the specified plugin only' do
         expect(scope).to receive(:grouped_plugins).with(scope_hash)
-          .and_return([[nil, [bar_plugin]]])
+                                                  .and_return([[nil, [bar_plugin]]])
 
         expect(bar_plugin).to receive(:my_task)
         expect(foo_plugin).to_not receive(:my_task)
@@ -132,14 +132,14 @@ RSpec.describe Guard::Runner do
 
       # disable reevaluator
       allow(scope).to receive(:grouped_plugins).with(group: :common)
-        .and_return([[nil, []]])
+                                               .and_return([[nil, []]])
 
       # foo in default group
       allow(scope).to receive(:grouped_plugins).with(group: :default)
-        .and_return([[nil, [foo_plugin]]])
+                                               .and_return([[nil, [foo_plugin]]])
 
       allow(scope).to receive(:grouped_plugins).with(no_args)
-        .and_return([[nil, [foo_plugin]]])
+                                               .and_return([[nil, [foo_plugin]]])
 
       allow(ui_config).to receive(:with_progname).and_yield
     end
@@ -147,7 +147,7 @@ RSpec.describe Guard::Runner do
     it 'always calls UI.clearable' do
       expect(Guard::UI).to receive(:clearable)
       expect(scope).to receive(:grouped_plugins).with(no_args)
-        .and_return([[nil, [foo_plugin]]])
+                                                .and_return([[nil, [foo_plugin]]])
 
       subject.run_on_changes(*changes)
     end
@@ -156,7 +156,7 @@ RSpec.describe Guard::Runner do
       it 'clear UI' do
         expect(Guard::UI).to receive(:clear)
         expect(scope).to receive(:grouped_plugins).with(no_args)
-          .and_return([[nil, [foo_plugin]]])
+                                                  .and_return([[nil, [foo_plugin]]])
         subject.run_on_changes(*changes)
       end
     end
@@ -244,7 +244,7 @@ RSpec.describe Guard::Runner do
       before do
         changes[2] = removed
         expect(watcher_module).to receive(:match_files).once
-          .with(foo_plugin, removed) { [] }
+                                                       .with(foo_plugin, removed) { [] }
 
         # stub so respond_to? works
         allow(foo_plugin).to receive(:run_on_removals)

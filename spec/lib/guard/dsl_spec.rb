@@ -359,10 +359,10 @@ RSpec.describe Guard::Dsl do
         end
 
         allow(Guard::Watcher).to receive(:new).with('a', anything)
-          .and_return(watcher_a)
+                                              .and_return(watcher_a)
 
         allow(Guard::Watcher).to receive(:new).with('c', nil)
-          .and_return(watcher_c)
+                                              .and_return(watcher_c)
 
         evaluator.call(contents)
       end
@@ -389,7 +389,7 @@ RSpec.describe Guard::Dsl do
         end
 
         allow(Guard::Watcher).to receive(:new).with('a', nil)
-          .and_return(watcher)
+                                              .and_return(watcher)
 
         evaluator.call(contents)
       end

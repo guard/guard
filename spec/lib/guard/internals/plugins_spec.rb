@@ -21,22 +21,22 @@ RSpec.describe Guard::Internals::Plugins do
 
   before do
     allow(Guard::PluginUtil).to receive(:new).with('foobar')
-      .and_return(pu_foobar)
+                                             .and_return(pu_foobar)
 
     allow(Guard::PluginUtil).to receive(:new).with('foobaz')
-      .and_return(pu_foobaz)
+                                             .and_return(pu_foobaz)
 
     allow(pu_foobar).to receive(:initialize_plugin).with(group: 'frontend')
-      .and_return(foo_bar_frontend)
+                                                   .and_return(foo_bar_frontend)
 
     allow(pu_foobaz).to receive(:initialize_plugin).with(group: 'frontend')
-      .and_return(foo_baz_frontend)
+                                                   .and_return(foo_baz_frontend)
 
     allow(pu_foobar).to receive(:initialize_plugin).with(group: 'backend')
-      .and_return(foo_bar_backend)
+                                                   .and_return(foo_bar_backend)
 
     allow(pu_foobaz).to receive(:initialize_plugin).with(group: 'backend')
-      .and_return(foo_baz_backend)
+                                                   .and_return(foo_baz_backend)
   end
 
   describe '#all' do

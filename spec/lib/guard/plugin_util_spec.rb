@@ -119,7 +119,7 @@ RSpec.describe Guard::PluginUtil do
 
       plugin = described_class.new('notAGuardClass')
       allow(plugin).to receive(:require).with('guard/notaguardclass')
-        .and_raise(LoadError, 'cannot load such file --')
+                                        .and_raise(LoadError, 'cannot load such file --')
 
       plugin.plugin_class
     end
@@ -202,7 +202,7 @@ RSpec.describe Guard::PluginUtil do
       it 'returns the Guard class' do
         allow(Guard).to receive(:constants).and_return([:Inline])
         allow(Guard).to receive(:const_get).with(:Inline)
-          .and_return(plugin_class)
+                                           .and_return(plugin_class)
 
         expect(subject).to_not receive(:require)
         expect(subject.plugin_class).to eq plugin_class
@@ -255,13 +255,13 @@ RSpec.describe Guard::PluginUtil do
         allow(evaluator).to receive(:guardfile_include?) { false }
         allow(Guard).to receive(:constants).and_return([:MyGuard])
         allow(Guard).to receive(:const_get).with(:MyGuard)
-          .and_return(plugin_class)
+                                           .and_return(plugin_class)
 
         allow(Gem::Specification).to receive(:find_by_name)
           .with('guard-myguard').and_return(gem_spec)
 
         allow(plugin_class).to receive(:template).with(location)
-          .and_return('Template content')
+                                                 .and_return('Template content')
 
         allow(File).to receive(:read).with('Guardfile') { 'Guardfile content' }
         allow(File).to receive(:open).with('Guardfile', 'wb').and_yield io
@@ -285,13 +285,13 @@ RSpec.describe Guard::PluginUtil do
         allow(evaluator).to receive(:guardfile_include?) { false }
         allow(Guard).to receive(:constants).and_return([:MyGuard])
         allow(Guard).to receive(:const_get).with(:MyGuard)
-          .and_return(plugin_class)
+                                           .and_return(plugin_class)
 
         allow(Gem::Specification).to receive(:find_by_name)
           .with('guard-myguard').and_return(gem_spec)
 
         allow(plugin_class).to receive(:template).with(location)
-          .and_return('Template content')
+                                                 .and_return('Template content')
 
         allow(File).to receive(:read).with('Guardfile') { 'Guardfile content' }
         allow(File).to receive(:open).with('Guardfile', 'wb').and_yield io

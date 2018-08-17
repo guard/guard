@@ -263,7 +263,7 @@ RSpec.describe Guard::Commander do
 
     before do
       allow(Guard::DslDescriber).to receive(:new).with(no_args)
-        .and_return(dsl_describer)
+                                                 .and_return(dsl_describer)
     end
 
     it 'shows list of plugins' do

@@ -81,7 +81,7 @@ unless Guard::Config.new.strict?
 
       before do
         allow(Guard::PluginUtil).to receive(:new).with('rspec')
-          .and_return(plugin_util)
+                                                 .and_return(plugin_util)
       end
 
       it 'displays a deprecation warning to the user' do

@@ -134,7 +134,7 @@ RSpec.describe Guard::UI do
 
     before do
       allow(Guard::UI::Config).to receive(:new).with(hi: :ho)
-        .and_return(new_config)
+                                               .and_return(new_config)
 
       allow(new_config).to receive(:[]).with(:hi).and_return(:ho)
     end
@@ -215,7 +215,7 @@ RSpec.describe Guard::UI do
   describe '.deprecation' do
     before do
       allow(ENV).to receive(:[]).with('GUARD_GEM_SILENCE_DEPRECATIONS')
-        .and_return(value)
+                                .and_return(value)
     end
 
     context 'with GUARD_GEM_SILENCE_DEPRECATIONS set to 1' do
@@ -327,7 +327,7 @@ RSpec.describe Guard::UI do
     context 'with a plugins scope' do
       it 'shows the plugin scoped action' do
         allow(scope).to receive(:titles).with(plugins: [rspec, jasmine])
-          .and_return(%w[Rspec Jasmine])
+                                        .and_return(%w[Rspec Jasmine])
 
         expect(Guard::UI).to receive(:info).with('Reload Rspec, Jasmine')
         Guard::UI.action_with_scopes('Reload', plugins: [rspec, jasmine])
@@ -337,7 +337,7 @@ RSpec.describe Guard::UI do
     context 'with a groups scope' do
       it 'shows the group scoped action' do
         allow(scope).to receive(:titles).with(groups: [group])
-          .and_return(%w[Frontend])
+                                        .and_return(%w[Frontend])
 
         expect(Guard::UI).to receive(:info).with('Reload Frontend')
         Guard::UI.action_with_scopes('Reload', groups: [group])

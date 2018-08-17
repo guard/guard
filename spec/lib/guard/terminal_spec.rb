@@ -21,7 +21,7 @@ RSpec.describe Guard::Terminal do
 
         it "clears the screen using 'clear'" do
           expect(sheller).to receive(:system).with("printf '\33c\e[3J';")
-            .and_return(result)
+                                             .and_return(result)
           ::Guard::Terminal.clear
         end
       end
@@ -31,7 +31,7 @@ RSpec.describe Guard::Terminal do
 
         before do
           allow(sheller).to receive(:system).with("printf '\33c\e[3J';")
-            .and_return(result)
+                                            .and_return(result)
         end
 
         it 'fails' do
