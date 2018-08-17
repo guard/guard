@@ -161,7 +161,7 @@ Metrics/CyclomaticComplexity:
   Enabled: false
   Max: 6
 Metrics/LineLength:
-  Max: 80
+  Max: 125
 Metrics/MethodLength:
   Description: Avoid methods longer than 10 lines of code.
   StyleGuide: https://github.com/bbatsov/ruby-style-guide#short-methods
