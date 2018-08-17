@@ -17,7 +17,7 @@ Layout/DotPosition:
   Description: Checks the position of the dot in multi-line method calls.
   StyleGuide: https://github.com/bbatsov/ruby-style-guide#consistent-multi-line-chains
   Enabled: true
-  EnforcedStyle: trailing
+  EnforcedStyle: leading
   SupportedStyles:
   - leading
   - trailing
@@ -101,7 +101,7 @@ Style/StringLiterals:
   Description: Checks if uses of quotes match the configured preference.
   StyleGuide: https://github.com/bbatsov/ruby-style-guide#consistent-string-literals
   Enabled: true
-  EnforcedStyle: double_quotes
+  EnforcedStyle: single_quotes
   SupportedStyles:
   - single_quotes
   - double_quotes
@@ -155,12 +155,16 @@ Metrics/ModuleLength:
   Max: 100
   Description: Avoid modules longer than 100 lines of code.
   Enabled: false
+Metrics/BlockLength:
+  Exclude:
+    - spec/**/*.rb
 Metrics/CyclomaticComplexity:
   Description: A complexity metric that is strongly correlated to the number of test
     cases needed to validate a method.
   Enabled: false
   Max: 6
 Metrics/LineLength:
+  Enabled: true
   Max: 125
 Metrics/MethodLength:
   Description: Avoid methods longer than 10 lines of code.
