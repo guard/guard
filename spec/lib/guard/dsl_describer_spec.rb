@@ -29,7 +29,7 @@ RSpec.describe Guard::DslDescriber do
     stub_const 'Guard::Test', class_double('Guard::Plugin')
     stub_const 'Guard::Another', class_double('Guard::Plugin')
 
-    @output = ''
+    @output = +''
 
     # Strip escape sequences
     allow(STDOUT).to receive(:tty?).and_return(false)
