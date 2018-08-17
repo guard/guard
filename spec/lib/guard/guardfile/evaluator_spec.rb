@@ -37,7 +37,7 @@ RSpec.describe Guard::Guardfile::Evaluator do
 
           allow(dsl).to receive(:evaluate)
             .and_raise(Guard::Dsl::Error,
-                      'Invalid Guardfile, original error is:')
+                       'Invalid Guardfile, original error is:')
 
           expect { subject.evaluate }.to raise_error(Guard::Dsl::Error)
         end

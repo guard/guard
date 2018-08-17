@@ -429,19 +429,19 @@ RSpec.describe Guard::Dsl do
 
           expect(opt[:callbacks].size).to eq 2
 
-          callback_0 = opt[:callbacks][0]
+          callback0 = opt[:callbacks][0]
 
-          expect(callback_0[:events]).to eq :start_end
+          expect(callback0[:events]).to eq :start_end
 
           plugin = instance_double('Guard::Plugin', title: 'RSpec')
-          result = callback_0[:listener].call(plugin, :start_end, 'foo')
+          result = callback0[:listener].call(plugin, :start_end, 'foo')
 
           expect(result).to eq 'RSpec executed \'start_end\' hook'\
             ' with foo!'
 
-          callback_1 = opt[:callbacks][1]
-          expect(callback_1[:events]).to eq %i[start_begin run_all_begin]
-          expect(callback_1[:listener]).to eq MyCustomCallback
+          callback1 = opt[:callbacks][1]
+          expect(callback1[:events]).to eq %i[start_begin run_all_begin]
+          expect(callback1[:listener]).to eq MyCustomCallback
         end
 
         evaluator.call(contents)
