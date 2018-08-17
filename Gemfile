@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-source "https://rubygems.org"
+source 'https://rubygems.org'
 
-gemspec unless ENV["USE_INSTALLED_GUARD"] == "1"
+gemspec unless ENV['USE_INSTALLED_GUARD'] == '1'
 
-gem "rake"
+gem 'rake'
 
 # The development group will not be
 # installed on Travis CI.
