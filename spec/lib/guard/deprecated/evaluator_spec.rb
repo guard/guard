@@ -10,8 +10,7 @@ unless Guard::Config.new.strict?
   RSpec.describe Guard::Deprecated::Evaluator do
     subject do
       class TestClass
-        def evaluate
-        end
+        def evaluate; end
       end
       described_class.add_deprecated(TestClass)
       TestClass.new

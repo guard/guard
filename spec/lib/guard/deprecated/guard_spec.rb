@@ -19,8 +19,7 @@ unless Guard::Config.new.strict?
 
     subject do
       module TestModule
-        def self.listener
-        end
+        def self.listener; end
 
         def self._pluginless_guardfile?
           false

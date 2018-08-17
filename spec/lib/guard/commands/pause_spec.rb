@@ -4,8 +4,7 @@ require 'guard/commands/pause'
 
 RSpec.describe Guard::Commands::Pause do
   class FakePry < Pry::Command
-    def self.output
-    end
+    def self.output; end
   end
 
   before do

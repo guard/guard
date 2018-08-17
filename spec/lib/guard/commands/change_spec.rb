@@ -6,8 +6,7 @@ RSpec.describe Guard::Commands::Change do
   let(:output) { instance_double(Pry::Output) }
 
   class FakePry < Pry::Command
-    def self.output
-    end
+    def self.output; end
   end
 
   before do

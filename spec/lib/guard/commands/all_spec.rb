@@ -16,8 +16,7 @@ RSpec.describe Guard::Commands::All do
   let(:session) { instance_double('Guard::Internals::Session') }
 
   class FakePry < Pry::Command
-    def self.output
-    end
+    def self.output; end
   end
 
   before do
