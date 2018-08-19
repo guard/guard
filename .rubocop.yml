@@ -4,7 +4,7 @@ inherit_from:
 
 # Files you want to exclude
 AllCops:
-  TargetRubyVersion: 2.3
+  TargetRubyVersion: 2.2
   Exclude:
     - vendor/**/*
     - db/schema.rb
