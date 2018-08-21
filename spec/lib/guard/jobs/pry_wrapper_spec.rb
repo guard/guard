@@ -1,21 +1,21 @@
 # frozen_string_literal: true
 
-require 'guard/jobs/pry_wrapper'
+require "guard/jobs/pry_wrapper"
 
 RSpec.describe Guard::Jobs::PryWrapper do
   subject { described_class.new({}) }
-  let(:listener) { instance_double('Listen::Listener') }
-  let(:pry_config) { double('pry_config') }
-  let(:pry_history) { double('pry_history') }
-  let(:pry_commands) { double('pry_commands') }
-  let(:pry_hooks) { double('pry_hooks') }
-  let(:terminal_settings) { instance_double('Guard::Jobs::TerminalSettings') }
+  let(:listener) { instance_double("Listen::Listener") }
+  let(:pry_config) { double("pry_config") }
+  let(:pry_history) { double("pry_history") }
+  let(:pry_commands) { double("pry_commands") }
+  let(:pry_hooks) { double("pry_hooks") }
+  let(:terminal_settings) { instance_double("Guard::Jobs::TerminalSettings") }
 
-  let(:session) { instance_double('Guard::Internals::Session') }
-  let(:plugins) { instance_double('Guard::Internals::Plugins') }
-  let(:groups) { instance_double('Guard::Internals::Groups') }
-  let(:state) { instance_double('Guard::Internals::State') }
-  let(:scope) { instance_double('Guard::Internals::Scope') }
+  let(:session) { instance_double("Guard::Internals::Session") }
+  let(:plugins) { instance_double("Guard::Internals::Plugins") }
+  let(:groups) { instance_double("Guard::Internals::Groups") }
+  let(:state) { instance_double("Guard::Internals::State") }
+  let(:scope) { instance_double("Guard::Internals::Scope") }
 
   before do
     # TODO: this are here to mock out Pry completely
@@ -34,7 +34,7 @@ RSpec.describe Guard::Jobs::PryWrapper do
 
     allow(Guard).to receive(:listener).and_return(listener)
     allow(Pry).to receive(:config).and_return(pry_config)
-    allow(Shellany::Sheller).to receive(:run).with('hash', 'stty') { false }
+    allow(Shellany::Sheller).to receive(:run).with("hash", "stty") { false }
 
     allow(groups).to receive(:all).and_return([])
     allow(session).to receive(:groups).and_return(groups)
@@ -61,7 +61,7 @@ RSpec.describe Guard::Jobs::PryWrapper do
     allow(terminal_settings).to receive(:restore)
   end
 
-  describe '#foreground' do
+  describe "#foreground" do
     before do
       allow(Pry).to receive(:start) do
         # sleep for a long time (anything > 0.6)
@@ -73,7 +73,7 @@ RSpec.describe Guard::Jobs::PryWrapper do
       subject.background
     end
 
-    it 'waits for Pry thread to finish' do
+    it "waits for Pry thread to finish" do
       was_alive = false
 
       Thread.new do
@@ -86,7 +86,7 @@ RSpec.describe Guard::Jobs::PryWrapper do
       expect(was_alive).to be
     end
 
-    it 'prevents the Pry thread from being killed too quickly' do
+    it "prevents the Pry thread from being killed too quickly" do
       start = Time.now.to_f
 
       Thread.new do
@@ -100,7 +100,7 @@ RSpec.describe Guard::Jobs::PryWrapper do
       expect(killed_moment - start).to be > 0.5
     end
 
-    it 'return :stopped when brought into background' do
+    it "return :stopped when brought into background" do
       Thread.new do
         sleep 0.1
         subject.background
@@ -110,7 +110,7 @@ RSpec.describe Guard::Jobs::PryWrapper do
     end
   end
 
-  describe '#background' do
+  describe "#background" do
     before do
       allow(Pry).to receive(:start) do
         # 0.5 is enough for Pry, so we use 0.4
@@ -118,7 +118,7 @@ RSpec.describe Guard::Jobs::PryWrapper do
       end
     end
 
-    it 'kills the Pry thread' do
+    it "kills the Pry thread" do
       subject.foreground
       sleep 1 # give Pry 0.5 sec to boot
       subject.background
@@ -128,57 +128,57 @@ RSpec.describe Guard::Jobs::PryWrapper do
     end
   end
 
-  describe '#_prompt(ending_char)' do
-    let(:prompt) { subject.send(:_prompt, '>') }
+  describe "#_prompt(ending_char)" do
+    let(:prompt) { subject.send(:_prompt, ">") }
 
     before do
-      allow(Shellany::Sheller).to receive(:run).with('hash', 'stty') { false }
-      allow(scope).to receive(:titles).and_return(['all'])
+      allow(Shellany::Sheller).to receive(:run).with("hash", "stty") { false }
+      allow(scope).to receive(:titles).and_return(["all"])
 
       allow(listener).to receive(:paused?).and_return(false)
 
-      expect(Pry).to receive(:view_clip).and_return('main')
+      expect(Pry).to receive(:view_clip).and_return("main")
     end
 
     let(:pry) { instance_double(Pry, input_array: []) }
 
-    context 'Guard is not paused' do
+    context "Guard is not paused" do
       it 'displays "guard"' do
         expect(prompt.call(double, 0, pry))
-          .to eq '[0] guard(main)> '
+          .to eq "[0] guard(main)> "
       end
     end
 
-    context 'Guard is paused' do
+    context "Guard is paused" do
       before do
         allow(listener).to receive(:paused?).and_return(true)
       end
 
       it 'displays "pause"' do
         expect(prompt.call(double, 0, pry))
-          .to eq '[0] pause(main)> '
+          .to eq "[0] pause(main)> "
       end
     end
 
-    context 'with a groups scope' do
+    context "with a groups scope" do
       before do
         allow(scope).to receive(:titles).and_return(%w[Backend Frontend])
       end
 
-      it 'displays the group scope title in the prompt' do
+      it "displays the group scope title in the prompt" do
         expect(prompt.call(double, 0, pry))
-          .to eq '[0] Backend,Frontend guard(main)> '
+          .to eq "[0] Backend,Frontend guard(main)> "
       end
     end
 
-    context 'with a plugins scope' do
+    context "with a plugins scope" do
       before do
         allow(scope).to receive(:titles).and_return(%w[RSpec Ronn])
       end
 
-      it 'displays the group scope title in the prompt' do
+      it "displays the group scope title in the prompt" do
         result = prompt.call(double, 0, pry)
-        expect(result).to eq '[0] RSpec,Ronn guard(main)> '
+        expect(result).to eq "[0] RSpec,Ronn guard(main)> "
       end
     end
   end

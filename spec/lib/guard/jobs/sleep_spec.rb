@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-require 'guard/jobs/sleep'
+require "guard/jobs/sleep"
 
 RSpec.describe Guard::Jobs::Sleep do
   subject { described_class.new({}) }
 
-  describe '#foreground' do
-    it 'sleeps' do
-      status = 'unknown'
+  describe "#foreground" do
+    it "sleeps" do
+      status = "unknown"
 
       Thread.new do
         sleep 0.1
@@ -17,10 +17,10 @@ RSpec.describe Guard::Jobs::Sleep do
 
       subject.foreground
 
-      expect(status).to eq('sleep')
+      expect(status).to eq("sleep")
     end
 
-    it 'returns :stopped when put to background' do
+    it "returns :stopped when put to background" do
       Thread.new do
         sleep 0.1
         subject.background
@@ -30,9 +30,9 @@ RSpec.describe Guard::Jobs::Sleep do
     end
   end
 
-  describe '#background' do
-    it 'wakes up main thread' do
-      status = 'unknown'
+  describe "#background" do
+    it "wakes up main thread" do
+      status = "unknown"
 
       Thread.new do
         sleep 0.1 # give enough time for foreground to put main thread to sleep
@@ -55,7 +55,7 @@ RSpec.describe Guard::Jobs::Sleep do
       rescue Timeout::Error
       end
 
-      expect(status).to eq('run')
+      expect(status).to eq("run")
     end
   end
 end
