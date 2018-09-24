@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "guard/notifier"
 
 # NOTE: this is here so that no UI does not require anything,
@@ -80,8 +82,8 @@ RSpec.describe Guard::UI do
       end
 
       it "sets the logger device" do
-        expect(Lumberjack::Logger).to receive(:new).
-          with(device, logger_config)
+        expect(Lumberjack::Logger).to receive(:new)
+          .with(device, logger_config)
 
         Guard::UI.logger
       end
@@ -131,8 +133,8 @@ RSpec.describe Guard::UI do
     let(:new_config) { instance_double("Guard::UI::Config") }
 
     before do
-      allow(Guard::UI::Config).to receive(:new).with(hi: :ho).
-        and_return(new_config)
+      allow(Guard::UI::Config).to receive(:new).with(hi: :ho)
+                                               .and_return(new_config)
 
       allow(new_config).to receive(:[]).with(:hi).and_return(:ho)
     end
@@ -212,8 +214,8 @@ RSpec.describe Guard::UI do
 
   describe ".deprecation" do
     before do
-      allow(ENV).to receive(:[]).with("GUARD_GEM_SILENCE_DEPRECATIONS").
-        and_return(value)
+      allow(ENV).to receive(:[]).with("GUARD_GEM_SILENCE_DEPRECATIONS")
+                                .and_return(value)
     end
 
     context "with GUARD_GEM_SILENCE_DEPRECATIONS set to 1" do
@@ -283,8 +285,8 @@ RSpec.describe Guard::UI do
 
           context "when the command fails" do
             before do
-              allow(terminal).to receive(:clear).
-                and_raise(Errno::ENOENT, "failed to run command")
+              allow(terminal).to receive(:clear)
+                .and_raise(Errno::ENOENT, "failed to run command")
             end
 
             it "shows a warning" do
@@ -324,8 +326,8 @@ RSpec.describe Guard::UI do
 
     context "with a plugins scope" do
       it "shows the plugin scoped action" do
-        allow(scope).to receive(:titles).with(plugins: [rspec, jasmine]).
-          and_return(%w(Rspec Jasmine))
+        allow(scope).to receive(:titles).with(plugins: [rspec, jasmine])
+                                        .and_return(%w[Rspec Jasmine])
 
         expect(Guard::UI).to receive(:info).with("Reload Rspec, Jasmine")
         Guard::UI.action_with_scopes("Reload", plugins: [rspec, jasmine])
@@ -334,8 +336,8 @@ RSpec.describe Guard::UI do
 
     context "with a groups scope" do
       it "shows the group scoped action" do
-        allow(scope).to receive(:titles).with(groups: [group]).
-          and_return(%w(Frontend))
+        allow(scope).to receive(:titles).with(groups: [group])
+                                        .and_return(%w[Frontend])
 
         expect(Guard::UI).to receive(:info).with("Reload Frontend")
         Guard::UI.action_with_scopes("Reload", groups: [group])
@@ -345,7 +347,7 @@ RSpec.describe Guard::UI do
     context "without a scope" do
       context "with a global plugin scope" do
         it "shows the global plugin scoped action" do
-          allow(scope).to receive(:titles).and_return(%w(Rspec Jasmine))
+          allow(scope).to receive(:titles).and_return(%w[Rspec Jasmine])
           expect(Guard::UI).to receive(:info).with("Reload Rspec, Jasmine")
           Guard::UI.action_with_scopes("Reload", {})
         end
@@ -353,7 +355,7 @@ RSpec.describe Guard::UI do
 
       context "with a global group scope" do
         it "shows the global group scoped action" do
-          allow(scope).to receive(:titles).and_return(%w(Frontend))
+          allow(scope).to receive(:titles).and_return(%w[Frontend])
           expect(Guard::UI).to receive(:info).with("Reload Frontend")
           Guard::UI.action_with_scopes("Reload", {})
         end

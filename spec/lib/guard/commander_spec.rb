@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "guard/commander"
 
 RSpec.describe Guard::Commander do
@@ -33,7 +35,7 @@ RSpec.describe Guard::Commander do
       # from stop()
       allow(Guard).to receive(:setup)
       allow(Guard).to receive(:listener).and_return(listener)
-      allow(session).to receive(:watchdirs).and_return(%w(dir1 dir2))
+      allow(session).to receive(:watchdirs).and_return(%w[dir1 dir2])
       allow(Guard).to receive(:interactor).and_return(interactor)
 
       # Simulate Ctrl-D in Pry, or Ctrl-C in non-interactive mode
@@ -49,8 +51,8 @@ RSpec.describe Guard::Commander do
     end
 
     it "displays an info message" do
-      expect(Guard::UI).to receive(:info).
-        with("Guard is now watching at 'dir1', 'dir2'")
+      expect(Guard::UI).to receive(:info)
+        .with("Guard is now watching at 'dir1', 'dir2'")
 
       Guard.start
     end
@@ -205,8 +207,8 @@ RSpec.describe Guard::Commander do
 
       context "with invalid parameter" do
         it "raises an ArgumentError" do
-          expect { Guard.pause(:invalid) }.
-            to raise_error(ArgumentError, "invalid mode: :invalid")
+          expect { Guard.pause(:invalid) }
+            .to raise_error(ArgumentError, "invalid mode: :invalid")
         end
       end
     end
@@ -249,8 +251,8 @@ RSpec.describe Guard::Commander do
 
       context "with invalid parameter" do
         it "raises an ArgumentError" do
-          expect { Guard.pause(:invalid) }.
-            to raise_error(ArgumentError, "invalid mode: :invalid")
+          expect { Guard.pause(:invalid) }
+            .to raise_error(ArgumentError, "invalid mode: :invalid")
         end
       end
     end
@@ -260,8 +262,8 @@ RSpec.describe Guard::Commander do
     let(:dsl_describer) { instance_double("Guard::DslDescriber") }
 
     before do
-      allow(Guard::DslDescriber).to receive(:new).with(no_args).
-        and_return(dsl_describer)
+      allow(Guard::DslDescriber).to receive(:new).with(no_args)
+                                                 .and_return(dsl_describer)
     end
 
     it "shows list of plugins" do

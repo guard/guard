@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "guard/watcher/pattern"
 
 RSpec.describe Guard::Watcher::Pattern do
@@ -18,8 +20,8 @@ RSpec.describe Guard::Watcher::Pattern do
       let(:pattern) { "^foo.*$" }
       it { is_expected.to be_a(described_class::Matcher) }
       it "shows a warning" do
-        expect(described_class::DeprecatedRegexp).
-          to receive(:show_deprecation).with(pattern)
+        expect(described_class::DeprecatedRegexp)
+          .to receive(:show_deprecation).with(pattern)
         subject
       end
     end

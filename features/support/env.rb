@@ -33,5 +33,5 @@ Before do
   set_environment_variable "HOME", home
   FileUtils.mkdir(home)
 
-  @aruba_timeout_seconds = Cucumber::JRUBY ? 35 : 15
+  @aruba_timeout_seconds = Cucumber::JRUBY ? 45 : 15
 end

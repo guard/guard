@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "guard/runner"
 
 require "guard/plugin"
@@ -41,8 +43,8 @@ RSpec.describe Guard::Runner do
 
   describe "#run" do
     before do
-      allow(scope).to receive(:grouped_plugins).with({}).
-        and_return([[nil, [foo_plugin, bar_plugin, baz_plugin]]])
+      allow(scope).to receive(:grouped_plugins).with({})
+                                               .and_return([[nil, [foo_plugin, bar_plugin, baz_plugin]]])
 
       allow(ui_config).to receive(:with_progname).and_yield
     end
@@ -75,8 +77,8 @@ RSpec.describe Guard::Runner do
       let(:scope_hash) { { plugin: :bar } }
 
       it "executes the supervised task on the specified plugin only" do
-        expect(scope).to receive(:grouped_plugins).with(scope_hash).
-          and_return([[nil, [bar_plugin]]])
+        expect(scope).to receive(:grouped_plugins).with(scope_hash)
+                                                  .and_return([[nil, [bar_plugin]]])
 
         expect(bar_plugin).to receive(:my_task)
         expect(foo_plugin).to_not receive(:my_task)
@@ -129,23 +131,23 @@ RSpec.describe Guard::Runner do
       end
 
       # disable reevaluator
-      allow(scope).to receive(:grouped_plugins).with(group: :common).
-        and_return([[nil, []]])
+      allow(scope).to receive(:grouped_plugins).with(group: :common)
+                                               .and_return([[nil, []]])
 
       # foo in default group
-      allow(scope).to receive(:grouped_plugins).with(group: :default).
-        and_return([[nil, [foo_plugin]]])
+      allow(scope).to receive(:grouped_plugins).with(group: :default)
+                                               .and_return([[nil, [foo_plugin]]])
 
-      allow(scope).to receive(:grouped_plugins).with(no_args).
-        and_return([[nil, [foo_plugin]]])
+      allow(scope).to receive(:grouped_plugins).with(no_args)
+                                               .and_return([[nil, [foo_plugin]]])
 
       allow(ui_config).to receive(:with_progname).and_yield
     end
 
     it "always calls UI.clearable" do
       expect(Guard::UI).to receive(:clearable)
-      expect(scope).to receive(:grouped_plugins).with(no_args).
-        and_return([[nil, [foo_plugin]]])
+      expect(scope).to receive(:grouped_plugins).with(no_args)
+                                                .and_return([[nil, [foo_plugin]]])
 
       subject.run_on_changes(*changes)
     end
@@ -153,21 +155,21 @@ RSpec.describe Guard::Runner do
     context "when clearable" do
       it "clear UI" do
         expect(Guard::UI).to receive(:clear)
-        expect(scope).to receive(:grouped_plugins).with(no_args).
-          and_return([[nil, [foo_plugin]]])
+        expect(scope).to receive(:grouped_plugins).with(no_args)
+                                                  .and_return([[nil, [foo_plugin]]])
         subject.run_on_changes(*changes)
       end
     end
 
     context "with no changes" do
       it "does not run any task" do
-        %w(
+        %w[
           run_on_modifications
           run_on_change
           run_on_additions
           run_on_removals
           run_on_deletion
-        ).each do |task|
+        ].each do |task|
           expect(foo_plugin).to_not receive(task.to_sym)
         end
         subject.run_on_changes(*changes)
@@ -175,12 +177,12 @@ RSpec.describe Guard::Runner do
     end
 
     context "with modified files but modified paths is empty" do
-      let(:modified) { %w(file.txt image.png) }
+      let(:modified) { %w[file.txt image.png] }
 
       before do
         changes[0] = modified
-        expect(watcher_module).to receive(:match_files).once.
-          with(foo_plugin, modified).and_return([])
+        expect(watcher_module).to receive(:match_files).once
+          .with(foo_plugin, modified).and_return([])
 
         # stub so respond_to? works
       end
@@ -192,12 +194,12 @@ RSpec.describe Guard::Runner do
     end
 
     context "with modified paths" do
-      let(:modified) { %w(file.txt image.png) }
+      let(:modified) { %w[file.txt image.png] }
 
       before do
         changes[0] = modified
-        expect(watcher_module).to receive(:match_files).
-          with(foo_plugin, modified).and_return(modified)
+        expect(watcher_module).to receive(:match_files)
+          .with(foo_plugin, modified).and_return(modified)
       end
 
       it "executes the :run_first_task_found task" do
@@ -207,12 +209,12 @@ RSpec.describe Guard::Runner do
     end
 
     context "with added files but added paths is empty" do
-      let(:added) { %w(file.txt image.png) }
+      let(:added) { %w[file.txt image.png] }
 
       before do
         changes[0] = added
-        expect(watcher_module).to receive(:match_files).once.
-          with(foo_plugin, added).and_return([])
+        expect(watcher_module).to receive(:match_files).once
+          .with(foo_plugin, added).and_return([])
       end
 
       it "does not call run anything" do
@@ -222,12 +224,12 @@ RSpec.describe Guard::Runner do
     end
 
     context "with added paths" do
-      let(:added) { %w(file.txt image.png) }
+      let(:added) { %w[file.txt image.png] }
 
       before do
         changes[1] = added
-        expect(watcher_module).to receive(:match_files).
-          with(foo_plugin, added).and_return(added)
+        expect(watcher_module).to receive(:match_files)
+          .with(foo_plugin, added).and_return(added)
       end
 
       it "executes the :run_on_additions task" do
@@ -237,12 +239,12 @@ RSpec.describe Guard::Runner do
     end
 
     context "with non-matching removed paths" do
-      let(:removed) { %w(file.txt image.png) }
+      let(:removed) { %w[file.txt image.png] }
 
       before do
         changes[2] = removed
-        expect(watcher_module).to receive(:match_files).once.
-          with(foo_plugin, removed) { [] }
+        expect(watcher_module).to receive(:match_files).once
+                                                       .with(foo_plugin, removed) { [] }
 
         # stub so respond_to? works
         allow(foo_plugin).to receive(:run_on_removals)
@@ -255,12 +257,12 @@ RSpec.describe Guard::Runner do
     end
 
     context "with matching removed paths" do
-      let(:removed) { %w(file.txt image.png) }
+      let(:removed) { %w[file.txt image.png] }
 
       before do
         changes[2] = removed
-        expect(watcher_module).to receive(:match_files).
-          with(foo_plugin, removed) { removed }
+        expect(watcher_module).to receive(:match_files)
+          .with(foo_plugin, removed) { removed }
       end
 
       it "executes the :run_on_removals task" do
@@ -297,21 +299,21 @@ RSpec.describe Guard::Runner do
         end
 
         it "calls :begin and :end hooks" do
-          expect(foo_plugin).to receive(:hook).
-            with("regular_without_arg_begin")
+          expect(foo_plugin).to receive(:hook)
+            .with("regular_without_arg_begin")
 
-          expect(foo_plugin).to receive(:hook).
-            with("regular_without_arg_end", true)
+          expect(foo_plugin).to receive(:hook)
+            .with("regular_without_arg_end", true)
 
           subject.send(:_supervise, foo_plugin, :regular_without_arg)
         end
 
         it "passes the result of the supervised method to the :end hook" do
-          expect(foo_plugin).to receive(:hook).
-            with("regular_without_arg_begin")
+          expect(foo_plugin).to receive(:hook)
+            .with("regular_without_arg_begin")
 
-          expect(foo_plugin).to receive(:hook).
-            with("regular_without_arg_end", true)
+          expect(foo_plugin).to receive(:hook)
+            .with("regular_without_arg_end", true)
 
           subject.send(:_supervise, foo_plugin, :regular_without_arg)
         end
@@ -319,8 +321,8 @@ RSpec.describe Guard::Runner do
 
       context "with arguments" do
         before do
-          allow(foo_plugin).to receive(:regular_with_arg).
-            with("given_path") { "I'm a success" }
+          allow(foo_plugin).to receive(:regular_with_arg)
+            .with("given_path") { "I'm a success" }
         end
 
         it "does not remove the Guard" do

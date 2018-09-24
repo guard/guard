@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "guard/plugin"
 
 require "guard/watcher"
@@ -54,7 +56,7 @@ RSpec.describe Guard::Plugin do
     context "with a callback" do
       it "adds the callback" do
         block = instance_double(Proc)
-        events = [:start_begin, :start_end]
+        events = %i[start_begin start_end]
         callbacks = [{ events: events, listener: block }]
         Guard::Plugin.new(callbacks: callbacks)
         expect(Guard::Plugin.callbacks.first[0][0].callbacks).to eq(callbacks)
@@ -93,8 +95,8 @@ RSpec.describe Guard::Plugin do
       end
 
       it "reads the default template" do
-        expect(File).to receive(:read).
-          with("/guard-dummy/lib/guard/dummy/templates/Guardfile") { true }
+        expect(File).to receive(:read)
+          .with("/guard-dummy/lib/guard/dummy/templates/Guardfile") { true }
 
         subject.template("/guard-dummy")
       end
@@ -116,8 +118,8 @@ RSpec.describe Guard::Plugin do
       let(:default) { instance_double("Guard::Group", name: :default) }
 
       it "output the short plugin name" do
-        expect(subject.new.to_s).
-          to match(/#<Guard::DuMmy @name=dummy .*>/)
+        expect(subject.new.to_s)
+          .to match(/#<Guard::DuMmy @name=dummy .*>/)
       end
     end
   end
@@ -139,7 +141,7 @@ RSpec.describe Guard::Plugin do
     end
 
     it "can add multiple callbacks" do
-      described_class.add_callback(listener, foo, [:event1, :event2])
+      described_class.add_callback(listener, foo, %i[event1 event2])
 
       result = described_class.callbacks[[foo, :event1]]
       expect(result).to include(listener)
@@ -223,11 +225,11 @@ RSpec.describe Guard::Plugin do
       end
       foo = Foo.new
 
-      expect(described_class).to receive(:notify).
-        with(foo, :stop_begin, "args")
+      expect(described_class).to receive(:notify)
+        .with(foo, :stop_begin, "args")
 
-      expect(described_class).to receive(:notify).
-        with(foo, :special_sauce, "first_arg", "second_arg")
+      expect(described_class).to receive(:notify)
+        .with(foo, :special_sauce, "first_arg", "second_arg")
 
       foo.stop
     end

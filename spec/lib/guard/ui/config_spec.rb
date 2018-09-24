@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "guard/ui/config"
 
 RSpec.describe Guard::UI::Config do
@@ -30,8 +32,8 @@ RSpec.describe Guard::UI::Config do
     let(:logger_config) { instance_double("Guard::UI::Logger::Config") }
 
     before do
-      allow(Guard::UI::Logger::Config).to receive(:new).
-        and_return(logger_config)
+      allow(Guard::UI::Logger::Config).to receive(:new)
+        .and_return(logger_config)
     end
 
     context "with defaults" do
@@ -45,8 +47,8 @@ RSpec.describe Guard::UI::Config do
         subject { described_class.new('time_format': "foo") }
 
         it "passes deprecated options to logger" do
-          expect(Guard::UI::Logger::Config).to receive(:new).
-            with(time_format: "foo")
+          expect(Guard::UI::Logger::Config).to receive(:new)
+            .with(time_format: "foo")
           subject
         end
 
@@ -59,8 +61,8 @@ RSpec.describe Guard::UI::Config do
         let(:options) { { time_format: "foo" } }
 
         it "passes deprecated options to logger" do
-          expect(Guard::UI::Logger::Config).to receive(:new).
-            with(time_format: "foo")
+          expect(Guard::UI::Logger::Config).to receive(:new)
+            .with(time_format: "foo")
           subject
         end
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "guard/terminal"
 
 RSpec.describe Guard::Terminal do
@@ -18,23 +20,23 @@ RSpec.describe Guard::Terminal do
         let(:result) { [0, "\e[H\e[2J", ""] }
 
         it "clears the screen using 'clear'" do
-          expect(sheller).to receive(:system).with("printf '\33c\e[3J';").
-            and_return(result)
+          expect(sheller).to receive(:system).with("printf '\33c\e[3J';")
+                                             .and_return(result)
           ::Guard::Terminal.clear
         end
       end
 
       context "when the clear command fails" do
-        let(:result) { [nil, nil, "Guard failed to run \"clear;\""] }
+        let(:result) { [nil, nil, 'Guard failed to run "clear;"'] }
 
         before do
-          allow(sheller).to receive(:system).with("printf '\33c\e[3J';").
-            and_return(result)
+          allow(sheller).to receive(:system).with("printf '\33c\e[3J';")
+                                            .and_return(result)
         end
 
         it "fails" do
-          expect { ::Guard::Terminal.clear }.
-            to raise_error(Errno::ENOENT, /Guard failed to run "clear;"/)
+          expect { ::Guard::Terminal.clear }
+            .to raise_error(Errno::ENOENT, /Guard failed to run "clear;"/)
         end
       end
     end
@@ -49,15 +51,15 @@ RSpec.describe Guard::Terminal do
       end
 
       context "when the clear command fails" do
-        let(:result) { [nil, nil, "Guard failed to run \"cls\""] }
+        let(:result) { [nil, nil, 'Guard failed to run "cls"'] }
 
         before do
           allow(sheller).to receive(:system).with("cls").and_return(result)
         end
 
         it "fails" do
-          expect { ::Guard::Terminal.clear }.
-            to raise_error(Errno::ENOENT, /Guard failed to run "cls"/)
+          expect { ::Guard::Terminal.clear }
+            .to raise_error(Errno::ENOENT, /Guard failed to run "cls"/)
         end
       end
     end

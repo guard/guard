@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "guard/config"
 
 unless Guard::Config.new.strict?
@@ -24,13 +26,13 @@ unless Guard::Config.new.strict?
 
       before do
         # TODO: this is a workaround for a bad require loop
-        allow_any_instance_of(Guard::Config).to receive(:strict?).
-          and_return(false)
+        allow_any_instance_of(Guard::Config).to receive(:strict?)
+          .and_return(false)
 
         require "guard/guardfile/evaluator"
 
-        allow(Guard::Guardfile::Evaluator).to receive(:new).
-          and_return(evaluator)
+        allow(Guard::Guardfile::Evaluator).to receive(:new)
+          .and_return(evaluator)
 
         allow(evaluator).to receive(:evaluate_guardfile)
 
@@ -38,15 +40,15 @@ unless Guard::Config.new.strict?
       end
 
       it "displays a deprecation warning to the user" do
-        expect(Guard::UI).to receive(:deprecation).
-          with(Guard::Deprecated::Dsl::ClassMethods::EVALUATE_GUARDFILE)
+        expect(Guard::UI).to receive(:deprecation)
+          .with(Guard::Deprecated::Dsl::ClassMethods::EVALUATE_GUARDFILE)
 
         subject.evaluate_guardfile
       end
 
       it "delegates to Guard::Guardfile::Generator" do
-        expect(Guard::Guardfile::Evaluator).to receive(:new).
-          with(foo: "bar") { evaluator }
+        expect(Guard::Guardfile::Evaluator).to receive(:new)
+          .with(foo: "bar") { evaluator }
 
         expect(evaluator).to receive(:evaluate_guardfile)
 

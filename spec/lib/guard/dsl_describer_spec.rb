@@ -1,4 +1,5 @@
-# encoding: utf-8
+# frozen_string_literal: true
+
 require "guard/plugin"
 require "guard/dsl_describer"
 require "formatador"
@@ -28,7 +29,8 @@ RSpec.describe Guard::DslDescriber do
     stub_const "Guard::Test", class_double("Guard::Plugin")
     stub_const "Guard::Another", class_double("Guard::Plugin")
 
-    @output = ""
+    # TODO: Reenable rubocop and refactor to +'' one 2.2 compatibility is dropped
+    @output = String.new
 
     # Strip escape sequences
     allow(STDOUT).to receive(:tty?).and_return(false)
@@ -64,7 +66,7 @@ RSpec.describe Guard::DslDescriber do
       allow(plugins).to receive(:all).with("more").and_return([])
 
       allow(Guard::PluginUtil).to receive(:plugin_names) do
-        %w(test another even more)
+        %w[test another even more]
       end
     end
 
@@ -95,7 +97,7 @@ RSpec.describe Guard::DslDescriber do
       allow(groups).to receive(:all).and_return [
         instance_double("Guard::Group", name: :default, title: "Default"),
         instance_double("Guard::Group", name: :a, title: "A"),
-        instance_double("Guard::Group", name: :b, title: "B"),
+        instance_double("Guard::Group", name: :b, title: "B")
       ]
 
       allow(plugins).to receive(:all).with(group: :default) do
@@ -139,8 +141,8 @@ RSpec.describe Guard::DslDescriber do
       )
 
       allow(Guard::Notifier).to receive(:connect).once
-      allow(Guard::Notifier).to receive(:detected).
-        and_return([{ name: :gntp, options: { sticky: true } }])
+      allow(Guard::Notifier).to receive(:detected)
+        .and_return([{ name: :gntp, options: { sticky: true } }])
 
       allow(Guard::Notifier).to receive(:disconnect).once
     end

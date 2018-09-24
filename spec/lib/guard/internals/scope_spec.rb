@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "guard/internals/scope"
 
 RSpec.describe Guard::Internals::Scope do
@@ -40,7 +42,7 @@ RSpec.describe Guard::Internals::Scope do
 
   # TODO: move to Session?
   describe "#to_hash" do
-    [:group, :plugin].each do |scope|
+    %i[group plugin].each do |scope|
       describe scope.inspect do
         let(:hash) do
           subject.to_hash[:"#{scope}s"].map(&:name).map(&:to_s)
@@ -61,8 +63,8 @@ RSpec.describe Guard::Internals::Scope do
         context "when not set in interactor" do
           context "when set in commandline" do
             before do
-              allow(session).to receive(:"cmdline_#{scope}s").
-                and_return(%w(baz))
+              allow(session).to receive(:"cmdline_#{scope}s")
+                .and_return(%w[baz])
             end
 
             it "uses commandline scope" do
@@ -73,8 +75,8 @@ RSpec.describe Guard::Internals::Scope do
           context "when not set in commandline" do
             context "when set in Guardfile" do
               before do
-                allow(session).to receive(:"guardfile_#{scope}_scope").
-                  and_return(%w(baz))
+                allow(session).to receive(:"guardfile_#{scope}_scope")
+                  .and_return(%w[baz])
               end
 
               it "uses guardfile scope" do

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "guard/config"
 
 unless Guard::Config.new.strict?
@@ -21,22 +23,22 @@ unless Guard::Config.new.strict?
         template = Guard::Guardfile::Generator::GUARDFILE_TEMPLATE
         allow(FileUtils).to receive(:cp).with(template, "Guardfile")
 
-        allow(Guard::Guardfile::Generator).to receive(:new).
-          and_return(generator)
+        allow(Guard::Guardfile::Generator).to receive(:new)
+          .and_return(generator)
 
         allow(generator).to receive(:create_guardfile)
       end
 
       it "displays a deprecation warning to the user" do
-        expect(Guard::UI).to receive(:deprecation).
-          with(Guard::Deprecated::Guardfile::ClassMethods::CREATE_GUARDFILE)
+        expect(Guard::UI).to receive(:deprecation)
+          .with(Guard::Deprecated::Guardfile::ClassMethods::CREATE_GUARDFILE)
 
         subject.create_guardfile
       end
 
       it "delegates to Guard::Guardfile::Generator" do
-        expect(Guard::Guardfile::Generator).to receive(:new).
-          with(foo: "bar") { generator }
+        expect(Guard::Guardfile::Generator).to receive(:new)
+          .with(foo: "bar") { generator }
 
         expect(generator).to receive(:create_guardfile)
 
@@ -54,8 +56,8 @@ unless Guard::Config.new.strict?
       end
 
       it "displays a deprecation warning to the user" do
-        expect(Guard::UI).to receive(:deprecation).
-          with(Guard::Deprecated::Guardfile::ClassMethods::INITIALIZE_TEMPLATE)
+        expect(Guard::UI).to receive(:deprecation)
+          .with(Guard::Deprecated::Guardfile::ClassMethods::INITIALIZE_TEMPLATE)
 
         subject.initialize_template("rspec")
       end
@@ -77,8 +79,8 @@ unless Guard::Config.new.strict?
       end
 
       it "displays a deprecation warning to the user" do
-        expect(Guard::UI).to receive(:deprecation).
-          with(described_class::ClassMethods::INITIALIZE_ALL_TEMPLATES)
+        expect(Guard::UI).to receive(:deprecation)
+          .with(described_class::ClassMethods::INITIALIZE_ALL_TEMPLATES)
 
         subject.initialize_all_templates
       end

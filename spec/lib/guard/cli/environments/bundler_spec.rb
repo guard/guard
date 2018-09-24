@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "guard/cli/environments/bundler"
 
 # TODO: instead of shared examples, use have_received if possible
@@ -22,8 +24,8 @@ RSpec.describe Guard::Cli::Environments::Bundler do
       allow(ENV).to receive(:[]).with("BUNDLE_GEMFILE").and_return(gemfile)
       allow(ENV).to receive(:[]).with("RUBYGEMS_GEMDEPS").and_return(gemdeps)
 
-      allow(File).to receive(:exist?).with("Gemfile").
-        and_return(gemfile_present)
+      allow(File).to receive(:exist?).with("Gemfile")
+                                     .and_return(gemfile_present)
 
       subject.verify
     end

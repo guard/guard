@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "guard/options"
 
 RSpec.describe Guard::Options do
