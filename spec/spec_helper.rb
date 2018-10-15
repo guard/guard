@@ -21,7 +21,9 @@
 require "fileutils"
 
 require "simplecov"
-SimpleCov.start
+SimpleCov.start do
+  add_filter "/spec"
+end
 
 ENV["GUARD_SPECS_RUNNING"] = "1"
 
