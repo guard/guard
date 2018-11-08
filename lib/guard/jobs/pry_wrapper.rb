@@ -276,17 +276,25 @@ module Guard
       #
       def _prompt(ending_char)
         proc do |target_self, nest_level, pry|
-          history = pry.input_array.size
           process = Guard.listener.paused? ? "pause" : "guard"
           level = ":#{ nest_level }" unless nest_level.zero?
 
-          "[#{ history }] #{ _scope_for_prompt }#{ process }"\
+          "[#{ _history(pry) }] #{ _scope_for_prompt }#{ process }"\
             "(#{ _clip_name(target_self) })#{ level }#{ ending_char } "
         end
       end
 
       def _clip_name(target)
         Pry.view_clip(target)
+      end
+
+      def _history(pry)
+        # https://github.com/pry/pry/blob/5bf2585d0a49a4a3666a9eae80ee31153e3ffcf4/CHANGELOG.md#v0120-november-5-2018
+        if Pry::VERSION < "0.12.0"
+          return pry.input_array.size
+        end
+
+        pry.input_ring.size
       end
     end
   end

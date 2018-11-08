@@ -140,10 +140,21 @@ RSpec.describe Guard::Jobs::PryWrapper do
       expect(Pry).to receive(:view_clip).and_return("main")
     end
 
-    let(:pry) { instance_double(Pry, input_array: []) }
+    let(:pry) { instance_double(Pry, input_ring: []) }
 
     context "Guard is not paused" do
       it 'displays "guard"' do
+        expect(prompt.call(double, 0, pry))
+          .to eq "[0] guard(main)> "
+      end
+    end
+
+    context "Guard is using a lower version of Pry" do
+      let(:pry) { instance_double(Pry, input_array: []) }
+
+      it 'displays "guard"' do
+        stub_const("Pry::VERSION", "0.11.0")
+
         expect(prompt.call(double, 0, pry))
           .to eq "[0] guard(main)> "
       end
