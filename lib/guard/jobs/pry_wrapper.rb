@@ -290,7 +290,7 @@ module Guard
 
       def _history(pry)
         # https://github.com/pry/pry/blob/5bf2585d0a49a4a3666a9eae80ee31153e3ffcf4/CHANGELOG.md#v0120-november-5-2018
-        if Pry::VERSION < "0.12.0"
+        if Gem::Version.new(Pry::VERSION) < Gem::Version.new("0.12.0")
           return pry.input_array.size
         end
 
