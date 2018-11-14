@@ -1,3 +1,3 @@
 module Guard
-  VERSION = "2.14.2"
+  VERSION = "2.15.0"
 end
