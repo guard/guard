@@ -269,7 +269,7 @@ RSpec.describe Guard::UI do
 
       context "when clear option is enabled" do
         before do
-          allow(session).to receive(:clear?).and_return(true)
+          allow(engine.session).to receive(:clear?).and_return(true)
         end
 
         context "when the screen is marked as needing clearing" do

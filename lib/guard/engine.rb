@@ -86,7 +86,7 @@ module Guard
       evaluator = Guardfile::Evaluator.new(engine: self)
       evaluator.evaluate
 
-      UI.reset_and_clear
+      UI.reset_and_clear(engine: self)
 
       msg = "No plugins found in Guardfile, please add at least one."
       UI.error msg if _pluginless_guardfile?

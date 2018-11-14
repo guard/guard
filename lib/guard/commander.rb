@@ -40,7 +40,7 @@ module Guard
       exitcode = 0
       begin
         while interactor.foreground != :exit
-          queue.process while Guard.queue.pending?
+          queue.process while self.queue.pending?
         end
       rescue Interrupt
       rescue SystemExit => e

@@ -5,27 +5,24 @@ require "guard/internals/plugins"
 RSpec.describe Guard::Internals::Plugins do
   let!(:engine) { Guard.init }
 
-  Guard::Foobar = Class.new.include(Guard::API)
-  Guard::Foobaz = Class.new.include(Guard::API)
-
   subject { described_class.new(engine: engine) }
 
   describe "#all" do
     before do
+      subject.add("foo", group: "frontend")
       subject.add("foobar", group: "frontend")
-      subject.add("foobaz", group: "frontend")
+      subject.add("foo", group: "backend")
       subject.add("foobar", group: "backend")
-      subject.add("foobaz", group: "backend")
     end
 
     context "with no arguments" do
       it "returns all plugins" do
         expect(all_name_and_groups(nil)).
           to eq [
+            ["foo", :frontend],
             ["foobar", :frontend],
-            ["foobaz", :frontend],
-            ["foobar", :backend],
-            ["foobaz", :backend]
+            ["foo", :backend],
+            ["foobar", :backend]
           ]
       end
     end
@@ -34,8 +31,8 @@ RSpec.describe Guard::Internals::Plugins do
       it "returns an array of plugins if plugins are found" do
           expect(all_name_and_groups("foo-bar"))
             .to eq [
-              ["foobar", :frontend],
-              ["foobar", :backend]
+              ["foo", :frontend],
+              ["foo", :backend]
             ]
       end
     end
@@ -44,8 +41,8 @@ RSpec.describe Guard::Internals::Plugins do
       it "returns an array of plugins if plugins are found" do
         expect(all_name_and_groups(:"foo-bar"))
           .to eq [
-            ["foobar", :frontend],
-            ["foobar", :backend]
+            ["foo", :frontend],
+            ["foo", :backend]
           ]
       end
 
@@ -56,10 +53,10 @@ RSpec.describe Guard::Internals::Plugins do
 
     context "find plugins matching a regexp" do
       it "returns an array of plugins if plugins are found" do
-        expect(all_name_and_groups(/^foobar/))
+        expect(all_name_and_groups(/^foo/))
           .to eq [
-            ["foobar", :frontend],
-            ["foobar", :backend]
+            ["foo", :frontend],
+            ["foo", :backend]
           ]
       end
 
@@ -72,8 +69,8 @@ RSpec.describe Guard::Internals::Plugins do
       it "returns an array of plugins if plugins are found" do
         expect(all_name_and_groups(group: "backend"))
           .to eq [
-            ["foobar", :backend],
-            ["foobaz", :backend]
+            ["foo", :backend],
+            ["foobar", :backend]
           ]
       end
     end
@@ -82,8 +79,8 @@ RSpec.describe Guard::Internals::Plugins do
       it "returns an array of plugins if plugins are found" do
         expect(all_name_and_groups(group: :frontend))
           .to eq [
-            ["foobar", :frontend],
-            ["foobaz", :frontend]
+            ["foo", :frontend],
+            ["foobar", :frontend]
           ]
       end
 
@@ -96,7 +93,7 @@ RSpec.describe Guard::Internals::Plugins do
       it "returns an array of plugins if plugins are found" do
         expect(all_name_and_groups(group: "backend", name: "foo-bar"))
           .to eq [
-            ["foobar", :backend]
+            ["foo", :backend]
           ]
       end
 
@@ -109,10 +106,10 @@ RSpec.describe Guard::Internals::Plugins do
 
   describe "#remove" do
     before do
+      subject.add("foo", group: "frontend")
       subject.add("foobar", group: "frontend")
-      subject.add("foobaz", group: "frontend")
+      subject.add("foo", group: "backend")
       subject.add("foobar", group: "backend")
-      subject.add("foobaz", group: "backend")
     end
 
     it "removes given plugin" do
@@ -120,9 +117,9 @@ RSpec.describe Guard::Internals::Plugins do
 
       expect(all_name_and_groups(nil)).
         to match_array [
-          ["foobaz", :frontend],
-          ["foobar", :backend],
-          ["foobaz", :backend]
+          ["foobar", :frontend],
+          ["foo", :backend],
+          ["foobar", :backend]
         ]
     end
   end

@@ -7,9 +7,6 @@ RSpec.describe Guard::Internals::Session do
   let(:options) { {} }
   subject { described_class.new(engine: engine, options: options) }
 
-  Guard::Foo = Class.new.include(Guard::API)
-  Guard::Foobar = Class.new.include(Guard::API)
-
   before do
     subject.groups.add(:frontend)
     subject.groups.add(:backend)

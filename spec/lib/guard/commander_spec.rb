@@ -29,7 +29,6 @@ RSpec.describe Guard::Commander do
       stub_guardfile(" ")
       stub_user_guard_rb
 
-
       # Simulate Ctrl-D in Pry, or Ctrl-C in non-interactive mode
       allow(interactor).to receive(:foreground).and_return(:exit)
 

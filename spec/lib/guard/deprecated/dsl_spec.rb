@@ -17,10 +17,10 @@ unless Guard::Config.new.strict?
     end
 
     describe ".evaluate_guardfile" do
-      before { stub_user_guard_rb }
-      before { stub_guardfile(" ") }
-      before { stub_user_guardfile }
-      before { stub_user_project_guardfile }
+      # before { stub_user_guard_rb }
+      # before { stub_guardfile(" ") }
+      # before { stub_user_guardfile }
+      # before { stub_user_project_guardfile }
       let(:evaluator) { instance_double("Guard::Guardfile::Evaluator") }
 
       before do

@@ -10,16 +10,12 @@ RSpec.describe Guard::Runner do
   let!(:frontend_group) { Guard::Group.new(:frontend) }
   let!(:backend_group) { Guard::Group.new(:backend) }
 
-  Guard::Foo = Class.new { include(Guard::API); def my_hard_task; end; }
-  Guard::Bar = Class.new { include(Guard::API); def my_hard_task; end; }
-  Guard::Baz = Class.new.include(Guard::API)
-
   subject { described_class.new(engine: engine) }
 
   before do
     engine.plugins.add(:foo, group: :backend)
     engine.plugins.add(:bar, group: :frontend)
-    engine.plugins.add(:baz, group: :frontend)
+    engine.plugins.add(:foobar, group: :frontend)
 
     allow(Guard::UI::Config).to receive(:new).and_return(ui_config)
     Guard::UI.options = nil
@@ -32,7 +28,7 @@ RSpec.describe Guard::Runner do
 
   let(:foo_plugin) { engine.plugins.find(:foo) }
   let(:bar_plugin) { engine.plugins.find(:bar) }
-  let(:baz_plugin) { engine.plugins.find(:baz) }
+  let(:foobar_plugin) { engine.plugins.find(:foobar) }
 
   describe "#run" do
     before do
@@ -68,7 +64,7 @@ RSpec.describe Guard::Runner do
       it "executes the supervised task on the specified plugin only" do
         expect(foo_plugin).to_not receive(:run_all)
         expect(bar_plugin).to receive(:run_all)
-        expect(baz_plugin).to_not receive(:run_all)
+        expect(foobar_plugin).to_not receive(:run_all)
 
         subject.run(:run_all, scope_hash)
       end
@@ -80,7 +76,7 @@ RSpec.describe Guard::Runner do
       it "executes the supervised task using current scope" do
         expect(foo_plugin).to receive(:run_all)
         expect(bar_plugin).to receive(:run_all)
-        expect(baz_plugin).to receive(:run_all)
+        expect(foobar_plugin).to receive(:run_all)
 
         subject.run(:run_all, scope_hash)
       end
@@ -93,7 +89,7 @@ RSpec.describe Guard::Runner do
             bar_plugin.group.options[:halt_on_fail] = true
 
             expect(bar_plugin).to receive(:run_all) { throw :task_has_failed }
-            expect(baz_plugin).to_not receive(:run_all)
+            expect(foobar_plugin).to_not receive(:run_all)
           end
 
           it "throws :task_has_failed" do
@@ -106,7 +102,7 @@ RSpec.describe Guard::Runner do
             bar_plugin.group.options[:halt_on_fail] = false
 
             expect(bar_plugin).to receive(:run_all) { throw :task_has_failed }
-            expect(baz_plugin).to receive(:run_all) { true }
+            expect(foobar_plugin).to receive(:run_all) { true }
           end
 
           it "catches :task_has_failed" do

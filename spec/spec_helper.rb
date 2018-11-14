@@ -208,17 +208,27 @@ RSpec.configure do |config|
             hook :begin, "args"
             hook "special_sauce", "first_arg", "second_arg"
           end
+
+          def my_hard_task; end
         end
       end
       class Bar < Plugin
+        def my_hard_task; end
+      end
+      module Foobar
+        class Plugin
+          include Guard::API
+        end
       end
     end
   end
 
   config.after(:each) do
     Guard::Foo.send(:remove_const, :Plugin) if defined?(Guard::Foo::Plugin)
+    Guard::Foobar.send(:remove_const, :Plugin) if defined?(Guard::Foobar::Plugin)
     Guard.send(:remove_const, :Foo) if defined?(Guard::Foo)
     Guard.send(:remove_const, :Bar) if defined?(Guard::Bar)
+    Guard.send(:remove_const, :Foobar) if defined?(Guard::Foobar)
   end
 
   config.before(:each) do |example|
@@ -261,8 +271,8 @@ RSpec.configure do |config|
     #   if Guard::Notifier.constants.include?(:NotServer)
     #     excluded << Guard::Notifier::NotServer
     #   end
-    #   if Guard::Notifier.constants.include?(:FooBar)
-    #     excluded << Guard::Notifier::FooBar
+    #   if Guard::Notifier.constants.include?(:Foobar)
+    #     excluded << Guard::Notifier::Foobar
     #   end
     #   if Guard::Notifier.constants.include?(:Base)
     #     excluded << Guard::Notifier::Base

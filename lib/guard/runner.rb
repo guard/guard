@@ -58,7 +58,7 @@ module Guard
 
       engine.scope.grouped_plugins.each do |_group, plugins|
         _run_group_plugins(plugins) do |plugin|
-          UI.clear
+          UI.clear(engine: engine)
           types.each do |tasks, unmatched_paths|
             next if unmatched_paths.empty?
             match_result = Watcher.match_files(plugin, unmatched_paths)
