@@ -70,14 +70,14 @@ def stub_file(path, contents = nil, &block)
   allow(File).to receive(:exist?).with(path).and_return(exists)
   if exists
     if block.nil?
-      allow(IO).to receive(:read).with(path).and_return(contents)
+      allow(File).to receive(:read).with(path).and_return(contents)
     else
-      allow(IO).to receive(:read).with(path) do
+      allow(File).to receive(:read).with(path) do
         yield
       end
     end
   else
-    allow(IO).to receive(:read).with(path) do
+    allow(File).to receive(:read).with(path) do
       fail Errno::ENOENT
     end
   end
