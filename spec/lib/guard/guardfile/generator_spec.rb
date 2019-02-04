@@ -91,7 +91,7 @@ RSpec.describe Guard::Guardfile::Generator do
       let(:template) { File.join(described_class::HOME_TEMPLATES, "/bar") }
 
       it "copies the Guardfile template and initializes the Guard" do
-        expect(IO).to receive(:read)
+        expect(File).to receive(:read)
           .with(template).and_return "Template content"
 
         expected = "\nTemplate content\n"
@@ -113,7 +113,7 @@ RSpec.describe Guard::Guardfile::Generator do
         expect(::Guard::PluginUtil).to receive(:new) { plugin_util }
         allow(plugin_util).to receive(:plugin_class) { nil }
         path = File.expand_path("~/.guard/templates/foo")
-        expect(IO).to receive(:read).with(path) do
+        expect(File).to receive(:read).with(path) do
           fail Errno::ENOENT
         end
       end
