@@ -1,10 +1,10 @@
 language: ruby
 sudo: false
 rvm:
-  - 2.2.9
-  - 2.3.6
-  - 2.4.3
-  - 2.5.0
+  - 2.3.8
+  - 2.4.5
+  - 2.5.3
+  - 2.6.1
   - jruby-9.1.15.0
   - rbx-2
 matrix:
