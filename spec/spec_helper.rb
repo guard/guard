@@ -30,20 +30,27 @@ Dir[path].each { |f| require f }
 
 # TODO: these shouldn't be necessary with proper specs
 
+def stub_pathname
+  allow(Pathname).to receive(:new).with(anything) do |*args, &_block|
+    caller.each { |l| puts l }
+    abort "stub me! (Pathname.new(#{args.map(&:inspect) * ', '}))"
+  end
+end
+
 def stub_guardfile(contents = nil, &block)
-  stub_file(File.expand_path("Guardfile"), contents, &block)
+  stub_file("Guardfile", contents, &block)
 end
 
 def stub_user_guardfile(contents = nil, &block)
-  stub_file(File.expand_path("~/.Guardfile"), contents, &block)
+  stub_file("~/.Guardfile", contents, &block)
 end
 
 def stub_user_guard_rb(contents = nil, &block)
-  stub_file(File.expand_path("~/.guard.rb"), contents, &block)
+  stub_file("~/.guard.rb", contents, &block)
 end
 
 def stub_user_project_guardfile(contents = nil, &block)
-  stub_file(File.expand_path(".Guardfile"), contents, &block)
+  stub_file(".Guardfile", contents, &block)
 end
 
 def stub_mod(mod, excluded)
@@ -67,20 +74,29 @@ end
 
 def stub_file(path, contents = nil, &block)
   exists = !contents.nil?
-  allow(File).to receive(:exist?).with(path).and_return(exists)
+
+  pathname = instance_double(Pathname)
+  allow(Pathname).to receive(:new).with(path).and_return(pathname)
+
+  allow(pathname).to receive(:to_s).and_return(path)
+  allow(pathname).to receive(:expand_path).and_return(pathname)
+  allow(pathname).to receive(:exist?).and_return(exists)
+
   if exists
     if block.nil?
-      allow(IO).to receive(:read).with(path).and_return(contents)
+      allow(pathname).to receive(:read).and_return(contents)
     else
-      allow(IO).to receive(:read).with(path) do
+      allow(pathname).to receive(:read) do
         yield
       end
     end
   else
-    allow(IO).to receive(:read).with(path) do
+    allow(pathname).to receive(:read) do
       fail Errno::ENOENT
     end
   end
+
+  pathname
 end
 
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration

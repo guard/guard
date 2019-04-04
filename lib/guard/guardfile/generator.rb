@@ -32,11 +32,11 @@ module Guard
 
       # The location of user defined templates
       begin
-        HOME_TEMPLATES = Pathname("~/.guard/templates").expand_path
+        HOME_TEMPLATES = Pathname.new("~/.guard/templates").expand_path
       rescue ArgumentError
         # home isn't defined.  Set to the root of the drive.  Trust that there
         # won't be user defined templates there
-        HOME_TEMPLATES = Pathname("/").expand_path
+        HOME_TEMPLATES = Pathname.new("/").expand_path
       end
 
       class Error < RuntimeError
@@ -63,7 +63,7 @@ module Guard
       # @see Guard::CLI#init
       #
       def create_guardfile
-        path = Pathname("Guardfile").expand_path
+        path = Pathname.new("Guardfile").expand_path
         if path.exist?
           _ui(:error, "Guardfile already exists at #{path}")
           abort
@@ -81,7 +81,7 @@ module Guard
       #   initialize
       #
       def initialize_template(plugin_name)
-        guardfile = Pathname("Guardfile")
+        guardfile = Pathname.new("Guardfile")
 
         plugin_util = PluginUtil.new(plugin_name)
         # TODO: change to "valid?" method
