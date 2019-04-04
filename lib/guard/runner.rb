@@ -11,7 +11,7 @@ module Guard
     #
     # @param [Symbol] task the task to run
     #
-    # @param [Hash] scopes either the Guard plugin or the group to run the task
+    # @param [Hash] scope_hash either the Guard plugin or the group to run the task
     # on
     #
     def run(task, scope_hash = {})
@@ -70,7 +70,7 @@ module Guard
     # When the Group has `:halt_on_fail` disabled, we've to catch
     # `:task_has_failed` here in order to avoid an uncaught throw error.
     #
-    # @param [Guard::Plugin] guard the Guard to execute
+    # @param [Guard::Plugin] plugin guard the Guard to execute
     # @param [Symbol] task the task to run
     # @param [Array] args the arguments for the task
     # @raise [:task_has_failed] when task has failed

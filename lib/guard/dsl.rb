@@ -68,7 +68,7 @@ module Guard
     #   notification :ruby_gntp, host: '192.168.1.5'
     #
     # @param [Symbol, String] notifier the name of the notifier to use
-    # @param [Hash] options the notification library options
+    # @param [Hash] opts the notification library options
     #
     # @see Guard::Notifier for available notifier and its options.
     #
@@ -366,7 +366,7 @@ module Guard
     # @example Scope Guard to multiple plugins
     #   scope plugins: [:jasmine, :rspec]
     #
-    # @param [Hash] scopes the scope for the groups and plugins
+    # @param [Hash] scope the scope for the groups and plugins
     #
     def scope(scope = {})
       # TODO: use a Guardfile::Results class
