@@ -60,7 +60,7 @@ module Guard
           @contents = opts[:contents]
         elsif opts[:guardfile]
           @type = :custom
-          @path = Pathname(opts[:guardfile]) # may be updated by _read
+          @path = Pathname.new(opts[:guardfile]) # may be updated by _read
         end
       end
 
@@ -190,7 +190,7 @@ module Guard
       end
 
       def _read(path)
-        full_path = Pathname(path).expand_path
+        full_path = Pathname.new(path.to_s).expand_path
         [full_path, full_path.read]
       rescue Errno::ENOENT
         fail
@@ -202,7 +202,7 @@ module Guard
       end
 
       def _guardfile_contents
-        @user_config ||= Pathname("~/.guard.rb").expand_path.read
+        @user_config ||= Pathname.new("~/.guard.rb").expand_path.read
         [@contents, @user_config].compact.join("\n")
       rescue Errno::ENOENT
         @contents || ""

@@ -9,9 +9,9 @@ RSpec.describe Guard::Guardfile::Evaluator do
   let(:options) { {} }
   subject { described_class.new(options) }
 
-  let!(:local_guardfile) { (Pathname.pwd + "Guardfile").to_s }
-  let!(:home_guardfile) { (Pathname("~").expand_path + ".Guardfile").to_s }
-  let!(:home_config) { (Pathname("~").expand_path + ".guard.rb").to_s }
+  let!(:local_guardfile) { Pathname("Guardfile").to_s }
+  let!(:home_guardfile) { Pathname("~/.Guardfile").expand_path.to_s }
+  let!(:home_config) { Pathname("~/.guard.rb").expand_path.to_s }
 
   let(:valid_guardfile_string) { "group :foo; do guard :bar; end; end; " }
 
@@ -25,6 +25,7 @@ RSpec.describe Guard::Guardfile::Evaluator do
     allow(Guard::Interactor).to receive(:new).with(false)
     allow(Guard::Dsl).to receive(:new).and_return(dsl)
     allow(dsl).to receive(:instance_eval)
+    stub_pathname
   end
 
   describe ".evaluate" do
@@ -168,8 +169,13 @@ RSpec.describe Guard::Guardfile::Evaluator do
       subject.evaluate
     end
 
-    context "when content is provided" do
+    context "when guardfile_contents is provided" do
       let(:options) { { guardfile_contents: "guard :foo" } }
+      it { is_expected.to be_inline }
+    end
+
+    context "when contents is provided" do
+      let(:options) { { contents: "guard :foo" } }
       it { is_expected.to be_inline }
     end
 
