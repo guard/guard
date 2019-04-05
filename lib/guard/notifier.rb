@@ -16,7 +16,7 @@ module Guard
     end
 
     def self.disconnect
-      @notifier.disconnect
+      @notifier && @notifier.disconnect
       @notifier = nil
     end
 
