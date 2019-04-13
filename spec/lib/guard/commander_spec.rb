@@ -82,6 +82,20 @@ RSpec.describe Guard::Commander do
         Guard.start
       end
     end
+
+    context "when listener.start raises an error" do
+      it "calls Commander#stop" do
+        allow(listener).to receive(:start).and_raise(RuntimeError)
+
+        # From stop()
+        expect(interactor).to receive(:background)
+        expect(listener).to receive(:stop)
+        expect(runner).to receive(:run).with(:stop)
+        expect(Guard::UI).to receive(:info).with("Bye bye...", reset: true)
+
+        expect { Guard.start }.to raise_error(RuntimeError)
+      end
+    end
   end
 
   describe ".stop" do
