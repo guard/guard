@@ -31,8 +31,8 @@ Before you file an issue, make sure you have read the _[known issues](#issues)_ 
 
 * File system changes handled by our awesome [Listen](https://github.com/guard/listen) gem.
 * Support for visual system notifications.
-* Huge eco-system with [more than 220](https://rubygems.org/search?query=guard-) Guard plugins.
-* Tested against Ruby 2.2.9, 2.3.6, 2.4.3, 2.5.0, JRuby & Rubinius.
+* Huge eco-system with [more than 300](https://rubygems.org/search?query=guard-) Guard plugins.
+* Tested against the latest Ruby 2.3.x, 2.4.x, 2.5.x, 2.6.x, JRuby & Rubinius. See [`.travis-ci.yml`](https://github.com/guard/guard/blob/master/.travis.yml) for the exact versions.
 
 ## Screencast
 
@@ -73,9 +73,7 @@ $ bundle exec guard
 
 If you are on Mac OS X and have problems with either Guard not reacting to file
 changes or Pry behaving strange, then you should [add proper Readline support
-to Ruby on Mac OS
-X](https://github.com/guard/guard/wiki/Add-Readline-support-to-Ruby-on-Mac-OS-X).
-
+to Ruby on macOS](https://github.com/guard/guard/wiki/Add-Readline-support-to-Ruby-on-Mac-OS-X).
 
 ## Avoiding gem/dependency problems
 
@@ -159,9 +157,9 @@ See the [Contributing Guide](https://github.com/guard/guard/blob/master/CONTRIBU
 
 ### Core Team
 
-* R.I.P. :broken_heart: [Michael Kessler](https://github.com/netzpirat) ([flinkfinger.com](http://www.flinkfinger.com)).
+* R.I.P. :broken_heart: [Michael Kessler](https://github.com/netzpirat).
 * [Rémy Coutable](https://github.com/rymai).
-* [Thibaud Guillaume-Gentil](https://github.com/thibaudgg) ([@thibaudgg](https://twitter.com/thibaudgg), [thibaud.gg](http://thibaud.gg/)).
+* [Thibaud Guillaume-Gentil](https://github.com/thibaudgg) ([@thibaudgg](https://twitter.com/thibaudgg), [thibaud.gg](https://thibaud.gg/)).
 
 ### Contributors
 
