@@ -40,7 +40,6 @@ group :test do
   gem "guard-rspec", require: false
 
   gem "aruba", "~> 0.9", require: false
-  gem "codeclimate-test-reporter", require: nil
   gem "notiffany", ">= 0.0.6", require: false
   gem "rspec", ">= 3.0.0", require: false
 end
