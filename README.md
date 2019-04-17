@@ -32,7 +32,7 @@ Before you file an issue, make sure you have read the _[known issues](#issues)_ 
 * File system changes handled by our awesome [Listen](https://github.com/guard/listen) gem.
 * Support for visual system notifications.
 * Huge eco-system with [more than 300](https://rubygems.org/search?query=guard-) Guard plugins.
-* Tested against the latest Ruby 2.3.x, 2.4.x, 2.5.x, 2.6.x, JRuby & Rubinius. See [`.travis-ci.yml`](https://github.com/guard/guard/blob/master/.travis.yml) for the exact versions.
+* Tested against the latest Ruby 2.4.x, 2.5.x, 2.6.x, JRuby & Rubinius. See [`.travis-ci.yml`](https://github.com/guard/guard/blob/master/.travis.yml) for the exact versions.
 
 ## Screencast
 
