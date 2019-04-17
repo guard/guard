@@ -47,8 +47,9 @@ module Guard
         exitcode = e.status
       end
 
-      stop
       exitcode
+    ensure
+      stop
     end
 
     def stop
