@@ -19,10 +19,10 @@ RSpec.describe Guard::Internals::Plugins do
       it "returns all plugins" do
         expect(all_name_and_groups(nil)).
           to eq [
-            ["foo", :frontend],
             ["foobar", :frontend],
-            ["foo", :backend],
-            ["foobar", :backend]
+            ["foobaz", :frontend],
+            ["foobar", :backend],
+            ["foobaz", :backend]
           ]
       end
     end
