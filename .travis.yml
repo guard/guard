@@ -15,7 +15,6 @@ env:
     - JRUBY_OPTS="--debug"
 script:
   - bundle exec rake
-  - bundle exec codeclimate-test-reporter
 bundler_args: --without development
 cache: bundler
 addons:
