@@ -105,8 +105,12 @@ RSpec.describe Guard::Guardfile::Generator do
         stub_file(File.expand_path("~/.guard/templates/bar"), "Template content")
       end
 
-        allow(Guard::PluginUtil).to receive(:new).with(engine: engine, name: "bar")
-          .and_return(plugin_util)
+      it "copies the Guardfile template and initializes the Guard" do
+        expect(@guardfile).to receive(:binwrite)
+          .with("\n#{template_content}\n", open_args: ["a"])
+        expect(plugin_util).to receive(:plugin_class).with(fail_gracefully: true)
+        expect(Guard::PluginUtil).to receive(:new).with(engine: engine, name: "bar")
+                                                 .and_return(plugin_util)
 
         subject.initialize_template("bar")
       end

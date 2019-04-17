@@ -38,13 +38,8 @@ RSpec.describe Guard::Dsl do
       let(:contents) { "ignore! %r{^foo}, /bar/" }
 
       it "replaces listener regexps" do
-<<<<<<< HEAD
-        expect(session).to receive(:guardfile_ignore_bang=)
+        expect(engine.session).to receive(:guardfile_ignore_bang=)
           .with([[/^foo/, /bar/]])
-=======
-        expect(engine.session).to receive(:guardfile_ignore_bang=).
-          with([[/^foo/, /bar/]])
->>>>>>> Fix more specs
 
         evaluator.call(contents)
       end
@@ -54,19 +49,11 @@ RSpec.describe Guard::Dsl do
       let(:contents) { "ignore! %r{.txt$}, /.*\\.zip/\n ignore! %r{^foo}" }
 
       it "replaces listener ignores, but keeps ignore! ignores" do
-<<<<<<< HEAD
-        allow(session).to receive(:guardfile_ignore_bang=)
+        allow(engine.session).to receive(:guardfile_ignore_bang=)
           .with([[/.txt$/, /.*\.zip/]])
 
-        expect(session).to receive(:guardfile_ignore_bang=)
+        expect(engine.session).to receive(:guardfile_ignore_bang=)
           .with([[/.txt$/, /.*\.zip/], [/^foo/]])
-=======
-        allow(engine.session).to receive(:guardfile_ignore_bang=).
-          with([[/.txt$/, /.*\.zip/]])
-
-        expect(engine.session).to receive(:guardfile_ignore_bang=).
-          with([[/.txt$/, /.*\.zip/], [/^foo/]])
->>>>>>> Fix more specs
 
         evaluator.call(contents)
       end
@@ -182,31 +169,17 @@ RSpec.describe Guard::Dsl do
         expect(engine.groups).to receive(:add).with(:y, {})
         expect(engine.groups).to receive(:add).with(:x, halt_on_fail: true)
 
-<<<<<<< HEAD
-        expect(plugins).to receive(:add)
+        expect(engine.plugins).to receive(:add)
           .with(:pow, watchers: [], callbacks: [], group: :default)
 
-        expect(plugins).to receive(:add)
+        expect(engine.plugins).to receive(:add)
           .with(:test, watchers: [], callbacks: [], group: :w)
 
-        expect(plugins).to receive(:add)
+        expect(engine.plugins).to receive(:add)
           .with(:rspec, watchers: [], callbacks: [], group: :x).twice
 
-        expect(plugins).to receive(:add)
+        expect(engine.plugins).to receive(:add)
           .with(:less, watchers: [], callbacks: [], group: :y)
-=======
-        expect(engine.plugins).to receive(:add).
-          with(:pow, watchers: [], callbacks: [], group: :default)
-
-        expect(engine.plugins).to receive(:add).
-          with(:test, watchers: [], callbacks: [], group: :w)
-
-        expect(engine.plugins).to receive(:add).
-          with(:rspec, watchers: [], callbacks: [], group: :x).twice
-
-        expect(engine.plugins).to receive(:add).
-          with(:less, watchers: [], callbacks: [], group: :y)
->>>>>>> Fix more specs
 
         expect(engine.session).to receive(:guardfile_notification=).with(growl: {})
         evaluator.call(contents)
@@ -229,13 +202,8 @@ RSpec.describe Guard::Dsl do
       let(:contents) { "guard 'test'" }
 
       it "loads a guard specified as a quoted string from the DSL" do
-<<<<<<< HEAD
-        expect(plugins).to receive(:add)
+        expect(engine.plugins).to receive(:add)
           .with("test", watchers: [], callbacks: [], group: :default)
-=======
-        expect(engine.plugins).to receive(:add).
-          with("test", watchers: [], callbacks: [], group: :default)
->>>>>>> Fix more specs
 
         evaluator.call(contents)
       end
@@ -245,13 +213,8 @@ RSpec.describe Guard::Dsl do
       let(:contents) { 'guard "test"' }
 
       it "loads a guard specified as a double quoted string from the DSL" do
-<<<<<<< HEAD
-        expect(plugins).to receive(:add)
+        expect(engine.plugins).to receive(:add)
           .with("test", watchers: [], callbacks: [], group: :default)
-=======
-        expect(engine.plugins).to receive(:add).
-          with("test", watchers: [], callbacks: [], group: :default)
->>>>>>> Fix more specs
 
         evaluator.call(contents)
       end
@@ -261,13 +224,8 @@ RSpec.describe Guard::Dsl do
       let(:contents) { "guard :test" }
 
       it "loads a guard specified as a symbol from the DSL" do
-<<<<<<< HEAD
-        expect(plugins).to receive(:add)
+        expect(engine.plugins).to receive(:add)
           .with(:test, watchers: [], callbacks: [], group: :default)
-=======
-        expect(engine.plugins).to receive(:add).
-          with(:test, watchers: [], callbacks: [], group: :default)
->>>>>>> Fix more specs
 
         evaluator.call(contents)
       end
@@ -277,13 +235,8 @@ RSpec.describe Guard::Dsl do
       let(:contents) { "guard(:test)" }
 
       it "adds the plugin" do
-<<<<<<< HEAD
-        expect(plugins).to receive(:add)
+        expect(engine.plugins).to receive(:add)
           .with(:test, watchers: [], callbacks: [], group: :default)
-=======
-        expect(engine.plugins).to receive(:add).
-          with(:test, watchers: [], callbacks: [], group: :default)
->>>>>>> Fix more specs
         evaluator.call(contents)
       end
     end
@@ -309,17 +262,10 @@ RSpec.describe Guard::Dsl do
       let(:contents) { "group :foo do; group :bar do; guard :test; end; end" }
 
       it "adds plugin with group info" do
-<<<<<<< HEAD
-        expect(groups).to receive(:add).with(:foo, {})
-        expect(groups).to receive(:add).with(:bar, {})
-        expect(plugins).to receive(:add)
-          .with(:test, watchers: [], callbacks: [], group: :bar)
-=======
         expect(engine.groups).to receive(:add).with(:foo, {})
         expect(engine.groups).to receive(:add).with(:bar, {})
-        expect(engine.plugins).to receive(:add).
-          with(:test, watchers: [], callbacks: [], group: :bar)
->>>>>>> Fix more specs
+        expect(engine.plugins).to receive(:add)
+          .with(:test, watchers: [], callbacks: [], group: :bar)
 
         evaluator.call(contents)
       end
@@ -334,19 +280,11 @@ RSpec.describe Guard::Dsl do
         expect(engine.groups).to receive(:add).with(:foo, {})
         expect(engine.groups).to receive(:add).with(:bar, {})
 
-<<<<<<< HEAD
-        expect(plugins).to receive(:add)
+        expect(engine.plugins).to receive(:add)
           .with(:test, watchers: [], callbacks: [], group: :bar)
 
-        expect(plugins).to receive(:add)
+        expect(engine.plugins).to receive(:add)
           .with(:rspec, watchers: [], callbacks: [], group: :default)
-=======
-        expect(engine.plugins).to receive(:add).
-          with(:test, watchers: [], callbacks: [], group: :bar)
-
-        expect(engine.plugins).to receive(:add).
-          with(:rspec, watchers: [], callbacks: [], group: :default)
->>>>>>> Fix more specs
 
         evaluator.call(contents)
       end
@@ -379,13 +317,8 @@ RSpec.describe Guard::Dsl do
           group: :default
         }
 
-<<<<<<< HEAD
-        expect(plugins).to receive(:add)
-          .with(:dummy, call_params) do |_, options|
-=======
-        expect(engine.plugins).to receive(:add).
-          with(:foo, call_params) do |_, options|
->>>>>>> Fix more specs
+        expect(engine.plugins).to receive(:add)
+          .with(:foo, call_params) do |_, options|
           expect(options[:watchers].size).to eq 2
           expect(options[:watchers][0].pattern).to eq "a"
           expect(options[:watchers][0].action.call).to eq proc { "b" }.call
@@ -416,13 +349,8 @@ RSpec.describe Guard::Dsl do
           group: :default
         }
 
-<<<<<<< HEAD
-        expect(plugins).to receive(:add)
-          .with(:plugin, plugin_options) do |_, options|
-=======
-        expect(engine.plugins).to receive(:add).
-          with(:default_plugin, plugin_options) do |_, options|
->>>>>>> Fix more specs
+        expect(engine.plugins).to receive(:add)
+          .with(:default_plugin, plugin_options) do |_, options|
           expect(options[:watchers].size).to eq 1
           expect(options[:watchers][0].pattern).to eq "a"
           expect(options[:watchers][0].action).to be_nil
@@ -620,11 +548,7 @@ RSpec.describe Guard::Dsl do
       let(:contents) { "scope plugins: [:foo, :bar]" }
 
       it "sets the guardfile's default scope" do
-<<<<<<< HEAD
-        expect(session).to receive(:guardfile_scope).with(plugins: %i[foo bar])
-=======
         expect(engine.session).to receive(:guardfile_scope).with(plugins: [:foo, :bar])
->>>>>>> Fix more specs
         evaluator.call(contents)
       end
     end
@@ -639,11 +563,7 @@ RSpec.describe Guard::Dsl do
       end
 
       it "sets the watchdirs to given values" do
-<<<<<<< HEAD
-        expect(session).to receive(:watchdirs=).with(%w[foo bar])
-=======
-        expect(engine.session).to receive(:watchdirs=).with(%w(foo bar))
->>>>>>> Fix more specs
+        expect(engine.session).to receive(:watchdirs=).with(%w[foo bar])
         evaluator.call(contents)
       end
     end
