@@ -37,7 +37,8 @@ module Guard
   #
   # There are two possible locations for the `Guardfile`:
   #
-  # * The `Guardfile` in the current directory where Guard has been started
+  # * The `Guardfile` or `guardfile.rb` in the current directory where Guard
+  #   has been started
   # * The `.Guardfile` in your home directory.
   #
   # In addition, if a user configuration `.guard.rb` in your home directory is

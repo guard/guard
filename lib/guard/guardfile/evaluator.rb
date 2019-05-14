@@ -18,6 +18,12 @@ module Guard
     class Evaluator
       Deprecated::Evaluator.add_deprecated(self) unless Config.new.strict?
 
+      DEFAULT_GUARDFILES = %w(
+        guardfile.rb
+        Guardfile
+        ~/.Guardfile
+      ).freeze
+
       ERROR_NO_GUARDFILE = "No Guardfile found,"\
         " please create one with `guard init`."
 
@@ -178,14 +184,16 @@ module Guard
       end
 
       def _use_default!
-        @path, @contents = _read("Guardfile")
-        @type = :default
-      rescue Errno::ENOENT
-        begin
-          @path, @contents = _read("~/.Guardfile")
-          @type = :default
-        rescue Errno::ENOENT
-          fail NoGuardfileError, ERROR_NO_GUARDFILE
+        DEFAULT_GUARDFILES.each do |guardfile|
+          begin
+            @path, @contents = _read(guardfile)
+            @type = :default
+            break
+          rescue Errno::ENOENT
+            if guardfile == DEFAULT_GUARDFILES.last
+              fail NoGuardfileError, ERROR_NO_GUARDFILE
+            end
+          end
         end
       end
 

@@ -43,6 +43,10 @@ def stub_guardfile(contents = nil, &block)
   stub_file("Guardfile", contents, &block)
 end
 
+def stub_guardfile_rb(contents = nil, &block)
+  stub_file("guardfile.rb", contents, &block)
+end
+
 def stub_user_guardfile(contents = nil, &block)
   stub_file("~/.Guardfile", contents, &block)
 end
