@@ -12,13 +12,30 @@ RSpec.describe Guard::Commander do
   let(:state) { instance_double("Guard::Internals::State") }
   let(:session) { instance_double("Guard::Internals::Session") }
 
+  let(:ui_config) { instance_double("Guard::UI::Config") }
+
   before do
     allow(state).to receive(:scope).and_return(scope)
     allow(state).to receive(:session).and_return(session)
     allow(Guard).to receive(:state).and_return(state)
 
     allow(Guard::Interactor).to receive(:new) { interactor }
+
     allow(Guard::Runner).to receive(:new).and_return(runner)
+
+    allow(Guard::UI::Config).to receive(:new).and_return(ui_config)
+    allow(ui_config).to receive(:device)
+    allow(ui_config).to receive(:logger_config)
+    allow(Guard::UI).to receive(:disconnect)
+  end
+
+  before do
+    Guard::UI.options = nil
+  end
+
+  after do
+    Guard::UI.reset_logger
+    Guard::UI.options = nil
   end
 
   describe ".start" do
@@ -42,6 +59,7 @@ RSpec.describe Guard::Commander do
       allow(interactor).to receive(:foreground).and_return(:exit)
 
       allow(interactor).to receive(:background)
+      allow(interactor).to receive(:destroy)
       allow(Guard::Notifier).to receive(:disconnect)
     end
 
@@ -72,6 +90,7 @@ RSpec.describe Guard::Commander do
     context "when finished" do
       it "stops everything" do
         expect(interactor).to receive(:foreground).and_return(:exit)
+        expect(interactor).to receive(:destroy)
 
         # From stop()
         expect(interactor).to receive(:background)
@@ -108,6 +127,7 @@ RSpec.describe Guard::Commander do
       allow(listener).to receive(:stop)
       allow(Guard).to receive(:interactor).and_return(interactor)
       allow(interactor).to receive(:background)
+      allow(interactor).to receive(:destroy)
 
       Guard.stop
     end

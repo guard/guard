@@ -39,10 +39,15 @@ module Guard
 
       exitcode = 0
       begin
-        while interactor.foreground != :exit
+        until %i(interrupted exit).include?(interactor.foreground)
           Guard.queue.process while Guard.queue.pending?
         end
+      rescue Guard::Jobs::PryWrapper::Error::Interrupted
+        STDERR.puts "Guard.start(): Interrupted guard task"
+        exitcode = 128
       rescue Interrupt
+        STDERR.puts "Guard.start(): Interrupted"
+        exitcode = 128
       rescue SystemExit => e
         exitcode = e.status
       end
@@ -54,11 +59,14 @@ module Guard
 
     def stop
       listener.stop
-      interactor.background
+      Listen.stop
       UI.debug "Guard stops all plugins"
       Runner.new.run(:stop)
       Notifier.disconnect
+      interactor.background
       UI.info "Bye bye...", reset: true
+      interactor.destroy
+      UI.disconnect
     end
 
     # Reload Guardfile and all Guard plugins currently enabled.

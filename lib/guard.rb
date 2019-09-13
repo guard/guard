@@ -65,7 +65,10 @@ module Guard
       traps.handle("USR2") { async_queue_add([:guard_pause, :unpaused]) }
 
       @interactor = Interactor.new(state.session.interactor_name == :sleep)
-      traps.handle("INT") { @interactor.handle_interrupt }
+      traps.handle("INT") do
+        STDERR.puts "Guard: INT signal, handling inside trap..."
+        @interactor.handle_interrupt
+      end
 
       self
     end

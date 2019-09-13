@@ -22,7 +22,12 @@ module Guard
     end
 
     extend Forwardable
-    delegate [:foreground, :background, :handle_interrupt] => :idle_job
+    delegate [
+      :foreground,
+      :background,
+      :handle_interrupt,
+      :destroy
+    ] => :idle_job
 
     # TODO: everything below is just so the DSL can set options
     # before setup() is called, which makes it useless for when

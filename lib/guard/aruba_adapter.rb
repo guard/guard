@@ -11,7 +11,8 @@ module Guard
       @kernel = kernel
 
       if ENV["INSIDE_ARUBA_TEST"] == "1"
-        UI.options = UI.options.merge(flush_seconds: 0)
+        # To make sure tests are ok
+        UI.options.merge!(flush_seconds: 0)
       end
     end
 

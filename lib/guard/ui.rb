@@ -21,6 +21,12 @@ module Guard
     include Colors
 
     class << self
+      # TODO: coverage
+      def disconnect
+        logger.flush
+        logger.close
+      end
+
       # Get the Guard::UI logger instance
       #
       def logger
@@ -124,6 +130,7 @@ module Guard
       #
       def reset_line
         $stderr.print(color_enabled? ? "\r\e[0m" : "\r\n")
+        $stderr.flush
       end
 
       # Clear the output if clearable.

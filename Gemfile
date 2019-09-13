@@ -29,6 +29,15 @@ group :development do
   gem "gems", require: false, platform: :mri
   gem "netrc", require: false, platform: :mri
   gem "octokit", require: false, platform: :mri
+
+  gem "listen", require: false, github: "guard/listen",
+                branch: "advanced_thread_debugging", ref: "31053de"
+
+  gem "guard-rspec", require: false, github: "guard/guard-rspec",
+                     branch: "ctrl_c_workaround", ref: "ee0b21d"
+
+  gem "rb-inotify", require: false, github: "e2/rb-inotify",
+                    branch: "e2-fix_ioerror_when_closed", ref: "99d2101"
 end
 
 # The test group will be
@@ -37,7 +46,7 @@ end
 group :test do
   # Both guard-rspec and guard-cucumber are used by cucumber features
   gem "guard-cucumber", "~> 2.1", require: false
-  gem "guard-rspec", require: false
+  # gem "guard-rspec", require: false
 
   gem "aruba", "~> 0.9", require: false
   gem "notiffany", ">= 0.0.6", require: false
