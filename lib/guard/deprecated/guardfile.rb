@@ -32,7 +32,7 @@ module Guard
 
         def create_guardfile(options = {})
           UI.deprecation(CREATE_GUARDFILE)
-          ::Guard::Guardfile::Generator.new(options).create_guardfile
+          ::Guard::Guardfile::Generator.new(engine: ::Guard.init(options)).create_guardfile
         end
 
         # @deprecated Use {Guardfile::Generator#initialize_template} instead.
@@ -54,7 +54,7 @@ module Guard
 
         def initialize_template(plugin_name)
           UI.deprecation(INITIALIZE_TEMPLATE)
-          ::Guard::Guardfile::Generator.new.initialize_template(plugin_name)
+          ::Guard::Guardfile::Generator.new(engine: ::Guard.init).initialize_template(plugin_name)
         end
 
         # @deprecated Use {Guardfile::Generator#initialize_all_templates}
@@ -76,7 +76,7 @@ module Guard
 
         def initialize_all_templates
           UI.deprecation(INITIALIZE_ALL_TEMPLATES)
-          ::Guard::Guardfile::Generator.new.initialize_all_templates
+          ::Guard::Guardfile::Generator.new(engine: ::Guard.init).initialize_all_templates
         end
       end
     end

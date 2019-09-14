@@ -3,21 +3,21 @@
 require "guard/commands/pause"
 
 RSpec.describe Guard::Commands::Pause do
-  class FakePry < Pry::Command
-    def self.output; end
-  end
+  include_context 'with fake_pry_class'
+
+  let!(:engine) { Guard.init }
 
   before do
-    allow(FakePry).to receive(:output).and_return(output)
     allow(Pry::Commands).to receive(:create_command).with("pause") do |&block|
-      FakePry.instance_eval(&block)
+      fake_pry_class.instance_eval(&block)
     end
 
-    described_class.import
+    described_class.import(engine: engine)
   end
 
   it "tells Guard to pause" do
-    expect(::Guard).to receive(:async_queue_add).with([:guard_pause])
-    FakePry.process
+    expect(engine).to receive(:async_queue_add).with([:guard_pause])
+
+    fake_pry_class.process
   end
 end

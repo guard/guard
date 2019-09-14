@@ -21,7 +21,7 @@ module Guard
       ERROR_NO_GUARDFILE = "No Guardfile found,"\
         " please create one with `guard init`."
 
-      attr_reader :options, :guardfile_path
+      attr_reader :engine, :options, :guardfile_path
 
       ERROR_NO_PLUGINS = "No Guard plugins found in Guardfile,"\
         " please add at least one."
@@ -48,12 +48,13 @@ module Guard
       # @option opts [String] contents a string representing the
       # content of a valid Guardfile
       #
-      def initialize(opts = {})
+      def initialize(engine:)
+        @engine = engine
         @type = nil
         @path = nil
         @user_config = nil
 
-        opts = _from_deprecated(opts)
+        opts = _from_deprecated(engine.session.evaluator_options)
 
         if opts[:contents]
           @type = :inline
@@ -86,7 +87,7 @@ module Guard
         contents = _guardfile_contents
         fail NoPluginsError, ERROR_NO_PLUGINS unless /guard/m =~ contents
 
-        Dsl.new.evaluate(contents, @path || "", 1)
+        Dsl.new(engine: engine).evaluate(contents, @path || "", 1)
       end
 
       # Tests if the current `Guardfile` contains a specific Guard plugin.
@@ -105,7 +106,7 @@ module Guard
       #
       # TODO: rename this method to it matches RSpec examples better
       def guardfile_include?(plugin_name)
-        reader = DslReader.new
+        reader = DslReader.new(engine: engine)
         reader.evaluate(@contents, @path || "", 1)
         reader.plugin_names.include?(plugin_name)
       end
@@ -141,7 +142,7 @@ module Guard
       end
 
       def _instance_eval_guardfile(contents)
-        Dsl.new.evaluate(contents, @guardfile_path || "", 1)
+        Dsl.new(engine: engine).evaluate(contents, @guardfile_path || "", 1)
       rescue => ex
         UI.error "Invalid Guardfile, original error is:\n#{ $! }"
         raise ex

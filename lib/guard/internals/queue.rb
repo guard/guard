@@ -1,8 +1,10 @@
 module Guard
   module Internals
     class Queue
-      def initialize(commander)
-        @commander = commander
+      attr_reader :engine
+
+      def initialize(engine:)
+        @engine = engine
         @queue = ::Queue.new
       end
 
@@ -21,7 +23,7 @@ module Guard
 
         _run_actions(actions)
         return if changes.values.all?(&:empty?)
-        Runner.new.run_on_changes(*changes.values)
+        Runner.new(engine: engine).run_on_changes(*changes.values)
       end
 
       def pending?
@@ -39,8 +41,8 @@ module Guard
           args = action_args.dup
           namespaced_action = args.shift
           action = namespaced_action.to_s.sub(/^guard_/, "")
-          if @commander.respond_to?(action)
-            @commander.send(action, *args)
+          if engine.respond_to?(action)
+            engine.send(action, *args)
           else
             fail "Unknown action: #{action.inspect}"
           end

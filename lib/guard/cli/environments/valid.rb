@@ -1,5 +1,4 @@
 require "guard/cli/environments/bundler"
-require "guard/commander"
 require "guard/guardfile/generator"
 
 module Guard
@@ -26,12 +25,10 @@ module Guard
         def initialize_guardfile(plugin_names = [])
           bare = @options[:bare]
 
-          Guard.init(@options)
-          session = Guard.state.session
-
-          generator = Guardfile::Generator.new
+          engine = Guard.init(@options)
+          generator = Guardfile::Generator.new(engine: engine)
           begin
-            Guardfile::Evaluator.new(session.evaluator_options).evaluate
+            Guardfile::Evaluator.new(engine: engine).evaluate
           rescue Guardfile::Evaluator::NoGuardfileError
             generator.create_guardfile
           rescue Guard::Guardfile::Evaluator::NoPluginsError
@@ -42,7 +39,7 @@ module Guard
 
           # Evaluate because it might have existed and creating was skipped
           begin
-            Guardfile::Evaluator.new(session.evaluator_options).evaluate
+            Guardfile::Evaluator.new(engine: engine).evaluate
           rescue Guard::Guardfile::Evaluator::NoPluginsError
           end
 

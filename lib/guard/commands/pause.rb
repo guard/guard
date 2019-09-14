@@ -1,11 +1,15 @@
 require "pry"
 
-require "guard"
+require "guard/commands/with_engine"
 
 module Guard
   module Commands
     class Pause
-      def self.import
+      extend WithEngine
+
+      def self.import(engine:)
+        super
+
         Pry::Commands.create_command "pause" do
           group "Guard"
           description "Toggles the file listener."
@@ -20,7 +24,7 @@ module Guard
           BANNER
 
           def process
-            ::Guard.async_queue_add([:guard_pause])
+            Pause.engine.async_queue_add([:guard_pause])
           end
         end
       end

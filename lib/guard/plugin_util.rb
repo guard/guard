@@ -33,13 +33,16 @@ module Guard
     #
     # @param [String] name the name of the Guard plugin
     #
-    def initialize(name)
+    def initialize(engine:, name:)
+      @engine = engine
       @name = name.to_s.sub(/^guard-/, "")
     end
 
     # Initializes a new `Guard::Plugin` with the given `options` hash. This
     # methods handles plugins that inherit from the deprecated `Guard::Guard`
     # class as well as plugins that inherit from `Guard::Plugin`.
+    #
+    # @param [String] name the name of the Guard plugin
     #
     # @see Guard::Plugin
     # @see https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0 How to
@@ -52,17 +55,15 @@ module Guard
     #   Guard 2.0, please head over to:
     #   https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0
     #
-    def initialize_plugin(options)
+    def initialize_plugin(options = {})
       klass = plugin_class
+      klass = klass.const_get("Plugin") if klass.const_defined?("Plugin")
+
       fail "Could not load class: #{_constant_name.inspect}" unless klass
-      if klass.ancestors.include?(Guard)
-        klass.new(options.delete(:watchers), options)
-      else
-        begin
-          klass.new(options)
-        rescue ArgumentError => e
-          fail "Failed to call #{klass}.new(options): #{e}"
-        end
+      begin
+        klass.new(engine: @engine, options: options)
+      rescue ArgumentError => e
+        fail "Failed to call #{klass}.new(engine: @engine, options: options): #{e}"
       end
     end
 
@@ -128,8 +129,7 @@ module Guard
 
       require_relative "guardfile/evaluator"
       # TODO: move this to Generator?
-      options = Guard.state.session.evaluator_options
-      evaluator = Guardfile::Evaluator.new(options)
+      evaluator = Guardfile::Evaluator.new(engine: @engine)
       begin
         evaluator.evaluate
       rescue Guard::Guardfile::Evaluator::NoPluginsError

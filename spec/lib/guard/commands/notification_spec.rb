@@ -3,24 +3,21 @@
 require "guard/commands/notification"
 
 RSpec.describe Guard::Commands::Notification do
-  let(:output) { instance_double(Pry::Output) }
+  include_context 'with fake_pry_class'
 
-  class FakePry < Pry::Command
-    def self.output; end
-  end
+  let!(:engine) { Guard.init }
 
   before do
-    allow(FakePry).to receive(:output).and_return(output)
     allow(Pry::Commands).to receive(:create_command)
       .with("notification") do |&block|
-      FakePry.instance_eval(&block)
+      fake_pry_class.instance_eval(&block)
     end
 
-    described_class.import
+    described_class.import(engine: engine)
   end
 
   it "toggles the Guard notifier" do
     expect(::Guard::Notifier).to receive(:toggle)
-    FakePry.process
+    fake_pry_class.process
   end
 end

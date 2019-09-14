@@ -48,10 +48,10 @@ module Guard
         @cmdline_plugins.dup.freeze
       end
 
-      def initialize(new_options)
-        @options = Options.new(new_options, DEFAULT_OPTIONS)
+      def initialize(engine:, options:)
+        @options = Options.new(options, DEFAULT_OPTIONS)
 
-        @plugins = Plugins.new
+        @plugins = Plugins.new(engine: engine)
         @groups = Groups.new
 
         @cmdline_groups = @options[:group]
@@ -164,9 +164,9 @@ module Guard
         unknown = []
 
         entries.each do |entry|
-          if plugin = plugins.all(entry).first
+          if plugin = plugins.find(entry)
             scopes[:plugins] << plugin
-          elsif group = groups.all(entry).first
+          elsif group = groups.find(entry)
             scopes[:groups] << group
           else
             unknown << entry

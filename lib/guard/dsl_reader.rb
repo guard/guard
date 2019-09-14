@@ -5,7 +5,7 @@ module Guard
   class DslReader < Dsl
     attr_reader :plugin_names
 
-    def initialize
+    def initialize(engine:)
       super
       @plugin_names = []
     end

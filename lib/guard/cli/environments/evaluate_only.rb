@@ -18,9 +18,7 @@ module Guard
           # not global Guard object (setting global state only needed before
           # start() is called)
           #
-          Guard.init(@options)
-          session = Guard.state.session
-          Guardfile::Evaluator.new(session.evaluator_options).evaluate
+          Guardfile::Evaluator.new(engine: Guard.init(@options)).evaluate
         rescue \
           Dsl::Error,
           Guardfile::Evaluator::NoPluginsError,

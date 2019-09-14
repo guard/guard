@@ -1,11 +1,16 @@
 require "pry"
 
 require "guard/notifier"
+require "guard/commands/with_engine"
 
 module Guard
   module Commands
     class Notification
-      def self.import
+      extend WithEngine
+
+      def self.import(engine:)
+        super
+
         Pry::Commands.create_command "notification" do
           group "Guard"
           description "Toggles the notifications."

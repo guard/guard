@@ -1,12 +1,15 @@
-# required for async_queue_add
 require "pry"
 
-require "guard"
+require "guard/commands/with_engine"
 
 module Guard
   module Commands
     class All
-      def self.import
+      extend WithEngine
+
+      def self.import(engine:)
+        super
+
         Pry::Commands.create_command "all" do
           group "Guard"
           description "Run all plugins."
@@ -21,14 +24,14 @@ module Guard
           BANNER
 
           def process(*entries)
-            scopes, unknown = Guard.state.session.convert_scope(entries)
+            scopes, unknown = All.engine.session.convert_scope(entries)
 
             unless unknown.empty?
               output.puts "Unknown scopes: #{ unknown.join(', ') }"
               return
             end
 
-            Guard.async_queue_add([:guard_run_all, scopes])
+            All.engine.async_queue_add([:guard_run_all, scopes])
           end
         end
       end

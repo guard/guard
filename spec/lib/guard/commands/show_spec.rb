@@ -2,27 +2,22 @@
 
 require "guard/commands/show"
 
-# TODO: we only need the async queue
-require "guard"
-
 RSpec.describe Guard::Commands::Show do
-  let(:output) { instance_double(Pry::Output) }
+  include_context 'with fake_pry_class'
 
-  class FakePry < Pry::Command
-    def self.output; end
-  end
+  let!(:engine) { Guard.init }
 
   before do
-    allow(FakePry).to receive(:output).and_return(output)
     allow(Pry::Commands).to receive(:create_command).with("show") do |&block|
-      FakePry.instance_eval(&block)
+      fake_pry_class.instance_eval(&block)
     end
 
-    described_class.import
+    described_class.import(engine: engine)
   end
 
   it "tells Guard to output DSL description" do
-    expect(::Guard).to receive(:async_queue_add).with([:guard_show])
-    FakePry.process
+    expect(engine).to receive(:async_queue_add).with([:guard_show])
+
+    fake_pry_class.process
   end
 end

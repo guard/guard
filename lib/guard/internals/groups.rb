@@ -12,12 +12,17 @@ module Guard
 
       def all(filter = nil)
         return @groups if filter.nil?
+
         matcher = matcher_for(filter)
         @groups.select { |group| matcher.call(group) }
       end
 
+      def find(filter = nil)
+        all(filter)[0]
+      end
+
       def add(name, options = {})
-        all(name).first || Group.new(name, options).tap do |group|
+        find(name) || Group.new(name, options).tap do |group|
           fail if name == :specs && options.empty?
           @groups << group
         end
