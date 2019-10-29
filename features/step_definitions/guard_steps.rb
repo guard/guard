@@ -15,13 +15,12 @@ Given(/^Guard is bundled using source$/) do
   gems << "gem 'guard', path: File.expand_path(File.join(Dir.pwd, '..', '..'))"
 
   write_file("Gemfile", "#{gems.join("\n")}\n")
-
-  run_simple("bundle install --quiet", true)
+  run_command_and_stop("bundle install --quiet", fail_on_error: true)
 end
 
 When(/^I start `([^`]*)`$/) do |cmd|
   skip_this_scenario if defined?(JRUBY_VERSION)
-  @interactive = run(cmd)
+  @interactive = run_command(cmd)
   step "I wait for Guard to become idle"
 end
 
