@@ -1,15 +1,13 @@
 language: ruby
 rvm:
-  - 2.3.8
   - 2.4.9
   - 2.5.7
   - 2.6.5
-  - jruby-9.1.17.0
   - jruby-9.2.8.0
-  - rbx-3.107
+  - rbx-4.5
 matrix:
   allow_failures:
-    - rvm: rbx-3.107
+    - rvm: rbx-4.5
 env:
   global:
     - JRUBY_OPTS="--debug"
