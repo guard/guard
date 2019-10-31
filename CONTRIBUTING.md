@@ -53,5 +53,13 @@ Pull requests are very welcome! Please try to follow these simple rules if appli
 * Update the [README](https://github.com/guard/guard/blob/master/README.md).
 * Please **do not change** the version number.
 
+The title of your PR will automatically be included in the release notes for the next version of the gem. A maintainer can add one of the following GitHub labels to the PR to automatically categorize it when the release notes are generated:
+
+- ⚠️ Breaking
+- ✨ Feature
+- 🐛 Bug Fix
+- 📚 Docs
+- 🏠 Housekeeping
+
 For questions please join us in our [Google group](http://groups.google.com/group/guard-dev) or on
 `#guard` (irc.freenode.net).
