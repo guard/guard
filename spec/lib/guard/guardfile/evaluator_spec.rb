@@ -46,6 +46,7 @@ RSpec.describe Guard::Guardfile::Evaluator do
 
       context "with no Guardfile at all" do
         it "displays an error message and exits" do
+          stub_guardfile_rb
           stub_guardfile
           stub_user_guardfile
           stub_user_project_guardfile
@@ -55,11 +56,19 @@ RSpec.describe Guard::Guardfile::Evaluator do
         end
       end
 
+      context "with Guardfile as guardfile.rb" do
+        it "evalutates guardfile.rb" do
+          stub_guardfile_rb("guard :bar")
+          allow(dsl).to receive(:evaluate).with("guard :bar", "", 1)
+        end
+      end
+
       context "with a problem reading a Guardfile" do
         let(:path) { File.expand_path("Guardfile") }
 
         before do
           stub_user_project_guardfile
+          stub_guardfile_rb
           stub_guardfile(" ") do
             fail Errno::EACCES.new("permission error")
           end
@@ -89,6 +98,7 @@ RSpec.describe Guard::Guardfile::Evaluator do
           # Anything
           stub_guardfile("guard :foo")
 
+          stub_guardfile_rb
           stub_user_guard_rb
           stub_user_project_guardfile
           stub_user_guardfile
@@ -137,6 +147,7 @@ RSpec.describe Guard::Guardfile::Evaluator do
 
           before do
             stub_file("/abc/Guardfile", "guard :bar")
+            stub_guardfile_rb("guard :baz")
             stub_guardfile("guard :baz")
             stub_user_guardfile("guard :buz")
           end
@@ -165,6 +176,7 @@ RSpec.describe Guard::Guardfile::Evaluator do
     before do
       allow(dsl).to receive(:evaluate)
       stub_guardfile("guard :bar")
+      stub_guardfile_rb
       stub_user_guard_rb
       subject.evaluate
     end

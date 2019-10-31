@@ -39,9 +39,10 @@ group :test do
   gem "guard-cucumber", "~> 2.1", require: false
   gem "guard-rspec", require: false
 
-  gem "aruba", "~> 0.9", require: false
+  gem "aruba", "~> 0.14", require: false
   gem "notiffany", ">= 0.0.6", require: false
   gem "rspec", ">= 3.0.0", require: false
+  gem "simplecov", "~> 0.17", require: false
 end
 
 # Needed for Travis

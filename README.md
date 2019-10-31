@@ -84,10 +84,10 @@ If you're getting sick of typing `bundle exec` all the time, try one of the foll
 * (Recommended) Running `bundle binstub guard` will create `bin/guard` in your
   project, which means running `bin/guard` (tab completion will save you a key
   stroke or two) will have the exact same result as `bundle exec guard`.
-  
+
 * Or, you can `alias be="bundle exec"` in your `.bashrc` or similar and the execute only `be guard`.
-  **Protip**: It will work for all comands executed in `bundle exec` context!  
-  
+  **Protip**: It will work for all comands executed in `bundle exec` context!
+
 
 * Or, for RubyGems >= 2.2.0 (at least, though the more recent the better),
   simply set the `RUBYGEMS_GEMDEPS` environment variable to `-` (for autodetecting
@@ -130,8 +130,8 @@ Just launch Guard inside your Ruby or Rails project with:
 $ bundle exec guard
 ```
 
-Guard will look for a `Guardfile` in your current directory. If it does not find one, it will look in your `$HOME`
-directory for a `.Guardfile`.
+Guard will look for a `Guardfile` or `guardfile.rb` in your current directory. If it does not find one, it will look
+in your `$HOME` directory for a `.Guardfile`.
 
 Please look here to see all the [command line options for Guard](https://github.com/guard/guard/wiki/Command-line-options-for-Guard)
 
