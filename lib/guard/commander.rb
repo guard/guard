@@ -53,8 +53,8 @@ module Guard
     end
 
     def stop
-      listener.stop
-      interactor.background
+      listener&.stop
+      interactor&.background
       UI.debug "Guard stops all plugins"
       Runner.new.run(:stop)
       Notifier.disconnect
