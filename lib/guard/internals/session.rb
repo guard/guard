@@ -41,6 +41,7 @@ module Guard
         wait_for_delay: nil,
         listen_on: nil
       }.freeze
+      EVALUATOR_OPTIONS = %i[guardfile guardfile_contents].freeze
 
       def cmdline_groups
         @cmdline_groups.dup.freeze
@@ -136,12 +137,8 @@ module Guard
       end
 
       def evaluator_options
-        opts = { guardfile: @options[:guardfile] }
-        # TODO: deprecate :guardfile_contents
-        if @options[:guardfile_contents]
-          opts[:contents] = @options[:guardfile_contents]
-        end
-        opts
+        # Ruby 2.4 doesn't respond to Hash#slice
+        @options.select { |key, _| EVALUATOR_OPTIONS.include?(key) }
       end
 
       def notify_options

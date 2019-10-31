@@ -20,14 +20,14 @@
 
 require "fileutils"
 
-require "simplecov"
-SimpleCov.start
+if ENV["CI"]
+  require "simplecov"
+  SimpleCov.start do
+    add_filter "/spec"
+  end
 
-require "codecov"
-SimpleCov.formatter = SimpleCov::Formatter::Codecov
-
-SimpleCov.start do
-  add_filter "/spec"
+  require "codecov"
+  SimpleCov.formatter = SimpleCov::Formatter::Codecov
 end
 
 ENV["GUARD_SPECS_RUNNING"] = "1"
