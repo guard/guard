@@ -96,6 +96,22 @@ RSpec.describe Guard::Commander do
         expect { Guard.start }.to raise_error(RuntimeError)
       end
     end
+
+    context "when setup raises an error" do
+      it "calls Commander#stop" do
+        # Reproduce a case where an error is raised during Guardfile evaluation
+        # before the listener and interactor are instantiated.
+        expect(Guard).to receive(:listener).and_return(nil)
+        expect(Guard).to receive(:interactor).and_return(nil)
+        expect(Guard).to receive(:setup).and_raise(RuntimeError)
+
+        # From stop()
+        expect(runner).to receive(:run).with(:stop)
+        expect(Guard::UI).to receive(:info).with("Bye bye...", reset: true)
+
+        expect { Guard.start }.to raise_error(RuntimeError)
+      end
+    end
   end
 
   describe ".stop" do

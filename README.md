@@ -155,6 +155,25 @@ Before reporting a problem, please read how to [File an issue](https://github.co
 ## Development / Contributing
 
 See the [Contributing Guide](https://github.com/guard/guard/blob/master/CONTRIBUTING.md#development).
+
+## Releasing
+
+### Prerequisites
+
+* You must have commit rights to the GitHub repository.
+* You must have push rights for rubygems.org.
+
+### How to release
+
+1. Run `bundle install` to make sure that you have all the gems necessary for testing and releasing.
+2.  **Ensure all tests are passing by running `bundle exec rake`.**
+3. Determine which would be the correct next version number according to [semver](http://semver.org/).
+4. Update the version in `./lib/guard/version.rb`.
+5. Update the version in the Install section of `./README.md` (`gem 'guard', '~> X.Y'`).
+6. Commit the version in a single commit, the message should be "Preparing vX.Y.Z"
+7. Run `bundle exec rake release:full`; this will tag, push to GitHub, and publish to rubygems.org.
+8. Update and publish the release notes on the [GitHub releases page](https://github.com/guard/guard/releases) if necessary.
+
 ### Author
 
 [Thibaud Guillaume-Gentil](https://github.com/thibaudgg) ([@thibaudgg](https://twitter.com/thibaudgg))
