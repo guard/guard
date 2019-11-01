@@ -1,6 +1,5 @@
 language: ruby
 rvm:
-  - 2.3.8
   - 2.4.9
   - 2.5.7
   - 2.6.5
@@ -14,12 +13,14 @@ jdk:
 env:
   global:
     - JRUBY_OPTS="--debug"
-jdk:
-  - openjdk8
+
 script:
   - bundle exec rake
+
 bundler_args: --without development
+
 cache: bundler
+
 addons:
   code_climate:
     repo_token: 185a714e42214b9369217d0ddfd5a02d528d9a616a34482119a16c63241d6afd

@@ -1,6 +1,10 @@
 # Guard
 
-**IMPORTANT: [Ruby 2.1 is officially outdated and unsupported!](https://www.ruby-lang.org/en/news/2016/03/30/ruby-2-1-9-released/) Please upgrade to Ruby >=2.3 or >=2.2.9 before installing Guard! To install for older versions, update Bundler at least 1.12: `gem update bundler` and Bundler should correctly resolve to earlier gems for your given Ruby version.**
+**IMPORTANT: Please upgrade to Ruby >= 2.4 before installing Guard! To install for older versions, update Bundler at least 1.12: `gem update bundler` and Bundler should correctly resolve to earlier gems for your given Ruby version.**
+
+- [Ruby 2.1 is officially outdated and unsupported!](https://www.ruby-lang.org/en/news/2016/03/30/ruby-2-1-9-released/)
+- [Ruby 2.2 is officially outdated and unsupported!](https://www.ruby-lang.org/en/news/2018/06/20/support-of-ruby-2-2-has-ended/)
+- [Ruby 2.3 is officially outdated and unsupported!](https://www.ruby-lang.org/en/news/2019/03/31/support-of-ruby-2-3-has-ended/)
 
 :exclamation: Guard is currently accepting more maintainers. Please [read this](https://github.com/guard/guard/wiki/Maintainers) if you're interested in joining the team.
 
@@ -32,7 +36,7 @@ Before you file an issue, make sure you have read the _[known issues](#issues)_ 
 * File system changes handled by our awesome [Listen](https://github.com/guard/listen) gem.
 * Support for visual system notifications.
 * Huge eco-system with [more than 300](https://rubygems.org/search?query=guard-) Guard plugins.
-* Tested against the latest Ruby 2.3.x, 2.4.x, 2.5.x, 2.6.x, JRuby & Rubinius. See [`.travis-ci.yml`](https://github.com/guard/guard/blob/master/.travis.yml) for the exact versions.
+* Tested against the latest Ruby 2.4.x, 2.5.x, 2.6.x, JRuby & Rubinius. See [`.travis-ci.yml`](https://github.com/guard/guard/blob/master/.travis.yml) for the exact versions.
 
 ## Screencast
 
