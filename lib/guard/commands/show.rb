@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "pry"
 
 module Guard
@@ -14,7 +16,7 @@ module Guard
           Show all defined Guard plugins and their options.
           BANNER
 
-          def process
+          def process # rubocop:disable Lint/NestedMethodDefinition
             Guard.async_queue_add([:guard_show])
           end
         end

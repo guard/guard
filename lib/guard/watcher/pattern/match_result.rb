@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Guard
   class Watcher
     class Pattern
@@ -10,6 +12,7 @@ module Guard
         def [](index)
           return @match_result[index] if index.is_a?(Symbol)
           return @original_value if index.zero?
+
           @match_result.to_a[index]
         end
       end

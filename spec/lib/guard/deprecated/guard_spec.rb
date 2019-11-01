@@ -226,6 +226,11 @@ unless Guard::Config.new.strict?
         allow(session).to receive(:interactor_name)
       end
 
+      it "returns a Guard::Deprecated::Options object" do
+        expect(Guard::Deprecated::Options).to receive(:new)
+        subject.options
+      end
+
       it "show deprecation warning" do
         expect(Guard::UI).to receive(:deprecation)
           .with(Guard::Deprecated::Guard::ClassMethods::OPTIONS)
@@ -236,6 +241,7 @@ unless Guard::Config.new.strict?
         before do
           allow(session).to receive(:clearing?).and_return(clearing)
         end
+
         context "when being set to true" do
           let(:clearing) { true }
           it "sets the clearing option accordingly" do

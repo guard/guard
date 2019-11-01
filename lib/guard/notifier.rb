@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "notiffany/notifier"
 require "guard/ui"
 
@@ -6,6 +8,7 @@ module Guard
     def self.connect(options = {})
       @notifier ||= nil
       fail "Already connected!" if @notifier
+
       begin
         opts = options.merge(namespace: "guard", logger: UI)
         @notifier = Notiffany.connect(opts)
@@ -16,7 +19,7 @@ module Guard
     end
 
     def self.disconnect
-      @notifier && @notifier.disconnect
+      @notifier&.disconnect
       @notifier = nil
     end
 

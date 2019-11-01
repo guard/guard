@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Guard
   module UI
     module Colors

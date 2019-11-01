@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "pry"
 
 require "guard"
@@ -19,7 +21,7 @@ module Guard
           prompt will show the pause sign `[p]`.
           BANNER
 
-          def process
+          def process # rubocop:disable Lint/NestedMethodDefinition
             ::Guard.async_queue_add([:guard_pause])
           end
         end

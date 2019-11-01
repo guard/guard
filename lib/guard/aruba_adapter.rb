@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "guard/cli"
 
 module Guard
@@ -45,7 +47,7 @@ module Guard
       e.status
     ensure
       # flush the logger so the output doesn't appear in next CLI invocation
-      Guard.listener.stop if Guard.listener
+      Guard.listener&.stop
       UI.logger.flush
       UI.logger.close
       UI.reset_logger

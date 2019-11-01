@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "nenv"
 require "bundler/gem_tasks"
 
@@ -19,7 +21,7 @@ end
 require "cucumber/rake/task"
 Cucumber::Rake::Task.new(:features) do |t|
   t.cucumber_opts = "features --format pretty"
-  t.profile = Nenv.ci? ? 'guard' : 'travis'
+  t.profile = Nenv.ci? ? "guard" : "travis"
 end
 default_tasks << Struct.new(:name).new(:features)
 

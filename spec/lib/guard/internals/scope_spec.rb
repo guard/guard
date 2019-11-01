@@ -52,7 +52,7 @@ RSpec.describe Guard::Internals::Scope do
         context "when set from interactor" do
           before do
             stub_obj = send("baz_#{scope}")
-            subject.from_interactor(:"#{scope}s" => stub_obj)
+            subject.from_interactor("#{scope}s": stub_obj)
           end
 
           it "uses interactor scope" do

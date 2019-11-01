@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "pry"
 
 require "guard/notifier"
@@ -16,7 +18,7 @@ module Guard
           Toggles the notifications on and off.
           BANNER
 
-          def process
+          def process # rubocop:disable Lint/NestedMethodDefinition
             Notifier.toggle
           end
         end

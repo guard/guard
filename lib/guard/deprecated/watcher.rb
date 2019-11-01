@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "guard/config"
 fail "Deprecations disabled (strict mode)" if Guard::Config.new.strict?
 
@@ -9,9 +11,9 @@ module Guard
       end
 
       module ClassMethods
-        MATCH_GUARDFILE = <<-EOS.gsub(/^\s*/, "")
+        MATCH_GUARDFILE = <<-DEPRECATION_NOTICE.gsub(/^\s*/, "")
           Starting with Guard 2.8.3 this method is deprecated.
-        EOS
+        DEPRECATION_NOTICE
 
         def match_guardfile?(files)
           require "guard/guardfile/evaluator"

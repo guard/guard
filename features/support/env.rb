@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "aruba"
 require "aruba/cucumber"
 require "aruba/in_process"

@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 require "pathname"
 
@@ -89,7 +90,7 @@ class GuardReloader
       return
     end
 
-    STDERR.puts "Warning: you have a Gemfile, but you're not using"\
+    warn "Warning: you have a Gemfile, but you're not using"\
       " bundler or RUBYGEMS_GEMDEPS"
   end
 

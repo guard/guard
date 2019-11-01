@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "guard/ui"
 
 module Guard
@@ -55,6 +57,7 @@ module Guard
     def initialize_plugin(options)
       klass = plugin_class
       fail "Could not load class: #{_constant_name.inspect}" unless klass
+
       if klass.ancestors.include?(Guard)
         klass.new(options.delete(:watchers), options)
       else
@@ -73,7 +76,7 @@ module Guard
     def plugin_location
       @plugin_location ||= _full_gem_path("guard-#{name}")
     rescue Gem::LoadError
-      UI.error "Could not find 'guard-#{ name }' gem path."
+      UI.error "Could not find 'guard-#{name}' gem path."
     end
 
     # Tries to load the Guard plugin main class. This transforms the supplied
@@ -98,24 +101,23 @@ module Guard
 
       const = _plugin_constant
       fail TypeError, "no constant: #{_constant_name}" unless const
-      @plugin_class ||= Guard.const_get(const)
 
+      @plugin_class ||= Guard.const_get(const)
     rescue TypeError
       begin
-        require "guard/#{ name.downcase }"
+        require "guard/#{name.downcase}"
         const = _plugin_constant
         @plugin_class ||= Guard.const_get(const)
-
-      rescue TypeError => error
-        UI.error "Could not find class Guard::#{ _constant_name }"
-        UI.error error.backtrace.join("\n")
+      rescue TypeError => e
+        UI.error "Could not find class Guard::#{_constant_name}"
+        UI.error e.backtrace.join("\n")
         # TODO: return value or move exception higher
-      rescue LoadError => error
+      rescue LoadError => e
         unless options[:fail_gracefully]
           msg = format(ERROR_NO_GUARD_OR_CLASS, name.downcase, _constant_name)
           UI.error(msg)
-          UI.error("Error is: #{error}")
-          UI.error(error.backtrace.join("\n"))
+          UI.error("Error is: #{e}")
+          UI.error(e.backtrace.join("\n"))
           # TODO: return value or move exception higher
         end
       end
@@ -136,7 +138,7 @@ module Guard
       end
 
       if evaluator.guardfile_include?(name)
-        UI.info "Guardfile already includes #{ name } guard"
+        UI.info "Guardfile already includes #{name} guard"
       else
         content = File.read("Guardfile")
         File.open("Guardfile", "wb") do |f|
@@ -170,8 +172,8 @@ module Guard
     #   => "Rspec"
     #
     def _constant_name
-      @_constant_name ||= name.gsub(%r{/(.?)}) { "::#{ $1.upcase }" }.
-                          gsub(/(?:^|[_-])(.)/) { $1.upcase }
+      @_constant_name ||= name.gsub(%r{/(.?)}) { "::#{$1.upcase}" }
+                              .gsub(/(?:^|[_-])(.)/) { $1.upcase }
     end
 
     def _full_gem_path(name)
@@ -182,6 +184,7 @@ module Guard
       def _gem_valid?(gem)
         return false if gem.name == "guard-compat"
         return true if gem.name =~ /^guard-/
+
         full_path = gem.full_gem_path
         file = File.join(full_path, "lib", "guard", "#{gem.name}.rb")
         File.exist?(file)

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Guard
   # A group of Guard plugins. There are two reasons why you want to group your
   # Guard plugins:

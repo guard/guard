@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "guard/plugin_util"
 require "guard/group"
 require "guard/plugin"
@@ -12,6 +14,7 @@ module Guard
 
       def all(filter = nil)
         return @plugins if filter.nil?
+
         matcher = matcher_for(filter)
         @plugins.select { |plugin| matcher.call(plugin) }
       end

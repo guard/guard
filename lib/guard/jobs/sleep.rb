@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "guard/jobs/base"
 require "guard/ui"
 

@@ -40,9 +40,9 @@ group :test do
   gem "guard-rspec", require: false
 
   gem "aruba", "~> 0.14", require: false
+  gem "codecov", require: false
   gem "notiffany", ">= 0.0.6", require: false
   gem "rspec", ">= 3.0.0", require: false
-  gem "codecov", require: false
 end
 
 # Needed for Travis

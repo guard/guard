@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "guard/commands/all"
 require "guard/commands/change"
 require "guard/commands/notification"
@@ -19,16 +21,19 @@ module Guard
 
       def restore
         return unless configurable? && @settings
-        Shellany::Sheller.run("stty #{ @setting } 2>#{IO::NULL}")
+
+        Shellany::Sheller.run("stty #{@setting} 2>#{IO::NULL}")
       end
 
       def save
         return unless configurable?
+
         @settings = Shellany::Sheller.stdout("stty -g 2>#{IO::NULL}").chomp
       end
 
       def echo
         return unless configurable?
+
         Shellany::Sheller.run("stty echo 2>#{IO::NULL}")
       end
 
@@ -58,7 +63,7 @@ module Guard
         pause: "p",
         exit: "e",
         quit: "q"
-      }
+      }.freeze
 
       def initialize(options)
         @mutex = Mutex.new
@@ -88,6 +93,7 @@ module Guard
       def handle_interrupt
         thread = @thread
         fail Interrupt unless thread
+
         thread.raise Interrupt
       end
 
@@ -106,7 +112,7 @@ module Guard
         end
         # check for nill, because it might've been killed between the mutex and
         # now
-        th.join unless th.nil?
+        th&.join
       end
 
       def _killed?
@@ -225,12 +231,12 @@ module Guard
       #
       def _create_guard_commands
         Guard.state.session.plugins.all.each do |guard_plugin|
-          cmd = "Run all #{ guard_plugin.title }"
+          cmd = "Run all #{guard_plugin.title}"
           Pry.commands.create_command guard_plugin.name, cmd do
             group "Guard"
 
-            def process
-              Pry.run_command "all #{ match }"
+            def process # rubocop:disable Lint/NestedMethodDefinition
+              Pry.run_command "all #{match}"
             end
           end
         end
@@ -245,12 +251,12 @@ module Guard
         Guard.state.session.groups.all.each do |group|
           next if group.name == :default
 
-          cmd = "Run all #{ group.title }"
+          cmd = "Run all #{group.title}"
           Pry.commands.create_command group.name.to_s, cmd do
             group "Guard"
 
-            def process
-              Pry.run_command "all #{ match }"
+            def process # rubocop:disable Lint/NestedMethodDefinition
+              Pry.run_command "all #{match}"
             end
           end
         end
@@ -277,10 +283,10 @@ module Guard
       def _prompt(ending_char)
         proc do |target_self, nest_level, pry|
           process = Guard.listener.paused? ? "pause" : "guard"
-          level = ":#{ nest_level }" unless nest_level.zero?
+          level = ":#{nest_level}" unless nest_level.zero?
 
-          "[#{ _history(pry) }] #{ _scope_for_prompt }#{ process }"\
-            "(#{ _clip_name(target_self) })#{ level }#{ ending_char } "
+          "[#{_history(pry)}] #{_scope_for_prompt}#{process}"\
+            "(#{_clip_name(target_self)})#{level}#{ending_char} "
         end
       end
 

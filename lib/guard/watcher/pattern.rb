@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "guard/ui"
 
 require_relative "pattern/match_result"
@@ -17,6 +19,7 @@ module Guard
 
         return PathnamePath.new(pattern) if pattern.is_a?(Pathname)
         return SimplePath.new(pattern) if pattern.is_a?(String)
+
         Matcher.new(pattern)
       end
     end

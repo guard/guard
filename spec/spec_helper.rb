@@ -203,6 +203,7 @@ RSpec.configure do |config|
     excluded += Array(example.metadata[:exclude_stubs])
     excluded << Guard::Config if Guard.constants.include?(:Config)
     excluded << Guard::Options if Guard.constants.include?(:Options)
+    excluded << Guard::Deprecated::Options if Guard.constants.include?(:Deprecated)
     excluded << Guard::Jobs::Base if Guard.constants.include?(:Jobs)
 
     excluded << Guard::DuMmy if Guard.constants.include?(:DuMmy)

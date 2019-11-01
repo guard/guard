@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "guard/cli/environments/bundler"
 require "guard/commander"
 require "guard/guardfile/generator"

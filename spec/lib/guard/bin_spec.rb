@@ -117,7 +117,7 @@ RSpec.describe GuardReloader do
           end
 
           it "shows a warning" do
-            expect(STDERR).to receive(:puts).with(/Warning: you have a Gemfile/)
+            expect(subject).to receive(:warn).with(/Warning: you have a Gemfile/)
             subject.setup
           end
         end
@@ -129,7 +129,7 @@ RSpec.describe GuardReloader do
           end
 
           it "shows no warning" do
-            expect(STDERR).to_not receive(:puts)
+            expect(subject).to_not receive(:warn)
             subject.setup
           end
         end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Because it's used by Sheller
 require "open3"
 require "logger"
@@ -16,7 +18,7 @@ module Guard
           [Kernel, :spawn],
           [Kernel, :`],
           [Open3, :popen3]
-        ]
+        ].freeze
 
         # Sets up debugging:
         #
@@ -25,6 +27,7 @@ module Guard
         # * traces execution of Kernel.system and backtick calls
         def start
           return if @started ||= false
+
           @started = true
 
           Thread.abort_on_exception = true
@@ -37,6 +40,7 @@ module Guard
 
         def stop
           return unless @started ||= false
+
           UI.level = Logger::INFO
           _reset
         end
@@ -51,6 +55,7 @@ module Guard
         def _reset
           @started = false
           return unless @traced
+
           TRACES.each { |mod, meth| _untrace(mod, meth) }
           @traced = false
         end

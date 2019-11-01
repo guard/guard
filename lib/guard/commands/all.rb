@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # required for async_queue_add
 require "pry"
 
@@ -20,11 +22,11 @@ module Guard
           either the name of a Guard plugin or a plugin group.
           BANNER
 
-          def process(*entries)
+          def process(*entries) # rubocop:disable Lint/NestedMethodDefinition
             scopes, unknown = Guard.state.session.convert_scope(entries)
 
             unless unknown.empty?
-              output.puts "Unknown scopes: #{ unknown.join(', ') }"
+              output.puts "Unknown scopes: #{unknown.join(', ')}"
               return
             end
 

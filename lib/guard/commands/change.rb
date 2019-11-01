@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "pry"
 
 require "guard"
@@ -16,7 +18,7 @@ module Guard
           Pass the given files to the Guard plugin `run_on_changes` action.
           BANNER
 
-          def process(*files)
+          def process(*files) # rubocop:disable Lint/NestedMethodDefinition
             if files.empty?
               output.puts "Please specify a file."
               return
