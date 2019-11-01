@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Guard
   class Watcher
     class Pattern
@@ -9,6 +11,7 @@ module Guard
         def match(string_or_pathname)
           cleaned = normalize(string_or_pathname)
           return nil unless @path == cleaned
+
           [cleaned]
         end
 

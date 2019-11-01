@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "guard/config"
 fail "Deprecations disabled (strict mode)" if Guard::Config.new.strict?
 
@@ -8,10 +10,10 @@ module Guard
         dsl_klass.send(:extend, ClassMethods)
       end
 
-      MORE_INFO_ON_UPGRADING_TO_GUARD_2 = <<-EOS.gsub(/^\s*/, "")
+      MORE_INFO_ON_UPGRADING_TO_GUARD_2 = <<-DEPRECATION_NOTICE.gsub(/^\s*/, "")
         For more information on how to upgrade for Guard 2.0, please head over
         to: https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0%s
-      EOS
+      DEPRECATION_NOTICE
 
       module ClassMethods
         # @deprecated Use
@@ -21,7 +23,7 @@ module Guard
         # @see https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0 How
         # to upgrade for Guard 2.0
         #
-        EVALUATE_GUARDFILE = <<-EOS.gsub(/^\s*/, "")
+        EVALUATE_GUARDFILE = <<-DEPRECATION_NOTICE.gsub(/^\s*/, "")
           Starting with Guard 2.0 'Guard::Dsl.evaluate_guardfile(options)' is
           deprecated.
 
@@ -30,7 +32,7 @@ module Guard
           instead.
 
           #{MORE_INFO_ON_UPGRADING_TO_GUARD_2 % '#deprecated-methods-1'}
-        EOS
+        DEPRECATION_NOTICE
 
         def evaluate_guardfile(options = {})
           require "guard/guardfile/evaluator"

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "guard/internals/plugins"
 require "guard/internals/groups"
 
@@ -38,7 +40,7 @@ module Guard
         force_polling: false,
         wait_for_delay: nil,
         listen_on: nil
-      }
+      }.freeze
 
       def cmdline_groups
         @cmdline_groups.dup.freeze
@@ -95,8 +97,8 @@ module Guard
         @guardfile_ignore += Array(ignores).flatten
       end
 
-      def clearing(on)
-        @clear = on
+      def clearing(flag)
+        @clear = flag
       end
 
       def clearing?
@@ -125,7 +127,7 @@ module Guard
           [:on, @options[:listen_on]]
         else
           listener_options = {}
-          [:latency, :force_polling, :wait_for_delay].each do |option|
+          %i(latency force_polling wait_for_delay).each do |option|
             listener_options[option] = @options[option] if @options[option]
           end
           expanded_watchdirs = watchdirs.map { |dir| File.expand_path dir }

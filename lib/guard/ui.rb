@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "guard/ui/colors"
 require "guard/ui/config"
 
@@ -105,7 +107,7 @@ module Guard
       def deprecation(message, options = {})
         unless ENV["GUARD_GEM_SILENCE_DEPRECATIONS"] == "1"
           backtrace = Thread.current.backtrace[1..5].join("\n\t >")
-          msg = format("%s\nDeprecation backtrace: %s", message, backtrace)
+          msg = format("%<message>s\nDeprecation backtrace: %<backtrace>s", message: message, backtrace: backtrace)
           warning(msg, options)
         end
       end
@@ -178,9 +180,10 @@ module Guard
         plugin ||= _calling_plugin_name
 
         match = !(only || except)
-        match ||= (only && only.match(plugin))
+        match ||= (only&.match(plugin))
         match ||= (except && !except.match(plugin))
         return unless match
+
         yield plugin
       end
 
@@ -205,6 +208,7 @@ module Guard
           %r{(?<!guard\/lib)\/(guard\/[a-z_]*)(/[a-z_]*)?.rb:}i.match(line)
         end.reject(&:nil?).take(1).force.first
         return "Guard" unless name || (name && name[1] == "guard/lib")
+
         name[1].split("/").map do |part|
           part.split(/[^a-z0-9]/i).map(&:capitalize).join
         end.join("::")
@@ -250,12 +254,12 @@ module Guard
           color_option = color_option.to_s
           next if color_option == ""
 
-          unless color_option =~ /\d+/
-            color_option = const_get("ANSI_ESCAPE_#{ color_option.upcase }")
+          unless color_option.match?(/\d+/)
+            color_option = const_get("ANSI_ESCAPE_#{color_option.upcase}")
           end
           color_code += ";" + color_option
         end
-        color_enabled? ? "\e[0#{ color_code }m#{ text }\e[0m" : text
+        color_enabled? ? "\e[0#{color_code}m#{text}\e[0m" : text
       end
     end
   end

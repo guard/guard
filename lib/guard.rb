@@ -1,4 +1,5 @@
-require "thread"
+# frozen_string_literal: true
+
 require "listen"
 
 require "guard/config"
@@ -61,8 +62,8 @@ module Guard
       Notifier.connect(state.session.notify_options)
 
       traps = Internals::Traps
-      traps.handle("USR1") { async_queue_add([:guard_pause, :paused]) }
-      traps.handle("USR2") { async_queue_add([:guard_pause, :unpaused]) }
+      traps.handle("USR1") { async_queue_add(%i(guard_pause paused)) }
+      traps.handle("USR2") { async_queue_add(%i(guard_pause unpaused)) }
 
       @interactor = Interactor.new(state.session.interactor_name == :sleep)
       traps.handle("INT") { @interactor.handle_interrupt }
@@ -141,7 +142,7 @@ module Guard
       if evaluator.inline?
         UI.info("Using inline Guardfile.")
       elsif evaluator.custom?
-        UI.info("Using Guardfile at #{ evaluator.path }.")
+        UI.info("Using Guardfile at #{evaluator.path}.")
       end
     rescue Guardfile::Evaluator::NoPluginsError => e
       UI.error(e.message)

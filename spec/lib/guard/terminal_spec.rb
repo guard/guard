@@ -27,7 +27,7 @@ RSpec.describe Guard::Terminal do
       end
 
       context "when the clear command fails" do
-        let(:result) { [nil, nil, 'Guard failed to run "clear;"'] }
+        let(:result) { [1, nil, 'Guard failed to run "clear;"'] }
 
         before do
           allow(sheller).to receive(:system).with("printf '\33c\e[3J';")
@@ -51,7 +51,7 @@ RSpec.describe Guard::Terminal do
       end
 
       context "when the clear command fails" do
-        let(:result) { [nil, nil, 'Guard failed to run "cls"'] }
+        let(:result) { [1, nil, 'Guard failed to run "cls"'] }
 
         before do
           allow(sheller).to receive(:system).with("cls").and_return(result)

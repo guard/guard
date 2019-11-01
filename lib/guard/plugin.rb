@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "guard"
 require "guard/internals/groups"
 
@@ -115,13 +117,13 @@ module Guard
     #
     def hook(event, *args)
       hook_name = if event.is_a? Symbol
-                    calling_method = caller[0][/`([^']*)'/, 1]
-                    "#{ calling_method }_#{ event }"
+                    calling_method = caller(1..1).first[/`([^']*)'/, 1]
+                    "#{calling_method}_#{event}"
                   else
                     event
                   end
 
-      UI.debug "Hook :#{ hook_name } executed for #{ self.class }"
+      UI.debug "Hook :#{hook_name} executed for #{self.class}"
 
       self.class.notify(self, hook_name.to_sym, *args)
     end

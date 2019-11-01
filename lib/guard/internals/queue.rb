@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Guard
   module Internals
     class Queue
@@ -21,6 +23,7 @@ module Guard
 
         _run_actions(actions)
         return if changes.values.all?(&:empty?)
+
         Runner.new.run_on_changes(*changes.values)
       end
 

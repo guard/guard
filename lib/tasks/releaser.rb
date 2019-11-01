@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # TODO: extract to gem?
 
 class Releaser
@@ -110,6 +112,7 @@ class Releaser
   def _update_release(gh_client, gh_release, tag_name)
     result = gh_client.update_release(gh_release.rels[:self].href, draft: false)
     return true if result
+
     STDOUT.puts "GitHub release #{tag_name} couldn't be published!"
     false
   end

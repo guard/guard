@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 require "guard/group"
 
 module Guard
   # @private api
   module Internals
     class Groups
-      DEFAULT_GROUPS = [:common, :default]
+      DEFAULT_GROUPS = %i(common default).freeze
 
       def initialize
         @groups = DEFAULT_GROUPS.map { |name| Group.new(name) }
@@ -12,6 +14,7 @@ module Guard
 
       def all(filter = nil)
         return @groups if filter.nil?
+
         matcher = matcher_for(filter)
         @groups.select { |group| matcher.call(group) }
       end
@@ -19,6 +22,7 @@ module Guard
       def add(name, options = {})
         all(name).first || Group.new(name, options).tap do |group|
           fail if name == :specs && options.empty?
+
           @groups << group
         end
       end

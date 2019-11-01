@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "guard/config"
 fail "Deprecations disabled (strict mode)" if Guard::Config.new.strict?
 
@@ -10,18 +12,18 @@ module Guard
         klass.send(:include, self)
       end
 
-      EVALUATE_GUARDFILE = <<-EOS.gsub(/^\s*/, "")
+      EVALUATE_GUARDFILE = <<-DEPRECATION_NOTICE.gsub(/^\s*/, "")
         Starting with Guard 2.8.3 'Guard::Evaluator#evaluate_guardfile' is
         deprecated in favor of '#evaluate'.
-      EOS
+      DEPRECATION_NOTICE
 
-      REEVALUATE_GUARDFILE = <<-EOS.gsub(/^\s*/, "")
+      REEVALUATE_GUARDFILE = <<-DEPRECATION_NOTICE.gsub(/^\s*/, "")
         Starting with Guard 2.8.3 'Guard::Evaluator#reevaluate_guardfile' is
         deprecated in favor of '#reevaluate'.
 
         NOTE: this method no longer does anything since it could not be
         implemented reliably.
-      EOS
+      DEPRECATION_NOTICE
 
       def evaluate_guardfile
         UI.deprecation(EVALUATE_GUARDFILE)

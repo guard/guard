@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Guard
   module Internals
     module Tracing

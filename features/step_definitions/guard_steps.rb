@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Given(/^my Guardfile contains:$/) do |contents|
   write_file("Guardfile", contents)
 end
@@ -28,14 +30,14 @@ When(/^I create a file "([^"]*)"$/) do |path|
   write_file(path, "")
 
   # give guard time to respond to change
-  type "sleep 1"
+  type(+"sleep 1")
 end
 
 When(/^I append to the file "([^"]*)"$/) do |path|
   append_to_file(path, "modified")
 
   # give guard time to respond to change
-  type "sleep 1"
+  type(+"sleep 1")
 end
 
 When(/^I stop guard$/) do
@@ -48,12 +50,13 @@ When(/^I wait for Guard to become idle$/) do
     Timeout.timeout(aruba.config.exit_timeout) do
       loop do
         break if last_command_started.stdout.include?(expected)
+
         sleep 0.1
       end
     end
   rescue Timeout::Error
-    STDERR.puts all_stdout
-    STDERR.puts all_stderr
+    warn all_stdout
+    warn all_stderr
     fail
   end
 end

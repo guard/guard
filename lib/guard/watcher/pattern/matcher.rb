@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Guard
   class Watcher
     class Pattern
@@ -25,6 +27,7 @@ module Guard
         def normalized(string_or_pathname)
           path = Pathname.new(string_or_pathname).cleanpath
           return path.to_s if @matcher.is_a?(Regexp)
+
           path
         end
       end

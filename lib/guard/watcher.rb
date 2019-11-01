@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "guard/config"
 require "guard/deprecated/watcher" unless Guard::Config.new.strict?
 
@@ -79,10 +81,10 @@ module Guard
     # @return [String] the final paths
     #
     def call_action(matches)
-      @action.arity > 0 ? @action.call(matches) : @action.call
-    rescue => ex
-      UI.error "Problem with watch action!\n#{ex.message}"
-      UI.error ex.backtrace.join("\n")
+      @action.arity.positive? ? @action.call(matches) : @action.call
+    rescue StandardError => e
+      UI.error "Problem with watch action!\n#{e.message}"
+      UI.error e.backtrace.join("\n")
     end
   end
 end

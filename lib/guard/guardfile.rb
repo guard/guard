@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "guard/config"
 
 if Guard::Config.new.strict?
@@ -12,7 +14,7 @@ else
       UPGRADE_WIKI_URL =
         "https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0"
 
-      STDERR.puts <<-EOS
+      warn <<-DEPRECATION_NOTICE
         (guard/guardfile.rb message)
 
         You are including "guard/guardfile.rb", which has been deprecated
@@ -28,7 +30,7 @@ else
         (end of guard/guardfile.rb message)
 
 
-      EOS
+      DEPRECATION_NOTICE
     end
     module Guardfile
       extend Deprecated::Guardfile::ClassMethods

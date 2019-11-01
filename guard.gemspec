@@ -1,8 +1,9 @@
-# encoding: utf-8
-$LOAD_PATH.push File.expand_path("../lib", __FILE__)
+# frozen_string_literal: true
+
+$LOAD_PATH.push File.expand_path("lib", __dir__)
 require "guard/version"
 
-Gem::Specification.new do |s|
+Gem::Specification.new do |s| # rubocop:disable Metrics/BlockLength
   s.name = "guard"
   s.version = Guard::VERSION
   s.platform = Gem::Platform::RUBY
@@ -14,20 +15,20 @@ Gem::Specification.new do |s|
   s.description = "Guard is a command line tool to easily handle events"\
     " on file system modifications."
 
-  s.required_ruby_version = ">= 1.9.3"
+  s.required_ruby_version = ">= 2.4.9"
 
-  s.add_runtime_dependency "thor", ">= 0.18.1"
-  s.add_runtime_dependency "listen", ">= 2.7", "< 4.0"
-  s.add_runtime_dependency "pry", ">= 0.9.12"
-  s.add_runtime_dependency "lumberjack", ">= 1.0.12", "< 2.0"
   s.add_runtime_dependency "formatador", ">= 0.2.4"
+  s.add_runtime_dependency "listen", ">= 2.7", "< 4.0"
+  s.add_runtime_dependency "lumberjack", ">= 1.0.12", "< 2.0"
   s.add_runtime_dependency "nenv", "~> 0.1"
-  s.add_runtime_dependency "shellany", "~> 0.0"
   s.add_runtime_dependency "notiffany", "~> 0.0"
+  s.add_runtime_dependency "pry", ">= 0.9.12"
+  s.add_runtime_dependency "shellany", "~> 0.0"
+  s.add_runtime_dependency "thor", ">= 0.18.1"
 
   git_files = `git ls-files -z`.split("\x0")
   files = git_files.select { |f| %r{^(?:bin|lib)/.*$} =~ f }
-  files += %w(CHANGELOG.md LICENSE  README.md)
+  files += %w(CHANGELOG.md LICENSE README.md)
   files += %w(man/guard.1 man/guard.1.html)
 
   # skip the large images/guard.png

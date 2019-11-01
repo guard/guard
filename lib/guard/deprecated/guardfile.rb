@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "guard/config"
 fail "Deprecations disabled (strict mode)" if Guard::Config.new.strict?
 
@@ -11,16 +13,16 @@ module Guard
       end
 
       module ClassMethods
-        MORE_INFO_ON_UPGRADING_TO_GUARD_2 = <<-EOS.gsub(/^\s*/, "")
+        MORE_INFO_ON_UPGRADING_TO_GUARD_2 = <<-DEPRECATION_NOTICE.gsub(/^\s*/, "")
           For more information on how to upgrade for Guard 2.0, please head
           over to: https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0%s
-        EOS
+        DEPRECATION_NOTICE
         # @deprecated Use {Guardfile::Generator#create_guardfile} instead.
         #
         # @see https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0 How to
         # upgrade for Guard 2.0
         #
-        CREATE_GUARDFILE = <<-EOS.gsub(/^\s*/, "")
+        CREATE_GUARDFILE = <<-DEPRECATION_NOTICE.gsub(/^\s*/, "")
           Starting with Guard 2.0 'Guard::Guardfile.create_guardfile(options)'
           is deprecated.
 
@@ -28,7 +30,7 @@ module Guard
           instead.
 
           #{MORE_INFO_ON_UPGRADING_TO_GUARD_2 % '#deprecated-methods-2'}
-        EOS
+        DEPRECATION_NOTICE
 
         def create_guardfile(options = {})
           UI.deprecation(CREATE_GUARDFILE)
@@ -41,7 +43,7 @@ module Guard
         # upgrade for Guard 2.0
         #
         # Deprecator message for the `Guardfile.initialize_template` method
-        INITIALIZE_TEMPLATE = <<-EOS.gsub(/^\s*/, "")
+        INITIALIZE_TEMPLATE = <<-DEPRECATION_NOTICE.gsub(/^\s*/, "")
           Starting with Guard 2.0
           'Guard::Guardfile.initialize_template(plugin_name)' is deprecated.
 
@@ -50,7 +52,7 @@ module Guard
           instead.
 
           #{MORE_INFO_ON_UPGRADING_TO_GUARD_2 % '#deprecated-methods-2'}
-        EOS
+        DEPRECATION_NOTICE
 
         def initialize_template(plugin_name)
           UI.deprecation(INITIALIZE_TEMPLATE)
@@ -64,7 +66,7 @@ module Guard
         # upgrade for Guard 2.0
         #
         # Deprecator message for the `Guardfile.initialize_all_templates` method
-        INITIALIZE_ALL_TEMPLATES = <<-EOS.gsub(/^\s*/, "")
+        INITIALIZE_ALL_TEMPLATES = <<-DEPRECATION_NOTICE.gsub(/^\s*/, "")
           Starting with Guard 2.0 'Guard::Guardfile.initialize_all_templates'
           is deprecated.
 
@@ -72,7 +74,7 @@ module Guard
           instead.
 
           #{MORE_INFO_ON_UPGRADING_TO_GUARD_2 % '#deprecated-methods-2'}
-        EOS
+        DEPRECATION_NOTICE
 
         def initialize_all_templates
           UI.deprecation(INITIALIZE_ALL_TEMPLATES)

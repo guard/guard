@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "guard"
 
 module Guard
@@ -29,11 +31,11 @@ module Guard
           found = _find_non_empty_scope(:groups, scope)
           found ||= Guard.state.session.groups.all
           groups = Array(found).map { |group| _instantiate(:group, group) }
-          if groups.any? { |g| g.name == :common }
-            items = groups
-          else
-            items = ([_instantiate(:group, :common)] + Array(found)).compact
-          end
+          items = if groups.any? { |g| g.name == :common }
+                    groups
+                  else
+                    ([_instantiate(:group, :common)] + Array(found)).compact
+                  end
         end
 
         items.map do |plugin_or_group|
@@ -59,6 +61,7 @@ module Guard
         groups = hash[:groups]
         return plugins.map(&:title) unless plugins.nil? || plugins.empty?
         return hash[:groups].map(&:title) unless groups.nil? || groups.empty?
+
         ["all"]
       end
 
@@ -102,6 +105,7 @@ module Guard
       def _instantiate(meth, obj)
         # TODO: no coverage
         return obj unless obj.is_a?(Symbol) || obj.is_a?(String)
+
         Guard.state.session.send("#{meth}s".to_sym).all(obj).first
       end
 

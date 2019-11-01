@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "guard/dsl"
 
 module Guard
@@ -15,37 +17,26 @@ module Guard
     end
 
     # Stub everything else
-    def notification(_notifier, _opts = {})
-    end
+    def notification(_notifier, _opts = {}); end
 
-    def interactor(_options)
-    end
+    def interactor(_options); end
 
-    def group(*_args)
-    end
+    def group(*_args); end
 
-    def watch(_pattern, &_action)
-    end
+    def watch(_pattern, &_action); end
 
-    def callback(*_args, &_block)
-    end
+    def callback(*_args, &_block); end
 
-    def ignore(*_regexps)
-    end
+    def ignore(*_regexps); end
 
-    def ignore!(*_regexps)
-    end
+    def ignore!(*_regexps); end
 
-    def logger(_options)
-    end
+    def logger(_options); end
 
-    def scope(_scope = {})
-    end
+    def scope(_scope = {}); end
 
-    def directories(_directories)
-    end
+    def directories(_directories); end
 
-    def clearing(_on)
-    end
+    def clearing(_on); end
   end
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "guard/ui"
 require "guard/plugin_util"
 
@@ -26,8 +28,8 @@ module Guard
 
       # The Guardfile template for `guard init`
       GUARDFILE_TEMPLATE = File.expand_path(
-        "../../../guard/templates/Guardfile",
-        __FILE__
+        "../../guard/templates/Guardfile",
+        __dir__
       )
 
       # The location of user defined templates
@@ -89,22 +91,21 @@ module Guard
         if plugin_class
           begin
             plugin_util.add_to_guardfile
-          rescue Errno::ENOENT => error
+          rescue Errno::ENOENT => e
             # TODO: refactor
             template = plugin_class.template(plugin_util.plugin_location)
             _ui(:error, "Found class #{plugin_class} but loading it's template"\
               "failed: '#{template}'")
-            _ui(:error, "Error is: #{error}")
+            _ui(:error, "Error is: #{e}")
             return
           end
           return
         end
 
         template_code = (HOME_TEMPLATES + plugin_name).read
-        guardfile.binwrite(format("\n%s\n", template_code), open_args: ["a"])
+        guardfile.binwrite(format("\n%<template>s\n", template: template_code), open_args: ["a"])
 
         _ui(:info, format(INFO_TEMPLATE_ADDED, plugin_name))
-
       rescue Errno::ENOENT
         fail NoSuchPlugin, plugin_name.downcase
       end

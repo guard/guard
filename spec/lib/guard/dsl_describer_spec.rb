@@ -29,8 +29,7 @@ RSpec.describe Guard::DslDescriber do
     stub_const "Guard::Test", class_double("Guard::Plugin")
     stub_const "Guard::Another", class_double("Guard::Plugin")
 
-    # TODO: Reenable rubocop and refactor to +'' one 2.2 compatibility is dropped
-    @output = String.new
+    @output = +""
 
     # Strip escape sequences
     allow(STDOUT).to receive(:tty?).and_return(false)

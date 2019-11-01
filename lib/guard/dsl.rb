@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "guard/guardfile/evaluator"
 require "guard/interactor"
 require "guard/notifier"
@@ -127,6 +129,7 @@ module Guard
 
       groups.each do |group|
         next unless group.to_sym == :all
+
         fail ArgumentError, "'all' is not an allowed group name!"
       end
 
@@ -144,7 +147,7 @@ module Guard
         @current_groups.pop
       else
         UI.error \
-          "No Guard plugins found in the group '#{ groups.join(', ') }',"\
+          "No Guard plugins found in the group '#{groups.join(', ')}',"\
           " please add at least one."
       end
     end
@@ -179,7 +182,7 @@ module Guard
       yield if block_given?
 
       @current_groups ||= []
-      groups = @current_groups && @current_groups.last || [:default]
+      groups = @current_groups&.last || [:default]
       groups.each do |group|
         opts = @plugin_options.merge(group: group)
         # TODO: let plugins be added *after* evaluation
@@ -326,7 +329,7 @@ module Guard
       if options[:level]
         options[:level] = options[:level].to_sym
 
-        unless [:debug, :info, :warn, :error].include? options[:level]
+        unless %i(debug info warn error).include? options[:level]
           UI.warning(format(WARN_INVALID_LOG_LEVEL, options[:level]))
           options.delete :level
         end
@@ -340,7 +343,7 @@ module Guard
       end
 
       # Convert the :only and :except options to a regular expression
-      [:only, :except].each do |name|
+      %i(only except).each do |name|
         next unless options[name]
 
         list = [].push(options[name]).flatten.map do |plugin|
@@ -374,7 +377,7 @@ module Guard
       Guard.state.session.guardfile_scope(scope)
     end
 
-    def evaluate(contents, filename, lineno) # :nodoc
+    def evaluate(contents, filename, lineno)
       instance_eval(contents, filename.to_s, lineno)
     rescue StandardError, ScriptError => e
       prefix = "\n\t(dsl)> "
@@ -405,8 +408,8 @@ module Guard
     #
     # @param [Symbol] on ':on' to turn on, ':off' (default) to turn off
     #
-    def clearing(on)
-      Guard.state.session.clearing(on == :on)
+    def clearing(flag)
+      Guard.state.session.clearing(flag == :on)
     end
 
     private

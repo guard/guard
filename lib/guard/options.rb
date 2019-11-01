@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "thor/core_ext/hash_with_indifferent_access"
 
 module Guard

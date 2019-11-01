@@ -94,7 +94,7 @@ RSpec.describe Guard::CLI do
 
   describe "#version" do
     it "shows the current version" do
-      expect(STDOUT).to receive(:puts).with(/#{ ::Guard::VERSION }/)
+      expect(STDOUT).to receive(:puts).with(/#{::Guard::VERSION}/)
       subject.version
     end
   end

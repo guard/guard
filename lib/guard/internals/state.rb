@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "guard/group"
 
 require "guard/plugin_util"

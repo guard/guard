@@ -109,7 +109,7 @@ RSpec.describe Guard::Guardfile::Generator do
           .with("\n#{template_content}\n", open_args: ["a"])
         expect(plugin_util).to receive(:plugin_class).with(fail_gracefully: true)
         expect(Guard::PluginUtil).to receive(:new).with("bar")
-                                                 .and_return(plugin_util)
+                                                  .and_return(plugin_util)
 
         described_class.new.initialize_template("bar")
       end

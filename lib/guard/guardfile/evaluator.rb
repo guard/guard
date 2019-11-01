@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "guard/config"
 require "guard/deprecated/evaluator" unless Guard::Config.new.strict?
 
@@ -148,9 +150,9 @@ module Guard
 
       def _instance_eval_guardfile(contents)
         Dsl.new.evaluate(contents, @guardfile_path || "", 1)
-      rescue => ex
-        UI.error "Invalid Guardfile, original error is:\n#{ $! }"
-        raise ex
+      rescue StandardError => e
+        UI.error "Invalid Guardfile, original error is:\n#{$!}"
+        raise e
       end
 
       def _fetch_guardfile_contents
@@ -158,6 +160,7 @@ module Guard
         @evaluated = true
 
         return if _guardfile_contents_usable?
+
         UI.error "No Guard plugins found in Guardfile,"\
           " please add at least one."
       end
@@ -177,10 +180,11 @@ module Guard
 
       def _use_provided
         return unless custom?
+
         @path, @contents = _read(@path)
         true
       rescue Errno::ENOENT
-        fail NoCustomGuardfile, "No Guardfile exists at #{ @path }."
+        fail NoCustomGuardfile, "No Guardfile exists at #{@path}."
       end
 
       def _use_default!

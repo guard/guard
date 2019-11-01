@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "listen"
 
 require "guard/notifier"
@@ -35,12 +37,18 @@ module Guard
       listener.start
 
       watched = Guard.state.session.watchdirs.join("', '")
-      UI.info "Guard is now watching at '#{ watched }'"
+      UI.info "Guard is now watching at '#{watched}'"
 
       exitcode = 0
       begin
-        while interactor.foreground != :exit
-          Guard.queue.process while Guard.queue.pending?
+        loop do
+          break if interactor.foreground == :exit
+
+          loop do
+            break unless Guard.queue.pending?
+
+            Guard.queue.process
+          end
         end
       rescue Interrupt
       rescue SystemExit => e
