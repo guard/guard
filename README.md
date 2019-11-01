@@ -161,14 +161,12 @@ See the [Contributing Guide](https://github.com/guard/guard/blob/master/CONTRIBU
 
 ### How to release
 
-1. Run `bundle install` to make sure that you have all the gems necessary for testing and releasing.
-2.  **Ensure all tests are passing by running `bundle exec rake`.**
-3. Determine which would be the correct next version number according to [semver](http://semver.org/).
-4. Update the version in `./lib/guard/version.rb`.
-5. Update the version in the Install section of `./README.md` (`gem 'guard', '~> X.Y'`).
-6. Commit the version in a single commit, the message should be "Preparing vX.Y.Z"
-7. Run `bundle exec rake release:full`; this will tag, push to GitHub, and publish to rubygems.org.
-8. Update and publish the release notes on the [GitHub releases page](https://github.com/guard/guard/releases) if necessary.
+1. Determine which would be the correct next version number according to [semver](http://semver.org/).
+1. Update the version in `./lib/guard/version.rb`.
+1. Commit the version in a single commit, the message should be "Bump VERSION to X.Y.Z".
+1. Push and open a pull request.
+1. Once CI is green, merge the pull request.
+1. Pull the changes locally and run `bundle exec rake release:full`; this will tag, push to GitHub, publish to rubygems.org, and publish the [release notes](https://github.com/guard/guard/releases) .
 
 ### Author
 
