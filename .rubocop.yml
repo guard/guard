@@ -3,8 +3,7 @@ AllCops:
   Exclude:
     - "vendor/**/*"
     - "db/schema.rb"
-    - "tmp/aruba/Guardfile"
-    - "tmp/aruba/Gemfile"
+    - "tmp/**/*"
     - "Guardfile"
     - "config/Guardfile"
   UseCache: false

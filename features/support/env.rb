@@ -2,8 +2,8 @@
 
 require "aruba"
 require "aruba/cucumber"
-require "aruba/in_process"
-require "aruba/spawn_process"
+require "aruba/processes/in_process"
+require "aruba/processes/spawn_process"
 
 require "guard/aruba_adapter"
 

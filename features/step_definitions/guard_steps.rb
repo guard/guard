@@ -55,8 +55,8 @@ When(/^I wait for Guard to become idle$/) do
       end
     end
   rescue Timeout::Error
-    warn all_stdout
-    warn all_stderr
+    warn all_commands.map(&:stdout).join("\n")
+    warn all_commands.map(&:stderr).join("\n")
     fail
   end
 end

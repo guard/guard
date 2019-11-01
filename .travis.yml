@@ -1,22 +1,32 @@
+os: linux
+
 language: ruby
+
 rvm:
   - 2.4.9
   - 2.5.7
   - 2.6.5
   - jruby-9.2.8.0
   - rbx-4.5
-matrix:
+
+jdk:
+  - openjdk8
+
+jobs:
   allow_failures:
     - rvm: rbx-4.5
+
 env:
   global:
     - JRUBY_OPTS="--debug"
-jdk:
-  - openjdk8
+
+bundler_args: --without development
+
+cache: bundler
+
 script:
   - bundle exec rake
-bundler_args: --without development
-cache: bundler
+
 addons:
   code_climate:
     repo_token: 185a714e42214b9369217d0ddfd5a02d528d9a616a34482119a16c63241d6afd
