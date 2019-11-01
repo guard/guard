@@ -42,7 +42,7 @@ group :test do
   gem "aruba", "~> 0.14", require: false
   gem "notiffany", ">= 0.0.6", require: false
   gem "rspec", ">= 3.0.0", require: false
-  gem "simplecov", "~> 0.17", require: false
+  gem "codecov", require: false
 end
 
 # Needed for Travis
