@@ -17,6 +17,8 @@ RSpec.describe Guard::Internals::Scope do
   let(:bar_group) { instance_double("Guard::Group", name: :bar) }
   let(:baz_group) { instance_double("Guard::Group", name: :baz) }
 
+  let(:default_scopes) { { group: [], plugin: [] } }
+
   before do
     allow(groups).to receive(:all).with("foo").and_return([foo_group])
     allow(groups).to receive(:all).with("bar").and_return([bar_group])
@@ -28,16 +30,14 @@ RSpec.describe Guard::Internals::Scope do
     allow(plugins).to receive(:all).with("baz").and_return([baz_plugin])
     allow(plugins).to receive(:all).with(:baz).and_return([baz_plugin])
 
-    allow(session).to receive(:cmdline_plugins).and_return([])
-    allow(session).to receive(:cmdline_groups).and_return([])
+    allow(session).to receive(:cmdline_scopes).and_return(default_scopes)
+    allow(session).to receive(:guardfile_scopes).and_return(default_scopes)
+    allow(session).to receive(:interactor_scopes).and_return(default_scopes)
     allow(session).to receive(:groups).and_return(groups)
     allow(session).to receive(:plugins).and_return(plugins)
 
     allow(state).to receive(:session).and_return(session)
     allow(Guard).to receive(:state).and_return(state)
-
-    allow(session).to receive(:guardfile_plugin_scope).and_return([])
-    allow(session).to receive(:guardfile_group_scope).and_return([])
   end
 
   # TODO: move to Session?
@@ -48,11 +48,11 @@ RSpec.describe Guard::Internals::Scope do
           subject.to_hash[:"#{scope}s"].map(&:name).map(&:to_s)
         end
 
-        # NOTE: interactor returns objects
         context "when set from interactor" do
           before do
-            stub_obj = send("baz_#{scope}")
-            subject.from_interactor("#{scope}s": stub_obj)
+            plugin_stub = send("baz_#{scope}")
+            allow(session).to receive(:interactor_scopes)
+              .and_return(default_scopes.merge(scope => Array(plugin_stub)))
           end
 
           it "uses interactor scope" do
@@ -63,8 +63,8 @@ RSpec.describe Guard::Internals::Scope do
         context "when not set in interactor" do
           context "when set in commandline" do
             before do
-              allow(session).to receive(:"cmdline_#{scope}s")
-                .and_return(%w[baz])
+              allow(session).to receive(:cmdline_scopes)
+                .and_return(default_scopes.merge(scope => %w[baz]))
             end
 
             it "uses commandline scope" do
@@ -75,8 +75,8 @@ RSpec.describe Guard::Internals::Scope do
           context "when not set in commandline" do
             context "when set in Guardfile" do
               before do
-                allow(session).to receive(:"guardfile_#{scope}_scope")
-                  .and_return(%w[baz])
+                allow(session).to receive(:guardfile_scopes)
+                  .and_return(default_scopes.merge(scope => %w[baz]))
               end
 
               it "uses guardfile scope" do

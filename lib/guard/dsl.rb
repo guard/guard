@@ -374,7 +374,7 @@ module Guard
     #
     def scope(scope = {})
       # TODO: use a Guardfile::Results class
-      Guard.state.session.guardfile_scope(scope)
+      Guard.state.session.guardfile_scope = scope
     end
 
     def evaluate(contents, filename, lineno)

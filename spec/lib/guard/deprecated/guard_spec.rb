@@ -411,7 +411,7 @@ unless Guard::Config.new.strict?
 
     describe ".scope=" do
       before do
-        allow(scope).to receive(:from_interactor).with(foo: :bar)
+        allow(session).to receive(:interactor_scope=).with(foo: :bar)
       end
 
       it "show deprecation warning" do
@@ -421,7 +421,7 @@ unless Guard::Config.new.strict?
       end
 
       it "provides a similar implementation" do
-        expect(scope).to receive(:from_interactor).with(foo: :bar)
+        expect(session).to receive(:interactor_scope=).with(foo: :bar)
         subject.scope = { foo: :bar }
       end
     end

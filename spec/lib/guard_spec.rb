@@ -37,6 +37,8 @@ RSpec.describe Guard do
 
     let(:listener) { instance_double("Listen::Listener") }
 
+    let(:default_scopes) { { group: [], plugin: [] } }
+
     before do
       allow(Listen).to receive(:to).with(Dir.pwd, {}) { listener }
 
@@ -60,8 +62,9 @@ RSpec.describe Guard do
 
       allow(session).to receive(:listener_args).and_return([:to, Dir.pwd, {}])
       allow(session).to receive(:evaluator_options).and_return({})
-      allow(session).to receive(:cmdline_groups).and_return({})
-      allow(session).to receive(:cmdline_plugins).and_return({})
+      allow(session).to receive(:cmdline_scopes).and_return(default_scopes)
+      allow(session).to receive(:guardfile_scopes).and_return(default_scopes)
+      allow(session).to receive(:interactor_scopes).and_return(default_scopes)
       allow(session).to receive(:notify_options).and_return(notify: true)
       allow(session).to receive(:interactor_name).and_return(:foo)
       allow(session).to receive(:guardfile_ignore).and_return([])

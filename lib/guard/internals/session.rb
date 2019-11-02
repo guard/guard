@@ -43,13 +43,8 @@ module Guard
       }.freeze
       EVALUATOR_OPTIONS = %i[guardfile guardfile_contents].freeze
 
-      def cmdline_groups
-        @cmdline_groups.dup.freeze
-      end
-
-      def cmdline_plugins
-        @cmdline_plugins.dup.freeze
-      end
+      # Internal class to store group and plugin scopes
+      ScopesHash = Struct.new(:group, :plugin)
 
       def initialize(new_options)
         @options = Options.new(new_options, DEFAULT_OPTIONS)
@@ -57,8 +52,9 @@ module Guard
         @plugins = Plugins.new
         @groups = Groups.new
 
-        @cmdline_groups = @options[:group]
-        @cmdline_plugins = @options[:plugin]
+        @cmdline_scopes = ScopesHash.new(Array(@options[:group]), Array(@options[:plugin]))
+        @guardfile_scopes = ScopesHash.new([], [])
+        @interactor_scopes = ScopesHash.new([], [])
 
         @clear = @options[:clear]
         @debug = @options[:debug]
@@ -66,31 +62,28 @@ module Guard
         @notify = @options[:notify]
         @interactor_name = @options[:no_interactions] ? :sleep : :pry_wrapper
 
-        @guardfile_plugin_scope = []
-        @guardfile_group_scope = []
         @guardfile_ignore = []
         @guardfile_ignore_bang = []
 
         @guardfile_notifier_options = {}
       end
 
-      def guardfile_scope(scope)
+      def guardfile_scope=(scope)
         opts = scope.dup
 
-        groups = Array(opts.delete(:groups))
-        group = Array(opts.delete(:group))
-        @guardfile_group_scope = Array(groups) + Array(group)
-
-        plugins = Array(opts.delete(:plugins))
-        plugin = Array(opts.delete(:plugin))
-        @guardfile_plugin_scope = Array(plugins) + Array(plugin)
+        @guardfile_scopes.group = Array(opts.delete(:groups)) + Array(opts.delete(:group))
+        @guardfile_scopes.plugin = Array(opts.delete(:plugins)) + Array(opts.delete(:plugin))
 
         fail "Unknown options: #{opts.inspect}" unless opts.empty?
       end
 
+      def interactor_scope=(scope)
+        @interactor_scopes.group = Array(scope[:groups])
+        @interactor_scopes.plugin = Array(scope[:plugins])
+      end
+
       # TODO: create a EvaluatorResult class?
-      attr_reader :guardfile_group_scope
-      attr_reader :guardfile_plugin_scope
+      attr_reader :cmdline_scopes, :guardfile_scopes, :interactor_scopes
       attr_accessor :guardfile_ignore_bang
 
       attr_reader :guardfile_ignore

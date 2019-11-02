@@ -43,7 +43,7 @@ RSpec.describe Guard::Commands::Scope do
 
     it "does not call :scope= and shows usage" do
       expect(output).to receive(:puts).with("Usage: scope <scope>")
-      expect(scope).to_not receive(:from_interactor)
+      expect(session).to_not receive(:interactor_scope=)
       FakePry.process
     end
   end
@@ -53,7 +53,7 @@ RSpec.describe Guard::Commands::Scope do
     let(:converted_scope) { [{ groups: [foo_group], plugins: [] }, []] }
 
     it "sets up the scope with the given scope" do
-      expect(scope).to receive(:from_interactor)
+      expect(session).to receive(:interactor_scope=)
         .with(groups: [foo_group], plugins: [])
       FakePry.process("foo")
     end
@@ -64,7 +64,7 @@ RSpec.describe Guard::Commands::Scope do
     let(:converted_scope) { [{ groups: [], plugins: [bar_guard] }, []] }
 
     it "runs the :scope= action with the given scope" do
-      expect(scope).to receive(:from_interactor)
+      expect(session).to receive(:interactor_scope=)
         .with(plugins: [bar_guard], groups: [])
       FakePry.process("bar")
     end
@@ -76,7 +76,7 @@ RSpec.describe Guard::Commands::Scope do
 
     it "does not change the scope and shows unknown scopes" do
       expect(output).to receive(:puts).with("Unknown scopes: baz")
-      expect(scope).to_not receive(:from_interactor)
+      expect(session).to_not receive(:interactor_scope=)
       FakePry.process("baz")
     end
   end

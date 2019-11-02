@@ -6,11 +6,6 @@ module Guard
   # @private api
   module Internals
     class Scope
-      def initialize
-        @interactor_plugin_scope = []
-        @interactor_group_scope = []
-      end
-
       def to_hash
         {
           plugins: _hashify_scope(:plugin),
@@ -19,40 +14,14 @@ module Guard
       end
 
       # TODO: refactor
+      # TODO: no coverage here!!
       def grouped_plugins(scope = { plugins: [], groups: [] })
-        items = nil
-        plugins = _find_non_empty_scope(:plugins, scope)
-        if plugins
-          items = Array(plugins).map { |plugin| _instantiate(:plugin, plugin) }
-        end
+        plugins = _instantiate_plugins(scope)
+        return plugins.map { |plugin| [nil, [plugin]] } if plugins
 
-        unless items
-          # TODO: no coverage here!!
-          found = _find_non_empty_scope(:groups, scope)
-          found ||= Guard.state.session.groups.all
-          groups = Array(found).map { |group| _instantiate(:group, group) }
-          items = if groups.any? { |g| g.name == :common }
-                    groups
-                  else
-                    ([_instantiate(:group, :common)] + Array(found)).compact
-                  end
+        _instantiate_groups(scope).map do |group|
+          [group, _session.plugins.all(group: group.name)]
         end
-
-        items.map do |plugin_or_group|
-          group = nil
-          plugins = [plugin_or_group]
-          if plugin_or_group.is_a?(Group)
-            # TODO: no coverage here!
-            group = plugin_or_group
-            plugins = Guard.state.session.plugins.all(group: group.name)
-          end
-          [group, plugins]
-        end
-      end
-
-      def from_interactor(scope)
-        @interactor_plugin_scope = Array(scope[:plugins])
-        @interactor_group_scope = Array(scope[:groups])
       end
 
       def titles(scope = nil)
@@ -67,23 +36,19 @@ module Guard
 
       private
 
-      # TODO: move to session
-      def _scope_names(new_scope, name)
-        items = Array(new_scope[:"#{name}s"] || new_scope[name]) if items.empty?
-
-        # Convert objects to names
-        items.map { |p| p.respond_to?(:name) ? p.name : p }
+      def _session
+        @session ||= Guard.state.session
       end
 
       # TODO: let the Plugins and Groups classes handle this?
       # TODO: why even instantiate?? just to check if it exists?
       def _hashify_scope(type)
         # TODO: get cmdline passed to initialize above?
-        cmdline = Array(Guard.state.session.send("cmdline_#{type}s"))
-        guardfile = Guard.state.session.send(:"guardfile_#{type}_scope")
-        interactor = instance_variable_get(:"@interactor_#{type}_scope")
+        cmdline = _session.cmdline_scopes[type]
+        guardfile = _session.guardfile_scopes[type]
+        interactor = _session.interactor_scopes[type]
 
-        # TODO: session should decide whether to use cmdline or guardfile -
+        # TODO: _session should decide whether to use cmdline or guardfile -
         # since it has access to both variables
         items = [interactor, cmdline, guardfile].detect do |source|
           !source.empty?
@@ -102,11 +67,25 @@ module Guard
         end.compact
       end
 
-      def _instantiate(meth, obj)
+      def _instantiate_plugins(scope)
+        plugin_names = _find_non_empty_scope(:plugins, scope)
+
+        if plugin_names
+          Array(plugin_names).map { |plugin_name| _instantiate(:plugin, plugin_name) }
+        end
+      end
+
+      def _instantiate_groups(scope)
+        group_names = _find_non_empty_scope(:groups, scope) || _session.groups.all
+
+        Array(group_names + [:common]).uniq.map { |group_name| _instantiate(:group, group_name) }
+      end
+
+      def _instantiate(type, obj)
         # TODO: no coverage
         return obj unless obj.is_a?(Symbol) || obj.is_a?(String)
 
-        Guard.state.session.send("#{meth}s".to_sym).all(obj).first
+        _session.send("#{type}s".to_sym).all(obj).first
       end
 
       def _find_non_empty_scope(type, local_scope)
@@ -114,11 +93,11 @@ module Guard
       end
 
       def _groups
-        Guard.state.session.groups
+        _session.groups
       end
 
       def _plugins
-        Guard.state.session.plugins
+        _session.plugins
       end
     end
   end

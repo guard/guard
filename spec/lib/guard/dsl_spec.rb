@@ -581,7 +581,7 @@ RSpec.describe Guard::Dsl do
       let(:contents) { "scope plugins: [:foo, :bar]" }
 
       it "sets the guardfile's default scope" do
-        expect(session).to receive(:guardfile_scope).with(plugins: %i[foo bar])
+        expect(session).to receive(:guardfile_scope=).with(plugins: %i[foo bar])
         evaluator.call(contents)
       end
     end

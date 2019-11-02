@@ -13,6 +13,7 @@ jdk:
   - openjdk8
 
 jobs:
+  fast_finish: true
   allow_failures:
     - rvm: rbx-4.5
 

@@ -68,7 +68,8 @@ RSpec.describe Guard::Internals::Session do
         allow(plugins).to receive(:add).with("jasmine", {})
                                        .and_return(jasmine)
 
-        expect(subject.cmdline_plugins).to match_array(%w[cucumber jasmine])
+        expect(subject.cmdline_scopes.plugin).to match_array(%w[cucumber jasmine])
+        expect(subject.cmdline_scopes[:plugin]).to match_array(%w[cucumber jasmine])
       end
     end
 
@@ -89,7 +90,8 @@ RSpec.describe Guard::Internals::Session do
       end
 
       it "initializes the group scope" do
-        expect(subject.cmdline_groups).to match_array(%w[backend frontend])
+        expect(subject.cmdline_scopes.group).to match_array(%w[backend frontend])
+        expect(subject.cmdline_scopes[:group]).to match_array(%w[backend frontend])
       end
     end
   end
@@ -149,36 +151,40 @@ RSpec.describe Guard::Internals::Session do
     end
   end
 
-  describe "#guardfile_scope" do
+  describe "#guardfile_scope=" do
     before do
-      subject.guardfile_scope(scope)
+      subject.guardfile_scope = scope
     end
 
     context "with a groups scope" do
       let(:scope) { { groups: [:foo] } }
       it "sets the groups" do
-        expect(subject.guardfile_group_scope).to eq([:foo])
+        expect(subject.guardfile_scopes.group).to eq([:foo])
+        expect(subject.guardfile_scopes[:group]).to eq([:foo])
       end
     end
 
     context "with a group scope" do
       let(:scope) { { group: [:foo] } }
       it "sets the groups" do
-        expect(subject.guardfile_group_scope).to eq([:foo])
+        expect(subject.guardfile_scopes.group).to eq([:foo])
+        expect(subject.guardfile_scopes[:group]).to eq([:foo])
       end
     end
 
     context "with a plugin scope" do
       let(:scope) { { plugin: [:foo] } }
       it "sets the plugins" do
-        expect(subject.guardfile_plugin_scope).to eq([:foo])
+        expect(subject.guardfile_scopes.plugin).to eq([:foo])
+        expect(subject.guardfile_scopes[:plugin]).to eq([:foo])
       end
     end
 
     context "with a plugins scope" do
       let(:scope) { { plugins: [:foo] } }
       it "sets the plugins" do
-        expect(subject.guardfile_plugin_scope).to eq([:foo])
+        expect(subject.guardfile_scopes.plugin).to eq([:foo])
+        expect(subject.guardfile_scopes[:plugin]).to eq([:foo])
       end
     end
   end

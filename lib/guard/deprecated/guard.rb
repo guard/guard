@@ -278,7 +278,7 @@ module Guard
 
         def scope=(scope)
           UI.deprecation(SCOPE_ASSIGN)
-          ::Guard.state.scope.from_interactor(scope)
+          ::Guard.state.session.interactor_scope = scope
         end
       end
     end

@@ -31,7 +31,7 @@ module Guard
               return
             end
 
-            Guard.state.scope.from_interactor(scope)
+            Guard.state.session.interactor_scope = scope
           end
         end
       end
