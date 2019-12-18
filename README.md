@@ -24,7 +24,6 @@ any questions about Guard or want to share some information with the Guard commu
 the following places:
 
 * [Guard Wiki](https://github.com/guard/guard/wiki)
-* [Google+ community](https://plus.google.com/communities/110022199336250745477).
 * [Google group](http://groups.google.com/group/guard-dev).
 * [StackOverflow](http://stackoverflow.com/questions/tagged/guard).
 * IRC channel `#guard` (irc.freenode.net) for chatting.
