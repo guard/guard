@@ -134,7 +134,7 @@ module Guard
         Pry.config.should_load_rc = false
         Pry.config.should_load_local_rc = false
         history_file_path = options[:history_file] || HISTORY_FILE
-        
+
         if Pry.config.respond_to?(:history_file)
           Pry.config.history_file = File.expand_path(history_file_path)
         else
