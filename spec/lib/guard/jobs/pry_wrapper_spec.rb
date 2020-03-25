@@ -5,10 +5,15 @@ require "guard/jobs/pry_wrapper"
 RSpec.describe Guard::Jobs::PryWrapper do
   subject { described_class.new({}) }
   let(:listener) { instance_double("Listen::Listener") }
-  let(:pry_config) { double("pry_config") }
+  let(:pry_hooks) { double("pry_hooks", add_hook: true) }
+  let(:pry_config) do
+    double("pry_config", "history_file=" => true, command_prefix: true, "prompt=" => true, "should_load_rc=" => true,
+                         "should_load_local_rc=" => true, hooks: pry_hooks)
+  end
   let(:pry_history) { double("pry_history") }
-  let(:pry_commands) { double("pry_commands") }
-  let(:pry_hooks) { double("pry_hooks") }
+  let(:pry_commands) do
+    double("pry_commands", alias_command: true, create_command: true, command: true, block_command: true)
+  end
   let(:terminal_settings) { instance_double("Guard::Jobs::TerminalSettings") }
 
   let(:session) { instance_double("Guard::Internals::Session") }
@@ -18,22 +23,9 @@ RSpec.describe Guard::Jobs::PryWrapper do
   let(:scope) { instance_double("Guard::Internals::Scope") }
 
   before do
-    # TODO: this are here to mock out Pry completely
-    allow(pry_config).to receive(:prompt=)
-    allow(pry_config).to receive(:should_load_rc=)
-    allow(pry_config).to receive(:should_load_local_rc=)
-    allow(pry_config).to receive(:hooks).and_return(pry_hooks)
-    allow(pry_config).to receive(:history).and_return(pry_history)
-    allow(pry_config).to receive(:commands).and_return(pry_commands)
-    allow(pry_history).to receive(:file=)
-    allow(pry_commands).to receive(:alias_command)
-    allow(pry_commands).to receive(:create_command)
-    allow(pry_commands).to receive(:command)
-    allow(pry_commands).to receive(:block_command)
-    allow(pry_hooks).to receive(:add_hook)
-
     allow(Guard).to receive(:listener).and_return(listener)
     allow(Pry).to receive(:config).and_return(pry_config)
+    allow(Pry).to receive(:commands).and_return(pry_commands)
     allow(Shellany::Sheller).to receive(:run).with("hash", "stty") { false }
 
     allow(groups).to receive(:all).and_return([])
@@ -59,6 +51,30 @@ RSpec.describe Guard::Jobs::PryWrapper do
     allow(terminal_settings).to receive(:configurable?).and_return(false)
     allow(terminal_settings).to receive(:save)
     allow(terminal_settings).to receive(:restore)
+  end
+
+  describe "#_setup" do
+    context "Guard is using Pry >= 0.13" do
+      it "calls Pry.config.history_file=" do
+        expect(pry_config).to receive(:history_file=)
+
+        subject
+      end
+    end
+
+    context "Guard is using Pry < 0.13" do
+      let(:pry_config) do
+        double("pry_config", "history" => true, command_prefix: true, "prompt=" => true, "should_load_rc=" => true,
+                             "should_load_local_rc=" => true, hooks: pry_hooks)
+      end
+
+      it "calls Pry.config.history.file=" do
+        expect(pry_config).to receive(:history).and_return(pry_history)
+        expect(pry_history).to receive(:file=)
+
+        subject
+      end
+    end
   end
 
   describe "#foreground" do
@@ -136,60 +152,75 @@ RSpec.describe Guard::Jobs::PryWrapper do
       allow(scope).to receive(:titles).and_return(["all"])
 
       allow(listener).to receive(:paused?).and_return(false)
-
-      expect(Pry).to receive(:view_clip).and_return("main")
+      allow(Pry).to receive(:view_clip).and_return("main")
     end
 
-    let(:pry) { instance_double(Pry, input_ring: []) }
+    context "Guard is using Pry >= 0.13" do
+      let(:pry) { double("Pry", input_ring: []) }
+      let(:pry_prompt) { double }
 
-    context "Guard is not paused" do
-      it 'displays "guard"' do
+      it "calls Pry::Prompt.new" do
+        expect(Pry::Prompt).to receive(:is_a?).with(Class).and_return(true)
+        expect(Pry::Prompt).to receive(:new).with("Guard", "Guard Pry prompt", an_instance_of(Array)).and_return(pry_prompt)
+        expect(pry_config).to receive(:prompt=).with(pry_prompt)
+
+        subject
+      end
+
+      context "Guard is not paused" do
+        it "displays 'guard'" do
+          expect(prompt.call(double, 0, pry))
+            .to eq "[0] guard(main)> "
+        end
+      end
+
+      context "Guard is paused" do
+        before do
+          allow(listener).to receive(:paused?).and_return(true)
+        end
+
+        it "displays 'pause'" do
+          expect(prompt.call(double, 0, pry))
+            .to eq "[0] pause(main)> "
+        end
+      end
+
+      context "with a groups scope" do
+        before do
+          allow(scope).to receive(:titles).and_return(%w[Backend Frontend])
+        end
+
+        it "displays the group scope title in the prompt" do
+          expect(prompt.call(double, 0, pry))
+            .to eq "[0] Backend,Frontend guard(main)> "
+        end
+      end
+
+      context "with a plugins scope" do
+        before do
+          allow(scope).to receive(:titles).and_return(%w[RSpec Ronn])
+        end
+
+        it "displays the group scope title in the prompt" do
+          result = prompt.call(double, 0, pry)
+          expect(result).to eq "[0] RSpec,Ronn guard(main)> "
+        end
+      end
+    end
+
+    context "Guard is using Pry < 0.13" do
+      let(:pry) { double("Pry", input_array: []) }
+
+      it "does not call Pry::Prompt.new" do
+        expect(Pry::Prompt).to receive(:is_a?).with(Class).and_return(false)
+        expect(pry_config).to receive(:prompt=).with(an_instance_of(Array))
+
+        subject
+      end
+
+      it "displays 'guard'" do
         expect(prompt.call(double, 0, pry))
           .to eq "[0] guard(main)> "
-      end
-    end
-
-    context "Guard is using a lower version of Pry" do
-      let(:pry) { instance_double(Pry, input_array: []) }
-
-      it 'displays "guard"' do
-        stub_const("Pry::VERSION", "0.11.0")
-
-        expect(prompt.call(double, 0, pry))
-          .to eq "[0] guard(main)> "
-      end
-    end
-
-    context "Guard is paused" do
-      before do
-        allow(listener).to receive(:paused?).and_return(true)
-      end
-
-      it 'displays "pause"' do
-        expect(prompt.call(double, 0, pry))
-          .to eq "[0] pause(main)> "
-      end
-    end
-
-    context "with a groups scope" do
-      before do
-        allow(scope).to receive(:titles).and_return(%w[Backend Frontend])
-      end
-
-      it "displays the group scope title in the prompt" do
-        expect(prompt.call(double, 0, pry))
-          .to eq "[0] Backend,Frontend guard(main)> "
-      end
-    end
-
-    context "with a plugins scope" do
-      before do
-        allow(scope).to receive(:titles).and_return(%w[RSpec Ronn])
-      end
-
-      it "displays the group scope title in the prompt" do
-        result = prompt.call(double, 0, pry)
-        expect(result).to eq "[0] RSpec,Ronn guard(main)> "
       end
     end
   end
