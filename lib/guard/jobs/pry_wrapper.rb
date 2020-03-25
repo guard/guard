@@ -95,6 +95,14 @@ module Guard
 
       attr_reader :thread
 
+      def _pry_config
+        Pry.config
+      end
+
+      def _pry_commands
+        Pry.commands
+      end
+
       def _switch_to_pry
         th = nil
         @mutex.synchronize do
@@ -125,11 +133,10 @@ module Guard
       end
 
       def _setup(options)
-        Pry.config.should_load_rc = false
-        Pry.config.should_load_local_rc = false
-        history_file_path = options[:history_file] || HISTORY_FILE
-        Pry.config.history.file = File.expand_path(history_file_path)
+        _pry_config.should_load_rc = false
+        _pry_config.should_load_local_rc = false
 
+        _configure_history_file(options[:history_file] || HISTORY_FILE)
         _add_hooks(options)
 
         Commands::All.import
@@ -142,6 +149,17 @@ module Guard
 
         _setup_commands
         _configure_prompt
+      end
+
+      def _configure_history_file(history_file)
+        history_file_path = File.expand_path(history_file)
+
+        # Pry >= 0.13
+        if _pry_config.respond_to?(:history_file=)
+          _pry_config.history_file = history_file_path
+        else
+          _pry_config.history.file = history_file_path
+        end
       end
 
       # Add Pry hooks:
@@ -159,7 +177,7 @@ module Guard
       # Add a `when_started` hook that loads a global .guardrc if it exists.
       #
       def _add_load_guard_rc_hook(guard_rc)
-        Pry.config.hooks.add_hook :when_started, :load_guard_rc do
+        _pry_config.hooks.add_hook :when_started, :load_guard_rc do
           guard_rc.expand_path.tap { |p| load p if p.exist? }
         end
       end
@@ -167,7 +185,7 @@ module Guard
       # Add a `when_started` hook that loads a project .guardrc if it exists.
       #
       def _add_load_project_guard_rc_hook(guard_rc)
-        Pry.config.hooks.add_hook :when_started, :load_project_guard_rc do
+        _pry_config.hooks.add_hook :when_started, :load_project_guard_rc do
           load guard_rc if guard_rc.exist?
         end
       end
@@ -175,7 +193,7 @@ module Guard
       # Add a `after_eval` hook that restores visibility after a command is
       # eval.
       def _add_restore_visibility_hook
-        Pry.config.hooks.add_hook :after_eval, :restore_visibility do
+        _pry_config.hooks.add_hook :after_eval, :restore_visibility do
           @terminal_settings.echo
         end
       end
@@ -192,7 +210,7 @@ module Guard
       # instead restarts guard.
       #
       def _replace_reset_command
-        Pry.commands.command "reset", "Reset the Guard to a clean state." do
+        _pry_commands.command "reset", "Reset the Guard to a clean state." do
           output.puts "Guard reset."
           exec "guard"
         end
@@ -203,7 +221,7 @@ module Guard
       # beginning of a line).
       #
       def _create_run_all_command
-        Pry.commands.block_command(/^$/, "Hit enter to run all") do
+        _pry_commands.block_command(/^$/, "Hit enter to run all") do
           Pry.run_command "all"
         end
       end
@@ -214,7 +232,7 @@ module Guard
       #
       def _create_command_aliases
         SHORTCUTS.each do |command, shortcut|
-          Pry.commands.alias_command shortcut, command.to_s
+          _pry_commands.alias_command shortcut, command.to_s
         end
       end
 
@@ -225,8 +243,8 @@ module Guard
       #
       def _create_guard_commands
         Guard.state.session.plugins.all.each do |guard_plugin|
-          cmd = "Run all #{ guard_plugin.title }"
-          Pry.commands.create_command guard_plugin.name, cmd do
+          cmd = "Run all #{guard_plugin.title}"
+          _pry_commands.create_command guard_plugin.name, cmd do
             group "Guard"
 
             def process
@@ -245,8 +263,8 @@ module Guard
         Guard.state.session.groups.all.each do |group|
           next if group.name == :default
 
-          cmd = "Run all #{ group.title }"
-          Pry.commands.create_command group.name.to_s, cmd do
+          cmd = "Run all #{group.title}"
+          _pry_commands.create_command group.name.to_s, cmd do
             group "Guard"
 
             def process
@@ -260,7 +278,15 @@ module Guard
       # `pry`.
       #
       def _configure_prompt
-        Pry.config.prompt = [_prompt(">"), _prompt("*")]
+        prompt_procs = [_prompt(">"), _prompt("*")]
+        prompt =
+          if Pry::Prompt.is_a?(Class)
+            Pry::Prompt.new("Guard", "Guard Pry prompt", prompt_procs)
+          else
+            prompt_procs
+          end
+
+        _pry_config.prompt = prompt
       end
 
       # Returns the plugins scope, or the groups scope ready for display in the
@@ -289,12 +315,11 @@ module Guard
       end
 
       def _history(pry)
-        # https://github.com/pry/pry/blob/5bf2585d0a49a4a3666a9eae80ee31153e3ffcf4/CHANGELOG.md#v0120-november-5-2018
-        if Gem::Version.new(Pry::VERSION) < Gem::Version.new("0.12.0")
-          return pry.input_array.size
+        if pry.respond_to?(:input_ring)
+          pry.input_ring.size
+        else
+          pry.input_array.size
         end
-
-        pry.input_ring.size
       end
     end
   end
