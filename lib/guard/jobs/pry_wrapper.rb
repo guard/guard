@@ -40,11 +40,21 @@ module Guard
     class PryWrapper < Base
       # The default Ruby script to configure Guard Pry if the option `:guard_rc`
       # is not defined.
-      GUARD_RC = "~/.guardrc"
+
+      GUARD_RC = if ENV["XDG_CONFIG_HOME"] && File.exist?(ENV["XDG_CONFIG_HOME"] + "/guard/guardrc")
+                   ENV["XDG_CONFIG_HOME"] + "/guard/guardrc"
+                 else
+                   "~/.guardrc"
+                 end
 
       # The default Guard Pry history file if the option `:history_file` is not
       # defined.
-      HISTORY_FILE = "~/.guard_history"
+
+      HISTORY_FILE = if ENV["XDG_DATA_HOME"] && File.exist?(ENV["XDG_DATA_HOME"] + "/guard/history")
+                       ENV["XDG_DATA_HOME"] + "/guard/history"
+                     else
+                       "~/.guard_history"
+                     end
 
       # List of shortcuts for each interactor command
       SHORTCUTS = {
