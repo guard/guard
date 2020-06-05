@@ -27,7 +27,7 @@ module Guard
   # @example Throw :task_has_failed
   #
   #   def run_all
-  #     if !runner.run(['all'])
+  #     unless run_all_tasks
   #       throw :task_has_failed
   #     end
   #   end
@@ -46,8 +46,12 @@ module Guard
   class Plugin
     TEMPLATE_FORMAT = "%s/lib/guard/%s/templates/Guardfile"
 
+    # Error raised when no engine is given.
+    NoEngineGiven = Class.new(StandardError)
+
     require "guard/ui"
 
+    # @private
     # Get all callbacks registered for all Guard plugins present in the
     # Guardfile.
     #
@@ -55,6 +59,7 @@ module Guard
       @callbacks ||= Hash.new { |hash, key| hash[key] = [] }
     end
 
+    # @private
     # Add a callback.
     #
     # @param [Block] listener the listener to notify
@@ -67,6 +72,7 @@ module Guard
       end
     end
 
+    # @private
     # Notify a callback.
     #
     # @param [Guard::Plugin] guard_plugin the Guard plugin to add the callback
@@ -77,13 +83,6 @@ module Guard
       callbacks[[guard_plugin, event]].each do |listener|
         listener.call(guard_plugin, event, *args)
       end
-    end
-
-    # Reset all callbacks.
-    #
-    # TODO: remove (not used anywhere)
-    def self.reset_callbacks!
-      @callbacks = nil
     end
 
     # When event is a Symbol, {#hook} will generate a hook name
@@ -130,6 +129,23 @@ module Guard
 
     attr_accessor :group, :watchers, :callbacks, :options
 
+    # @return [Guard::Group]
+    #
+    # @!method group
+
+    # @return [Array<Guard::Watcher>]
+    #
+    # @!method watchers
+
+    # @return [Hash]
+    #
+    # @!method callbacks
+
+    # @return [Hash]
+    #
+    # @!method options
+
+    # @private
     # Returns the non-namespaced class name of the plugin
     #
     #
@@ -143,6 +159,7 @@ module Guard
       to_s.sub("Guard::", "")
     end
 
+    # @private
     # Returns the non-namespaced name of the plugin
     #
     #
@@ -156,6 +173,7 @@ module Guard
       non_namespaced_classname.downcase
     end
 
+    # @private
     # Specify the source for the Guardfile template.
     # Each Guard plugin can redefine this method to add its own logic.
     #
@@ -259,19 +277,21 @@ module Guard
     #
     # @example String representation of an instance of the Guard::RSpec plugin
     #
-    #   Guard::RSpec.new.title
+    #   Guard::RSpec.new.to_s
     #   #=> "#<Guard::RSpec @name=rspec @group=#<Guard::Group @name=default
-    #   @options={}> @watchers=[] @callbacks=[] @options={all_after_pass:
-    #   true}>"
+    #   @options={}> @watchers=[] @callbacks=[] @options={ all_after_pass: true }>"
     #
     # @return [String] the string representation
     #
     def to_s
-      "#<#{self.class} @name=#{name} @group=#{group} @watchers=#{watchers}"\
+      "#<#{self.class}:#{object_id} @name=#{name} @group=#{group} @watchers=#{watchers}"\
         " @callbacks=#{callbacks} @options=#{options}>"
     end
+    alias_method :inspect, :to_s
 
     private
+
+    attr_reader :engine
 
     # Initializes a Guard plugin.
     # Don't do any work here, especially as Guard plugins get initialized even
@@ -285,11 +305,15 @@ module Guard
     #   a watcher
     #
     def initialize(options = {})
+      @engine = options.delete(:engine) do
+        raise NoEngineGiven, "A Guard::Engine instance needs to be given via the :engine options!"
+      end
+      @options = options
+
       group_name = options.delete(:group) { :default }
-      @group = Guard.state.session.groups.add(group_name)
+      @group = engine.session.groups.add(group_name)
       @watchers = options.delete(:watchers) { [] }
       @callbacks = options.delete(:callbacks) { [] }
-      @options = options
       _register_callbacks
     end
 

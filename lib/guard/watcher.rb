@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require "guard/config"
-require "guard/deprecated/watcher" unless Guard::Config.new.strict?
-
 require "guard/ui"
 require "guard/watcher/pattern"
 
@@ -13,7 +10,6 @@ module Guard
   # enable processing the file system change result.
   #
   class Watcher
-    Deprecated::Watcher.add_deprecated(self) unless Config.new.strict?
     attr_accessor :pattern, :action
 
     # Initializes a file watcher.
@@ -71,9 +67,10 @@ module Guard
 
     def match(string_or_pathname)
       m = pattern.match(string_or_pathname)
-      m.nil? ? nil : Pattern::MatchResult.new(m, string_or_pathname)
+      m ? Pattern::MatchResult.new(m, string_or_pathname) : nil
     end
 
+    # @private
     # Executes a watcher action.
     #
     # @param [String, MatchData] matches the matched path or the match from the

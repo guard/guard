@@ -13,7 +13,7 @@ module Guard
       end
 
       def all(filter = nil)
-        return @groups if filter.nil?
+        return @groups unless filter
 
         matcher = matcher_for(filter)
         @groups.select { |group| matcher.call(group) }

@@ -3,6 +3,7 @@
 require "guard/cli"
 
 module Guard
+  # @private
   class ArubaAdapter
     def initialize(argv, stdin = STDIN, stdout = STDOUT, stderr = STDERR,
                    kernel = Kernel)
@@ -47,10 +48,9 @@ module Guard
       e.status
     ensure
       # flush the logger so the output doesn't appear in next CLI invocation
-      Guard.listener&.stop
       UI.logger.flush
       UI.logger.close
-      UI.reset_logger
+      UI.reset
 
       # ...then we put them back.
       $stderr = STDERR

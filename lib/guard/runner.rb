@@ -6,9 +6,14 @@ require "guard/ui"
 require "guard/watcher"
 
 module Guard
+  # @private
   # The runner is responsible for running all methods defined on each plugin.
   #
   class Runner
+    def initialize(engine)
+      @engine = engine
+    end
+
     # Runs a Guard-task on all registered plugins.
     #
     # @param [Symbol] task the task to run
@@ -18,8 +23,8 @@ module Guard
     #
     def run(task, scope_hash = {})
       Lumberjack.unit_of_work do
-        items = Guard.state.scope.grouped_plugins(scope_hash || {})
-        items.each do |_group, plugins|
+        grouped_plugins = engine.scope.grouped_plugins(scope_hash || {})
+        grouped_plugins.each do |_group, plugins|
           _run_group_plugins(plugins) do |plugin|
             _supervise(plugin, task) if plugin.respond_to?(task)
           end
@@ -32,7 +37,6 @@ module Guard
     MODIFICATION_TASKS = %i(
       run_on_modifications run_on_changes run_on_change
     ).freeze
-
     ADDITION_TASKS = %i(run_on_additions run_on_changes run_on_change).freeze
     REMOVAL_TASKS = %i(run_on_removals run_on_changes run_on_deletion).freeze
 
@@ -50,9 +54,9 @@ module Guard
         REMOVAL_TASKS => removed
       }
 
-      UI.clearable
+      UI.clearable!
 
-      Guard.state.scope.grouped_plugins.each do |_group, plugins|
+      engine.scope.grouped_plugins.each do |_group, plugins|
         _run_group_plugins(plugins) do |plugin|
           UI.clear
           types.each do |tasks, unmatched_paths|
@@ -83,11 +87,9 @@ module Guard
       catch self.class.stopping_symbol_for(plugin) do
         plugin.hook("#{task}_begin", *args)
         result = UI.options.with_progname(plugin.class.name) do
-          begin
-            plugin.send(task, *args)
-          rescue Interrupt
-            throw(:task_has_failed)
-          end
+          plugin.send(task, *args)
+        rescue Interrupt
+          throw(:task_has_failed)
         end
         plugin.hook("#{task}_end", result)
         result
@@ -97,7 +99,7 @@ module Guard
                         " <#{task}>, exception was:" \
                         "\n#{$!.class}: #{$!.message}" \
                         "\n#{$!.backtrace.join("\n")}")
-      Guard.state.session.plugins.remove(plugin)
+      engine.plugins.remove(plugin)
       UI.info("\n#{plugin.class.name} has just been fired")
       $!
     end
@@ -111,11 +113,13 @@ module Guard
     # @param [Guard::Plugin] guard the Guard plugin to execute
     # @return [Symbol] the symbol to catch
     #
-    def self.stopping_symbol_for(guard)
-      guard.group.options[:halt_on_fail] ? :no_catch : :task_has_failed
+    def self.stopping_symbol_for(plugin)
+      plugin.group.options[:halt_on_fail] ? :no_catch : :task_has_failed
     end
 
     private
+
+    attr_reader :engine
 
     def _run_group_plugins(plugins)
       failed_plugin = nil

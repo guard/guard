@@ -3,19 +3,9 @@ os: linux
 language: ruby
 
 rvm:
-  - 2.4.10
   - 2.5.9
-  - 2.6.7
-  - 2.7.3
-  - 3.0.1
-  - jruby-9.2.17.0
-
-jdk:
-  - openjdk8
-
-env:
-  global:
-    - JRUBY_OPTS="--debug"
+  - 2.7.6
+  - 3.1.2
 
 bundler_args: --without development
 

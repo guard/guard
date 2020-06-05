@@ -4,12 +4,12 @@ require "formatador"
 
 require "guard/ui"
 require "guard/notifier"
-require "guard"
 
 require "set"
 require "ostruct"
 
 module Guard
+  # @private
   # The DslDescriber evaluates the Guardfile and creates an internal structure
   # of it that is used in some inspection utility methods like the CLI commands
   # `show` and `list`.
@@ -18,8 +18,8 @@ module Guard
   # @see Guard::CLI
   #
   class DslDescriber
-    def initialize(options = nil)
-      fail "options passed to DslDescriber are ignored!" unless options.nil?
+    def initialize(engine)
+      @engine = engine
     end
 
     # List the Guard plugins that are available for use in your system and marks
@@ -28,11 +28,9 @@ module Guard
     # @see CLI#list
     #
     def list
-      # TODO: remove dependency on Guard in this whole file
       # collect metadata
-      data = PluginUtil.plugin_names.sort.inject({}) do |hash, name|
-        hash[name.capitalize] = Guard.state.session.plugins.all(name).any?
-        hash
+      data = PluginUtil.plugin_names.sort.each_with_object({}) do |name, hash|
+        hash[name.capitalize] = engine.plugins(name).any?
       end
 
       # presentation
@@ -52,22 +50,18 @@ module Guard
     # @see CLI#show
     #
     def show
-      # collect metadata
-      groups = Guard.state.session.groups.all
-
       objects = []
-
       empty_plugin = OpenStruct.new
       empty_plugin.options = [["", nil]]
 
-      groups.each do |group|
-        plugins = Array(Guard.state.session.plugins.all(group: group.name))
+      engine.groups.all.each do |group|
+        plugins = Array(engine.plugins.all(group: group.name))
         plugins = [empty_plugin] if plugins.empty?
         plugins.each do |plugin|
           options = plugin.options
           options = [["", nil]] if options.empty?
           options.each do |option, raw_value|
-            value = raw_value.nil? ? "" : raw_value.inspect
+            value = raw_value ? raw_value.inspect : ""
             objects << [group.title, plugin.title, option.to_s, value]
           end
         end
@@ -147,6 +141,8 @@ module Guard
     end
 
     private
+
+    attr_reader :engine
 
     def _add_row(rows, name, available, used, option, value)
       rows << {

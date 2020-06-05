@@ -33,16 +33,7 @@ end
 ENV["GUARD_SPECS_RUNNING"] = "1"
 
 path = "#{File.expand_path(__dir__)}/support/**/*.rb"
-Dir[path].each { |f| require f }
-
-# TODO: these shouldn't be necessary with proper specs
-
-def stub_pathname
-  allow(Pathname).to receive(:new).with(anything) do |*args, &_block|
-    caller.each { |l| puts l }
-    abort "stub me! (Pathname.new(#{args.map(&:inspect) * ', '}))"
-  end
-end
+Dir[path].sort.each { |f| require f }
 
 def stub_guardfile(contents = nil, &block)
   stub_file("Guardfile", contents, &block)
@@ -64,27 +55,8 @@ def stub_user_project_guardfile(contents = nil, &block)
   stub_file(".Guardfile", contents, &block)
 end
 
-def stub_mod(mod, excluded)
-  mod.constants.each do |klass_name|
-    klass = mod.const_get(klass_name)
-    if klass.is_a?(Class)
-      unless klass == described_class
-        unless excluded.include?(klass)
-          inst = instance_double(klass)
-          allow(klass).to receive(:new).and_return(inst)
-          # TODO: use object_double?
-          class_double(klass.to_s)
-            .as_stubbed_const(transfer_nested_constants: true)
-        end
-      end
-    elsif klass.is_a?(Module)
-      stub_mod(klass, excluded)
-    end
-  end
-end
-
 def stub_file(path, contents = nil, &block)
-  exists = !contents.nil?
+  exists = !!contents
 
   pathname = instance_double(Pathname)
   allow(Pathname).to receive(:new).with(path).and_return(pathname)
@@ -94,12 +66,12 @@ def stub_file(path, contents = nil, &block)
   allow(pathname).to receive(:exist?).and_return(exists)
 
   if exists
-    if block.nil?
-      allow(pathname).to receive(:read).and_return(contents)
-    else
+    if block
       allow(pathname).to receive(:read) do
         yield
       end
+    else
+      allow(pathname).to receive(:read).and_return(contents)
     end
   else
     allow(pathname).to receive(:read) do
@@ -196,125 +168,94 @@ RSpec.configure do |config|
     mocks.verify_partial_doubles = true
   end
 
-  config.before(:each) do |example|
-    stub_const("FileUtils", class_double(FileUtils))
-
-    excluded = []
-    excluded += Array(example.metadata[:exclude_stubs])
-    excluded << Guard::Config if Guard.constants.include?(:Config)
-    excluded << Guard::Options if Guard.constants.include?(:Options)
-    excluded << Guard::Deprecated::Options if Guard.constants.include?(:Deprecated)
-    excluded << Guard::Jobs::Base if Guard.constants.include?(:Jobs)
-
-    excluded << Guard::DuMmy if Guard.constants.include?(:DuMmy)
-
-    if Guard.constants.include?(:Notifier)
-      if Guard::Notifier.constants.include?(:NotServer)
-        excluded << Guard::Notifier::NotServer
-      end
-      if Guard::Notifier.constants.include?(:FooBar)
-        excluded << Guard::Notifier::FooBar
-      end
-      if Guard::Notifier.constants.include?(:Base)
-        excluded << Guard::Notifier::Base
-      end
-    end
-
-    modules = [Guard]
-    modules << Listen if Object.const_defined?(:Listen)
-    modules << Shellany if Object.const_defined?(:Shellany)
-    modules << Notiffany if Object.const_defined?(:Notiffany)
-    modules.each do |mod|
-      stub_mod(mod, excluded)
-    end
-
-    allow(ENV).to receive(:[]=) do |*args|
-      abort "stub me: ENV[#{args.first}]= #{args.map(&:inspect)[1..-1] * ','}!"
-    end
-
-    allow(ENV).to receive(:[]) do |*args|
-      abort "stub me: ENV[#{args.first}]!"
-    end
-
-    allow(ENV).to receive(:key?) do |*args|
-      fail "stub me: ENV.key?(#{args.first})!"
-    end
-
-    # NOTE: call original, so we can run tests depending on this variable
-    allow(ENV).to receive(:[]).with("GUARD_STRICT").and_call_original
-
-    # FIXME: instead, properly stub PluginUtil in the evaluator specs!
-    # and remove this!
-    allow(ENV).to receive(:[]).with("SPEC_OPTS").and_call_original
-
-    # FIXME: properly stub out Pry instead of this!
-    allow(ENV).to receive(:[]).with("ANSICON").and_call_original
-    allow(ENV).to receive(:[]).with("TERM").and_call_original
-
-    # Needed for debugging
-    allow(ENV).to receive(:[]).with("DISABLE_PRY").and_call_original
-    allow(ENV).to receive(:[]).with("PRYRC").and_call_original
-    allow(ENV).to receive(:[]).with("PAGER").and_call_original
-
-    # Workarounds for Cli inheriting from Thor
-    allow(ENV).to receive(:[]).with("ANSICON").and_call_original
-    allow(ENV).to receive(:[]).with("THOR_SHELL").and_call_original
-    allow(ENV).to receive(:[]).with("GEM_SKIP").and_call_original
-
-    %w[read write exist?].each do |meth|
-      allow(File).to receive(meth.to_sym).with(anything) do |*args, &_block|
-        abort "stub me! (File.#{meth}(#{args.map(&:inspect).join(', ')}))"
-      end
-    end
-
-    %w[read write binwrite binread].each do |meth|
-      allow(IO).to receive(meth.to_sym).with(anything) do |*args, &_block|
-        abort "stub me! (IO.#{meth}(#{args.map(&:inspect).join(', ')}))"
-      end
-    end
-
-    %w[exist?].each do |meth|
-      allow_any_instance_of(Pathname)
-        .to receive(meth.to_sym) do |*args, &_block|
-        obj = args.first
-        formatted_args = args[1..-1].map(&:inspect).join(", ")
-        abort "stub me! (#{obj.inspect}##{meth}(#{formatted_args}))"
-      end
-    end
-
-    allow(Dir).to receive(:exist?).with(anything) do |*args, &_block|
-      abort "stub me! (Dir#exist?(#{args.map(&:inspect) * ', '}))"
-    end
-
+  config.before(:each, :stub_ui) do
     if Guard.const_defined?("UI") && Guard::UI.respond_to?(:info)
       # Stub all UI methods, so no visible output appears for the UI class
+      ui_config = instance_double("Guard::UI::Config")
+
       allow(Guard::UI).to receive(:info)
       allow(Guard::UI).to receive(:warning)
       allow(Guard::UI).to receive(:error)
       allow(Guard::UI).to receive(:debug)
       allow(Guard::UI).to receive(:deprecation)
+      allow(Guard::UI).to receive(:reset_and_clear)
+      allow(Guard::UI::Config).to receive(:new).and_return(ui_config)
+      allow(ui_config).to receive(:with_progname).and_yield
     end
+  end
+end
 
-    allow(Kernel).to receive(:system) do |*args|
-      fail "stub for Kernel.system() called with: #{args.inspect}"
-    end
+RSpec.shared_context "with engine" do
+  require "guard/engine"
+  require "guard/plugin"
 
-    # TODO: use metadata to stub out all used classes
-    if Guard.const_defined?("Sheller")
-      unless example.metadata[:sheller_specs]
-        allow(Guard::Sheller).to receive(:run) do |*args|
-          fail "stub for Sheller.run() called with: #{args.inspect}"
-        end
+  let(:inline_guardfile) { "guard :dummy" }
+  let(:base_options) { { watchdirs: Dir.pwd, inline: inline_guardfile, no_interactions: true } }
+  let(:options) { base_options }
+  let(:engine) { Guard::Engine.new(options) }
+  let(:interactor) { instance_double("Guard::Interactor", foreground: :exit, background: true, handle_interrupt: true) }
+  let(:listener) { instance_double("Listen::Listener", ignore: true, ignore!: true, start: true, stop: true) }
+
+  let(:session) { engine.session }
+  let(:groups) { engine.groups }
+  let(:plugins) { engine.plugins }
+  let(:scope) { engine.scope }
+
+  before do
+    Guard::Dummy = Class.new(Guard::Plugin) do
+      def throwing
+        throw :task_has_failed
       end
+
+      def failing
+        fail "I break your system"
+      end
+
+      def run_on_changes(_paths); "I'm a success"; end
+
+      def run_on_change(_paths); end
+
+      def run_on_modifications(_paths); end
+
+      def run_on_additions(_paths); end
+
+      def run_on_removals(_paths); end
+
+      def run_on_deletion(_paths); end
+    end
+    Guard::Doe = Class.new(Guard::Plugin)
+    Guard::FooBar = Class.new(Guard::Plugin)
+    Guard::FooBaz = Class.new(Guard::Plugin)
+
+    # Stub classes with side-effects
+    allow(Guard::Interactor).to receive(:new).and_return(interactor)
+    allow(Listen).to receive(:to).and_return(listener)
+  end
+
+  after do
+    Guard.__send__(:remove_const, :Dummy)
+    Guard.__send__(:remove_const, :Doe)
+    Guard.__send__(:remove_const, :FooBar)
+    Guard.__send__(:remove_const, :FooBaz)
+  end
+end
+
+RSpec.shared_context "with fake pry" do
+  let(:output) { double }
+
+  before do
+    Thread.current[:engine] = engine
+    class FakePry < Pry::Command
+      def self.output; end
     end
   end
 
-  config.after(:each) do
-    # Reset everything
-    (Guard.constants + [Guard]).each do |klass|
-      klass.instance_variables.each do |var|
-        klass.instance_variable_set(var, nil)
-      end
-    end
+  after do
+    Object.__send__(:remove_const, :FakePry)
+    Thread.current[:engine] = nil
+  end
+
+  before do
+    allow(FakePry).to receive(:output).and_return(output)
   end
 end

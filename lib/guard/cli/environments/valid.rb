@@ -1,21 +1,18 @@
 # frozen_string_literal: true
 
+require "guard/cli/environments/base"
 require "guard/cli/environments/bundler"
-require "guard/commander"
+require "guard/dsl"
+require "guard/guardfile/evaluator"
 require "guard/guardfile/generator"
 
 module Guard
   module Cli
     module Environments
-      class Valid
-        def initialize(options)
-          @options = options
-        end
-
-        def start_guard
-          # TODO: just to make sure tests are ok
-          Bundler.new.verify unless @options[:no_bundler_warning]
-          Guard.start(@options)
+      class Valid < Base
+        def start_engine
+          Bundler.new.verify unless options[:no_bundler_warning]
+          engine.start
         rescue Dsl::Error,
                Guardfile::Evaluator::NoPluginsError,
                Guardfile::Evaluator::NoGuardfileError,
@@ -23,17 +20,19 @@ module Guard
           # catch to throw message instead of call stack
           UI.error(e.message)
           abort
+        ensure
+          # `engine` can be nil if `Bundler.new.verify` raises a `SystemExit` error.
+          engine&.stop
         end
 
         def initialize_guardfile(plugin_names = [])
-          bare = @options[:bare]
+          bare = options[:bare]
 
-          Guard.init(@options)
-          session = Guard.state.session
-
-          generator = Guardfile::Generator.new
+          engine = Guard::Engine.new(options)
+          generator = Guardfile::Generator.new(engine)
           begin
-            Guardfile::Evaluator.new(session.evaluator_options).evaluate
+            # raise engine.session.evaluator_options.to_s
+            Guardfile::Evaluator.new(engine).evaluate
           rescue Guardfile::Evaluator::NoGuardfileError
             generator.create_guardfile
           rescue Guard::Guardfile::Evaluator::NoPluginsError
@@ -43,10 +42,10 @@ module Guard
           return 0 if bare # 0 - exit code
 
           # Evaluate because it might have existed and creating was skipped
-          begin
-            Guardfile::Evaluator.new(session.evaluator_options).evaluate
-          rescue Guard::Guardfile::Evaluator::NoPluginsError
-          end
+          # begin
+          #   Guardfile::Evaluator.new(engine).evaluate
+          # rescue Guard::Guardfile::Evaluator::NoPluginsError
+          # end
 
           begin
             if plugin_names.empty?

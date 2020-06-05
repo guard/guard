@@ -1,13 +1,10 @@
 # frozen_string_literal: true
 
-require "guard/guardfile/evaluator"
+require "guard/dsl_reader"
 require "guard/interactor"
 require "guard/notifier"
 require "guard/ui"
 require "guard/watcher"
-
-require "guard/deprecated/dsl" unless Guard::Config.new.strict?
-require "guard"
 
 module Guard
   # The Dsl class provides the methods that are used in each `Guardfile` to
@@ -48,13 +45,7 @@ module Guard
   #
   # @see https://github.com/guard/guard/wiki/Guardfile-examples
   #
-  class Dsl
-    Deprecated::Dsl.add_deprecated(self) unless Config.new.strict?
-
-    # Wrap exceptions during parsing Guardfile
-    class Error < RuntimeError
-    end
-
+  class Dsl < DslReader
     WARN_INVALID_LOG_LEVEL = "Invalid log level `%s` ignored. "\
       "Please use either :debug, :info, :warn or :error."
 
@@ -76,7 +67,7 @@ module Guard
     # @see Guard::Notifier for available notifier and its options.
     #
     def notification(notifier, opts = {})
-      Guard.state.session.guardfile_notification = { notifier.to_sym => opts }
+      engine.session.guardfile_notification = { notifier.to_sym => opts }
     end
 
     # Sets the interactor options or disable the interactor.
@@ -91,13 +82,7 @@ module Guard
     #   options
     #
     def interactor(options)
-      # TODO: remove dependency on Interactor (let session handle this)
-      case options
-      when :off
-        Interactor.enabled = false
-      when Hash
-        Interactor.options = options
-      end
+      engine.interactor = options
     end
 
     # Declares a group of Guard plugins to be run with `guard start --group
@@ -136,7 +121,7 @@ module Guard
       if block_given?
         groups.each do |group|
           # TODO: let groups be added *after* evaluation
-          Guard.state.session.groups.add(group, options)
+          engine.groups.add(group, options)
         end
 
         @current_groups ||= []
@@ -186,7 +171,7 @@ module Guard
       groups.each do |group|
         opts = @plugin_options.merge(group: group)
         # TODO: let plugins be added *after* evaluation
-        Guard.state.session.plugins.add(name, opts)
+        engine.plugins.add(name, opts)
       end
 
       @plugin_options = nil
@@ -269,11 +254,8 @@ module Guard
     #
     def ignore(*regexps)
       # TODO: use guardfile results class
-      Guard.state.session.guardfile_ignore = regexps
+      engine.session.guardfile_ignore = regexps
     end
-
-    # TODO: deprecate
-    alias filter ignore
 
     # Replaces ignored paths globally
     #
@@ -283,14 +265,11 @@ module Guard
     # @param [Regexp] regexps a pattern (or list of patterns) for ignoring paths
     #
     def ignore!(*regexps)
-      @ignore_regexps ||= []
-      @ignore_regexps << regexps
+      @ignore_bang_regexps ||= []
+      @ignore_bang_regexps << regexps
       # TODO: use guardfile results class
-      Guard.state.session.guardfile_ignore_bang = @ignore_regexps
+      engine.session.guardfile_ignore_bang = @ignore_bang_regexps
     end
-
-    # TODO: deprecate
-    alias filter! ignore!
 
     # Configures the Guard logger.
     #
@@ -327,12 +306,17 @@ module Guard
     #
     def logger(options)
       if options[:level]
-        options[:level] = options[:level].to_sym
+        level = options.delete(:level).to_sym
 
-        unless %i(debug info warn error).include? options[:level]
-          UI.warning(format(WARN_INVALID_LOG_LEVEL, options[:level]))
-          options.delete :level
+        if %i(debug info warn error).include?(level)
+          UI.level = level
+        else
+          UI.warning(format(WARN_INVALID_LOG_LEVEL, level))
         end
+      end
+
+      if options[:template]
+        UI.template = options.delete(:template)
       end
 
       if options[:only] && options[:except]
@@ -353,7 +337,7 @@ module Guard
         options[name] = Regexp.new(list.join("|"), Regexp::IGNORECASE)
       end
 
-      UI.options = UI.options.merge(options)
+      UI.options.merge!(options)
     end
 
     # Sets the default scope on startup
@@ -372,19 +356,9 @@ module Guard
     #
     # @param [Hash] scope the scope for the groups and plugins
     #
-    def scope(scope = {})
+    def scope(scopes = {})
       # TODO: use a Guardfile::Results class
-      Guard.state.session.guardfile_scope(scope)
-    end
-
-    def evaluate(contents, filename, lineno)
-      instance_eval(contents, filename.to_s, lineno)
-    rescue StandardError, ScriptError => e
-      prefix = "\n\t(dsl)> "
-      cleaned_backtrace = _cleanup_backtrace(e.backtrace)
-      backtrace = "#{prefix}#{cleaned_backtrace.join(prefix)}"
-      msg = "Invalid Guardfile, original error is: \n\n%s, \nbacktrace: %s"
-      raise Error, format(msg, e, backtrace)
+      engine.session.guardfile_scopes = scopes
     end
 
     # Sets the directories to pass to Listen
@@ -398,7 +372,7 @@ module Guard
       directories.each do |dir|
         fail "Directory #{dir.inspect} does not exist!" unless Dir.exist?(dir)
       end
-      Guard.state.session.watchdirs = directories
+      engine.session.watchdirs = directories
     end
 
     # Sets Guard to clear the screen before every task is run
@@ -409,33 +383,7 @@ module Guard
     # @param [Symbol] on ':on' to turn on, ':off' (default) to turn off
     #
     def clearing(flag)
-      Guard.state.session.clearing(flag == :on)
-    end
-
-    private
-
-    def _cleanup_backtrace(backtrace)
-      dirs = { File.realpath(Dir.pwd) => ".", }
-
-      gem_env = ENV["GEM_HOME"] || ""
-      dirs[gem_env] = "$GEM_HOME" unless gem_env.empty?
-
-      gem_paths = (ENV["GEM_PATH"] || "").split(File::PATH_SEPARATOR)
-      gem_paths.each_with_index do |path, index|
-        dirs[path] = "$GEM_PATH[#{index}]"
-      end
-
-      backtrace.dup.map do |raw_line|
-        path = nil
-        symlinked_path = raw_line.split(":").first
-        begin
-          path = raw_line.sub(symlinked_path, File.realpath(symlinked_path))
-          dirs.detect { |dir, name| path.sub!(File.realpath(dir), name) }
-          path
-        rescue Errno::ENOENT
-          path || symlinked_path
-        end
-      end
+      engine.session.clearing(flag == :on)
     end
   end
 end

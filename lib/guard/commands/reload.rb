@@ -2,8 +2,6 @@
 
 require "pry"
 
-require "guard"
-
 module Guard
   module Commands
     class Reload
@@ -21,15 +19,19 @@ module Guard
           either the name of a Guard plugin or a plugin group.
           BANNER
 
-          def process(*entries) # rubocop:disable Lint/NestedMethodDefinition
-            scopes, unknown = Guard.state.session.convert_scope(entries)
+          def engine # rubocop:disable Lint/NestedMethodDefinition
+            Thread.current[:engine]
+          end
 
-            unless unknown.empty?
+          def process(*entries) # rubocop:disable Lint/NestedMethodDefinition
+            scopes, unknown = engine.session.convert_scopes(entries)
+
+            if unknown.any?
               output.puts "Unknown scopes: #{unknown.join(', ')}"
               return
             end
 
-            Guard.async_queue_add([:guard_reload, scopes])
+            engine.async_queue_add([:guard_reload, scopes])
           end
         end
       end

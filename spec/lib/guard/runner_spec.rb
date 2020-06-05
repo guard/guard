@@ -2,59 +2,29 @@
 
 require "guard/runner"
 
-require "guard/plugin"
+RSpec.describe Guard::Runner, :stub_ui do
+  include_context "with engine"
 
-RSpec.describe Guard::Runner do
-  let(:ui_config) { instance_double("Guard::UI::Config") }
-  let(:backend_group) do
-    instance_double("Guard::Group", options: {}, name: :backend)
-  end
-
-  let(:frontend_group) do
-    instance_double("Guard::Group", options: {}, name: :frontend)
-  end
-
-  let(:foo_plugin) { double("foo", group: backend_group, hook: nil) }
-  let(:bar_plugin) { double("bar", group: frontend_group, hook: nil) }
-  let(:baz_plugin) { double("baz", group: frontend_group, hook: nil) }
-
-  let(:scope) { instance_double("Guard::Internals::Scope") }
-  let(:plugins) { instance_double("Guard::Internals::Plugins") }
-  let(:state) { instance_double("Guard::Internals::State") }
-  let(:session) { instance_double("Guard::Internals::Session") }
-
-  before do
-    allow(session).to receive(:plugins).and_return(plugins)
-    allow(state).to receive(:session).and_return(session)
-    allow(state).to receive(:scope).and_return(scope)
-    allow(Guard).to receive(:state).and_return(state)
-
-    allow(Guard::UI::Config).to receive(:new).and_return(ui_config)
-  end
-
-  before do
-    Guard::UI.options = nil
-  end
+  let!(:frontend_group) { groups.add("frontend") }
+  let!(:backend_group) { groups.add("backend") }
+  let!(:dummy_plugin) { plugins.add("dummy", group: "frontend", watchers: [Guard::Watcher.new("hello")]) }
+  let!(:doe_plugin) { plugins.add("doe", group: "frontend") }
+  let!(:foobar_plugin) { plugins.add("foobar", group: "backend") }
+  let!(:foobaz_plugin) { plugins.add("foobaz", group: "backend") }
 
   after do
-    Guard::UI.reset_logger
-    Guard::UI.options = nil
+    Guard::UI.reset
   end
 
+  subject { described_class.new(engine) }
+
   describe "#run" do
-    before do
-      allow(scope).to receive(:grouped_plugins).with({})
-                                               .and_return([[nil, [foo_plugin, bar_plugin, baz_plugin]]])
-
-      allow(ui_config).to receive(:with_progname).and_yield
-    end
-
     it "executes supervised task on all registered plugins implementing it" do
-      [foo_plugin, bar_plugin].each do |plugin|
-        expect(plugin).to receive(:my_hard_task)
+      [dummy_plugin, doe_plugin, foobar_plugin, foobaz_plugin].each do |plugin|
+        expect(plugin).to receive(:title)
       end
 
-      subject.run(:my_hard_task)
+      subject.run(:title)
     end
 
     it "marks an action as unit of work" do
@@ -64,27 +34,24 @@ RSpec.describe Guard::Runner do
 
     context "with interrupted task" do
       before do
-        allow(foo_plugin).to receive(:failing).and_raise(Interrupt)
-        # allow(Guard).to receive(:plugins).and_return([foo_plugin])
+        allow(dummy_plugin).to receive(:title).and_raise(Interrupt)
       end
 
       it "catches the thrown symbol" do
-        expect { subject.run(:failing) }.to_not throw_symbol(:task_has_failed)
+        expect { subject.run(:title) }.to_not throw_symbol(:task_has_failed)
       end
     end
 
     context "with a scope" do
-      let(:scope_hash) { { plugin: :bar } }
+      let(:scope_hash) { { plugins: :dummy } }
 
       it "executes the supervised task on the specified plugin only" do
-        expect(scope).to receive(:grouped_plugins).with(scope_hash)
-                                                  .and_return([[nil, [bar_plugin]]])
+        expect(dummy_plugin).to receive(:title)
+        [doe_plugin, foobar_plugin, foobaz_plugin].each do |plugin|
+          expect(plugin).to_not receive(:title)
+        end
 
-        expect(bar_plugin).to receive(:my_task)
-        expect(foo_plugin).to_not receive(:my_task)
-        expect(baz_plugin).to_not receive(:my_task)
-
-        subject.run(:my_task, scope_hash)
+        subject.run(:title, scope_hash)
       end
     end
 
@@ -92,76 +59,39 @@ RSpec.describe Guard::Runner do
       let(:scope_hash) { nil }
 
       it "executes the supervised task using current scope" do
-        expect(bar_plugin).to receive(:my_task)
-        expect(foo_plugin).to receive(:my_task)
-        expect(baz_plugin).to receive(:my_task)
+        [dummy_plugin, doe_plugin, foobar_plugin, foobaz_plugin].each do |plugin|
+          expect(plugin).to receive(:title)
+        end
 
-        subject.run(:my_task, scope_hash)
+        subject.run(:title, scope_hash)
       end
     end
   end
 
   describe "#run_on_changes" do
-    let(:changes) { [[], [], []] }
-    let(:watcher_module) { Guard::Watcher }
+    let(:matching_files) { ["hello"] }
 
-    before do
-      allow(watcher_module).to receive(:match_files) { [] }
-      allow(Guard::UI).to receive(:clear)
+    shared_examples "cleared terminal" do
+      it "always calls UI.clearable!" do
+        expect(Guard::UI).to receive(:clearable!)
 
-      allow(foo_plugin).to receive(:regular_without_arg) { fail "not stubbed" }
-      allow(foo_plugin).to receive(:regular_with_arg) { fail "not stubbed" }
-      allow(foo_plugin).to receive(:failing) { fail "not stubbed" }
-
-      # TODO: runner shouldn't have to know about these
-      allow(foo_plugin).to receive(:run_on_modifications) { fail "not stubbed" }
-      allow(foo_plugin).to receive(:run_on_change) { fail "not stubbed" }
-      allow(foo_plugin).to receive(:run_on_additions) { fail "not stubbed" }
-      allow(foo_plugin).to receive(:run_on_removals) { fail "not stubbed" }
-      allow(foo_plugin).to receive(:run_on_deletion) { fail "not stubbed" }
-
-      allow(foo_plugin).to receive(:my_task)
-      allow(bar_plugin).to receive(:my_task)
-      allow(baz_plugin).to receive(:my_task)
-
-      allow(foo_plugin).to receive(:name).and_return("Foo")
-
-      allow(scope).to receive(:grouped_plugins) do |args|
-        fail "stub me (#{args.inspect})!"
+        subject.run_on_changes(*changes)
       end
 
-      # disable reevaluator
-      allow(scope).to receive(:grouped_plugins).with(group: :common)
-                                               .and_return([[nil, []]])
+      context "when clearable" do
+        it "clear UI" do
+          expect(Guard::UI).to receive(:clear).exactly(4).times
 
-      # foo in default group
-      allow(scope).to receive(:grouped_plugins).with(group: :default)
-                                               .and_return([[nil, [foo_plugin]]])
-
-      allow(scope).to receive(:grouped_plugins).with(no_args)
-                                               .and_return([[nil, [foo_plugin]]])
-
-      allow(ui_config).to receive(:with_progname).and_yield
-    end
-
-    it "always calls UI.clearable" do
-      expect(Guard::UI).to receive(:clearable)
-      expect(scope).to receive(:grouped_plugins).with(no_args)
-                                                .and_return([[nil, [foo_plugin]]])
-
-      subject.run_on_changes(*changes)
-    end
-
-    context "when clearable" do
-      it "clear UI" do
-        expect(Guard::UI).to receive(:clear)
-        expect(scope).to receive(:grouped_plugins).with(no_args)
-                                                  .and_return([[nil, [foo_plugin]]])
-        subject.run_on_changes(*changes)
+          subject.run_on_changes(*changes)
+        end
       end
     end
 
     context "with no changes" do
+      let(:changes) { [[], [], []] }
+
+      it_behaves_like "cleared terminal"
+
       it "does not run any task" do
         %w[
           run_on_modifications
@@ -170,176 +100,124 @@ RSpec.describe Guard::Runner do
           run_on_removals
           run_on_deletion
         ].each do |task|
-          expect(foo_plugin).to_not receive(task.to_sym)
+          expect(dummy_plugin).to_not receive(task.to_sym)
         end
+
         subject.run_on_changes(*changes)
       end
     end
 
-    context "with modified files but modified paths is empty" do
-      let(:modified) { %w[file.txt image.png] }
-
-      before do
-        changes[0] = modified
-        expect(watcher_module).to receive(:match_files).once
-          .with(foo_plugin, modified).and_return([])
-
-        # stub so respond_to? works
-      end
+    context "with non-matching modified paths" do
+      let(:changes) { [%w[file.txt image.png], [], []] }
 
       it "does not call run anything" do
-        expect(foo_plugin).to_not receive(:run_on_modifications)
+        expect(dummy_plugin).to_not receive(:run_on_modifications)
+
         subject.run_on_changes(*changes)
       end
     end
 
-    context "with modified paths" do
-      let(:modified) { %w[file.txt image.png] }
-
-      before do
-        changes[0] = modified
-        expect(watcher_module).to receive(:match_files)
-          .with(foo_plugin, modified).and_return(modified)
-      end
+    context "with matching modified paths" do
+      let(:changes) { [matching_files, [], []] }
 
       it "executes the :run_first_task_found task" do
-        expect(foo_plugin).to receive(:run_on_modifications).with(modified) {}
+        expect(dummy_plugin).to receive(:run_on_modifications).with(matching_files) {}
+
         subject.run_on_changes(*changes)
       end
     end
 
-    context "with added files but added paths is empty" do
-      let(:added) { %w[file.txt image.png] }
-
-      before do
-        changes[0] = added
-        expect(watcher_module).to receive(:match_files).once
-          .with(foo_plugin, added).and_return([])
-      end
+    context "with non-matching added paths" do
+      let(:changes) { [[], %w[file.txt image.png], []] }
 
       it "does not call run anything" do
-        expect(foo_plugin).to_not receive(:run_on_additions)
+        expect(dummy_plugin).to_not receive(:run_on_additions)
+
         subject.run_on_changes(*changes)
       end
     end
 
-    context "with added paths" do
-      let(:added) { %w[file.txt image.png] }
-
-      before do
-        changes[1] = added
-        expect(watcher_module).to receive(:match_files)
-          .with(foo_plugin, added).and_return(added)
-      end
+    context "with matching added paths" do
+      let(:changes) { [[], matching_files, []] }
 
       it "executes the :run_on_additions task" do
-        expect(foo_plugin).to receive(:run_on_additions).with(added) {}
+        expect(dummy_plugin).to receive(:run_on_additions).with(matching_files) {}
+
         subject.run_on_changes(*changes)
       end
     end
 
     context "with non-matching removed paths" do
       let(:removed) { %w[file.txt image.png] }
-
-      before do
-        changes[2] = removed
-        expect(watcher_module).to receive(:match_files).once
-                                                       .with(foo_plugin, removed) { [] }
-
-        # stub so respond_to? works
-        allow(foo_plugin).to receive(:run_on_removals)
-      end
+      let(:changes) { [[], [], %w[file.txt image.png]] }
 
       it "does not call tasks" do
-        expect(foo_plugin).to_not receive(:run_on_removals)
+        expect(dummy_plugin).to_not receive(:run_on_removals)
+
         subject.run_on_changes(*changes)
       end
     end
 
     context "with matching removed paths" do
-      let(:removed) { %w[file.txt image.png] }
-
-      before do
-        changes[2] = removed
-        expect(watcher_module).to receive(:match_files)
-          .with(foo_plugin, removed) { removed }
-      end
+      let(:changes) { [[], [], matching_files] }
 
       it "executes the :run_on_removals task" do
-        expect(foo_plugin).to receive(:run_on_removals).with(removed) {}
+        expect(dummy_plugin).to receive(:run_on_removals).with(matching_files) {}
+
         subject.run_on_changes(*changes)
       end
     end
   end
 
   describe "#_supervise" do
-    before do
-      allow(ui_config).to receive(:with_progname).and_yield
-    end
+    it "executes the task on the passed plugin" do
+      expect(dummy_plugin).to receive(:title)
 
-    it "executes the task on the passed guard" do
-      expect(foo_plugin).to receive(:my_task)
-      subject.send(:_supervise, foo_plugin, :my_task)
+      subject.__send__(:_supervise, dummy_plugin, :title)
     end
 
     context "with a task that succeeds" do
       context "without any arguments" do
-        before do
-          allow(foo_plugin).to receive(:regular_without_arg) { true }
-        end
-
-        it "does not remove the Guard" do
+        it "does not remove the plugin" do
           expect(plugins).to_not receive(:remove)
-          subject.send(:_supervise, foo_plugin, :regular_without_arg)
+
+          subject.__send__(:_supervise, dummy_plugin, :title)
         end
 
         it "returns the result of the task" do
-          result = subject.send(:_supervise, foo_plugin, :regular_without_arg)
+          result = subject.__send__(:_supervise, dummy_plugin, :title)
+
           expect(result).to be_truthy
         end
 
-        it "calls :begin and :end hooks" do
-          expect(foo_plugin).to receive(:hook)
-            .with("regular_without_arg_begin")
+        it "calls :begin and :end hooks and passes the result of the supervised method to the :end hook" do
+          expect(dummy_plugin).to receive(:hook)
+            .with("title_begin")
 
-          expect(foo_plugin).to receive(:hook)
-            .with("regular_without_arg_end", true)
+          expect(dummy_plugin).to receive(:hook)
+            .with("title_end", "Dummy")
 
-          subject.send(:_supervise, foo_plugin, :regular_without_arg)
-        end
-
-        it "passes the result of the supervised method to the :end hook" do
-          expect(foo_plugin).to receive(:hook)
-            .with("regular_without_arg_begin")
-
-          expect(foo_plugin).to receive(:hook)
-            .with("regular_without_arg_end", true)
-
-          subject.send(:_supervise, foo_plugin, :regular_without_arg)
+          subject.__send__(:_supervise, dummy_plugin, :title)
         end
       end
 
       context "with arguments" do
-        before do
-          allow(foo_plugin).to receive(:regular_with_arg)
-            .with("given_path") { "I'm a success" }
-        end
-
         it "does not remove the Guard" do
           expect(plugins).to_not receive(:remove)
-          subject.send(
+
+          subject.__send__(
             :_supervise,
-            foo_plugin,
-            :regular_with_arg,
+            dummy_plugin,
+            :run_on_changes,
             "given_path"
           )
         end
 
         it "returns the result of the task" do
-          result = subject.send(
+          result = subject.__send__(
             :_supervise,
-            foo_plugin,
-            :regular_with_arg,
+            dummy_plugin,
+            :run_on_changes,
             "given_path"
           )
 
@@ -349,27 +227,23 @@ RSpec.describe Guard::Runner do
     end
 
     context "with a task that throws :task_has_failed" do
-      before do
-        allow(foo_plugin).to receive(:failing) { throw :task_has_failed }
-      end
-
       context "in a group" do
         context "with halt_on_fail: true" do
-          before { backend_group.options[:halt_on_fail] = true }
+          before { frontend_group.options[:halt_on_fail] = true }
 
           it "throws :task_has_failed" do
             expect do
-              subject.send(:_supervise, foo_plugin, :failing)
+              subject.__send__(:_supervise, dummy_plugin, :throwing)
             end.to throw_symbol(:task_has_failed)
           end
         end
 
         context "with halt_on_fail: false" do
-          before { backend_group.options[:halt_on_fail] = false }
+          before { frontend_group.options[:halt_on_fail] = false }
 
           it "catches :task_has_failed" do
             expect do
-              subject.send(:_supervise, foo_plugin, :failing)
+              subject.__send__(:_supervise, dummy_plugin, :throwing)
             end.to_not throw_symbol(:task_has_failed)
           end
         end
@@ -377,64 +251,31 @@ RSpec.describe Guard::Runner do
     end
 
     context "with a task that raises an exception" do
-      before do
-        allow(foo_plugin).to receive(:failing) { fail "I break your system" }
-        allow(plugins).to receive(:remove).with(foo_plugin)
-      end
+      it "removes the plugin" do
+        expect(plugins).to receive(:remove).with(dummy_plugin) {}
 
-      it "removes the Guard" do
-        expect(plugins).to receive(:remove).with(foo_plugin) {}
-        subject.send(:_supervise, foo_plugin, :failing)
+        subject.__send__(:_supervise, dummy_plugin, :failing)
       end
 
       it "display an error to the user" do
         expect(::Guard::UI).to receive :error
         expect(::Guard::UI).to receive :info
 
-        subject.send(:_supervise, foo_plugin, :failing)
+        subject.__send__(:_supervise, dummy_plugin, :failing)
       end
 
       it "returns the exception" do
-        failing_result = subject.send(:_supervise, foo_plugin, :failing)
+        failing_result = subject.__send__(:_supervise, dummy_plugin, :failing)
+
         expect(failing_result).to be_kind_of(Exception)
         expect(failing_result.message).to eq "I break your system"
       end
 
       it "calls the default begin hook but not the default end hook" do
-        expect(foo_plugin).to receive(:hook).with("failing_begin")
-        expect(foo_plugin).to_not receive(:hook).with("failing_end")
-        subject.send(:_supervise, foo_plugin, :failing)
-      end
-    end
-  end
+        expect(dummy_plugin).to receive(:hook).with("failing_begin")
+        expect(dummy_plugin).to_not receive(:hook).with("failing_end")
 
-  describe ".stopping_symbol_for" do
-    let(:guard_plugin) { instance_double("Guard::Plugin") }
-    let(:group) { instance_double("Guard::Group", title: "Foo") }
-
-    before do
-      allow(guard_plugin).to receive(:group).and_return(group)
-    end
-
-    context "for a group with :halt_on_fail" do
-      before do
-        allow(group).to receive(:options).and_return(halt_on_fail: true)
-      end
-
-      it "returns :no_catch" do
-        symbol = described_class.stopping_symbol_for(guard_plugin)
-        expect(symbol).to eq :no_catch
-      end
-    end
-
-    context "for a group without :halt_on_fail" do
-      before do
-        allow(group).to receive(:options).and_return(halt_on_fail: false)
-      end
-
-      it "returns :task_has_failed" do
-        symbol = described_class.stopping_symbol_for(guard_plugin)
-        expect(symbol).to eq :task_has_failed
+        subject.__send__(:_supervise, dummy_plugin, :failing)
       end
     end
   end

@@ -1,12 +1,13 @@
-fail_on_violations: true
+fail_on_violations: false
 
 rubocop:
   enabled: true
-  version: 0.75.0
+  version: 0.83.0
   config_file: .rubocop.yml
 
 reek:
   enabled: true
+  config_file: .reek.yml
 
 flog:
   enabled: true

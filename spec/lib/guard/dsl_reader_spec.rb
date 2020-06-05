@@ -2,36 +2,29 @@
 
 require "guard/dsl_reader"
 
-RSpec.describe Guard::DslReader, exclude_stubs: [Guard::Dsl] do
-  methods = %w[
-    initialize guard notification interactor group watch callback
-    ignore ignore! logger scope directories clearing
-  ].map(&:to_sym)
+RSpec.describe Guard::DslReader do
+  include_context "with engine"
 
-  methods.each do |meth|
-    describe "\##{meth} signature" do
-      it "matches base signature" do
-        expected = Guard::Dsl.instance_method(meth).arity
-        expect(subject.method(meth).arity).to eq(expected)
-      end
-    end
-  end
+  subject { described_class.new(engine) }
 
   describe "guard" do
     context "when it is a String" do
       let(:name) { "foo" }
+
       it "works without errors" do
         expect { subject.guard(name, bar: :baz) }.to_not raise_error
       end
 
       it "reports the name as a String" do
         subject.guard("foo", bar: :baz)
+
         expect(subject.plugin_names).to eq(%w[foo])
       end
     end
 
     context "when it is a Symbol" do
       let(:name) { :foo }
+
       it "works without errors" do
         expect { subject.guard(name, bar: :baz) }.to_not raise_error
       end
@@ -48,6 +41,7 @@ RSpec.describe Guard::DslReader, exclude_stubs: [Guard::Dsl] do
       subject.guard("foo", bar: :baz)
       subject.guard("bar", bar: :baz)
       subject.guard("baz", bar: :baz)
+
       expect(subject.plugin_names).to eq(%w[foo bar baz])
     end
   end

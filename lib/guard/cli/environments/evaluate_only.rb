@@ -1,30 +1,20 @@
 # frozen_string_literal: true
 
-require "guard"
+require "guard/cli/environments/base"
+require "guard/cli/environments/bundler"
+require "guard/dsl_reader"
+require "guard/guardfile/evaluator"
+require "guard/ui"
 
 module Guard
   module Cli
     module Environments
-      class EvaluateOnly
-        def initialize(options)
-          @options = options
-        end
-
+      class EvaluateOnly < Base
         def evaluate
-          # TODO: check bundler setup first?
-          #
-          # TODO: it should be easier to pass options created with init
-          # directly to evaluator
-          #
-          # TODO: guardfile/DSL should interact only with a given object, and
-          # not global Guard object (setting global state only needed before
-          # start() is called)
-          #
-          Guard.init(@options)
-          session = Guard.state.session
-          Guardfile::Evaluator.new(session.evaluator_options).evaluate
+          Bundler.new.verify unless options[:no_bundler_warning]
+          Guardfile::Evaluator.new(engine).evaluate
         rescue \
-          Dsl::Error,
+          Guard::DslReader::Error,
           Guardfile::Evaluator::NoPluginsError,
           Guardfile::Evaluator::NoGuardfileError,
           Guardfile::Evaluator::NoCustomGuardfile => e

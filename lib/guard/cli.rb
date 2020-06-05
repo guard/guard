@@ -51,8 +51,7 @@ module Guard
                   aliases: "-P",
                   banner: "Run only the passed plugins"
 
-    # TODO: make it plural
-    method_option :watchdir,
+    method_option :watchdirs,
                   type: :array,
                   aliases: "-w",
                   banner: "Specify the directories to watch"
@@ -109,7 +108,7 @@ module Guard
     # This is the default task, so calling `guard` is the same as calling
     # `guard start`.
     #
-    # @see Guard.start
+    # @see Guard::Engine#start
     #
     def start
       if defined?(JRUBY_VERSION)
@@ -121,7 +120,7 @@ module Guard
             " * https://github.com/jruby/jruby/issues/2383\n\n"
         end
       end
-      exit(Cli::Environments::Valid.new(options).start_guard)
+      exit(Cli::Environments::Valid.new(options).start_engine)
     end
 
     desc "list", "Lists Guard plugins that can be used with init"
@@ -132,8 +131,8 @@ module Guard
     # @see Guard::DslDescriber.list
     #
     def list
-      Cli::Environments::EvaluateOnly.new(options).evaluate
-      DslDescriber.new.list
+      engine = Cli::Environments::EvaluateOnly.new(options).evaluate.engine
+      DslDescriber.new(engine).list
     end
 
     desc "notifiers", "Lists notifiers and its options"
@@ -143,9 +142,9 @@ module Guard
     # @see Guard::DslDescriber.notifiers
     #
     def notifiers
-      Cli::Environments::EvaluateOnly.new(options).evaluate
-      # TODO: pass the data directly to the notifiers?
-      DslDescriber.new.notifiers
+      env = Cli::Environments::EvaluateOnly.new(options)
+      env.evaluate
+      DslDescriber.new(env.engine).notifiers
     end
 
     desc "version", "Show the Guard version"
@@ -195,8 +194,9 @@ module Guard
     # @see Guard::DslDescriber.show
     #
     def show
-      Cli::Environments::EvaluateOnly.new(options).evaluate
-      DslDescriber.new.show
+      env = Cli::Environments::EvaluateOnly.new(options)
+      env.evaluate
+      DslDescriber.new(env.engine).show
     end
   end
 end

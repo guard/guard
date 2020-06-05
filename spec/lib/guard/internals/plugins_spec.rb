@@ -1,75 +1,68 @@
 # frozen_string_literal: true
 
 require "guard/internals/plugins"
+require "guard/engine"
+require "guard/plugin"
 
-RSpec.describe Guard::Internals::Plugins do
-  def stub_plugin(name, group)
-    instance_double("Guard::Plugin", name: name, group: group)
+RSpec.describe Guard::Internals::Plugins, :stub_ui do
+  include_context "with engine"
+
+  subject { described_class.new(engine) }
+
+  let!(:dummy_plugin) { subject.add("dummy", group: "frontend") }
+  let!(:doe_plugin) { subject.add("doe", group: "frontend") }
+  let!(:foobar_plugin) { subject.add("foobar", group: "backend") }
+  let!(:foobaz_plugin) { subject.add("foobaz", group: "backend") }
+
+  describe "#add" do
+    it "adds given plugin" do
+      dummy_plugin2 = subject.add("dummy", group: "backend")
+
+      expect(subject.all).to match_array [
+        dummy_plugin,
+        doe_plugin,
+        foobar_plugin,
+        foobaz_plugin,
+        dummy_plugin2
+      ]
+    end
   end
 
-  # TODO: all this is crazy
-  let(:frontend) { instance_double("Guard::Group", name: :frontend) }
-  let(:backend) { instance_double("Guard::Group", name: :backend) }
+  describe "#remove" do
+    it "removes given plugin" do
+      subject.remove(dummy_plugin)
 
-  let(:foo_bar_frontend) { stub_plugin("foobar", frontend) }
-  let(:foo_baz_frontend) { stub_plugin("foobaz", frontend) }
-  let(:foo_bar_backend) { stub_plugin("foobar", backend) }
-  let(:foo_baz_backend) { stub_plugin("foobaz", backend) }
-
-  let(:pu_foobar) { instance_double("Guard::PluginUtil") }
-  let(:pu_foobaz) { instance_double("Guard::PluginUtil") }
-
-  before do
-    allow(Guard::PluginUtil).to receive(:new).with("foobar")
-                                             .and_return(pu_foobar)
-
-    allow(Guard::PluginUtil).to receive(:new).with("foobaz")
-                                             .and_return(pu_foobaz)
-
-    allow(pu_foobar).to receive(:initialize_plugin).with(group: "frontend")
-                                                   .and_return(foo_bar_frontend)
-
-    allow(pu_foobaz).to receive(:initialize_plugin).with(group: "frontend")
-                                                   .and_return(foo_baz_frontend)
-
-    allow(pu_foobar).to receive(:initialize_plugin).with(group: "backend")
-                                                   .and_return(foo_bar_backend)
-
-    allow(pu_foobaz).to receive(:initialize_plugin).with(group: "backend")
-                                                   .and_return(foo_baz_backend)
+      expect(subject.all).to match_array [
+        doe_plugin,
+        foobar_plugin,
+        foobaz_plugin
+      ]
+    end
   end
 
   describe "#all" do
-    before do
-      subject.add("foobar", group: "frontend")
-      subject.add("foobaz", group: "frontend")
-      subject.add("foobar", group: "backend")
-      subject.add("foobaz", group: "backend")
-    end
-
     context "with no arguments" do
-      let(:args) { [] }
       it "returns all plugins" do
-        expect(subject.all(*args)).to eq [
-          foo_bar_frontend,
-          foo_baz_frontend,
-          foo_bar_backend,
-          foo_baz_backend
+        expect(subject.all).to match_array [
+          dummy_plugin,
+          doe_plugin,
+          foobar_plugin,
+          foobaz_plugin
         ]
       end
     end
 
-    context "find a plugin by as string" do
+    context "find a plugin by string" do
       it "returns an array of plugins if plugins are found" do
-        expect(subject.all("foo-bar"))
-          .to match_array([foo_bar_backend, foo_bar_frontend])
+        expect(subject.all("dummy"))
+          .to match_array([dummy_plugin])
       end
     end
 
-    context "find a plugin by as symbol" do
+    context "find a plugin by symbol" do
       it "returns an array of plugins if plugins are found" do
-        expect(subject.all(:'foo-bar'))
-          .to match_array([foo_bar_backend, foo_bar_frontend])
+        expect(subject.all(:dummy))
+          .to match_array([dummy_plugin])
       end
 
       it "returns an empty array when no plugin is found" do
@@ -79,26 +72,26 @@ RSpec.describe Guard::Internals::Plugins do
 
     context "find plugins matching a regexp" do
       it "returns an array of plugins if plugins are found" do
-        expect(subject.all(/^foobar/))
-          .to match_array([foo_bar_backend, foo_bar_frontend])
+        expect(subject.all(/^foo/))
+          .to match_array([foobar_plugin, foobaz_plugin])
       end
 
       it "returns an empty array when no plugin is found" do
-        expect(subject.all(/foo$/)).to be_empty
+        expect(subject.all(/unknown$/)).to be_empty
       end
     end
 
     context "find plugins by their group as a string" do
       it "returns an array of plugins if plugins are found" do
-        expect(subject.all(group: "backend"))
-          .to eq [foo_bar_backend, foo_baz_backend]
+        expect(subject.all(group: "frontend"))
+          .to match_array([dummy_plugin, doe_plugin])
       end
     end
 
     context "find plugins by their group as a symbol" do
       it "returns an array of plugins if plugins are found" do
         expect(subject.all(group: :frontend))
-          .to eq [foo_bar_frontend, foo_baz_frontend]
+          .to match_array([dummy_plugin, doe_plugin])
       end
 
       it "returns an empty array when no plugin is found" do
@@ -108,33 +101,14 @@ RSpec.describe Guard::Internals::Plugins do
 
     context "find plugins by their group & name" do
       it "returns an array of plugins if plugins are found" do
-        expect(subject.all(group: "backend", name: "foo-bar"))
-          .to eq [foo_bar_backend]
+        expect(subject.all(group: "backend", name: "foobar"))
+          .to match_array [foobar_plugin]
       end
 
       it "returns an empty array when no plugin is found" do
         expect(subject.all(group: :unknown, name: :'foo-baz'))
           .to be_empty
       end
-    end
-  end
-
-  describe "#remove" do
-    before do
-      subject.add("foobar", group: "frontend")
-      subject.add("foobaz", group: "frontend")
-      subject.add("foobar", group: "backend")
-      subject.add("foobaz", group: "backend")
-    end
-
-    it "removes given plugin" do
-      subject.remove(foo_bar_frontend)
-
-      expect(subject.all).to match_array [
-        foo_baz_frontend,
-        foo_bar_backend,
-        foo_baz_backend
-      ]
     end
   end
 end

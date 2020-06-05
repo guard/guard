@@ -16,8 +16,12 @@ module Guard
           Show all defined Guard plugins and their options.
           BANNER
 
+          def engine # rubocop:disable Lint/NestedMethodDefinition
+            Thread.current[:engine]
+          end
+
           def process # rubocop:disable Lint/NestedMethodDefinition
-            Guard.async_queue_add([:guard_show])
+            engine.async_queue_add([:guard_show])
           end
         end
       end

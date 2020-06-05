@@ -2,7 +2,6 @@
 
 require "guard/cli/environments/bundler"
 
-# TODO: instead of shared examples, use have_received if possible
 RSpec.shared_examples "avoids Bundler warning" do
   it "does not show the Bundler warning" do
     expect(Guard::UI).to_not have_received(:info).with(/Guard here!/)
@@ -15,7 +14,7 @@ RSpec.shared_examples "shows Bundler warning" do
   end
 end
 
-RSpec.describe Guard::Cli::Environments::Bundler do
+RSpec.describe Guard::Cli::Environments::Bundler, :stub_ui do
   describe "#verify" do
     let(:gemdeps) { nil }
     let(:gemfile) { nil }

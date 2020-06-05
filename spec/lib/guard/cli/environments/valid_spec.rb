@@ -1,49 +1,38 @@
 # frozen_string_literal: true
 
 require "guard/cli/environments/valid"
-require "guard/cli/environments/bundler"
 
-RSpec.describe Guard::Cli::Environments::Valid do
+RSpec.describe Guard::Cli::Environments::Valid, :stub_ui do
+  let(:engine) { Guard::Engine.new }
+  let(:options) { { no_bundler_warning: true } }
+
   subject { described_class.new(options) }
-  let(:options) { double("options") }
 
   before do
-    # TODO: start should be an instance method of something
-    allow(Guard).to receive(:start)
+    allow(Guard::Engine).to receive(:new).and_return(engine)
+    allow(engine).to receive(:start).and_return(0)
   end
 
-  describe "#start_guard" do
-    let(:bundler) { instance_double("Guard::Cli::Environments::Bundler") }
+  describe "#start_engine" do
+    let(:bundler) { instance_double("Guard::Cli::Environments::Bundler", verify: true) }
 
     before do
-      allow(Guard::Cli::Environments::Bundler).to receive(:new)
-        .and_return(bundler)
-
-      allow(bundler).to receive(:verify)
+      allow(Guard::Cli::Environments::Bundler).to receive(:new).and_return(bundler)
     end
 
     context "with a valid bundler setup" do
-      before do
-        allow(bundler).to receive(:verify)
+      it "start engine with options" do
+        expect(Guard::Engine).to receive(:new).with(options).and_return(engine)
+        expect(engine).to receive(:start)
 
-        allow(options).to receive(:[]).with(:no_bundler_warning)
-                                      .and_return(false)
-      end
-
-      it "starts guard" do
-        expect(Guard).to receive(:start)
-        subject.start_guard
-      end
-
-      it "start guard with options" do
-        expect(Guard).to receive(:start).with(options)
-        subject.start_guard
+        subject.start_engine
       end
 
       it "returns exit code" do
         exitcode = double("exitcode")
-        expect(Guard).to receive(:start).and_return(exitcode)
-        expect(subject.start_guard).to be(exitcode)
+        expect(engine).to receive(:start).and_return(exitcode)
+
+        expect(subject.start_engine).to be(exitcode)
       end
 
       [
@@ -54,18 +43,18 @@ RSpec.describe Guard::Cli::Environments::Valid do
       ].each do |error_class|
         context "when a #{error_class} error occurs" do
           before do
-            allow(Guard).to receive(:start)
+            allow(engine).to receive(:start)
               .and_raise(error_class, "#{error_class} error!")
           end
 
           it "aborts" do
-            expect { subject.start_guard }.to raise_error(SystemExit)
+            expect { subject.start_engine }.to raise_error(SystemExit)
           end
 
           it "shows error message" do
             expect(Guard::UI).to receive(:error).with(/#{error_class} error!/)
             begin
-              subject.start_guard
+              subject.start_engine
             rescue SystemExit
             end
           end
@@ -74,11 +63,12 @@ RSpec.describe Guard::Cli::Environments::Valid do
     end
 
     context "without no_bundler_warning option" do
-      subject { described_class.new(no_bundler_warning: false) }
+      let(:options) { { no_bundler_warning: false } }
 
       it "verifies bundler presence" do
         expect(bundler).to receive(:verify)
-        subject.start_guard
+
+        subject.start_engine
       end
 
       context "without a valid bundler setup" do
@@ -86,11 +76,11 @@ RSpec.describe Guard::Cli::Environments::Valid do
           allow(bundler).to receive(:verify).and_raise(SystemExit)
         end
 
-        it "does not start guard" do
-          expect(Guard).to_not receive(:start)
+        it "does not start engine" do
+          expect(engine).not_to receive(:start)
 
           begin
-            subject.start_guard
+            subject.start_engine
           rescue SystemExit
           end
         end
@@ -98,29 +88,28 @@ RSpec.describe Guard::Cli::Environments::Valid do
     end
 
     context "with no_bundler_warning option" do
-      subject { described_class.new(no_bundler_warning: true) }
-
       it "does not verify bundler presence" do
-        expect(bundler).to_not receive(:verify)
-        subject.start_guard
+        expect(bundler).not_to receive(:verify)
+
+        subject.start_engine
       end
 
-      it "starts guard" do
-        expect(Guard).to receive(:start)
-        subject.start_guard
+      it "starts engine" do
+        expect(engine).to receive(:start)
+
+        subject.start_engine
       end
     end
 
     describe "return value" do
       let(:exitcode) { double("Fixnum") }
-      subject { described_class.new(no_bundler_warning: true) }
 
       before do
-        allow(Guard).to receive(:start).and_return(exitcode)
+        allow(engine).to receive(:start).and_return(exitcode)
       end
 
       it "matches return value of Guard.start" do
-        expect(subject.start_guard).to be(exitcode)
+        expect(subject.start_engine).to be(exitcode)
       end
     end
   end
@@ -128,8 +117,7 @@ RSpec.describe Guard::Cli::Environments::Valid do
   describe "#initialize_guardfile" do
     let(:evaluator) { instance_double("Guard::Guardfile::Evaluator") }
     let(:generator) { instance_double("Guard::Guardfile::Generator") }
-    let(:state) { instance_double("Guard::Internals::State") }
-    let(:session) { instance_double("Guard::Internals::Session") }
+    let(:session) { engine.state.session }
 
     before do
       stub_file("Gemfile")
@@ -138,12 +126,8 @@ RSpec.describe Guard::Cli::Environments::Valid do
       allow(generator).to receive(:create_guardfile)
       allow(generator).to receive(:initialize_all_templates)
 
-      allow(session).to receive(:evaluator_options)
-      allow(state).to receive(:session).and_return(session)
-
-      allow(Guard::Internals::State).to receive(:new).and_return(state)
       allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
-      allow(Guard::Guardfile::Generator).to receive(:new).and_return(generator)
+      allow(Guard::Guardfile::Generator).to receive(:new).with(engine).and_return(generator)
     end
 
     context "with bare option" do
@@ -157,8 +141,8 @@ RSpec.describe Guard::Cli::Environments::Valid do
 
         allow(File).to receive(:exist?).with("Gemfile").and_return(false)
         expect(generator).to receive(:create_guardfile)
-        expect(generator).to_not receive(:initialize_template)
-        expect(generator).to_not receive(:initialize_all_templates)
+        expect(generator).not_to receive(:initialize_template)
+        expect(generator).not_to receive(:initialize_all_templates)
 
         subject.initialize_guardfile
       end
@@ -182,7 +166,6 @@ RSpec.describe Guard::Cli::Environments::Valid do
       it "creates a Guardfile" do
         expect(evaluator).to receive(:evaluate)
           .and_raise(Guard::Guardfile::Evaluator::NoGuardfileError).once
-        expect(evaluator).to receive(:evaluate)
 
         expect(Guard::Guardfile::Generator).to receive(:new)
           .and_return(generator)

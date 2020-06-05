@@ -3,15 +3,6 @@
 require "guard/ui"
 require "guard/plugin_util"
 
-# Add Pathname#binwrite to 1.9.3
-unless Pathname.instance_methods.include?(:binwrite)
-  class Pathname
-    def binwrite(*args)
-      IO.binwrite(to_s, *args)
-    end
-  end
-end
-
 module Guard
   module Guardfile
     # This class is responsible for generating the Guardfile and adding Guard'
@@ -20,12 +11,11 @@ module Guard
     # @see Guard::CLI
     #
     class Generator
-      require "guard"
-      require "guard/ui"
-
+      # @private
       INFO_TEMPLATE_ADDED =
         "%s template added to Guardfile, feel free to edit it"
 
+      # @private
       # The Guardfile template for `guard init`
       GUARDFILE_TEMPLATE = File.expand_path(
         "../../guard/templates/Guardfile",
@@ -41,6 +31,7 @@ module Guard
         HOME_TEMPLATES = Pathname.new("/").expand_path
       end
 
+      # @private
       class Error < RuntimeError
       end
 
@@ -59,6 +50,10 @@ module Guard
         end
       end
 
+      def initialize(engine)
+        @engine = engine
+      end
+
       # Creates the initial Guardfile template when it does not
       # already exist.
       #
@@ -67,11 +62,11 @@ module Guard
       def create_guardfile
         path = Pathname.new("Guardfile").expand_path
         if path.exist?
-          _ui(:error, "Guardfile already exists at #{path}")
+          UI.error("Guardfile already exists at #{path}")
           abort
         end
 
-        _ui(:info, "Writing new Guardfile to #{path}")
+        UI.info("Writing new Guardfile to #{path}")
         FileUtils.cp(GUARDFILE_TEMPLATE, path.to_s)
       end
 
@@ -79,24 +74,16 @@ module Guard
       #
       # @see Guard::CLI#init
       #
-      # @param [String] plugin_name the name of the Guard plugin or template to
-      #   initialize
-      #
       def initialize_template(plugin_name)
         guardfile = Pathname.new("Guardfile")
+        plugin_util = PluginUtil.new(engine, plugin_name)
 
-        plugin_util = PluginUtil.new(plugin_name)
-        # TODO: change to "valid?" method
-        plugin_class = plugin_util.plugin_class(fail_gracefully: true)
-        if plugin_class
+        if plugin_util.valid?
           begin
             plugin_util.add_to_guardfile
           rescue Errno::ENOENT => e
-            # TODO: refactor
-            template = plugin_class.template(plugin_util.plugin_location)
-            _ui(:error, "Found class #{plugin_class} but loading it's template"\
-              "failed: '#{template}'")
-            _ui(:error, "Error is: #{e}")
+            UI.error("Found class #{plugin_util.plugin_class} but loading its template failed.")
+            UI.error("Error is: #{e}")
             return
           end
           return
@@ -105,7 +92,7 @@ module Guard
         template_code = (HOME_TEMPLATES + plugin_name).read
         guardfile.binwrite(format("\n%<template>s\n", template: template_code), open_args: ["a"])
 
-        _ui(:info, format(INFO_TEMPLATE_ADDED, plugin_name))
+        UI.info(format(INFO_TEMPLATE_ADDED, plugin_name))
       rescue Errno::ENOENT
         fail NoSuchPlugin, plugin_name.downcase
       end
@@ -121,9 +108,7 @@ module Guard
 
       private
 
-      def _ui(*args)
-        UI.send(*args)
-      end
+      attr_reader :engine
     end
   end
 end

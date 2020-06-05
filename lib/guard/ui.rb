@@ -2,12 +2,13 @@
 
 require "guard/ui/colors"
 require "guard/ui/config"
+require "guard/ui/logger_config"
 
 require "guard/terminal"
 require "forwardable"
 
 # TODO: rework this class from the bottom-up
-#  - remove dependency on Session and Scope
+#  - remove dependency on Session
 #  - extract into a separate gem
 # - change UI to class
 
@@ -23,24 +24,29 @@ module Guard
     include Colors
 
     class << self
+      # @private
       # Get the Guard::UI logger instance
       #
       def logger
         @logger ||=
           begin
             require "lumberjack"
-            Lumberjack::Logger.new(options.device, options.logger_config)
+            Lumberjack::Logger.new(options.device, logger_config)
           end
       end
 
+      # @private
       # Since logger is global, for Aruba in-process to properly
       # separate output between calls, we need to reset
       #
       # We don't use logger=() since it's expected to be a Lumberjack instance
-      def reset_logger
+      def reset
+        @options = nil
+        @logger_config = nil
         @logger = nil
       end
 
+      # @private
       # Get the logger options
       #
       # @return [Hash] the logger options
@@ -56,14 +62,26 @@ module Guard
       # @option options [String] template the logger template
       # @option options [String] time_format the time format
       #
-      # TODO: deprecate?
       def options=(options)
         @options = Config.new(options)
       end
 
+      # @private
+      def logger_config
+        @logger_config ||= LoggerConfig.new
+      end
+
+      # @private
+      # Assigns a logger template
+      def template=(new_template)
+        logger_config.template = new_template
+        @logger.template = new_template if @logger
+      end
+
+      # @private
       # Assigns a log level
       def level=(new_level)
-        options.logger_config.level = new_level
+        logger_config.level = new_level
         @logger.level = new_level if @logger
       end
 
@@ -128,13 +146,19 @@ module Guard
         $stderr.print(color_enabled? ? "\r\e[0m" : "\r\n")
       end
 
+      # @private
+      def engine
+        Thread.current[:engine]
+      end
+
       # Clear the output if clearable.
       #
       def clear(opts = {})
-        return unless Guard.state.session.clear?
+        return unless engine
+        return unless engine.session.clear?
 
-        fail "UI not set up!" if @clearable.nil?
-        return unless @clearable || opts[:force]
+        fail "UI not set up!" if clearable.nil?
+        return unless clearable || opts[:force]
 
         @clearable = false
         Terminal.clear
@@ -142,7 +166,6 @@ module Guard
         warning("Failed to clear the screen: #{e.inspect}")
       end
 
-      # TODO: arguments: UI uses Guard::options anyway
       # @private api
       def reset_and_clear
         @clearable = false
@@ -151,7 +174,7 @@ module Guard
 
       # Allow the screen to be cleared again.
       #
-      def clearable
+      def clearable!
         @clearable = true
       end
 
@@ -160,12 +183,13 @@ module Guard
       # @param [String] action the action to show
       # @param [Hash] scope hash with a guard or a group scope
       #
-      def action_with_scopes(action, scope)
-        titles = Guard.state.scope.titles(scope)
+      def action_with_scopes(action, titles)
         info "#{action} #{titles.join(', ')}"
       end
 
       private
+
+      attr_accessor :clearable
 
       # Filters log messages depending on either the
       # `:only`` or `:except` option.
@@ -180,7 +204,7 @@ module Guard
         plugin ||= _calling_plugin_name
 
         match = !(only || except)
-        match ||= (only&.match(plugin))
+        match ||= only&.match(plugin)
         match ||= (except && !except.match(plugin))
         return unless match
 

@@ -2,6 +2,7 @@
 
 module Guard
   module UI
+    # @private
     module Colors
       # Brighten the color
       ANSI_ESCAPE_BRIGHT = "1"

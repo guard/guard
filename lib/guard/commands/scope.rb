@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require "pry"
-require "guard/interactor"
-require "guard"
 
 module Guard
   module Commands
@@ -18,20 +16,25 @@ module Guard
           Set the global Guard scope.
           BANNER
 
-          def process(*entries) # rubocop:disable Lint/NestedMethodDefinition
-            scope, unknown = Guard.state.session.convert_scope(entries)
+          def engine # rubocop:disable Lint/NestedMethodDefinition
+            Thread.current[:engine]
+          end
 
-            unless unknown.empty?
+          def process(*entries) # rubocop:disable Lint/NestedMethodDefinition
+            session = engine.session
+            scopes, unknown = session.convert_scopes(entries)
+
+            if unknown.any?
               output.puts "Unknown scopes: #{unknown.join(',')}"
               return
             end
 
-            if scope[:plugins].empty? && scope[:groups].empty?
+            if scopes[:plugins].empty? && scopes[:groups].empty?
               output.puts "Usage: scope <scope>"
               return
             end
 
-            Guard.state.scope.from_interactor(scope)
+            session.interactor_scopes = scopes
           end
         end
       end

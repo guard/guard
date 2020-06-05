@@ -2,9 +2,9 @@
 
 require "guard/jobs/pry_wrapper"
 
-RSpec.describe Guard::Jobs::PryWrapper do
-  subject { described_class.new({}) }
-  let(:listener) { instance_double("Listen::Listener") }
+RSpec.describe Guard::Jobs::PryWrapper, :stub_ui do
+  include_context "with engine"
+
   let(:pry_hooks) { double("pry_hooks", add_hook: true) }
   let(:pry_config) do
     double("pry_config", "history_file=" => true, command_prefix: true, "prompt=" => true, "should_load_rc=" => true,
@@ -16,26 +16,11 @@ RSpec.describe Guard::Jobs::PryWrapper do
   end
   let(:terminal_settings) { instance_double("Guard::Jobs::TerminalSettings") }
 
-  let(:session) { instance_double("Guard::Internals::Session") }
-  let(:plugins) { instance_double("Guard::Internals::Plugins") }
-  let(:groups) { instance_double("Guard::Internals::Groups") }
-  let(:state) { instance_double("Guard::Internals::State") }
-  let(:scope) { instance_double("Guard::Internals::Scope") }
+  subject { described_class.new(engine) }
 
   before do
-    allow(Guard).to receive(:listener).and_return(listener)
     allow(Pry).to receive(:config).and_return(pry_config)
     allow(Pry).to receive(:commands).and_return(pry_commands)
-    allow(Shellany::Sheller).to receive(:run).with("hash", "stty") { false }
-
-    allow(groups).to receive(:all).and_return([])
-    allow(session).to receive(:groups).and_return(groups)
-
-    allow(plugins).to receive(:all).and_return([])
-    allow(session).to receive(:plugins).and_return(plugins)
-    allow(state).to receive(:session).and_return(session)
-    allow(state).to receive(:scope).and_return(scope)
-    allow(Guard).to receive(:state).and_return(state)
 
     allow(Guard::Commands::All).to receive(:import)
     allow(Guard::Commands::Change).to receive(:import)
@@ -81,7 +66,7 @@ RSpec.describe Guard::Jobs::PryWrapper do
     before do
       allow(Pry).to receive(:start) do
         # sleep for a long time (anything > 0.6)
-        sleep 2
+        sleep 1
       end
     end
 
@@ -116,13 +101,13 @@ RSpec.describe Guard::Jobs::PryWrapper do
       expect(killed_moment - start).to be > 0.5
     end
 
-    it "return :stopped when brought into background" do
+    it "return :continue when brought into background" do
       Thread.new do
         sleep 0.1
         subject.background
       end
 
-      expect(subject.foreground).to be(:stopped)
+      expect(subject.foreground).to be(:continue)
     end
   end
 
@@ -149,9 +134,7 @@ RSpec.describe Guard::Jobs::PryWrapper do
 
     before do
       allow(Shellany::Sheller).to receive(:run).with("hash", "stty") { false }
-      allow(scope).to receive(:titles).and_return(["all"])
-
-      allow(listener).to receive(:paused?).and_return(false)
+      allow(engine).to receive(:paused?).and_return(false)
       allow(Pry).to receive(:view_clip).and_return("main")
     end
 
@@ -176,7 +159,7 @@ RSpec.describe Guard::Jobs::PryWrapper do
 
       context "Guard is paused" do
         before do
-          allow(listener).to receive(:paused?).and_return(true)
+          allow(engine).to receive(:paused?).and_return(true)
         end
 
         it "displays 'pause'" do
@@ -187,7 +170,7 @@ RSpec.describe Guard::Jobs::PryWrapper do
 
       context "with a groups scope" do
         before do
-          allow(scope).to receive(:titles).and_return(%w[Backend Frontend])
+          allow(engine.scope).to receive(:titles).and_return(%w[Backend Frontend])
         end
 
         it "displays the group scope title in the prompt" do
@@ -198,7 +181,7 @@ RSpec.describe Guard::Jobs::PryWrapper do
 
       context "with a plugins scope" do
         before do
-          allow(scope).to receive(:titles).and_return(%w[RSpec Ronn])
+          allow(engine.scope).to receive(:titles).and_return(%w[RSpec Ronn])
         end
 
         it "displays the group scope title in the prompt" do

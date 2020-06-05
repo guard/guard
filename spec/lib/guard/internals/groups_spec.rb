@@ -72,7 +72,6 @@ RSpec.describe Guard::Internals::Groups do
     end
   end
 
-  # TOOD: test adding with options
   describe "#add" do
     let(:common) { instance_double("Guard::Group", name: :common) }
     let(:default) { instance_double("Guard::Group", name: :default) }
@@ -103,8 +102,6 @@ RSpec.describe Guard::Internals::Groups do
         expect(subject.all).to match_array([common, default, frontend])
       end
 
-      # TODO: what if group is added multiple times with different options?
-
       context "with an existing group" do
         before { subject.add("frontend") }
 
@@ -115,6 +112,13 @@ RSpec.describe Guard::Internals::Groups do
 
         it "does not add duplicate groups when name is a symbol" do
           subject.add(:frontend)
+          expect(subject.all).to match_array([common, default, frontend])
+        end
+
+        it "does not add duplicate groups even if options are different" do
+          subject.add(:frontend, halt_on_fail: true)
+          subject.add(:frontend, halt_on_fail: false)
+
           expect(subject.all).to match_array([common, default, frontend])
         end
       end

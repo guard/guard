@@ -1,0 +1,73 @@
+---
+detectors:
+  UtilityFunction:
+    public_methods_only: true
+
+  BooleanParameter:
+    exclude:
+      - "Guard::Interactor#initialize"
+
+  FeatureEnvy:
+    exclude:
+      - "Guard::CLI#show"
+      - "Guard::CLI#notifiers"
+      - "Guard::Internals::Scope#_instantiate"
+      - "Guard::Internals::Scope#titles"
+      - "Guard::Engine#_evaluate"
+
+  ControlParameter:
+    exclude:
+      - "Guard::Engine#interactor="
+      - "Guard::Internals::Scope#titles"
+      - "Guard::Runner#run"
+      - "stub_file"
+
+  InstanceVariableAssumption:
+    exclude:
+      - "Guard::Dsl"
+
+  NilCheck:
+    exclude:
+      - "Guard::Cli::Environments::Valid#start_engine"
+      - "Guard::Internals::Scope#titles"
+      - "Guard::UI#clear"
+
+  NestedIterators:
+    exclude:
+      - "Guard::DslReader#self.cleanup_backtrace"
+
+  TooManyStatements:
+    exclude:
+      - "Guard::DslReader#evaluate"
+      - "Guard::DslReader#self.cleanup_backtrace"
+      - "Guard::Internals::Scope#titles"
+      - "Guard::Internals::Session#convert_scopes"
+      - "Guard::Engine#_guardfile_deprecated_check"
+      - "Guard::Engine#_evaluate"
+      - "Guard::Engine#start"
+      - "Guard::Engine#pause"
+      - "Guard::Engine#stop"
+      - "Guard::PluginUtil#plugin_class"
+
+  TooManyMethods:
+    exclude:
+      - "Guard::Engine"
+
+  IrresponsibleModule:
+    exclude:
+      - "Guard::Cli::Environments::Base"
+      - "Guard::Cli::Environments::EvaluateOnly"
+      - "Guard::Cli::Environments::Valid"
+      - "Guard::DslReader"
+      - "Guard::Dummy"
+      - "Guard::Doe"
+      - "Guard::FooBar"
+      - "Guard::FooBaz"
+      - "FakePry"
+      - "ApplicationController#respond"
+
+  UncommunicativeVariableName:
+    exclude:
+      - "Guard::DslReader#evaluate"
+      - "Guard::PluginUtil#initialize_plugin"
+      - "Guard::PluginUtil#plugin_class"

@@ -1,47 +1,34 @@
 # frozen_string_literal: true
 
+require "guard/engine"
 require "guard/plugin"
-
 require "guard/dsl"
+require "guard/dsl_reader"
 
-RSpec.describe Guard::Dsl do
-  let(:ui_config) { instance_double("Guard::UI::Config") }
-
-  let(:guardfile_evaluator) { instance_double(Guard::Guardfile::Evaluator) }
-  let(:interactor) { instance_double(Guard::Interactor) }
-  let(:listener) { instance_double("Listen::Listener") }
-
-  let(:session) { instance_double("Guard::Internals::Session") }
-  let(:plugins) { instance_double("Guard::Internals::Plugins") }
-  let(:groups) { instance_double("Guard::Internals::Groups") }
-  let(:state) { instance_double("Guard::Internals::State") }
-  let(:scope) { instance_double("Guard::Internals::Scope") }
+RSpec.describe Guard::Dsl, :stub_ui do
+  include_context "with engine"
 
   let(:evaluator) do
     proc do |contents|
-      Guard::Dsl.new.evaluate(contents, "", 1)
+      described_class.new(engine).evaluate(contents, "", 1)
     end
   end
 
-  before do
-    stub_user_guard_rb
-    stub_const "Guard::Foo", instance_double(Guard::Plugin)
-    stub_const "Guard::Bar", instance_double(Guard::Plugin)
-    stub_const "Guard::Baz", instance_double(Guard::Plugin)
-    allow(Guard::Notifier).to receive(:turn_on)
-    allow(Guard::Interactor).to receive(:new).and_return(interactor)
+  subject { described_class.new(engine) }
 
-    allow(state).to receive(:scope).and_return(scope)
-    allow(session).to receive(:plugins).and_return(plugins)
-    allow(session).to receive(:groups).and_return(groups)
-    allow(state).to receive(:session).and_return(session)
-    allow(Guard).to receive(:state).and_return(state)
+  methods = %w[
+    initialize guard notification interactor group watch callback
+    ignore ignore! logger scope directories clearing
+  ].map(&:to_sym)
 
-    # For backtrace cleanup
-    allow(ENV).to receive(:[]).with("GEM_HOME").and_call_original
-    allow(ENV).to receive(:[]).with("GEM_PATH").and_call_original
+  methods.each do |meth|
+    describe "\##{meth} signature" do
+      it "matches base signature" do
+        expected = Guard::DslReader.instance_method(meth).arity
 
-    allow(Guard::UI::Config).to receive(:new).and_return(ui_config)
+        expect(subject.method(meth).arity).to eq(expected)
+      end
+    end
   end
 
   describe "#ignore" do
@@ -50,6 +37,7 @@ RSpec.describe Guard::Dsl do
 
       it "adds ignored regexps to the listener" do
         expect(session).to receive(:guardfile_ignore=).with([/^foo/, /bar/])
+
         evaluator.call(contents)
       end
     end
@@ -60,6 +48,7 @@ RSpec.describe Guard::Dsl do
       it "adds all ignored regexps to the listener" do
         expect(session).to receive(:guardfile_ignore=).with([/foo/]).once
         expect(session).to receive(:guardfile_ignore=).with([/bar/]).once
+
         evaluator.call(contents)
       end
     end
@@ -90,23 +79,6 @@ RSpec.describe Guard::Dsl do
         evaluator.call(contents)
       end
     end
-  end
-
-  # TODO: remove this hack (after deprecating filter)
-  def method_for(klass, meth)
-    klass.instance_method(meth)
-  end
-
-  # TODO: deprecated #filter
-  describe "#filter alias method" do
-    subject { method_for(described_class, :filter) }
-    it { is_expected.to eq(method_for(described_class, :ignore)) }
-  end
-
-  # TODO: deprecated #filter
-  describe "#filter! alias method" do
-    subject { method_for(described_class, :filter!) }
-    it { is_expected.to eq(method_for(described_class, :ignore!)) }
   end
 
   describe "#notification" do
@@ -140,7 +112,8 @@ RSpec.describe Guard::Dsl do
     context "with interactor :off" do
       let(:contents) { "interactor :off" }
       it "disables the interactions with :off" do
-        expect(Guard::Interactor).to receive(:enabled=).with(false)
+        expect(engine).to receive(:interactor=).with(:off)
+
         evaluator.call(contents)
       end
     end
@@ -148,8 +121,7 @@ RSpec.describe Guard::Dsl do
     context "with interactor options" do
       let(:contents) { "interactor option1: 'a', option2: 123" }
       it "passes the options to the interactor" do
-        expect(Guard::Interactor).to receive(:options=)
-          .with(option1: "a", option2: 123)
+        expect(engine).to receive(:interactor=).with(option1: "a", option2: 123)
 
         evaluator.call(contents)
       end
@@ -468,74 +440,113 @@ RSpec.describe Guard::Dsl do
     before do
       allow(Guard::UI).to receive(:options).and_return({})
       allow(Guard::UI).to receive(:options=)
+      allow(Guard::UI).to receive(:level=)
+      allow(Guard::UI).to receive(:template=)
     end
 
     describe "options" do
       let(:contents) { "" }
 
-      before do
-        evaluator.call(contents)
-      end
-
       subject { Guard::UI }
 
       context "with logger level :error" do
         let(:contents) { "logger level: :error" }
-        it { is_expected.to have_received(:options=).with(level: :error) }
+
+        it do
+          expect(Guard::UI).to receive(:level=).with(:error)
+
+          evaluator.call(contents)
+        end
       end
 
       context "with logger level 'error'" do
         let(:contents) { "logger level: 'error'" }
-        it { is_expected.to have_received(:options=).with(level: :error) }
+
+        it do
+          expect(Guard::UI).to receive(:level=).with(:error)
+
+          evaluator.call(contents)
+        end
       end
 
       context "with logger template" do
         let(:contents) { "logger template: ':message - :severity'" }
+
         it do
-          is_expected.to have_received(:options=)
-            .with(template: ":message - :severity")
+          expect(Guard::UI).to receive(:template=).with(":message - :severity")
+
+          evaluator.call(contents)
         end
       end
 
       context "with a logger time format" do
         let(:contents) { "logger time_format: '%Y'" }
+
         it do
-          is_expected.to have_received(:options=).with(time_format: "%Y")
+          expect(Guard::UI.options).to receive(:merge!).with(time_format: "%Y")
+
+          evaluator.call(contents)
         end
       end
 
       context "with a logger only filter from a symbol" do
         let(:contents) { "logger only: :cucumber" }
-        it { is_expected.to have_received(:options=).with(only: /cucumber/i) }
+
+        it do
+          expect(Guard::UI.options).to receive(:merge!).with(only: /cucumber/i)
+
+          evaluator.call(contents)
+        end
       end
 
       context "with logger only filter from a string" do
         let(:contents) { "logger only: 'jasmine'" }
-        it { is_expected.to have_received(:options=).with(only: /jasmine/i) }
+        subject { Guard::UI.options }
+
+        it do
+          expect(Guard::UI.options).to receive(:merge!).with(only: /jasmine/i)
+
+          evaluator.call(contents)
+        end
       end
 
       context "with logger only filter from an array of symbols and string" do
         let(:contents) { "logger only: [:rspec, 'cucumber']" }
+
         it do
-          is_expected.to have_received(:options=).with(only: /rspec|cucumber/i)
+          expect(Guard::UI.options).to receive(:merge!).with(only: /rspec|cucumber/i)
+
+          evaluator.call(contents)
         end
       end
 
       context "with logger except filter from a symbol" do
         let(:contents) { "logger except: :jasmine" }
-        it { is_expected.to have_received(:options=).with(except: /jasmine/i) }
+
+        it do
+          expect(Guard::UI.options).to receive(:merge!).with(except: /jasmine/i)
+
+          evaluator.call(contents)
+        end
       end
 
       context "with logger except filter from a string" do
         let(:contents) { "logger except: 'jasmine'" }
-        it { is_expected.to have_received(:options=).with(except: /jasmine/i) }
+
+        it do
+          expect(Guard::UI.options).to receive(:merge!).with(except: /jasmine/i)
+
+          evaluator.call(contents)
+        end
       end
 
       context "with logger except filter from array of symbols and string" do
         let(:contents) { "logger except: [:rspec, 'cucumber', :jasmine]" }
+
         it do
-          is_expected.to have_received(:options=)
-            .with(except: /rspec|cucumber|jasmine/i)
+          expect(Guard::UI.options).to receive(:merge!).with(except: /rspec|cucumber|jasmine/i)
+
+          evaluator.call(contents)
         end
       end
     end
@@ -553,7 +564,8 @@ RSpec.describe Guard::Dsl do
         end
 
         it "does not set the invalid value" do
-          expect(Guard::UI).to receive(:options=).with({})
+          expect(Guard::UI).not_to receive(:level=)
+
           evaluator.call(contents)
         end
       end
@@ -565,11 +577,13 @@ RSpec.describe Guard::Dsl do
           expect(Guard::UI).to receive(:warning)
             .with "You cannot specify the logger options"\
             " :only and :except at the same time."
+
           evaluator.call(contents)
         end
 
         it "removes the options" do
-          expect(Guard::UI).to receive(:options=).with({})
+          expect(Guard::UI.options).to receive(:merge!).with({})
+
           evaluator.call(contents)
         end
       end
@@ -581,7 +595,8 @@ RSpec.describe Guard::Dsl do
       let(:contents) { "scope plugins: [:foo, :bar]" }
 
       it "sets the guardfile's default scope" do
-        expect(session).to receive(:guardfile_scope).with(plugins: %i[foo bar])
+        expect(session).to receive(:guardfile_scopes=).with(plugins: %i[foo bar])
+
         evaluator.call(contents)
       end
     end

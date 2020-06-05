@@ -75,7 +75,8 @@ module Guard
         quit: "q"
       }.freeze
 
-      def initialize(options)
+      def initialize(engine, options = {})
+        super
         @mutex = Mutex.new
         @thread = nil
         @terminal_settings = TerminalSettings.new
@@ -85,15 +86,14 @@ module Guard
 
       def foreground
         UI.debug "Start interactor"
-        @terminal_settings.save
+        terminal_settings.save
 
         _switch_to_pry
-        # TODO: rename :stopped to continue
-        _killed? ? :stopped : :exit
+        _killed? ? :continue : :exit
       ensure
         UI.reset_line
         UI.debug "Interactor was stopped or killed"
-        @terminal_settings.restore
+        terminal_settings.restore
       end
 
       def background
@@ -101,7 +101,7 @@ module Guard
       end
 
       def handle_interrupt
-        thread = @thread
+        # thread = @thread
         fail Interrupt unless thread
 
         thread.raise Interrupt
@@ -109,7 +109,7 @@ module Guard
 
       private
 
-      attr_reader :thread
+      attr_reader :terminal_settings, :thread
 
       def _pry_config
         Pry.config
@@ -124,11 +124,12 @@ module Guard
         @mutex.synchronize do
           unless @thread
             @thread = Thread.new { Pry.start }
+            @thread[:engine] = engine
             @thread.join(0.5) # give pry a chance to start
             th = @thread
           end
         end
-        # check for nill, because it might've been killed between the mutex and
+        # check for nil, because it might've been killed between the mutex and
         # now
         th&.join
       end
@@ -141,7 +142,7 @@ module Guard
 
       def _kill_pry
         @mutex.synchronize do
-          unless @thread.nil?
+          if @thread
             @thread.kill
             @thread = nil # set to nil so we know we were killed
           end
@@ -187,7 +188,7 @@ module Guard
       def _add_hooks(options)
         _add_load_guard_rc_hook(Pathname(options[:guard_rc] || GUARD_RC))
         _add_load_project_guard_rc_hook(Pathname.pwd + ".guardrc")
-        _add_restore_visibility_hook if @terminal_settings.configurable?
+        _add_restore_visibility_hook if terminal_settings.configurable?
       end
 
       # Add a `when_started` hook that loads a global .guardrc if it exists.
@@ -210,7 +211,7 @@ module Guard
       # eval.
       def _add_restore_visibility_hook
         _pry_config.hooks.add_hook :after_eval, :restore_visibility do
-          @terminal_settings.echo
+          terminal_settings.echo
         end
       end
 
@@ -258,7 +259,7 @@ module Guard
       # `rspec` is created that runs `all rspec`.
       #
       def _create_guard_commands
-        Guard.state.session.plugins.all.each do |guard_plugin|
+        engine.state.session.plugins.all.each do |guard_plugin|
           cmd = "Run all #{guard_plugin.title}"
           _pry_commands.create_command guard_plugin.name, cmd do
             group "Guard"
@@ -276,7 +277,7 @@ module Guard
       # `frontend` is created that runs `all frontend`.
       #
       def _create_group_commands
-        Guard.state.session.groups.all.each do |group|
+        engine.state.session.groups.all.each do |group|
           next if group.name == :default
 
           cmd = "Run all #{group.title}"
@@ -309,7 +310,7 @@ module Guard
       # prompt.
       #
       def _scope_for_prompt
-        titles = Guard.state.scope.titles.join(",")
+        titles = engine.state.scope.titles.join(",")
         titles == "all" ? "" : titles + " "
       end
 
@@ -318,7 +319,7 @@ module Guard
       #
       def _prompt(ending_char)
         proc do |target_self, nest_level, pry|
-          process = Guard.listener.paused? ? "pause" : "guard"
+          process = engine.paused? ? "pause" : "guard"
           level = ":#{nest_level}" unless nest_level.zero?
 
           "[#{_history(pry)}] #{_scope_for_prompt}#{process}"\

@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
 require "guard/ui"
+require "guard/plugin"
+require "guard/guardfile/evaluator"
 
 module Guard
+  # @private
   # This class contains useful methods to:
   #
   # * Fetch all the Guard plugins names;
@@ -35,38 +38,25 @@ module Guard
     #
     # @param [String] name the name of the Guard plugin
     #
-    def initialize(name)
+    def initialize(engine, name)
+      @engine = engine
       @name = name.to_s.sub(/^guard-/, "")
     end
 
     # Initializes a new `Guard::Plugin` with the given `options` hash. This
-    # methods handles plugins that inherit from the deprecated `Guard::Guard`
-    # class as well as plugins that inherit from `Guard::Plugin`.
+    # methods handles plugins that inherit from `Guard::Plugin`.
     #
     # @see Guard::Plugin
-    # @see https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0 How to
-    # upgrade for Guard 2.0
     #
     # @return [Guard::Plugin] the initialized plugin
-    # @return [Guard::Guard] the initialized plugin. This return type is
-    #   deprecated and the plugin's maintainer should update it to be
-    #   compatible with Guard 2.0. For more information on how to upgrade for
-    #   Guard 2.0, please head over to:
-    #   https://github.com/guard/guard/wiki/Upgrading-to-Guard-2.0
     #
     def initialize_plugin(options)
       klass = plugin_class
       fail "Could not load class: #{_constant_name.inspect}" unless klass
 
-      if klass.ancestors.include?(Guard)
-        klass.new(options.delete(:watchers), options)
-      else
-        begin
-          klass.new(**options)
-        rescue ArgumentError => e
-          fail "Failed to call #{klass}.new(options): #{e}"
-        end
-      end
+      klass.new(options.merge(engine: engine))
+    rescue ArgumentError => e
+      fail "Failed to call #{klass}.new(options): #{e}"
     end
 
     # Locates a path to a Guard plugin gem.
@@ -91,14 +81,9 @@ module Guard
     #
     # * `rspec` will find a class `Guard::RSpec`
     #
-    # @option options [Boolean] fail_gracefully whether error messages should
-    # not be printed
-    #
     # @return [Class, nil] the loaded class
     #
-    def plugin_class(options = {})
-      options = { fail_gracefully: false }.merge(options)
-
+    def plugin_class
       const = _plugin_constant
       fail TypeError, "no constant: #{_constant_name}" unless const
 
@@ -108,30 +93,25 @@ module Guard
         require "guard/#{name.downcase}"
         const = _plugin_constant
         @plugin_class ||= Guard.const_get(const)
-      rescue TypeError => e
-        UI.error "Could not find class Guard::#{_constant_name}"
-        UI.error e.backtrace.join("\n")
-        # TODO: return value or move exception higher
-      rescue LoadError => e
-        unless options[:fail_gracefully]
-          msg = format(ERROR_NO_GUARD_OR_CLASS, name.downcase, _constant_name)
-          UI.error(msg)
-          UI.error("Error is: #{e}")
-          UI.error(e.backtrace.join("\n"))
-          # TODO: return value or move exception higher
-        end
+      rescue TypeError, LoadError => e
+        UI.error(format(ERROR_NO_GUARD_OR_CLASS, name.downcase, _constant_name))
+        raise e
       end
+    end
+
+    # @private
+    def valid?
+      plugin_class
+
+      true
+    rescue TypeError, LoadError
+      false
     end
 
     # Adds a plugin's template to the Guardfile.
     #
     def add_to_guardfile
-      klass = plugin_class # call here to avoid failing later
-
-      require_relative "guardfile/evaluator"
-      # TODO: move this to Generator?
-      options = Guard.state.session.evaluator_options
-      evaluator = Guardfile::Evaluator.new(options)
+      evaluator = Guardfile::Evaluator.new(engine)
       begin
         evaluator.evaluate
       rescue Guard::Guardfile::Evaluator::NoPluginsError
@@ -144,7 +124,7 @@ module Guard
         File.open("Guardfile", "wb") do |f|
           f.puts(content)
           f.puts("")
-          f.puts(klass.template(plugin_location))
+          f.puts(plugin_class.template(plugin_location))
         end
 
         UI.info INFO_ADDED_GUARD_TO_GUARDFILE % name
@@ -152,6 +132,8 @@ module Guard
     end
 
     private
+
+    attr_reader :engine
 
     # Returns the constant for the current plugin.
     #

@@ -15,8 +15,7 @@ Feature: Show
     Given an empty file named "Guardfile"
     When I run `guard show`
     Then the output should match /No Guard plugins found in Guardfile, please add at least one\.$/
-    # TODO: this step fails
-    # And the exit status should not be 0
+    And the exit status should not be 0
 
   @in-process
   Scenario: Show plugins and their configuration

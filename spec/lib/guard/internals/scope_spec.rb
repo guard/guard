@@ -3,93 +3,92 @@
 require "guard/internals/scope"
 
 RSpec.describe Guard::Internals::Scope do
-  let(:session) { instance_double("Guard::Internals::Session") }
-  let(:state) { instance_double("Guard::Internals::State") }
+  include_context "with engine"
 
-  let(:groups) { instance_double("Guard::Internals::Groups") }
-  let(:plugins) { instance_double("Guard::Internals::Plugins") }
+  let!(:frontend_group) { groups.add("frontend") }
+  let!(:dummy_plugin) { plugins.add("dummy", group: "frontend", watchers: [Guard::Watcher.new("hello")]) }
 
-  let(:foo_plugin) { instance_double("Guard::Plugin", name: :foo) }
-  let(:bar_plugin) { instance_double("Guard::Plugin", name: :bar) }
-  let(:baz_plugin) { instance_double("Guard::Plugin", name: :baz) }
-
-  let(:foo_group) { instance_double("Guard::Group", name: :foo) }
-  let(:bar_group) { instance_double("Guard::Group", name: :bar) }
-  let(:baz_group) { instance_double("Guard::Group", name: :baz) }
-
-  before do
-    allow(groups).to receive(:all).with("foo").and_return([foo_group])
-    allow(groups).to receive(:all).with("bar").and_return([bar_group])
-    allow(groups).to receive(:all).with("baz").and_return([baz_group])
-    allow(groups).to receive(:all).with(:baz).and_return([baz_group])
-
-    allow(plugins).to receive(:all).with("foo").and_return([foo_plugin])
-    allow(plugins).to receive(:all).with("bar").and_return([bar_plugin])
-    allow(plugins).to receive(:all).with("baz").and_return([baz_plugin])
-    allow(plugins).to receive(:all).with(:baz).and_return([baz_plugin])
-
-    allow(session).to receive(:cmdline_plugins).and_return([])
-    allow(session).to receive(:cmdline_groups).and_return([])
-    allow(session).to receive(:groups).and_return(groups)
-    allow(session).to receive(:plugins).and_return(plugins)
-
-    allow(state).to receive(:session).and_return(session)
-    allow(Guard).to receive(:state).and_return(state)
-
-    allow(session).to receive(:guardfile_plugin_scope).and_return([])
-    allow(session).to receive(:guardfile_group_scope).and_return([])
-  end
+  subject { engine.scope }
 
   # TODO: move to Session?
-  describe "#to_hash" do
-    %i[group plugin].each do |scope|
-      describe scope.inspect do
-        let(:hash) do
-          subject.to_hash[:"#{scope}s"].map(&:name).map(&:to_s)
-        end
+  describe "#titles" do
+    context "with no arguments given" do
+      it "returns 'Dummy'" do
+        expect(subject.titles).to eq ["Dummy"]
+      end
+    end
 
-        # NOTE: interactor returns objects
+    context "with a 'plugins' scope given" do
+      it "returns the plugins' titles" do
+        expect(subject.titles(plugins: [:dummy])).to eq ["Dummy"]
+      end
+    end
+
+    context "with a 'groups' scope given" do
+      it "returns the groups' titles" do
+        expect(subject.titles(groups: [:frontend])).to eq %w[Frontend Common]
+      end
+    end
+
+    context "with both 'plugins' and 'groups' scopes given" do
+      it "returns only the plugins' titles" do
+        expect(subject.titles(plugins: [dummy_plugin], groups: [frontend_group])).to eq ["Dummy"]
+      end
+    end
+
+    shared_examples "scopes titles" do
+      it "return the titles for the given scopes" do
+        expect(subject.titles).to eq engine.public_send(given_scope).all(name_for_scope).map(&:title)
+      end
+    end
+
+    shared_examples "empty scopes titles" do
+      it "return an empty array" do
+        expect(subject.titles).to be_empty
+      end
+    end
+
+    { groups: "frontend", plugins: "dummy" }.each do |scope, name|
+      let(:given_scope) { scope }
+      let(:name_for_scope) { name }
+
+      describe "#{scope.inspect} (#{name})" do
         context "when set from interactor" do
           before do
-            stub_obj = send("baz_#{scope}")
-            subject.from_interactor("#{scope}s": stub_obj)
+            engine.session.interactor_scopes = { given_scope => name_for_scope }
           end
 
-          it "uses interactor scope" do
-            expect(hash).to contain_exactly("baz")
-          end
+          it_behaves_like "scopes titles"
         end
 
         context "when not set in interactor" do
           context "when set in commandline" do
-            before do
-              allow(session).to receive(:"cmdline_#{scope}s")
-                .and_return(%w[baz])
-            end
+            let(:options) { { given_scope => [name_for_scope] } }
 
-            it "uses commandline scope" do
-              expect(hash).to contain_exactly("baz")
-            end
+            it_behaves_like "scopes titles"
           end
 
           context "when not set in commandline" do
             context "when set in Guardfile" do
               before do
-                allow(session).to receive(:"guardfile_#{scope}_scope")
-                  .and_return(%w[baz])
+                engine.session.guardfile_scopes = { given_scope => name_for_scope }
               end
 
-              it "uses guardfile scope" do
-                expect(hash).to contain_exactly("baz")
-              end
+              it_behaves_like "scopes titles"
             end
           end
         end
       end
     end
-  end
 
-  describe "#titles" do
-    pending
+    describe "with groups and plugins scopes" do
+      before do
+        engine.session.interactor_scopes = { groups: "frontend", plugins: "dummy" }
+      end
+
+      it "return only the plugins titles" do
+        expect(subject.titles).to eq engine.plugins.all.map(&:title)
+      end
+    end
   end
 end
