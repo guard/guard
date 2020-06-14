@@ -2,13 +2,13 @@
 
 require "guard/commands/pause"
 
-RSpec.describe Guard::Commands::Pause do
-  class FakePry < Pry::Command
-    def self.output; end
-  end
+RSpec.describe Guard::Commands::Pause, :stub_ui do
+  include_context "with engine"
+  include_context "with fake pry"
+
+  let(:output) { instance_double(Pry::Output) }
 
   before do
-    allow(FakePry).to receive(:output).and_return(output)
     allow(Pry::Commands).to receive(:create_command).with("pause") do |&block|
       FakePry.instance_eval(&block)
     end
@@ -17,7 +17,8 @@ RSpec.describe Guard::Commands::Pause do
   end
 
   it "tells Guard to pause" do
-    expect(::Guard).to receive(:async_queue_add).with([:guard_pause])
+    expect(engine).to receive(:async_queue_add).with([:guard_pause])
+
     FakePry.process
   end
 end

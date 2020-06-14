@@ -1,5 +1,5 @@
 # frozen_string_literal: true
 
 module Guard
-  VERSION = "2.16.1"
+  VERSION = "3.0.0-rc1"
 end

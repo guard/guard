@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "GUARD" "1" "November 2014" "" ""
+.TH "GUARD" "1" "June 2020" "" ""
 .
 .SH "NAME"
 \fBguard\fR \- Guard keeps an eye on your file modifications\.
@@ -36,7 +36,7 @@ The following options are available:
 \fB\-d\fR, \fB\-\-debug\fR Runs Guard in debug mode\.
 .
 .P
-\fB\-w\fR, \fB\-\-watchdir\fR \fIPATH\fR Tells Guard to watch PATH instead of \fB\./\fR\.
+\fB\-w\fR, \fB\-\-watchdirs\fR \fIPATH\fR Tells Guard to watch PATH instead of \fB\./\fR\.
 .
 .P
 \fB\-G\fR, \fB\-\-guardfile\fR \fIFILE\fR Tells Guard to use FILE as its Guardfile instead of \fB\./Guardfile\fR or \fB~/\.Guardfile\fR\.
@@ -84,7 +84,7 @@ Initialize Guard and a specific Guard plugin at the same time:
 Run Guard:
 .
 .P
-\fB[bundle exec] guard [start] \-\-watchdir ~/dev \-\-guardfile ~/env/Guardfile \-\-clear \-\-group backend frontend \-\-notify false \-\-debug\fR
+\fB[bundle exec] guard [start] \-\-watchdirs ~/dev \-\-guardfile ~/env/Guardfile \-\-clear \-\-group backend frontend \-\-notify false \-\-debug\fR
 .
 .P
 or in a more concise way:

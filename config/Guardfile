@@ -26,7 +26,7 @@ group :specs, halt_on_fail: true do
     #  watch(%r{^lib/guard/(guard|plugin).rb$}) { "spec/guard/plugin" }
   end
 
-  guard :rubocop, all_on_start: false, cli: "--rails -c .rubocop.yml" do
+  guard :rubocop, all_on_start: false, cli: "-c .rubocop.yml" do
     watch(%r{.+\.rb$}) { |m| m[0] }
     watch(%r{(?:.+/)?\.rubocop\.yml$}) { |m| File.dirname(m[0]) }
   end

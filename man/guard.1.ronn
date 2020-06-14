@@ -37,7 +37,7 @@ The following options are available:
 `-d`, `--debug`
   Runs Guard in debug mode.
 
-`-w`, `--watchdir` <PATH>
+`-w`, `--watchdirs` <PATH>
   Tells Guard to watch PATH instead of `./`.
 
 `-G`, `--guardfile` <FILE>
@@ -88,7 +88,7 @@ Initialize Guard and a specific Guard plugin at the same time:
 
 Run Guard:
 
-`[bundle exec] guard [start] --watchdir ~/dev --guardfile ~/env/Guardfile --clear --group backend frontend --notify false --debug`
+`[bundle exec] guard [start] --watchdirs ~/dev --guardfile ~/env/Guardfile --clear --group backend frontend --notify false --debug`
 
 or in a more concise way:
 

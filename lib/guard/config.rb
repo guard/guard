@@ -8,6 +8,7 @@ module Guard
     create_method(:gem_silence_deprecations?)
   end
 
+  # @private
   class Config < config_class
     def initialize
       super "guard"

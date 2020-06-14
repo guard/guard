@@ -10,6 +10,11 @@ module Guard
           @matcher = obj
         end
 
+        def to_s
+          matcher.to_s
+        end
+        alias_method :inspect, :to_s
+
         # Compare with other matcher
         # @param other [Guard::Watcher::Pattern::Matcher]
         #   other matcher for comparing

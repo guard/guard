@@ -10,7 +10,7 @@ module Guard
         UI.debug "Guards jobs done. Sleeping..."
         sleep
         UI.debug "Sleep interrupted by events."
-        :stopped
+        :continue
       rescue Interrupt
         UI.debug "Sleep interrupted by user."
         :exit

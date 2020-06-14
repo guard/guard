@@ -26,6 +26,7 @@ module Guard
   class Group
     attr_accessor :name, :options
 
+    # @private
     # Initializes a Group.
     #
     # @param [String] name the name of the group

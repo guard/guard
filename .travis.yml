@@ -3,10 +3,10 @@ os: linux
 language: ruby
 
 rvm:
-  - 2.4.9
-  - 2.5.7
-  - 2.6.5
-  - jruby-9.2.8.0
+  - 2.5.8
+  - 2.6.6
+  - 2.7.1
+  - jruby-head
   - rbx-4.5
 
 jdk:

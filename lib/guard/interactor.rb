@@ -1,55 +1,74 @@
 # frozen_string_literal: true
 
 require "forwardable"
+require "guard/jobs/pry_wrapper"
+require "guard/jobs/sleep"
 
 module Guard
+  # @private
   class Interactor
+    attr_reader :interactive
+
     # Initializes the interactor. This configures
     # Pry and creates some custom commands and aliases
     # for Guard.
     #
-    def initialize(no_interaction = false)
-      @interactive = !no_interaction && self.class.enabled?
+    def initialize(engine, interactive = true)
+      @engine = engine
+      @interactive = interactive
+    end
+    alias_method :interactive?, :interactive
 
-      # TODO: only require the one used
-      require "guard/jobs/sleep"
-      require "guard/jobs/pry_wrapper"
-
-      job_klass = interactive? ? Jobs::PryWrapper : Jobs::Sleep
-      @idle_job = job_klass.new(self.class.options)
+    def options
+      @options ||= {}
     end
 
-    def interactive?
-      @interactive
+    def options=(opts)
+      @options = opts
+
+      _reset
+    end
+
+    def interactive=(flag)
+      @interactive = flag
+
+      _reset
+    end
+
+    def background
+      return unless _idle_job?
+
+      _idle_job.background
     end
 
     extend Forwardable
-    delegate %i(foreground background handle_interrupt) => :idle_job
-
-    # TODO: everything below is just so the DSL can set options
-    # before setup() is called, which makes it useless for when
-    # Guardfile is reevaluated
-    class << self
-      def options
-        @options ||= {}
-      end
-
-      # Pass options to interactor's job when it's created
-      attr_writer :options
-
-      # TODO: allow custom user idle jobs, e.g. [:pry, :sleep, :exit, ...]
-      def enabled?
-        @enabled || @enabled.nil?
-      end
-
-      alias_method :enabled, :enabled?
-
-      # TODO: handle switching interactors during runtime?
-      attr_writer :enabled
-    end
+    delegate %i(foreground handle_interrupt) => :_idle_job
 
     private
 
-    attr_reader :idle_job
+    attr_reader :engine
+
+    def _job_klass
+      if interactive
+        Jobs::PryWrapper
+      else
+        Jobs::Sleep
+      end
+    end
+
+    def _idle_job
+      @_idle_job ||= _job_klass.new(engine, options)
+    end
+
+    def _idle_job?
+      !!@_idle_job
+    end
+
+    def _reset
+      return unless _idle_job?
+
+      background
+      @_idle_job = nil
+    end
   end
 end

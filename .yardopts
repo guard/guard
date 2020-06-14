@@ -1,7 +1,11 @@
 --title 'Guard Documentation'
 --no-private
 --embed-mixin ClassMethods
+--exclude lib/guardfile
 --exclude lib/guard/internals
+--exclude lib/guard/cli
+--exclude lib/guard/commands
+--exclude lib/guard/jobs
 --readme README.md
 --markup markdown
 --markup-provider redcarpet

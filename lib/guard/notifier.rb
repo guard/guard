@@ -4,7 +4,8 @@ require "notiffany/notifier"
 require "guard/ui"
 
 module Guard
-  class Notifier
+  module Notifier
+    # @private
     def self.connect(options = {})
       @notifier ||= nil
       fail "Already connected!" if @notifier
@@ -18,21 +19,19 @@ module Guard
       end
     end
 
+    # @private
     def self.disconnect
       @notifier&.disconnect
       @notifier = nil
     end
 
-    DEPRECATED_IMPLICIT_CONNECT = "Calling Notiffany::Notifier.notify()"\
-                                  " without a prior Notifier.connect() is"\
-                                  " deprecated"
-
+    # Shows a notification.
+    #
+    # @param [String] message the message to show in the notification
+    # @param [Hash] options the Notiffany #notify options
+    #
     def self.notify(message, options = {})
-      unless @notifier
-        # TODO: reenable again?
-        # UI.deprecation(DEPRECTED_IMPLICIT_CONNECT)
-        connect(notify: true)
-      end
+      connect(notify: true) unless @notifier
 
       @notifier.notify(message, options)
     rescue RuntimeError => e
@@ -44,6 +43,7 @@ module Guard
       @notifier.turn_on
     end
 
+    # @private
     def self.toggle
       unless @notifier.enabled?
         UI.error NOTIFICATIONS_DISABLED
@@ -59,12 +59,14 @@ module Guard
       @notifier.turn_on
     end
 
-    # Used by dsl describer
+    # @private
+    # Used by Guard::DslDescriber
     def self.supported
       Notiffany::Notifier::SUPPORTED.inject(:merge)
     end
 
-    # Used by dsl describer
+    # @private
+    # Used by Guard::DslDescriber
     def self.detected
       @notifier.available.map do |mod|
         { name: mod.name.to_sym, options: mod.options }

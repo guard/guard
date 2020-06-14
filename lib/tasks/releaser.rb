@@ -2,6 +2,7 @@
 
 # TODO: extract to gem?
 
+# @private
 class Releaser
   def initialize(options = {})
     @project_name = options.delete(:project_name) do

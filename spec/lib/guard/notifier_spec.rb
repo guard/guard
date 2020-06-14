@@ -2,7 +2,7 @@
 
 require "guard/notifier"
 
-RSpec.describe Guard::Notifier do
+RSpec.describe Guard::Notifier, :stub_ui do
   subject { described_class }
   let(:notifier) { instance_double("Notiffany::Notifier") }
 

@@ -33,7 +33,7 @@ Feature: setting logger options
     And I create a file "foo"
     And I wait for Guard to become idle
     And I stop guard
-    Then the output should match /\[Custom - INFO - \d\d:\d\d:\d\d - Guard]/
+    Then the output should match /\[Custom - INFO - \d\d:\d\d:\d\d - Guard\]/
 
     @spawn
     Scenario: Customize logger level

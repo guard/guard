@@ -7,4 +7,4 @@ Feature: Guard "version" command
   @in-process
   Scenario: Show Guard's version
     When I run `guard version`
-    Then the output should match /^Guard version \d+.\d+.\d+$/
+    Then the output should match /^Guard version \d+.\d+.\d+(-\w+)?$/

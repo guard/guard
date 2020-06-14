@@ -1,186 +1,134 @@
 # frozen_string_literal: true
 
-require "guard/notifier"
-
-# NOTE: this is here so that no UI does not require anything,
-# since it could be activated by guard plugins during development
-# (it they are tested by other guard plugins)
-#
-# TODO: regardless, the dependency on Guard.state should be removed
-#
 require "guard/ui"
 
-require "guard/internals/session"
-
 RSpec.describe Guard::UI do
-  let(:interactor) { instance_double("Guard::Interactor") }
-  let(:logger) { instance_double("Lumberjack::Logger") }
-  let(:config) { instance_double("Guard::UI::Config") }
-  let(:logger_config) { instance_double("Guard::UI::Logger::Config") }
+  include_context "with engine"
 
+  let(:logger) { instance_double("Lumberjack::Logger") }
   let(:terminal) { class_double("Guard::Terminal") }
 
-  let(:session) { instance_double("Guard::Internals::Session") }
-  let(:state) { instance_double("Guard::Internals::State") }
-  let(:scope) { instance_double("Guard::Internals::Scope") }
-
   before do
-    allow(state).to receive(:scope).and_return(scope)
-    allow(state).to receive(:session).and_return(session)
-    allow(Guard).to receive(:state).and_return(state)
+    described_class.reset
 
     stub_const("Guard::Terminal", terminal)
 
-    allow(Guard::Notifier).to receive(:turn_on) {}
-
     allow(Lumberjack::Logger).to receive(:new).and_return(logger)
-    allow(Guard::UI::Config).to receive(:new).and_return(config)
-    allow(Guard::UI::Logger::Config).to receive(:new).and_return(logger_config)
-
-    # The spec helper stubs all UI classes, so other specs doesn't have
-    # to explicit take care of it. We unstub and move the stubs one layer
-    # down just for this spec.
-    allow(Guard::UI).to receive(:info).and_call_original
-    allow(Guard::UI).to receive(:warning).and_call_original
-    allow(Guard::UI).to receive(:error).and_call_original
-    allow(Guard::UI).to receive(:deprecation).and_call_original
-    allow(Guard::UI).to receive(:debug).and_call_original
-
     allow(logger).to receive(:info)
     allow(logger).to receive(:warn)
     allow(logger).to receive(:error)
     allow(logger).to receive(:debug)
-
-    allow(config).to receive(:device)
-    allow(config).to receive(:only)
-    allow(config).to receive(:except)
-
-    allow(config).to receive(:logger_config).and_return(logger_config)
-
-    allow($stderr).to receive(:print)
+    allow(logger).to receive(:level=)
   end
 
-  before do
-    Guard::UI.options = nil
-  end
-
-  after do
-    Guard::UI.reset_logger
-    Guard::UI.options = nil
-  end
+  after { described_class.reset }
 
   describe ".logger" do
     before do
-      allow(config).to receive(:device).and_return(device)
+      allow(described_class.options).to receive(:device).and_return(device)
     end
 
     context "with no logger set yet" do
       let(:device) { "foo.log" }
 
       it "returns the logger instance" do
-        expect(Guard::UI.logger).to be(logger)
+        expect(described_class.logger).to be(logger)
       end
 
       it "sets the logger device" do
-        expect(Lumberjack::Logger).to receive(:new)
-          .with(device, logger_config)
+        expect(Lumberjack::Logger).to receive(:new).with(device, described_class.logger_config)
 
-        Guard::UI.logger
+        described_class.logger
       end
     end
   end
 
   describe ".level=" do
-    before do
-      allow(logger).to receive(:level=)
-      allow(logger_config).to receive(:level=)
-    end
+    let(:level) { Logger::WARN }
 
     context "when logger is set up" do
-      before { Guard::UI.logger }
+      before { described_class.logger }
 
       it "sets the logger's level" do
-        level = Logger::WARN
         expect(logger).to receive(:level=).with(level)
-        Guard::UI.level = level
+
+        described_class.level = level
       end
 
       it "sets the logger's config level" do
-        level = Logger::WARN
-        expect(logger_config).to receive(:level=).with(level)
-        Guard::UI.level = level
+        expect(described_class.logger_config).to receive(:level=).with(level)
+
+        described_class.level = level
       end
     end
 
     context "when logger is not set up yet" do
-      before { Guard::UI.reset_logger }
+      before { described_class.reset }
 
       it "sets the logger's config level" do
-        level = Logger::WARN
-        expect(logger_config).to receive(:level=).with(level)
-        Guard::UI.level = level
+        expect(described_class.logger_config).to receive(:level=).with(level)
+
+        described_class.level = level
       end
 
       it "does not autocreate the logger" do
-        level = Logger::WARN
-        expect(logger).to_not receive(:level=).with(level)
-        Guard::UI.level = level
+        expect(logger).to_not receive(:level=)
+
+        described_class.level = level
       end
     end
   end
 
   describe ".options=" do
-    let(:new_config) { instance_double("Guard::UI::Config") }
-
-    before do
-      allow(Guard::UI::Config).to receive(:new).with(hi: :ho)
-                                               .and_return(new_config)
-
-      allow(new_config).to receive(:[]).with(:hi).and_return(:ho)
-    end
-
     it "sets the logger options" do
-      Guard::UI.options = { hi: :ho }
-      expect(Guard::UI.options[:hi]).to eq :ho
+      described_class.options = { hi: :ho }
+
+      expect(described_class.options[:hi]).to eq :ho
     end
   end
 
   shared_examples_for "a logger method" do
     it "resets the line with the :reset option" do
-      expect(Guard::UI).to receive :reset_line
-      Guard::UI.send(ui_method, input, reset: true)
+      expect(described_class).to receive :reset_line
+
+      described_class.send(ui_method, input, reset: true)
     end
 
     it "logs the message with the given severity" do
       expect(logger).to receive(severity).with(output)
-      Guard::UI.send(ui_method, input)
+
+      described_class.send(ui_method, input)
     end
 
     context "with the :only option" do
-      before { allow(config).to receive(:only).and_return(/A/) }
+      before { described_class.options = { only: /A/ } }
 
       it "allows logging matching messages" do
         expect(logger).to receive(severity).with(output)
-        Guard::UI.send(ui_method, input, plugin: "A")
+
+        described_class.send(ui_method, input, plugin: "A")
       end
 
       it "prevents logging other messages" do
         expect(logger).to_not receive(severity)
-        Guard::UI.send(ui_method, input, plugin: "B")
+
+        described_class.send(ui_method, input, plugin: "B")
       end
     end
 
     context "with the :except option" do
-      before { allow(config).to receive(:except).and_return(/A/) }
+      before { described_class.options = { except: /A/ } }
 
       it "prevents logging matching messages" do
         expect(logger).to_not receive(severity)
-        Guard::UI.send(ui_method, input, plugin: "A")
+
+        described_class.send(ui_method, input, plugin: "A")
       end
 
       it "allows logging other messages" do
         expect(logger).to receive(severity).with(output)
-        Guard::UI.send(ui_method, input, plugin: "B")
+
+        described_class.send(ui_method, input, plugin: "B")
       end
     end
   end
@@ -222,8 +170,9 @@ RSpec.describe Guard::UI do
       let(:value) { "1" }
 
       it "silences deprecations" do
-        expect(Guard::UI.logger).to_not receive(:warn)
-        Guard::UI.deprecation "Deprecator message"
+        expect(described_class.logger).to_not receive(:warn)
+
+        described_class.deprecation "Deprecator message"
       end
     end
 
@@ -254,33 +203,51 @@ RSpec.describe Guard::UI do
     context "with UI set up and ready" do
       before do
         allow(session).to receive(:clear?).and_return(false)
-        Guard::UI.reset_and_clear
+        described_class.reset_and_clear
       end
 
       context "when clear option is disabled" do
         it "does not clear the output" do
           expect(terminal).to_not receive(:clear)
-          Guard::UI.clear
+
+          described_class.clear
+        end
+      end
+
+      context "with no engine" do
+        before do
+          allow(described_class).to receive(:engine).and_return(nil)
+        end
+
+        context "when the screen is marked as needing clearing" do
+          it "clears the output" do
+            expect(terminal).to_not receive(:clear)
+
+            described_class.clear
+          end
         end
       end
 
       context "when clear option is enabled" do
         before do
           allow(session).to receive(:clear?).and_return(true)
+          allow(described_class).to receive(:engine).and_return(engine)
         end
 
         context "when the screen is marked as needing clearing" do
-          before { Guard::UI.clearable }
+          before { described_class.clearable! }
 
           it "clears the output" do
             expect(terminal).to receive(:clear)
-            Guard::UI.clear
+
+            described_class.clear
           end
 
           it "clears the output only once" do
             expect(terminal).to receive(:clear).once
-            Guard::UI.clear
-            Guard::UI.clear
+
+            described_class.clear
+            described_class.clear
           end
 
           context "when the command fails" do
@@ -293,17 +260,19 @@ RSpec.describe Guard::UI do
               expect(logger).to receive(:warn) do |arg|
                 expect(arg).to match(/failed to run command/)
               end
-              Guard::UI.clear
+
+              described_class.clear
             end
           end
         end
 
         context "when the screen has just been cleared" do
-          before { Guard::UI.clear }
+          before { described_class.clear }
 
           it "does not clear" do
             expect(terminal).to_not receive(:clear)
-            Guard::UI.clear
+
+            described_class.clear
           end
 
           context "when forced" do
@@ -311,7 +280,8 @@ RSpec.describe Guard::UI do
 
             it "clears the outputs if forced" do
               expect(terminal).to receive(:clear)
-              Guard::UI.clear(opts)
+
+              described_class.clear(opts)
             end
           end
         end
@@ -320,44 +290,28 @@ RSpec.describe Guard::UI do
   end
 
   describe ".action_with_scopes" do
-    let(:rspec) { double("Rspec", title: "Rspec") }
-    let(:jasmine) { double("Jasmine", title: "Jasmine") }
-    let(:group) { instance_double("Guard::Group", title: "Frontend") }
-
     context "with a plugins scope" do
       it "shows the plugin scoped action" do
-        allow(scope).to receive(:titles).with(plugins: [rspec, jasmine])
-                                        .and_return(%w[Rspec Jasmine])
+        expect(described_class).to receive(:info).with("Reload Rspec, Jasmine")
 
-        expect(Guard::UI).to receive(:info).with("Reload Rspec, Jasmine")
-        Guard::UI.action_with_scopes("Reload", plugins: [rspec, jasmine])
+        described_class.action_with_scopes("Reload", %w[Rspec Jasmine])
       end
     end
 
     context "with a groups scope" do
       it "shows the group scoped action" do
-        allow(scope).to receive(:titles).with(groups: [group])
-                                        .and_return(%w[Frontend])
+        expect(described_class).to receive(:info).with("Reload Frontend")
 
-        expect(Guard::UI).to receive(:info).with("Reload Frontend")
-        Guard::UI.action_with_scopes("Reload", groups: [group])
+        described_class.action_with_scopes("Reload", ["Frontend"])
       end
     end
 
     context "without a scope" do
       context "with a global plugin scope" do
         it "shows the global plugin scoped action" do
-          allow(scope).to receive(:titles).and_return(%w[Rspec Jasmine])
-          expect(Guard::UI).to receive(:info).with("Reload Rspec, Jasmine")
-          Guard::UI.action_with_scopes("Reload", {})
-        end
-      end
+          expect(described_class).to receive(:info).with("Reload Rspec, Jasmine")
 
-      context "with a global group scope" do
-        it "shows the global group scoped action" do
-          allow(scope).to receive(:titles).and_return(%w[Frontend])
-          expect(Guard::UI).to receive(:info).with("Reload Frontend")
-          Guard::UI.action_with_scopes("Reload", {})
+          described_class.action_with_scopes("Reload", %w[Rspec Jasmine])
         end
       end
     end

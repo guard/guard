@@ -1,10 +1,8 @@
 # frozen_string_literal: true
 
-require "guard/config"
-require "guard/deprecated/watcher" unless Guard::Config.new.strict?
-
 require "guard/ui"
 require "guard/watcher/pattern"
+require "guard/watcher/pattern/match_result"
 
 module Guard
   # The watcher defines a RegExp that will be matched against file system
@@ -13,7 +11,6 @@ module Guard
   # enable processing the file system change result.
   #
   class Watcher
-    Deprecated::Watcher.add_deprecated(self) unless Config.new.strict?
     attr_accessor :pattern, :action
 
     # Initializes a file watcher.
@@ -71,9 +68,10 @@ module Guard
 
     def match(string_or_pathname)
       m = pattern.match(string_or_pathname)
-      m.nil? ? nil : Pattern::MatchResult.new(m, string_or_pathname)
+      m ? Pattern::MatchResult.new(m, string_or_pathname) : nil
     end
 
+    # @private
     # Executes a watcher action.
     #
     # @param [String, MatchData] matches the matched path or the match from the
@@ -86,5 +84,10 @@ module Guard
       UI.error "Problem with watch action!\n#{e.message}"
       UI.error e.backtrace.join("\n")
     end
+
+    def to_s
+      pattern
+    end
+    alias_method :inspect, :to_s
   end
 end
