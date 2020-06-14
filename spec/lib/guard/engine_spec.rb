@@ -83,32 +83,23 @@ RSpec.describe Guard::Engine, :stub_ui do
     end
 
     it "evaluates the Guardfile" do
-      evaluator = instance_double("Guard::Guardfile::Evaluator", inline?: true)
-
-      allow(Guard::Guardfile::Evaluator).to receive(:new).with(engine).and_return(evaluator)
-      expect(evaluator).to receive(:evaluate)
+      expect(engine.evaluator).to receive(:evaluate).and_call_original
 
       start_engine
     end
 
     describe "listener" do
       subject { listener }
+      before { start_engine }
 
       context "with ignores 'ignore(/foo/)' and 'ignore!(/bar/)'" do
-        before do
-          engine.state.session.guardfile_ignore = /foo/
-          engine.state.session.guardfile_ignore_bang = /bar/
-
-          start_engine
-        end
+        let(:inline_guardfile) { "ignore(/foo/); ignore!(/bar/); guard :dummy" }
 
         it { is_expected.to have_received(:ignore).with([/foo/]) }
         it { is_expected.to have_received(:ignore!).with([/bar/]) }
       end
 
       context "without ignores" do
-        before { start_engine }
-
         it { is_expected.to_not have_received(:ignore) }
         it { is_expected.to_not have_received(:ignore!) }
       end
@@ -266,18 +257,19 @@ RSpec.describe Guard::Engine, :stub_ui do
   describe "#reload" do
     before do
       allow(engine.__send__(:_runner)).to receive(:run)
+      engine.setup
     end
 
     it "clears the screen and prints information message" do
       expect(Guard::UI).to receive(:clear)
-      expect(Guard::UI).to receive(:action_with_scopes).with("Reload", engine.scope.titles({}))
+      expect(Guard::UI).to receive(:action_with_scopes).with("Reload", engine.session.scope_titles({}))
 
       engine.reload
     end
 
     context "with an empty scope" do
       it "runs all" do
-        expect(engine.__send__(:_runner)).to receive(:run).with(:reload, {})
+        expect(engine.__send__(:_runner)).to receive(:run).with(:reload, [])
 
         engine.reload
       end
@@ -285,25 +277,44 @@ RSpec.describe Guard::Engine, :stub_ui do
 
     context "with a given scope" do
       it "runs all with the scope" do
-        default_group = engine.groups.all(:default)
-        expect(engine.__send__(:_runner)).to receive(:run).with(:reload, groups: default_group)
+        expect(engine.__send__(:_runner)).to receive(:run).with(:reload, [:default])
 
-        engine.reload(groups: default_group)
+        engine.reload(:default)
+      end
+    end
+
+    context "with multiple given scope" do
+      it "runs all with the scope" do
+        expect(engine.__send__(:_runner)).to receive(:run).with(:reload, %i[default frontend])
+
+        engine.reload(:default, :frontend)
+      end
+    end
+
+    context "with multiple given scope as array" do
+      it "runs all with the scope" do
+        expect(engine.__send__(:_runner)).to receive(:run).with(:reload, %i[default frontend])
+
+        engine.reload(%i[default frontend])
       end
     end
   end
 
   describe "#run_all" do
+    before do
+      engine.setup
+    end
+
     it "clears the screen and prints information message" do
       expect(Guard::UI).to receive(:clear)
-      expect(Guard::UI).to receive(:action_with_scopes).with("Run", engine.scope.titles({}))
+      expect(Guard::UI).to receive(:action_with_scopes).with("Run", engine.session.scope_titles({}))
 
       engine.run_all
     end
 
     context "with an empty scope" do
       it "runs all" do
-        expect(engine.__send__(:_runner)).to receive(:run).with(:run_all, {})
+        expect(engine.__send__(:_runner)).to receive(:run).with(:run_all, [])
 
         engine.run_all
       end
@@ -311,10 +322,25 @@ RSpec.describe Guard::Engine, :stub_ui do
 
     context "with a given scope" do
       it "runs all with the scope" do
-        default_group = engine.groups.all(:default)
-        expect(engine.__send__(:_runner)).to receive(:run).with(:run_all, groups: default_group)
+        expect(engine.__send__(:_runner)).to receive(:run).with(:run_all, [:default])
 
-        engine.run_all(groups: default_group)
+        engine.run_all(:default)
+      end
+    end
+
+    context "with multiple given scope" do
+      it "runs all with the scope" do
+        expect(engine.__send__(:_runner)).to receive(:run).with(:run_all, %i[default frontend])
+
+        engine.run_all(:default, :frontend)
+      end
+    end
+
+    context "with multiple given scope as array" do
+      it "runs all with the scope" do
+        expect(engine.__send__(:_runner)).to receive(:run).with(:run_all, %i[default frontend])
+
+        engine.run_all(%i[default frontend])
       end
     end
   end

@@ -1,12 +1,10 @@
 # frozen_string_literal: true
 
-require "guard/dsl_reader"
-require "guard/interactor"
-require "guard/notifier"
+require "guard/guardfile/result"
 require "guard/ui"
-require "guard/watcher"
 
 module Guard
+  # @private
   # The Dsl class provides the methods that are used in each `Guardfile` to
   # describe the behaviour of Guard.
   #
@@ -45,12 +43,29 @@ module Guard
   #
   # @see https://github.com/guard/guard/wiki/Guardfile-examples
   #
-  class Dsl < DslReader
+  class Dsl
     WARN_INVALID_LOG_LEVEL = "Invalid log level `%s` ignored. "\
       "Please use either :debug, :info, :warn or :error."
-
     WARN_INVALID_LOG_OPTIONS = "You cannot specify the logger options"\
       " :only and :except at the same time."
+
+    Error = Class.new(RuntimeError)
+
+    attr_reader :result
+
+    def initialize
+      @result = Guard::Guardfile::Result.new
+    end
+
+    def evaluate(contents, filename, lineno)
+      instance_eval(contents, filename.to_s, lineno)
+    rescue StandardError, ScriptError => e
+      prefix = "\n\t(dsl)> "
+      cleaned_backtrace = self.class.cleanup_backtrace(e.backtrace)
+      backtrace = "#{prefix}#{cleaned_backtrace.join(prefix)}"
+      msg = "Invalid Guardfile, original error is: \n\n%s, \nbacktrace: %s"
+      raise Error, format(msg, e, backtrace)
+    end
 
     # Set notification options for the system notifications.
     # You can set multiple notifications, which allows you to show local
@@ -67,7 +82,7 @@ module Guard
     # @see Guard::Notifier for available notifier and its options.
     #
     def notification(notifier, opts = {})
-      engine.session.guardfile_notification = { notifier.to_sym => opts }
+      result.notification.merge!(notifier.to_sym => opts)
     end
 
     # Sets the interactor options or disable the interactor.
@@ -81,8 +96,8 @@ module Guard
     # @param [Symbol, Hash] options either `:off` or a Hash with interactor
     #   options
     #
-    def interactor(options)
-      engine.interactor = options
+    def interactor(flag_or_options = {})
+      result.interactor.merge!(flag_or_options.is_a?(Hash) ? flag_or_options : { options.to_sym => {} })
     end
 
     # Declares a group of Guard plugins to be run with `guard start --group
@@ -105,35 +120,26 @@ module Guard
     # @yield a block where you can declare several Guard plugins
     #
     # @see Group
-    # @see Guard.add_group
     # @see #guard
     #
     def group(*args)
       options = args.last.is_a?(Hash) ? args.pop : {}
-      groups = args
-
-      groups.each do |group|
-        next unless group.to_sym == :all
-
-        fail ArgumentError, "'all' is not an allowed group name!"
-      end
+      group = args.pop.to_sym
 
       if block_given?
-        groups.each do |group|
-          # TODO: let groups be added *after* evaluation
-          engine.groups.add(group, options)
-        end
+        fail ArgumentError, "'all' is not an allowed group name!" if group == :all
 
-        @current_groups ||= []
-        @current_groups.push(groups)
+        result.groups.merge!(group => options)
+
+        @current_groups_stack ||= []
+        @current_groups_stack << group
 
         yield
 
-        @current_groups.pop
+        @current_groups_stack.pop
       else
         UI.error \
-          "No Guard plugins found in the group '#{groups.join(', ')}',"\
-          " please add at least one."
+          "No Guard plugins found in the group '#{group}', please add at least one."
       end
     end
 
@@ -157,24 +163,20 @@ module Guard
     # @yield a block where you can declare several watch patterns and actions
     #
     # @see Plugin
-    # @see Guard.add_plugin
     # @see #watch
     # @see #group
     #
     def guard(name, options = {})
-      @plugin_options = options.merge(watchers: [], callbacks: [])
+      name = name.to_sym
+      @current_plugin_options = options.merge(watchers: [], callbacks: [])
 
       yield if block_given?
 
-      @current_groups ||= []
-      groups = @current_groups&.last || [:default]
-      groups.each do |group|
-        opts = @plugin_options.merge(group: group)
-        # TODO: let plugins be added *after* evaluation
-        engine.plugins.add(name, opts)
-      end
+      @current_groups_stack ||= []
+      group = @current_groups_stack.last || :default
+      result.plugins << [name, @current_plugin_options.merge(group: group)]
 
-      @plugin_options = nil
+      @current_plugin_options = nil
     end
 
     # Defines a pattern to be watched in order to run actions on file
@@ -206,10 +208,9 @@ module Guard
     def watch(pattern, &action)
       # Allow watches in the global scope (to execute arbitrary commands) by
       # building a generic Guard::Plugin.
-      @plugin_options ||= nil
-      return guard(:plugin) { watch(pattern, &action) } unless @plugin_options
+      return guard(:plugin) { watch(pattern, &action) } unless @current_plugin_options
 
-      @plugin_options[:watchers] << Watcher.new(pattern, action)
+      @current_plugin_options[:watchers] << Watcher.new(pattern, action)
     end
 
     # Defines a callback to execute arbitrary code before or after any of
@@ -232,8 +233,7 @@ module Guard
     # @yield a callback block
     #
     def callback(*args, &block)
-      @plugin_options ||= nil
-      fail "callback must be called within a guard block" unless @plugin_options
+      fail "callback must be called within a guard block" unless @current_plugin_options
 
       block, events = if args.size > 1
                         # block must be the first argument in that case, the
@@ -242,7 +242,7 @@ module Guard
                       else
                         [block, args[0]]
                       end
-      @plugin_options[:callbacks] << { events: events, listener: block }
+      @current_plugin_options[:callbacks] << { events: events, listener: block }
     end
 
     # Ignores certain paths globally.
@@ -253,8 +253,7 @@ module Guard
     # @param [Regexp] regexps a pattern (or list of patterns) for ignoring paths
     #
     def ignore(*regexps)
-      # TODO: use guardfile results class
-      engine.session.guardfile_ignore = regexps
+      result.ignore.concat(Array(regexps).flatten)
     end
 
     # Replaces ignored paths globally
@@ -265,10 +264,7 @@ module Guard
     # @param [Regexp] regexps a pattern (or list of patterns) for ignoring paths
     #
     def ignore!(*regexps)
-      @ignore_bang_regexps ||= []
-      @ignore_bang_regexps << regexps
-      # TODO: use guardfile results class
-      engine.session.guardfile_ignore_bang = @ignore_bang_regexps
+      result.ignore_bang.concat(Array(regexps).flatten)
     end
 
     # Configures the Guard logger.
@@ -305,39 +301,35 @@ module Guard
     #   Guard plugin
     #
     def logger(options)
-      if options[:level]
-        level = options.delete(:level).to_sym
+      logger_options = options.dup
 
-        if %i(debug info warn error).include?(level)
-          UI.level = level
-        else
-          UI.warning(format(WARN_INVALID_LOG_LEVEL, level))
+      if logger_options.key?(:level)
+        logger_options[:level] = logger_options[:level].to_sym
+
+        unless %i(debug info warn error).include?(logger_options[:level])
+          UI.warning(format(WARN_INVALID_LOG_LEVEL, logger_options.delete(:level)))
         end
       end
 
-      if options[:template]
-        UI.template = options.delete(:template)
-      end
-
-      if options[:only] && options[:except]
+      if logger_options[:only] && logger_options[:except]
         UI.warning WARN_INVALID_LOG_OPTIONS
 
-        options.delete :only
-        options.delete :except
+        logger_options.delete(:only)
+        logger_options.delete(:except)
       end
 
       # Convert the :only and :except options to a regular expression
       %i(only except).each do |name|
-        next unless options[name]
+        next unless logger_options[name]
 
-        list = [].push(options[name]).flatten.map do |plugin|
+        list = [].push(logger_options[name]).flatten.map do |plugin|
           Regexp.escape(plugin.to_s)
         end
 
-        options[name] = Regexp.new(list.join("|"), Regexp::IGNORECASE)
+        logger_options[name] = Regexp.new(list.join("|"), Regexp::IGNORECASE)
       end
 
-      UI.options.merge!(options)
+      result.logger.merge!(logger_options)
     end
 
     # Sets the default scope on startup
@@ -357,8 +349,7 @@ module Guard
     # @param [Hash] scope the scope for the groups and plugins
     #
     def scope(scopes = {})
-      # TODO: use a Guardfile::Results class
-      engine.session.guardfile_scopes = scopes
+      result.scopes.merge!(scopes)
     end
 
     # Sets the directories to pass to Listen
@@ -369,10 +360,12 @@ module Guard
     # @param [Array] directories directories for Listen to watch
     #
     def directories(directories)
+      directories = Array(directories)
       directories.each do |dir|
         fail "Directory #{dir.inspect} does not exist!" unless Dir.exist?(dir)
       end
-      engine.session.watchdirs = directories
+
+      result.directories.concat(directories)
     end
 
     # Sets Guard to clear the screen before every task is run
@@ -383,7 +376,31 @@ module Guard
     # @param [Symbol] on ':on' to turn on, ':off' (default) to turn off
     #
     def clearing(flag)
-      engine.session.clearing(flag == :on)
+      result.clearing = flag == :on
+    end
+
+    def self.cleanup_backtrace(backtrace)
+      dirs = { File.realpath(Dir.pwd) => ".", }
+
+      gem_env = ENV["GEM_HOME"] || ""
+      dirs[gem_env] = "$GEM_HOME" unless gem_env.empty?
+
+      gem_paths = (ENV["GEM_PATH"] || "").split(File::PATH_SEPARATOR)
+      gem_paths.each_with_index do |path, index|
+        dirs[path] = "$GEM_PATH[#{index}]"
+      end
+
+      backtrace.dup.map do |raw_line|
+        path = nil
+        symlinked_path = raw_line.split(":").first
+        begin
+          path = raw_line.sub(symlinked_path, File.realpath(symlinked_path))
+          dirs.detect { |dir, name| path.sub!(File.realpath(dir), name) }
+          path
+        rescue Errno::ENOENT
+          path || symlinked_path
+        end
+      end
     end
   end
 end

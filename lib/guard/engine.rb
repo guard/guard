@@ -22,6 +22,10 @@ module Guard
     extend Forwardable
     include Internals::Helpers
 
+    # @private
+    ERROR_NO_PLUGINS = "No Guard plugins found in Guardfile,"\
+      " please add at least one."
+
     # Initialize a new Guard::Engine object.
     #
     # @option options [Boolean] clear if auto clear the UI should be done
@@ -42,29 +46,33 @@ module Guard
       @state ||= Internals::State.new(self, options)
     end
 
+    def evaluator
+      @evaluator ||= Guardfile::Evaluator.new(options)
+    end
+
     def to_s
       "#<#{self.class}:#{object_id} @options=#{options}>"
     end
     alias_method :inspect, :to_s
 
-    delegate %i[session scope] => :state
+    delegate %i[session] => :state
     delegate %i[plugins groups watchdirs] => :session
     delegate paused?: :_listener
 
-    # @private
-    def interactor=(off_or_options)
-      case off_or_options
-      when :off
-        _interactor.enabled = false
-      when Hash
-        _interactor.options = options
-      end
-    end
-
-    # Evaludate the Guardfile.
+    # Evaluate the Guardfile and instantiate internals.
     #
     def setup
-      _evaluate
+      _instantiate
+
+      UI.reset_and_clear
+
+      if evaluator.inline?
+        UI.info("Using inline Guardfile.")
+      elsif evaluator.custom?
+        UI.info("Using Guardfile at #{evaluator.guardfile_path}.")
+      end
+
+      self
     end
 
     # Start Guard by evaluating the `Guardfile`, initializing declared Guard
@@ -134,20 +142,22 @@ module Guard
     #
     # @param [Hash] scopes hash with a Guard plugin or a group scope
     #
-    def reload(scopes = {})
+    def reload(*entries)
+      entries.flatten!
       UI.clear(force: true)
-      UI.action_with_scopes("Reload", scope.titles(scopes))
-      _runner.run(:reload, scopes)
+      UI.action_with_scopes("Reload", session.scope_titles(entries))
+      _runner.run(:reload, entries)
     end
 
     # Trigger `run_all` on all Guard plugins currently enabled.
     #
     # @param [Hash] scopes hash with a Guard plugin or a group scope
     #
-    def run_all(scopes = {})
+    def run_all(*entries)
+      entries.flatten!
       UI.clear(force: true)
-      UI.action_with_scopes("Run", scope.titles(scopes))
-      _runner.run(:run_all, scopes)
+      UI.action_with_scopes("Run", session.scope_titles(entries))
+      _runner.run(:run_all, entries)
     end
 
     # Pause Guard listening to file changes.
@@ -202,7 +212,7 @@ module Guard
     end
 
     def _runner
-      @_runner ||= Runner.new(self)
+      @_runner ||= Runner.new(session)
     end
 
     def _queue
@@ -213,19 +223,73 @@ module Guard
       @_listener ||= Listen.send(*session.listener_args, &_listener_callback)
     end
 
-    def _evaluate
-      evaluator = Guardfile::Evaluator.new(self)
-      evaluator.evaluate
+    # Instantiate Engine internals based on the `Guard::Guardfile::Result` populated from the `Guardfile` evaluation.
+    #
+    # @example Programmatically evaluate a Guardfile
+    #   engine = Guard::Engine.new.setup
+    #
+    # @example Programmatically evaluate a Guardfile with a custom Guardfile
+    # path
+    #
+    #   options = { guardfile: '/Users/guardfile/MyAwesomeGuardfile' }
+    #   engine = Guard::Engine.new(options).setup
+    #
+    # @example Programmatically evaluate a Guardfile with an inline Guardfile
+    #
+    #   options = { inline: 'guard :rspec' }
+    #   engine = Guard::Engine.new(options).setup
+    #
+    def _instantiate
+      guardfile_result = evaluator.evaluate
+      guardfile_result_plugins = guardfile_result.plugins
 
-      UI.reset_and_clear
+      UI.error(ERROR_NO_PLUGINS) if guardfile_result_plugins.empty?
 
-      if evaluator.inline?
-        UI.info("Using inline Guardfile.")
-      elsif evaluator.custom?
-        UI.info("Using Guardfile at #{evaluator.guardfile_path}.")
+      session.guardfile_notification = guardfile_result.notification
+      session.guardfile_ignore = guardfile_result.ignore
+      session.guardfile_ignore_bang = guardfile_result.ignore_bang
+      session.guardfile_scopes = guardfile_result.scopes
+      session.watchdirs = guardfile_result.directories
+      session.clearing(guardfile_result.clearing)
+      _instantiate_logger(guardfile_result.logger.dup)
+      _instantiate_interactor(guardfile_result.interactor)
+
+      _instantiate_groups(guardfile_result.groups)
+      _instantiate_plugins(guardfile_result_plugins)
+    end
+
+    def _instantiate_interactor(interactor_options)
+      case interactor_options
+      when :off
+        _interactor.interactive = false
+      when Hash
+        _interactor.options = interactor_options
       end
-    rescue Guardfile::Evaluator::NoPluginsError => e
-      UI.error(e.message)
+    end
+
+    def _instantiate_logger(logger_options)
+      if logger_options.key?(:level)
+        UI.level = logger_options.delete(:level)
+      end
+
+      if logger_options.key?(:template)
+        UI.template = logger_options.delete(:template)
+      end
+
+      UI.options.merge!(logger_options)
+    end
+
+    def _instantiate_groups(groups_hash)
+      groups_hash.each do |name, options|
+        groups.add(name, options)
+      end
+    end
+
+    def _instantiate_plugins(plugins_array)
+      plugins_array.each do |name, options|
+        options[:group] = groups.find(options[:group])
+        plugins.add(name, options)
+      end
     end
 
     def _listener_callback

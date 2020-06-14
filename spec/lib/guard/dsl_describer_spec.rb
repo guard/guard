@@ -1,16 +1,17 @@
 # frozen_string_literal: true
 
 require "guard/dsl_describer"
+require "guard/guardfile/result"
 
 RSpec.describe Guard::DslDescriber, :stub_ui do
-  include_context "with engine"
-
-  subject { described_class.new(engine) }
-
+  let(:guardfile_result) { Guard::Guardfile::Result.new }
   let(:interactor) { instance_double(Guard::Interactor) }
   let(:env) { double("ENV") }
 
+  subject { described_class.new(guardfile_result) }
+
   before do
+    guardfile_result.plugins << [:another, {}] << [:test, {}]
     allow(env).to receive(:[]).with("GUARD_NOTIFY_PID")
     allow(env).to receive(:[]).with("GUARD_NOTIFY")
     allow(env).to receive(:[]).with("GUARD_NOTIFIERS")
@@ -44,16 +45,7 @@ RSpec.describe Guard::DslDescriber, :stub_ui do
       OUTPUT
     end
 
-    let(:another) { instance_double("Guard::Plugin", title: "Another") }
-    let(:test) { instance_double("Guard::Plugin", title: "Test") }
-    let(:contents) { "group :w" }
-
     before do
-      allow(engine).to receive(:plugins).with("another").and_return([another])
-      allow(engine).to receive(:plugins).with("test").and_return([test])
-      allow(engine).to receive(:plugins).with("even").and_return([])
-      allow(engine).to receive(:plugins).with("more").and_return([])
-
       allow(Guard::PluginUtil).to receive(:plugin_names) do
         %w[test another even more]
       end
@@ -71,37 +63,22 @@ RSpec.describe Guard::DslDescriber, :stub_ui do
   +---------+---------+--------+-------+
   | Group   | Plugin  | Option | Value |
   +---------+---------+--------+-------+
-  | Default | Test    | a      | :b    |
+  | default | test    | a      | :b    |
   |         |         | c      | :d    |
   +---------+---------+--------+-------+
-  | A       | Test    | x      | 1     |
+  | a       | test    | x      | 1     |
   |         |         | y      | 2     |
   +---------+---------+--------+-------+
-  | B       | Another |        |       |
+  | b       | another |        |       |
   +---------+---------+--------+-------+
       OUTPUT
     end
 
     before do
-      allow(groups).to receive(:all).and_return [
-        instance_double("Guard::Group", name: :default, title: "Default"),
-        instance_double("Guard::Group", name: :a, title: "A"),
-        instance_double("Guard::Group", name: :b, title: "B")
-      ]
-
-      allow(plugins).to receive(:all).with(group: :default) do
-        options = { a: :b, c: :d }
-        [instance_double("Guard::Plugin", title: "Test", options: options)]
-      end
-
-      allow(plugins).to receive(:all).with(group: :a) do
-        options = { x: 1, y: 2 }
-        [instance_double("Guard::Plugin", title: "Test", options: options)]
-      end
-
-      allow(plugins).to receive(:all).with(group: :b).and_return [
-        instance_double("Guard::Plugin", title: "Another", options: [])
-      ]
+      guardfile_result.groups.merge!(default: {}, a: {}, b: {})
+      guardfile_result.plugins << [:test, { a: :b, c: :d, group: :default }]
+      guardfile_result.plugins << [:test, { x: 1, y: 2, group: :a }]
+      guardfile_result.plugins << [:another, { group: :b }]
     end
 
     it "shows the Guards and their options" do

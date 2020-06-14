@@ -4,6 +4,7 @@ require "formatador"
 
 require "guard/ui"
 require "guard/notifier"
+require "guard/plugin_util"
 
 require "set"
 require "ostruct"
@@ -18,8 +19,8 @@ module Guard
   # @see Guard::CLI
   #
   class DslDescriber
-    def initialize(engine)
-      @engine = engine
+    def initialize(guardfile_result)
+      @guardfile_result = guardfile_result
     end
 
     # List the Guard plugins that are available for use in your system and marks
@@ -30,7 +31,7 @@ module Guard
     def list
       # collect metadata
       data = PluginUtil.plugin_names.sort.each_with_object({}) do |name, hash|
-        hash[name.capitalize] = engine.plugins(name).any?
+        hash[name.capitalize] = guardfile_result.plugin_names.include?(name.to_sym)
       end
 
       # presentation
@@ -51,18 +52,18 @@ module Guard
     #
     def show
       objects = []
-      empty_plugin = OpenStruct.new
-      empty_plugin.options = [["", nil]]
+      empty_plugin = ["", { "" => nil }]
 
-      engine.groups.all.each do |group|
-        plugins = Array(engine.plugins.all(group: group.name))
+      guardfile_result.groups.each do |group_name, options|
+        plugins = guardfile_result.plugins.select { |plugin| plugin.last[:group] == group_name }
         plugins = [empty_plugin] if plugins.empty?
         plugins.each do |plugin|
-          options = plugin.options
-          options = [["", nil]] if options.empty?
-          options.each do |option, raw_value|
-            value = raw_value ? raw_value.inspect : ""
-            objects << [group.title, plugin.title, option.to_s, value]
+          plugin_name, options = plugin
+          options.delete(:group)
+          options = empty_plugin.last if options.empty?
+
+          options.each do |option, value|
+            objects << [group_name, plugin_name, option.to_s, value&.inspect]
           end
         end
       end
@@ -142,7 +143,7 @@ module Guard
 
     private
 
-    attr_reader :engine
+    attr_reader :guardfile_result
 
     def _add_row(rows, name, available, used, option, value)
       rows << {

@@ -131,8 +131,8 @@ module Guard
     # @see Guard::DslDescriber.list
     #
     def list
-      engine = Cli::Environments::EvaluateOnly.new(options).evaluate.engine
-      DslDescriber.new(engine).list
+      env = Cli::Environments::EvaluateOnly.new(options)
+      DslDescriber.new(env.evaluate).list
     end
 
     desc "notifiers", "Lists notifiers and its options"
@@ -143,8 +143,7 @@ module Guard
     #
     def notifiers
       env = Cli::Environments::EvaluateOnly.new(options)
-      env.evaluate
-      DslDescriber.new(env.engine).notifiers
+      DslDescriber.new(env.evaluate).notifiers
     end
 
     desc "version", "Show the Guard version"
@@ -195,8 +194,7 @@ module Guard
     #
     def show
       env = Cli::Environments::EvaluateOnly.new(options)
-      env.evaluate
-      DslDescriber.new(env.engine).show
+      DslDescriber.new(env.evaluate).show
     end
   end
 end

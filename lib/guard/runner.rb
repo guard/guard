@@ -10,8 +10,9 @@ module Guard
   # The runner is responsible for running all methods defined on each plugin.
   #
   class Runner
-    def initialize(engine)
-      @engine = engine
+    def initialize(session)
+      @session = session
+      @plugins = session.plugins
     end
 
     # Runs a Guard-task on all registered plugins.
@@ -21,10 +22,16 @@ module Guard
     # @param [Hash] scope_hash either the Guard plugin or the group to run the task
     # on
     #
-    def run(task, scope_hash = {})
+    def run(task, entries = [])
+      scopes, unknown = session.convert_scopes(entries)
+
+      if unknown.any?
+        UI.info "Unknown scopes: #{unknown.join(', ')}"
+      end
+
       Lumberjack.unit_of_work do
-        grouped_plugins = engine.scope.grouped_plugins(scope_hash || {})
-        grouped_plugins.each do |_group, plugins|
+        grouped_plugins = session.grouped_plugins(scopes)
+        grouped_plugins.each_value do |plugins|
           _run_group_plugins(plugins) do |plugin|
             _supervise(plugin, task) if plugin.respond_to?(task)
           end
@@ -56,7 +63,7 @@ module Guard
 
       UI.clearable!
 
-      engine.scope.grouped_plugins.each do |_group, plugins|
+      session.grouped_plugins.each_value do |plugins|
         _run_group_plugins(plugins) do |plugin|
           UI.clear
           types.each do |tasks, unmatched_paths|
@@ -99,7 +106,7 @@ module Guard
                         " <#{task}>, exception was:" \
                         "\n#{$!.class}: #{$!.message}" \
                         "\n#{$!.backtrace.join("\n")}")
-      engine.plugins.remove(plugin)
+      plugins.remove(plugin)
       UI.info("\n#{plugin.class.name} has just been fired")
       $!
     end
@@ -119,7 +126,7 @@ module Guard
 
     private
 
-    attr_reader :engine
+    attr_reader :session, :plugins
 
     def _run_group_plugins(plugins)
       failed_plugin = nil

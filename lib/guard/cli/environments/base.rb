@@ -6,11 +6,8 @@ module Guard
   module Cli
     module Environments
       class Base
-        attr_reader :engine
-
         def initialize(options)
           @options = options
-          @engine = Guard::Engine.new(options)
         end
 
         private

@@ -2,7 +2,7 @@
 
 require "guard/cli/environments/base"
 require "guard/cli/environments/bundler"
-require "guard/dsl_reader"
+require "guard/dsl"
 require "guard/guardfile/evaluator"
 require "guard/ui"
 
@@ -12,10 +12,9 @@ module Guard
       class EvaluateOnly < Base
         def evaluate
           Bundler.new.verify unless options[:no_bundler_warning]
-          Guardfile::Evaluator.new(engine).evaluate
+          Guardfile::Evaluator.new(options).evaluate
         rescue \
-          Guard::DslReader::Error,
-          Guardfile::Evaluator::NoPluginsError,
+          Guard::Dsl::Error,
           Guardfile::Evaluator::NoGuardfileError,
           Guardfile::Evaluator::NoCustomGuardfile => e
           UI.error(e.message)

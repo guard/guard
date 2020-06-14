@@ -38,8 +38,8 @@ module Guard
     #
     # @param [String] name the name of the Guard plugin
     #
-    def initialize(engine, name)
-      @engine = engine
+    def initialize(evaluator, name)
+      @evaluator = evaluator
       @name = name.to_s.sub(/^guard-/, "")
     end
 
@@ -54,7 +54,7 @@ module Guard
       klass = plugin_class
       fail "Could not load class: #{_constant_name.inspect}" unless klass
 
-      klass.new(options.merge(engine: engine))
+      klass.new(options)
     rescue ArgumentError => e
       fail "Failed to call #{klass}.new(options): #{e}"
     end
@@ -111,12 +111,6 @@ module Guard
     # Adds a plugin's template to the Guardfile.
     #
     def add_to_guardfile
-      evaluator = Guardfile::Evaluator.new(engine)
-      begin
-        evaluator.evaluate
-      rescue Guard::Guardfile::Evaluator::NoPluginsError
-      end
-
       if evaluator.guardfile_include?(name)
         UI.info "Guardfile already includes #{name} guard"
       else
@@ -133,7 +127,7 @@ module Guard
 
     private
 
-    attr_reader :engine
+    attr_reader :evaluator
 
     # Returns the constant for the current plugin.
     #

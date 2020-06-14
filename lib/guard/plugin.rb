@@ -291,8 +291,6 @@ module Guard
 
     private
 
-    attr_reader :engine
-
     # Initializes a Guard plugin.
     # Don't do any work here, especially as Guard plugins get initialized even
     # if they are not in an active group!
@@ -305,13 +303,8 @@ module Guard
     #   a watcher
     #
     def initialize(options = {})
-      @engine = options.delete(:engine) do
-        raise NoEngineGiven, "A Guard::Engine instance needs to be given via the :engine options!"
-      end
       @options = options
-
-      group_name = options.delete(:group) { :default }
-      @group = engine.session.groups.add(group_name)
+      @group = options.delete(:group)
       @watchers = options.delete(:watchers) { [] }
       @callbacks = options.delete(:callbacks) { [] }
       _register_callbacks

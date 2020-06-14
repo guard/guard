@@ -171,36 +171,17 @@ RSpec.configure do |config|
   config.before(:each, :stub_ui) do
     if Guard.const_defined?("UI") && Guard::UI.respond_to?(:info)
       # Stub all UI methods, so no visible output appears for the UI class
-      ui_config = instance_double("Guard::UI::Config")
-
       allow(Guard::UI).to receive(:info)
       allow(Guard::UI).to receive(:warning)
       allow(Guard::UI).to receive(:error)
       allow(Guard::UI).to receive(:debug)
       allow(Guard::UI).to receive(:deprecation)
       allow(Guard::UI).to receive(:reset_and_clear)
-      allow(Guard::UI::Config).to receive(:new).and_return(ui_config)
-      allow(ui_config).to receive(:with_progname).and_yield
     end
   end
 end
 
-RSpec.shared_context "with engine" do
-  require "guard/engine"
-  require "guard/plugin"
-
-  let(:inline_guardfile) { "guard :dummy" }
-  let(:base_options) { { watchdirs: Dir.pwd, inline: inline_guardfile, no_interactions: true } }
-  let(:options) { base_options }
-  let(:engine) { Guard::Engine.new(options) }
-  let(:interactor) { instance_double("Guard::Interactor", foreground: :exit, background: true, handle_interrupt: true) }
-  let(:listener) { instance_double("Listen::Listener", ignore: true, ignore!: true, start: true, stop: true) }
-
-  let(:session) { engine.session }
-  let(:groups) { engine.groups }
-  let(:plugins) { engine.plugins }
-  let(:scope) { engine.scope }
-
+RSpec.shared_context "with testing plugins" do
   before do
     Guard::Dummy = Class.new(Guard::Plugin) do
       def throwing
@@ -226,10 +207,6 @@ RSpec.shared_context "with engine" do
     Guard::Doe = Class.new(Guard::Plugin)
     Guard::FooBar = Class.new(Guard::Plugin)
     Guard::FooBaz = Class.new(Guard::Plugin)
-
-    # Stub classes with side-effects
-    allow(Guard::Interactor).to receive(:new).and_return(interactor)
-    allow(Listen).to receive(:to).and_return(listener)
   end
 
   after do
@@ -237,6 +214,43 @@ RSpec.shared_context "with engine" do
     Guard.__send__(:remove_const, :Doe)
     Guard.__send__(:remove_const, :FooBar)
     Guard.__send__(:remove_const, :FooBaz)
+  end
+end
+
+RSpec.shared_context "Guard options" do
+  let(:inline_guardfile) { "guard :dummy" }
+  let(:base_options) { { watchdirs: Dir.pwd, inline: inline_guardfile, no_interactions: true } }
+  let(:options) { base_options }
+end
+
+RSpec.shared_context "with engine" do
+  require "guard/engine"
+  require "guard/plugin"
+
+  include_context "Guard options"
+  include_context "with testing plugins"
+
+  let(:engine) { Guard::Engine.new(options) }
+  let(:interactor) do
+    instance_double(
+      "Guard::Interactor",
+      interactive: true,
+      "options=": true,
+      foreground: :exit,
+      background: true,
+      handle_interrupt: true
+    )
+  end
+  let(:listener) { instance_double("Listen::Listener", ignore: true, ignore!: true, start: true, stop: true) }
+
+  let(:session) { engine.session }
+  let(:groups) { engine.groups }
+  let(:plugins) { engine.plugins }
+
+  before do
+    # Stub classes with side-effects
+    allow(Guard::Interactor).to receive(:new).and_return(interactor)
+    allow(Listen).to receive(:to).and_return(listener)
   end
 end
 

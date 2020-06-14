@@ -3,18 +3,17 @@
 require "guard/cli"
 
 RSpec.describe Guard::CLI do
-  include_context "with engine"
+  include_context "Guard options"
 
-  let(:valid_environment) { instance_double("Guard::Cli::Environments::Valid", engine: engine) }
+  let(:valid_environment) { instance_double("Guard::Cli::Environments::Valid") }
   let(:bare_environment) do
-    instance_double("Guard::Cli::Environments::EvaluateOnly", engine: engine)
+    instance_double("Guard::Cli::Environments::EvaluateOnly")
   end
   let(:dsl_describer) { instance_double("Guard::DslDescriber") }
 
   before do
     allow(subject).to receive(:options).and_return(options)
-    allow(Guard::Engine).to receive(:new).and_return(engine)
-    allow(Guard::DslDescriber).to receive(:new).with(engine).and_return(dsl_describer)
+    allow(Guard::DslDescriber).to receive(:new).and_return(dsl_describer)
     allow(Guard::Cli::Environments::EvaluateOnly).to receive(:new).with(options).and_return(bare_environment)
     allow(Guard::Cli::Environments::Valid).to receive(:new).with(options).and_return(valid_environment)
   end

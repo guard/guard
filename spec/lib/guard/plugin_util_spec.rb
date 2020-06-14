@@ -3,9 +3,7 @@
 require "guard/plugin_util"
 
 RSpec.describe Guard::PluginUtil, :stub_ui do
-  include_context "with engine"
-
-  let(:evaluator) { instance_double("Guard::Guardfile::Evaluator") }
+  let(:evaluator) { instance_double("Guard::Guardfile::Evaluator", evaluate: true) }
 
   describe ".plugin_names" do
     before do
@@ -43,21 +41,22 @@ RSpec.describe Guard::PluginUtil, :stub_ui do
 
   describe "#initialize" do
     it "accepts a name without guard-" do
-      expect(described_class.new(engine, "dummy").name).to eq "dummy"
+      expect(described_class.new(evaluator, "dummy").name).to eq "dummy"
     end
 
     it "accepts a name with guard-" do
-      expect(described_class.new(engine, "guard-dummy").name).to eq "dummy"
+      expect(described_class.new(evaluator, "guard-dummy").name).to eq "dummy"
     end
   end
 
   describe "#initialize_plugin" do
-    let(:plugin_util) { described_class.new(engine, "dummy") }
+    let(:plugin_util) { described_class.new(evaluator, "dummy") }
+    let(:dummy) { stub_const("Guard::Dummy", double) }
 
     context "with a plugin inheriting from Guard::Plugin" do
       it "instantiate the plugin using the new API" do
         options = { watchers: ["watcher"], group: "foo" }
-        expect(Guard::Dummy).to receive(:new).with(engine: engine, **options).and_call_original
+        expect(dummy).to receive(:new).with(options)
 
         plugin_util.initialize_plugin(options)
       end
@@ -65,7 +64,7 @@ RSpec.describe Guard::PluginUtil, :stub_ui do
   end
 
   describe "#plugin_location" do
-    subject { described_class.new(engine, "dummy") }
+    subject { described_class.new(evaluator, "dummy") }
 
     it "returns the path of a Guard gem" do
       expect(Gem::Specification).to receive(:find_by_name)
@@ -79,7 +78,7 @@ RSpec.describe Guard::PluginUtil, :stub_ui do
     it "reports an error if the class is not found" do
       expect(::Guard::UI).to receive(:error).with(/Could not load/)
 
-      plugin = described_class.new(engine, "notAGuardClass")
+      plugin = described_class.new(evaluator, "notAGuardClass")
       allow(plugin).to receive(:require).with("guard/notaguardclass")
                                         .and_raise(LoadError, "cannot load such file --")
 
@@ -88,7 +87,7 @@ RSpec.describe Guard::PluginUtil, :stub_ui do
 
     context "with a nested Guard class" do
       it "resolves the Guard class from string" do
-        plugin = described_class.new(engine, "classname")
+        plugin = described_class.new(evaluator, "classname")
         expect(plugin).to receive(:require).with("guard/classname") do
           stub_const("Guard::Classname", double)
         end
@@ -97,7 +96,7 @@ RSpec.describe Guard::PluginUtil, :stub_ui do
       end
 
       it "resolves the Guard class from symbol" do
-        plugin = described_class.new(engine, :classname)
+        plugin = described_class.new(evaluator, :classname)
         expect(plugin).to receive(:require).with("guard/classname") do
           stub_const("Guard::Classname", double)
         end
@@ -108,7 +107,7 @@ RSpec.describe Guard::PluginUtil, :stub_ui do
 
     context "with a name with dashes" do
       it "returns the Guard class" do
-        plugin = described_class.new(engine, "dashed-class-name")
+        plugin = described_class.new(evaluator, "dashed-class-name")
         expect(plugin).to receive(:require).with("guard/dashed-class-name") do
           stub_const("Guard::DashedClassName", double)
         end
@@ -119,7 +118,7 @@ RSpec.describe Guard::PluginUtil, :stub_ui do
 
     context "with a name with underscores" do
       it "returns the Guard class" do
-        plugin = described_class.new(engine, "underscore_class_name")
+        plugin = described_class.new(evaluator, "underscore_class_name")
         expect(plugin).to receive(:require).with("guard/underscore_class_name") do
           stub_const("Guard::UnderscoreClassName", double)
         end
@@ -130,7 +129,7 @@ RSpec.describe Guard::PluginUtil, :stub_ui do
 
     context "with a name like VSpec" do
       it "returns the Guard class" do
-        plugin = described_class.new(engine, "vspec")
+        plugin = described_class.new(evaluator, "vspec")
         expect(plugin).to receive(:require).with("guard/vspec") do
           stub_const("Guard::VSpec", double)
         end
@@ -141,7 +140,7 @@ RSpec.describe Guard::PluginUtil, :stub_ui do
 
     context "with an inline Guard class" do
       it "returns the Guard class" do
-        plugin = described_class.new(engine, "inline")
+        plugin = described_class.new(evaluator, "inline")
         stub_const("Guard::Inline", double)
 
         expect(plugin).to_not receive(:require)
@@ -151,11 +150,6 @@ RSpec.describe Guard::PluginUtil, :stub_ui do
   end
 
   describe "#add_to_guardfile" do
-    before do
-      allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
-      allow(evaluator).to receive(:evaluate)
-    end
-
     context "when the Guard is already in the Guardfile" do
       before do
         allow(evaluator).to receive(:guardfile_include?) { true }
@@ -165,21 +159,18 @@ RSpec.describe Guard::PluginUtil, :stub_ui do
         expect(::Guard::UI).to receive(:info)
           .with "Guardfile already includes myguard guard"
 
-        described_class.new(engine, "myguard").add_to_guardfile
+        described_class.new(evaluator, "myguard").add_to_guardfile
       end
     end
 
     context "when Guardfile is empty" do
-      let(:plugin_util) { described_class.new(engine, "myguard") }
+      let(:plugin_util) { described_class.new(evaluator, "myguard") }
       let(:plugin_class) { class_double("Guard::Plugin") }
       let(:location) { "/Users/me/projects/guard-myguard" }
       let(:gem_spec) { instance_double("Gem::Specification") }
       let(:io) { StringIO.new }
 
       before do
-        allow(evaluator).to receive(:evaluate)
-          .and_raise(Guard::Guardfile::Evaluator::NoPluginsError)
-
         allow(gem_spec).to receive(:full_gem_path).and_return(location)
         allow(evaluator).to receive(:guardfile_include?) { false }
         allow(Guard).to receive(:constants).and_return([:MyGuard])
@@ -203,7 +194,7 @@ RSpec.describe Guard::PluginUtil, :stub_ui do
     end
 
     context "when the Guard is not in the Guardfile" do
-      let(:plugin_util) { described_class.new(engine, "myguard") }
+      let(:plugin_util) { described_class.new(evaluator, "myguard") }
       let(:plugin_class) { class_double("Guard::Plugin") }
       let(:location) { "/Users/me/projects/guard-myguard" }
       let(:gem_spec) { instance_double("Gem::Specification") }

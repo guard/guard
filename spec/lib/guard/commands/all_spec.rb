@@ -13,8 +13,6 @@ RSpec.describe Guard::Commands::All, :stub_ui do
     allow(Pry::Commands).to receive(:create_command).with("all") do |&block|
       FakePry.instance_eval(&block)
     end
-    allow(session).to receive(:convert_scopes).with(given_scope)
-                                              .and_return(converted_scope)
 
     described_class.import
   end
@@ -25,7 +23,7 @@ RSpec.describe Guard::Commands::All, :stub_ui do
 
     it "runs the :run_all action" do
       expect(engine).to receive(:async_queue_add)
-        .with([:guard_run_all, groups: [], plugins: []])
+        .with([:guard_run_all, []])
 
       FakePry.process
     end
@@ -37,7 +35,7 @@ RSpec.describe Guard::Commands::All, :stub_ui do
 
     it "runs the :run_all action with the given scope" do
       expect(engine).to receive(:async_queue_add)
-        .with([:guard_run_all, groups: [foo_group], plugins: []])
+        .with([:guard_run_all, ["foo"]])
 
       FakePry.process("foo")
     end
@@ -49,21 +47,9 @@ RSpec.describe Guard::Commands::All, :stub_ui do
 
     it "runs the :run_all action with the given scope" do
       expect(engine).to receive(:async_queue_add)
-        .with([:guard_run_all, plugins: [bar_guard], groups: []])
+        .with([:guard_run_all, ["bar"]])
 
       FakePry.process("bar")
-    end
-  end
-
-  context "with an invalid scope" do
-    let(:given_scope) { ["baz"] }
-    let(:converted_scope) { [{ groups: [], plugins: [] }, ["baz"]] }
-
-    it "does not run the action" do
-      expect(output).to receive(:puts).with("Unknown scopes: baz")
-      expect(engine).to_not receive(:async_queue_add)
-
-      FakePry.process("baz")
     end
   end
 end

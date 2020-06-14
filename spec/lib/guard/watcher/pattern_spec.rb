@@ -13,7 +13,7 @@ RSpec.describe Guard::Watcher::Pattern do
 
     context "when a Pathname is given" do
       let(:pattern) { Pathname("foo.rb") }
-      it { is_expected.to be_a(described_class::PathnamePath) }
+      it { is_expected.to be_a(described_class::SimplePath) }
     end
 
     context "when a regexp is given" do

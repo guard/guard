@@ -5,18 +5,18 @@ require "guard/runner"
 RSpec.describe Guard::Runner, :stub_ui do
   include_context "with engine"
 
-  let!(:frontend_group) { groups.add("frontend") }
-  let!(:backend_group) { groups.add("backend") }
-  let!(:dummy_plugin) { plugins.add("dummy", group: "frontend", watchers: [Guard::Watcher.new("hello")]) }
-  let!(:doe_plugin) { plugins.add("doe", group: "frontend") }
-  let!(:foobar_plugin) { plugins.add("foobar", group: "backend") }
-  let!(:foobaz_plugin) { plugins.add("foobaz", group: "backend") }
+  let(:frontend_group) { engine.groups.add(:frontend) }
+  let(:backend_group) { engine.groups.add(:backend) }
+  let!(:dummy_plugin) { plugins.add("dummy", group: frontend_group, watchers: [Guard::Watcher.new("hello")]) }
+  let!(:doe_plugin) { plugins.add("doe", group: frontend_group) }
+  let!(:foobar_plugin) { plugins.add("foobar", group: backend_group) }
+  let!(:foobaz_plugin) { plugins.add("foobaz", group: backend_group) }
 
   after do
     Guard::UI.reset
   end
 
-  subject { described_class.new(engine) }
+  subject { described_class.new(engine.session) }
 
   describe "#run" do
     it "executes supervised task on all registered plugins implementing it" do
@@ -42,28 +42,26 @@ RSpec.describe Guard::Runner, :stub_ui do
       end
     end
 
-    context "with a scope" do
-      let(:scope_hash) { { plugins: :dummy } }
+    [:dummy, [:dummy]].each do |entries|
+      context "with entries: #{entries}" do
+        it "executes the supervised task on the specified plugin only" do
+          expect(dummy_plugin).to receive(:title)
+          [doe_plugin, foobar_plugin, foobaz_plugin].each do |plugin|
+            expect(plugin).to_not receive(:title)
+          end
 
-      it "executes the supervised task on the specified plugin only" do
-        expect(dummy_plugin).to receive(:title)
-        [doe_plugin, foobar_plugin, foobaz_plugin].each do |plugin|
-          expect(plugin).to_not receive(:title)
+          subject.run(:title, entries)
         end
-
-        subject.run(:title, scope_hash)
       end
     end
 
     context "with no scope" do
-      let(:scope_hash) { nil }
-
       it "executes the supervised task using current scope" do
         [dummy_plugin, doe_plugin, foobar_plugin, foobaz_plugin].each do |plugin|
           expect(plugin).to receive(:title)
         end
 
-        subject.run(:title, scope_hash)
+        subject.run(:title)
       end
     end
   end

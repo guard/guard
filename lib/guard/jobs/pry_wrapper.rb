@@ -259,7 +259,7 @@ module Guard
       # `rspec` is created that runs `all rspec`.
       #
       def _create_guard_commands
-        engine.state.session.plugins.all.each do |guard_plugin|
+        engine.session.plugins.all.each do |guard_plugin|
           cmd = "Run all #{guard_plugin.title}"
           _pry_commands.create_command guard_plugin.name, cmd do
             group "Guard"
@@ -277,7 +277,7 @@ module Guard
       # `frontend` is created that runs `all frontend`.
       #
       def _create_group_commands
-        engine.state.session.groups.all.each do |group|
+        engine.session.groups.all.each do |group|
           next if group.name == :default
 
           cmd = "Run all #{group.title}"
@@ -310,7 +310,7 @@ module Guard
       # prompt.
       #
       def _scope_for_prompt
-        titles = engine.state.scope.titles.join(",")
+        titles = engine.session.scope_titles.join(",")
         titles == "all" ? "" : titles + " "
       end
 

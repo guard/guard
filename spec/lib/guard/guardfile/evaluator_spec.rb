@@ -1,25 +1,17 @@
 # frozen_string_literal: true
 
 require "guard/guardfile/evaluator"
-require "guard/engine"
-require "guard/plugin"
 
 RSpec.describe Guard::Guardfile::Evaluator, :stub_ui do
-  let(:options) { {} }
-  let(:engine) { Guard::Engine.new(options) }
+  let(:options) { { inline: "guard :dummy" } }
+  let(:plugin_options) { { callbacks: [], group: :default, watchers: [] } }
   let(:valid_guardfile_string) { "group :foo; do guard :bar; end; end; " }
-  let(:dsl) { instance_double("Guard::Dsl") }
+  let(:result) { Guard::Guardfile::Result.new }
 
-  subject { described_class.new(engine) }
+  subject { described_class.new(options) }
 
   before do
-    Guard::Dummy = Class.new(Guard::Plugin)
     stub_user_guard_rb
-    allow(Guard::Dsl).to receive(:new).with(engine).and_return(dsl)
-  end
-
-  after do
-    Guard.__send__(:remove_const, :Dummy)
   end
 
   describe ".evaluate" do
@@ -28,15 +20,13 @@ RSpec.describe Guard::Guardfile::Evaluator, :stub_ui do
         let(:options) { { inline: "guard :foo Bad Guardfile" } }
 
         it "displays an error message and raises original exception" do
-          expect(dsl).to receive(:evaluate)
-            .and_raise(Guard::Dsl::Error,
-                       "Invalid Guardfile, original error is:")
-
           expect { subject.evaluate }.to raise_error(Guard::Dsl::Error)
         end
       end
 
       context "with no Guardfile at all" do
+        let(:options) { {} }
+
         it "displays an error message and exits" do
           stub_guardfile_rb
           stub_guardfile
@@ -44,21 +34,21 @@ RSpec.describe Guard::Guardfile::Evaluator, :stub_ui do
           stub_user_project_guardfile
 
           expect { subject.evaluate }
-            .to raise_error(Guard::Guardfile::Evaluator::NoGuardfileError)
+            .to raise_error(described_class::NoGuardfileError)
         end
       end
 
       context "with Guardfile as guardfile.rb" do
+        let(:options) { {} }
+
         it "evalutates guardfile.rb" do
-          stub_guardfile_rb("guard :dummy")
-
-          expect(dsl).to receive(:evaluate).with("guard :dummy", anything, 1)
-
-          subject.evaluate
+          stub_guardfile_rb("guard :awesome_plugin")
+          expect(subject.evaluate.plugins).to eq([[:awesome_plugin, plugin_options]])
         end
       end
 
       context "with a problem reading a Guardfile" do
+        let(:options) { {} }
         let(:path) { File.expand_path("Guardfile") }
 
         before do
@@ -71,16 +61,8 @@ RSpec.describe Guard::Guardfile::Evaluator, :stub_ui do
 
         it "displays an error message and exits" do
           expect(Guard::UI).to receive(:error).with(/^Error reading file/)
+
           expect { subject.evaluate }.to raise_error(SystemExit)
-        end
-      end
-
-      context "with empty Guardfile content" do
-        let(:options) { { inline: "" } }
-
-        it "displays an error message about no plugins" do
-          expect { subject.evaluate }
-            .to raise_error(Guard::Guardfile::Evaluator::NoPluginsError)
         end
       end
 
@@ -88,17 +70,15 @@ RSpec.describe Guard::Guardfile::Evaluator, :stub_ui do
         let(:options) { { inline: nil } }
 
         before do
-          stub_guardfile("guard :dummy")
+          stub_guardfile("guard :awesome_plugin")
 
           stub_guardfile_rb
         end
 
         it "does not raise error and skip it" do
-          expect(dsl).to receive(:evaluate).with("guard :dummy", anything, 1)
-
           expect(Guard::UI).to_not receive(:error)
           expect do
-            described_class.new(engine).evaluate
+            expect(subject.evaluate.plugins).to eq([[:awesome_plugin, plugin_options]])
           end.to_not raise_error
         end
       end
@@ -113,7 +93,7 @@ RSpec.describe Guard::Guardfile::Evaluator, :stub_ui do
 
         it "raises error" do
           expect { subject.evaluate }
-            .to raise_error(Guard::Guardfile::Evaluator::NoCustomGuardfile)
+            .to raise_error(described_class::NoCustomGuardfile)
         end
       end
     end
@@ -121,7 +101,7 @@ RSpec.describe Guard::Guardfile::Evaluator, :stub_ui do
     describe "selection of the Guardfile data contents" do
       context "with a valid :contents option" do
         context "with inline content and other Guardfiles available" do
-          let(:inline_code) { "guard :dummy" }
+          let(:inline_code) { "guard :awesome_plugin" }
           let(:options) do
             {
               inline: inline_code,
@@ -137,9 +117,7 @@ RSpec.describe Guard::Guardfile::Evaluator, :stub_ui do
           end
 
           it "gives ultimate precedence to inline content" do
-            expect(dsl).to receive(:evaluate).with(inline_code, "", 1)
-
-            subject.evaluate
+            expect(subject.evaluate.plugins).to eq([[:awesome_plugin, plugin_options]])
           end
         end
       end
@@ -160,6 +138,8 @@ RSpec.describe Guard::Guardfile::Evaluator, :stub_ui do
 
   describe "#inline?" do
     context "when no content is provided" do
+      let(:options) { {} }
+
       it { is_expected.to_not be_inline }
     end
 
@@ -172,15 +152,13 @@ RSpec.describe Guard::Guardfile::Evaluator, :stub_ui do
 
   describe ".guardfile_include?" do
     context "when plugin is present" do
-      let(:options) { { inline: 'guard :dummy do watch("c") end' } }
-
       it "returns true" do
         expect(subject).to be_guardfile_include("dummy")
       end
     end
 
     context "when plugin is not present" do
-      let(:options) { { inline: 'guard :other do watch("c") end' } }
+      let(:options) { { inline: "guard :other" } }
 
       it "returns false" do
         expect(subject).not_to be_guardfile_include("test")

@@ -50,8 +50,8 @@ module Guard
         end
       end
 
-      def initialize(engine)
-        @engine = engine
+      def initialize(evaluator)
+        @evaluator = evaluator
       end
 
       # Creates the initial Guardfile template when it does not
@@ -76,7 +76,7 @@ module Guard
       #
       def initialize_template(plugin_name)
         guardfile = Pathname.new("Guardfile")
-        plugin_util = PluginUtil.new(engine, plugin_name)
+        plugin_util = PluginUtil.new(evaluator, plugin_name)
 
         if plugin_util.valid?
           begin
@@ -108,7 +108,7 @@ module Guard
 
       private
 
-      attr_reader :engine
+      attr_reader :evaluator
     end
   end
 end

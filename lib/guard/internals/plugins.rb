@@ -6,13 +6,13 @@ module Guard
   # @private api
   module Internals
     class Plugins
-      def initialize(engine)
-        @engine = engine
+      def initialize(evaluator)
+        @evaluator = evaluator
         @plugins = []
       end
 
       def add(name, options)
-        PluginUtil.new(engine, name).initialize_plugin(options).tap do |plugin|
+        PluginUtil.new(evaluator, name).initialize_plugin(options).tap do |plugin|
           @plugins << plugin
         end
       end
@@ -28,9 +28,13 @@ module Guard
         @plugins.select { |plugin| matcher.call(plugin) }
       end
 
+      def find(filter)
+        all(filter).first
+      end
+
       private
 
-      attr_reader :engine
+      attr_reader :evaluator
 
       def matcher_for(filter)
         case filter
@@ -50,6 +54,8 @@ module Guard
               end
             end
           end
+        else
+          fail "Invalid filter: #{filter.inspect}"
         end
       end
     end

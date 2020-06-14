@@ -4,17 +4,15 @@ require "guard/internals/groups"
 
 RSpec.describe Guard::Internals::Groups do
   describe "#all" do
-    let(:common) { instance_double("Guard::Group", name: :common) }
     let(:default) { instance_double("Guard::Group", name: :default) }
 
     before do
-      allow(Guard::Group).to receive(:new).with(:common).and_return(common)
       allow(Guard::Group).to receive(:new).with(:default).and_return(default)
     end
 
     context "with only default groups" do
       it "initializes the groups" do
-        expect(subject.all.map(&:name)).to eq %i[common default]
+        expect(subject.all.map(&:name)).to eq %i[default]
       end
     end
 
@@ -36,7 +34,7 @@ RSpec.describe Guard::Internals::Groups do
       context "with no arguments" do
         let(:args) { [] }
         it "returns all groups" do
-          expect(subject.all(*args)).to eq [common, default, frontend, backend]
+          expect(subject.all(*args)).to eq [default, frontend, backend]
         end
       end
 
@@ -73,11 +71,9 @@ RSpec.describe Guard::Internals::Groups do
   end
 
   describe "#add" do
-    let(:common) { instance_double("Guard::Group", name: :common) }
     let(:default) { instance_double("Guard::Group", name: :default) }
 
     before do
-      allow(Guard::Group).to receive(:new).with(:common).and_return(common)
       allow(Guard::Group).to receive(:new).with(:default).and_return(default)
     end
 
@@ -94,12 +90,12 @@ RSpec.describe Guard::Internals::Groups do
 
       it "add the given group" do
         subject.add("frontend")
-        expect(subject.all).to match_array([common, default, frontend])
+        expect(subject.all).to match_array([default, frontend])
       end
 
       it "add the given group with options" do
         subject.add("frontend", foo: :bar)
-        expect(subject.all).to match_array([common, default, frontend])
+        expect(subject.all).to match_array([default, frontend])
       end
 
       context "with an existing group" do
@@ -107,19 +103,19 @@ RSpec.describe Guard::Internals::Groups do
 
         it "does not add duplicate groups when name is a string" do
           subject.add("frontend")
-          expect(subject.all).to match_array([common, default, frontend])
+          expect(subject.all).to match_array([default, frontend])
         end
 
         it "does not add duplicate groups when name is a symbol" do
           subject.add(:frontend)
-          expect(subject.all).to match_array([common, default, frontend])
+          expect(subject.all).to match_array([default, frontend])
         end
 
         it "does not add duplicate groups even if options are different" do
           subject.add(:frontend, halt_on_fail: true)
           subject.add(:frontend, halt_on_fail: false)
 
-          expect(subject.all).to match_array([common, default, frontend])
+          expect(subject.all).to match_array([default, frontend])
         end
       end
     end

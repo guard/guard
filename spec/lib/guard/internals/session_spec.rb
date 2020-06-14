@@ -155,56 +155,6 @@ RSpec.describe Guard::Internals::Session, :stub_ui do
     end
   end
 
-  describe "#convert_scopes" do
-    let!(:frontend_group) { groups.add("frontend") }
-    let!(:backend_group) { groups.add("backend") }
-    let!(:dummy_plugin) { plugins.add("dummy", group: "frontend") }
-    let!(:doe_plugin) { plugins.add("doe", group: "backend") }
-
-    it "returns a group scope" do
-      scopes, = subject.convert_scopes %w[backend]
-
-      expect(scopes).to eq(groups: [backend_group], plugins: [])
-
-      scopes, = subject.convert_scopes %w[frontend]
-
-      expect(scopes).to eq(groups: [frontend_group], plugins: [])
-    end
-
-    it "returns a plugin scope" do
-      scopes, = subject.convert_scopes %w[dummy]
-
-      expect(scopes).to eq(plugins: [dummy_plugin], groups: [])
-
-      scopes, = subject.convert_scopes %w[doe]
-
-      expect(scopes).to eq(plugins: [doe_plugin], groups: [])
-    end
-
-    it "returns multiple group scopes" do
-      scopes, = subject.convert_scopes %w[backend frontend]
-      expected = { groups: [backend_group, frontend_group], plugins: [] }
-
-      expect(scopes).to eq(expected)
-    end
-
-    it "returns multiple plugin scopes" do
-      scopes, = subject.convert_scopes %w[dummy doe]
-      expect(scopes).to eq(plugins: [dummy_plugin, doe_plugin], groups: [])
-    end
-
-    it "returns a plugin and group scope" do
-      scopes, = subject.convert_scopes %w[backend dummy]
-      expect(scopes).to eq(groups: [backend_group], plugins: [dummy_plugin])
-    end
-
-    it "returns the unkown scopes" do
-      _, unknown = subject.convert_scopes %w[unknown scope]
-
-      expect(unknown).to eq %w[unknown scope]
-    end
-  end
-
   describe "#guardfile_notification=" do
     context "when set from guardfile" do
       before do
@@ -241,6 +191,240 @@ RSpec.describe Guard::Internals::Session, :stub_ui do
     context "when unset" do
       specify do
         expect(subject.notify_options).to eq(notify: true, notifiers: {})
+      end
+    end
+  end
+
+  describe "#convert_scopes" do
+    let!(:frontend_group) { groups.add("frontend") }
+    let!(:backend_group) { groups.add("backend") }
+    let!(:dummy_plugin) { plugins.add("dummy", group: "frontend") }
+    let!(:doe_plugin) { plugins.add("doe", group: "backend") }
+
+    it "returns a group scope" do
+      scopes, = subject.convert_scopes(:backend)
+
+      expect(scopes).to eq(groups: [:backend], plugins: [])
+
+      scopes, = subject.convert_scopes(%w[frontend])
+
+      expect(scopes).to eq(groups: [:frontend], plugins: [])
+    end
+
+    it "returns a plugin scope" do
+      scopes, = subject.convert_scopes("dummy")
+
+      expect(scopes).to eq(plugins: [:dummy], groups: [])
+
+      scopes, = subject.convert_scopes(%w[doe])
+
+      expect(scopes).to eq(plugins: [:doe], groups: [])
+    end
+
+    it "returns multiple group scopes" do
+      scopes, = subject.convert_scopes(%w[backend frontend])
+      expected = { groups: %i[backend frontend], plugins: [] }
+
+      expect(scopes).to eq(expected)
+    end
+
+    it "returns multiple plugin scopes" do
+      scopes, = subject.convert_scopes(%w[dummy doe])
+      expect(scopes).to eq(plugins: %i[dummy doe], groups: [])
+    end
+
+    it "returns a plugin and group scope" do
+      scopes, = subject.convert_scopes(%w[backend dummy])
+      expect(scopes).to eq(groups: [:backend], plugins: [:dummy])
+    end
+
+    it "returns the unkown scopes" do
+      _, unknown = subject.convert_scopes(%w[unknown scope])
+
+      expect(unknown).to eq(%w[unknown scope])
+    end
+  end
+
+  describe "#grouped_plugins" do
+    let!(:frontend_group) { subject.groups.add("frontend") }
+    let!(:backend_group) { subject.groups.add("backend") }
+    let!(:dummy_plugin) { subject.plugins.add("dummy", group: frontend_group) }
+    let!(:doe_plugin) { subject.plugins.add("doe", group: backend_group) }
+
+    context "with no arguments given" do
+      it "returns all the grouped plugins" do
+        expect(subject.grouped_plugins).to eq({ frontend_group => [dummy_plugin], backend_group => [doe_plugin] })
+      end
+    end
+
+    context "with a single :plugins scope given" do
+      it "returns the given grouped plugins" do
+        expect(subject.grouped_plugins(plugins: :dummy)).to eq({ frontend_group => [dummy_plugin] })
+      end
+    end
+
+    context "with multiple :plugins scope given" do
+      it "returns the given grouped plugins" do
+        expect(subject.grouped_plugins(plugins: %i[dummy doe]))
+          .to eq({ frontend_group => [dummy_plugin], backend_group => [doe_plugin] })
+      end
+    end
+
+    context "with a single :groups scope given" do
+      it "returns the given grouped plugins" do
+        expect(subject.grouped_plugins(groups: :frontend)).to eq({ frontend_group => [dummy_plugin] })
+      end
+    end
+
+    context "with multiple :plugins scope given" do
+      it "returns the given grouped plugins" do
+        expect(subject.grouped_plugins(groups: %i[frontend backend]))
+          .to eq({ frontend_group => [dummy_plugin], backend_group => [doe_plugin] })
+      end
+    end
+
+    shared_examples "scopes titles" do
+      it "return the titles for the given scopes" do
+        expect(subject.grouped_plugins).to eq({ frontend_group => [dummy_plugin] })
+      end
+    end
+
+    shared_examples "empty scopes titles" do
+      it "return an empty array" do
+        expect(subject.grouped_plugins).to be_empty
+      end
+    end
+
+    { groups: "frontend", plugins: "dummy" }.each do |scope, name|
+      let(:given_scope) { scope }
+      let(:name_for_scope) { name }
+
+      describe "#{scope.inspect} (#{name})" do
+        context "when set from interactor" do
+          before do
+            session.interactor_scopes = { given_scope => name_for_scope }
+          end
+
+          it_behaves_like "scopes titles"
+        end
+
+        context "when not set in interactor" do
+          context "when set in commandline" do
+            let(:options) { { given_scope => [name_for_scope] } }
+
+            it_behaves_like "scopes titles"
+          end
+
+          context "when not set in commandline" do
+            context "when set in Guardfile" do
+              before do
+                session.guardfile_scopes = { given_scope => name_for_scope }
+              end
+
+              it_behaves_like "scopes titles"
+            end
+          end
+        end
+      end
+    end
+
+    describe "with groups and plugins scopes" do
+      before do
+        session.interactor_scopes = { groups: "frontend", plugins: "dummy" }
+      end
+
+      it "return only the plugins titles" do
+        expect(subject.grouped_plugins).to eq({ frontend_group => [dummy_plugin] })
+      end
+    end
+  end
+
+  describe "#scope_titles" do
+    let!(:frontend_group) { subject.groups.add("frontend") }
+    let!(:dummy_plugin) { subject.plugins.add("dummy", group: "frontend") }
+
+    context "with no arguments given" do
+      it "returns 'all'" do
+        expect(subject.scope_titles).to eq ["all"]
+      end
+    end
+
+    context "with a 'plugins' scope given" do
+      it "returns the plugins' titles" do
+        expect(subject.scope_titles([:dummy])).to eq ["Dummy"]
+      end
+    end
+
+    context "with a 'groups' scope given" do
+      it "returns the groups' titles" do
+        expect(subject.scope_titles(:default)).to eq ["Default"]
+      end
+    end
+
+    context "with a 'groups' scope given" do
+      it "returns the groups' titles" do
+        expect(subject.scope_titles([:frontend])).to eq ["Frontend"]
+      end
+    end
+
+    context "with both 'plugins' and 'groups' scopes given" do
+      it "returns only the plugins' titles" do
+        expect(subject.scope_titles(%i[dummy frontend])).to eq ["Dummy"]
+      end
+    end
+
+    shared_examples "scopes titles" do
+      it "return the titles for the given scopes" do
+        expect(subject.scope_titles).to eq subject.public_send(given_scope).all(name_for_scope).map(&:title)
+      end
+    end
+
+    shared_examples "empty scopes titles" do
+      it "return an empty array" do
+        expect(subject.scope_titles).to be_empty
+      end
+    end
+
+    { groups: "frontend", plugins: "dummy" }.each do |scope, name|
+      let(:given_scope) { scope }
+      let(:name_for_scope) { name }
+
+      describe "#{scope.inspect} (#{name})" do
+        context "when set from interactor" do
+          before do
+            session.interactor_scopes = { given_scope => name_for_scope }
+          end
+
+          it_behaves_like "scopes titles"
+        end
+
+        context "when not set in interactor" do
+          context "when set in commandline" do
+            let(:options) { { given_scope => [name_for_scope] } }
+
+            it_behaves_like "scopes titles"
+          end
+
+          context "when not set in commandline" do
+            context "when set in Guardfile" do
+              before do
+                session.guardfile_scopes = { given_scope => name_for_scope }
+              end
+
+              it_behaves_like "scopes titles"
+            end
+          end
+        end
+      end
+    end
+
+    describe "with groups and plugins scopes" do
+      before do
+        session.interactor_scopes = { groups: "frontend", plugins: "dummy" }
+      end
+
+      it "return only the plugins titles" do
+        expect(subject.scope_titles).to eq subject.plugins.all.map(&:title)
       end
     end
   end

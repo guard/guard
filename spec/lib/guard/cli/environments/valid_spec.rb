@@ -37,7 +37,6 @@ RSpec.describe Guard::Cli::Environments::Valid, :stub_ui do
 
       [
         Guard::Dsl::Error,
-        Guard::Guardfile::Evaluator::NoPluginsError,
         Guard::Guardfile::Evaluator::NoGuardfileError,
         Guard::Guardfile::Evaluator::NoCustomGuardfile
       ].each do |error_class|
@@ -117,7 +116,6 @@ RSpec.describe Guard::Cli::Environments::Valid, :stub_ui do
   describe "#initialize_guardfile" do
     let(:evaluator) { instance_double("Guard::Guardfile::Evaluator") }
     let(:generator) { instance_double("Guard::Guardfile::Generator") }
-    let(:session) { engine.state.session }
 
     before do
       stub_file("Gemfile")
@@ -127,7 +125,7 @@ RSpec.describe Guard::Cli::Environments::Valid, :stub_ui do
       allow(generator).to receive(:initialize_all_templates)
 
       allow(Guard::Guardfile::Evaluator).to receive(:new).and_return(evaluator)
-      allow(Guard::Guardfile::Generator).to receive(:new).with(engine).and_return(generator)
+      allow(Guard::Guardfile::Generator).to receive(:new).with(evaluator).and_return(generator)
     end
 
     context "with bare option" do
@@ -135,7 +133,7 @@ RSpec.describe Guard::Cli::Environments::Valid, :stub_ui do
         expect(options).to receive(:[]).with(:bare).and_return(true)
       end
 
-      it "Only creates the Guardfile without initializing any Guard template" do
+      it "only creates the Guardfile without initializing any Guard template" do
         allow(evaluator).to receive(:evaluate)
           .and_raise(Guard::Guardfile::Evaluator::NoGuardfileError)
 
@@ -148,7 +146,6 @@ RSpec.describe Guard::Cli::Environments::Valid, :stub_ui do
       end
 
       it "returns an exit code" do
-        # TODO: ideally, we'd capture known exceptions and return nonzero
         expect(subject.initialize_guardfile).to be_zero
       end
     end
@@ -195,7 +192,6 @@ RSpec.describe Guard::Cli::Environments::Valid, :stub_ui do
         context "when the Guardfile is empty" do
           before do
             allow(evaluator).to receive(:evaluate)
-              .and_raise Guard::Guardfile::Evaluator::NoPluginsError
             allow(generator).to receive(:initialize_template)
           end
 

@@ -12,9 +12,9 @@ module Guard
       class Valid < Base
         def start_engine
           Bundler.new.verify unless options[:no_bundler_warning]
+          engine = Guard::Engine.new(options)
           engine.start
         rescue Dsl::Error,
-               Guardfile::Evaluator::NoPluginsError,
                Guardfile::Evaluator::NoGuardfileError,
                Guardfile::Evaluator::NoCustomGuardfile => e
           # catch to throw message instead of call stack
@@ -26,26 +26,15 @@ module Guard
         end
 
         def initialize_guardfile(plugin_names = [])
-          bare = options[:bare]
-
-          engine = Guard::Engine.new(options)
-          generator = Guardfile::Generator.new(engine)
+          evaluator = Guardfile::Evaluator.new(options)
+          generator = Guardfile::Generator.new(evaluator)
           begin
-            # raise engine.session.evaluator_options.to_s
-            Guardfile::Evaluator.new(engine).evaluate
+            evaluator.evaluate
           rescue Guardfile::Evaluator::NoGuardfileError
             generator.create_guardfile
-          rescue Guard::Guardfile::Evaluator::NoPluginsError
-            # Do nothing - just the error
           end
 
-          return 0 if bare # 0 - exit code
-
-          # Evaluate because it might have existed and creating was skipped
-          # begin
-          #   Guardfile::Evaluator.new(engine).evaluate
-          # rescue Guard::Guardfile::Evaluator::NoPluginsError
-          # end
+          return 0 if options[:bare] # 0 - exit code
 
           begin
             if plugin_names.empty?
@@ -60,9 +49,10 @@ module Guard
             return 1
           end
 
-          # TODO: capture exceptions to show msg and return exit code on
-          # failures
-          0 # exit code
+          0
+        rescue StandardError => e
+          UI.error(e.message)
+          1
         end
       end
     end

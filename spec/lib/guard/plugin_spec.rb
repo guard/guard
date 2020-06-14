@@ -8,39 +8,32 @@ RSpec.describe Guard::Plugin, :stub_ui do
   subject { described_class.new(engine: engine) }
 
   describe "#initialize" do
-    context "without an engine given" do
-      it "raises an exception" do
-        expect { described_class.new }.to raise_error(described_class::NoEngineGiven)
-      end
-    end
-
     it "assigns the defined watchers" do
       watchers = [double("foo")]
 
-      expect(described_class.new(engine: engine, watchers: watchers).watchers).to eq watchers
+      expect(described_class.new(watchers: watchers).watchers).to eq(watchers)
     end
 
     it "assigns the defined options" do
       options = { a: 1, b: 2 }
 
-      expect(described_class.new(engine: engine, **options).options).to eq options
+      expect(described_class.new(options).options).to eq(options)
     end
 
     context "with a group in the options" do
       it "assigns the given group" do
-        group = described_class.new(engine: engine, group: :test).group
+        group = described_class.new(group: engine.groups.find(:default)).group
 
         expect(group).to match a_kind_of(Guard::Group)
-        expect(group.name).to eq(:test)
+        expect(group.name).to eq(:default)
       end
     end
 
     context "without a group in the options" do
       it "assigns a default group" do
-        group = described_class.new(engine: engine).group
+        group = described_class.new.group
 
-        expect(group).to match a_kind_of(Guard::Group)
-        expect(group.name).to eq(:default)
+        expect(group).to be_nil
       end
     end
 

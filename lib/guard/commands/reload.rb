@@ -24,14 +24,7 @@ module Guard
           end
 
           def process(*entries) # rubocop:disable Lint/NestedMethodDefinition
-            scopes, unknown = engine.session.convert_scopes(entries)
-
-            if unknown.any?
-              output.puts "Unknown scopes: #{unknown.join(', ')}"
-              return
-            end
-
-            engine.async_queue_add([:guard_reload, scopes])
+            engine.async_queue_add([:guard_reload, entries])
           end
         end
       end

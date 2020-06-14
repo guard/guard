@@ -1,18 +1,19 @@
 # frozen_string_literal: true
 
 require "guard/internals/plugins"
-require "guard/engine"
-require "guard/plugin"
 
 RSpec.describe Guard::Internals::Plugins, :stub_ui do
-  include_context "with engine"
+  include_context "with testing plugins"
 
-  subject { described_class.new(engine) }
+  let(:evaluator) { instance_double("Guard::Guardfile::Evaluator", evaluate: true) }
+  let(:frontend_group) { Guard::Group.new(:frontend) }
+  let(:backend_group) { Guard::Group.new(:backend) }
+  let!(:dummy_plugin) { subject.add("dummy", group: frontend_group) }
+  let!(:doe_plugin) { subject.add("doe", group: frontend_group) }
+  let!(:foobar_plugin) { subject.add("foobar", group: backend_group) }
+  let!(:foobaz_plugin) { subject.add("foobaz", group: backend_group) }
 
-  let!(:dummy_plugin) { subject.add("dummy", group: "frontend") }
-  let!(:doe_plugin) { subject.add("doe", group: "frontend") }
-  let!(:foobar_plugin) { subject.add("foobar", group: "backend") }
-  let!(:foobaz_plugin) { subject.add("foobaz", group: "backend") }
+  subject { described_class.new(evaluator) }
 
   describe "#add" do
     it "adds given plugin" do

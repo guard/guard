@@ -12,10 +12,6 @@ RSpec.describe Guard::Internals::State do
     describe "debugging" do
       let(:cmdline_opts) { { debug: debug } }
 
-      before do
-        expect(Guard::Internals::Session).to receive(:new).with(engine, debug: debug).and_call_original
-      end
-
       context "when debug is set to true" do
         let(:debug) { true }
 
@@ -35,6 +31,14 @@ RSpec.describe Guard::Internals::State do
           subject
         end
       end
+    end
+  end
+
+  describe "#session" do
+    it "lazy initializes @session" do
+      expect(Guard::Internals::Session).to receive(:new).with(engine.evaluator, {}).and_call_original
+
+      subject.session
     end
   end
 end

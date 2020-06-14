@@ -2,6 +2,7 @@
 
 require "guard/ui"
 require "guard/watcher/pattern"
+require "guard/watcher/pattern/match_result"
 
 module Guard
   # The watcher defines a RegExp that will be matched against file system
@@ -83,5 +84,10 @@ module Guard
       UI.error "Problem with watch action!\n#{e.message}"
       UI.error e.backtrace.join("\n")
     end
+
+    def to_s
+      pattern
+    end
+    alias_method :inspect, :to_s
   end
 end

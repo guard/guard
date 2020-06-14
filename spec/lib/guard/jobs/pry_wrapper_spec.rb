@@ -36,6 +36,8 @@ RSpec.describe Guard::Jobs::PryWrapper, :stub_ui do
     allow(terminal_settings).to receive(:configurable?).and_return(false)
     allow(terminal_settings).to receive(:save)
     allow(terminal_settings).to receive(:restore)
+
+    engine.setup
   end
 
   describe "#_setup" do
@@ -170,7 +172,7 @@ RSpec.describe Guard::Jobs::PryWrapper, :stub_ui do
 
       context "with a groups scope" do
         before do
-          allow(engine.scope).to receive(:titles).and_return(%w[Backend Frontend])
+          allow(engine.session).to receive(:scope_titles).and_return(%w[Backend Frontend])
         end
 
         it "displays the group scope title in the prompt" do
@@ -181,7 +183,7 @@ RSpec.describe Guard::Jobs::PryWrapper, :stub_ui do
 
       context "with a plugins scope" do
         before do
-          allow(engine.scope).to receive(:titles).and_return(%w[RSpec Ronn])
+          allow(engine.session).to receive(:scope_titles).and_return(%w[RSpec Ronn])
         end
 
         it "displays the group scope title in the prompt" do

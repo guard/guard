@@ -22,12 +22,7 @@ module Guard
 
           def process(*entries) # rubocop:disable Lint/NestedMethodDefinition
             session = engine.session
-            scopes, unknown = session.convert_scopes(entries)
-
-            if unknown.any?
-              output.puts "Unknown scopes: #{unknown.join(',')}"
-              return
-            end
+            scopes, = session.convert_scopes(entries)
 
             if scopes[:plugins].empty? && scopes[:groups].empty?
               output.puts "Usage: scope <scope>"

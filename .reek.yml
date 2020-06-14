@@ -11,14 +11,14 @@ detectors:
     exclude:
       - "Guard::CLI#show"
       - "Guard::CLI#notifiers"
-      - "Guard::Internals::Scope#_instantiate"
-      - "Guard::Internals::Scope#titles"
       - "Guard::Engine#_evaluate"
+      - "Guard::TestHelpers::Template::Session#match"
+      - "Guard::DslDescriber#show"
+      - "Guard::DslDescriber#list"
 
   ControlParameter:
     exclude:
       - "Guard::Engine#interactor="
-      - "Guard::Internals::Scope#titles"
       - "Guard::Runner#run"
       - "stub_file"
 
@@ -29,25 +29,26 @@ detectors:
   NilCheck:
     exclude:
       - "Guard::Cli::Environments::Valid#start_engine"
-      - "Guard::Internals::Scope#titles"
       - "Guard::UI#clear"
+      - "Guard::DslDescriber#show"
 
   NestedIterators:
     exclude:
-      - "Guard::DslReader#self.cleanup_backtrace"
+      - "Guard::Dsl#self.cleanup_backtrace"
+      - "Guard::DslDescriber#show"
 
   TooManyStatements:
     exclude:
-      - "Guard::DslReader#evaluate"
-      - "Guard::DslReader#self.cleanup_backtrace"
-      - "Guard::Internals::Scope#titles"
-      - "Guard::Internals::Session#convert_scopes"
+      - "Guard::Dsl#evaluate"
+      - "Guard::Dsl#self.cleanup_backtrace"
       - "Guard::Engine#_guardfile_deprecated_check"
       - "Guard::Engine#_evaluate"
       - "Guard::Engine#start"
       - "Guard::Engine#pause"
       - "Guard::Engine#stop"
+      - "Guard::Engine#_instantiate"
       - "Guard::PluginUtil#plugin_class"
+      - "Guard::TestHelpers::Template::Session#_watches"
 
   TooManyMethods:
     exclude:
@@ -55,19 +56,21 @@ detectors:
 
   IrresponsibleModule:
     exclude:
+      - "Guard::Notifier"
       - "Guard::Cli::Environments::Base"
       - "Guard::Cli::Environments::EvaluateOnly"
       - "Guard::Cli::Environments::Valid"
-      - "Guard::DslReader"
+      - "Guard::Dsl"
       - "Guard::Dummy"
       - "Guard::Doe"
       - "Guard::FooBar"
       - "Guard::FooBaz"
+      - "Guard::TestHelper"
       - "FakePry"
       - "ApplicationController#respond"
 
   UncommunicativeVariableName:
     exclude:
-      - "Guard::DslReader#evaluate"
+      - "Guard::Dsl#evaluate"
       - "Guard::PluginUtil#initialize_plugin"
       - "Guard::PluginUtil#plugin_class"
