@@ -62,7 +62,7 @@ module Guard
         klass.new(options.delete(:watchers), options)
       else
         begin
-          klass.new(options)
+          klass.new(**options)
         rescue ArgumentError => e
           fail "Failed to call #{klass}.new(options): #{e}"
         end
