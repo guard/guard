@@ -53,5 +53,5 @@ platforms :rbx do
   gem "psych"
   gem "racc"
   gem "rubinius-coverage"
-  gem "rubysl", "~> 2.0"
+  # gem "rubysl", "~> 2.0"
 end

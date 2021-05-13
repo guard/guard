@@ -4,12 +4,13 @@ rvm:
   - 2.4.9
   - 2.5.7
   - 2.6.5
-  - jruby-9.1.17.0
+  - 2.7.3
+  - 3.0.1
   - jruby-9.2.8.0
-  - rbx-3.107
-matrix:
-  allow_failures:
-    - rvm: rbx-3.107
+
+jdk:
+  - openjdk8
+
 env:
   global:
     - JRUBY_OPTS="--debug"
