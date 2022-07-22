@@ -1,11 +1,9 @@
 # frozen_string_literal: true
 
 require "guard/watcher"
+require "guard/plugin"
 
-# TODO: shouldn't be needed
-require "guard/guardfile/evaluator"
-
-RSpec.describe Guard::Watcher do
+RSpec.describe Guard::Watcher, :stub_ui do
   let(:args) { [] }
   subject { described_class.new(*args) }
   describe "#initialize" do
@@ -285,9 +283,7 @@ RSpec.describe Guard::Watcher do
         end
 
         it "returns multiple files by combining the results of the watchers" do
-          expect(described_class.match_files(
-                   plugin, ["awesome_helper.rb"]
-          )).to eq(["foo.rb", "bar.rb"])
+          expect(described_class.match_files(plugin, ["awesome_helper.rb"])).to eq(["foo.rb", "bar.rb"])
         end
       end
 
@@ -297,9 +293,7 @@ RSpec.describe Guard::Watcher do
         end
 
         it "returns only the files from the first watcher" do
-          expect(described_class.match_files(
-                   plugin, ["awesome_helper.rb"]
-          )).to eq(["foo.rb"])
+          expect(described_class.match_files(plugin, ["awesome_helper.rb"])).to eq(["foo.rb"])
         end
       end
     end

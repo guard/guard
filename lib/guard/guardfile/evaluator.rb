@@ -1,10 +1,7 @@
 # frozen_string_literal: true
 
-require "guard/config"
-require "guard/deprecated/evaluator" unless Guard::Config.new.strict?
-
 require "guard/dsl"
-require "guard/dsl_reader"
+require "guard/ui"
 
 module Guard
   module Guardfile
@@ -13,24 +10,21 @@ module Guard
     #
     # @see Guard::Dsl
     #
-    # TODO: rename this to a Locator or Loader or something
     class Evaluator
-      Deprecated::Evaluator.add_deprecated(self) unless Config.new.strict?
-
       DEFAULT_GUARDFILES = %w(
         guardfile.rb
         Guardfile
         ~/.Guardfile
       ).freeze
+      EVALUATOR_OPTIONS = %i[guardfile inline].freeze
 
+      # @private
       ERROR_NO_GUARDFILE = "No Guardfile found,"\
         " please create one with `guard init`."
 
-      attr_reader :guardfile_path
+      attr_reader :options, :guardfile_path
 
-      ERROR_NO_PLUGINS = "No Guard plugins found in Guardfile,"\
-        " please add at least one."
-
+      # @private
       class Error < RuntimeError
       end
 
@@ -40,49 +34,26 @@ module Guard
       class NoCustomGuardfile < Error
       end
 
-      class NoPluginsError < Error
-      end
-
-      def self.from_deprecated(opts)
-        opts.dup.tap do |hash|
-          hash[:contents] = hash.delete(:guardfile_contents) if hash.key?(:guardfile_contents)
-        end
-      end
-
       # Initializes a new Guard::Guardfile::Evaluator object.
       #
-      # @option opts [String] guardfile the path to a valid Guardfile
-      # @option opts [String] contents a string representing the
+      # @option options [String] guardfile the path to a valid Guardfile
       # content of a valid Guardfile
       #
-      def initialize(opts = {})
+      def initialize(options = {})
         @guardfile_path = nil
-        @opts = self.class.from_deprecated(opts)
+        @options = Options.new(options.slice(*Guard::Guardfile::Evaluator::EVALUATOR_OPTIONS))
+        @dsl = Dsl.new
       end
 
       # Evaluates the DSL methods in the `Guardfile`.
       #
-      # @example Programmatically evaluate a Guardfile
-      #   Guard::Guardfile::Evaluator.new.evaluate
-      #
-      # @example Programmatically evaluate a Guardfile with a custom Guardfile
-      # path
-      #
-      #   options = { guardfile: '/Users/guardfile/MyAwesomeGuardfile' }
-      #   Guard::Guardfile::Evaluator.new(options).evaluate
-      #
-      # @example Programmatically evaluate a Guardfile with an inline Guardfile
-      #
-      #   options = { contents: 'guard :rspec' }
-      #   Guard::Guardfile::Evaluator.new(options).evaluate
+      # @return Guard::Guardfile::Result
       #
       def evaluate
-        _use_inline || _use_custom || _use_default
-
-        contents = guardfile_contents
-        fail NoPluginsError, ERROR_NO_PLUGINS unless /guard/m =~ contents
-
-        Dsl.new.evaluate(contents, guardfile_path || "", 1)
+        @evaluate ||= begin
+          dsl.evaluate(guardfile_contents, guardfile_path || "", 1)
+          dsl.result
+        end
       end
 
       # Tests if the current `Guardfile` contains a specific Guard plugin.
@@ -93,58 +64,57 @@ module Guard
       #   File.read('Guardfile')
       #   => "guard :rspec"
       #
-      #   Guard::Guardfile::Evaluator.new.guardfile_include?('rspec)
+      #   Guard::Guardfile::Evaluator.new.guardfile_include?('rspec')
       #   => true
       #
       # @param [String] plugin_name the name of the Guard
       # @return [Boolean] whether the Guard plugin has been declared
       #
-      # TODO: rename this method to it matches RSpec examples better
       def guardfile_include?(plugin_name)
-        reader = DslReader.new
-        reader.evaluate(@contents, guardfile_path || "", 1)
-        reader.plugin_names.include?(plugin_name)
+        evaluate.plugin_names.include?(plugin_name.to_sym)
       end
 
       def custom?
-        opts.key?(:guardfile)
+        !!options[:guardfile]
       end
 
       def inline?
-        opts.key?(:contents)
+        !!options[:inline]
       end
 
       def guardfile_contents
-        [@contents, _user_config].compact.join("\n")
+        @guardfile_contents ||= begin
+          _use_inline || _use_custom || _use_default
+
+          [@contents, _user_config].compact.join("\n")
+        end
       end
 
       private
 
-      attr_reader :opts
+      attr_reader :dsl
 
       def _use_inline
         return unless inline?
 
-        @contents = opts[:contents]
+        @contents = options[:inline]
       end
 
       def _use_custom
         return unless custom?
 
-        @guardfile_path, @contents = _read(Pathname.new(opts[:guardfile]))
+        @guardfile_path, @contents = _read(Pathname.new(options[:guardfile]))
       rescue Errno::ENOENT
         fail NoCustomGuardfile, "No Guardfile exists at #{@guardfile_path}."
       end
 
       def _use_default
         DEFAULT_GUARDFILES.each do |guardfile|
-          begin
-            @guardfile_path, @contents = _read(guardfile)
-            break
-          rescue Errno::ENOENT
-            if guardfile == DEFAULT_GUARDFILES.last
-              fail NoGuardfileError, ERROR_NO_GUARDFILE
-            end
+          @guardfile_path, @contents = _read(guardfile)
+          break
+        rescue Errno::ENOENT
+          if guardfile == DEFAULT_GUARDFILES.last
+            fail NoGuardfileError, ERROR_NO_GUARDFILE
           end
         end
       end

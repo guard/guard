@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
+require "guard/options"
+require "guard/internals/debugging"
 require "guard/internals/plugins"
 require "guard/internals/groups"
-
-require "guard/options"
 
 module Guard
   # @private api
@@ -11,8 +11,7 @@ module Guard
     # TODO: split into a commandline class and session (plugins, groups)
     # TODO: swap session and metadata
     class Session
-      attr_reader :plugins
-      attr_reader :groups
+      attr_reader :plugins, :groups
 
       DEFAULT_OPTIONS = {
         clear: false,
@@ -30,72 +29,119 @@ module Guard
         no_interactions: false,
 
         # Guardfile options:
-        # guardfile_contents
         guardfile: nil,
+        inline: nil,
 
         # Listener options
-        # TODO: rename to watchdirs?
-        watchdir: Dir.pwd,
+        watchdirs: Dir.pwd,
         latency: nil,
         force_polling: false,
         wait_for_delay: nil,
         listen_on: nil
       }.freeze
-      EVALUATOR_OPTIONS = %i[guardfile guardfile_contents].freeze
 
-      def cmdline_groups
-        @cmdline_groups.dup.freeze
-      end
+      # Internal class to store group and plugin scopes
+      ScopesHash = Struct.new(:groups, :plugins)
 
-      def cmdline_plugins
-        @cmdline_plugins.dup.freeze
-      end
-
-      def initialize(new_options)
+      def initialize(new_options = {})
+        @engine = engine
         @options = Options.new(new_options, DEFAULT_OPTIONS)
 
         @plugins = Plugins.new
         @groups = Groups.new
 
-        @cmdline_groups = @options[:group]
-        @cmdline_plugins = @options[:plugin]
+        @guardfile_scopes = ScopesHash.new([], [])
+        @cmdline_scopes = ScopesHash.new(
+          Array(options.delete(:groups)) + Array(options.delete(:group)),
+          Array(options.delete(:plugins)) + Array(options.delete(:plugin))
+        )
+        @interactor_scopes = ScopesHash.new([], [])
 
         @clear = @options[:clear]
         @debug = @options[:debug]
-        @watchdirs = Array(@options[:watchdir])
+        @watchdirs = Array(@options[:watchdirs])
         @notify = @options[:notify]
         @interactor_name = @options[:no_interactions] ? :sleep : :pry_wrapper
 
-        @guardfile_plugin_scope = []
-        @guardfile_group_scope = []
         @guardfile_ignore = []
         @guardfile_ignore_bang = []
 
         @guardfile_notifier_options = {}
+
+        # NOTE: must be set before anything calls Guard::UI.debug
+        Debugging.start if debug?
       end
 
-      def guardfile_scope(scope)
+      def convert_scopes(entries)
+        scopes = { plugins: [], groups: [] }
+        unknown = []
+
+        Array(entries).each do |entry|
+          if plugin = plugins.find(entry)
+            scopes[:plugins] << plugin.name.to_sym
+          elsif group = groups.find(entry)
+            scopes[:groups] << group.name.to_sym
+          else
+            unknown << entry
+          end
+        end
+
+        [scopes, unknown]
+      end
+
+      def grouped_plugins(scopes = {})
+        if scopes[:plugins]
+          _retrieve_plugins(scopes).group_by(&:group)
+        elsif scopes[:groups]
+          _retrieve_groups(scopes).map do |group|
+            [group, plugins.all(group: group.name)]
+          end.to_h
+        else
+          _retrieve_plugins(_scopes_hash).group_by(&:group)
+        end
+      end
+
+      def scope_titles(entries = [])
+        scopes, = convert_scopes(entries)
+
+        if scopes[:plugins].any?
+          objects = _retrieve_plugins(scopes)
+        elsif scopes[:groups].any?
+          objects = _retrieve_groups(scopes)
+        else
+          if _current_scope_names(:plugins).empty? && _current_scope_names(:groups).empty?
+            return ["all"]
+          end
+
+          objects = _retrieve_plugins(_scopes_hash)
+        end
+
+        objects.map(&:title)
+      end
+
+      def guardfile_scopes=(scope)
         opts = scope.dup
 
-        groups = Array(opts.delete(:groups))
-        group = Array(opts.delete(:group))
-        @guardfile_group_scope = Array(groups) + Array(group)
-
-        plugins = Array(opts.delete(:plugins))
-        plugin = Array(opts.delete(:plugin))
-        @guardfile_plugin_scope = Array(plugins) + Array(plugin)
+        @guardfile_scopes.groups = Array(opts.delete(:groups)) + Array(opts.delete(:group))
+        @guardfile_scopes.plugins = Array(opts.delete(:plugins)) + Array(opts.delete(:plugin))
 
         fail "Unknown options: #{opts.inspect}" unless opts.empty?
       end
 
-      # TODO: create a EvaluatorResult class?
-      attr_reader :guardfile_group_scope
-      attr_reader :guardfile_plugin_scope
-      attr_accessor :guardfile_ignore_bang
+      def interactor_scopes=(scopes)
+        @interactor_scopes.groups = Array(scopes[:groups])
+        @interactor_scopes.plugins = Array(scopes[:plugins])
+      end
+      attr_reader :cmdline_scopes, :guardfile_scopes, :interactor_scopes
 
       attr_reader :guardfile_ignore
       def guardfile_ignore=(ignores)
         @guardfile_ignore += Array(ignores).flatten
+      end
+
+      attr_reader :guardfile_ignore_bang
+      def guardfile_ignore_bang=(ignores)
+        @guardfile_ignore_bang = Array(ignores).flatten
       end
 
       def clearing(flag)
@@ -114,13 +160,14 @@ module Guard
 
       def watchdirs
         @watchdirs_from_guardfile ||= nil
-        @watchdirs_from_guardfile || @watchdirs
+        @watchdirs_from_guardfile || @watchdirs || [Dir.pwd]
       end
 
-      # set by Dsl with :directories() command
+      # set by Engine#_instantiate
       def watchdirs=(dirs)
-        dirs = [Dir.pwd] if dirs.empty?
-        @watchdirs_from_guardfile = dirs.map { |dir| File.expand_path dir }
+        return if dirs.empty?
+
+        @watchdirs_from_guardfile = dirs.map { |dir| File.expand_path(dir) }
       end
 
       def listener_args
@@ -134,11 +181,6 @@ module Guard
           expanded_watchdirs = watchdirs.map { |dir| File.expand_path dir }
           [:to, *expanded_watchdirs, listener_options]
         end
-      end
-
-      def evaluator_options
-        # Ruby 2.4 doesn't respond to Hash#slice
-        @options.select { |key, _| EVALUATOR_OPTIONS.include?(key) }
       end
 
       def notify_options
@@ -155,24 +197,44 @@ module Guard
         @guardfile_notifier_options.merge!(config)
       end
 
-      attr_reader :interactor_name
+      attr_reader :interactor_name, :options
 
-      # TODO: call this from within action, not within interactor command
-      def convert_scope(entries)
-        scopes = { plugins: [], groups: [] }
-        unknown = []
+      def to_s
+        "#<#{self.class}:#{object_id}>"
+      end
+      alias_method :inspect, :to_s
 
-        entries.each do |entry|
-          if plugin = plugins.all(entry).first
-            scopes[:plugins] << plugin
-          elsif group = groups.all(entry).first
-            scopes[:groups] << group
-          else
-            unknown << entry
-          end
-        end
+      private
 
-        [scopes, unknown]
+      attr_reader :engine
+
+      def _current_scope_names(type)
+        [interactor_scopes[type], cmdline_scopes[type], guardfile_scopes[type]].detect do |source|
+          !source.empty?
+        end || []
+      end
+
+      def _scopes_hash
+        {
+          plugins: _current_scope_names(:plugins),
+          groups: _current_scope_names(:groups)
+        }.dup.freeze
+      end
+
+      def _retrieve_plugins(scope)
+        plugin_names = Array(scope[:plugins])
+        plugin_names = plugins.all.map(&:name) if plugin_names.empty?
+        plugin_names = Set.new(plugin_names)
+
+        plugin_names.map { |plugin_name| plugins.find(plugin_name) }
+      end
+
+      def _retrieve_groups(scope)
+        group_names = Array(scope[:groups])
+        group_names = groups.all.map(&:name) if group_names.empty?
+        group_names = Set.new(group_names)
+
+        groups.all(group_names)
       end
     end
   end

@@ -4,9 +4,8 @@
 require "open3"
 require "logger"
 
-require "guard/ui"
-
 require "guard/internals/tracing"
+require "guard/ui"
 
 module Guard
   # @private api

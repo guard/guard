@@ -2,8 +2,10 @@
 
 require "guard/jobs/sleep"
 
-RSpec.describe Guard::Jobs::Sleep do
-  subject { described_class.new({}) }
+RSpec.describe Guard::Jobs::Sleep, :stub_ui do
+  include_context "with engine"
+
+  subject { described_class.new(engine) }
 
   describe "#foreground" do
     it "sleeps" do
@@ -20,13 +22,13 @@ RSpec.describe Guard::Jobs::Sleep do
       expect(status).to eq("sleep")
     end
 
-    it "returns :stopped when put to background" do
+    it "returns :continue when put to background" do
       Thread.new do
         sleep 0.1
         subject.background
       end
 
-      expect(subject.foreground).to eq(:stopped)
+      expect(subject.foreground).to eq(:continue)
     end
   end
 

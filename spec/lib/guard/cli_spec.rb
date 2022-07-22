@@ -3,35 +3,29 @@
 require "guard/cli"
 
 RSpec.describe Guard::CLI do
-  let(:valid_environment) { instance_double("Guard::Cli::Environments::Valid") }
-  let(:bare_environment) do
-    instance_double("Guard::Cli::Environments::EvaluateOnly")
-  end
+  include_context "Guard options"
 
+  let(:write_environment) { instance_double("Guard::Cli::Environments::Write") }
+  let(:read_only_environment) do
+    instance_double("Guard::Cli::Environments::ReadOnly")
+  end
   let(:dsl_describer) { instance_double("Guard::DslDescriber") }
 
   before do
-    @options = {}
-    allow(subject).to receive(:options).and_return(@options)
-    allow(::Guard::DslDescriber).to receive(:new).with(no_args)
-                                                 .and_return(dsl_describer)
-
-    allow(Guard::Cli::Environments::EvaluateOnly).to receive(:new)
-      .and_return(bare_environment)
-
-    allow(Guard::Cli::Environments::Valid).to receive(:new)
-      .and_return(valid_environment)
+    allow(subject).to receive(:options).and_return(options)
+    allow(Guard::DslDescriber).to receive(:new).and_return(dsl_describer)
+    allow(Guard::Cli::Environments::ReadOnly).to receive(:new).with(options).and_return(read_only_environment)
+    allow(Guard::Cli::Environments::Write).to receive(:new).with(options).and_return(write_environment)
   end
 
   describe "#start" do
     before do
-      allow(valid_environment).to receive(:start_guard).and_return(0)
+      allow(read_only_environment).to receive(:start).and_return(0)
     end
 
     it "delegates to Guard::Environment.start" do
-      pending "needs JRuby support first" if defined?(JRUBY_VERSION)
+      expect(read_only_environment).to receive(:start).and_return(0)
 
-      expect(valid_environment).to receive(:start_guard).and_return(0)
       begin
         subject.start
       rescue SystemExit
@@ -39,9 +33,8 @@ RSpec.describe Guard::CLI do
     end
 
     it "exits with given exit code" do
-      pending "needs JRuby support first" if defined?(JRUBY_VERSION)
+      allow(read_only_environment).to receive(:start).and_return(4)
 
-      allow(valid_environment).to receive(:start_guard).and_return(4)
       expect { subject.start }.to raise_error(SystemExit) do |exception|
         expect(exception.status).to eq(4)
         exception
@@ -49,10 +42,11 @@ RSpec.describe Guard::CLI do
     end
 
     it "passes options" do
-      pending "needs JRuby support first" if defined?(JRUBY_VERSION)
+      expect(Guard::Cli::Environments::ReadOnly)
+        .to receive(:new)
+        .with(options)
+        .and_return(read_only_environment)
 
-      expect(Guard::Cli::Environments::Valid).to receive(:new).with(@options)
-                                                              .and_return(valid_environment)
       begin
         subject.start
       rescue SystemExit
@@ -62,13 +56,13 @@ RSpec.describe Guard::CLI do
 
   describe "#list" do
     before do
-      allow(bare_environment).to receive(:evaluate)
+      allow(read_only_environment).to receive(:evaluate).and_return(read_only_environment)
       allow(dsl_describer).to receive(:list)
       subject.list
     end
 
     it "calls the evaluation" do
-      expect(bare_environment).to have_received(:evaluate)
+      expect(read_only_environment).to have_received(:evaluate)
     end
 
     it "outputs the Guard plugins list" do
@@ -78,13 +72,14 @@ RSpec.describe Guard::CLI do
 
   describe "#notifiers" do
     before do
-      allow(bare_environment).to receive(:evaluate)
+      allow(read_only_environment).to receive(:evaluate).and_return(read_only_environment)
       allow(dsl_describer).to receive(:notifiers)
+
       subject.notifiers
     end
 
     it "calls the evaluation" do
-      expect(bare_environment).to have_received(:evaluate)
+      expect(read_only_environment).to have_received(:evaluate)
     end
 
     it "outputs the notifiers list" do
@@ -101,28 +96,22 @@ RSpec.describe Guard::CLI do
 
   describe "#init" do
     before do
-      allow(Guard::Cli::Environments::Valid).to receive(:new)
-        .and_return(valid_environment)
-      allow(valid_environment).to receive(:initialize_guardfile).and_return(0)
-    end
-
-    it "delegates to Guard::Environment.start" do
-      begin
-        subject.init
-      rescue SystemExit
-      end
+      allow(Guard::Cli::Environments::Write).to receive(:new)
+        .and_return(write_environment)
+      allow(write_environment).to receive(:initialize_guardfile).and_return(0)
     end
 
     it "exits with given exit code" do
-      allow(valid_environment).to receive(:initialize_guardfile).and_return(4)
+      allow(write_environment).to receive(:initialize_guardfile).and_return(4)
+
       expect { subject.init }.to raise_error(SystemExit) do |exception|
         expect(exception.status).to eq(4)
       end
     end
 
     it "passes options" do
-      expect(Guard::Cli::Environments::Valid).to receive(:new).with(@options)
-                                                              .and_return(valid_environment)
+      expect(Guard::Cli::Environments::Write).to receive(:new).with(options)
+                                                              .and_return(write_environment)
       begin
         subject.init
       rescue SystemExit
@@ -131,7 +120,9 @@ RSpec.describe Guard::CLI do
 
     it "passes plugin names" do
       plugins = [double("plugin1"), double("plugin2")]
-      expect(valid_environment).to receive(:initialize_guardfile).with(plugins)
+
+      expect(write_environment).to receive(:initialize_guardfile).with(plugins)
+
       begin
         subject.init(*plugins)
       rescue SystemExit
@@ -141,13 +132,14 @@ RSpec.describe Guard::CLI do
 
   describe "#show" do
     before do
-      allow(bare_environment).to receive(:evaluate)
+      allow(read_only_environment).to receive(:evaluate).and_return(read_only_environment)
       allow(dsl_describer).to receive(:show)
+
       subject.show
     end
 
     it "calls the evaluation" do
-      expect(bare_environment).to have_received(:evaluate)
+      expect(read_only_environment).to have_received(:evaluate)
     end
 
     it "outputs the Guard::DslDescriber.list result" do

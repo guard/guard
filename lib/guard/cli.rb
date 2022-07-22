@@ -2,11 +2,11 @@
 
 require "thor"
 
-require "guard/version"
-
+require "guard/cli/environments/read_only"
+require "guard/cli/environments/write"
 require "guard/dsl_describer"
-require "guard/cli/environments/valid"
-require "guard/cli/environments/evaluate_only"
+require "guard/engine"
+require "guard/version"
 
 module Guard
   # Facade for the Guard command line interface managed by
@@ -51,8 +51,7 @@ module Guard
                   aliases: "-P",
                   banner: "Run only the passed plugins"
 
-    # TODO: make it plural
-    method_option :watchdir,
+    method_option :watchdirs,
                   type: :array,
                   aliases: "-w",
                   banner: "Specify the directories to watch"
@@ -109,7 +108,7 @@ module Guard
     # This is the default task, so calling `guard` is the same as calling
     # `guard start`.
     #
-    # @see Guard.start
+    # @see Guard::Engine#start
     #
     def start
       if defined?(JRUBY_VERSION)
@@ -121,7 +120,8 @@ module Guard
             " * https://github.com/jruby/jruby/issues/2383\n\n"
         end
       end
-      exit(Cli::Environments::Valid.new(options).start_guard)
+
+      exit(read_only_env.start)
     end
 
     desc "list", "Lists Guard plugins that can be used with init"
@@ -132,8 +132,7 @@ module Guard
     # @see Guard::DslDescriber.list
     #
     def list
-      Cli::Environments::EvaluateOnly.new(options).evaluate
-      DslDescriber.new.list
+      DslDescriber.new(read_only_env.evaluate).list
     end
 
     desc "notifiers", "Lists notifiers and its options"
@@ -143,9 +142,7 @@ module Guard
     # @see Guard::DslDescriber.notifiers
     #
     def notifiers
-      Cli::Environments::EvaluateOnly.new(options).evaluate
-      # TODO: pass the data directly to the notifiers?
-      DslDescriber.new.notifiers
+      DslDescriber.new(read_only_env.evaluate).notifiers
     end
 
     desc "version", "Show the Guard version"
@@ -181,9 +178,7 @@ module Guard
     # initialize
     #
     def init(*plugin_names)
-      env = Cli::Environments::Valid.new(options)
-      exitcode = env.initialize_guardfile(plugin_names)
-      exit(exitcode)
+      exit(write_env.initialize_guardfile(plugin_names))
     end
 
     desc "show", "Show all defined Guard plugins and their options"
@@ -195,8 +190,17 @@ module Guard
     # @see Guard::DslDescriber.show
     #
     def show
-      Cli::Environments::EvaluateOnly.new(options).evaluate
-      DslDescriber.new.show
+      DslDescriber.new(read_only_env.evaluate).show
+    end
+
+    private
+
+    def read_only_env
+      Cli::Environments::ReadOnly.new(options)
+    end
+
+    def write_env
+      Cli::Environments::Write.new(options)
     end
   end
 end

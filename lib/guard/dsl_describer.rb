@@ -4,12 +4,13 @@ require "formatador"
 
 require "guard/ui"
 require "guard/notifier"
-require "guard"
+require "guard/plugin_util"
 
 require "set"
 require "ostruct"
 
 module Guard
+  # @private
   # The DslDescriber evaluates the Guardfile and creates an internal structure
   # of it that is used in some inspection utility methods like the CLI commands
   # `show` and `list`.
@@ -18,8 +19,8 @@ module Guard
   # @see Guard::CLI
   #
   class DslDescriber
-    def initialize(options = nil)
-      fail "options passed to DslDescriber are ignored!" unless options.nil?
+    def initialize(guardfile_result)
+      @guardfile_result = guardfile_result
     end
 
     # List the Guard plugins that are available for use in your system and marks
@@ -28,11 +29,9 @@ module Guard
     # @see CLI#list
     #
     def list
-      # TODO: remove dependency on Guard in this whole file
       # collect metadata
-      data = PluginUtil.plugin_names.sort.inject({}) do |hash, name|
-        hash[name.capitalize] = Guard.state.session.plugins.all(name).any?
-        hash
+      data = PluginUtil.plugin_names.sort.each_with_object({}) do |name, hash|
+        hash[name.capitalize] = guardfile_result.plugin_names.include?(name.to_sym)
       end
 
       # presentation
@@ -52,23 +51,19 @@ module Guard
     # @see CLI#show
     #
     def show
-      # collect metadata
-      groups = Guard.state.session.groups.all
-
       objects = []
+      empty_plugin = ["", { "" => nil }]
 
-      empty_plugin = OpenStruct.new
-      empty_plugin.options = [["", nil]]
-
-      groups.each do |group|
-        plugins = Array(Guard.state.session.plugins.all(group: group.name))
+      guardfile_result.groups.each do |group_name, options|
+        plugins = guardfile_result.plugins.select { |plugin| plugin.last[:group] == group_name }
         plugins = [empty_plugin] if plugins.empty?
         plugins.each do |plugin|
-          options = plugin.options
-          options = [["", nil]] if options.empty?
-          options.each do |option, raw_value|
-            value = raw_value.nil? ? "" : raw_value.inspect
-            objects << [group.title, plugin.title, option.to_s, value]
+          plugin_name, options = plugin
+          options.delete(:group)
+          options = empty_plugin.last if options.empty?
+
+          options.each do |option, value|
+            objects << [group_name, plugin_name, option.to_s, value&.inspect]
           end
         end
       end
@@ -147,6 +142,8 @@ module Guard
     end
 
     private
+
+    attr_reader :guardfile_result
 
     def _add_row(rows, name, available, used, option, value)
       rows << {

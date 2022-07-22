@@ -1,22 +1,26 @@
 # frozen_string_literal: true
 
-require "guard/cli/environments/bundler"
+require "guard/cli/environments/base"
 
-# TODO: instead of shared examples, use have_received if possible
-RSpec.shared_examples "avoids Bundler warning" do
-  it "does not show the Bundler warning" do
-    expect(Guard::UI).to_not have_received(:info).with(/Guard here!/)
+RSpec.describe Guard::Cli::Environments::Base, :stub_ui do
+  let(:no_bundler_warning) { false }
+  let(:options) { { no_bundler_warning: no_bundler_warning } }
+
+  shared_examples "avoids Bundler warning" do
+    it "does not show the Bundler warning" do
+      expect(Guard::UI).to_not have_received(:info).with(/Guard here!/)
+    end
   end
-end
 
-RSpec.shared_examples "shows Bundler warning" do
-  it "shows the Bundler warning" do
-    expect(Guard::UI).to have_received(:info).with(/Guard here!/)
+  shared_examples "shows Bundler warning" do
+    it "shows the Bundler warning" do
+      expect(Guard::UI).to have_received(:info).with(/Guard here!/)
+    end
   end
-end
 
-RSpec.describe Guard::Cli::Environments::Bundler do
-  describe "#verify" do
+  subject { described_class.new(options) }
+
+  describe "#bundler_check" do
     let(:gemdeps) { nil }
     let(:gemfile) { nil }
 
@@ -27,11 +31,12 @@ RSpec.describe Guard::Cli::Environments::Bundler do
       allow(File).to receive(:exist?).with("Gemfile")
                                      .and_return(gemfile_present)
 
-      subject.verify
+      subject.__send__(:bundler_check)
     end
 
     context "without an existing Gemfile" do
       let(:gemfile_present) { false }
+
       include_examples "avoids Bundler warning"
     end
 
@@ -41,6 +46,7 @@ RSpec.describe Guard::Cli::Environments::Bundler do
       context "with Bundler" do
         let(:gemdeps) { nil }
         let(:gemfile) { "Gemfile" }
+
         include_examples "avoids Bundler warning"
       end
 
@@ -49,12 +55,20 @@ RSpec.describe Guard::Cli::Environments::Bundler do
 
         context "with Rubygems Gemfile autodetection or custom Gemfile" do
           let(:gemdeps) { "-" }
+
           include_examples "avoids Bundler warning"
         end
 
         context "without Rubygems Gemfile handling" do
           let(:gemdeps) { nil }
+
           include_examples "shows Bundler warning"
+
+          context "when options[:no_bundler_warning] == true" do
+            let(:no_bundler_warning) { true }
+
+            include_examples "avoids Bundler warning"
+          end
         end
       end
     end

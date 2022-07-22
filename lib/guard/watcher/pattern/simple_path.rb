@@ -8,6 +8,11 @@ module Guard
           @path = normalize(string_or_pathname)
         end
 
+        def to_s
+          @path
+        end
+        alias_method :inspect, :to_s
+
         def match(string_or_pathname)
           cleaned = normalize(string_or_pathname)
           return nil unless @path == cleaned

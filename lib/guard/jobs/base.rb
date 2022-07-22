@@ -3,9 +3,11 @@
 module Guard
   module Jobs
     class Base
-      def initialize(_options); end
+      def initialize(engine, _options = {})
+        @engine = engine
+      end
 
-      # @return [Symbol] :stopped once job is finished
+      # @return [Symbol] :continue once job is finished
       # @return [Symbol] :exit to tell Guard to terminate
       def foreground; end
 
@@ -14,6 +16,10 @@ module Guard
       # Signal handler calls this, so avoid actually doing
       # anything other than signaling threads
       def handle_interrupt; end
+
+      private
+
+      attr_reader :engine
     end
   end
 end

@@ -16,10 +16,7 @@ class GuardReloader
     def current_bundler_gemfile
       ENV["BUNDLE_GEMFILE"]
     end
-
-    def using_bundler?
-      ENV["BUNDLE_GEMFILE"]
-    end
+    alias_method :using_bundler?, :current_bundler_gemfile
 
     def setup_bundler_env(gemfile)
       ENV["BUNDLE_GEMFILE"] = gemfile
@@ -42,14 +39,6 @@ class GuardReloader
       Gem.win_platform?
     end
 
-    def exit_with(code)
-      exit(code)
-    end
-
-    def spawn_with(*args)
-      spawn(*args)
-    end
-
     def wait_ignoring_interrupts(pid)
       Process.wait2(pid)[1].exitstatus
     rescue Interrupt
@@ -68,6 +57,7 @@ class GuardReloader
   end
 
   attr_reader :config
+
   def initialize(config)
     @config = config
   end
@@ -81,32 +71,22 @@ class GuardReloader
     if config.exist?(relative_to_binstub)
       config.setup_bundler_env(relative_to_binstub.to_s)
       config.setup_bundler
-      return
     end
-
-    unless config.exist?(Pathname("Gemfile"))
-      # Running guard with bare ruby here - it's up to the user
-      # to setup/install missing deps
-      return
-    end
-
-    warn "Warning: you have a Gemfile, but you're not using"\
-      " bundler or RUBYGEMS_GEMDEPS"
   end
 
   def auto_restart
     args = [Gem.ruby, config.guard_core_path] + config.program_arguments
 
     loop do
-      exitcode = config.wait_ignoring_interrupts(config.spawn_with(*args))
-      config.exit_with(exitcode) if exitcode != 2
+      exitcode = config.wait_ignoring_interrupts(spawn(*args))
+      exit(exitcode) if exitcode != 2
     end
   end
 end
 
-unless ENV["GUARD_SPECS_RUNNING"]
-  config = GuardReloader::Config.new
-  reloader = GuardReloader.new(config)
-  reloader.setup
-  reloader.auto_restart
-end
+return if ENV["GUARD_SPECS_RUNNING"]
+
+config = GuardReloader::Config.new
+reloader = GuardReloader.new(config)
+reloader.setup
+reloader.auto_restart

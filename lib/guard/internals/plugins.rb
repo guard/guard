@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require "guard/plugin_util"
-require "guard/group"
-require "guard/plugin"
 
 module Guard
   # @private api
@@ -12,21 +10,25 @@ module Guard
         @plugins = []
       end
 
-      def all(filter = nil)
-        return @plugins if filter.nil?
-
-        matcher = matcher_for(filter)
-        @plugins.select { |plugin| matcher.call(plugin) }
+      def add(name, options)
+        PluginUtil.new(name).initialize_plugin(options).tap do |plugin|
+          @plugins << plugin
+        end
       end
 
       def remove(plugin)
         @plugins.delete(plugin)
       end
 
-      # TODO: should it allow duplicates? (probably yes because of different
-      # configs or groups)
-      def add(name, options)
-        @plugins << PluginUtil.new(name).initialize_plugin(options)
+      def all(filter = nil)
+        return @plugins unless filter
+
+        matcher = matcher_for(filter)
+        @plugins.select { |plugin| matcher.call(plugin) }
+      end
+
+      def find(filter)
+        all(filter).first
       end
 
       private
@@ -34,7 +36,7 @@ module Guard
       def matcher_for(filter)
         case filter
         when String, Symbol
-          shortname = filter.to_s.downcase.delete("-")
+          shortname = filter.to_s.downcase
           ->(plugin) { plugin.name == shortname }
         when Regexp
           ->(plugin) { plugin.name =~ filter }
@@ -43,12 +45,14 @@ module Guard
             filter.all? do |k, v|
               case k
               when :name
-                plugin.name == v.to_s.downcase.delete("-")
+                plugin.name == v.to_s.downcase
               when :group
                 plugin.group.name == v.to_sym
               end
             end
           end
+        else
+          fail "Invalid filter: #{filter.inspect}"
         end
       end
     end

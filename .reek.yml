@@ -1,0 +1,80 @@
+---
+detectors:
+  UtilityFunction:
+    public_methods_only: true
+
+  BooleanParameter:
+    exclude:
+      - "Guard::Interactor#initialize"
+
+  FeatureEnvy:
+    exclude:
+      - "Guard::CLI#show"
+      - "Guard::CLI#notifiers"
+      - "Guard::Engine#_evaluate"
+      - "Guard::TestHelpers::Template::Session#match"
+      - "Guard::DslDescriber#show"
+      - "Guard::DslDescriber#list"
+
+  ControlParameter:
+    exclude:
+      - "Guard::Engine#interactor="
+      - "Guard::Runner#run"
+      - "stub_file"
+
+  InstanceVariableAssumption:
+    exclude:
+      - "Guard::Dsl"
+
+  NilCheck:
+    exclude:
+      - "Guard::Cli::Environments::ReadyOnly#start"
+      - "Guard::UI#clear"
+      - "Guard::DslDescriber#show"
+
+  NestedIterators:
+    exclude:
+      - "Guard::Dsl#self.cleanup_backtrace"
+      - "Guard::DslDescriber#show"
+
+  TooManyStatements:
+    exclude:
+      - "Guard::Dsl#evaluate"
+      - "Guard::Dsl#self.cleanup_backtrace"
+      - "Guard::Engine#_guardfile_deprecated_check"
+      - "Guard::Engine#_evaluate"
+      - "Guard::Engine#start"
+      - "Guard::Engine#pause"
+      - "Guard::Engine#stop"
+      - "Guard::Engine#_instantiate"
+      - "Guard::PluginUtil#plugin_class"
+      - "Guard::TestHelpers::Template::Session#_watches"
+
+  TooManyMethods:
+    exclude:
+      - "Guard::Engine"
+
+  IrresponsibleModule:
+    exclude:
+      - "Guard::Notifier"
+      - "Guard::Cli::Environments::Base"
+      - "Guard::Cli::Environments::ReadOnly"
+      - "Guard::Cli::Environments::Write"
+      - "Guard::Dsl"
+      - "Guard::Dummy"
+      - "Guard::Doe"
+      - "Guard::FooBar"
+      - "Guard::FooBaz"
+      - "Guard::TestHelper"
+      - "FakePry"
+      - "ApplicationController#respond"
+
+  UncommunicativeVariableName:
+    exclude:
+      - "ArubaAdapter"
+      - "Guard::Cli::Environments::ReadOnly"
+      - "Guard::Cli::Environments::Write"
+      - "Guard::Dsl#evaluate"
+      - "Guard::Engine#start"
+      - "Guard::PluginUtil#initialize_plugin"
+      - "Guard::PluginUtil#plugin_class"

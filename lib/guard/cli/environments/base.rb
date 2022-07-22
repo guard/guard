@@ -5,8 +5,22 @@ require "guard/ui"
 module Guard
   module Cli
     module Environments
-      class Bundler
-        def verify
+      class Base
+        # Initialize a new Guard::Cli::Environments::Base object.
+        #
+        # @option options [Boolean] no_bundler_warning whether to show the "Bundler should be used" warning or not
+        #
+        # @return [Guard::Cli::Environments::Base] a Guard::Cli::Environments::Base instance
+        def initialize(options)
+          @options = options.dup
+        end
+
+        private
+
+        attr_reader :options
+
+        def bundler_check
+          return if options[:no_bundler_warning]
           return unless File.exist?("Gemfile")
           return if ENV["BUNDLE_GEMFILE"] || ENV["RUBYGEMS_GEMDEPS"]
 

@@ -13,17 +13,7 @@ RSpec.describe Guard::Watcher::Pattern do
 
     context "when a Pathname is given" do
       let(:pattern) { Pathname("foo.rb") }
-      it { is_expected.to be_a(described_class::PathnamePath) }
-    end
-
-    context "when an regexp string is given" do
-      let(:pattern) { "^foo.*$" }
-      it { is_expected.to be_a(described_class::Matcher) }
-      it "shows a warning" do
-        expect(described_class::DeprecatedRegexp)
-          .to receive(:show_deprecation).with(pattern)
-        subject
-      end
+      it { is_expected.to be_a(described_class::SimplePath) }
     end
 
     context "when a regexp is given" do
