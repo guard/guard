@@ -21,7 +21,7 @@ module Guard
           end
 
           def process # rubocop:disable Lint/NestedMethodDefinition
-            engine.async_queue_add([:guard_show])
+            engine.async_queue_add([:show])
           end
         end
       end

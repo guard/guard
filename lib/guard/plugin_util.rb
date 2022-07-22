@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require "guard/ui"
-require "guard/plugin"
 require "guard/guardfile/evaluator"
+require "guard/plugin"
+require "guard/ui"
 
 module Guard
   # @private
@@ -38,9 +38,9 @@ module Guard
     #
     # @param [String] name the name of the Guard plugin
     #
-    def initialize(evaluator, name)
-      @evaluator = evaluator
+    def initialize(name, evaluator: Guardfile::Evaluator.new)
       @name = name.to_s.sub(/^guard-/, "")
+      @evaluator = evaluator
     end
 
     # Initializes a new `Guard::Plugin` with the given `options` hash. This

@@ -28,7 +28,7 @@ detectors:
 
   NilCheck:
     exclude:
-      - "Guard::Cli::Environments::Valid#start_engine"
+      - "Guard::Cli::Environments::ReadyOnly#start"
       - "Guard::UI#clear"
       - "Guard::DslDescriber#show"
 
@@ -58,8 +58,8 @@ detectors:
     exclude:
       - "Guard::Notifier"
       - "Guard::Cli::Environments::Base"
-      - "Guard::Cli::Environments::EvaluateOnly"
-      - "Guard::Cli::Environments::Valid"
+      - "Guard::Cli::Environments::ReadOnly"
+      - "Guard::Cli::Environments::Write"
       - "Guard::Dsl"
       - "Guard::Dummy"
       - "Guard::Doe"
@@ -71,6 +71,10 @@ detectors:
 
   UncommunicativeVariableName:
     exclude:
+      - "ArubaAdapter"
+      - "Guard::Cli::Environments::ReadOnly"
+      - "Guard::Cli::Environments::Write"
       - "Guard::Dsl#evaluate"
+      - "Guard::Engine#start"
       - "Guard::PluginUtil#initialize_plugin"
       - "Guard::PluginUtil#plugin_class"

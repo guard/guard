@@ -1,6 +1,6 @@
 scope(groups: %w(specs))
 
-directories %w(spec lib config features man)
+directories %w(bin spec lib config features man)
 
 watch ("config/Guardfile") { UI.info "Exiting guard because config changed"; exit 0 }
 
@@ -21,7 +21,7 @@ group :specs, halt_on_fail: true do
     ruby = dsl.ruby
     dsl.watch_spec_files_for(ruby.lib_files)
 
-    #  watch("lib/guard/notifier.rb")           { "spec/guard/notifiers" }
+     watch("bin/guard") { "spec/lib/guard/bin_spec.rb" }
     #  watch("lib/guard/interactor.rb")         { "spec/guard/commands" }
     #  watch(%r{^lib/guard/(guard|plugin).rb$}) { "spec/guard/plugin" }
   end
@@ -31,7 +31,7 @@ group :specs, halt_on_fail: true do
     watch(%r{(?:.+/)?\.rubocop\.yml$}) { |m| File.dirname(m[0]) }
   end
 
-  guard "cucumber", keep_failed: true, all_on_start: false, cmd_additional_args: '--profile guard' do
+  guard :cucumber, keep_failed: true, all_on_start: false, cmd_additional_args: '--profile guard' do
     watch(%r{^features/.+\.feature$})
     watch(%r{^features/support/.+$})          { "features" }
     watch(%r{^features/step_definitions/(.+)_steps\.rb$}) do |m|

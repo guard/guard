@@ -2,11 +2,11 @@
 
 require "thor"
 
-require "guard/version"
-
+require "guard/cli/environments/read_only"
+require "guard/cli/environments/write"
 require "guard/dsl_describer"
-require "guard/cli/environments/valid"
-require "guard/cli/environments/evaluate_only"
+require "guard/engine"
+require "guard/version"
 
 module Guard
   # Facade for the Guard command line interface managed by
@@ -120,7 +120,8 @@ module Guard
             " * https://github.com/jruby/jruby/issues/2383\n\n"
         end
       end
-      exit(Cli::Environments::Valid.new(options).start_engine)
+
+      exit(read_only_env.start)
     end
 
     desc "list", "Lists Guard plugins that can be used with init"
@@ -131,8 +132,7 @@ module Guard
     # @see Guard::DslDescriber.list
     #
     def list
-      env = Cli::Environments::EvaluateOnly.new(options)
-      DslDescriber.new(env.evaluate).list
+      DslDescriber.new(read_only_env.evaluate).list
     end
 
     desc "notifiers", "Lists notifiers and its options"
@@ -142,8 +142,7 @@ module Guard
     # @see Guard::DslDescriber.notifiers
     #
     def notifiers
-      env = Cli::Environments::EvaluateOnly.new(options)
-      DslDescriber.new(env.evaluate).notifiers
+      DslDescriber.new(read_only_env.evaluate).notifiers
     end
 
     desc "version", "Show the Guard version"
@@ -179,9 +178,7 @@ module Guard
     # initialize
     #
     def init(*plugin_names)
-      env = Cli::Environments::Valid.new(options)
-      exitcode = env.initialize_guardfile(plugin_names)
-      exit(exitcode)
+      exit(write_env.initialize_guardfile(plugin_names))
     end
 
     desc "show", "Show all defined Guard plugins and their options"
@@ -193,8 +190,17 @@ module Guard
     # @see Guard::DslDescriber.show
     #
     def show
-      env = Cli::Environments::EvaluateOnly.new(options)
-      DslDescriber.new(env.evaluate).show
+      DslDescriber.new(read_only_env.evaluate).show
+    end
+
+    private
+
+    def read_only_env
+      Cli::Environments::ReadOnly.new(options)
+    end
+
+    def write_env
+      Cli::Environments::Write.new(options)
     end
   end
 end

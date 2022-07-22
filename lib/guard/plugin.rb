@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require "guard"
 require "guard/internals/groups"
+require "guard/ui"
 
 module Guard
   # Base class from which every Guard plugin implementation must inherit.

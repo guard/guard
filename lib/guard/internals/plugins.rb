@@ -6,13 +6,12 @@ module Guard
   # @private api
   module Internals
     class Plugins
-      def initialize(evaluator)
-        @evaluator = evaluator
+      def initialize
         @plugins = []
       end
 
       def add(name, options)
-        PluginUtil.new(evaluator, name).initialize_plugin(options).tap do |plugin|
+        PluginUtil.new(name).initialize_plugin(options).tap do |plugin|
           @plugins << plugin
         end
       end
@@ -33,8 +32,6 @@ module Guard
       end
 
       private
-
-      attr_reader :evaluator
 
       def matcher_for(filter)
         case filter

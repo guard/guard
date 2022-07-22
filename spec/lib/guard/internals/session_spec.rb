@@ -10,7 +10,7 @@ RSpec.describe Guard::Internals::Session, :stub_ui do
 
   describe "#initialize" do
     describe "#listener_args" do
-      subject { described_class.new(engine, options).listener_args }
+      subject { described_class.new(options).listener_args }
 
       context "with a single watchdir" do
         let(:options) { { watchdirs: ["/usr"] } }
@@ -58,6 +58,30 @@ RSpec.describe Guard::Internals::Session, :stub_ui do
 
       it "initializes the group scope" do
         expect(subject.cmdline_scopes.groups).to match_array(%w[backend frontend])
+      end
+    end
+
+    describe "debugging" do
+      let(:options) { { debug: debug } }
+
+      context "when debug is set to true" do
+        let(:debug) { true }
+
+        it "sets up debugging" do
+          expect(Guard::Internals::Debugging).to receive(:start)
+
+          subject
+        end
+      end
+
+      context "when debug is set to false" do
+        let(:debug) { false }
+
+        it "does not set up debugging" do
+          expect(Guard::Internals::Debugging).to_not receive(:start)
+
+          subject
+        end
       end
     end
   end

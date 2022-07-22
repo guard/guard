@@ -12,10 +12,6 @@ RSpec.describe Guard::Runner, :stub_ui do
   let!(:foobar_plugin) { plugins.add("foobar", group: backend_group) }
   let!(:foobaz_plugin) { plugins.add("foobaz", group: backend_group) }
 
-  after do
-    Guard::UI.reset
-  end
-
   subject { described_class.new(engine.session) }
 
   describe "#run" do

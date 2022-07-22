@@ -23,7 +23,7 @@ RSpec.describe Guard::Commands::All, :stub_ui do
 
     it "runs the :run_all action" do
       expect(engine).to receive(:async_queue_add)
-        .with([:guard_run_all, []])
+        .with([:run_all, []])
 
       FakePry.process
     end
@@ -35,7 +35,7 @@ RSpec.describe Guard::Commands::All, :stub_ui do
 
     it "runs the :run_all action with the given scope" do
       expect(engine).to receive(:async_queue_add)
-        .with([:guard_run_all, ["foo"]])
+        .with([:run_all, ["foo"]])
 
       FakePry.process("foo")
     end
@@ -47,7 +47,7 @@ RSpec.describe Guard::Commands::All, :stub_ui do
 
     it "runs the :run_all action with the given scope" do
       expect(engine).to receive(:async_queue_add)
-        .with([:guard_run_all, ["bar"]])
+        .with([:run_all, ["bar"]])
 
       FakePry.process("bar")
     end

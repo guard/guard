@@ -3,10 +3,7 @@
 require "guard/guardfile/generator"
 
 RSpec.describe Guard::Guardfile::Generator, :stub_ui do
-  let(:evaluator) { instance_double("Guard::Guardfile::Evaluator", evaluate: true) }
   let(:plugin_util) { instance_double("Guard::PluginUtil") }
-
-  subject { described_class.new(evaluator) }
 
   it "has a valid Guardfile template" do
     allow(File).to receive(:exist?)
@@ -116,7 +113,7 @@ RSpec.describe Guard::Guardfile::Generator, :stub_ui do
         expect(@guardfile).to receive(:binwrite)
           .with("\n#{template_content}\n", open_args: ["a"])
         expect(plugin_util).to receive(:valid?).and_return(false)
-        expect(Guard::PluginUtil).to receive(:new).with(evaluator, "bar")
+        expect(Guard::PluginUtil).to receive(:new).with("bar")
                                                   .and_return(plugin_util)
 
         subject.initialize_template("bar")

@@ -1,16 +1,22 @@
 # frozen_string_literal: true
 
+require "forwardable"
+
 require "guard/group"
 
 module Guard
   # @private api
   module Internals
     class Groups
+      extend Forwardable
+
       DEFAULT_GROUP = :default
 
       def initialize
         @groups = [Group.new(DEFAULT_GROUP)]
       end
+
+      delegate each: :all
 
       def all(filter = nil)
         return @groups unless filter

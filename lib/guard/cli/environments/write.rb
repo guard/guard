@@ -1,33 +1,19 @@
 # frozen_string_literal: true
 
 require "guard/cli/environments/base"
-require "guard/cli/environments/bundler"
-require "guard/dsl"
 require "guard/guardfile/evaluator"
 require "guard/guardfile/generator"
+require "guard/ui"
 
 module Guard
   module Cli
     module Environments
-      class Valid < Base
-        def start_engine
-          Bundler.new.verify unless options[:no_bundler_warning]
-          engine = Guard::Engine.new(options)
-          engine.start
-        rescue Dsl::Error,
-               Guardfile::Evaluator::NoGuardfileError,
-               Guardfile::Evaluator::NoCustomGuardfile => e
-          # catch to throw message instead of call stack
-          UI.error(e.message)
-          abort
-        ensure
-          # `engine` can be nil if `Bundler.new.verify` raises a `SystemExit` error.
-          engine&.stop
-        end
-
-        def initialize_guardfile(plugin_names = [])
-          evaluator = Guardfile::Evaluator.new(options)
-          generator = Guardfile::Generator.new(evaluator)
+      class Write < Base
+        def initialize_guardfile(
+          plugin_names = [],
+          evaluator: Guardfile::Evaluator.new(options),
+          generator: Guardfile::Generator.new
+        )
           begin
             evaluator.evaluate
           rescue Guardfile::Evaluator::NoGuardfileError

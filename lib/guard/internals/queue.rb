@@ -45,8 +45,7 @@ module Guard
       def _run_actions(actions)
         actions.each do |action_args|
           args = action_args.dup
-          namespaced_action = args.shift
-          action = namespaced_action.to_s.sub(/^guard_/, "")
+          action = args.shift
           engine.public_send(action, *args)
         end
       end

@@ -2,9 +2,6 @@
 
 require "guard/commands/reload"
 
-require "guard/internals/session"
-require "guard/internals/state"
-
 RSpec.describe Guard::Commands::Reload, :stub_ui do
   include_context "with engine"
   include_context "with fake pry"
@@ -23,7 +20,7 @@ RSpec.describe Guard::Commands::Reload, :stub_ui do
   context "without scope" do
     it "triggers the :reload action" do
       expect(engine).to receive(:async_queue_add)
-        .with([:guard_reload, []])
+        .with([:reload, []])
 
       FakePry.process
     end
@@ -32,7 +29,7 @@ RSpec.describe Guard::Commands::Reload, :stub_ui do
   context "with a valid Guard group scope" do
     it "triggers the :reload action with the given scope" do
       expect(engine).to receive(:async_queue_add)
-        .with([:guard_reload, ["foo"]])
+        .with([:reload, ["foo"]])
 
       FakePry.process("foo")
     end
@@ -41,7 +38,7 @@ RSpec.describe Guard::Commands::Reload, :stub_ui do
   context "with a valid Guard plugin scope" do
     it "triggers the :reload action with the given scope" do
       expect(engine).to receive(:async_queue_add)
-        .with([:guard_reload, ["bar"]])
+        .with([:reload, ["bar"]])
 
       FakePry.process("bar")
     end

@@ -5,7 +5,7 @@ require "aruba/cucumber"
 require "aruba/processes/in_process"
 require "aruba/processes/spawn_process"
 
-require "guard/aruba_adapter"
+require_relative "aruba_adapter"
 
 Before("@spawn") do
   aruba.config.command_launcher = :spawn
@@ -25,7 +25,7 @@ end
 
 Before("@in-process") do
   aruba.config.command_launcher = :in_process
-  aruba.config.main_class = Guard::ArubaAdapter
+  aruba.config.main_class = ArubaAdapter
 end
 
 Before do

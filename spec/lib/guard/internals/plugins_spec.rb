@@ -5,15 +5,12 @@ require "guard/internals/plugins"
 RSpec.describe Guard::Internals::Plugins, :stub_ui do
   include_context "with testing plugins"
 
-  let(:evaluator) { instance_double("Guard::Guardfile::Evaluator", evaluate: true) }
   let(:frontend_group) { Guard::Group.new(:frontend) }
   let(:backend_group) { Guard::Group.new(:backend) }
   let!(:dummy_plugin) { subject.add("dummy", group: frontend_group) }
   let!(:doe_plugin) { subject.add("doe", group: frontend_group) }
   let!(:foobar_plugin) { subject.add("foobar", group: backend_group) }
   let!(:foobaz_plugin) { subject.add("foobaz", group: backend_group) }
-
-  subject { described_class.new(evaluator) }
 
   describe "#add" do
     it "adds given plugin" do

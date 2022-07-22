@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "guard/options"
+require "guard/internals/debugging"
 require "guard/internals/plugins"
 require "guard/internals/groups"
 
@@ -42,11 +43,11 @@ module Guard
       # Internal class to store group and plugin scopes
       ScopesHash = Struct.new(:groups, :plugins)
 
-      def initialize(evaluator, new_options = {})
+      def initialize(new_options = {})
         @engine = engine
         @options = Options.new(new_options, DEFAULT_OPTIONS)
 
-        @plugins = Plugins.new(evaluator)
+        @plugins = Plugins.new
         @groups = Groups.new
 
         @guardfile_scopes = ScopesHash.new([], [])
@@ -66,6 +67,9 @@ module Guard
         @guardfile_ignore_bang = []
 
         @guardfile_notifier_options = {}
+
+        # NOTE: must be set before anything calls Guard::UI.debug
+        Debugging.start if debug?
       end
 
       def convert_scopes(entries)
@@ -128,7 +132,6 @@ module Guard
         @interactor_scopes.groups = Array(scopes[:groups])
         @interactor_scopes.plugins = Array(scopes[:plugins])
       end
-      # TODO: create a EvaluatorResult class?
       attr_reader :cmdline_scopes, :guardfile_scopes, :interactor_scopes
 
       attr_reader :guardfile_ignore
@@ -196,9 +199,10 @@ module Guard
 
       attr_reader :interactor_name, :options
 
-      def inspect
-        "#<Guard::Internals::Session:#{object_id}>"
+      def to_s
+        "#<#{self.class}:#{object_id}>"
       end
+      alias_method :inspect, :to_s
 
       private
 

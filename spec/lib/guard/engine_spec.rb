@@ -10,11 +10,11 @@ RSpec.describe Guard::Engine, :stub_ui do
 
   let(:traps) { Guard::Internals::Traps }
 
-  describe "#state" do
-    it "passes options to #state" do
-      expect(Guard::Internals::State).to receive(:new).with(engine, options).and_call_original
+  describe "#session" do
+    it "passes options to #session" do
+      expect(Guard::Internals::Session).to receive(:new).with(options).and_call_original
 
-      engine.state
+      engine.session
     end
   end
 
@@ -29,7 +29,7 @@ RSpec.describe Guard::Engine, :stub_ui do
     after { engine.stop }
 
     it "connects to the notifier" do
-      expect(Guard::Notifier).to receive(:connect).with(engine.state.session.notify_options)
+      expect(Guard::Notifier).to receive(:connect).with(engine.session.notify_options)
 
       start_engine
     end
@@ -53,7 +53,7 @@ RSpec.describe Guard::Engine, :stub_ui do
       it "sets up USR1 trap for pausing" do
         expect(traps).to receive(:handle).with("USR1") { |_, &b| b.call }
         expect(engine).to receive(:async_queue_add)
-          .with(%i[guard_pause paused])
+          .with(%i[pause paused])
 
         start_engine
       end
@@ -61,7 +61,7 @@ RSpec.describe Guard::Engine, :stub_ui do
       it "sets up USR2 trap for unpausing" do
         expect(traps).to receive(:handle).with("USR2") { |_, &b| b.call }
         expect(engine).to receive(:async_queue_add)
-          .with(%i[guard_pause unpaused])
+          .with(%i[pause unpaused])
 
         start_engine
       end

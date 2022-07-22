@@ -98,42 +98,6 @@ RSpec.describe GuardReloader do
           end
         end
       end
-
-      context "when not run as binstub" do
-        let(:program_path) do
-          Pathname("/home/me/.rvm/gems/ruby-2.2.2/bin/guard")
-        end
-
-        before do
-          allow(config).to receive(:exist?).with(
-            Pathname("/home/me/.rvm/gems/ruby-2.2.2/Gemfile")
-          ).and_return(false)
-        end
-
-        context "when Gemfile exists" do
-          before do
-            allow(config).to receive(:exist?).with(Pathname("Gemfile"))
-                                             .and_return(true)
-          end
-
-          it "shows a warning" do
-            expect(subject).to receive(:warn).with(/Warning: you have a Gemfile/)
-            subject.setup
-          end
-        end
-
-        context "when no Gemfile exists" do
-          before do
-            allow(config).to receive(:exist?).with(Pathname("Gemfile"))
-                                             .and_return(false)
-          end
-
-          it "shows no warning" do
-            expect(subject).to_not receive(:warn)
-            subject.setup
-          end
-        end
-      end
     end
   end
 end

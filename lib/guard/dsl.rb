@@ -2,6 +2,7 @@
 
 require "guard/guardfile/result"
 require "guard/ui"
+require "guard/watcher"
 
 module Guard
   # @private
@@ -304,10 +305,12 @@ module Guard
       logger_options = options.dup
 
       if logger_options.key?(:level)
-        logger_options[:level] = logger_options[:level].to_sym
+        level = logger_options.delete(:level).to_sym
 
-        unless %i(debug info warn error).include?(logger_options[:level])
-          UI.warning(format(WARN_INVALID_LOG_LEVEL, logger_options.delete(:level)))
+        if %i(debug info warn error).include?(level)
+          logger_options[:level] = level
+        else
+          UI.warning(format(WARN_INVALID_LOG_LEVEL, level))
         end
       end
 
@@ -320,9 +323,10 @@ module Guard
 
       # Convert the :only and :except options to a regular expression
       %i(only except).each do |name|
-        next unless logger_options[name]
+        opt = logger_options[name]
+        next unless opt
 
-        list = [].push(logger_options[name]).flatten.map do |plugin|
+        list = [].push(opt).flatten.map do |plugin|
           Regexp.escape(plugin.to_s)
         end
 

@@ -3,16 +3,16 @@
 require "forwardable"
 require "listen"
 
-require "guard/guardfile/evaluator"
-require "guard/internals/helpers"
-require "guard/internals/traps"
-require "guard/internals/queue"
-require "guard/internals/state"
-
-require "guard/notifier"
-require "guard/interactor"
-require "guard/runner"
 require "guard/dsl_describer"
+require "guard/guardfile/evaluator"
+require "guard/interactor"
+require "guard/internals/helpers"
+require "guard/internals/queue"
+require "guard/internals/session"
+require "guard/internals/traps"
+require "guard/notifier"
+require "guard/runner"
+require "guard/ui"
 
 # Guard is the main module for all Guard related modules and classes.
 # Also Guard plugins should use this namespace.
@@ -42,8 +42,8 @@ module Guard
       Thread.current[:engine] = self
     end
 
-    def state
-      @state ||= Internals::State.new(self, options)
+    def session
+      @session ||= Guard::Internals::Session.new(options)
     end
 
     def evaluator
@@ -55,7 +55,6 @@ module Guard
     end
     alias_method :inspect, :to_s
 
-    delegate %i[session] => :state
     delegate %i[plugins groups watchdirs] => :session
     delegate paused?: :_listener
 
@@ -128,10 +127,10 @@ module Guard
     end
 
     def stop
-      _listener&.stop
-      _interactor&.background
+      _listener.stop
+      _interactor.background
       UI.debug "Guard stops all plugins"
-      _runner&.run(:stop)
+      _runner.run(:stop)
       Notifier.disconnect
       UI.info "Bye bye...", reset: true
     end
@@ -188,7 +187,7 @@ module Guard
     #     async_queue_add(modified: ['foo'], added: ['bar'], removed: [])
     #
     #   @example New style signals with args:
-    #     async_queue_add([:guard_pause, :unpaused ])
+    #     async_queue_add([:pause, :unpaused ])
     #
     def async_queue_add(changes)
       _queue << changes
@@ -205,7 +204,7 @@ module Guard
     def _restart
       stop
 
-      @state = nil
+      @session = nil
       @_listener = nil
 
       start
@@ -221,6 +220,10 @@ module Guard
 
     def _listener
       @_listener ||= Listen.send(*session.listener_args, &_listener_callback)
+    end
+
+    def _interactor
+      @_interactor ||= Interactor.new(self, session.interactor_name == :pry_wrapper)
     end
 
     # Instantiate Engine internals based on the `Guard::Guardfile::Result` populated from the `Guardfile` evaluation.
@@ -308,19 +311,15 @@ module Guard
       ignores = session.guardfile_ignore
       _listener.ignore(ignores) unless ignores.empty?
 
-      ignores = session.guardfile_ignore_bang
-      _listener.ignore!(ignores) unless ignores.empty?
+      ignores_bang = session.guardfile_ignore_bang
+      _listener.ignore!(ignores_bang) unless ignores_bang.empty?
     end
 
     def _initialize_signal_traps
       traps = Internals::Traps
-      traps.handle("USR1") { async_queue_add(%i(guard_pause paused)) }
-      traps.handle("USR2") { async_queue_add(%i(guard_pause unpaused)) }
+      traps.handle("USR1") { async_queue_add(%i(pause paused)) }
+      traps.handle("USR2") { async_queue_add(%i(pause unpaused)) }
       traps.handle("INT") { _interactor.handle_interrupt }
-    end
-
-    def _interactor
-      @_interactor ||= Interactor.new(self, session.interactor_name == :pry_wrapper)
     end
 
     def _initialize_notifier

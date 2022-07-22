@@ -22,8 +22,8 @@ module Guard
     # @param [Hash] scope_hash either the Guard plugin or the group to run the task
     # on
     #
-    def run(task, entries = [])
-      scopes, unknown = session.convert_scopes(entries)
+    def run(task, scope_hash = [])
+      scopes, unknown = session.convert_scopes(scope_hash)
 
       if unknown.any?
         UI.info "Unknown scopes: #{unknown.join(', ')}"

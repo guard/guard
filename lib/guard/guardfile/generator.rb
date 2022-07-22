@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require "guard/ui"
 require "guard/plugin_util"
+require "guard/ui"
 
 module Guard
   module Guardfile
@@ -50,10 +50,6 @@ module Guard
         end
       end
 
-      def initialize(evaluator)
-        @evaluator = evaluator
-      end
-
       # Creates the initial Guardfile template when it does not
       # already exist.
       #
@@ -76,7 +72,7 @@ module Guard
       #
       def initialize_template(plugin_name)
         guardfile = Pathname.new("Guardfile")
-        plugin_util = PluginUtil.new(evaluator, plugin_name)
+        plugin_util = PluginUtil.new(plugin_name)
 
         if plugin_util.valid?
           begin
@@ -105,10 +101,6 @@ module Guard
       def initialize_all_templates
         PluginUtil.plugin_names.each { |g| initialize_template(g) }
       end
-
-      private
-
-      attr_reader :evaluator
     end
   end
 end

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "shellany/sheller"
+
 require "guard/commands/all"
 require "guard/commands/change"
 require "guard/commands/notification"
@@ -7,9 +9,8 @@ require "guard/commands/pause"
 require "guard/commands/reload"
 require "guard/commands/scope"
 require "guard/commands/show"
-require "shellany/sheller"
-
 require "guard/jobs/base"
+require "guard/ui"
 
 module Guard
   module Jobs

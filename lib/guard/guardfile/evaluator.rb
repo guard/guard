@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "guard/dsl"
-require "guard/dsl"
+require "guard/ui"
 
 module Guard
   module Guardfile

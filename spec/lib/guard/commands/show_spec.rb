@@ -15,7 +15,7 @@ RSpec.describe Guard::Commands::Show, :stub_ui do
   end
 
   it "tells Guard to output DSL description" do
-    expect(engine).to receive(:async_queue_add).with([:guard_show])
+    expect(engine).to receive(:async_queue_add).with([:show])
 
     FakePry.process
   end

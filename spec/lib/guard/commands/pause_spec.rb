@@ -17,7 +17,7 @@ RSpec.describe Guard::Commands::Pause, :stub_ui do
   end
 
   it "tells Guard to pause" do
-    expect(engine).to receive(:async_queue_add).with([:guard_pause])
+    expect(engine).to receive(:async_queue_add).with([:pause])
 
     FakePry.process
   end
