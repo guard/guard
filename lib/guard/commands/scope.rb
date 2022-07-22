@@ -22,11 +22,15 @@ module Guard
 
           def process(*entries) # rubocop:disable Lint/NestedMethodDefinition
             session = engine.session
-            scopes, = session.convert_scopes(entries)
+            scopes, = session.convert_scopes([])
 
-            if scopes[:plugins].empty? && scopes[:groups].empty?
-              output.puts "Usage: scope <scope>"
-              return
+            if entries != ["all"]
+              scopes, = session.convert_scopes(entries)
+
+              if scopes[:plugins].empty? && scopes[:groups].empty?
+                output.puts "Usage: scope <scope>"
+                return
+              end
             end
 
             session.interactor_scopes = scopes
