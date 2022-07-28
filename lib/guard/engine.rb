@@ -187,14 +187,14 @@ module Guard
     #     async_queue_add(modified: ['foo'], added: ['bar'], removed: [])
     #
     #   @example New style signals with args:
-    #     async_queue_add([:pause, :unpaused ])
+    #     async_queue_add([:pause, :unpaused])
     #
     def async_queue_add(changes)
       _queue << changes
 
       # Putting interactor in background puts guard into foreground
       # so it can handle change notifications
-      Thread.new { _interactor.background }
+      _interactor.background
     end
 
     private
@@ -223,7 +223,7 @@ module Guard
     end
 
     def _interactor
-      @_interactor ||= Interactor.new(self, session.interactor_name == :pry_wrapper)
+      @_interactor ||= Interactor.new(self, !options[:no_interactions])
     end
 
     # Instantiate Engine internals based on the `Guard::Guardfile::Result` populated from the `Guardfile` evaluation.
@@ -319,7 +319,7 @@ module Guard
       traps = Internals::Traps
       traps.handle("USR1") { async_queue_add(%i(pause paused)) }
       traps.handle("USR2") { async_queue_add(%i(pause unpaused)) }
-      traps.handle("INT") { _interactor.handle_interrupt }
+      traps.handle("INT") { Thread.main.raise Interrupt }
     end
 
     def _initialize_notifier

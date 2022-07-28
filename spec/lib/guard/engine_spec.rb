@@ -68,7 +68,7 @@ RSpec.describe Guard::Engine, :stub_ui do
 
       it "sets up INT trap for cancelling or quitting interactor" do
         expect(traps).to receive(:handle).with("INT") { |_, &b| b.call }
-        expect(interactor).to receive(:handle_interrupt)
+        expect(Thread.main).to receive(:raise).with(Interrupt)
 
         start_engine
       end

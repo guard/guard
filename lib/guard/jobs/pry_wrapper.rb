@@ -78,39 +78,14 @@ module Guard
 
       def initialize(engine, options = {})
         super
-        @mutex = Mutex.new
-        @thread = nil
         @terminal_settings = TerminalSettings.new
 
         _setup(options)
       end
 
-      def foreground
-        UI.debug "Start interactor"
-        terminal_settings.save
-
-        _switch_to_pry
-        _killed? ? :continue : :exit
-      ensure
-        UI.reset_line
-        UI.debug "Interactor was stopped or killed"
-        terminal_settings.restore
-      end
-
-      def background
-        _kill_pry
-      end
-
-      def handle_interrupt
-        # thread = @thread
-        fail Interrupt unless thread
-
-        thread.raise Interrupt
-      end
-
       private
 
-      attr_reader :terminal_settings, :thread
+      attr_reader :terminal_settings
 
       def _pry_config
         Pry.config
@@ -120,34 +95,25 @@ module Guard
         Pry.commands
       end
 
-      def _switch_to_pry
-        th = nil
+      def _start_foreground_thread
         @mutex.synchronize do
-          unless @thread
-            @thread = Thread.new { Pry.start }
-            @thread[:engine] = engine
-            @thread.join(0.5) # give pry a chance to start
-            th = @thread
+          break thread if thread&.alive?
+
+          UI.debug "Start interactor"
+          terminal_settings.save
+
+          @thread = Thread.new do
+            Pry.start
+            Thread.current[:engine] = engine
           end
-        end
-        # check for nil, because it might've been killed between the mutex and
-        # now
-        th&.join
+          @thread.join(0.5) # give pry a chance to start
+        end&.join
       end
 
-      def _killed?
-        th = nil
-        @mutex.synchronize { th = @thread }
-        th.nil?
-      end
-
-      def _kill_pry
-        @mutex.synchronize do
-          if @thread
-            @thread.kill
-            @thread = nil # set to nil so we know we were killed
-          end
-        end
+      def _cleanup_before_background
+        UI.reset_line
+        UI.debug "Interactor was stopped or killed"
+        terminal_settings.restore
       end
 
       def _setup(options)

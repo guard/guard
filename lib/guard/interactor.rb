@@ -36,13 +36,11 @@ module Guard
     end
 
     def background
-      return unless _idle_job?
-
-      _idle_job.background
+      _idle_job&.background
     end
 
     extend Forwardable
-    delegate %i(foreground handle_interrupt) => :_idle_job
+    delegate %i(foreground) => :_idle_job
 
     private
 
