@@ -7,7 +7,6 @@ require "guard/notifier"
 require "guard/plugin_util"
 
 require "set"
-require "ostruct"
 
 module Guard
   # @private
