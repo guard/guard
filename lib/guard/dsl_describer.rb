@@ -6,7 +6,6 @@ require "guard/notifier"
 require "guard"
 
 require "set"
-require "ostruct"
 
 module Guard
   # The DslDescriber evaluates the Guardfile and creates an internal structure
