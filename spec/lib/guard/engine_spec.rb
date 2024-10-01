@@ -39,7 +39,7 @@ RSpec.describe Guard::Engine, :stub_ui do
 
       it "initializes the listener" do
         expect(Listen).to receive(:to)
-          .with("/foo", latency: 2, wait_for_delay: 1).and_return(listener)
+          .with("/foo", { latency: 2, wait_for_delay: 1 }).and_return(listener)
 
         start_engine
       end
