@@ -21,7 +21,6 @@ group :development do
 
   gem "guard-rubocop", require: false
 
-  gem "guard-ronn", require: false, platform: :mri
   gem "redcarpet", require: false, platform: :mri
   gem "yard", require: false, platform: :mri
 

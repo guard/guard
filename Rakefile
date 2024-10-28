@@ -12,9 +12,10 @@ end
 
 require "guard/rake_task"
 
-unless defined?(JRUBY_VERSION)
-  Guard::RakeTask.new(:guard, "--plugin ronn")
-end
+# guard-ronn has dependencies that cannot be installed on Ruby 3.1+
+# unless defined?(JRUBY_VERSION)
+#   Guard::RakeTask.new(:guard, "--plugin ronn")
+# end
 
 require "cucumber/rake/task"
 Cucumber::Rake::Task.new(:features) do |t|

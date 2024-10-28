@@ -48,10 +48,10 @@ RSpec.describe Guard::DslDescriber do
   +---------+-----------+
   | Plugin  | Guardfile |
   +---------+-----------+
-  | Another | ✔         |
-  | Even    | ✘         |
-  | More    | ✘         |
-  | Test    | ✔         |
+  | Another | ✔        |
+  | Even    | ✘        |
+  | More    | ✘        |
+  | Test    | ✔        |
   +---------+-----------+
       OUTPUT
     end
@@ -127,9 +127,9 @@ RSpec.describe Guard::DslDescriber do
   +----------------+-----------+------+--------+-------+
   | Name           | Available | Used | Option | Value |
   +----------------+-----------+------+--------+-------+
-  | gntp           | ✔         | ✔    | sticky | true  |
+  | gntp           | ✔        | ✔   | sticky | true  |
   +----------------+-----------+------+--------+-------+
-  | terminal_title | ✘         | ✘    |        |       |
+  | terminal_title | ✘        | ✘   |        |       |
   +----------------+-----------+------+--------+-------+
       OUTPUT
     end

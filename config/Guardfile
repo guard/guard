@@ -40,12 +40,13 @@ group :specs, halt_on_fail: true do
   end
 end
 
-if !defined?(JRUBY_VERSION)
-  if ENV["CI"] != "true"
-    group :docs do
-      guard :ronn do
-        watch(%r{^man/.+\.ronn?$})
-      end
-    end
-  end
-end
+# guard-ronn has dependencies that cannot be installed on Ruby 3.1+
+# if !defined?(JRUBY_VERSION)
+#   if ENV["CI"] != "true"
+#     group :docs do
+#       guard :ronn do
+#         watch(%r{^man/.+\.ronn?$})
+#       end
+#     end
+#   end
+# end
