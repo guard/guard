@@ -38,4 +38,6 @@ Gem::Specification.new do |s| # rubocop:disable Metrics/BlockLength
 
   s.executables = %w[guard _guard-core]
   s.require_path = "lib"
+
+  s.metadata["changelog_uri"] = "https://github.com/guard/guard/releases"
 end
