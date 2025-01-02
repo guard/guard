@@ -29,7 +29,7 @@ RSpec.describe Guard::Commands::Scope, :stub_ui do
   context "with a valid Guard group scope" do
     it "sets up the scope with the given scope" do
       expect(engine.session).to receive(:interactor_scopes=)
-        .with(groups: [:frontend], plugins: [])
+        .with({ groups: [:frontend], plugins: [] })
 
       FakePry.process("frontend")
     end
@@ -38,7 +38,7 @@ RSpec.describe Guard::Commands::Scope, :stub_ui do
   context "with a valid Guard plugin scope" do
     it "runs the :scope= action with the given scope" do
       expect(engine.session).to receive(:interactor_scopes=)
-        .with(plugins: [:dummy], groups: [])
+        .with({ plugins: [:dummy], groups: [] })
 
       FakePry.process("dummy")
     end
