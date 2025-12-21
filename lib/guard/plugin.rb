@@ -116,7 +116,8 @@ module Guard
     #
     def hook(event, *args)
       hook_name = if event.is_a? Symbol
-                    calling_method = caller(1..1).first[/`([^']*)'/, 1]
+                    # Supports both old Ruby format (`method_name') and Ruby 3.4+ format ('Module::Class#method_name')
+                    calling_method = caller(1..1).first[/[`'](?:[\w:]+#)?(\w+)'/, 1]
                     "#{calling_method}_#{event}"
                   else
                     event

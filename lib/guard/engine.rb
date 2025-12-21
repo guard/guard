@@ -219,7 +219,7 @@ module Guard
     end
 
     def _listener
-      @_listener ||= Listen.send(*session.listener_args, &_listener_callback)
+      @_listener ||= session.call_listener(&_listener_callback)
     end
 
     def _interactor

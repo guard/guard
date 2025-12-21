@@ -172,7 +172,7 @@ module Guard
 
       def listener_args
         if @options[:listen_on]
-          [:on, @options[:listen_on]]
+          [:on, @options[:listen_on], {}]
         else
           listener_options = {}
           %i(latency force_polling wait_for_delay).each do |option|
@@ -181,6 +181,13 @@ module Guard
           expanded_watchdirs = watchdirs.map { |dir| File.expand_path dir }
           [:to, *expanded_watchdirs, listener_options]
         end
+      end
+
+      # Call Listen with proper keyword argument handling for Ruby 3.0+
+      def call_listener(&block)
+        args = listener_args
+        options = args.pop
+        Listen.send(*args, **options, &block)
       end
 
       def notify_options

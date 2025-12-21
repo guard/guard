@@ -15,7 +15,8 @@ group :development do
 
   gem "guard-rubocop", require: false
 
-  gem "guard-ronn", require: false, platform: :mri
+  # guard-ronn has hpricot dependency that doesn't build on modern Ruby
+  # gem "guard-ronn", require: false, platform: :mri
   gem "redcarpet", require: false, platform: :mri
   gem "yard", require: false, platform: :mri
 

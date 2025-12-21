@@ -57,7 +57,7 @@ module Guard
     end
 
     def _idle_job
-      @_idle_job ||= _job_klass.new(engine, options)
+      @_idle_job ||= _job_klass.new(engine, **options)
     end
 
     def _idle_job?

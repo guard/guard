@@ -14,8 +14,8 @@ RSpec.describe Guard::Interactor, :stub_ui do
 
   before do
     allow(Guard::Interactor).to receive(:new).and_call_original
-    allow(Guard::Jobs::PryWrapper).to receive(:new).with(engine, {}).and_return(pry_interactor)
-    allow(Guard::Jobs::Sleep).to receive(:new).with(engine, {}).and_return(sleep_interactor)
+    allow(Guard::Jobs::PryWrapper).to receive(:new).with(engine).and_return(pry_interactor)
+    allow(Guard::Jobs::Sleep).to receive(:new).with(engine).and_return(sleep_interactor)
   end
 
   describe "#enabled & #enabled=" do
