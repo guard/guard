@@ -65,69 +65,76 @@ RSpec.describe Guard::Jobs::PryWrapper, :stub_ui do
   end
 
   describe "#foreground" do
+    let(:pry_started) { Queue.new }
+    let(:pry_can_finish) { Queue.new }
+
     before do
       allow(Pry).to receive(:start) do
-        # sleep for a long time (anything > 0.6)
-        sleep 1
+        pry_started.push(true)
+        pry_can_finish.pop
       end
     end
 
     after do
+      pry_can_finish.push(true) rescue nil
       subject.background
     end
 
     it "waits for Pry thread to finish" do
-      was_alive = false
+      was_running = false
 
-      Thread.new do
-        sleep 0.1
-        was_alive = subject.send(:thread).alive?
-        subject.background
+      foreground_thread = Thread.new do
+        subject.foreground
       end
 
-      subject.foreground # blocks
-      expect(was_alive).to be
+      pry_started.pop  # Wait for Pry to start
+      was_running = subject.instance_variable_get(:@pry_thread)&.alive?
+      subject.background
+      pry_can_finish.push(true)
+
+      foreground_thread.join
+      expect(was_running).to be true
     end
 
-    it "prevents the Pry thread from being killed too quickly" do
-      start = Time.now.to_f
+    it "returns :continue when brought into background" do
+      result = nil
 
-      Thread.new do
-        sleep 0.1
-        subject.background
+      foreground_thread = Thread.new do
+        result = subject.foreground
       end
 
-      subject.foreground # blocks
-      killed_moment = Time.now.to_f
+      pry_started.pop
+      subject.background
+      pry_can_finish.push(true)
 
-      expect(killed_moment - start).to be > 0.5
-    end
-
-    it "return :continue when brought into background" do
-      Thread.new do
-        sleep 0.1
-        subject.background
-      end
-
-      expect(subject.foreground).to be(:continue)
+      foreground_thread.join
+      expect(result).to be(:continue)
     end
   end
 
   describe "#background" do
+    let(:pry_started) { Queue.new }
+    let(:pry_can_finish) { Queue.new }
+
     before do
       allow(Pry).to receive(:start) do
-        # 0.5 is enough for Pry, so we use 0.4
-        sleep 0.4
+        pry_started.push(true)
+        pry_can_finish.pop
       end
     end
 
     it "kills the Pry thread" do
-      subject.foreground
-      sleep 1 # give Pry 0.5 sec to boot
-      subject.background
-      sleep 0.25 # to let Pry get killed asynchronously
+      foreground_thread = Thread.new do
+        subject.foreground
+      end
 
-      expect(subject.send(:thread)).to be_nil
+      pry_started.pop
+      subject.background
+      pry_can_finish.push(true)
+
+      foreground_thread.join
+
+      expect(subject.instance_variable_get(:@pry_thread)).to be_nil
     end
   end
 

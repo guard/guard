@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "async"
+require "async/condition"
 require "shellany/sheller"
 
 require "guard/commands/all"
@@ -78,8 +80,9 @@ module Guard
 
       def initialize(engine, options = {})
         super
-        @mutex = Mutex.new
-        @thread = nil
+        @pry_thread = nil
+        @pry_queue = ::Queue.new  # Thread-safe queue for cross-thread signaling
+        @killed = false
         @terminal_settings = TerminalSettings.new
 
         _setup(options)
@@ -90,7 +93,7 @@ module Guard
         terminal_settings.save
 
         _switch_to_pry
-        _killed? ? :continue : :exit
+        @killed ? :continue : :exit
       ensure
         UI.reset_line
         UI.debug "Interactor was stopped or killed"
@@ -102,15 +105,12 @@ module Guard
       end
 
       def handle_interrupt
-        # thread = @thread
-        fail Interrupt unless thread
-
-        thread.raise Interrupt
+        @pry_thread&.raise(Interrupt)
       end
 
       private
 
-      attr_reader :terminal_settings, :thread
+      attr_reader :terminal_settings
 
       def _pry_config
         Pry.config
@@ -121,33 +121,42 @@ module Guard
       end
 
       def _switch_to_pry
-        th = nil
-        @mutex.synchronize do
-          unless @thread
-            @thread = Thread.new { Pry.start }
-            @thread[:engine] = engine
-            @thread.join(0.5) # give pry a chance to start
-            th = @thread
+        @killed = false
+        @pry_queue = ::Queue.new
+
+        # Start Pry in a dedicated thread because it blocks on STDIN (Readline)
+        # The thread will push to the queue when Pry exits
+        @pry_thread = Thread.new do
+          # Store engine in thread-local storage for Pry commands
+          Thread.current[:engine] = engine
+
+          begin
+            Pry.start
+            @pry_queue.push(:exit)
+          rescue Interrupt
+            @pry_queue.push(:continue)
+          rescue => e
+            UI.error "Pry error: #{e.message}"
+            @pry_queue.push(:exit)
           end
         end
-        # check for nil, because it might've been killed between the mutex and
-        # now
-        th&.join
-      end
 
-      def _killed?
-        th = nil
-        @mutex.synchronize { th = @thread }
-        th.nil?
+        # Give Pry a moment to initialize
+        sleep 0.5
+
+        # Wait for Pry to finish (blocking pop from queue)
+        @pry_queue.pop
       end
 
       def _kill_pry
-        @mutex.synchronize do
-          if @thread
-            @thread.kill
-            @thread = nil # set to nil so we know we were killed
-          end
-        end
+        return unless @pry_thread&.alive?
+
+        @killed = true
+        @pry_thread.kill
+        @pry_thread = nil
+
+        # Push to queue in case foreground is waiting
+        @pry_queue.push(:continue) rescue nil
       end
 
       def _setup(options)
