@@ -1,63 +1,78 @@
 # frozen_string_literal: true
 
+require "async"
+require "async/condition"
 require "guard/jobs/sleep"
 
-RSpec.describe Guard::Jobs::Sleep, :stub_ui do
+RSpec.describe Guard::Jobs::Sleep, :stub_ui, :async do
   include_context "with engine"
 
   subject { described_class.new(engine) }
 
   describe "#foreground" do
-    it "sleeps" do
-      status = "unknown"
+    it "suspends until signaled" do
+      foreground_completed = false
 
-      Thread.new do
-        sleep 0.1
-        status = Thread.main.status
-        subject.background
+      foreground_task = async_task do
+        subject.foreground
+        foreground_completed = true
       end
 
-      subject.foreground
+      # Give foreground task time to start waiting
+      sleep 0.01
+      # Task should still be running (waiting on condition)
+      expect(foreground_completed).to be false
+      subject.background
 
-      expect(status).to eq("sleep")
+      foreground_task.wait
+      expect(foreground_completed).to be true
     end
 
     it "returns :continue when put to background" do
-      Thread.new do
-        sleep 0.1
-        subject.background
+      result = nil
+
+      foreground_task = async_task do
+        result = subject.foreground
       end
 
-      expect(subject.foreground).to eq(:continue)
+      sleep 0.01
+      subject.background
+
+      foreground_task.wait
+      expect(result).to eq(:continue)
     end
   end
 
   describe "#background" do
-    it "wakes up main thread" do
-      status = "unknown"
+    it "wakes up the foreground task" do
+      foreground_status_after_background = nil
 
-      Thread.new do
-        sleep 0.1 # give enough time for foreground to put main thread to sleep
-
-        subject.background
-
-        sleep 0.1 # cause test to fail every time (without busy loop below)
-
-        status = Thread.main.status
-
-        Thread.main.wakeup # to get "red" in TDD without hanging
+      foreground_task = async_task do
+        subject.foreground
+        foreground_status_after_background = :awake
       end
 
-      subject.foreground # go to sleep
+      sleep 0.01
+      subject.background
 
-      # Keep main thread busy until above thread has a chance to get status
-      begin
-        value = 0
-        Timeout.timeout(0.1) { loop { value += 1 } }
-      rescue Timeout::Error
+      foreground_task.wait
+      expect(foreground_status_after_background).to eq(:awake)
+    end
+  end
+
+  describe "#handle_interrupt" do
+    it "signals exit" do
+      result = nil
+
+      foreground_task = async_task do
+        result = subject.foreground
       end
 
-      expect(status).to eq("run")
+      sleep 0.01
+      subject.handle_interrupt
+
+      foreground_task.wait
+      expect(result).to eq(:exit)
     end
   end
 end
