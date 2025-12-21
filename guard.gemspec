@@ -15,8 +15,9 @@ Gem::Specification.new do |s| # rubocop:disable Metrics/BlockLength
   s.description = "Guard is a command line tool to easily handle events"\
     " on file system modifications."
 
-  s.required_ruby_version = ">= 2.5.5"
+  s.required_ruby_version = ">= 3.0"
 
+  s.add_runtime_dependency "async", "~> 2.0"
   s.add_runtime_dependency "formatador", ">= 0.2.4"
   s.add_runtime_dependency "listen", ">= 2.7", "< 4.0"
   s.add_runtime_dependency "logger", "~> 1.6"
