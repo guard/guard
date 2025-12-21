@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "async"
 require "forwardable"
 require "listen"
 
@@ -39,6 +40,7 @@ module Guard
     # @return [Guard::Engine] a Guard::Engine instance
     def initialize(options = {})
       @options = options
+      # Store in Thread storage for compatibility
       Thread.current[:engine] = self
     end
 
@@ -106,19 +108,24 @@ module Guard
       _listener.start
 
       exitcode = 0
-      begin
-        loop do
-          break if _interactor.foreground == :exit
 
+      # Run the main event loop inside an Async context
+      Async do |task|
+        begin
           loop do
-            break unless _queue.pending?
+            break if _interactor.foreground == :exit
 
-            _queue.process
+            loop do
+              break unless _queue.pending?
+
+              _queue.process
+            end
           end
+        rescue Interrupt
+          # Handle Ctrl+C gracefully
+        rescue SystemExit => e
+          exitcode = e.status
         end
-      rescue Interrupt
-      rescue SystemExit => e
-        exitcode = e.status
       end
 
       exitcode
@@ -194,6 +201,7 @@ module Guard
 
       # Putting interactor in background puts guard into foreground
       # so it can handle change notifications
+      # Using a thread here for thread-safety with Listen callback
       Thread.new { _interactor.background }
     end
 
