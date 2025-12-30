@@ -24,7 +24,7 @@ RSpec.describe Guard::Runner, :stub_ui do
     end
 
     it "marks an action as unit of work" do
-      expect(Lumberjack).to receive(:unit_of_work)
+      expect(Lumberjack).to receive(:tag).with(hash_including(:unit_of_work))
       subject.run(:my_task)
     end
 

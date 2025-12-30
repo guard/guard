@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "lumberjack"
+require "securerandom"
 
 require "guard/ui"
 require "guard/watcher"
@@ -29,7 +30,7 @@ module Guard
         UI.info "Unknown scopes: #{unknown.join(', ')}"
       end
 
-      Lumberjack.unit_of_work do
+      Lumberjack.tag(unit_of_work: SecureRandom.hex(6)) do
         grouped_plugins = session.grouped_plugins(scopes)
         grouped_plugins.each_value do |plugins|
           _run_group_plugins(plugins) do |plugin|
