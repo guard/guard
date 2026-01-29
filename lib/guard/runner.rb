@@ -30,7 +30,7 @@ module Guard
         UI.info "Unknown scopes: #{unknown.join(', ')}"
       end
 
-      Lumberjack.tag(unit_of_work: SecureRandom.hex(6)) do
+      Lumberjack.context do
         grouped_plugins = session.grouped_plugins(scopes)
         grouped_plugins.each_value do |plugins|
           _run_group_plugins(plugins) do |plugin|
