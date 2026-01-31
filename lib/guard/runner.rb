@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "lumberjack"
-require "securerandom"
 
 require "guard/ui"
 require "guard/watcher"
