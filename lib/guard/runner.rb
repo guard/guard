@@ -15,7 +15,7 @@ module Guard
     # on
     #
     def run(task, scope_hash = {})
-      Lumberjack.unit_of_work do
+      Lumberjack.context do
         items = Guard.state.scope.grouped_plugins(scope_hash || {})
         items.each do |_group, plugins|
           _run_group_plugins(plugins) do |plugin|
