@@ -62,7 +62,7 @@ RSpec.describe Guard::Notifier, :stub_ui do
     context "with multiple parameters" do
       it "notifies" do
         expect(notifier).to receive(:notify)
-          .with("A", priority: 2, image: :failed)
+          .with("A", { priority: 2, image: :failed })
         subject.notify("A", priority: 2, image: :failed)
       end
     end
