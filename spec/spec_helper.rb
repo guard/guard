@@ -237,8 +237,7 @@ RSpec.shared_context "with engine" do
       interactive: true,
       "options=": true,
       foreground: :exit,
-      background: true,
-      handle_interrupt: true
+      background: true
     )
   end
   let(:listener) { instance_double("Listen::Listener", ignore: true, ignore!: true, start: true, stop: true) }
