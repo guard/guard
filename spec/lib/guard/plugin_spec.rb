@@ -221,5 +221,25 @@ RSpec.describe Guard::Plugin, :stub_ui do
 
       subject.stop
     end
+
+    # https://www.ruby-lang.org/en/news/2024/12/25/ruby-3-4-0-released/#compatibility-issues
+    ["test.rb:1:in `foo': undefined method 'time' for an instance of Integer",
+     "test.rb:1:in 'Object#foo': undefined method 'time' for an instance of Integer"].each do |caller_line|
+      it "extracts method name from backtrace format: #{caller_line}" do
+        module Guard
+          class Dummy < Guard::Plugin
+            def foo
+              hook :begin
+            end
+          end
+        end
+
+        allow(subject).to receive(:caller).and_return([caller_line])
+
+        expect(described_class).to receive(:notify).with(subject, :foo_begin)
+
+        subject.foo
+      end
+    end
   end
 end
