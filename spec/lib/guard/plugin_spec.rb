@@ -233,5 +233,24 @@ RSpec.describe Guard::Plugin do
 
       foo.stop
     end
+
+    # https://www.ruby-lang.org/en/news/2024/12/25/ruby-3-4-0-released/#compatibility-issues
+    ["test.rb:1:in `foo': undefined method 'time' for an instance of Integer",
+     "test.rb:1:in 'Object#foo': undefined method 'time' for an instance of Integer"].each do |caller_line|
+      it "extracts method name from backtrace format: #{caller_line}" do
+        class Foo < described_class
+          def foo
+            hook :begin
+          end
+        end
+        foo = Foo.new
+
+        allow(foo).to receive(:caller).and_return([caller_line])
+
+        expect(described_class).to receive(:notify).with(foo, :foo_begin)
+
+        foo.foo
+      end
+    end
   end
 end

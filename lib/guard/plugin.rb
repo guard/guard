@@ -115,8 +115,8 @@ module Guard
     #
     def hook(event, *args)
       hook_name = if event.is_a? Symbol
-                    calling_method = caller[0][/`([^']*)'/, 1]
-                    "#{ calling_method }_#{ event }"
+                    calling_method = caller(1..1).first[/[`'](?:[^']*#)?([^']*)'/, 1]
+                    "#{calling_method}_#{event}"
                   else
                     event
                   end
