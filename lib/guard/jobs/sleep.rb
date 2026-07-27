@@ -6,22 +6,15 @@ require "guard/ui"
 module Guard
   module Jobs
     class Sleep < Base
-      def foreground
+      private
+
+      def _start_foreground_thread
         UI.debug "Guards jobs done. Sleeping..."
-        sleep
-        UI.debug "Sleep interrupted by events."
-        :continue
-      rescue Interrupt
-        UI.debug "Sleep interrupted by user."
-        :exit
-      end
+        @mutex.synchronize do
+          break thread if thread&.alive?
 
-      def background
-        Thread.main.wakeup
-      end
-
-      def handle_interrupt
-        Thread.main.raise Interrupt
+          @thread = Thread.new { sleep }
+        end&.join
       end
     end
   end

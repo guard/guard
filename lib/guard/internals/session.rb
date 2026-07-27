@@ -61,7 +61,6 @@ module Guard
         @debug = @options[:debug]
         @watchdirs = Array(@options[:watchdirs])
         @notify = @options[:notify]
-        @interactor_name = @options[:no_interactions] ? :sleep : :pry_wrapper
 
         @guardfile_ignore = []
         @guardfile_ignore_bang = []
@@ -197,7 +196,7 @@ module Guard
         @guardfile_notifier_options.merge!(config)
       end
 
-      attr_reader :interactor_name, :options
+      attr_reader :options
 
       def to_s
         "#<#{self.class}:#{object_id}>"

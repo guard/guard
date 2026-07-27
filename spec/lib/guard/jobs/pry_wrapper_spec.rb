@@ -127,7 +127,7 @@ RSpec.describe Guard::Jobs::PryWrapper, :stub_ui do
       subject.background
       sleep 0.25 # to let Pry get killed asynchronously
 
-      expect(subject.send(:thread)).to be_nil
+      expect(subject.send(:thread).status).to eq(false)
     end
   end
 
