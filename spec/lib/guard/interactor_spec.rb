@@ -51,7 +51,7 @@ RSpec.describe Guard::Interactor, :stub_ui do
       it "set the options and initialize a new interactor job" do
         subject.foreground
 
-        expect(Guard::Jobs::PryWrapper).to receive(:new).with(engine, foo: :bar).and_return(pry_interactor)
+        expect(Guard::Jobs::PryWrapper).to receive(:new).with(engine, { foo: :bar }).and_return(pry_interactor)
 
         subject.options = { foo: :bar }
         subject.foreground
