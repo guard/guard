@@ -20,7 +20,7 @@ Gem::Specification.new do |s| # rubocop:disable Metrics/BlockLength
   s.add_runtime_dependency "formatador", ">= 0.2.4"
   s.add_runtime_dependency "listen", ">= 2.7", "< 4.0"
   s.add_runtime_dependency "logger", "~> 1.6"
-  s.add_runtime_dependency "lumberjack", ">= 1.0.12", "< 2.0"
+  s.add_runtime_dependency "lumberjack", ">= 1.0.12"
   s.add_runtime_dependency "nenv", "~> 0.1"
   s.add_runtime_dependency "notiffany", "~> 0.0"
   s.add_runtime_dependency "pry", ">= 0.13.0"
