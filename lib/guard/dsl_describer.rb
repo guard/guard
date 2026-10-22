@@ -55,8 +55,7 @@ module Guard
 
       objects = []
 
-      empty_plugin = OpenStruct.new
-      empty_plugin.options = [["", nil]]
+      empty_plugin = Struct.new(:title, :options).new(nil, [["", nil]])
 
       groups.each do |group|
         plugins = Array(Guard.state.session.plugins.all(group: group.name))
