@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
   s.description = "Guard is a command line tool to easily handle events"\
     " on file system modifications."
 
-  s.required_ruby_version = ">= 1.9.3"
+  s.required_ruby_version = ">= 2.5.9"
 
   s.add_runtime_dependency "formatador", ">= 0.2.4"
   s.add_runtime_dependency "listen", ">= 2.7", "< 4.0"

@@ -1,10 +1,11 @@
 # Guard
 
-**IMPORTANT: Please upgrade to Ruby >= 2.4 before installing Guard! To install for older versions, update Bundler at least 1.12: `gem update bundler` and Bundler should correctly resolve to earlier gems for your given Ruby version.**
+**IMPORTANT: Please upgrade to Ruby >= 2.5 before installing Guard! To install for older versions, update Bundler at least 1.12: `gem update bundler` and Bundler should correctly resolve to earlier gems for your given Ruby version.**
 
 - [Ruby 2.1 is officially outdated and unsupported!](https://www.ruby-lang.org/en/news/2016/03/30/ruby-2-1-9-released/)
 - [Ruby 2.2 is officially outdated and unsupported!](https://www.ruby-lang.org/en/news/2018/06/20/support-of-ruby-2-2-has-ended/)
 - [Ruby 2.3 is officially outdated and unsupported!](https://www.ruby-lang.org/en/news/2019/03/31/support-of-ruby-2-3-has-ended/)
+- [Ruby 2.4 is officially outdated and unsupported!](https://www.ruby-lang.org/en/news/2020/04/05/support-of-ruby-2-4-has-ended/)
 
 :exclamation: Guard is currently accepting more maintainers. Please [read this](https://github.com/guard/guard/wiki/Maintainers) if you're interested in joining the team.
 
